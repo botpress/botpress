@@ -13,9 +13,10 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "dependencies": {
+  "dependencies": {},
+  "peerDependencies": {
     "@botpress/client": "0.41.0",
-    "@bpinternal/zui": "0.12.0"
+    "@bpinternal/zui": "0.13.4"
   },
   "devDependencies": {
     "esbuild": "^0.16.12",

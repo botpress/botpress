@@ -2053,8 +2053,8 @@ importers:
         specifier: 0.41.0
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.12.0
-        version: 0.12.0(react@18.3.1)
+        specifier: 0.13.4
+        version: 0.13.4(react@18.3.1)
     devDependencies:
       esbuild:
         specifier: ^0.16.12
@@ -3864,8 +3864,8 @@ packages:
       yargs: 17.7.2
       yn: 4.0.0
 
-  /@bpinternal/zui@0.12.0(react@18.3.1):
-    resolution: {integrity: sha512-ztSLi+XuFT9WSURqwA3aWvMw3OH28PQNBGCr7/+TGm8xEqov9paoQUQXqsavF/RwHZFT9IYkPkcSkZ3qc8deZg==}
+  /@bpinternal/zui@0.13.4(react@18.3.1):
+    resolution: {integrity: sha512-m/URunnJxDViDTyXcmeKHr5LQR500nH1X6Px7LuMgIx52+AHUxg/8jp+eBiez/OtIIGKIE6zo9yiUiWKBvFzEQ==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     peerDependencies:
       react: ^18.2.0
