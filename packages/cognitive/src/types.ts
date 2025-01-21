@@ -1,7 +1,7 @@
 import { type GenerateContentInput, type GenerateContentOutput } from './gen'
 import { ModelProvider, ModelRef } from './models'
 
-export interface BotpressClientLike {
+export type BotpressClientLike = {
   callAction(...params: any): Promise<any>
   config: any
   constructor: Function

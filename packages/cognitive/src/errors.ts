@@ -1,10 +1,10 @@
-// import { type ErrorType } from '@botpress/client'
+import { type ErrorType } from '@botpress/client'
 
-export interface BotpressError {
+export type BotpressError = {
   isApiError: boolean
   code: number
   description: string
-  type: string
+  type: ErrorType
   subtype?: string
   error?: unknown
   metadata?: unknown
