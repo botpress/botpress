@@ -7,7 +7,7 @@
   "types": "./dist/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "check:type": "tsc --noEmit",
+    "check:type": "pnpm generate-types && tsc --noEmit",
     "generate-types": "ts-node -T ./types.ts",
     "build:type": "tsup ./src/index.ts --dts-resolve --dts-only --clean",
     "build:neutral": "ts-node -T ./build.ts --neutral",
