@@ -1,5 +1,5 @@
 import { type Client } from '@botpress/client'
-import { AxiosInstance } from 'axios'
+import { type AxiosInstance } from 'axios'
 import { BotpressClientLike } from './types'
 
 /** @internal */
