@@ -1,4 +1,5 @@
 import esbuild from 'esbuild'
+import { devDependencies } from './package.json'
 
 const common: esbuild.BuildOptions = {
   bundle: true,
@@ -6,48 +7,39 @@ const common: esbuild.BuildOptions = {
   sourcemap: true,
 }
 
-const buildNode = () =>
+const external = Object.keys(devDependencies)
+
+const buildCjs = () =>
   esbuild.build({
     ...common,
     platform: 'node',
+    minify: false,
     format: 'cjs',
-    external: ['axios', 'browser-or-node'],
+    external,
     outfile: 'dist/index.cjs',
     entryPoints: ['src/index.ts'],
     allowOverwrite: true,
   })
 
-const buildBrowser = () =>
+const buildEsm = () =>
   esbuild.build({
     ...common,
     platform: 'browser',
     format: 'esm',
-    external: ['crypto', 'axios', 'browser-or-node'],
+    minify: false,
+    external,
     outfile: 'dist/index.mjs',
     entryPoints: ['src/index.ts'],
     allowOverwrite: true,
   })
 
-const buildBundle = () =>
-  esbuild.build({
-    ...common,
-    platform: 'node',
-    outfile: 'dist/bundle.cjs',
-    entryPoints: ['src/index.ts'],
-    allowOverwrite: true,
-  })
-
 const main = async (argv: string[]) => {
-  if (argv.includes('--node')) {
-    return buildNode()
+  if (argv.includes('--neutral')) {
+    await buildCjs()
+    await buildEsm()
+  } else {
+    throw new Error('you must specify a build target (--neutral)')
   }
-  if (argv.includes('--browser')) {
-    return buildBrowser()
-  }
-  if (argv.includes('--bundle')) {
-    return buildBundle()
-  }
-  throw new Error('Please specify --node, --browser, or --bundle')
 }
 
 void main(process.argv.slice(2))

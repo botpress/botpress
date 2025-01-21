@@ -1,5 +1,3 @@
-import 'isomorphic-fetch'
-
 import { ResourceNotFoundError } from '@botpress/client'
 import { ExtendedClient, getExtendedClient } from './bp-client'
 import { Model as RawModel } from './gen'
@@ -151,7 +149,17 @@ export class RemoteModelProvider extends ModelProvider {
   public async fetchModelPreferences(): Promise<ModelPreferences | null> {
     try {
       const { file } = await this._client.getFile({ id: PreferencesFile })
-      const data = await fetch(file.url).then((res) => res.json())
+      const { data } = await this._client.axios.get(file.url, {
+        // we piggy-back axios to avoid adding a new dependency
+        // unset all headers to avoid S3 pre-signed signature mismatch
+        headers: Object.keys(this._client.config.headers).reduce(
+          (acc, key) => {
+            acc[key] = undefined
+            return acc
+          },
+          {} as Record<string, undefined>
+        ),
+      })
       return data as ModelPreferences
     } catch (err) {
       if (err instanceof ResourceNotFoundError) {

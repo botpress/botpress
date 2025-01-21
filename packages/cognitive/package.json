@@ -10,16 +10,12 @@
     "check:type": "tsc --noEmit",
     "generate-types": "ts-node -T ./types.ts",
     "build:type": "tsup ./src/index.ts --dts-resolve --dts-only --clean",
-    "build:browser": "ts-node -T ./build.ts --browser",
-    "build:node": "ts-node -T ./build.ts --node",
-    "build:bundle": "ts-node -T ./build.ts --bundle",
-    "build": "pnpm generate-types && pnpm build:type && pnpm build:node && pnpm build:browser && pnpm build:bundle",
+    "build:neutral": "ts-node -T ./build.ts --neutral",
+    "build": "pnpm generate-types && pnpm build:type && pnpm build:neutral",
     "test": "vitest"
   },
   "dependencies": {
-    "debug": "^4.4.0",
     "exponential-backoff": "^3.1.1",
-    "isomorphic-fetch": "^3.0.0",
     "nanoevents": "^9.1.0"
   },
   "devDependencies": {
@@ -28,6 +24,7 @@
     "@bpinternal/zui": "0.12.0",
     "@types/axios": "^0.14.4",
     "@types/debug": "^4.1.12",
+    "axios": "^1.7.9",
     "dotenv": "^16.4.4",
     "esbuild": "^0.16.12",
     "tsup": "^8.0.2"

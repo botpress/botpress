@@ -100,7 +100,7 @@ describe('Models', () => {
   })
 })
 
-describe.skip('Remote Model Provider', () => {
+describe('Remote Model Provider', () => {
   beforeEach(async () => {
     const client = getTestClient()
     const provider = new RemoteModelProvider(client)
@@ -133,8 +133,7 @@ describe.skip('Remote Model Provider', () => {
         "best": [
           "openai:gpt-4o-2024-11-20",
         ],
-        "boosts": {},
-        "fallback": [],
+        "downtimes": [],
         "fast": [
           "openai:gpt-4o-mini-2024-07-18",
         ],

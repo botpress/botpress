@@ -15,7 +15,6 @@ import {
   RemoteModelProvider,
 } from './models'
 import { CognitiveProps, Events, InputProps, Request, Response } from './types'
-import { debug } from './util'
 
 export class Cognitive {
   public interceptors = {
@@ -33,7 +32,7 @@ export class Cognitive {
     this._client = getExtendedClient(props.client)
     this._provider = props.provider ?? new RemoteModelProvider(props.client)
 
-    debug('new cognitive client instance created')
+    // debug('new cognitive client instance created')
   }
 
   public on<K extends keyof Events>(this: this, event: K, cb: Events[K]): Unsubscribe {
