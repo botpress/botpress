@@ -1,8 +1,5 @@
 import axios, { AxiosError } from 'axios'
 import axiosRetry from 'axios-retry'
-import { isNode } from 'browser-or-node'
-import http from 'http'
-import https from 'https'
 import * as config from './config'
 import * as errors from './errors'
 import * as gen from './gen'
@@ -26,8 +23,9 @@ export class Client extends gen.Client implements types.IClient {
       timeout,
       maxBodyLength,
       maxContentLength,
-      httpAgent: isNode ? new http.Agent({ keepAlive: true }) : undefined,
-      httpsAgent: isNode ? new https.Agent({ keepAlive: true }) : undefined,
+      // TODO: uncomment this back
+      // httpAgent: isNode ? new http.Agent({ keepAlive: true }) : undefined,
+      // httpsAgent: isNode ? new https.Agent({ keepAlive: true }) : undefined,
     })
     super(axiosInstance)
 
