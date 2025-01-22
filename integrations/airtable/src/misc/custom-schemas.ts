@@ -11,6 +11,22 @@ export const getTableRecordsOutputSchema = z
   })
   .passthrough()
 
+export const listRecordsInputSchema = z.object({
+  tableIdOrName: z.string().describe('The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)'),
+  nextToken: z.string().optional().describe('The next page token (Optional)'),
+  filterByFormula: z
+    .string()
+    .optional()
+    .describe('filter to apply to the list records (See https://support.airtable.com/docs/formula-field-reference)'),
+})
+
+export const listRecordsOutputSchema = z
+  .object({
+    records: z.array(recordSchema),
+    nextToken: z.string().optional().describe('The next page token (Optional)'),
+  })
+  .passthrough()
+
 export const createTableInputSchema = z.object({
   name: z.string().describe('Name of the Table (e.g. MyTable)'),
   fields: z
