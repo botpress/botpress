@@ -3,11 +3,11 @@
   "tasks": {
     "generate": {
       "outputs": ["src/gen/**"],
-      "dependsOn": ["^generate"]
+      "dependsOn": ["^generate", "^build"]
     },
     "build": {
       "outputs": ["bp_modules/**", ".botpress/**"],
-      "dependsOn": ["generate", "^build"]
+      "dependsOn": ["^generate", "^build"]
     },
     "@botpress/client#build": {
       "outputs": ["dist/**"],
