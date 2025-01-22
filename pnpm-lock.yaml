@@ -21,8 +21,8 @@ importers:
         specifier: workspace:*
         version: link:packages/sdk
       '@bpinternal/depsynky':
-        specifier: /Users/francoislevasseur/Documents/code/packages/depsynky
-        version: link:../packages/depsynky
+        specifier: ^0.1.0
+        version: 0.1.0
       '@bpinternal/readiness':
         specifier: ^0.0.16
         version: 0.0.16
@@ -2080,11 +2080,11 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.40.0
-        version: 0.40.0
+        specifier: 0.41.0
+        version: link:../client
       '@bpinternal/zui':
-        specifier: 0.11.0
-        version: 0.11.0(react@18.3.1)
+        specifier: 0.12.0
+        version: 0.12.0(react@18.3.1)
     devDependencies:
       esbuild:
         specifier: ^0.16.12
@@ -3739,18 +3739,6 @@ packages:
       - debug
     dev: false
 
-  /@botpress/client@0.40.0:
-    resolution: {integrity: sha512-ed4XvbIkK0B/oL2uFRedb97qJwbC1rHKi3FWRt2aM9yDOxLY9e7nZbCnA42OZWu995/sOBSiJ78uuMCyaSmPkQ==}
-    dependencies:
-      axios: 1.7.9
-      axios-retry: 4.5.0(axios@1.7.9)
-      browser-or-node: 2.1.1
-      qs: 6.13.0
-      type-fest: 3.11.1
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
   /@botpress/sdk@0.8.2:
     resolution: {integrity: sha512-TiIrR69KYL38cHe0o2/VshW+gWEIY1w1unMAZTkxUfLeIzFkbNAQ0zNo+NFmUrurYf/XB6s48z1P0cEqAvBPbg==}
     dependencies:
@@ -3782,6 +3770,20 @@ packages:
       - terser
       - webdriverio
     dev: false
+
+  /@bpinternal/depsynky@0.1.0:
+    resolution: {integrity: sha512-NamRzF53WWICuxhwamQkw3esWjBPjEYlVqJES+4WdUlRjDqN5luOJsJ5KRvYsp3CWsBPvS6pbQz60qE/Z6kv7w==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+    hasBin: true
+    dependencies:
+      '@bpinternal/yargs-extra': 0.0.17
+      chalk: 4.1.2
+      glob: 9.3.5
+      prettier: 2.8.8
+      prompts: 2.4.2
+      semver: 7.6.3
+      yaml: 2.4.1
+    dev: true
 
   /@bpinternal/genenv@0.0.1:
     resolution: {integrity: sha512-vg1hE0bWVLKZKklXSqVxoRhMR2xVJ2VnL70tmvMvw24R5kL6DLAxyttHAdsZD9k7tLqx4Enbh14OUCyJYsHTYw==}
@@ -3883,6 +3885,18 @@ packages:
       yn: 4.0.0
     dev: true
 
+  /@bpinternal/yargs-extra@0.0.17:
+    resolution: {integrity: sha512-Q8RyT8zZ5NY6enmjFxuaOheujH12V7rWRtBxTBSuZs4EnuxEmDfv9VcdcnRQvk/HvRT/Ps9VshjNr0J8LBt/vw==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+    dependencies:
+      '@types/yargs': 17.0.33
+      decamelize: 5.0.1
+      json-schema: 0.4.0
+      lodash: 4.17.21
+      yargs: 17.7.2
+      yn: 4.0.0
+    dev: true
+
   /@bpinternal/yargs-extra@0.0.3:
     resolution: {integrity: sha512-e/unlq0LX4CJUv1jGOv1UgwB/h2M0NCXnwD4lEw496GpkQikO668RS+BBlRhkqdGfZmvKDkXZZ96xJCn+i6Ymg==}
     dependencies:
@@ -3894,15 +3908,6 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.11.0(react@18.3.1):
-    resolution: {integrity: sha512-S6M12i0FKwZHBAP/KnvMGvlw+gz6ms9cNbxj0FtkXXCzVFNTfHXrN7tfwD/2GZISs/AzLGllSrVigYgFxEYTyA==}
-    engines: {node: '>=16.0.0', pnpm: 8.6.2}
-    peerDependencies:
-      react: ^18.2.0
-    dependencies:
-      react: 18.3.1
-    dev: false
-
   /@bpinternal/zui@0.12.0(react@18.3.1):
     resolution: {integrity: sha512-ztSLi+XuFT9WSURqwA3aWvMw3OH28PQNBGCr7/+TGm8xEqov9paoQUQXqsavF/RwHZFT9IYkPkcSkZ3qc8deZg==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
@@ -3910,7 +3915,6 @@ packages:
       react: ^18.2.0
     dependencies:
       react: 18.3.1
-    dev: true
 
   /@bpinternal/zui@0.6.2:
     resolution: {integrity: sha512-fT7CCv9L02SCLvBegsjluRfgEaJ+oNJueLi6Sc6H5k8X9cfs85Nvum+9OaIcAMF85u4FI2BqY0kA+D8Pq/5YaA==}
@@ -8269,15 +8273,6 @@ packages:
       axios: 0.x || 1.x
     dependencies:
       axios: 1.6.1
-      is-retry-allowed: 2.2.0
-    dev: false
-
-  /axios-retry@4.5.0(axios@1.7.9):
-    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
-    peerDependencies:
-      axios: 0.x || 1.x
-    dependencies:
-      axios: 1.7.9
       is-retry-allowed: 2.2.0
     dev: false
 
