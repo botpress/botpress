@@ -5,6 +5,8 @@ export type SafeCast<T, U> = [T] extends [never] ? U : Cast<T, U>
 export type Writable<T> = { -readonly [K in keyof T]: T[K] }
 export type Default<T, U> = undefined extends T ? U : T
 
+export type AtLeastOne<T> = [T, ...T[]]
+
 export type IsExtend<X, Y> = X extends Y ? true : false
 export type IsEquivalent<X, Y> = IsExtend<X, Y> extends true ? IsExtend<Y, X> : false
 export type IsIdentical<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? true : false

@@ -1,3 +1,4 @@
+import { Table } from '@botpress/client'
 import { BaseIntegration, DefaultIntegration, InputBaseIntegration } from '../../integration/types/generic'
 import { BaseInterface, InputBaseInterface, DefaultInterface } from '../../interface/types/generic'
 import * as utils from '../../utils/type-utils'
@@ -7,6 +8,8 @@ export type BaseAction = {
   output: any
 }
 
+export type BaseTable = Exclude<Table, 'id' | 'createdAt' | 'updatedAt'>
+
 export type BasePlugin = {
   configuration: any
   integrations: Record<string, BaseIntegration>
@@ -14,6 +17,7 @@ export type BasePlugin = {
   events: Record<string, any>
   states: Record<string, any>
   actions: Record<string, BaseAction>
+  tables: Record<string, BaseTable>
 }
 
 export type InputBasePlugin = utils.DeepPartial<BasePlugin>
@@ -22,6 +26,7 @@ export type DefaultPlugin<B extends utils.DeepPartial<BasePlugin>> = {
   events: utils.Default<B['events'], BasePlugin['events']>
   states: utils.Default<B['states'], BasePlugin['states']>
   actions: utils.Default<B['actions'], BasePlugin['actions']>
+  tables: utils.Default<B['tables'], BasePlugin['tables']>
   integrations: undefined extends B['integrations']
     ? BasePlugin['integrations']
     : {
