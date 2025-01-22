@@ -26,3 +26,6 @@ bp_modules
 .genenv/
 .genenv.*
 .turbo
+
+packages/cognitive/src/gen.ts
+packages/cognitive/src/__tests__/

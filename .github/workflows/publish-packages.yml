@@ -45,3 +45,8 @@ jobs:
         with:
           path: './packages/chat-client'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'
+      - name: Publish Cognitive Client
+        uses: botpress/gh-actions/publish-if-not-exists@master
+        with:
+          path: './packages/cognitive'
+          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
