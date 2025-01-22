@@ -21,8 +21,8 @@ importers:
         specifier: workspace:*
         version: link:packages/sdk
       '@bpinternal/depsynky':
-        specifier: ^0.0.2
-        version: 0.0.2
+        specifier: ^0.1.0
+        version: 0.1.0
       '@bpinternal/readiness':
         specifier: ^0.0.16
         version: 0.0.16
@@ -3771,16 +3771,17 @@ packages:
       - webdriverio
     dev: false
 
-  /@bpinternal/depsynky@0.0.2:
-    resolution: {integrity: sha512-J7dCuj/yvMhZX8H3NV3gs91qO2fjggWPhibvjfc2EcpJkt/31Xt63CsjeJkMpzu5zJ2at6WywQo5GJgBTFFZ3A==}
+  /@bpinternal/depsynky@0.1.0:
+    resolution: {integrity: sha512-NamRzF53WWICuxhwamQkw3esWjBPjEYlVqJES+4WdUlRjDqN5luOJsJ5KRvYsp3CWsBPvS6pbQz60qE/Z6kv7w==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
     hasBin: true
     dependencies:
-      '@bpinternal/yargs-extra': 0.0.3
+      '@bpinternal/yargs-extra': 0.0.17
       chalk: 4.1.2
       glob: 9.3.5
       prettier: 2.8.8
       prompts: 2.4.2
-      semver: 7.5.4
+      semver: 7.6.3
       yaml: 2.4.1
     dev: true
 
@@ -3884,6 +3885,18 @@ packages:
       yn: 4.0.0
     dev: true
 
+  /@bpinternal/yargs-extra@0.0.17:
+    resolution: {integrity: sha512-Q8RyT8zZ5NY6enmjFxuaOheujH12V7rWRtBxTBSuZs4EnuxEmDfv9VcdcnRQvk/HvRT/Ps9VshjNr0J8LBt/vw==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+    dependencies:
+      '@types/yargs': 17.0.33
+      decamelize: 5.0.1
+      json-schema: 0.4.0
+      lodash: 4.17.21
+      yargs: 17.7.2
+      yn: 4.0.0
+    dev: true
+
   /@bpinternal/yargs-extra@0.0.3:
     resolution: {integrity: sha512-e/unlq0LX4CJUv1jGOv1UgwB/h2M0NCXnwD4lEw496GpkQikO668RS+BBlRhkqdGfZmvKDkXZZ96xJCn+i6Ymg==}
     dependencies:
@@ -3893,6 +3906,7 @@ packages:
       lodash: 4.17.21
       yargs: 17.7.2
       yn: 4.0.0
+    dev: false
 
   /@bpinternal/zui@0.13.4(react@18.3.1):
     resolution: {integrity: sha512-m/URunnJxDViDTyXcmeKHr5LQR500nH1X6Px7LuMgIx52+AHUxg/8jp+eBiez/OtIIGKIE6zo9yiUiWKBvFzEQ==}
@@ -7594,6 +7608,7 @@ packages:
     resolution: {integrity: sha512-6i0aC7jV6QzQB8ne1joVZ0eSFIstHsCrobmOtghM11yGlH0j43FKL2UhWdELkyps0zuf7qVTUVCCR+tgSlyLLw==}
     dependencies:
       '@types/yargs-parser': 21.0.0
+    dev: false
 
   /@types/yargs@17.0.33:
     resolution: {integrity: sha512-WpxBCKWPLr4xSsHgz511rFJAM+wS28w2zEO1QDNY5zM/S8ok70NNfztH0xwhqKyaK0OHCbN98LDAZuy1ctxDkA==}
@@ -11115,7 +11130,7 @@ packages:
       extend: 3.0.2
       gaxios: 5.1.0
       google-auth-library: 8.8.0
-      qs: 6.11.2
+      qs: 6.13.0
       url-template: 2.0.8
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -11130,7 +11145,7 @@ packages:
       extend: 3.0.2
       gaxios: 6.1.1
       google-auth-library: 9.0.0
-      qs: 6.11.2
+      qs: 6.13.0
       url-template: 2.0.8
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -13305,11 +13320,6 @@ packages:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
     engines: {node: '>=0.10.0'}
 
-  /object-inspect@1.13.2:
-    resolution: {integrity: sha512-IRZSRuzJiynemAXPYtPe5BoI/RESNYR7TYm50MC5Mqbd3Jmw5y790sErYw3V6SryFJD64b74qQQs9wn5Bg/k3g==}
-    engines: {node: '>= 0.4'}
-    dev: false
-
   /object-inspect@1.13.3:
     resolution: {integrity: sha512-kDCGIbxkDSXE3euJZZXzc6to7fCrKHNI/hSRQnRuQ+BWjFNzZwiFF8fj/6o2t2G9/jTj8PSIYTfCLelLZEeRpA==}
     engines: {node: '>= 0.4'}
@@ -14009,7 +14019,7 @@ packages:
     resolution: {integrity: sha512-tDNIz22aBzCDxLtVH++VnTfzxlfeK5CbqohpSqpJgj1Wg/cQbStNAz3NuqCs5vV+pjBsK4x4pN9HlVh7rcYRiA==}
     engines: {node: '>=0.6'}
     dependencies:
-      side-channel: 1.0.4
+      side-channel: 1.1.0
     dev: false
 
   /qs@6.13.0:
@@ -14488,6 +14498,7 @@ packages:
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
+    dev: false
 
   /semver@7.6.3:
     resolution: {integrity: sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==}
@@ -14660,7 +14671,7 @@ packages:
     dependencies:
       call-bind: 1.0.7
       get-intrinsic: 1.2.4
-      object-inspect: 1.13.2
+      object-inspect: 1.13.3
     dev: false
 
   /side-channel@1.1.0:
@@ -15027,7 +15038,7 @@ packages:
       formidable: 1.2.6
       methods: 1.1.2
       mime: 1.6.0
-      qs: 6.11.2
+      qs: 6.13.0
       readable-stream: 2.3.8
     transitivePeerDependencies:
       - supports-color
