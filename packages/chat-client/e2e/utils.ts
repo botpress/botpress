@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken'
 import * as uuid from 'uuid'
-import * as chat from '../../src'
+import * as chat from '../src'
 import * as config from './config'
 
 const encryptionKey = config.get('ENCRYPTION_KEY')

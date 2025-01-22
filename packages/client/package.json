@@ -19,7 +19,7 @@
     "build:bundle": "ts-node -T ./build.ts --bundle",
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser && pnpm build:bundle",
     "generate": "ts-node ./openapi.ts",
-    "test:e2e": "ts-node -T ./__tests__/e2e/node.ts"
+    "test:e2e": "ts-node -T ./e2e/node.ts"
   },
   "dependencies": {
     "axios": "^1.6.1",

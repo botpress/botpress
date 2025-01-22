@@ -12,7 +12,7 @@
     "build:type": "tsup --tsconfig tsconfig.build.json ./src/index.ts --dts-resolve --dts-only --clean",
     "build:neutral": "ts-node -T ./build.ts --neutral",
     "build": "pnpm build:type && pnpm build:neutral && size-limit",
-    "test:e2e": "vitest run --dir ./__tests__/e2e"
+    "test:e2e": "vitest run --dir ./e2e"
   },
   "size-limit": [
     {

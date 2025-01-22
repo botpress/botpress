@@ -1,7 +1,7 @@
 import findProcess from 'find-process'
 import pathlib from 'path'
 import * as uuid from 'uuid'
-import impl from '../../../src/command-implementations'
+import impl from '../../src/command-implementations'
 import defaults from '../defaults'
 import { Test } from '../typings'
 import * as utils from '../utils'

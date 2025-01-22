@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from 'vitest'
-import { getBestModels, getFastModels, Model, ModelPreferences, pickModel, RemoteModelProvider } from '../../src/models'
+import { getBestModels, getFastModels, Model, ModelPreferences, pickModel, RemoteModelProvider } from '../src/models'
 
 import MODELS from './models.json'
 import { writeFileSync } from 'node:fs'
@@ -11,7 +11,7 @@ describe('Models', () => {
     // Make sure to setup the environment variables
     const provider = new RemoteModelProvider(getTestClient())
     const models = await provider.fetchInstalledModels()
-    writeFileSync('./__tests__/models.json', JSON.stringify(models, null, 2))
+    writeFileSync('./models.json', JSON.stringify(models, null, 2))
   })
 
   test('Models ranking (best)', () => {

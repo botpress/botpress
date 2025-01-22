@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import _ from 'lodash'
 import * as config from './config'
-import * as chat from '../../src'
+import * as chat from '../src'
 
 const apiUrl = config.get('API_URL')
 
