@@ -108,8 +108,7 @@ describe('Remote Model Provider', () => {
     expect(preferences).toEqual(null)
   })
 
-  // TODO: fix this test
-  test.skip('save file preferences', async () => {
+  test('save file preferences', async () => {
     const client = getTestClient()
     const provider = new RemoteModelProvider(client)
 
