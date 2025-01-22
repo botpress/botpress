@@ -1,4 +1,4 @@
-import sdk from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 
 export namespace IsoToRFC3339 {
   export const convertDate = (input: string | Date): string => {

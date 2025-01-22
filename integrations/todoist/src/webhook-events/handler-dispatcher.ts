@@ -1,4 +1,4 @@
-import sdk from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { TodoistClient } from '../todoist-api'
 import { handleCommentAddedEvent, isCommentAddedEvent } from './handlers/comment-added'

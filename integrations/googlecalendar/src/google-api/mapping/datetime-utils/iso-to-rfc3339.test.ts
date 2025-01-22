@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { IsoToRFC3339 } from './iso-to-rfc3339'
-import sdk from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 
 describe('IsoToRFC3339.convertDate', () => {
   it.each([

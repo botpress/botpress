@@ -1,10 +1,10 @@
-import sdk, { z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 
 export const states = {
   oAuthConfig: {
     type: 'integration',
-    schema: z.object({
-      refreshToken: z
+    schema: sdk.z.object({
+      refreshToken: sdk.z
         .string()
         .title('Refresh token')
         .describe('The refresh token to use to authenticate with Google APIs. It gets exchanged for a bearer token'),

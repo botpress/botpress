@@ -1,4 +1,4 @@
-import { default as sdk, z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { events } from 'definitions/events'
 import {
   type allSupportedEvents,
@@ -85,9 +85,9 @@ const _publishEventToBotpress = async ({
   }
 
   const eventSchema = genericWebhookEventSchema.merge(
-    z.object({
+    sdk.z.object({
       action: genericWebhookEventSchema.shape.action.merge(
-        z.object({
+        sdk.z.object({
           data: events[parsedWebhookEvent.action.type].schema,
         })
       ),

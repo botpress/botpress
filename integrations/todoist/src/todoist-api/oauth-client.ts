@@ -1,4 +1,4 @@
-import sdk, { z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 
 export const exchangeAuthCodeAndSaveRefreshToken = async ({
@@ -48,7 +48,7 @@ const _exchangeAuthCode = async ({ authorizationCode }: { authorizationCode: str
     headers: { 'Content-Type': 'application/json' },
   })
 
-  const { access_token } = z.object({ access_token: z.string() }).parse(await response.json())
+  const { access_token } = sdk.z.object({ access_token: sdk.z.string() }).parse(await response.json())
 
   return access_token
 }

@@ -1,4 +1,4 @@
-import sdk, { z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { Task, Project, Section, SharedLabel } from './entities'
 
 export const actions = {
@@ -6,27 +6,27 @@ export const actions = {
     title: 'Change Task Priority',
     description: 'Change the priority of a task',
     input: {
-      schema: z.object({
+      schema: sdk.z.object({
         taskId: Task.schema.shape.id,
         priority: Task.schema.shape.priority,
       }),
     },
     output: {
-      schema: z.object({}),
+      schema: sdk.z.object({}),
     },
   },
   getTaskId: {
     title: 'Get Task ID',
     description: 'Get the ID of the first task matching the given name',
     input: {
-      schema: z.object({
-        name: z.string().title('Name').describe('The name of the task to search for'),
+      schema: sdk.z.object({
+        name: sdk.z.string().title('Name').describe('The name of the task to search for'),
         // NOTE: this actually refers to the `content` property of the Task
         //       entity: the `name` property does not exist
       }),
     },
     output: {
-      schema: z.object({
+      schema: sdk.z.object({
         taskId: Task.schema.shape.id.nullable(),
       }),
     },
@@ -35,12 +35,12 @@ export const actions = {
     title: 'Get Project ID',
     description: 'Get the ID of the project',
     input: {
-      schema: z.object({
+      schema: sdk.z.object({
         name: Project.schema.shape.name,
       }),
     },
     output: {
-      schema: z.object({
+      schema: sdk.z.object({
         projectId: Project.schema.shape.id.nullable(),
       }),
     },
@@ -49,11 +49,11 @@ export const actions = {
     title: 'Get All Projects',
     description: 'Get all projects',
     input: {
-      schema: z.object({}),
+      schema: sdk.z.object({}),
     },
     output: {
-      schema: z.object({
-        projects: z.array(Project.schema).title('Projects').describe('All projects that are available to the user'),
+      schema: sdk.z.object({
+        projects: sdk.z.array(Project.schema).title('Projects').describe('All projects that are available to the user'),
       }),
     },
   },
@@ -61,7 +61,7 @@ export const actions = {
     title: 'Get All Sections',
     description: 'Get all sections in a project',
     input: {
-      schema: z.object({
+      schema: sdk.z.object({
         projectId: Project.schema.shape.id
           .optional()
           .title('Project ID (optional)')
@@ -69,8 +69,8 @@ export const actions = {
       }),
     },
     output: {
-      schema: z.object({
-        sections: z
+      schema: sdk.z.object({
+        sections: sdk.z
           .array(Section.schema)
           .title('Sections')
           .describe('All sections in the project, or all sections in all projects if projectId is omitted'),
@@ -81,7 +81,7 @@ export const actions = {
     title: 'Get All Tasks',
     description: 'Find tasks using optional filters',
     input: {
-      schema: z.object({
+      schema: sdk.z.object({
         projectId: Project.schema.shape.id
           .optional()
           .title('Filter by Project ID (optional)')
@@ -97,8 +97,8 @@ export const actions = {
       }),
     },
     output: {
-      schema: z.object({
-        tasks: z.array(Task.schema).title('Tasks').describe('All matching tasks'),
+      schema: sdk.z.object({
+        tasks: sdk.z.array(Task.schema).title('Tasks').describe('All matching tasks'),
       }),
     },
   },
@@ -106,7 +106,7 @@ export const actions = {
     title: 'Create New Task',
     description: 'Create a new task',
     input: {
-      schema: z.object({
+      schema: sdk.z.object({
         content: Task.schema.shape.content,
         description: Task.schema.shape.description.optional(),
         projectId: Project.schema.shape.id
@@ -117,7 +117,7 @@ export const actions = {
           .optional()
           .title('Section ID (optional)')
           .describe('The ID of section to put task into.'),
-        labelNames: z
+        labelNames: sdk.z
           .array(SharedLabel.schema.shape.name)
           .optional()
           .title('Label Names (optional)')
@@ -139,7 +139,7 @@ export const actions = {
       }),
     },
     output: {
-      schema: z.object({
+      schema: sdk.z.object({
         taskId: Task.schema.shape.id,
       }),
     },

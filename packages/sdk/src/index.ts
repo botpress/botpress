@@ -1,8 +1,9 @@
 export * as messages from './message'
 export * from './const'
 export * from './serve'
-// See https://github.com/evanw/esbuild/issues/1737 to understand why we need to import this
-export { z, mergeObjectSchemas, GenericZuiSchema, ZuiObjectSchema, type infer } from './zui'
+
+export * from './zui'
+export * from '@bpinternal/zui'
 
 export {
   //

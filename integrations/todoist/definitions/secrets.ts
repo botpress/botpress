@@ -1,4 +1,4 @@
-import sdk from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export const secrets = {
