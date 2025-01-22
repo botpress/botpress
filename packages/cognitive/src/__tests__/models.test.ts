@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, test } from 'vitest'
-import { getBestModels, getFastModels, Model, ModelPreferences, pickModel, RemoteModelProvider } from './models'
+import { getBestModels, getFastModels, Model, ModelPreferences, pickModel, RemoteModelProvider } from '../models'
 
-import MODELS from './__tests__/models.json'
+import MODELS from './models.json'
 import { writeFileSync } from 'node:fs'
-import { getTestClient } from './__tests__/client'
+import { getTestClient } from './client'
 
 describe('Models', () => {
   test.skip('should fetch models', async () => {
