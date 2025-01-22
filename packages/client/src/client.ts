@@ -74,7 +74,7 @@ export class Client extends gen.Client implements types.IClient {
       throw new errors.UploadFileError('No content was provided for the file')
     }
 
-    let buffer: ArrayBuffer | Buffer | Blob
+    let buffer: ArrayBuffer | Buffer | Blob | Uint8Array
     let size: number
 
     if (typeof content === 'string') {
