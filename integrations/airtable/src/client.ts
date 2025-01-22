@@ -12,9 +12,10 @@ export class AirtableApi {
     this._baseId = baseId
     this._base = new Airtable({ apiKey, endpointUrl }).base(baseId)
     this._axiosClient = axios.create({
-      baseURL: 'https://api.airtable.com/v0/',
+      baseURL: endpointUrl || 'https://api.airtable.com/v0/',
       headers: {
         Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
       },
     })
   }
