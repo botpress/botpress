@@ -2045,10 +2045,10 @@ importers:
         version: 9.1.0
     devDependencies:
       '@botpress/client':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../client
       '@botpress/common':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../common
       '@bpinternal/zui':
         specifier: 0.12.0

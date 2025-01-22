@@ -1,9 +1,9 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest'
-import { Cognitive } from './client'
-import { getTestClient } from './__tests__/client'
-import MODELS from './__tests__/models.json'
-import { RemoteModelProvider } from './models'
-import { GenerateContentOutput } from './gen'
+import { Cognitive } from '../client'
+import { getTestClient } from './client'
+import MODELS from './models.json'
+import { RemoteModelProvider } from '../models'
+import { GenerateContentOutput } from '../gen'
 
 const RandomResponse = {
   output: {

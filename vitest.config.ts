@@ -7,6 +7,7 @@ export default defineConfig({
       '**/*.utils.test.ts',
       'packages/client/tests/manual/**',
       'packages/chat-e2e/**',
+      'packages/cognitive/src/__tests__/**',
     ],
   },
 })
