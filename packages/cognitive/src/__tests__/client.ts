@@ -1,7 +1,7 @@
 import 'dotenv/config'
 
 import { Client } from '@botpress/client'
-import { getExtendedClient } from 'src/bp-client'
+import { getExtendedClient } from '../bp-client'
 
 export const getTestClient = () =>
   getExtendedClient(
