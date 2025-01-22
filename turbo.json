@@ -3,7 +3,7 @@
   "tasks": {
     "generate": {
       "outputs": ["src/gen/**"],
-      "dependsOn": ["^generate"]
+      "dependsOn": ["^generate", "^build"]
     },
     "build": {
       "outputs": ["bp_modules/**", ".botpress/**"],
