@@ -3,5 +3,5 @@
   "compilerOptions": {
     "baseUrl": "."
   },
-  "include": ["src/**/*", "e2e/**/*", "openapi.ts", "build.ts", "package.json"]
+  "include": ["src/**/*", "__tests__/**/*", "openapi.ts", "build.ts", "package.json"]
 }

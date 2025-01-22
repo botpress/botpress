@@ -1,7 +1,7 @@
 import { Client } from '@botpress/client'
 import pathlib from 'path'
 import * as uuid from 'uuid'
-import impl from '../../src/command-implementations'
+import impl from '../../../src/command-implementations'
 import { ApiBot, fetchAllBots } from '../api'
 import defaults from '../defaults'
 import { Test } from '../typings'

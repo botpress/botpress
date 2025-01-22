@@ -1,6 +1,6 @@
-import * as chat from '@botpress/chat/src'
 import * as jwt from 'jsonwebtoken'
 import * as uuid from 'uuid'
+import * as chat from '../../src'
 import * as config from './config'
 
 const encryptionKey = config.get('ENCRYPTION_KEY')

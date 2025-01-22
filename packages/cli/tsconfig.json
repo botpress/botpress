@@ -6,6 +6,6 @@
     "esModuleInterop": true,
     "sourceMap": true
   },
-  "include": ["./src/**/*", "./e2e/**/*"],
+  "include": ["./src/**/*", "./__tests__/**/*"],
   "exclude": ["./templates/**"]
 }

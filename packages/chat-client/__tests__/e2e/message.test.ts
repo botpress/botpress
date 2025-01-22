@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import _ from 'lodash'
 import * as utils from './utils'
 import * as config from './config'
-import * as chat from '@botpress/chat/src'
+import * as chat from '../../src'
 
 const apiUrl = config.get('API_URL')
 const encryptionKey = config.get('ENCRYPTION_KEY')

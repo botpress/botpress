@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from 'vitest'
-import { getBestModels, getFastModels, Model, ModelPreferences, pickModel, RemoteModelProvider } from '../models'
+import { getBestModels, getFastModels, Model, ModelPreferences, pickModel, RemoteModelProvider } from '../../src/models'
 
 import MODELS from './models.json'
 import { writeFileSync } from 'node:fs'

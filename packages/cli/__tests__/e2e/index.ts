@@ -1,6 +1,6 @@
 import { Logger } from '@bpinternal/log4bot'
 import yargs, { YargsConfig, YargsSchema } from '@bpinternal/yargs-extra'
-import * as consts from '../src/consts'
+import * as consts from '../../src/consts'
 import { createDeployBot } from './tests/create-deploy-bot'
 import { createDeployIntegration } from './tests/create-deploy-integration'
 import { devBot } from './tests/dev-bot'
