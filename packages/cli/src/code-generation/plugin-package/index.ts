@@ -46,8 +46,8 @@ class LocalPluginModule extends mod.Module {
     const id = undefined
     const uri = utils.path.win32.escapeBackslashes(this._pkg.path)
 
-    const definitionImport = utils.path.rmExtension(
-      utils.path.join(this._pkg.path, consts.fromWorkDir.pluginDefinition)
+    const definitionImport = utils.path.win32.escapeBackslashes(
+      utils.path.rmExtension(utils.path.join(this._pkg.path, consts.fromWorkDir.pluginDefinition))
     )
 
     const tsId = gen.primitiveToTypescriptValue(id)
