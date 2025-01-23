@@ -1,16 +1,18 @@
 import * as esb from 'esbuild'
 
+export * from 'esbuild'
+
 type BaseProps<W extends boolean> = esb.BuildOptions & {
   absWorkingDir: string
   outfile: string
   write: W
 }
 
-export type BuildCodeProps<W extends boolean = true> = BaseProps<W> & {
+export type BuildCodeProps<W extends boolean> = BaseProps<W> & {
   code: string
 }
 
-export type BuildEntrypointProps<W extends boolean = true> = BaseProps<W> & {
+export type BuildEntrypointProps<W extends boolean> = BaseProps<W> & {
   entrypoint: string
 }
 
@@ -29,25 +31,27 @@ const DEFAULT_OPTIONS: esb.BuildOptions = {
 export function buildCode(p: BuildCodeProps<true>): Promise<esb.BuildResult>
 export function buildCode(p: BuildCodeProps<false>): Promise<esb.BuildResult & { outputFiles: esb.OutputFile[] }>
 export function buildCode<W extends boolean>(p: BuildCodeProps<W>) {
-  const { code, absWorkingDir } = p
+  const { code, ...props } = p
   return esb.build({
     ...DEFAULT_OPTIONS,
-    ...p,
+    ...props,
     stdin: {
       contents: code,
-      resolveDir: absWorkingDir,
+      resolveDir: props.absWorkingDir,
       loader: 'ts',
     },
   })
 }
 
 export function buildEntrypoint(p: BuildEntrypointProps<true>): Promise<esb.BuildResult>
-export function buildEntrypoint(p: BuildEntrypointProps<false>): Promise<esb.BuildResult & { outputFiles: esb.OutputFile[] }>
+export function buildEntrypoint(
+  p: BuildEntrypointProps<false>
+): Promise<esb.BuildResult & { outputFiles: esb.OutputFile[] }>
 export function buildEntrypoint<W extends boolean>(p: BuildEntrypointProps<W>) {
-  const { entrypoint } = p
+  const { entrypoint, ...props } = p
   return esb.build({
     ...DEFAULT_OPTIONS,
-    ...p,
+    ...props,
     entryPoints: [entrypoint],
   })
 }

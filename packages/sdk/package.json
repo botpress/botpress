@@ -20,5 +20,13 @@
   "devDependencies": {
     "esbuild": "^0.16.12",
     "tsup": "^8.0.2"
+  },
+  "peerDependencies": {
+    "esbuild": "^0.16.12"
+  },
+  "peerDependenciesMeta": {
+    "esbuild": {
+      "optional": true
+    }
   }
 }

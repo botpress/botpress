@@ -18,9 +18,9 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
     const line = this.logger.line()
 
     if (projectDef.type === 'integration') {
-      const { name } = projectDef.definition
+      const { name, __advanced } = projectDef.definition
       line.started(`Bundling integration ${chalk.bold(name)}...`)
-      return await this._bundle(line)
+      return await this._bundle(line, __advanced?.esbuild ?? {})
     }
 
     if (projectDef.type === 'bot') {
@@ -36,7 +36,7 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
     throw new errors.UnsupportedProjectType()
   }
 
-  private async _bundle(line: SingleLineLogger, props: Partial<utils.esbuild.BuildCodeProps> = {}) {
+  private async _bundle(line: SingleLineLogger, props: Partial<utils.esbuild.BuildOptions> = {}) {
     const logLevel = this.argv.verbose ? 'info' : 'silent'
     const abs = this.projectPaths.abs
     const rel = this.projectPaths.rel('workDir')
@@ -49,6 +49,7 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
     line.debug(`Writing bundle to ${outfile}`)
 
     await utils.esbuild.buildCode({
+      ...props,
       code,
       absWorkingDir: abs.workDir,
       outfile,
@@ -56,7 +57,6 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
       write: true,
       sourcemap: this.argv.sourceMap,
       minify: this.argv.minify,
-      ...props,
     })
 
     line.success(`Bundle available at ${chalk.grey(rel.outDir)}`)
