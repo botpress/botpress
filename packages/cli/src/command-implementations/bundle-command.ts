@@ -50,7 +50,7 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
 
     await utils.esbuild.buildCode({
       code,
-      cwd: abs.workDir,
+      absWorkingDir: abs.workDir,
       outfile,
       logLevel,
       write: true,

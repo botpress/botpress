@@ -1,14 +1,9 @@
-import { build as esbuild, LogLevel, Platform, BuildResult, OutputFile } from 'esbuild'
+import * as esb from 'esbuild'
 
-type BaseProps<W extends boolean = true> = {
-  cwd: string
+type BaseProps<W extends boolean> = esb.BuildOptions & {
+  absWorkingDir: string
   outfile: string
-  minify?: boolean
-  sourcemap?: boolean
-  bundle?: boolean
-  logLevel?: LogLevel
   write: W
-  platform?: Platform
 }
 
 export type BuildCodeProps<W extends boolean = true> = BaseProps<W> & {
@@ -19,70 +14,40 @@ export type BuildEntrypointProps<W extends boolean = true> = BaseProps<W> & {
   entrypoint: string
 }
 
-const keepNames = true // important : https://github.com/node-fetch/node-fetch/issues/784#issuecomment-1014768204
+const DEFAULT_OPTIONS: esb.BuildOptions = {
+  minify: true,
+  bundle: true,
+  sourcemap: false,
+  logLevel: 'silent',
+  platform: 'node',
+  target: 'es2020',
+  legalComments: 'none',
+  logOverride: { 'equals-negative-zero': 'silent' },
+  keepNames: true, // important : https://github.com/node-fetch/node-fetch/issues/784#issuecomment-1014768204
+}
 
-export function buildCode(p: BuildCodeProps<true>): Promise<BuildResult>
-export function buildCode(p: BuildCodeProps<false>): Promise<BuildResult & { outputFiles: OutputFile[] }>
-export function buildCode<W extends boolean>({
-  cwd,
-  minify = true,
-  bundle = true,
-  sourcemap = false,
-  logLevel = 'silent',
-  outfile,
-  code,
-  write,
-  platform = 'node',
-}: BuildCodeProps<W>) {
-  return esbuild({
+export function buildCode(p: BuildCodeProps<true>): Promise<esb.BuildResult>
+export function buildCode(p: BuildCodeProps<false>): Promise<esb.BuildResult & { outputFiles: esb.OutputFile[] }>
+export function buildCode<W extends boolean>(p: BuildCodeProps<W>) {
+  const { code, absWorkingDir } = p
+  return esb.build({
+    ...DEFAULT_OPTIONS,
+    ...p,
     stdin: {
       contents: code,
-      resolveDir: cwd,
+      resolveDir: absWorkingDir,
       loader: 'ts',
     },
-    logOverride: {
-      'equals-negative-zero': 'silent',
-    },
-    platform,
-    target: 'es2020',
-    sourcemap,
-    minify,
-    bundle,
-    outfile,
-    absWorkingDir: cwd,
-    logLevel,
-    keepNames,
-    write,
-    legalComments: 'none',
   })
 }
 
-export function buildEntrypoint(p: BuildEntrypointProps<true>): Promise<BuildResult>
-export function buildEntrypoint(p: BuildEntrypointProps<false>): Promise<BuildResult & { outputFiles: OutputFile[] }>
-export function buildEntrypoint<W extends boolean>({
-  cwd,
-  minify = true,
-  bundle = true,
-  sourcemap = false,
-  logLevel = 'silent',
-  outfile,
-  entrypoint,
-  write,
-}: BuildEntrypointProps<W>) {
-  return esbuild({
+export function buildEntrypoint(p: BuildEntrypointProps<true>): Promise<esb.BuildResult>
+export function buildEntrypoint(p: BuildEntrypointProps<false>): Promise<esb.BuildResult & { outputFiles: esb.OutputFile[] }>
+export function buildEntrypoint<W extends boolean>(p: BuildEntrypointProps<W>) {
+  const { entrypoint } = p
+  return esb.build({
+    ...DEFAULT_OPTIONS,
+    ...p,
     entryPoints: [entrypoint],
-    logOverride: {
-      'equals-negative-zero': 'silent',
-    },
-    platform: 'node',
-    target: 'es2020',
-    sourcemap,
-    minify,
-    bundle,
-    outfile,
-    absWorkingDir: cwd,
-    logLevel,
-    keepNames,
-    write,
   })
 }
