@@ -19,7 +19,8 @@ export namespace win32 {
 
 export type AbsolutePath = posix.AbsolutePath | win32.AbsolutePath
 export const isPath = (path: string) => win32.isPath(path) || posix.isPath(path)
-export const isPlatformSpecificPath = (path: string) => (oslib.platform() === 'win32' ? win32.isPath(path) : posix.isPath(path))
+export const isPlatformSpecificPath = (path: string) =>
+  oslib.platform() === 'win32' ? win32.isPath(path) : posix.isPath(path)
 export const isPlatformSpecificAbsolutePath = (path: string): path is AbsolutePath =>
   oslib.platform() === 'win32' ? win32.isAbsolutePath(path) : posix.isAbsolutePath(path)
 
