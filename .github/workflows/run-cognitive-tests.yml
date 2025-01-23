@@ -12,9 +12,6 @@ jobs:
     timeout-minutes: 15
     env:
       NODE_OPTIONS: '--max_old_space_size=8192'
-      CLOUD_API_ENDPOINT: 'https://api.botpress.dev'
-      CLOUD_BOT_ID: a30e30d5-0c00-4831-86ae-4c39155c5b8a # cognitive-tests
-      CLOUD_PAT: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT}}
     steps:
       - uses: actions/checkout@v2
       - name: Setup
@@ -23,5 +20,18 @@ jobs:
           turbo_team: ${{ secrets.TURBO_TEAM }}
           turbo_token: ${{ secrets.TURBO_TOKEN }}
           extra_filters: '-F @botpress/cognitive'
-      - run: |
+      - name: Login
+        env:
+          BP_API_URL: 'https://api.botpress.dev'
+          BP_WORKSPACE_ID: ${{ secrets.STAGING_E2E_TESTS_WORKSPACE_ID }}
+          BP_TOKEN: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
+        run: |
+          pnpm bp login
+      - name: Run Cognitive Tests
+        run: |
+          bot_id=$(pnpm bp bots new --name "cognitive-tests" --if-not-exists --json | jq ".id")
+
+          export CLOUD_API_ENDPOINT='https://api.botpress.dev'
+          export CLOUD_BOT_ID=$bot_id
+          export CLOUD_PAT=${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           pnpm -F cognitive run test:e2e
