@@ -14,11 +14,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.41.0",
-    "@bpinternal/zui": "0.13.4"
+    "@botpress/client": "0.41.0"
   },
   "devDependencies": {
     "esbuild": "^0.16.12",
     "tsup": "^8.0.2"
+  },
+  "peerDependencies": {
+    "@bpinternal/zui": "^0.13.4"
   }
 }

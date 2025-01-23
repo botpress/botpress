@@ -2083,7 +2083,7 @@ importers:
         specifier: 0.41.0
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.13.4
+        specifier: ^0.13.4
         version: 0.13.4(react@18.3.1)
     devDependencies:
       esbuild:
