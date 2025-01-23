@@ -1,6 +1,6 @@
 {
   "name": "@bpinternal/zui",
-  "version": "0.13.4",
+  "version": "0.13.5",
   "description": "A fork of Zod with additional features",
   "type": "module",
   "source": "./src/index.ts",
@@ -55,6 +55,11 @@
   },
   "peerDependencies": {
     "react": "^18.2.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   },
   "repository": {
     "type": "git",
