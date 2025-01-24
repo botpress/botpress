@@ -5,6 +5,7 @@ import { ApiIntegration, fetchAllIntegrations } from '../api'
 import defaults from '../defaults'
 import { Test } from '../typings'
 import * as utils from '../utils'
+import * as retry from '../retry'
 
 const fetchIntegration = async (client: Client, integrationName: string): Promise<ApiIntegration | undefined> => {
   const integrations = await fetchAllIntegrations(client)
@@ -29,7 +30,12 @@ export const prependWorkspaceHandle: Test = {
       ...creds,
     }
 
-    const client = new Client({ apiUrl: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
+    const client = new Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
 
     await impl
       .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })
