@@ -27,6 +27,7 @@ export class ApiClient {
   public readonly url: string
   public readonly token: string
   public readonly workspaceId: string
+  public readonly botId?: string
 
   public static newClient = (props: ApiClientProps, logger: Logger) => new ApiClient(props, logger)
 
@@ -34,11 +35,12 @@ export class ApiClient {
     props: ApiClientProps,
     private _logger: Logger
   ) {
-    const { apiUrl, token, workspaceId } = props
-    this.client = new client.Client({ apiUrl, token, workspaceId })
+    const { apiUrl, token, workspaceId, botId } = props
+    this.client = new client.Client({ apiUrl, token, workspaceId, botId })
     this.url = apiUrl
     this.token = token
     this.workspaceId = workspaceId
+    this.botId = botId
   }
 
   public get isBotpressWorkspace(): boolean {
@@ -65,6 +67,13 @@ export class ApiClient {
 
   public switchWorkspace(workspaceId: string): ApiClient {
     return ApiClient.newClient({ apiUrl: this.url, token: this.token, workspaceId }, this._logger)
+  }
+
+  public switchBot(botId: string): ApiClient {
+    return ApiClient.newClient(
+      { apiUrl: this.url, token: this.token, botId, workspaceId: this.workspaceId },
+      this._logger
+    )
   }
 
   public async updateWorkspace(
