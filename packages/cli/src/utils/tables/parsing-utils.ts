@@ -1,5 +1,9 @@
 import * as sdk from '@botpress/sdk'
 
+// FIXME: The table column schemas are defined in @bpinternal/tables-api, but
+//        they're not exported, so we have to redefine them here. Ideally, we
+//        should have a single source of truth for these types.
+
 const commonProps = {
   'x-zui': sdk.z
     .object({
