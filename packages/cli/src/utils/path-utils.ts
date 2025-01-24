@@ -34,7 +34,7 @@ export const rmExtension = (filename: string) => filename.replace(/\.[^/.]+$/, '
 export const toUnix = (path: string) => path.split(pathlib.sep).join(pathlib.posix.sep)
 
 export const toNormalizedPosixPath = (path: string) =>
-  pathlib.posix.normalize(path.replaceAll(/\\/g, '/')).replace(/\/\.$/, '')
+  (path.startsWith('./') ? './' : '') + pathlib.posix.normalize(path.replaceAll(/\\/g, '/')).replace(/\/\.$/, '')
 
 export const absoluteFrom = (rootdir: AbsolutePath, target: string): AbsolutePath => {
   if (isPlatformSpecificAbsolutePath(target)) {
