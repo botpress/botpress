@@ -2082,9 +2082,6 @@ importers:
       '@botpress/client':
         specifier: 0.41.0
         version: link:../client
-      '@bpinternal/zui':
-        specifier: ^0.13.5
-        version: 0.13.5
     devDependencies:
       esbuild:
         specifier: ^0.16.12
@@ -3893,6 +3890,7 @@ packages:
     peerDependenciesMeta:
       react:
         optional: true
+    dev: true
 
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
