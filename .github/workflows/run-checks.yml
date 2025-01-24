@@ -8,10 +8,15 @@ permissions:
 
 jobs:
   run-checks:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     timeout-minutes: 15
     env:
       NODE_OPTIONS: '--max_old_space_size=8192'
+      # force turborepo not to cache, because we are using the same runner for all jobs, across different OSes :
+      TURBO_FORCE: 'true'
 
     steps:
       - uses: actions/checkout@v2
