@@ -1,0 +1,19 @@
+name: Check All
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  check-all:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: read
+      statuses: read
+    steps:
+      - name: Check All
+        uses: upsidr/merge-gatekeeper@v1
+        with:
+          timeout: 900 # 15 minutes
+          token: ${{ secrets.GITHUB_TOKEN }}
+          self: check-all

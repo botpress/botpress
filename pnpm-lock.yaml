@@ -444,8 +444,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       zod:
-        specifier: npm:@botpress/sdk@workspace:*
-        version: link:npm:@botpress/sdk@workspace:*
+        specifier: npm:@botpress/sdk
+        version: link:../../packages/sdk
     devDependencies:
       '@botpress/chat-api':
         specifier: workspace:*
@@ -1793,7 +1793,7 @@ importers:
         specifier: 0.41.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 2.4.2
+        specifier: 2.4.3
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1914,7 +1914,7 @@ importers:
         specifier: 0.41.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 2.4.2
+        specifier: 2.4.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1930,7 +1930,7 @@ importers:
         specifier: 0.41.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 2.4.2
+        specifier: 2.4.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1943,7 +1943,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 2.4.2
+        specifier: 2.4.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1959,7 +1959,7 @@ importers:
         specifier: 0.41.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 2.4.2
+        specifier: 2.4.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1975,7 +1975,7 @@ importers:
         specifier: 0.41.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 2.4.2
+        specifier: 2.4.3
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2083,7 +2083,7 @@ importers:
         specifier: 0.41.0
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.13.5
+        specifier: ^0.13.5
         version: 0.13.5
     devDependencies:
       esbuild:

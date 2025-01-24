@@ -20,22 +20,19 @@ runs:
     - uses: pnpm/action-setup@v4
       with:
         version: 8.6.2
+
     - uses: actions/setup-node@v3
       with:
         node-version: '18.x'
         check-latest: true
+
     - name: Install dependencies
-      shell: bash
+      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       run: pnpm i --frozen-lockfile
+
     - name: Build
-      shell: bash
+      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       env:
         TURBO_TEAM: ${{ inputs.turbo_team }}
         TURBO_TOKEN: ${{ inputs.turbo_token }}
-      run: |
-        filter="${{ inputs.extra_filters }}"
-        if [ -z "$filter" ]; then
-          pnpm build
-        else
-          pnpm build $filter
-        fi
+      run: pnpm build ${{ inputs.extra_filters }}
