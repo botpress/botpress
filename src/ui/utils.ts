@@ -1,6 +1,6 @@
 import { zuiKey } from './constants'
 import { resolveDiscriminator } from './hooks/useDiscriminator'
-import { BaseType, JSONSchema, Path, ZuiComponentMap, ZuiReactComponent } from './types'
+import { ArraySchema, BaseType, JSONSchema, ObjectSchema, Path, ZuiComponentMap, ZuiReactComponent } from './types'
 
 type ComponentMeta<Type extends BaseType = BaseType> = {
   type: Type
@@ -545,3 +545,11 @@ const specialCase = [
   'XSS',
   'YouTube',
 ]
+
+export function isObjectSchema(schema: JSONSchema): schema is ObjectSchema {
+  return schema.type === 'object' && typeof schema.properties === 'object' && schema.properties !== null
+}
+
+export function isArraySchema(schema: JSONSchema): schema is ArraySchema {
+  return schema.type === 'array' && typeof schema.items === 'object' && schema.items !== null
+}
