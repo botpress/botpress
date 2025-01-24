@@ -348,8 +348,115 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, `Could not update bot "${bot.name}"`)
     })
+
+    await this._deployTables(api.switchBot(updatedBot.id), botDefinition)
+
     line.success('Bot deployed')
     this.displayWebhookUrls(updatedBot)
+  }
+
+  private async _deployTables(api: apiUtils.ApiClient, botDefinition: sdk.BotDefinition) {
+    this.logger.log('Synchronizing tables...')
+
+    const tablesFromBotDef = Object.entries(botDefinition.tables ?? {})
+    const { tables: existingTables } = await api.client.listTables({})
+
+    for (const [tableName, tableDef] of tablesFromBotDef) {
+      const existingTable = existingTables.find((t) => t.name === tableName)
+
+      this.logger.log(`Deploying table "${tableName}"...`)
+
+      if (existingTable) {
+        await this._deployExistingTable(api, existingTable, tableDef)
+      } else {
+        await this._deployNewTable(api, tableName, tableDef)
+      }
+    }
+  }
+
+  private async _deployExistingTable(
+    api: apiUtils.ApiClient,
+    existingTable: Awaited<ReturnType<apiUtils.ApiClient['client']['listTables']>>['tables'][number],
+    updatedTableDef: sdk.BotTableDefinition
+  ) {
+    if (existingTable.frozen) {
+      this.logger.warn(`Table "${existingTable.name}" is frozen and will not be updated.`)
+      return
+    }
+
+    const existingColumns = existingTable.schema.properties
+    const updatedColumns = utils.tables.parsing.columnsSchema.parse(
+      (updatedTableDef.schema.toJsonSchema() as sdk.JSONSchemaOfType<'object'>).properties
+    )
+
+    for (const [columnName, existingColumn] of Object.entries(existingColumns)) {
+      const updatedColumn = updatedColumns[columnName]
+
+      if (!updatedColumn) {
+        const wishToContinue = await this._warnAndConfirm(
+          `Column "${columnName}" is missing from the schema of table "${existingTable.name}" in your bot definition. ` +
+            'If you are attempting to rename this column, please do so from the studio. ' +
+            'Renaming a column in your bot definition will cause a new column to be created. ' +
+            'If this is not a rename and you wish to proceed, the old column will be kept unchanged. ' +
+            'You can delete columns from the studio if you no longer need them.'
+        )
+
+        // TODO: ask the user whether this is a rename. If it is a rename, list
+        //       all other columns and ask which one has the new name, then do
+        //       the rename operation with client.renameTableColumn()
+
+        if (!wishToContinue) {
+          return
+        }
+      }
+
+      if (updatedColumn && existingColumn.type !== updatedColumn.type) {
+        const wishToContinue = await this._warnAndConfirm(
+          'DATA LOSS WARNING: ' +
+            `Type of column "${columnName}" has changed from "${existingColumn.type}" to "${updatedColumn.type}" in table "${existingTable.name}". ` +
+            'If you proceed, the value of this column will be reset to NULL for all rows in the table.'
+        )
+
+        if (!wishToContinue) {
+          return
+        }
+      }
+    }
+
+    await api.client.updateTable({
+      table: existingTable.name,
+      schema: updatedTableDef.schema.toJsonSchema(),
+      frozen: updatedTableDef.frozen,
+      tags: updatedTableDef.tags,
+      isComputeEnabled: updatedTableDef.isComputeEnabled,
+    })
+
+    this.logger.success(`Table "${existingTable.name}" has been updated`)
+  }
+
+  private async _warnAndConfirm(warningMessage: string, confirmMessage: string = 'Are you sure you want to continue?') {
+    this.logger.warn(warningMessage)
+
+    const confirm = await this.prompt.confirm(confirmMessage)
+
+    if (!confirm) {
+      this.logger.log('Aborted')
+      return false
+    }
+    return true
+  }
+
+  private async _deployNewTable(api: apiUtils.ApiClient, tableName: string, tableDef: sdk.BotTableDefinition) {
+    await api.client.createTable({
+      name: tableName,
+      schema: tableDef.schema.toJsonSchema(),
+      frozen: tableDef.frozen,
+      tags: tableDef.tags,
+      factor: tableDef.factor,
+      isComputeEnabled: tableDef.isComputeEnabled,
+    })
+
+    this.logger.success(`Table "${tableName}" has been created`)
   }
 
   private async _createNewBot(api: apiUtils.ApiClient): Promise<client.Bot> {
