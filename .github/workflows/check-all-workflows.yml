@@ -14,5 +14,6 @@ jobs:
       - name: Check All
         uses: upsidr/merge-gatekeeper@v1
         with:
+          timeout: 900 # 15 minutes
           token: ${{ secrets.GITHUB_TOKEN }}
           self: check-all
