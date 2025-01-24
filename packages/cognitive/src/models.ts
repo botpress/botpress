@@ -3,7 +3,7 @@ import { ExtendedClient, getExtendedClient } from './bp-client'
 import { Model as RawModel } from './gen'
 import { BotpressClientLike } from './types'
 
-const PreferencesFile = 'models-config.json'
+const PreferencesFile = 'models.config.json'
 
 // Biases for vendors and models
 const VendorPreferences = ['google-ai', 'anthropic', 'openai']
