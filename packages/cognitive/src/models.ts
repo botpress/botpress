@@ -3,7 +3,7 @@ import { ExtendedClient, getExtendedClient } from './bp-client'
 import { Model as RawModel } from './gen'
 import { BotpressClientLike } from './types'
 
-const PreferencesFile = 'models.config.json'
+const PREFERENCES_FILE_SUFFIX = 'models.config.json'
 
 // Biases for vendors and models
 const VendorPreferences = ['google-ai', 'anthropic', 'openai']
@@ -148,7 +148,7 @@ export class RemoteModelProvider extends ModelProvider {
 
   public async fetchModelPreferences(): Promise<ModelPreferences | null> {
     try {
-      const { file } = await this._client.getFile({ id: PreferencesFile })
+      const { file } = await this._client.getFile({ id: this._preferenceFileKey })
       const { data } = await this._client.axios.get(file.url, {
         // we piggy-back axios to avoid adding a new dependency
         // unset all headers to avoid S3 pre-signed signature mismatch
@@ -171,7 +171,7 @@ export class RemoteModelProvider extends ModelProvider {
 
   public async saveModelPreferences(preferences: ModelPreferences) {
     await this._client.uploadFile({
-      key: PreferencesFile,
+      key: this._preferenceFileKey,
       content: JSON.stringify(preferences, null, 2),
       index: false,
       tags: {
@@ -182,6 +182,10 @@ export class RemoteModelProvider extends ModelProvider {
   }
 
   public async deleteModelPreferences() {
-    await this._client.deleteFile({ id: PreferencesFile }).catch(() => {})
+    await this._client.deleteFile({ id: this._preferenceFileKey }).catch(() => {})
+  }
+
+  private get _preferenceFileKey() {
+    return `bot->${this._client.botId}->${PREFERENCES_FILE_SUFFIX}`
   }
 }

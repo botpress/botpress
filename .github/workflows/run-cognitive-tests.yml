@@ -30,6 +30,7 @@ jobs:
       - name: Run Cognitive Tests
         run: |
           bot_id=$(pnpm bp bots new --name "cognitive-tests" --if-not-exists --json | jq -r ".id")
+          echo "bot_id=$bot_id"
 
           export CLOUD_API_ENDPOINT='https://api.botpress.dev'
           export CLOUD_BOT_ID=$bot_id
