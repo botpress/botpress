@@ -44,9 +44,9 @@ class LocalPluginModule extends mod.Module {
     const implImport = this._implModule.import(this)
 
     const id = undefined
-    const uri = utils.path.win32.escapeBackslashes(this._pkg.path)
+    const uri = utils.path.toNormalizedPosixPath(this._pkg.path)
 
-    const definitionImport = utils.path.win32.escapeBackslashes(
+    const definitionImport = utils.path.toNormalizedPosixPath(
       utils.path.rmExtension(utils.path.join(this._pkg.path, consts.fromWorkDir.pluginDefinition))
     )
 
