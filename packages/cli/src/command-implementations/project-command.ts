@@ -150,7 +150,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       absWorkingDir: abs.workDir,
-      outfile: '',
       entrypoint: rel.integrationDefinition,
       write: false,
       minify: false,
@@ -181,7 +180,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       absWorkingDir: abs.workDir,
-      outfile: '',
       entrypoint: rel.interfaceDefinition,
       write: false,
       minify: false,
@@ -211,7 +209,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       absWorkingDir: abs.workDir,
-      outfile: '',
       entrypoint: rel.botDefinition,
       write: false,
       minify: false,
@@ -242,7 +239,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       absWorkingDir: abs.workDir,
-      outfile: '',
       entrypoint: rel.pluginDefinition,
       write: false,
       minify: false,

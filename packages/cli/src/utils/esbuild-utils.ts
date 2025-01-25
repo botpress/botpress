@@ -2,22 +2,22 @@ import * as esb from 'esbuild'
 
 export * from 'esbuild'
 
-type BaseProps<W extends boolean> = esb.BuildOptions & {
+type BaseProps = esb.BuildOptions & {
   absWorkingDir: string
-  outfile: string
-  write: W
 }
 
-export type BuildCodeProps<W extends boolean> = BaseProps<W> & {
+export type BuildCodeProps = BaseProps & {
   code: string
+  write: true
+  outfile: string
 }
 
-export type BuildEntrypointProps<W extends boolean> = BaseProps<W> & {
+export type BuildEntrypointProps = BaseProps & {
   entrypoint: string
+  write: false
 }
 
 const DEFAULT_OPTIONS: esb.BuildOptions = {
-  minify: true,
   bundle: true,
   sourcemap: false,
   logLevel: 'silent',
@@ -28,9 +28,10 @@ const DEFAULT_OPTIONS: esb.BuildOptions = {
   keepNames: true, // important : https://github.com/node-fetch/node-fetch/issues/784#issuecomment-1014768204
 }
 
-export function buildCode(p: BuildCodeProps<true>): Promise<esb.BuildResult>
-export function buildCode(p: BuildCodeProps<false>): Promise<esb.BuildResult & { outputFiles: esb.OutputFile[] }>
-export function buildCode<W extends boolean>(p: BuildCodeProps<W>) {
+/**
+ * Bundles a string of typescript code and writes the output to a file
+ */
+export function buildCode(p: BuildCodeProps): Promise<esb.BuildResult> {
   const { code, ...props } = p
   return esb.build({
     ...DEFAULT_OPTIONS,
@@ -43,15 +44,15 @@ export function buildCode<W extends boolean>(p: BuildCodeProps<W>) {
   })
 }
 
-export function buildEntrypoint(p: BuildEntrypointProps<true>): Promise<esb.BuildResult>
-export function buildEntrypoint(
-  p: BuildEntrypointProps<false>
-): Promise<esb.BuildResult & { outputFiles: esb.OutputFile[] }>
-export function buildEntrypoint<W extends boolean>(p: BuildEntrypointProps<W>) {
+/**
+ * Bundles a typescript file and returns the output as a string
+ */
+export function buildEntrypoint(p: BuildEntrypointProps): Promise<esb.BuildResult & { outputFiles: esb.OutputFile[] }> {
   const { entrypoint, ...props } = p
   return esb.build({
     ...DEFAULT_OPTIONS,
     ...props,
+    outfile: undefined,
     entryPoints: [entrypoint],
   })
 }
