@@ -1,6 +1,6 @@
 import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'
-import * as esbuild from 'esbuild'
+import type * as esbuild from 'esbuild'
 import { z } from '../../zui'
 import { SchemaStore, BrandedSchema, createStore, isBranded, getName } from './branded-schema'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities, BaseConfigs } from './generic'

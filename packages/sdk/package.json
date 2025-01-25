@@ -16,14 +16,12 @@
   "dependencies": {
     "@botpress/client": "0.41.0"
   },
-  "peerDependencies": {
-    "@bpinternal/zui": "^0.13.5"
-  },
   "devDependencies": {
     "esbuild": "^0.16.12",
     "tsup": "^8.0.2"
   },
   "peerDependencies": {
+    "@bpinternal/zui": "^0.13.5",
     "esbuild": "^0.16.12"
   },
   "peerDependenciesMeta": {
