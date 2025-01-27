@@ -1,88 +1,58 @@
-import { build as esbuild, LogLevel, Platform, BuildResult, OutputFile } from 'esbuild'
+import * as esb from 'esbuild'
 
-type BaseProps<W extends boolean = true> = {
-  cwd: string
-  outfile: string
-  minify?: boolean
-  sourcemap?: boolean
-  bundle?: boolean
-  logLevel?: LogLevel
-  write: W
-  platform?: Platform
+export * from 'esbuild'
+
+type BaseProps = esb.BuildOptions & {
+  absWorkingDir: string
 }
 
-export type BuildCodeProps<W extends boolean = true> = BaseProps<W> & {
+export type BuildCodeProps = BaseProps & {
   code: string
+  write: true
+  outfile: string
 }
 
-export type BuildEntrypointProps<W extends boolean = true> = BaseProps<W> & {
+export type BuildEntrypointProps = BaseProps & {
   entrypoint: string
+  write: false
 }
 
-const keepNames = true // important : https://github.com/node-fetch/node-fetch/issues/784#issuecomment-1014768204
+const DEFAULT_OPTIONS: esb.BuildOptions = {
+  bundle: true,
+  sourcemap: false,
+  logLevel: 'silent',
+  platform: 'node',
+  target: 'es2020',
+  legalComments: 'none',
+  logOverride: { 'equals-negative-zero': 'silent' },
+  keepNames: true, // important : https://github.com/node-fetch/node-fetch/issues/784#issuecomment-1014768204
+}
 
-export function buildCode(p: BuildCodeProps<true>): Promise<BuildResult>
-export function buildCode(p: BuildCodeProps<false>): Promise<BuildResult & { outputFiles: OutputFile[] }>
-export function buildCode<W extends boolean>({
-  cwd,
-  minify = true,
-  bundle = true,
-  sourcemap = false,
-  logLevel = 'silent',
-  outfile,
-  code,
-  write,
-  platform = 'node',
-}: BuildCodeProps<W>) {
-  return esbuild({
+/**
+ * Bundles a string of typescript code and writes the output to a file
+ */
+export function buildCode(p: BuildCodeProps): Promise<esb.BuildResult> {
+  const { code, ...props } = p
+  return esb.build({
+    ...DEFAULT_OPTIONS,
+    ...props,
     stdin: {
       contents: code,
-      resolveDir: cwd,
+      resolveDir: props.absWorkingDir,
       loader: 'ts',
     },
-    logOverride: {
-      'equals-negative-zero': 'silent',
-    },
-    platform,
-    target: 'es2020',
-    sourcemap,
-    minify,
-    bundle,
-    outfile,
-    absWorkingDir: cwd,
-    logLevel,
-    keepNames,
-    write,
-    legalComments: 'none',
   })
 }
 
-export function buildEntrypoint(p: BuildEntrypointProps<true>): Promise<BuildResult>
-export function buildEntrypoint(p: BuildEntrypointProps<false>): Promise<BuildResult & { outputFiles: OutputFile[] }>
-export function buildEntrypoint<W extends boolean>({
-  cwd,
-  minify = true,
-  bundle = true,
-  sourcemap = false,
-  logLevel = 'silent',
-  outfile,
-  entrypoint,
-  write,
-}: BuildEntrypointProps<W>) {
-  return esbuild({
+/**
+ * Bundles a typescript file and returns the output as a string
+ */
+export function buildEntrypoint(p: BuildEntrypointProps): Promise<esb.BuildResult & { outputFiles: esb.OutputFile[] }> {
+  const { entrypoint, ...props } = p
+  return esb.build({
+    ...DEFAULT_OPTIONS,
+    ...props,
+    outfile: undefined,
     entryPoints: [entrypoint],
-    logOverride: {
-      'equals-negative-zero': 'silent',
-    },
-    platform: 'node',
-    target: 'es2020',
-    sourcemap,
-    minify,
-    bundle,
-    outfile,
-    absWorkingDir: cwd,
-    logLevel,
-    keepNames,
-    write,
   })
 }
