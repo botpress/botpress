@@ -20,15 +20,10 @@ permissions:
 jobs:
   deploy-staging:
     runs-on: ubuntu-latest
-    env:
-      TURBO_FORCE: 'true'
     steps:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
-        # with:
-        # turbo_team: ${{ secrets.TURBO_TEAM }}
-        # turbo_token: ${{ secrets.TURBO_TOKEN }}
       - name: Deploy Interfaces
         uses: ./.github/actions/deploy-interfaces
         with:
