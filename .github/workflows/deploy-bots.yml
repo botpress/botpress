@@ -18,9 +18,6 @@ jobs:
           BUGBUSTER_SLACK_BOT_TOKEN: ${{ secrets.BUGBUSTER_SLACK_BOT_TOKEN }}
           BUGBUSTER_SLACK_SIGNING_SECRET: ${{ secrets.BUGBUSTER_SLACK_SIGNING_SECRET }}
         uses: ./.github/actions/setup
-        with:
-          turbo_team: ${{ secrets.TURBO_TEAM }}
-          turbo_token: ${{ secrets.TURBO_TOKEN }}
       - name: Deploy Bots
         run: |
           api_url="https://api.botpress.cloud"
