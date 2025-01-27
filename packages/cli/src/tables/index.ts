@@ -1,1 +1,1 @@
-export * as schemas from './schemas'
+export { TablesPublisher } from './tables-publisher'
