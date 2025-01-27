@@ -181,11 +181,13 @@ export type GetTableRow<TBot extends common.BaseBot> = <
     }
   >
 ) => Promise<
-  utils.Merge<
-    Awaited<Res<client.Client['getTableRow']>>,
-    {
-      row: Awaited<Res<client.Client['getTableRow']>>['row'] & Columns
-    }
+  Readonly<
+    utils.Merge<
+      Awaited<Res<client.Client['getTableRow']>>,
+      {
+        row: Awaited<Res<client.Client['getTableRow']>>['row'] & Columns
+      }
+    >
   >
 >
 export type CreateTableRows<TBot extends common.BaseBot> = <
@@ -200,11 +202,13 @@ export type CreateTableRows<TBot extends common.BaseBot> = <
     }
   >
 ) => Promise<
-  utils.Merge<
-    Awaited<Res<client.Client['createTableRows']>>,
-    {
-      rows: Awaited<Res<client.Client['createTableRows']>>['rows'] & Columns[]
-    }
+  Readonly<
+    utils.Merge<
+      Awaited<Res<client.Client['createTableRows']>>,
+      {
+        rows: Awaited<Res<client.Client['createTableRows']>>['rows'] & Columns[]
+      }
+    >
   >
 >
 
@@ -266,11 +270,13 @@ export type FindTableRows<TBot extends common.BaseBot> = <
     }
   >
 ) => Promise<
-  utils.Merge<
-    Awaited<Res<client.Client['findTableRows']>>,
-    {
-      rows: Awaited<Res<client.Client['findTableRows']>>['rows'] & Columns[]
-    }
+  Readonly<
+    utils.Merge<
+      Awaited<Res<client.Client['findTableRows']>>,
+      {
+        rows: Awaited<Res<client.Client['findTableRows']>>['rows'] & Columns[]
+      }
+    >
   >
 >
 
@@ -282,7 +288,7 @@ export type DeleteTableRows<TBot extends common.BaseBot> = <TableName extends ke
       filter?: TableRowFilter<TBot, TableName>
     }
   >
-) => Res<client.Client['deleteTableRows']>
+) => Promise<Readonly<Awaited<Res<client.Client['deleteTableRows']>>>>
 
 export type UpdateTableRows<TBot extends common.BaseBot> = <
   TableName extends keyof common.EnumerateTables<TBot>,
@@ -296,11 +302,13 @@ export type UpdateTableRows<TBot extends common.BaseBot> = <
     }
   >
 ) => Promise<
-  utils.Merge<
-    Awaited<Res<client.Client['updateTableRows']>>,
-    {
-      rows: Awaited<Res<client.Client['updateTableRows']>>['rows'] & Columns[]
-    }
+  Readonly<
+    utils.Merge<
+      Awaited<Res<client.Client['updateTableRows']>>,
+      {
+        rows: Awaited<Res<client.Client['updateTableRows']>>['rows'] & Columns[]
+      }
+    >
   >
 >
 
@@ -317,12 +325,14 @@ export type UpsertTableRows<TBot extends common.BaseBot> = <
     }
   >
 ) => Promise<
-  utils.Merge<
-    Awaited<Res<client.Client['upsertTableRows']>>,
-    {
-      inserted: Awaited<Res<client.Client['upsertTableRows']>>['inserted'] & Columns[]
-      updated: Awaited<Res<client.Client['upsertTableRows']>>['updated'] & Columns[]
-    }
+  Readonly<
+    utils.Merge<
+      Awaited<Res<client.Client['upsertTableRows']>>,
+      {
+        inserted: Awaited<Res<client.Client['upsertTableRows']>>['inserted'] & Columns[]
+        updated: Awaited<Res<client.Client['upsertTableRows']>>['updated'] & Columns[]
+      }
+    >
   >
 >
 
