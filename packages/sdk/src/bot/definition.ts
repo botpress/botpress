@@ -113,7 +113,7 @@ export type BotDefinitionProps<
     [K in keyof TActions]: ActionDefinition<TActions[K]>
   }
   tables?: {
-    [K in Extract<keyof TTables, string>]: TableDefinition<TTables[K]>
+    [K in keyof TTables]: TableDefinition<TTables[K]>
   }
 }
 

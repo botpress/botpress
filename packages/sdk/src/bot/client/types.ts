@@ -240,7 +240,7 @@ type TableRowFilter<
 > = TableRowColumnFilters<Columns> | TableRowLogicalFilter<TBot, TableName, Columns>
 
 type TableRowColumnFilters<Columns> = utils.AtLeastOneProperty<{
-  [K in Extract<keyof Columns, string>]: TableColumnComparisonFilter<Columns[K]>
+  [K in keyof Columns]: TableColumnComparisonFilter<Columns[K]>
 }>
 
 type TableRowLogicalFilter<
