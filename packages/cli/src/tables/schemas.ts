@@ -81,7 +81,7 @@ const baseSchemas = {
   }),
 }
 
-const columnSchema = sdk.z.discriminatedUnion('type', [
+export const columnSchema = sdk.z.discriminatedUnion('type', [
   baseSchemas.string,
   baseSchemas.number,
   baseSchemas.boolean,
@@ -89,5 +89,3 @@ const columnSchema = sdk.z.discriminatedUnion('type', [
   baseSchemas.array,
   baseSchemas.null,
 ])
-
-export const columnsSchema = sdk.z.record(columnSchema)

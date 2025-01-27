@@ -386,15 +386,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
 
     const existingColumns = existingTable.schema.properties
-    const updatedColumns = tables.schemas.columnsSchema.parse(
-      (
-        updatedTableDef.schema.toJsonSchema() as sdk.JSONSchema & {
-          properties: {
-            [key: string]: sdk.JSONSchema
-          }
-        }
-      ).properties
-    )
+    const updatedColumns = await this._parseTableColumns({ tableName: existingTable.name, tableDef: updatedTableDef })
 
     for (const [columnName, existingColumn] of Object.entries(existingColumns)) {
       const updatedColumn = updatedColumns[columnName]
@@ -439,6 +431,38 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     })
 
     this.logger.success(`Table "${existingTable.name}" has been updated`)
+  }
+
+  private async _parseTableColumns({
+    tableName,
+    tableDef,
+  }: {
+    tableName: string
+    tableDef: sdk.BotTableDefinition
+  }): Promise<Record<string, sdk.z.infer<typeof tables.schemas.columnSchema>>> {
+    type JSONObjectSchema = sdk.JSONSchema & {
+      properties: {
+        [key: string]: sdk.JSONSchema
+      }
+    }
+
+    const columns = (tableDef.schema.toJsonSchema() as JSONObjectSchema).properties
+
+    const validColumns = await Promise.all(
+      Object.entries(columns).map(async ([columnName, columnSchema]) => {
+        const validatedSchema = await tables.schemas.columnSchema.safeParseAsync(columnSchema)
+
+        if (!validatedSchema.success) {
+          throw new errors.BotpressCLIError(
+            `Column "${columnName}" in table "${tableName}" has an invalid schema: ${validatedSchema.error.message}`
+          )
+        }
+
+        return [columnName, validatedSchema.data] as const
+      })
+    )
+
+    return Object.fromEntries(validColumns)
   }
 
   private async _warnAndConfirm(warningMessage: string, confirmMessage: string = 'Are you sure you want to continue?') {
