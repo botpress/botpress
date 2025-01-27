@@ -218,10 +218,25 @@ export type CreateTableRows<TBot extends common.BaseBot> = <
 
 type TableRowQueryGroup = 'key' | 'avg' | 'max' | 'min' | 'sum' | 'count'
 
+type TableRowExtraColumns = {
+  /**
+   * Unique identifier for the row.
+   */
+  id: number
+  /**
+   * Timestamp of row creation.
+   */
+  createdAt: string
+  /**
+   * Timestamp of the last row update.
+   */
+  updatedAt: string
+}
+
 type TableRowFilter<
   TBot extends common.BaseBot,
   TableName extends keyof common.EnumerateTables<TBot>,
-  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>>,
+  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>> & TableRowExtraColumns,
 > = TableRowColumnFilters<Columns> | TableRowLogicalFilter<TBot, TableName, Columns>
 
 type TableRowColumnFilters<Columns> = utils.AtLeastOneProperty<{
@@ -231,7 +246,7 @@ type TableRowColumnFilters<Columns> = utils.AtLeastOneProperty<{
 type TableRowLogicalFilter<
   TBot extends common.BaseBot,
   TableName extends keyof common.EnumerateTables<TBot>,
-  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>>,
+  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>> & TableRowExtraColumns,
 > = utils.ExactlyOneProperty<{
   $and: utils.AtLeastOne<TableRowFilter<TBot, TableName, Columns>>
   $or: utils.AtLeastOne<TableRowFilter<TBot, TableName, Columns>>
@@ -256,7 +271,7 @@ type TableColumnComparisonFilter<ColumnType> =
 
 export type FindTableRows<TBot extends common.BaseBot> = <
   TableName extends keyof common.EnumerateTables<TBot>,
-  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>>,
+  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>> & TableRowExtraColumns,
 >(
   x: utils.Merge<
     Arg<client.Client['findTableRows']>,
@@ -266,7 +281,7 @@ export type FindTableRows<TBot extends common.BaseBot> = <
       group?: utils.AtLeastOneProperty<{
         [K in Extract<keyof Columns, string>]: TableRowQueryGroup | TableRowQueryGroup[]
       }>
-      orderBy?: Extract<keyof Columns, string> | 'id' | 'createdAt' | 'updatedAt'
+      orderBy?: Extract<keyof Columns, string>
     }
   >
 ) => Promise<
