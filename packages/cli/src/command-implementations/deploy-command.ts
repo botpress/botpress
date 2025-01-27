@@ -9,6 +9,7 @@ import * as errors from '../errors'
 import * as utils from '../utils'
 import { BuildCommand } from './build-command'
 import { ProjectCommand } from './project-command'
+import * as tables from '../tables'
 
 export type DeployCommandDefinition = typeof commandDefinitions.deploy
 export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
@@ -385,7 +386,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
 
     const existingColumns = existingTable.schema.properties
-    const updatedColumns = utils.tables.parsing.columnsSchema.parse(
+    const updatedColumns = tables.schemas.columnsSchema.parse(
       (updatedTableDef.schema.toJsonSchema() as sdk.JSONSchemaOfType<'object'>).properties
     )
 
