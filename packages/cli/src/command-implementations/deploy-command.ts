@@ -373,6 +373,16 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         await this._deployNewTable(api, tableName, tableDef)
       }
     }
+
+    for (const existingTable of existingTables) {
+      if (!tablesFromBotDef.find(([tableName]) => tableName === existingTable.name)) {
+        this.logger.log(
+          `Table "${existingTable.name}" was previously defined but is not present in your bot definition. ` +
+            'This table will be ignored. ' +
+            'If you wish to delete this table, you may do so from the studio.'
+        )
+      }
+    }
   }
 
   private async _deployExistingTable(
