@@ -8,6 +8,7 @@ import { ActionsModule } from './actions-module'
 import { DefaultConfigurationModule } from './configuration-module'
 import { EventsModule } from './events-module'
 import { StatesModule } from './states-module'
+import { TablesModule } from './tables-module'
 
 class PluginIntegrationsModule extends ReExportTypeModule {
   public constructor(plugin: sdk.PluginDefinition) {
@@ -44,6 +45,7 @@ type PluginTypingsIndexDependencies = {
   eventsModule: EventsModule
   statesModule: StatesModule
   actionsModule: ActionsModule
+  tablesModule: TablesModule
 }
 
 type _assertPropsInPluginDefinition = utils.types.AssertKeyOf<'props', sdk.PluginDefinition>
@@ -98,6 +100,10 @@ export class PluginTypingsModule extends Module {
     actionsModule.unshift('actions')
     this.pushDep(actionsModule)
 
+    const tablesModule = new TablesModule(plugin.tables ?? {})
+    tablesModule.unshift('tables')
+    this.pushDep(tablesModule)
+
     this._dependencies = {
       integrationsModule,
       interfacesModule,
@@ -105,12 +111,20 @@ export class PluginTypingsModule extends Module {
       eventsModule,
       statesModule,
       actionsModule,
+      tablesModule,
     }
   }
 
   public async getContent() {
-    const { integrationsModule, interfacesModule, defaultConfigModule, eventsModule, statesModule, actionsModule } =
-      this._dependencies
+    const {
+      integrationsModule,
+      interfacesModule,
+      defaultConfigModule,
+      eventsModule,
+      statesModule,
+      actionsModule,
+      tablesModule,
+    } = this._dependencies
 
     const integrationsImport = integrationsModule.import(this)
     const interfacesImport = interfacesModule.import(this)
@@ -118,6 +132,7 @@ export class PluginTypingsModule extends Module {
     const eventsImport = eventsModule.import(this)
     const statesImport = statesModule.import(this)
     const actionsImport = actionsModule
+    const tablesImport = tablesModule.import(this)
 
     return [
       consts.GENERATED_HEADER,
@@ -127,6 +142,7 @@ export class PluginTypingsModule extends Module {
       `import * as ${eventsModule.name} from './${eventsModule.name}'`,
       `import * as ${statesModule.name} from './${statesModule.name}'`,
       `import * as ${actionsModule.name} from './${actionsImport.name}'`,
+      `import * as ${tablesModule.name} from './${tablesImport}'`,
       '',
       `export * as ${integrationsModule.name} from './${integrationsImport}'`,
       `export * as ${interfacesModule.name} from './${interfacesImport}'`,
@@ -134,6 +150,7 @@ export class PluginTypingsModule extends Module {
       `export * as ${eventsModule.name} from './${eventsImport}'`,
       `export * as ${statesModule.name} from './${statesImport}'`,
       `export * as ${actionsModule.name} from './${actionsImport.name}'`,
+      `export * as ${tablesModule.name} from './${tablesImport}'`,
       '',
       'export type TPlugin = {',
       `  integrations: ${integrationsModule.name}.${integrationsModule.exportName}`,
@@ -142,6 +159,7 @@ export class PluginTypingsModule extends Module {
       `  events: ${eventsModule.name}.${eventsModule.exportName}`,
       `  states: ${statesModule.name}.${statesModule.exportName}`,
       `  actions: ${actionsModule.name}.${actionsModule.exportName}`,
+      `  tables: ${tablesModule.name}.${tablesModule.exportName}`,
       '}',
     ].join('\n')
   }
