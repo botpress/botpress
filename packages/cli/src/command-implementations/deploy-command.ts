@@ -387,7 +387,13 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const existingColumns = existingTable.schema.properties
     const updatedColumns = tables.schemas.columnsSchema.parse(
-      (updatedTableDef.schema.toJsonSchema() as sdk.JSONSchemaOfType<'object'>).properties
+      (
+        updatedTableDef.schema.toJsonSchema() as sdk.JSONSchema & {
+          properties: {
+            [key: string]: sdk.JSONSchema
+          }
+        }
+      ).properties
     )
 
     for (const [columnName, existingColumn] of Object.entries(existingColumns)) {
