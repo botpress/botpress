@@ -220,33 +220,35 @@ type TableRowFilter<
   Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>>,
 > = TableRowColumnFilters<Columns> | TableRowLogicalFilter<TBot, TableName, Columns>
 
-type TableRowColumnFilters<Columns> = { [K in Extract<keyof Columns, string>]: TableColumnComparisonFilter<Columns[K]> }
+type TableRowColumnFilters<Columns> = utils.AtLeastOneProperty<{
+  [K in Extract<keyof Columns, string>]: TableColumnComparisonFilter<Columns[K]>
+}>
 
 type TableRowLogicalFilter<
   TBot extends common.BaseBot,
   TableName extends keyof common.EnumerateTables<TBot>,
   Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>>,
-> = {
-  $and?: utils.AtLeastOne<TableRowFilter<TBot, TableName, Columns>>
-  $or?: utils.AtLeastOne<TableRowFilter<TBot, TableName, Columns>>
-  $not?: TableRowColumnFilters<Columns>
-}
+> = utils.ExactlyOneProperty<{
+  $and: utils.AtLeastOne<TableRowFilter<TBot, TableName, Columns>>
+  $or: utils.AtLeastOne<TableRowFilter<TBot, TableName, Columns>>
+  $not: TableRowColumnFilters<Columns>
+}>
 
 type TableColumnComparisonFilter<ColumnType> =
   | ColumnType
-  | {
-      $eq?: ColumnType
-      $gt?: ColumnType
-      $gte?: ColumnType
-      $lt?: ColumnType
-      $lte?: ColumnType
-      $ne?: ColumnType
-      $mod?: [number, number]
-      $in?: utils.AtLeastOne<ColumnType>
-      $nin?: utils.AtLeastOne<ColumnType>
-      $exists?: boolean
-      $size?: number
-    }
+  | utils.ExactlyOneProperty<{
+      $eq: ColumnType
+      $gt: ColumnType
+      $gte: ColumnType
+      $lt: ColumnType
+      $lte: ColumnType
+      $ne: ColumnType
+      $mod: [number, number]
+      $in: utils.AtLeastOne<ColumnType>
+      $nin: utils.AtLeastOne<ColumnType>
+      $exists: boolean
+      $size: number
+    }>
 
 export type FindTableRows<TBot extends common.BaseBot> = <
   TableName extends keyof common.EnumerateTables<TBot>,
@@ -257,9 +259,9 @@ export type FindTableRows<TBot extends common.BaseBot> = <
     {
       table: utils.Cast<TableName, string>
       filter?: TableRowFilter<TBot, TableName, Columns>
-      group?: {
+      group?: utils.AtLeastOneProperty<{
         [K in Extract<keyof Columns, string>]: TableRowQueryGroup | TableRowQueryGroup[]
-      }
+      }>
       orderBy?: Extract<keyof Columns, string> | 'id' | 'createdAt' | 'updatedAt'
     }
   >
