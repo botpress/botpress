@@ -90,7 +90,6 @@ export type InterfaceDefinition = PackageRef & {
 
 export type PluginDefinition = PackageRef & {
   configuration?: { schema?: Schema }
-  code: string
   user?: { tags: Record<string, {}> }
   states?: Record<string, { type: client.State['type']; schema: Schema }>
   events?: Record<string, { schema: Schema }>
@@ -113,6 +112,7 @@ export type InterfaceInstallablePackage = NameVersion & {
 }
 
 export type PluginInstallablePackage = NameVersion & {
-  plugin: PluginDefinition & { code: string }
+  plugin: PluginDefinition
   path?: utils.path.AbsolutePath
+  code: string
 }

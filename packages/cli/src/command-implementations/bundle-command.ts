@@ -9,6 +9,7 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
   public async run(): Promise<void> {
     const projectDef = await this.readProjectDefinitionFromFS()
 
+    const abs = this.projectPaths.abs
     const rel = this.projectPaths.rel('workDir')
     const line = this.logger.line()
 
@@ -17,13 +18,16 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
     } else if (projectDef.type === 'integration') {
       const { name, __advanced } = projectDef.definition
       line.started(`Bundling integration ${chalk.bold(name)}...`)
-      await this._bundle(__advanced?.esbuild ?? {})
+      await this._bundle(abs.outFileCJS, __advanced?.esbuild ?? {})
     } else if (projectDef.type === 'bot') {
       line.started('Bundling bot...')
-      await this._bundle()
+      await this._bundle(abs.outFileCJS)
     } else if (projectDef.type === 'plugin') {
-      line.started('Bundling plugin...')
-      await this._bundle()
+      line.started('Bundling plugin with platform node...')
+      await this._bundle(abs.outFileCJS)
+
+      line.started('Bundling plugin with platform browser...')
+      await this._bundle(abs.outFileESM, { platform: 'browser', format: 'esm' })
     } else {
       type _assertion = utils.types.AssertNever<typeof projectDef>
       throw new errors.UnsupportedProjectType()
@@ -32,12 +36,12 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
     line.success(`Bundle available at ${chalk.grey(rel.outDir)}`)
   }
 
-  private async _bundle(props: Partial<utils.esbuild.BuildOptions> = {}) {
+  private async _bundle(outfile: string, props: Partial<utils.esbuild.BuildOptions> = {}) {
     const abs = this.projectPaths.abs
     await utils.esbuild.buildCode(
       {
+        outfile,
         absWorkingDir: abs.workDir,
-        outfile: abs.outFile,
         code: this._code,
       },
       {

@@ -38,7 +38,8 @@ export const fromHomeDir = {
 
 export const fromOutDir = {
   distDir: distDirName,
-  outFile: pathlib.join(distDirName, 'index.js'),
+  outFileCJS: pathlib.join(distDirName, 'index.cjs'),
+  outFileESM: pathlib.join(distDirName, 'index.mjs'),
   implementationDir: 'implementation',
   pluginsDir: 'plugins',
   secretsDir: 'secrets',
@@ -53,7 +54,8 @@ export const fromWorkDir = {
   entryPoint: pathlib.join('src', 'index.ts'),
   outDir: outDirName,
   distDir: pathlib.join(outDirName, fromOutDir.distDir),
-  outFile: pathlib.join(outDirName, fromOutDir.outFile),
+  outFileCJS: pathlib.join(outDirName, fromOutDir.outFileCJS),
+  outFileESM: pathlib.join(outDirName, fromOutDir.outFileESM),
   implementationDir: pathlib.join(outDirName, fromOutDir.implementationDir),
   pluginsDir: pathlib.join(outDirName, fromOutDir.pluginsDir),
   secretsDir: pathlib.join(outDirName, fromOutDir.secretsDir),

@@ -399,7 +399,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     integrationDef: sdk.IntegrationDefinition
   ): Promise<apiUtils.CreateIntegrationRequestBody> {
     const partialBody = await apiUtils.prepareCreateIntegrationBody(integrationDef)
-    const code = await this.readProjectFile(this.projectPaths.abs.outFile)
+    const code = await this.readProjectFile(this.projectPaths.abs.outFileCJS)
     const icon = await this.readProjectFile(integrationDef.icon, 'base64')
     const readme = await this.readProjectFile(integrationDef.readme, 'base64')
     const extractScript = await this.readProjectFile(integrationDef.identifier?.extractScript)
