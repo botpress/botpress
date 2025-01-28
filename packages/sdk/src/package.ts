@@ -45,6 +45,7 @@ type PluginPackageDefinition = NameVersion & {
   events?: Record<string, plugin.EventDefinition>
   recurringEvents?: Record<string, plugin.RecurringEventDefinition>
   actions?: Record<string, plugin.ActionDefinition>
+  tables?: Record<string, plugin.TableDefinition>
 }
 
 export type IntegrationPackage = PackageReference & {
