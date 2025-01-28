@@ -195,8 +195,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private _spawnWorker = async (env: Record<string, string>, port: number) => {
     const outfile = this.projectPaths.abs.outFileCJS
     const importPath = utils.path.toUnix(outfile)
-    const requireFrom = utils.path.rmExtension(importPath)
-    const code = `require('${requireFrom}').default.start(${port})`
+    const code = `require('${importPath}').default.start(${port})`
     const worker = await Worker.spawn(
       {
         type: 'code',
