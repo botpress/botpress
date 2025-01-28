@@ -14,6 +14,34 @@ const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'accounts/fireworks/models/ll
 //  https://fireworks.ai/models
 //  https://fireworks.ai/pricing
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
+  'accounts/fireworks/models/deepseek-r1': {
+    name: 'DeepSeek R1',
+    description:
+      'DeepSeek-R1 is a state-of-the-art large language model optimized with reinforcement learning and cold-start data for exceptional reasoning, math, and code performance. **Note**: This model will always use a temperature of 0.6 as recommended by DeepSeek.',
+    tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
+    input: {
+      costPer1MTokens: 8,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 8,
+      maxTokens: 32_768,
+    },
+  },
+  'accounts/fireworks/models/deepseek-v3': {
+    name: 'DeepSeek V3',
+    description:
+      'A a strong Mixture-of-Experts (MoE) language model with 671B total parameters with 37B activated for each token from Deepseek.',
+    tags: ['general-purpose', 'coding'],
+    input: {
+      costPer1MTokens: 0.9,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 0.9,
+      maxTokens: 8_000,
+    },
+  },
   'accounts/fireworks/models/llama-v3p1-405b-instruct': {
     name: 'Llama 3.1 405B Instruct',
     description:
@@ -207,6 +235,25 @@ export default new bp.Integration({
           provider,
           models: languageModels,
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
+          overrideRequest: (request) => {
+            if (input.model?.id === 'accounts/fireworks/models/deepseek-r1') {
+              // The DeepSeek R1 model card recommends using a fixed temperature of 0.6 and only using a user prompt rather than a system prompt. See: https://huggingface.co/deepseek-ai/DeepSeek-R1#usage-recommendations
+              request.temperature = 0.6
+              const systemPrompt = request.messages?.find((message) => message.role === 'system')
+              if (systemPrompt) {
+                // Remove system prompt from messages
+                request.messages = request.messages.filter((x) => x.role !== 'system')
+
+                // Pass system prompt as the first user message instead
+                request.messages.unshift({
+                  role: 'user',
+                  content: systemPrompt.content,
+                })
+              }
+            }
+
+            return request
+          },
         }
       )
       metadata.setCost(output.botpress.cost)
