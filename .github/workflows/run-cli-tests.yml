@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   run-cli-tests:
+    name: Run CLI Tests (Windows)
     runs-on: windows-latest
     timeout-minutes: 15
     env:
