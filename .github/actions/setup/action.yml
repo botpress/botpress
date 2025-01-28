@@ -19,9 +19,9 @@ runs:
         check-latest: true
 
     - name: Install dependencies
-      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
+      shell: bash
       run: pnpm i --frozen-lockfile
 
     - name: Build
-      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
+      shell: bash
       run: pnpm build ${{ inputs.extra_filters }}

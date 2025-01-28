@@ -70,7 +70,6 @@ export const requiredSecrets: Test = {
       OPTIONAL_SECRET: { optional: true },
     })
     fs.writeFileSync(definitionPath, modifiedDefinition, 'utf-8')
-    await impl.build({ ...argv, workDir: integrationDir }).then(utils.handleExitCode)
 
     await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
     await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)
