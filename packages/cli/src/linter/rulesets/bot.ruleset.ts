@@ -1,6 +1,6 @@
 import { type RulesetDefinition } from '@stoplight/spectral-core'
 import { falsy } from '@stoplight/spectral-functions'
-import { truthyWithMessage } from '../spectral-functions'
+import { patternWithMessage, truthyWithMessage } from '../spectral-functions'
 
 export const BOT_RULESET = {
   extends: [],
@@ -161,6 +161,30 @@ export const BOT_RULESET = {
         {
           field: 'description',
           function: truthyWithMessage(({ path }) => `field "${path.at(-2)}" of state "${path[1]}"`),
+        },
+      ],
+    },
+    'table-names-must-end-with-table': {
+      description: 'Table names MUST end with "Table"',
+      message: '{{description}}: {{error}} MUST end with "Table"',
+      severity: 'error',
+      given: '$.tables',
+      then: [
+        {
+          field: '@key',
+          function: patternWithMessage(/Table$/, ({ path }) => `table "${path[1]}"`),
+        },
+      ],
+    },
+    'table-columns-must-not-begin-with-dollar-sign': {
+      description: 'Table columns MUST NOT begin with a dollar sign',
+      message: '{{description}}: {{error}} MUST NOT begin with a dollar sign',
+      severity: 'error',
+      given: '$.tables[*]..schema.properties',
+      then: [
+        {
+          field: '@key',
+          function: patternWithMessage(/^[^$]/, ({ path }) => `column "${path.at(-1)}" of table "${path[1]}"`),
         },
       ],
     },

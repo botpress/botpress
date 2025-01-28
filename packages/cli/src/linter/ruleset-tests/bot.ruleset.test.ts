@@ -3,8 +3,17 @@ import { BOT_RULESET } from '../rulesets/bot.ruleset'
 import { createDescribeRule, type RecursivePartial } from './common'
 import { CreateBotRequestBody } from '../../api'
 
-type PartialDefinition = RecursivePartial<CreateBotRequestBody>
-const describeRule = createDescribeRule<CreateBotRequestBody>()(BOT_RULESET)
+type AugmentedDefinition = CreateBotRequestBody & {
+  tables?: {
+    [k: string]: {
+      schema: {
+        [k: string]: any
+      }
+    }
+  }
+}
+type PartialDefinition = RecursivePartial<AugmentedDefinition>
+const describeRule = createDescribeRule<AugmentedDefinition>()(BOT_RULESET)
 
 const EMPTY_STRING = ''
 const TRUTHY_STRING = 'truthy'
@@ -14,6 +23,8 @@ const PROPERTIES_PARAM = 'properties'
 const PARAM_NAMES = [PARAM_NAME, PROPERTIES_PARAM] as const
 const TAG_NAME = 'tagName'
 const STATE_NAME = 'stateName'
+const TABLE_NAME = 'TableNameTable'
+const COLUMN_NAME = 'columnName'
 const ZUI = 'x-zui'
 const LEGACY_ZUI = 'ui'
 
@@ -584,5 +595,57 @@ describeRule('state-fields-must-have-description', (lint) => {
 
     // assert
     expect(results).toHaveLength(0)
+  })
+})
+
+describeRule('table-names-must-end-with-table', (lint) => {
+  test('valid table name should not trigger', async () => {
+    // arrange
+    const definition = { tables: { [TABLE_NAME]: {} } } as const satisfies PartialDefinition
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  test('invalid table name should trigger', async () => {
+    // arrange
+    const definition = { tables: { [TRUTHY_STRING]: {} } } as const satisfies PartialDefinition
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+  })
+})
+
+describeRule('table-columns-must-not-begin-with-dollar-sign', (lint) => {
+  test('valid column name should not trigger', async () => {
+    // arrange
+    const definition = {
+      tables: { [TABLE_NAME]: { schema: { properties: { [COLUMN_NAME]: {} } } } },
+    } as const satisfies PartialDefinition
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  test('invalid column name should trigger', async () => {
+    // arrange
+    const definition = {
+      tables: { [TABLE_NAME]: { schema: { properties: { [`$${COLUMN_NAME}`]: {} } } } },
+    } as const satisfies PartialDefinition
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
   })
 })
