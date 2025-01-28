@@ -1,0 +1,18 @@
+name: Check Windows Build
+
+on: pull_request
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  check-windows-build:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    env:
+      NODE_OPTIONS: '--max_old_space_size=8192'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup
+        uses: ./.github/actions/setup

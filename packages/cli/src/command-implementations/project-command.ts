@@ -201,8 +201,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const bpLintDisabled = await this._isBpLintDisabled(abs.integrationDefinition)
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
-      cwd: abs.workDir,
-      outfile: '',
+      absWorkingDir: abs.workDir,
       entrypoint: rel.integrationDefinition,
       write: false,
       minify: false,
@@ -231,8 +230,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const bpLintDisabled = await this._isBpLintDisabled(abs.interfaceDefinition)
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
-      cwd: abs.workDir,
-      outfile: '',
+      absWorkingDir: abs.workDir,
       entrypoint: rel.interfaceDefinition,
       write: false,
       minify: false,
@@ -261,8 +259,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const bpLintDisabled = await this._isBpLintDisabled(abs.botDefinition)
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
-      cwd: abs.workDir,
-      outfile: '',
+      absWorkingDir: abs.workDir,
       entrypoint: rel.botDefinition,
       write: false,
       minify: false,
@@ -291,8 +288,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const bpLintDisabled = await this._isBpLintDisabled(abs.pluginDefinition)
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
-      cwd: abs.workDir,
-      outfile: '',
+      absWorkingDir: abs.workDir,
       entrypoint: rel.pluginDefinition,
       write: false,
       minify: false,

@@ -3,5 +3,5 @@
   "compilerOptions": {
     "baseUrl": "."
   },
-  "include": ["src/**/*", "vitest.config.ts", "package.json"]
+  "include": ["src/**/*", "./e2e/**/*"]
 }

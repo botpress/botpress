@@ -9,8 +9,7 @@
     "check:type": "tsc --noEmit",
     "bundle": "ts-node -T build.ts",
     "template:gen": "pnpm -r --stream -F @bp-templates/* exec bp gen",
-    "test:e2e": "ts-node -T ./e2e",
-    "test:unit": "pnpm vitest --run"
+    "test:e2e": "ts-node -T ./e2e"
   },
   "keywords": [],
   "author": "",

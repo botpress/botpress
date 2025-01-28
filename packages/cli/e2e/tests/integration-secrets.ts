@@ -8,6 +8,7 @@ import { fetchAllIntegrations, ApiIntegration } from '../api'
 import defaults from '../defaults'
 import { Test } from '../typings'
 import * as utils from '../utils'
+import * as retry from '../retry'
 
 type SecretDef = NonNullable<sdk.IntegrationDefinitionProps['secrets']>
 
@@ -52,7 +53,12 @@ export const requiredSecrets: Test = {
       ...creds,
     }
 
-    const client = new Client({ apiUrl: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
+    const client = new Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
 
     await impl
       .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })

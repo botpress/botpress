@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import _ from 'lodash'
 import * as config from './config'
-import * as chat from '@botpress/chat/src'
+import * as chat from '../src'
 
 const invalidApiUrl = config.get('API_URL') + '1234'
 

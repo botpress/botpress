@@ -20,6 +20,7 @@ const ignores = [
     "**/gen/",
     "**/.turbo/",
     "**/.genenv/",
+    "**/gen.ts",
     "**/.ignore.me.*"
 ];
 
