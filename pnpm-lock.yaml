@@ -2094,10 +2094,16 @@ importers:
       '@bpinternal/zui':
         specifier: ^0.13.5
         version: 0.13.5
+      browser-or-node:
+        specifier: ^2.1.1
+        version: 2.1.1
     devDependencies:
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
+      esbuild-plugin-polyfill-node:
+        specifier: ^0.3.0
+        version: 0.3.0(esbuild@0.16.17)
       tsup:
         specifier: ^8.0.2
         version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
