@@ -2,6 +2,7 @@ import { z } from '@botpress/sdk'
 
 export const modelId = z
   .enum([
+    'deepseek-r1-distill-llama-70b',
     'llama-3.3-70b-versatile',
     'llama-3.2-1b-preview',
     'llama-3.2-3b-preview',
