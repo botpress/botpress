@@ -48,7 +48,8 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
       .filter((promise): promise is PromiseFulfilledResult<any> => promise.status === 'fulfilled')
       .map((result) => result.value)
 
-    const cost = input.urls.length * COST_PER_PAGE
+    // only charging for successful pages
+    const cost = results.length * COST_PER_PAGE
     metadata.setCost(cost)
 
     return {
