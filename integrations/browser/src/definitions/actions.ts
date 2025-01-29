@@ -32,6 +32,9 @@ const browsePages = {
   output: {
     schema: z.object({
       results: z.array(fullPage),
+      botpress: z.object({
+        cost: z.number().describe('Cost of the page browse, in U.S. dollars'),
+      }),
     }),
   },
   cacheable: true,
