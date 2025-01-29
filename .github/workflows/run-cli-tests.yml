@@ -10,8 +10,10 @@ permissions:
 
 jobs:
   run-cli-tests:
-    name: Run CLI Tests (Windows)
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     timeout-minutes: 15
     env:
       NODE_OPTIONS: '--max_old_space_size=8192'
@@ -21,12 +23,11 @@ jobs:
         uses: ./.github/actions/setup
         with:
           extra_filters: '-F @botpress/cli'
-      - run: |
-          pnpm run -F cli test:e2e -v \
-            --api-url https://api.botpress.dev \
-            --workspace-id ${{ secrets.STAGING_E2E_TESTS_WORKSPACE_ID }} \
-            --workspace-handle clitests \
-            --token ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }} \
-            --sdk-path "$(pwd)\packages\sdk" \
-            --client-path "$(pwd)\packages\client"
-        shell: bash
+      - run: >
+          pnpm run -F cli test:e2e -v
+          --api-url https://api.botpress.dev
+          --workspace-id ${{ secrets.STAGING_E2E_TESTS_WORKSPACE_ID }}
+          --workspace-handle clitests
+          --token ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
+          --sdk-path "$(pwd)/packages/sdk"
+          --client-path "$(pwd)/packages/client"
