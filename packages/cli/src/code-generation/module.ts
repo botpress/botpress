@@ -13,16 +13,17 @@ export abstract class Module {
   private _localDependencies: Module[] = []
 
   public get path(): string {
-    return this._def.path
+    return this._def.path.split(pathlib.sep).map(strings.fileName).join(pathlib.sep)
   }
 
   /**
-   * @returns file name without extension
+   * @returns module name (equivalent to unescaped file name without extension)
    */
   public get name(): string {
-    const basename = pathlib.basename(this.path)
+    const path = this._def.path
+    const basename = pathlib.basename(path)
     if (basename === consts.INDEX_FILE || basename === consts.INDEX_DECLARATION_FILE) {
-      const dirPath = pathlib.dirname(this.path)
+      const dirPath = pathlib.dirname(path)
       const dirname = pathlib.basename(dirPath)
       return dirname
     }
