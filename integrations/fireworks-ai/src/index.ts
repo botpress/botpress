@@ -259,7 +259,7 @@ export default new bp.Integration({
               for (const choice of response.choices) {
                 if (choice.message.content) {
                   // DeepSeek R1 returns its CoT in its response between <think> tags so we remove it.
-                  choice.message.content = choice.message.content.replace(/<think>.*<\/think>/gs, '')
+                  choice.message.content = choice.message.content.replace(/<think>.*<\/think>/gis, '')
                 }
               }
             }
