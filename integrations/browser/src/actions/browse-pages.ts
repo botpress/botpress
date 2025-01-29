@@ -54,7 +54,6 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
 
     return {
       results,
-      botpress: { cost },
     }
   } catch (err) {
     logger.forBot().error('There was an error while browsing the page.', err)
