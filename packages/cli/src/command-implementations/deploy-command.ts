@@ -9,6 +9,7 @@ import * as errors from '../errors'
 import * as utils from '../utils'
 import { BuildCommand } from './build-command'
 import { ProjectCommand } from './project-command'
+import * as tables from '../tables'
 
 export type DeployCommandDefinition = typeof commandDefinitions.deploy
 export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
@@ -351,6 +352,10 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, `Could not update bot "${bot.name}"`)
     })
+
+    const tablesPublisher = new tables.TablesPublisher({ api, logger: this.logger, prompt: this.prompt })
+    await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition })
+
     line.success('Bot deployed')
     this.displayWebhookUrls(updatedBot)
   }

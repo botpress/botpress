@@ -12,6 +12,7 @@ import * as utils from '../utils'
 import { Worker } from '../worker'
 import { BuildCommand } from './build-command'
 import { ProjectCommand, ProjectDefinition } from './project-command'
+import * as tables from '../tables'
 
 const DEFAULT_BOT_PORT = 8075
 const DEFAULT_INTEGRATION_PORT = 8076
@@ -327,6 +328,9 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     })
     updateLine.success(`Dev Bot deployed with id "${updatedBot.id}" at "${externalUrl}"`)
     updateLine.commit()
+
+    const tablesPublisher = new tables.TablesPublisher({ api, logger: this.logger, prompt: this.prompt })
+    await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition: botDef })
 
     this.displayWebhookUrls(updatedBot)
   }

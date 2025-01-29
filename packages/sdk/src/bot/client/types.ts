@@ -169,6 +169,188 @@ export type GetFile<_TBot extends common.BaseBot> = client.Client['getFile']
 export type UpdateFileMetadata<_TBot extends common.BaseBot> = client.Client['updateFileMetadata']
 export type SearchFiles<_TBot extends common.BaseBot> = client.Client['searchFiles']
 
+export type GetTableRow<TBot extends common.BaseBot> = <
+  TableName extends keyof common.EnumerateTables<TBot>,
+  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>>,
+>(
+  x: utils.Merge<
+    Arg<client.Client['getTableRow']>,
+    {
+      table: utils.Cast<TableName, string>
+      id: client.Row['id']
+    }
+  >
+) => Promise<
+  Readonly<
+    utils.Merge<
+      Awaited<Res<client.Client['getTableRow']>>,
+      {
+        row: Awaited<Res<client.Client['getTableRow']>>['row'] & Columns
+      }
+    >
+  >
+>
+export type CreateTableRows<TBot extends common.BaseBot> = <
+  TableName extends keyof common.EnumerateTables<TBot>,
+  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>>,
+>(
+  x: utils.Merge<
+    Arg<client.Client['createTableRows']>,
+    {
+      table: utils.Cast<TableName, string>
+      rows: utils.AtLeastOne<utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>>>
+    }
+  >
+) => Promise<
+  Readonly<
+    utils.Merge<
+      Awaited<Res<client.Client['createTableRows']>>,
+      {
+        rows: Awaited<Res<client.Client['createTableRows']>>['rows'] & Columns[]
+      }
+    >
+  >
+>
+
+// FIXME: The table row filters are defined in @bpinternal/tables-api, but
+//        they're not exported, so we have to redefine them here. Ideally, we
+//        should have a single source of truth for these types.
+
+type TableRowQueryGroup = 'key' | 'avg' | 'max' | 'min' | 'sum' | 'count'
+
+type TableRowExtraColumns = {
+  /**
+   * Unique identifier for the row.
+   */
+  id: number
+  /**
+   * Timestamp of row creation.
+   */
+  createdAt: string
+  /**
+   * Timestamp of the last row update.
+   */
+  updatedAt: string
+}
+
+type TableRowFilter<
+  TBot extends common.BaseBot,
+  TableName extends keyof common.EnumerateTables<TBot>,
+  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>> & TableRowExtraColumns,
+> = TableRowColumnFilters<Columns> | TableRowLogicalFilter<TBot, TableName, Columns>
+
+type TableRowColumnFilters<Columns> = utils.AtLeastOneProperty<{
+  [K in Extract<keyof Columns, string>]: TableColumnComparisonFilter<Columns[K]>
+}>
+
+type TableRowLogicalFilter<
+  TBot extends common.BaseBot,
+  TableName extends keyof common.EnumerateTables<TBot>,
+  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>> & TableRowExtraColumns,
+> = utils.ExactlyOneProperty<{
+  $and: utils.AtLeastOne<TableRowFilter<TBot, TableName, Columns>>
+  $or: utils.AtLeastOne<TableRowFilter<TBot, TableName, Columns>>
+  $not: TableRowColumnFilters<Columns>
+}>
+
+type TableColumnComparisonFilter<ColumnType> =
+  | ColumnType
+  | utils.ExactlyOneProperty<{
+      $eq: ColumnType
+      $gt: ColumnType
+      $gte: ColumnType
+      $lt: ColumnType
+      $lte: ColumnType
+      $ne: ColumnType
+      $mod: [number, number]
+      $in: utils.AtLeastOne<ColumnType>
+      $nin: utils.AtLeastOne<ColumnType>
+      $exists: boolean
+      $size: number
+    }>
+
+export type FindTableRows<TBot extends common.BaseBot> = <
+  TableName extends keyof common.EnumerateTables<TBot>,
+  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>> & TableRowExtraColumns,
+>(
+  x: utils.Merge<
+    Arg<client.Client['findTableRows']>,
+    {
+      table: utils.Cast<TableName, string>
+      filter?: TableRowFilter<TBot, TableName, Columns>
+      group?: utils.AtLeastOneProperty<{
+        [K in Extract<keyof Columns, string>]: TableRowQueryGroup | TableRowQueryGroup[]
+      }>
+      orderBy?: Extract<keyof Columns, string>
+    }
+  >
+) => Promise<
+  Readonly<
+    utils.Merge<
+      Awaited<Res<client.Client['findTableRows']>>,
+      {
+        rows: Awaited<Res<client.Client['findTableRows']>>['rows'] & Columns[]
+      }
+    >
+  >
+>
+
+export type DeleteTableRows<TBot extends common.BaseBot> = <TableName extends keyof common.EnumerateTables<TBot>>(
+  x: utils.Merge<
+    Arg<client.Client['deleteTableRows']>,
+    {
+      table: utils.Cast<TableName, string>
+      filter?: TableRowFilter<TBot, TableName>
+    }
+  >
+) => Promise<Readonly<Awaited<Res<client.Client['deleteTableRows']>>>>
+
+export type UpdateTableRows<TBot extends common.BaseBot> = <
+  TableName extends keyof common.EnumerateTables<TBot>,
+  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>>,
+>(
+  x: utils.Merge<
+    Arg<client.Client['updateTableRows']>,
+    {
+      table: utils.Cast<TableName, string>
+      rows: utils.AtLeastOne<utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>> & { id: number }>
+    }
+  >
+) => Promise<
+  Readonly<
+    utils.Merge<
+      Awaited<Res<client.Client['updateTableRows']>>,
+      {
+        rows: Awaited<Res<client.Client['updateTableRows']>>['rows'] & Columns[]
+      }
+    >
+  >
+>
+
+export type UpsertTableRows<TBot extends common.BaseBot> = <
+  TableName extends keyof common.EnumerateTables<TBot>,
+  Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>>,
+>(
+  x: utils.Merge<
+    Arg<client.Client['upsertTableRows']>,
+    {
+      table: utils.Cast<TableName, string>
+      rows: utils.AtLeastOne<utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>> & { id: number }>
+      keyColumn?: Extract<keyof common.EnumerateTables<TBot>[TableName], string> | 'id'
+    }
+  >
+) => Promise<
+  Readonly<
+    utils.Merge<
+      Awaited<Res<client.Client['upsertTableRows']>>,
+      {
+        inserted: Awaited<Res<client.Client['upsertTableRows']>>['inserted'] & Columns[]
+        updated: Awaited<Res<client.Client['upsertTableRows']>>['updated'] & Columns[]
+      }
+    >
+  >
+>
+
 export type TrackAnalytics<_TBot extends common.BaseBot> = client.Client['trackAnalytics']
 
 export type ClientOperations<TBot extends common.BaseBot> = {
@@ -205,6 +387,12 @@ export type ClientOperations<TBot extends common.BaseBot> = {
   updateFileMetadata: UpdateFileMetadata<TBot>
   searchFiles: SearchFiles<TBot>
   trackAnalytics: TrackAnalytics<TBot>
+  getTableRow: GetTableRow<TBot>
+  createTableRows: CreateTableRows<TBot>
+  findTableRows: FindTableRows<TBot>
+  deleteTableRows: DeleteTableRows<TBot>
+  updateTableRows: UpdateTableRows<TBot>
+  upsertTableRows: UpsertTableRows<TBot>
 }
 
 export type ClientInputs<TBot extends common.BaseBot> = {

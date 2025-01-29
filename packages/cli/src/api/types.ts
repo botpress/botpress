@@ -7,6 +7,7 @@ export type ApiClientProps = {
   apiUrl: string
   token: string
   workspaceId: string
+  botId?: string
 }
 
 export type ApiClientFactory = {

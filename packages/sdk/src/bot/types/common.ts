@@ -104,3 +104,7 @@ export type GetMessages<TBot extends BaseBot> = {
 export type EnumerateStates<TBot extends BaseBot> = {
   [K in keyof TBot['states']]: TBot['states'][K]
 }
+
+export type EnumerateTables<TBot extends BaseBot> = {
+  [K in keyof TBot['tables']]: TBot['tables'][K]
+}

@@ -1,13 +1,15 @@
+import { Table } from '@botpress/client'
 import { IntegrationPackage, PluginPackage } from '../package'
 import { PluginInterfaceExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
-import { ValueOf, Writable } from '../utils/type-utils'
+import { ValueOf, Writable, Merge } from '../utils/type-utils'
 import z, { ZuiObjectSchema } from '../zui'
 
 type BaseConfig = ZuiObjectSchema
 type BaseStates = Record<string, ZuiObjectSchema>
 type BaseEvents = Record<string, ZuiObjectSchema>
 type BaseActions = Record<string, ZuiObjectSchema>
+type BaseTables = Record<string, ZuiObjectSchema>
 
 export type TagDefinition = {
   title?: string
@@ -52,6 +54,13 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
 }
 
+export type TableDefinition<TTable extends BaseTables[string] = BaseTables[string]> = Merge<
+  Omit<Table, 'id' | 'createdAt' | 'updatedAt' | 'name'>,
+  {
+    schema: TTable
+  }
+>
+
 export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
   enabled: boolean
 } & (
@@ -81,6 +90,7 @@ export type BotDefinitionProps<
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
+  TTables extends BaseTables = BaseTables,
 > = {
   integrations?: {
     [K: string]: IntegrationInstance
@@ -102,12 +112,16 @@ export type BotDefinitionProps<
   actions?: {
     [K in keyof TActions]: ActionDefinition<TActions[K]>
   }
+  tables?: {
+    [K in keyof TTables]: TableDefinition<TTables[K]>
+  }
 }
 
 export class BotDefinition<
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
+  TTables extends BaseTables = BaseTables,
 > {
   public readonly integrations: this['props']['integrations']
   public readonly plugins: this['props']['plugins']
@@ -119,7 +133,8 @@ export class BotDefinition<
   public readonly events: this['props']['events']
   public readonly recurringEvents: this['props']['recurringEvents']
   public readonly actions: this['props']['actions']
-  public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions>) {
+  public readonly tables: this['props']['tables']
+  public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables>) {
     this.integrations = props.integrations
     this.plugins = props.plugins
     this.user = props.user
@@ -130,6 +145,7 @@ export class BotDefinition<
     this.events = props.events
     this.recurringEvents = props.recurringEvents
     this.actions = props.actions
+    this.tables = props.tables
   }
 
   public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
@@ -166,6 +182,7 @@ export class BotDefinition<
     self.events = this._mergeEvents(self.events, pluginPkg.definition.events)
     self.recurringEvents = this._mergeRecurringEvents(self.recurringEvents, pluginPkg.definition.recurringEvents)
     self.actions = this._mergeActions(self.actions, pluginPkg.definition.actions)
+    self.tables = this._mergeTables(self.tables, pluginPkg.definition.tables)
 
     return this
   }
@@ -243,6 +260,16 @@ export class BotDefinition<
     return {
       ...actions1,
       ...actions2,
+    }
+  }
+
+  private _mergeTables = (
+    tables1: BotDefinitionProps['tables'],
+    tables2: BotDefinitionProps['tables']
+  ): BotDefinitionProps['tables'] => {
+    return {
+      ...tables1,
+      ...tables2,
     }
   }
 }
