@@ -85,8 +85,10 @@ bot.on.message('*', async (props) => {
   const query = message.payload.text.trim()
   const command = commands[query]
   if (command) {
-    props.logger.info(`Executing command: "${query}"`)
+    const now = Date.now()
+    props.logger.info(`[${now}:START] command "${query}"`)
     await command.handler(props)
+    props.logger.info(`[${now}:STOP] command "${query}"`)
     return
   }
 
