@@ -24,9 +24,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
-        with:
-          turbo_team: ${{ secrets.TURBO_TEAM }}
-          turbo_token: ${{ secrets.TURBO_TOKEN }}
       - name: Deploy Interfaces
         uses: ./.github/actions/deploy-interfaces
         with:
@@ -56,9 +53,10 @@ jobs:
           groq_secrets: '--secrets GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}'
           anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
           fireworks_ai_secrets: '--secrets FIREWORKS_AI_API_KEY=${{ secrets.FIREWORKS_AI_API_KEY }}'
-          todoist_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_TODOIST_CLIENT_SECRET }}'
+          todoist_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_TODOIST_CLIENT_SECRET }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.STAGING_TODOIST_WEBHOOK_SHARED_SECRET }}'
           cerebras_secrets: '--secrets CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}'
           messenger_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_MESSENGER_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_MESSENGER_CLIENT_SECRET  }} --secrets ACCESS_TOKEN=${{ secrets.STAGING_MESSENGER_ACCESS_TOKEN  }}'
           github_secrets: "--secrets GITHUB_APP_ID=${{ secrets.STAGING_GITHUB_APP_ID }} --secrets 'GITHUB_PRIVATE_KEY=${{ secrets.STAGING_GITHUB_PRIVATE_KEY }}' --secrets GITHUB_WEBHOOK_SECRET=${{ secrets.STAGING_GITHUB_WEBHOOK_SECRET }}"
           google_ai_secrets: '--secrets GOOGLE_AI_API_KEY=${{ secrets.GOOGLE_AI_API_KEY }}'
           intercom_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_INTERCOM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_INTERCOM_CLIENT_SECRET }}'
+          instagram_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_INSTAGRAM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_INSTAGRAM_CLIENT_SECRET }}'

@@ -1,12 +1,12 @@
 import { z, IntegrationDefinitionProps, ActionDefinition } from '@botpress/sdk'
 import { linearIdsSchema, userProfileSchema, issueSchema } from './schemas'
 
-const channels = ['issue'] as const
+const _channels = ['issue'] as const
 
 export type Target = {
   displayName: string
   tags: { [key: string]: string }
-  channel: (typeof channels)[number]
+  channel: (typeof _channels)[number]
 }
 
 const findTarget = {

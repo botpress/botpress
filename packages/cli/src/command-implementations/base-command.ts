@@ -3,7 +3,10 @@ import type { Logger } from '../logger'
 import type { CommandArgv, CommandDefinition } from '../typings'
 
 export abstract class BaseCommand<C extends CommandDefinition> {
-  public constructor(protected readonly logger: Logger, protected readonly argv: CommandArgv<C>) {}
+  public constructor(
+    protected readonly logger: Logger,
+    protected readonly argv: CommandArgv<C>
+  ) {}
 
   protected abstract run(): Promise<void>
   protected bootstrap?(): Promise<void>

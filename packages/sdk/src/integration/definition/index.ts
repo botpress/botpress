@@ -1,3 +1,4 @@
+import type * as esbuild from 'esbuild'
 import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'
 import { z } from '../../zui'
@@ -36,7 +37,7 @@ export type IntegrationDefinitionProps<
   TActions extends BaseActions = BaseActions,
   TChannels extends BaseChannels = BaseChannels,
   TStates extends BaseStates = BaseStates,
-  TEntities extends BaseEntities = BaseEntities
+  TEntities extends BaseEntities = BaseEntities,
 > = {
   name: TName
   version: TVersion
@@ -79,6 +80,10 @@ export type IntegrationDefinitionProps<
   }
 
   interfaces?: Record<string, InterfaceExtension>
+
+  __advanced?: {
+    esbuild?: Partial<esbuild.BuildOptions>
+  }
 }
 
 type EntitiesOfPackage<TPackage extends InterfacePackage> = {
@@ -104,7 +109,7 @@ export class IntegrationDefinition<
   TActions extends BaseActions = BaseActions,
   TChannels extends BaseChannels = BaseChannels,
   TStates extends BaseStates = BaseStates,
-  TEntities extends BaseEntities = BaseEntities
+  TEntities extends BaseEntities = BaseEntities,
 > {
   public readonly name: this['props']['name']
   public readonly version: this['props']['version']
@@ -123,6 +128,7 @@ export class IntegrationDefinition<
   public readonly identifier: this['props']['identifier']
   public readonly entities: this['props']['entities']
   public readonly interfaces: this['props']['interfaces']
+  public readonly __advanced: this['props']['__advanced']
   public constructor(
     public readonly props: IntegrationDefinitionProps<
       TName,
@@ -153,6 +159,7 @@ export class IntegrationDefinition<
     this.secrets = props.secrets
     this.entities = props.entities
     this.interfaces = props.interfaces
+    this.__advanced = props.__advanced
   }
 
   public extend<P extends InterfacePackage>(

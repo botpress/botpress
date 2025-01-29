@@ -6,8 +6,8 @@ export type RecursivePartial<T> = {
   [P in Extract<keyof T, string>]?: T[P] extends (infer U)[]
     ? RecursivePartial<U>[]
     : T[P] extends object | undefined
-    ? RecursivePartial<T[P]>
-    : T[P]
+      ? RecursivePartial<T[P]>
+      : T[P]
 }
 
 type Ruleset = {

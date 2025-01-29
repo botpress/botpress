@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-
+import * as retry from '../retry'
 import pathlib from 'path'
 import * as uuid from 'uuid'
 import impl from '../../src/command-implementations'
@@ -32,7 +32,12 @@ export const createDeployIntegration: Test = {
       ...creds,
     }
 
-    const client = new Client({ apiUrl: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
+    const client = new Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
 
     await impl
       .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })

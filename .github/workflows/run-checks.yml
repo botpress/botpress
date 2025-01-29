@@ -8,20 +8,17 @@ permissions:
 
 jobs:
   run-checks:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: depot-ubuntu-22.04-8
+    timeout-minutes: 10
     env:
       NODE_OPTIONS: '--max_old_space_size=8192'
-
     steps:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
-        with:
-          turbo_team: ${{ secrets.TURBO_TEAM }}
-          turbo_token: ${{ secrets.TURBO_TOKEN }}
       - run: pnpm run check:dep
       - run: pnpm run check:sherif
+      - run: pnpm run check:oxlint
       - run: pnpm run check:format
       - run: pnpm run check:eslint
       - run: pnpm run check:bplint

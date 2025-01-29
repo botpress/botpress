@@ -12,7 +12,10 @@ export type AuthKey = z.infer<typeof keySchema>
 export type EncryptionMode = 'personal' | 'shared'
 
 export class AuthKeyHandler {
-  public constructor(private _sk: string, private _mode: EncryptionMode) {}
+  public constructor(
+    private _sk: string,
+    private _mode: EncryptionMode
+  ) {}
 
   public get mode(): EncryptionMode {
     return this._mode

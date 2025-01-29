@@ -1,6 +1,6 @@
 export class WatchDog {
   private _listeners: ((error: Error) => void)[] = []
-  private _handle: NodeJS.Timeout | null = null
+  private _handle: ReturnType<typeof setTimeout> | null = null
 
   private constructor(private _ms: number) {}
 

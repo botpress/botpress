@@ -1,24 +1,17 @@
-import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import {
   Card,
   Carousel,
   Choice,
   Dropdown,
-  InstagramAttachment,
-  InstagramUserProfile,
-  IntegrationLogger,
+  GenericTemplateElement,
+  GenericTemplateMessage,
+  InstagramAction,
   Location,
+  TextMessageWithQuickReplies,
 } from './types'
-import * as bp from '.botpress'
 
-export function getMessengerClient(configuration: bp.configuration.Configuration) {
-  return new MessengerClient({
-    accessToken: configuration.accessToken,
-  })
-}
-
-export function formatCardElement(payload: Card) {
-  const buttons: InstagramAttachment[] = []
+export function formatCardElement(payload: Card): GenericTemplateElement {
+  const buttons: InstagramAction[] = []
 
   payload.actions.forEach((action) => {
     switch (action.action) {
@@ -59,55 +52,39 @@ export function formatGoogleMapLink(payload: Location) {
   return `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
 }
 
-export function getCarouselMessage(payload: Carousel): MessengerTypes.AttachmentMessage {
+export function getCarouselMessage(payload: Carousel): GenericTemplateMessage {
   return {
     attachment: {
       type: 'template',
       payload: {
-        templateType: 'generic',
+        template_type: 'generic',
         elements: payload.items.map(formatCardElement),
       },
     },
   }
 }
 
-export function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.TextMessage {
+export function getChoiceMessage(payload: Choice | Dropdown): TextMessageWithQuickReplies {
   if (!payload.options.length) {
     return { text: payload.text }
   }
 
   if (payload.options.length > 13) {
     return {
-      text: `${payload.text}\n\n${payload.options.map((o, idx) => `${idx + 1}. ${o.label}`).join('\n')}`,
+      text: `${payload.text}\n\n${payload.options.map((o) => `- ${o.label}`).join('\n')}`,
     }
   }
 
   return {
     text: payload.text,
-    quickReplies: payload.options.map((option) => ({
-      contentType: 'text',
+    quick_replies: payload.options.map((option) => ({
+      content_type: 'text',
       title: option.label,
       payload: option.value,
     })),
   }
 }
 
-export const getUserProfile = async (
-  userId: string,
-  configuration: bp.configuration.Configuration,
-  logger: IntegrationLogger
-) => {
-  const messengerClient = getMessengerClient(configuration)
-  try {
-    return (await messengerClient.getUserProfile(userId, {
-      // username is an available field for instagram ids -> https://developers.facebook.com/docs/instagram-basic-display-api/guides/getting-profiles-and-media
-      fields: ['id', 'name', 'profile_pic', 'username'] as any,
-    })) as InstagramUserProfile
-  } catch (error) {
-    logger.forBot().debug("profile_pic can't be fetched from instagram, trying without it")
-    // if the user is not a business instagram user, this will fail because of profile_pic
-    return (await messengerClient.getUserProfile(userId, {
-      fields: ['id', 'name', 'username'] as any,
-    })) as InstagramUserProfile
-  }
+export const getGlobalOauthWebhookUrl = () => {
+  return `${process.env.BP_WEBHOOK_URL}/oauth`
 }

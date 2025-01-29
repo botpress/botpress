@@ -18,9 +18,9 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
     const line = this.logger.line()
 
     if (projectDef.type === 'integration') {
-      const { name } = projectDef.definition
+      const { name, __advanced } = projectDef.definition
       line.started(`Bundling integration ${chalk.bold(name)}...`)
-      return await this._bundle(line)
+      return await this._bundle(line, __advanced?.esbuild ?? {})
     }
 
     if (projectDef.type === 'bot') {
@@ -36,8 +36,7 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
     throw new errors.UnsupportedProjectType()
   }
 
-  private async _bundle(line: SingleLineLogger, props: Partial<utils.esbuild.BuildCodeProps> = {}) {
-    const logLevel = this.argv.verbose ? 'info' : 'silent'
+  private async _bundle(line: SingleLineLogger, props: Partial<utils.esbuild.BuildOptions> = {}) {
     const abs = this.projectPaths.abs
     const rel = this.projectPaths.rel('workDir')
 
@@ -45,18 +44,21 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
     const importFrom = utils.path.rmExtension(unixPath)
     const code = `import x from './${importFrom}'; export default x; export const handler = x.handler;`
 
-    const outfile = abs.outFile // TODO: ensure dir exists
-    line.debug(`Writing bundle to ${outfile}`)
+    line.debug(`Writing bundle to ${abs.outFile}`)
 
-    await utils.esbuild.buildCode({
-      code,
-      cwd: abs.workDir,
-      outfile,
-      logLevel,
-      write: true,
+    const buildOptions: Partial<utils.esbuild.BuildOptions> = {
+      logLevel: this.argv.verbose ? 'info' : 'silent',
       sourcemap: this.argv.sourceMap,
       minify: this.argv.minify,
       ...props,
+    }
+
+    await utils.esbuild.buildCode({
+      ...buildOptions,
+      absWorkingDir: abs.workDir,
+      outfile: abs.outFile,
+      write: true,
+      code,
     })
 
     line.success(`Bundle available at ${chalk.grey(rel.outDir)}`)

@@ -18,7 +18,7 @@ export const deserializeToken = (serializedToken: string, secret: string): Token
   let object: any
   try {
     object = jwt.verify(serializedToken, secret)
-  } catch (e) {
+  } catch {
     return undefined
   }
   const tokenParseResult = tokenSchema.safeParse(object)

@@ -7,20 +7,21 @@ type AsyncFunction = (...args: any[]) => Promise<any>
 type Simplify<T> = T extends (...args: infer A) => infer R
   ? (...args: Simplify<A>) => Simplify<R>
   : T extends Buffer
-  ? Buffer
-  : T extends Promise<infer R>
-  ? Promise<Simplify<R>>
-  : T extends object
-  ? T extends infer O
-    ? { [K in keyof O]: Simplify<O[K]> }
-    : never
-  : T
+    ? Buffer
+    : T extends Promise<infer R>
+      ? Promise<Simplify<R>>
+      : T extends object
+        ? T extends infer O
+          ? { [K in keyof O]: Simplify<O[K]> }
+          : never
+        : T
 
 export type Headers = Record<string, string>
 export type ClientProps = {
   apiUrl: string
   timeout?: number
   headers?: Headers
+  debug?: boolean
 }
 
 export type ConnectProps = ClientProps & {

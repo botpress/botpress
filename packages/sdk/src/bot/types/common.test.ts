@@ -18,7 +18,7 @@ test('EnumerateActions should enumerate actions', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -32,7 +32,7 @@ test('EnumerateActions should return empty object if TBot is EmptyBot', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -46,7 +46,7 @@ test('EnumerateActions should return record if TBot is BaseBot', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -64,7 +64,7 @@ test('EnumerateActionInputs should enumerate action inputs', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -82,7 +82,7 @@ test('EnumerateActionOutputs should enumerate action inputs', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -111,7 +111,7 @@ test('EnumerateEvents should enumerate events', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -135,7 +135,7 @@ test('EnumerateEvents with only integration events should enumerate only integra
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -159,7 +159,7 @@ test('EnumerateEvents with only bot events should enumerate only bot events', ()
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -173,7 +173,7 @@ test('EnumerateEvents should return empty object if TBot is EmptyBot', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -187,7 +187,7 @@ test('EnumerateEvents should return record if TBot is BaseBot', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -205,7 +205,7 @@ test('EnumerateChannels should enumerate channels', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -219,7 +219,7 @@ test('EnumerateChannels should return empty object if TBot is EmptyBot', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -233,7 +233,7 @@ test('EnumerateChannels should return record if TBot is BaseBot', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -251,7 +251,7 @@ test('EnumerateMessages should enumerate messages', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -265,7 +265,7 @@ test('EnumerateMessages should return empty object if TBot is EmptyBot', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -279,7 +279,7 @@ test('EnumerateMessages should return record if TBot is BaseBot', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -324,7 +324,7 @@ test('GetMessages should return union of all channels per message', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -338,7 +338,7 @@ test('GetMessages should return record if TBot is BaseBot', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })

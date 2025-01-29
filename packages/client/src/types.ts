@@ -34,14 +34,14 @@ type UploadFileOutput = UpsertFileResponse
 type Simplify<T> = T extends (...args: infer A) => infer R
   ? (...args: Simplify<A>) => Simplify<R>
   : T extends Promise<infer R>
-  ? Promise<Simplify<R>>
-  : T extends Buffer
-  ? Buffer
-  : T extends object
-  ? T extends infer O
-    ? { [K in keyof O]: Simplify<O[K]> }
-    : never
-  : T
+    ? Promise<Simplify<R>>
+    : T extends Buffer
+      ? Buffer
+      : T extends object
+        ? T extends infer O
+          ? { [K in keyof O]: Simplify<O[K]> }
+          : never
+        : T
 
 type AsyncFunc = (...args: any[]) => Promise<any>
 
@@ -52,9 +52,9 @@ export type IClient = Simplify<
 >
 
 export type Operation = Simplify<
-  | keyof {
-      [K in keyof IClient as IClient[K] extends AsyncFunc ? K : never]: IClient[K]
-    }
+  keyof {
+    [K in keyof IClient as IClient[K] extends AsyncFunc ? K : never]: IClient[K]
+  }
 >
 
 /**

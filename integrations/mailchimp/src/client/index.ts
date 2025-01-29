@@ -150,10 +150,8 @@ export class MailchimpApi {
       const campaignResponse = await this._client.campaigns?.get(campaignId)
       return campaignResponse?.recipients.list_id || null
     } catch (error: any) {
-      if (isMailchimpError(error)) {
-        if (error.status === 404) {
-          return null
-        }
+      if (isMailchimpError(error) && error.status === 404) {
+        return null
       }
       throw error
     }

@@ -15,8 +15,8 @@ import {
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
-import { GenerateContentInput, GenerateContentOutput, ToolCall, Message, ModelDetails } from './types'
 import { createUpstreamProviderFailedError } from './errors'
+import { GenerateContentInput, GenerateContentOutput, ToolCall, Message, ModelDetails } from './types'
 
 const OpenAIErrorSchema = z
   .object({
@@ -42,6 +42,10 @@ export async function generateContent<M extends string>(
     models: Record<M, ModelDetails>
     defaultModel: M
     overrideRequest?: (request: ChatCompletionCreateParamsNonStreaming) => ChatCompletionCreateParamsNonStreaming
+    overrideResponse?: (
+      response: OpenAI.Chat.Completions.ChatCompletion,
+      request: ChatCompletionCreateParamsNonStreaming
+    ) => OpenAI.Chat.Completions.ChatCompletion
   }
 ): Promise<GenerateContentOutput> {
   const modelId = (input.model?.id || props.defaultModel) as M
@@ -123,6 +127,10 @@ export async function generateContent<M extends string>(
     if (input.debug && response) {
       logger.forBot().info(`Response received from ${props.provider}: ` + JSON.stringify(response, null, 2))
     }
+  }
+
+  if (props.overrideResponse) {
+    response = props.overrideResponse(response, request)
   }
 
   const inputTokens = response.usage?.prompt_tokens || 0

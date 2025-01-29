@@ -88,7 +88,7 @@ const integration = new bp.Integration({
           try {
             const message = await client.telegram.sendVoice(chat, payload.audioUrl, { caption: payload.caption })
             await ackMessage(message, ack)
-          } catch (error) {
+          } catch {
             // If the audio file is too large to be voice, Telegram should send it as an audio file, but if for some reason it doesn't, we can send it as an audio file
             const message = await client.telegram.sendAudio(chat, payload.audioUrl, { caption: payload.caption })
             await ackMessage(message, ack)

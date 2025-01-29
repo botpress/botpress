@@ -4,7 +4,10 @@ const baseURL = 'https://api.clickup.com/api/v2'
 export class ClickUpClient {
   private _axios: AxiosInstance
 
-  public constructor(private _token: string, private _teamId: string) {
+  public constructor(
+    private _token: string,
+    private _teamId: string
+  ) {
     this._axios = axios.create({
       baseURL,
       headers: { Authorization: _token },

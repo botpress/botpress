@@ -4,7 +4,10 @@ import { Module, ReExportTypeModule } from '../../module'
 import * as strings from '../../strings'
 
 export class EventModule extends Module {
-  public constructor(name: string, private _event: sdk.EventDefinition) {
+  public constructor(
+    name: string,
+    private _event: sdk.EventDefinition
+  ) {
     const eventName = name
     const exportName = strings.typeName(eventName)
     super({ path: `${name}.ts`, exportName })

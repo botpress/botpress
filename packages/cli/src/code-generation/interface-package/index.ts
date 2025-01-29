@@ -6,7 +6,7 @@ import { InterfacePackageDefinitionModule } from './interface-package-definition
 
 const generateInterfacePackageModule = (definitionImport: string, pkg: types.InterfaceInstallablePackage): string => {
   const id = pkg.source === 'remote' ? pkg.interface.id : undefined
-  const uri = pkg.source === 'local' ? utils.path.win32.escapeBackslashes(pkg.path) : undefined
+  const uri = pkg.source === 'local' ? utils.path.toNormalizedPosixPath(pkg.path) : undefined
 
   const tsId = gen.primitiveToTypescriptValue(id)
   const tsUri = gen.primitiveToTypescriptValue(uri)
@@ -16,7 +16,7 @@ const generateInterfacePackageModule = (definitionImport: string, pkg: types.Int
     consts.GENERATED_HEADER,
     'import * as sdk from "@botpress/sdk"',
     '',
-    `import definition from "${utils.path.win32.escapeBackslashes(definitionImport)}"`,
+    `import definition from "${utils.path.toNormalizedPosixPath(definitionImport)}"`,
     '',
     'export default {',
     '  type: "interface",',

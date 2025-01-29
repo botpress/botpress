@@ -3,7 +3,7 @@
   "tasks": {
     "generate": {
       "outputs": ["src/gen/**"],
-      "dependsOn": ["^generate"]
+      "dependsOn": ["^generate", "^build"]
     },
     "build": {
       "outputs": ["bp_modules/**", ".botpress/**"],
@@ -23,6 +23,10 @@
     },
     "@botpress/cli#build": {
       "outputs": ["dist/**", "templates/*/.botpress/**"],
+      "dependsOn": ["generate", "^build"]
+    },
+    "@botpress/cognitive#build": {
+      "outputs": ["dist/**"],
       "dependsOn": ["generate", "^build"]
     },
     "check:type": {},

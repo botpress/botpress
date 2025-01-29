@@ -3,12 +3,15 @@ import { baseDiscriminatedFileSchema } from './schemas'
 import { BaseFolderFile, BaseDiscriminatedFile, BaseNormalFile } from './types'
 import * as bp from '.botpress'
 
-const filesMapSchema = z.record(z.string(), baseDiscriminatedFileSchema)
-type FilesMap = z.infer<typeof filesMapSchema>
+const _filesMapSchema = z.record(z.string(), baseDiscriminatedFileSchema)
+type FilesMap = z.infer<typeof _filesMapSchema>
 
 export class FilesCache {
   private _map: FilesMap
-  public constructor(private _client: bp.Client, private _ctx: bp.Context) {
+  public constructor(
+    private _client: bp.Client,
+    private _ctx: bp.Context
+  ) {
     this._map = {}
   }
 
