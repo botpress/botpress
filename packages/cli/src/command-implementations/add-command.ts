@@ -146,8 +146,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
     if (this._pkgCouldBe(ref, 'plugin')) {
       const plugin = await api.findPublicPlugin(ref)
-
       if (plugin) {
+        const { code } = await api.client.getPluginCode({ id: plugin.id, platform: 'node' })
         const { name, version } = plugin
         return {
           type: 'plugin',
@@ -155,6 +155,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
             name,
             version,
             plugin,
+            code,
           },
         }
       }
@@ -220,9 +221,9 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
           path: absPath,
           name,
           version,
+          code,
           plugin: {
             ...createPluginReqBody,
-            code,
             dependencies: {
               interfaces: await utils.promises.awaitRecord(
                 utils.records.mapValues(
@@ -284,7 +285,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     const devId = await cmd.projectCache.get('devId')
 
-    const implementationAbsPath = utils.path.join(workDir, consts.fromWorkDir.outFile)
+    const implementationAbsPath = utils.path.join(workDir, consts.fromWorkDir.outFileCJS)
     if (!fslib.existsSync(implementationAbsPath)) {
       return { definition, devId }
     }

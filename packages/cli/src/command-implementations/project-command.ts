@@ -203,8 +203,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       absWorkingDir: abs.workDir,
       entrypoint: rel.integrationDefinition,
-      write: false,
-      minify: false,
     })
 
     const artifact = outputFiles[0]
@@ -232,8 +230,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       absWorkingDir: abs.workDir,
       entrypoint: rel.interfaceDefinition,
-      write: false,
-      minify: false,
     })
 
     const artifact = outputFiles[0]
@@ -261,8 +257,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       absWorkingDir: abs.workDir,
       entrypoint: rel.botDefinition,
-      write: false,
-      minify: false,
     })
 
     const artifact = outputFiles[0]
@@ -290,8 +284,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       absWorkingDir: abs.workDir,
       entrypoint: rel.pluginDefinition,
-      write: false,
-      minify: false,
     })
 
     const artifact = outputFiles[0]
@@ -407,7 +399,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     integrationDef: sdk.IntegrationDefinition
   ): Promise<apiUtils.CreateIntegrationRequestBody> {
     const partialBody = await apiUtils.prepareCreateIntegrationBody(integrationDef)
-    const code = await this.readProjectFile(this.projectPaths.abs.outFile)
+    const code = await this.readProjectFile(this.projectPaths.abs.outFileCJS)
     const icon = await this.readProjectFile(integrationDef.icon, 'base64')
     const readme = await this.readProjectFile(integrationDef.readme, 'base64')
     const extractScript = await this.readProjectFile(integrationDef.identifier?.extractScript)

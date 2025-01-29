@@ -36,7 +36,7 @@ class PluginModule extends mod.Module {
       exportName: consts.DEFAULT_EXPORT_NAME,
     })
 
-    this._implModule = new ImplementationModule(this._pkg.plugin.code)
+    this._implModule = new ImplementationModule(this._pkg.code)
     this.pushDep(this._implModule)
 
     this._defModule = new PluginPackageDefinitionModule(this._pkg.plugin)

@@ -1,36 +1,44 @@
+import * as error from './error'
 import * as table from './table'
 import * as vanilla from './vanilla-client'
 import * as bp from '.botpress'
 
 const synchronize = async (props: bp.EventHandlerProps | bp.ActionHandlerProps): Promise<{ nextToken?: string }> => {
-  const { state } = await props.client.getOrSetState({
-    type: 'bot',
-    id: props.ctx.botId,
-    name: 'job',
-    payload: { nextToken: undefined },
-  })
+  const { state } = await props.client
+    .getOrSetState({
+      type: 'bot',
+      id: props.ctx.botId,
+      name: 'job',
+      payload: { nextToken: undefined },
+    })
+    .catch(error.mapError('Failed to get state "job"'))
 
   const { nextToken } = state.payload
   props.logger.info('Synchronizing...', nextToken)
 
   const { client, configuration, actions } = props
 
-  const nextPage = await actions.listable.list({ nextToken })
+  const nextPage = await actions.listable.list({ nextToken }).catch(error.mapError('Failed to list items'))
 
-  await table.createTableIfNotExist(props, nextPage.items[0])
+  await table.createTableIfNotExist(props, nextPage.items[0]).catch(error.mapError('Failed to create table'))
 
-  await vanilla.clientFrom(client).upsertTableRows({
-    table: configuration.tableName,
-    rows: nextPage.items.map(table.escapeObject),
-    keyColumn: table.PRIMARY_KEY,
-  })
+  await vanilla
+    .clientFrom(client)
+    .upsertTableRows({
+      table: configuration.tableName,
+      rows: nextPage.items.map(table.escapeObject),
+      keyColumn: table.PRIMARY_KEY,
+    })
+    .catch(error.mapError('Failed to upsert table rows'))
 
-  await props.client.setState({
-    type: 'bot',
-    id: props.ctx.botId,
-    name: 'job',
-    payload: { nextToken: nextPage.meta.nextToken },
-  })
+  await props.client
+    .setState({
+      type: 'bot',
+      id: props.ctx.botId,
+      name: 'job',
+      payload: { nextToken: nextPage.meta.nextToken },
+    })
+    .catch(error.mapError('Failed to set state "job"'))
 
   return { nextToken: nextPage.meta.nextToken }
 }

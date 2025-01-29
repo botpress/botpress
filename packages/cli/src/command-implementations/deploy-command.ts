@@ -195,8 +195,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployPlugin(api: apiUtils.ApiClient, pluginDef: sdk.PluginDefinition) {
-    const outfile = this.projectPaths.abs.outFile
-    const code = await fs.promises.readFile(outfile, 'utf-8')
+    const codeCJS = await fs.promises.readFile(this.projectPaths.abs.outFileCJS, 'utf-8')
+    const codeESM = await fs.promises.readFile(this.projectPaths.abs.outFileESM, 'utf-8')
 
     const { name, version } = pluginDef
 
@@ -218,9 +218,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     this.logger.debug('Preparing plugin request body...')
 
-    const createBody: apiUtils.CreatePluginRequestBody & { code: string } = {
+    const createBody = {
       ...(await apiUtils.prepareCreatePluginBody(pluginDef)),
-      code,
+      code: {
+        node: codeCJS,
+        browser: codeESM,
+      },
     }
 
     const startedMessage = `Deploying plugin ${chalk.bold(name)} v${version}...`
@@ -307,7 +310,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     argvBotId: string | undefined,
     argvCreateNew: boolean | undefined
   ) {
-    const outfile = this.projectPaths.abs.outFile
+    const outfile = this.projectPaths.abs.outFileCJS
     const code = await fs.promises.readFile(outfile, 'utf-8')
 
     let bot: client.Bot

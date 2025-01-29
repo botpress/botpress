@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import * as error from './error'
 import * as vanilla from './vanilla-client'
 import * as bp from '.botpress'
 
@@ -14,12 +15,14 @@ export const createTableIfNotExist = async (
     return
   }
 
-  const { state } = await props.client.getOrSetState({
-    type: 'bot',
-    id: props.ctx.botId,
-    name: 'table',
-    payload: { tableCreated: false },
-  })
+  const { state } = await props.client
+    .getOrSetState({
+      type: 'bot',
+      id: props.ctx.botId,
+      name: 'table',
+      payload: { tableCreated: false },
+    })
+    .catch(error.mapError('Failed to get state "table"'))
 
   const { tableCreated } = state.payload
   if (tableCreated) {
@@ -31,12 +34,16 @@ export const createTableIfNotExist = async (
   const schema = escapeObject(item)
 
   props.logger.info(`Creating table "${props.configuration.tableName}" with schema ${JSON.stringify(schema)}`)
-  await client.createTable({
-    name: props.configuration.tableName,
-    schema,
-  })
+  await client
+    .createTable({
+      name: props.configuration.tableName,
+      schema,
+    })
+    .catch(error.mapError('Failed to create table'))
 
-  await props.client.setState({ type: 'bot', id: props.ctx.botId, name: 'table', payload: { tableCreated: true } })
+  await props.client
+    .setState({ type: 'bot', id: props.ctx.botId, name: 'table', payload: { tableCreated: true } })
+    .catch(error.mapError('Failed to set state "table"'))
 }
 
 export const deleteTableIfExist = async (props: bp.EventHandlerProps | bp.ActionHandlerProps) => {
