@@ -14,6 +14,8 @@ type FireCrawlResponse = {
   returnCode: number
 }
 
+const COST_PER_PAGE = 0.0015
+
 const getPageContent = async (url: string, logger: any): Promise<{ content: string; url: string }> => {
   const startTime = Date.now()
   const { data } = await axios.post<FireCrawlResponse>(
@@ -36,16 +38,23 @@ const getPageContent = async (url: string, logger: any): Promise<{ content: stri
   return { content: data.data.content, url }
 }
 
-export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async ({ input, logger }) => {
+export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async ({ input, logger, metadata }) => {
   const startTime = Date.now()
 
   try {
     const pageContentPromises = await Promise.allSettled(input.urls.map((url) => getPageContent(url, logger)))
 
+    const results = pageContentPromises
+      .filter((promise): promise is PromiseFulfilledResult<any> => promise.status === 'fulfilled')
+      .map((result) => result.value)
+
+    // only charging for successful pages
+    const cost = results.length * COST_PER_PAGE
+    metadata.setCost(cost)
+
     return {
-      results: pageContentPromises
-        .filter((promise): promise is PromiseFulfilledResult<any> => promise.status === 'fulfilled')
-        .map((result) => result.value),
+      results,
+      botpress: { cost },
     }
   } catch (err) {
     logger.forBot().error('There was an error while browsing the page.', err)
