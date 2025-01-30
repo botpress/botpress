@@ -19,4 +19,18 @@ export default new IntegrationDefinition({
   actions,
   events,
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
-}).extend(hitl, () => ({ entities: {} }))
+}).extend(hitl, () => ({
+  entities: {},
+  channels: {
+    hitl: {
+      title: 'Zendesk Ticket',
+      conversation: {
+        tags: {
+          id: {
+            title: 'Zendesk Ticket ID',
+          },
+        },
+      },
+    },
+  },
+}))
