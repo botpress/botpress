@@ -2,12 +2,12 @@
   "name": "@botpresshub/dropbox",
   "dependencies": {
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "dropbox": "^10.34.0"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*",
-    "@botpress/client": "workspace:*"
+    "@botpress/cli": "workspace:*"
   },
   "private": true,
   "scripts": {

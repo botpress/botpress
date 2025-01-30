@@ -12,7 +12,7 @@ export namespace BaseItem {
     modifiedAt: z
       .string()
       .title('Modified At')
-      .describe('The date and time the item was last modified, formatted as a RFC 3339 timestamp.'),
+      .describe('The date and time the item was last modified, formatted as an ISO 8601 timestamp.'),
   } as const
 
   export const schema = z.object(_fields)
