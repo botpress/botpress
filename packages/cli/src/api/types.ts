@@ -36,7 +36,6 @@ type PluginDependency = client.Plugin['dependencies']['integrations'][string]
 export type CreatePluginRequestBody = Merge<
   SafeOmit<client.ClientInputs['createPlugin'], 'code'>,
   {
-    conversation: client.ClientInputs['createPlugin']['user'] // TODO: add this to API
     dependencies?: {
       integrations?: Record<string, PluginDependency>
       interfaces?: Record<string, PluginDependency>
