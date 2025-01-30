@@ -11,7 +11,7 @@ const plugin = new bp.Plugin({
 })
 
 plugin.on.beforeIncomingMessage('*', async (props) => {
-  console.info('Before incoming message', props)
+  console.info('Before incoming message', props.data.payload)
   return await hooks.handleMessage(props)
 })
 
