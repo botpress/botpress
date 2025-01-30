@@ -14,7 +14,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.41.0"
+    "@botpress/client": "0.41.1"
   },
   "devDependencies": {
     "esbuild": "^0.16.12",

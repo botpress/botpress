@@ -2,7 +2,8 @@ import esbuild from 'esbuild'
 
 const common: esbuild.BuildOptions = {
   bundle: true,
-  minify: true,
+  minify: false,
+  keepNames:true,
   sourcemap: true,
 }
 
