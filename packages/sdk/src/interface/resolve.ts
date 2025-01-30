@@ -75,6 +75,20 @@ export const resolveInterface = (intrface: ResolveInterfaceInput): ResolveInterf
     resolved.channels[newChannelName] = {
       ...channel,
       ...(intrface.channels?.[channelName] ?? {}),
+      message: {
+        ...(channel.message ?? {}),
+        tags: {
+          ...(channel.message?.tags ?? {}),
+          ...(intrface.channels?.[channelName]?.message?.tags ?? {}),
+        },
+      },
+      conversation: {
+        ...(channel.conversation ?? {}),
+        tags: {
+          ...(channel.conversation?.tags ?? {}),
+          ...(intrface.channels?.[channelName]?.conversation?.tags ?? {}),
+        },
+      },
       messages,
     }
     statement.channels[channelName] = { name: newChannelName }

@@ -100,23 +100,35 @@ type ChannelsOfPackage<TPackage extends InterfacePackage> = {
 }
 
 export type ActionOverrideProps = utils.types.AtLeastOneProperty<
-  Partial<
-    Pick<ActionDefinition, 'title' | 'description' | 'billable' | 'cacheable'> & {
-      name: string
-    }
-  >
+  Pick<Required<ActionDefinition>, 'title' | 'description' | 'billable' | 'cacheable'> & {
+    name: string
+  }
 >
-export type EventOverrideProps = { name: string }
-export type ChannelOverrideProps = { name: string }
+export type EventOverrideProps = utils.types.AtLeastOneProperty<
+  Pick<Required<EventDefinition>, 'title' | 'description'> & {
+    name: string
+  }
+>
+export type ChannelOverrideProps = utils.types.AtLeastOneProperty<
+  Pick<Required<ChannelDefinition>, 'title' | 'description'> & {
+    name: string
+    message: {
+      tags: Required<Required<ChannelDefinition>['message']>['tags']
+    }
+    conversation: {
+      tags: Required<Required<ChannelDefinition>['conversation']>['tags']
+    }
+  }
+>
 
 type ActionOverrides<TInterfaceActionNames extends string = string> = utils.types.AtLeastOneProperty<
-  Partial<Record<TInterfaceActionNames, ActionOverrideProps>>
+  Record<TInterfaceActionNames, ActionOverrideProps>
 >
 type EventOverrides<TInterfaceEventNames extends string = string> = utils.types.AtLeastOneProperty<
-  Partial<Record<TInterfaceEventNames, EventOverrideProps>>
+  Record<TInterfaceEventNames, EventOverrideProps>
 >
 type ChannelOverrides<TInterfaceChannelNames extends string = string> = utils.types.AtLeastOneProperty<
-  Partial<Record<TInterfaceChannelNames, ChannelOverrideProps>>
+  Record<TInterfaceChannelNames, ChannelOverrideProps>
 >
 
 type ExtensionBuilderInput<
