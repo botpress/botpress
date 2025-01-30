@@ -1,8 +1,8 @@
 /* bplint-disable */ // zui `toTypescriptSchema` does not preserve title and description properties
 import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
+import chat from './bp_modules/chat'
 import hitl from './bp_modules/hitl'
-import telegram from './bp_modules/telegram'
 import zendesk from './bp_modules/zendesk'
 
 const zendeskHitl = zendesk.definition.interfaces['hitl']
@@ -14,14 +14,19 @@ export default new sdk.BotDefinition({
   states: {},
   events: {},
   recurringEvents: {},
-  user: {},
+  user: {
+    tags: {
+      email: {
+        title: 'Email',
+        description: 'The email of the user',
+      },
+    },
+  },
   conversation: {},
 })
-  .addIntegration(telegram, {
+  .addIntegration(chat, {
     enabled: true,
-    configuration: {
-      botToken: genenv.HITLOOPER_TELEGRAM_BOT_TOKEN,
-    },
+    configuration: {},
   })
   .addIntegration(zendesk, {
     enabled: true,

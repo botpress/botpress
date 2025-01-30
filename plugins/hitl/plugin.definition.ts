@@ -16,6 +16,11 @@ export default new sdk.PluginDefinition({
           title: sdk.z.string().title('Title').describe('Title of the HITL ticket'),
           description: sdk.z.string().title('Description').optional().describe('Description of the HITL ticket'),
           userId: sdk.z.string().title('User ID').describe('ID of the user that starts the HITL mode'),
+          userEmail: sdk.z
+            .string()
+            .title('User Email')
+            .optional()
+            .describe('Email of the user that starts the HITL mode'),
           conversationId: sdk.z
             .string()
             .title('Conversation ID')
@@ -29,7 +34,6 @@ export default new sdk.PluginDefinition({
       description: 'Stop the HITL mode',
       input: {
         schema: sdk.z.object({
-          userId: sdk.z.string().describe('ID of the user that stops the HITL mode'),
           conversationId: sdk.z.string().describe('ID of the conversation on which to stop the HITL mode'),
         }),
       },

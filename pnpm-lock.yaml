@@ -182,12 +182,12 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/chat':
+        specifier: workspace:*
+        version: link:../../integrations/chat
       '@botpresshub/hitl-plugin':
         specifier: workspace:*
         version: link:../../plugins/hitl
-      '@botpresshub/telegram':
-        specifier: workspace:*
-        version: link:../../integrations/telegram
       '@botpresshub/zendesk':
         specifier: workspace:*
         version: link:../../integrations/zendesk

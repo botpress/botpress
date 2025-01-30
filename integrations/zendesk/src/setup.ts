@@ -102,4 +102,11 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, clien
     }
     await deleteKbArticles(ctx.configuration.knowledgeBaseId, client)
   }
+
+  await client.setState({
+    id: ctx.integrationId,
+    name: 'subscriptionInfo',
+    type: 'integration',
+    payload: null,
+  })
 }

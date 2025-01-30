@@ -20,6 +20,11 @@ const handleDownstreamMessage = async (
     return STOP_MESSAGE
   }
 
+  const text: string = props.data.payload.text
+  if (text.trim().startsWith('/')) {
+    return CONTINUE_MESSAGE // TODO: remove this
+  }
+
   const upstreamConversationId = downstreamConversation.tags['upstream']
   if (!upstreamConversationId) {
     console.error('Downstream conversation was not binded to upstream conversation')
@@ -29,7 +34,9 @@ const handleDownstreamMessage = async (
   }
 
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
-  await upstreamCm.respond({ text: props.data.payload.text })
+
+  console.info('Sending message to upstream')
+  await upstreamCm.respond({ text })
   return STOP_MESSAGE
 }
 
@@ -46,6 +53,11 @@ const handleUpstreamMessage = async (
   if (props.data.type !== 'text') {
     // TODO: find out what to do here
     return STOP_MESSAGE
+  }
+
+  const text: string = props.data.payload.text
+  if (text.trim().startsWith('/')) {
+    return CONTINUE_MESSAGE // TODO: remove this
   }
 
   const { user: upstreamUser } = await props.client.getUser({ id: props.data.userId })
@@ -71,7 +83,7 @@ const handleUpstreamMessage = async (
   console.info('Sending message to downstream')
   await downstreamCm.respond({
     userId: downstreamUserId,
-    text: props.data.payload.text,
+    text,
   })
 
   return STOP_MESSAGE

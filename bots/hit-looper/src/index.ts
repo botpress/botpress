@@ -34,10 +34,20 @@ bot.on.message('*', async (props) => {
   const { conversation: upstreamConversation, user: upstreamUser } = props
 
   if (props.message.type === 'text' && props.message.payload.text.trim() === '/start_hitl') {
+    await props.client.updateUser({
+      id: upstreamUser.id,
+      tags: {
+        email: upstreamUser.tags.email ?? 'john.doe@botpress.com',
+      },
+      name: 'John Doe',
+      pictureUrl: 'https://upload.wikimedia.org/wikipedia/en/e/e7/Steve_%28Minecraft%29.png',
+    })
+
     await bot.actionHandlers.startHitl({
       ...props,
       input: {
         title: `Hitl request ${Date.now()}`,
+        description: 'I have a problem',
         conversationId: upstreamConversation.id,
         userId: upstreamUser.id,
       },
@@ -50,7 +60,6 @@ bot.on.message('*', async (props) => {
       ...props,
       input: {
         conversationId: upstreamConversation.id,
-        userId: upstreamUser.id,
       },
     })
     return

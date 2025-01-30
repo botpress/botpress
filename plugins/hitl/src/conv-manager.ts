@@ -41,10 +41,10 @@ export class ConversationManager {
 
   public async respond({ text, userId }: RespondProps): Promise<void> {
     await this._props.client.createMessage({
-      userId: userId ?? this._props.ctx.botId,
+      userId: this._props.ctx.botId,
       conversationId: this._convId,
       type: 'text',
-      payload: { text },
+      payload: { text, userId },
       tags: {},
     })
   }
