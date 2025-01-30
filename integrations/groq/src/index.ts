@@ -194,6 +194,20 @@ export default new bp.Integration({
         provider,
         models: languageModels,
         defaultModel: 'mixtral-8x7b-32768',
+        overrideResponse: (response) => {
+          if (input.model?.id === 'deepseek-r1-distill-llama-70b') {
+            for (const choice of response.choices) {
+              if (choice.message.content) {
+                // DeepSeek R1-Distill returns its CoT in its response between <think> tags so we remove it.
+                choice.message.content = choice.message.content
+                  .replace(/<think>.*<\/think>/gis, '')
+                  .replace(/<\/?think>/gi, '') // sometimes an orphaned <think> opening/closing tag is included in the response so we also remove those
+              }
+            }
+          }
+
+          return response
+        },
       })
       metadata.setCost(output.botpress.cost)
       return output
