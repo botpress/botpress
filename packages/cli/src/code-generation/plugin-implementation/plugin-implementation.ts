@@ -30,6 +30,7 @@ export class PluginImplementationModule extends Module {
       '',
       'export class Plugin extends sdk.Plugin<TPlugin> {}',
       '',
+      'export type PluginProps = sdk.PluginProps<TPlugin>',
       'export type PluginRuntimeProps = sdk.PluginRuntimeProps<TPlugin>',
       '',
       '// extra types',

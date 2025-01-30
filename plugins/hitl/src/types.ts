@@ -1,6 +1,6 @@
 import * as bp from '.botpress'
 
-export type HandlerProps =
+export type AnyHandlerProps =
   | bp.MessageHandlerProps
   | bp.EventHandlerProps
   | bp.ActionHandlerProps

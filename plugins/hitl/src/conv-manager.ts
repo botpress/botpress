@@ -1,4 +1,3 @@
-import * as client from '@botpress/client'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -12,19 +11,14 @@ export type RespondProps = {
 }
 
 export class ConversationManager {
-  public static from(props: types.HandlerProps, convId: string): ConversationManager {
+  public static from(props: types.AnyHandlerProps, convId: string): ConversationManager {
     return new ConversationManager(props, convId)
   }
 
   private constructor(
-    private _props: types.HandlerProps,
+    private _props: types.AnyHandlerProps,
     private _convId: string
   ) {}
-
-  public async getConversation(): Promise<client.Conversation> {
-    const { conversation } = await this._props.client.getConversation({ id: this._convId })
-    return conversation
-  }
 
   public async getHitlState(): Promise<bp.states.hitl.Hitl> {
     const response = await this._props.client.getOrSetState({

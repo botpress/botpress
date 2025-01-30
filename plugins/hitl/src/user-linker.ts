@@ -3,7 +3,7 @@ import * as types from './types'
 
 export class UserLinker {
   public constructor(
-    private _props: types.HandlerProps,
+    private _props: types.AnyHandlerProps,
     private _users: Record<string, client.User> = {}
   ) {}
 
