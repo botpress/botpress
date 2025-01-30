@@ -1,13 +1,19 @@
-import { InterfaceExtension, ResolvedInterface } from '../integration'
+import {
+  ActionOverrideProps,
+  ChannelOverrideProps,
+  EventOverrideProps,
+  InterfaceExtension,
+  ResolvedInterface,
+} from '../integration'
 import { InterfacePackage } from '../package'
 import * as utils from '../utils'
 import z, { ZuiObjectSchema } from '../zui'
 
 type ResolveInterfaceInput = InterfacePackage & {
   entities: Record<string, { name: string; schema: ZuiObjectSchema }>
-  actions: Record<string, { name: string }>
-  events: Record<string, { name: string }>
-  channels: Record<string, { name: string }>
+  actions: Record<string, ActionOverrideProps>
+  events: Record<string, EventOverrideProps>
+  channels: Record<string, ChannelOverrideProps>
 }
 
 type ResolveInterfaceOutput = {
@@ -38,6 +44,7 @@ export const resolveInterface = (intrface: ResolveInterfaceInput): ResolveInterf
     const newActionName = intrface.actions?.[actionName]?.name ?? actionName
     resolved.actions[newActionName] = {
       ...action,
+      ...(intrface.actions?.[actionName] ?? {}),
       input: { schema: resolvedInputSchema },
       output: { schema: resolvedOutputSchema },
     }
@@ -48,7 +55,11 @@ export const resolveInterface = (intrface: ResolveInterfaceInput): ResolveInterf
   for (const [eventName, event] of Object.entries(intrface.definition.events ?? {})) {
     const resolvedEventSchema = event.schema.dereference(entitySchemas) as z.AnyZodObject
     const newEventName = intrface.events?.[eventName]?.name ?? eventName
-    resolved.events[newEventName] = { ...event, schema: resolvedEventSchema }
+    resolved.events[newEventName] = {
+      ...event,
+      ...(intrface.events?.[eventName] ?? {}),
+      schema: resolvedEventSchema,
+    }
     statement.events[eventName] = { name: newEventName }
   }
 
@@ -61,7 +72,11 @@ export const resolveInterface = (intrface: ResolveInterfaceInput): ResolveInterf
       messages[messageName] = { ...message, schema: resolvedMessageSchema }
     }
     const newChannelName = intrface.channels?.[channelName]?.name ?? channelName
-    resolved.channels[newChannelName] = { ...channel, messages }
+    resolved.channels[newChannelName] = {
+      ...channel,
+      ...(intrface.channels?.[channelName] ?? {}),
+      messages,
+    }
     statement.channels[channelName] = { name: newChannelName }
   }
 
