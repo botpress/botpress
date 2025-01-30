@@ -3,6 +3,8 @@
 ZENDESK_PORT = 3795
 HIT_LOOPER_PORT = 3796
 
+BOT_CACHE_PATH = './bots/hit-looper/.botpress/project.cache.json'
+
 # resources
 
 local_resource(
@@ -28,7 +30,13 @@ local_resource(
   readiness_probe=probe(http_get=http_get_action(port=HIT_LOOPER_PORT, path='/health'), period_secs=1, failure_threshold=10),
 )
 
-bot_cache = read_json('./bots/hit-looper/.botpress/project.cache.json', {})
+local_resource(
+  name='reset-hit-looper',
+  cmd="rm %s" % BOT_CACHE_PATH,
+  auto_init=False,
+)
+
+bot_cache = read_json(BOT_CACHE_PATH, {})
 if ('devId' in bot_cache):
   bot_id = bot_cache['devId']
   cmd = "bp chat %s" % bot_id

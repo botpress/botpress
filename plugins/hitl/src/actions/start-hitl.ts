@@ -14,6 +14,8 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
     return {}
   }
 
+  await upstreamCm.respond({ text: 'Connecting you to a human agent...' })
+
   const users = new user.UserLinker(props)
   const downstreamUserId = await users.getDownstreamUserId(upstreamUserId)
 
@@ -40,7 +42,7 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
     title: props.input.title,
     description: props.input.description,
     userId: downstreamUserId,
-    messageHistory,
+    messageHistory: [], // TODO: pass actual message history
   })
 
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
@@ -61,5 +63,8 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
 
   await upstreamCm.setHitlState({ hitlActive: true })
   await downstreamCm.setHitlState({ hitlActive: true })
+
+  await upstreamCm.respond({ text: 'Connected to a human agent...' })
+
   return {}
 }
