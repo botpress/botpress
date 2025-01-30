@@ -16,6 +16,18 @@ export default new sdk.PluginDefinition({
           title: sdk.z.string(),
           description: sdk.z.string().optional(),
           userId: sdk.z.string(),
+          conversationId: sdk.z.string(),
+        }),
+      },
+      output: { schema: sdk.z.object({}) },
+    },
+    stopHitl: {
+      title: 'Stop HITL',
+      description: 'Stop the HITL mode',
+      input: {
+        schema: sdk.z.object({
+          userId: sdk.z.string(),
+          conversationId: sdk.z.string(),
         }),
       },
       output: { schema: sdk.z.object({}) },

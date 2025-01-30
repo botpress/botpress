@@ -20,6 +20,7 @@
   },
   "bpDependencies": {
     "telegram": "../../integrations/telegram",
-    "zendesk": "../../integrations/zendesk"
+    "zendesk": "../../integrations/zendesk",
+    "hitl": "../../plugins/hitl"
   }
 }
