@@ -182,9 +182,12 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
-      '@botpresshub/telegram':
+      '@botpresshub/chat':
         specifier: workspace:*
-        version: link:../../integrations/telegram
+        version: link:../../integrations/chat
+      '@botpresshub/hitl-plugin':
+        specifier: workspace:*
+        version: link:../../plugins/hitl
       '@botpresshub/zendesk':
         specifier: workspace:*
         version: link:../../integrations/zendesk
@@ -1695,8 +1698,8 @@ importers:
   packages/chat-api:
     dependencies:
       '@botpress/api':
-        specifier: 0.66.0
-        version: 0.66.0(openapi-types@12.1.3)
+        specifier: 0.67.0
+        version: 0.67.0(openapi-types@12.1.3)
       '@bpinternal/opapi':
         specifier: 0.12.0
         version: 0.12.0(openapi-types@12.1.3)
@@ -2016,8 +2019,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.66.0
-        version: 0.66.0(openapi-types@12.1.3)
+        specifier: 0.67.0
+        version: 0.67.0(openapi-types@12.1.3)
       '@types/qs':
         specifier: ^6.9.7
         version: 6.9.7
@@ -2135,6 +2138,31 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
+
+  plugins/hitl:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpresshub/hitl':
+        specifier: workspace:*
+        version: link:../../interfaces/hitl
+      '@types/lodash':
+        specifier: ^4.14.191
+        version: 4.14.195
 
   plugins/knowledge:
     dependencies:
@@ -3769,8 +3797,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.66.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-TybtyT0Ew+C/b6emDTMe0jhGsiPpUce4LabGEm9QOyQTlxmY5I72PvSNhAQeabYrOMHgJrnrWRzJ6htJKsdytw==}
+  /@botpress/api@0.67.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-gw5DhBxL5MVrs+csby2CK4bENXe0u2+iZem1slDMYvyOY8z4rebvltIZ2IOf5HENhkoTDoGWeRCYkUTRQhQcmw==}
     dependencies:
       '@bpinternal/opapi': 0.12.0(openapi-types@12.1.3)
     transitivePeerDependencies:

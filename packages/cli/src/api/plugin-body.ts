@@ -11,6 +11,9 @@ export const prepareCreatePluginBody = async (
   user: {
     tags: plugin.user?.tags ?? {},
   },
+  conversation: {
+    tags: plugin.conversation?.tags ?? {},
+  },
   configuration: plugin.configuration
     ? {
         ...plugin.configuration,

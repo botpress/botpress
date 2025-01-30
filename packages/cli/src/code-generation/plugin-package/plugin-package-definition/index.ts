@@ -68,6 +68,10 @@ export class PluginPackageDefinitionModule extends Module {
       tags: this._plugin.user?.tags ?? {},
     }
 
+    const conversation = {
+      tags: this._plugin.conversation?.tags ?? {},
+    }
+
     content += [
       consts.GENERATED_HEADER,
       'import * as sdk from "@botpress/sdk"',
@@ -87,6 +91,7 @@ export class PluginPackageDefinitionModule extends Module {
       `  name: "${this._plugin.name}",`,
       `  version: "${this._plugin.version}",`,
       `  user: ${stringifySingleLine(user)},`,
+      `  conversation: ${stringifySingleLine(conversation)},`,
       `  configuration: ${defaultConfigModule.name}.${defaultConfigModule.exportName},`,
       `  actions: ${actionsModule.name}.${actionsModule.exportName},`,
       `  events: ${eventsModule.name}.${eventsModule.exportName},`,

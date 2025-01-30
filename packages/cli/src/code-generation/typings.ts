@@ -91,6 +91,7 @@ export type InterfaceDefinition = PackageRef & {
 export type PluginDefinition = PackageRef & {
   configuration?: { schema?: Schema }
   user?: { tags: Record<string, {}> }
+  conversation?: { tags: Record<string, {}> }
   states?: Record<string, { type: client.State['type']; schema: Schema }>
   events?: Record<string, { schema: Schema }>
   actions?: Record<string, { input: { schema: Schema }; output: { schema: Schema } }>
