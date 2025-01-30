@@ -14,9 +14,9 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@botpresshub/hitl-plugin": "workspace:*",
     "@botpresshub/telegram": "workspace:*",
     "@botpresshub/zendesk": "workspace:*",
-    "@botpresshub/hitl-plugin": "workspace:*",
     "@bpinternal/genenv": "0.0.1"
   },
   "bpDependencies": {
