@@ -182,6 +182,9 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/hitl-plugin':
+        specifier: workspace:*
+        version: link:../../plugins/hitl
       '@botpresshub/telegram':
         specifier: workspace:*
         version: link:../../integrations/telegram
@@ -564,7 +567,7 @@ importers:
         version: link:../../packages/common
       '@botpresshub/hitl':
         specifier: workspace:*
-        version: link:../../plugins/hitl
+        version: link:../../interfaces/hitl
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
@@ -1555,7 +1558,7 @@ importers:
         version: link:../../packages/common
       '@botpresshub/hitl':
         specifier: workspace:*
-        version: link:../../plugins/hitl
+        version: link:../../interfaces/hitl
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
@@ -2156,7 +2159,7 @@ importers:
         version: link:../../packages/common
       '@botpresshub/hitl':
         specifier: workspace:*
-        version: 'link:'
+        version: link:../../interfaces/hitl
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
