@@ -10,11 +10,16 @@ export type GenericZuiSchema<
 export type ZuiObjectSchema = z.ZodObject | z.ZodRecord
 
 export const mergeObjectSchemas = (a: ZuiObjectSchema, b: ZuiObjectSchema): ZuiObjectSchema => {
-  if (a instanceof z.ZodObject && b instanceof z.ZodObject) {
-    return a.merge(b)
+  const aDef = a._def
+  const bDef = b._def
+
+  if (aDef.typeName === z.ZodFirstPartyTypeKind.ZodObject && bDef.typeName === z.ZodFirstPartyTypeKind.ZodObject) {
+    const aShape = aDef.shape()
+    const bShape = bDef.shape()
+    return z.object({ ...aShape, ...bShape })
   }
-  if (a instanceof z.ZodRecord && b instanceof z.ZodRecord) {
-    return z.record(z.intersection(a.valueSchema, b.valueSchema))
+  if (aDef.typeName === z.ZodFirstPartyTypeKind.ZodRecord && bDef.typeName === z.ZodFirstPartyTypeKind.ZodRecord) {
+    return z.record(z.intersection(aDef.valueType, bDef.valueType))
   }
   // TODO: adress this case
   throw new Error('Cannot merge object schemas with record schemas')
