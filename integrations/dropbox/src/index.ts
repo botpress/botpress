@@ -1,226 +1,68 @@
 import * as sdk from '@botpress/sdk'
-import { Dropbox, DropboxAuth, DropboxResponse, files } from 'dropbox'
+import { wrapAction } from './action-wrapper'
+import { DropboxClient } from './dropbox-api'
 import * as bp from '.botpress'
 
-async function createActionPropsAndTools<T extends { ctx: bp.Context }>(props: T) {
-  const { ctx } = props
-  const dbxAuth = new DropboxAuth({
-    clientId: ctx.configuration.dropboxAppKey,
-    clientSecret: ctx.configuration.dropboxAppSecret,
-    accessToken: ctx.configuration.dropboxAccessToken,
-  })
-  const dbxClient = new Dropbox({ auth: dbxAuth })
-
-  return {
-    dbxClient,
-    ...props,
-  }
-}
-
 export default new bp.Integration({
-  register: async (props) => {
-    const { dbxClient } = await createActionPropsAndTools(props as any as bp.AnyActionProps)
-    const test = await dbxClient.checkApp({
-      query: 'botpress',
-    })
-    if (test.status !== 200) {
-      throw new sdk.RuntimeError('Dropbox authentication failed')
+  async register(props) {
+    const dropboxClient = await DropboxClient.create({ ctx: props.ctx, client: props.client })
+    const authTest = await dropboxClient.isProperlyAuthenticated()
+
+    if (!authTest) {
+      throw new sdk.RuntimeError('Dropbox authentication failed. Please check your access token.')
     }
   },
-  unregister: async () => {},
+
+  async unregister() {},
+
   actions: {
-    createFile: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const res = await props.dbxClient.filesUpload({
-        contents: props.input.contents,
-        path: props.input.path,
+    createFile: wrapAction({ actionName: 'createFile' }, async ({ dropboxClient }, { contents, path }) => ({
+      newFile: await dropboxClient.createFileFromText({ dropboxPath: path, textContents: contents }),
+    })),
+    listItemsInFolder: wrapAction(
+      { actionName: 'listItemsInFolder' },
+      ({ dropboxClient }, { path, recursive, nextToken }) =>
+        dropboxClient.listItemsInFolder({ path: path ?? '', recursive: recursive ?? false, nextToken })
+    ),
+    deleteItem: wrapAction({ actionName: 'deleteItem' }, ({ dropboxClient }, { path }) =>
+      dropboxClient.deleteItem({ path })
+    ),
+    downloadFile: wrapAction({ actionName: 'downloadFile' }, async ({ dropboxClient, client }, { path }) => {
+      const fileBuffer = await dropboxClient.getFileContents({ path })
+
+      const file = await client.uploadFile({
+        key: `dropbox:${path}`,
+        content: fileBuffer,
       })
-      return {
-        id: res.result.id,
-        name: res.result.name,
-        path: res.result.path_display!,
-        serverModified: res.result.server_modified,
-        revision: res.result.rev,
-        size: res.result.size,
-        fileHash: res.result.content_hash!,
-        isDownloadable: res.result.is_downloadable!,
-      }
-    },
-    readItemMetadata: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { dbxClient, input } = props
-      const res = await dbxClient.filesGetMetadata({
-        path: input.path,
-      })
-      const entry = res.result
-      if (entry['.tag'] === 'deleted') {
-        throw new sdk.RuntimeError('File was deleted')
-      }
-      const out = dropboxEntryMetadataTransform(entry)
-      return { result: out }
-    },
-    listItemsInFolder: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { input, dbxClient } = props
-      let res: DropboxResponse<files.ListFolderResult>
-      if (input.nextToken) {
-        res = await dbxClient.filesListFolderContinue({
-          cursor: input.nextToken,
-        })
-      } else {
-        res = await dbxClient.filesListFolder({
-          path: input.path,
-          recursive: input.recursive,
-          limit: input.limit,
-          include_deleted: false,
-        })
-      }
-      const entries = res.result.entries
-        .filter((entry) => entry['.tag'] !== 'deleted')
-        .map(dropboxEntryMetadataTransform)
-      return {
-        entries,
-        nextToken: res.result.has_more ? res.result.cursor : undefined,
-      }
-    },
-    deleteItem: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { dbxClient, input } = props
-      const res = await dbxClient.filesDeleteV2({ path: input.path })
-      const entry = res.result.metadata
-      if (entry['.tag'] === 'deleted') {
-        throw new sdk.RuntimeError('File was already deleted')
-      }
-      const out = dropboxEntryMetadataTransform(entry)
-      return { result: out }
-    },
-    downloadFile: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { dbxClient, input } = props
-      const res = await dbxClient.filesDownload({ path: input.path })
-      const { fileBinary } = res.result as any
-      const file = await props.client.uploadFile({
-        key: res.result.name,
-        content: fileBinary,
-      })
+
       return { fileUrl: file.file.url }
-    },
-    downloadFolder: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { dbxClient, input } = props
-      const res = await dbxClient.filesDownloadZip({ path: input.path })
-      const { fileBinary } = res.result as any
-      const file = await props.client.uploadFile({
-        key: res.result.metadata.name,
-        content: fileBinary,
+    }),
+    downloadFolder: wrapAction({ actionName: 'downloadFolder' }, async ({ dropboxClient, client }, { path }) => {
+      const folderZipBuffer = await dropboxClient.downloadFolder({ path })
+
+      const file = await client.uploadFile({
+        key: `dropbox:${path}.zip`,
+        content: folderZipBuffer,
       })
+
       return { zipUrl: file.file.url }
-    },
-    createFolder: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { dbxClient, input } = props
-      const res = await dbxClient.filesCreateFolderV2({ path: input.path })
-      const { metadata } = res.result
-      return {
-        id: metadata.id,
-        name: metadata.name,
-        path: metadata.path_display!,
-      }
-    },
-    copyItem: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { dbxClient, input } = props
-      const res = await dbxClient.filesCopyV2({ from_path: input.fromPath, to_path: input.toPath })
-      const out = dropboxEntryMetadataTransform(res.result.metadata)
-      return { result: out }
-    },
-    moveItem: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { dbxClient, input } = props
-      const res = await dbxClient.filesMoveV2({ from_path: input.fromPath, to_path: input.toPath })
-      const out = dropboxEntryMetadataTransform(res.result.metadata)
-      return { result: out }
-    },
-    searchItems: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { dbxClient, input } = props
-      let res: DropboxResponse<files.SearchV2Result>
-      if (input.nextToken) {
-        res = await dbxClient.filesSearchContinueV2({ cursor: input.nextToken })
-      } else {
-        res = await dbxClient.filesSearchV2({
-          query: input.query,
-          options: input.options && {
-            path: input.options.path,
-            max_results: input.options.limit,
-            order_by: input.options.orderBy && {
-              '.tag': input.options.orderBy,
-            },
-            file_status: input.options.fileStatus && {
-              '.tag': input.options.fileStatus,
-            },
-            filename_only: input.options.fileNameOnly,
-            file_extensions: input.options.fileExtensions,
-            file_categories: input.options.fileCategories?.map((cat) => ({ '.tag': cat })),
-            account_id: input.options.accountId,
-          },
-          match_field_options: input.matchFieldOptions && {
-            include_highlights: input.matchFieldOptions.includeHighlights,
-          },
-        })
-      }
-      if (res.status !== 200) {
-        throw new sdk.RuntimeError('Search failed: ' + JSON.stringify(res.result))
-      }
-      return {
-        matches: res.result.matches.map((match) => {
-          if (match.metadata['.tag'] === 'other') {
-            throw new sdk.RuntimeError('Unexpected metadata type: ' + JSON.stringify(match.metadata))
-          }
-          return {
-            metadata: dropboxEntryMetadataTransform(match.metadata.metadata),
-            matchType: match.match_type?.['.tag'],
-            highlightSpans: match.highlight_spans?.map((span) => ({
-              highlightString: span.highlight_str,
-              isHighlighted: span.is_highlighted,
-            })),
-          }
-        }),
-        nextToken: res.result.has_more ? res.result.cursor : undefined,
-      }
-    },
+    }),
+    createFolder: wrapAction({ actionName: 'createFolder' }, async ({ dropboxClient }, { path }) => ({
+      newFolder: await dropboxClient.createFolder({ path }),
+    })),
+    copyItem: wrapAction({ actionName: 'copyItem' }, async ({ dropboxClient }, { fromPath, toPath }) => ({
+      newItem: await dropboxClient.copyItemToNewPath({ fromPath, toPath }),
+    })),
+    moveItem: wrapAction({ actionName: 'moveItem' }, async ({ dropboxClient }, { fromPath, toPath }) => ({
+      newItem: await dropboxClient.moveItemToNewPath({ fromPath, toPath }),
+    })),
+    searchItems: wrapAction(
+      { actionName: 'searchItems' },
+      async ({ dropboxClient }, searchParams) => await dropboxClient.searchItems(searchParams)
+    ),
   },
+
+  async handler() {},
+
   channels: {},
-  handler: async (props: bp.HandlerProps) => {
-    const { req, logger } = props
-    logger.forBot().info('Got request: ' + JSON.stringify(req))
-  },
 })
-function dropboxEntryMetadataTransform(
-  entry: files.FileMetadataReference | files.FolderMetadataReference | files.DeletedMetadataReference
-) {
-  if (entry['.tag'] === 'deleted') {
-    throw new sdk.RuntimeError('File was deleted')
-  }
-  let out:
-    | bp.actions.deleteItem.output.Output['result']
-    | bp.actions.readItemMetadata.output.Output['result']
-    | bp.actions.listItemsInFolder.output.Output['entries'][0] = {
-    '.tag': entry['.tag'],
-    id: entry.id,
-    name: entry.name,
-    path: entry.path_display!,
-  }
-  if (entry['.tag'] === 'file') {
-    out = {
-      ...out,
-      revision: entry.rev,
-      clientModified: entry.client_modified,
-      serverModified: entry.server_modified,
-      size: entry.size,
-      fileHash: entry.content_hash!,
-      isDownloadable: entry.is_downloadable!,
-    }
-  }
-  return out
-}

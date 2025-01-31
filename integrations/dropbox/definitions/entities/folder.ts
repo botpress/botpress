@@ -5,6 +5,7 @@ const { z } = sdk
 export namespace Folder {
   const _fields = {
     ...BaseItem.schema.shape,
+    itemType: z.literal('folder').title('Item Type').describe('The type of the item.'),
   } as const
 
   export const schema = z.object(_fields)

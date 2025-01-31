@@ -1,21 +1,42 @@
 # Description
 
-Enable your bot with the ability to list and manage your files in Dropbox and to download/upload data between Dropbox and the Botpress files API.
+Integrate your bot with Dropbox to list, manage, and transfer files seamlessly between Dropbox and the Botpress files API.
 
 # Configuration
 
-Due to the potentially sensitive nature of file handling, the Dropbox integration requires a secure connection. To enable this, you must configure a Dropbox the integration with OAuth credentials.
+Currently, the Dropbox integration only supports OAuth authentication using your own Dropbox app.
 
-## Configuring the integration in Botpress
+## Configuring the integration with a custom app
 
-1. Create your app on Dropbox by visiting the [Dropbox App Console](https://www.dropbox.com/developers/apps).
-2. After it's been set up, you will be able to access your app's settings and generate an access token.
-3. Copy the App key, App secret, and Access token. You will need these to configure the integration.
-4. Once you save the configuration of the integration, your are ready.
+1. Sign in to your Dropbox account and access the [Dropbox App Console](https://www.dropbox.com/developers/apps).
+2. Create a new app by clicking the "Create app" button.
+   - Choose the "Scoped access" option.
+   - Give access to either a single folder or your entire Dropbox account.
+   - Name your app and click "Create app".
+3. From your app's settings page, copy the `App key` and `App secret`. You will need these to configure the integration on Botpress.
+4. In your app's Permissions page, add the following scopes:
+   - `account_info.read`
+   - `files.metadata.write`
+   - `files.content.read`
+   - `files.content.write`
+   - `sharing.read`
+5. After adding the scopes, click the "Submit" button to apply the changes.
+6. Navigate back to your app's settings page and scroll down to the "OAuth 2" section.
+7. Generate an access token by clicking the "Generate" button. Copy the generated access token.
+8. On Botpress, enter your `App key`, `App secret`, and `Access token` in the integration configuration page.
+9. Save the configuration to enable the integration.
 
 # Using the integration
 
-Use the available actions to manage your files and download/upload content from and to Dropbox.
+The integration provides actions to manage your Dropbox files effectively:
+
+- List files and folders in your Dropbox account
+- Download files from Dropbox to your bot's storage
+- Upload files from your bot to Dropbox
+- Create, delete, and organize folders
+- Move or copy files between locations
+
+Use these actions in your workflows to seamlessly handle file operations between your bot and Dropbox.
 
 # Limitations
 
