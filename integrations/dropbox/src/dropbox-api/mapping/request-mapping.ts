@@ -16,6 +16,7 @@ export namespace RequestMapping {
       order_by: actionInput.orderBy && { '.tag': actionInput.orderBy },
       path: actionInput.path,
       max_results: maxResults,
+      file_status: { '.tag': 'active' },
     },
   })
 }
