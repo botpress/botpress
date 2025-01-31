@@ -119,6 +119,9 @@ export default new IntegrationDefinition({
     CLIENT_SECRET: {
       description: 'The client secret of your Meta app.',
     },
+    VERIFY_TOKEN: {
+      description: 'The verify token of your Meta app.',
+    },
   },
   user: {
     tags: {
