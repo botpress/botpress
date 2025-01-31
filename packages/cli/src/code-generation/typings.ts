@@ -55,6 +55,10 @@ export type IntegrationDefinition = PackageRef & {
   actions?: Record<
     string,
     {
+      title?: string
+      description?: string
+      billable?: boolean
+      cacheable?: boolean
       input: {
         schema: Schema
       }
@@ -79,6 +83,10 @@ export type InterfaceDefinition = PackageRef & {
   actions?: Record<
     string,
     {
+      title?: string
+      description?: string
+      billable?: boolean
+      cacheable?: boolean
       input: { schema: Schema }
       output: {
         schema: Schema

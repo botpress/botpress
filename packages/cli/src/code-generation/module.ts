@@ -120,11 +120,14 @@ export class ReExportTypeModule extends Module {
 }
 
 export class ReExportVariableModule extends Module {
-  protected constructor(def: { exportName: string }) {
+  private _extraProps: Record<string, string> = {}
+
+  protected constructor(def: { exportName: string; extraProps?: Record<string, string> }) {
     super({
       ...def,
       path: consts.INDEX_FILE,
     })
+    this._extraProps = def.extraProps ?? {}
   }
 
   public async getContent(): Promise<string> {
@@ -140,10 +143,14 @@ export class ReExportVariableModule extends Module {
 
     content += '\n'
 
+    const allProps: { key: string; value: string }[] = [
+      ...this.deps.map(({ name, exportName }) => ({ key: name, value: `${strings.importAlias(name)}.${exportName}` })),
+      ...Object.entries(this._extraProps).map(([key, value]) => ({ key, value })),
+    ]
+
     content += `export const ${this.exportName} = {\n`
-    for (const { name, exportName: exports } of this.deps) {
-      const importAlias = strings.importAlias(name)
-      content += `  "${name}": ${importAlias}.${exports},\n`
+    for (const { key, value } of allProps) {
+      content += `  "${key}": ${value},\n`
     }
     content += '}'
 

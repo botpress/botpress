@@ -32,7 +32,15 @@ export class ActionOutputModule extends Module {
 
 export class ActionModule extends ReExportVariableModule {
   public constructor(actionName: string, action: types.ActionDefinition) {
-    super({ exportName: strings.varName(actionName) })
+    super({
+      exportName: strings.varName(actionName),
+      extraProps: {
+        billable: JSON.stringify(action.billable),
+        cacheable: JSON.stringify(action.cacheable),
+        title: JSON.stringify(action.title),
+        description: JSON.stringify(action.description),
+      },
+    })
 
     const inputModule = new ActionInputModule(action.input)
     const outputModule = new ActionOutputModule(action.output)
