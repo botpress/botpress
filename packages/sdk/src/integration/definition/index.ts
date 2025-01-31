@@ -99,6 +99,38 @@ type ChannelsOfPackage<TPackage extends InterfacePackage> = {
   }
 }
 
+export type ActionOverrideProps = utils.types.AtLeastOneProperty<
+  Pick<Required<ActionDefinition>, 'title' | 'description' | 'billable' | 'cacheable'> & {
+    name: string
+  }
+>
+export type EventOverrideProps = utils.types.AtLeastOneProperty<
+  Pick<Required<EventDefinition>, 'title' | 'description'> & {
+    name: string
+  }
+>
+export type ChannelOverrideProps = utils.types.AtLeastOneProperty<
+  Pick<Required<ChannelDefinition>, 'title' | 'description'> & {
+    name: string
+    message: {
+      tags: Required<Required<ChannelDefinition>['message']>['tags']
+    }
+    conversation: {
+      tags: Required<Required<ChannelDefinition>['conversation']>['tags']
+    }
+  }
+>
+
+type ActionOverrides<TInterfaceActionNames extends string = string> = utils.types.AtLeastOneProperty<
+  Record<TInterfaceActionNames, ActionOverrideProps>
+>
+type EventOverrides<TInterfaceEventNames extends string = string> = utils.types.AtLeastOneProperty<
+  Record<TInterfaceEventNames, EventOverrideProps>
+>
+type ChannelOverrides<TInterfaceChannelNames extends string = string> = utils.types.AtLeastOneProperty<
+  Record<TInterfaceChannelNames, ChannelOverrideProps>
+>
+
 type ExtensionBuilderInput<
   TIntegrationEntities extends BaseEntities,
   _TIntegrationActions extends BaseActions,
@@ -117,9 +149,9 @@ type ExtensionBuilderOutput<
   entities: {
     [K in keyof TInterfaceEntities]: BrandedSchema<z.ZodSchema<z.infer<TInterfaceEntities[K]>>>
   }
-  actions?: { [K in keyof TInterfaceActions]: { name: string } }
-  events?: { [K in keyof TInterfaceEvents]: { name: string } }
-  channels?: { [K in keyof TInterfaceChannels]: { name: string } }
+  actions?: ActionOverrides<Extract<keyof TInterfaceActions, string>>
+  events?: EventOverrides<Extract<keyof TInterfaceEvents, string>>
+  channels?: ChannelOverrides<Extract<keyof TInterfaceChannels, string>>
 }
 
 type ExtensionBuilder<
@@ -224,9 +256,9 @@ export class IntegrationDefinition<
     const { resolved, statement } = resolveInterface({
       ...interfacePkg,
       entities,
-      actions,
-      events,
-      channels,
+      actions: utils.records.stripUndefinedProps(actions),
+      events: utils.records.stripUndefinedProps(events),
+      channels: utils.records.stripUndefinedProps(channels),
     })
 
     /**
@@ -260,9 +292,9 @@ export class IntegrationDefinition<
     >
   ): {
     entities: Record<string, TypeArgument>
-    actions: Record<string, { name: string }>
-    events: Record<string, { name: string }>
-    channels: Record<string, { name: string }>
+    actions: ActionOverrides
+    events: EventOverrides
+    channels: ChannelOverrides
   } {
     const entityStore = createStore(this.entities)
     const extensionBuilderInput: ExtensionBuilderInput<TEntities, TActions, TEvents, TChannels> = {

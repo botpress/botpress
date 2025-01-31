@@ -15,4 +15,17 @@ export default new IntegrationDefinition({
   channels,
   events,
   user,
-}).extend(hitl, () => ({ entities: {} }))
+}).extend(hitl, () => ({
+  entities: {},
+  channels: {
+    hitl: {
+      title: 'Freshchat',
+      description: 'Freshchat HITL',
+      conversation: {
+        tags: {
+          id: { title: 'Freshchat Conversation Id', description: 'Freshchat Conversation Id' },
+        },
+      },
+    },
+  },
+}))

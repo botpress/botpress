@@ -2,6 +2,8 @@ export const pairs = <K extends string, V>(obj: Record<K, V>) => Object.entries(
 export const values = <K extends string, V>(obj: Record<K, V>) => Object.values(obj) as V[]
 export const mapValues = <K extends string, V, R>(obj: Record<K, V>, fn: (value: V, key: K) => R): Record<K, R> =>
   Object.fromEntries(pairs(obj).map(([key, value]) => [key, fn(value, key)])) as Record<K, R>
+export const stripUndefinedProps = <K extends string, V>(obj: Record<K, V | undefined>): Record<K, V> =>
+  Object.fromEntries(pairs(obj).filter(([, value]) => value !== undefined)) as Record<K, V>
 
 export const mergeRecords = <K extends string, V>(
   a: Record<K, V>,
