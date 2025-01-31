@@ -1,5 +1,5 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { actions, configuration, entities } from './definitions'
+import { actions, configuration, entities, secrets } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'dropbox',
@@ -11,4 +11,5 @@ export default new IntegrationDefinition({
   configuration,
   actions,
   entities,
+  secrets,
 })

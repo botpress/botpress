@@ -9,7 +9,7 @@ type File = FileEntity.InferredType
 type Folder = FolderEntity.InferredType
 
 export class DropboxClient {
-  private static readonly MAX_RESULTS = 100
+  private static readonly _maxResultsPerPage = 100
   private readonly _dropboxRestClient: Dropbox
 
   private constructor(credentials: { accessToken: string; clientId: string; clientSecret: string }) {
@@ -68,7 +68,7 @@ export class DropboxClient {
           path,
           recursive,
           include_deleted: false,
-          limit: DropboxClient.MAX_RESULTS,
+          limit: DropboxClient._maxResultsPerPage,
         })
 
     return {
@@ -134,7 +134,7 @@ export class DropboxClient {
     const { result } = searchParams.nextToken
       ? await this._dropboxRestClient.filesSearchContinueV2({ cursor: searchParams.nextToken })
       : await this._dropboxRestClient.filesSearchV2(
-          RequestMapping.mapSearchItems(searchParams, DropboxClient.MAX_RESULTS)
+          RequestMapping.mapSearchItems(searchParams, DropboxClient._maxResultsPerPage)
         )
 
     return {

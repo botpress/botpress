@@ -1,9 +1,10 @@
 import * as sdk from '@botpress/sdk'
+import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { wrapAction } from './action-wrapper'
 import { DropboxClient } from './dropbox-api'
 import * as bp from '.botpress'
 
-export default new bp.Integration({
+const integration = new bp.Integration({
   async register(props) {
     const dropboxClient = await DropboxClient.create({ ctx: props.ctx, client: props.client })
     const authTest = await dropboxClient.isProperlyAuthenticated()
@@ -65,4 +66,10 @@ export default new bp.Integration({
   async handler() {},
 
   channels: {},
+})
+
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
 })
