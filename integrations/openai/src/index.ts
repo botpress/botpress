@@ -20,6 +20,20 @@ const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 //  https://openai.com/api/pricing/
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
+  'o3-mini-2025-01-31': {
+    name: 'GPT o3-mini',
+    description:
+      'o3-mini is our most recent small reasoning model, providing high intelligence at the same cost and latency targets of o1-mini. o3-mini also supports key developer features, like Structured Outputs, function calling, Batch API, and more. Like other models in the o-series, it is designed to excel at science, math, and coding tasks. The knowledge cutoff for o3-mini models is October, 2023.',
+    tags: ['reasoning', 'general-purpose'],
+    input: {
+      costPer1MTokens: 1.1,
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 4.4,
+      maxTokens: 100_000,
+    },
+  },
   'o1-2024-12-17': {
     name: 'GPT o1',
     description:
