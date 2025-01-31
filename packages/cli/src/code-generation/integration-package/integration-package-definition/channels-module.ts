@@ -1,5 +1,6 @@
 import { GENERATED_HEADER, INDEX_FILE } from '../../consts'
 import { jsonSchemaToTypescriptZuiSchema, stringifySingleLine } from '../../generators'
+import * as gen from '../../generators'
 import { Module, ReExportVariableModule } from '../../module'
 import * as strings from '../../strings'
 import * as types from './typings'
@@ -16,7 +17,10 @@ class MessageModule extends Module {
   }
 
   public async getContent() {
-    return jsonSchemaToTypescriptZuiSchema(this._message.schema, this.exportName)
+    return jsonSchemaToTypescriptZuiSchema(this._message.schema, this.exportName, {
+      title: gen.primitiveToTypescriptValue(this._message.title),
+      description: gen.primitiveToTypescriptValue(this._message.description),
+    })
   }
 }
 
@@ -65,6 +69,8 @@ class ChannelModule extends Module {
       `export * from './${messageImport}'`,
       '',
       `export const ${this.exportName} = {`,
+      `  title: ${gen.primitiveToTypescriptValue(this._channel.title)},`,
+      `  description: ${gen.primitiveToTypescriptValue(this._channel.description)},`,
       `  messages: ${this._messagesModule.exportName},`,
       `  message: ${stringifySingleLine(message)},`,
       `  conversation: ${stringifySingleLine(conversation)},`,

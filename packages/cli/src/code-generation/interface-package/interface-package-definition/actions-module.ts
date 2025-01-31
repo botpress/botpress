@@ -1,4 +1,5 @@
 import { jsonSchemaToTypescriptZuiSchema } from '../../generators'
+import * as gen from '../../generators'
 import { Module, ReExportVariableModule } from '../../module'
 import * as strings from '../../strings'
 import * as types from './typings'
@@ -35,10 +36,10 @@ export class ActionModule extends ReExportVariableModule {
     super({
       exportName: strings.varName(actionName),
       extraProps: {
-        billable: JSON.stringify(action.billable),
-        cacheable: JSON.stringify(action.cacheable),
-        title: JSON.stringify(action.title),
-        description: JSON.stringify(action.description),
+        title: gen.primitiveToTypescriptValue(action.title),
+        description: gen.primitiveToTypescriptValue(action.description),
+        billable: gen.primitiveToTypescriptValue(action.billable),
+        cacheable: gen.primitiveToTypescriptValue(action.cacheable),
       },
     })
 

@@ -1,4 +1,5 @@
 import { jsonSchemaToTypescriptZuiSchema } from '../../generators'
+import * as gen from '../../generators'
 import { Module, ReExportVariableModule } from '../../module'
 import * as strings from '../../strings'
 import * as types from './typings'
@@ -32,7 +33,13 @@ export class ActionOutputModule extends Module {
 
 export class ActionModule extends ReExportVariableModule {
   public constructor(actionName: string, action: types.ActionDefinition) {
-    super({ exportName: strings.varName(actionName) })
+    super({
+      exportName: strings.varName(actionName),
+      extraProps: {
+        title: gen.primitiveToTypescriptValue(action.title),
+        description: gen.primitiveToTypescriptValue(action.description),
+      },
+    })
 
     const inputModule = new ActionInputModule(action.input)
     const outputModule = new ActionOutputModule(action.output)

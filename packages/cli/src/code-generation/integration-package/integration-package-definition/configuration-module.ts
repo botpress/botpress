@@ -1,6 +1,7 @@
 import { JSONSchema7 } from 'json-schema'
 import { INDEX_FILE } from '../../consts'
 import { jsonSchemaToTypescriptZuiSchema } from '../../generators'
+import * as gen from '../../generators'
 import { Module } from '../../module'
 import * as strings from '../../strings'
 import * as types from './typings'
@@ -17,6 +18,9 @@ export class DefaultConfigurationModule extends Module {
 
   public async getContent() {
     const schema: JSONSchema7 = this._configuration.schema ?? { type: 'object', properties: {} }
-    return jsonSchemaToTypescriptZuiSchema(schema, this.exportName)
+    return jsonSchemaToTypescriptZuiSchema(schema, this.exportName, {
+      title: gen.primitiveToTypescriptValue(this._configuration.title),
+      description: gen.primitiveToTypescriptValue(this._configuration.description),
+    })
   }
 }

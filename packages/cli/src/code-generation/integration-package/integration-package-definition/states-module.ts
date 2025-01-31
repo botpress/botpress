@@ -1,4 +1,5 @@
 import { jsonSchemaToTypescriptZuiSchema } from '../../generators'
+import * as gen from '../../generators'
 import { Module, ReExportVariableModule } from '../../module'
 import * as strings from '../../strings'
 import * as types from './typings'
@@ -17,6 +18,8 @@ export class StateModule extends Module {
   public async getContent() {
     return jsonSchemaToTypescriptZuiSchema(this._state.schema, this.exportName, {
       type: `"${this._state.type}" as const`,
+      title: gen.primitiveToTypescriptValue(this._state.title),
+      description: gen.primitiveToTypescriptValue(this._state.description),
     })
   }
 }
