@@ -15,10 +15,14 @@ export class EntityModule extends Module {
   }
 
   public async getContent() {
-    return jsonSchemaToTypescriptZuiSchema(this._entity.schema, this.exportName, {
-      title: gen.primitiveToTypescriptValue(this._entity.title),
-      description: gen.primitiveToTypescriptValue(this._entity.description),
-    })
+    return jsonSchemaToTypescriptZuiSchema(
+      this._entity.schema,
+      this.exportName,
+      gen.primitiveRecordToTypescriptValues({
+        title: this._entity.title,
+        description: this._entity.description,
+      })
+    )
   }
 }
 

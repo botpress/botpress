@@ -17,10 +17,14 @@ class MessageModule extends Module {
   }
 
   public async getContent() {
-    return jsonSchemaToTypescriptZuiSchema(this._message.schema, this.exportName, {
-      title: gen.primitiveToTypescriptValue(this._message.title),
-      description: gen.primitiveToTypescriptValue(this._message.description),
-    })
+    return jsonSchemaToTypescriptZuiSchema(
+      this._message.schema,
+      this.exportName,
+      gen.primitiveRecordToTypescriptValues({
+        title: this._message.title,
+        description: this._message.description,
+      })
+    )
   }
 }
 

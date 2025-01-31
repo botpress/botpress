@@ -18,8 +18,10 @@ export class StateModule extends Module {
   public async getContent() {
     return jsonSchemaToTypescriptZuiSchema(this._state.schema, this.exportName, {
       type: `"${this._state.type}" as const`,
-      title: gen.primitiveToTypescriptValue(this._state.title),
-      description: gen.primitiveToTypescriptValue(this._state.description),
+      ...gen.primitiveRecordToTypescriptValues({
+        title: this._state.title,
+        description: this._state.description,
+      }),
     })
   }
 }

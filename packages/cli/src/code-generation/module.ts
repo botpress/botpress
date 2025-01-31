@@ -143,13 +143,14 @@ export class ReExportVariableModule extends Module {
 
     content += '\n'
 
-    const allProps: { key: string; value: string }[] = [
-      ...this.deps.map(({ name, exportName }) => ({ key: name, value: `${strings.importAlias(name)}.${exportName}` })),
-      ...Object.entries(this._extraProps).map(([key, value]) => ({ key, value })),
-    ]
+    const depProps: Record<string, string> = Object.fromEntries(
+      this.deps.map(({ name, exportName }) => [name, `${strings.importAlias(name)}.${exportName}`])
+    )
+
+    const allProps = { ...depProps, ...this._extraProps }
 
     content += `export const ${this.exportName} = {\n`
-    for (const { key, value } of allProps) {
+    for (const [key, value] of Object.entries(allProps)) {
       content += `  "${key}": ${value},\n`
     }
     content += '}'

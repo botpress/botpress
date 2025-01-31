@@ -15,13 +15,14 @@ export class EventModule extends Module {
   }
 
   public async getContent() {
-    if (!this._event.schema) {
-      return `export const ${this.exportName} = z.object({});`
-    }
-    return jsonSchemaToTypescriptZuiSchema(this._event.schema, this.exportName, {
-      title: gen.primitiveToTypescriptValue(this._event.title),
-      description: gen.primitiveToTypescriptValue(this._event.description),
-    })
+    return jsonSchemaToTypescriptZuiSchema(
+      this._event.schema,
+      this.exportName,
+      gen.primitiveRecordToTypescriptValues({
+        title: this._event.title,
+        description: this._event.description,
+      })
+    )
   }
 }
 

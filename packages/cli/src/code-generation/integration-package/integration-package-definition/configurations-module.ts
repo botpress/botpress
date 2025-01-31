@@ -20,10 +20,14 @@ export class ConfigurationModule extends Module {
 
   public async getContent() {
     const schema: JSONSchema7 = this._configuration.schema ?? { type: 'object', properties: {} }
-    return jsonSchemaToTypescriptZuiSchema(schema, this.exportName, {
-      title: gen.primitiveToTypescriptValue(this._configuration.title),
-      description: gen.primitiveToTypescriptValue(this._configuration.description),
-    })
+    return jsonSchemaToTypescriptZuiSchema(
+      schema,
+      this.exportName,
+      gen.primitiveRecordToTypescriptValues({
+        title: this._configuration.title,
+        description: this._configuration.description,
+      })
+    )
   }
 }
 
