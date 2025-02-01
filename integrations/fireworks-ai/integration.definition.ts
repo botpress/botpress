@@ -9,7 +9,7 @@ export default new IntegrationDefinition({
   title: 'Fireworks AI',
   description:
     'Choose from curated Fireworks AI models for content generation, chat completions, and audio transcription.',
-  version: '5.0.1',
+  version: '6.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {

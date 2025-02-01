@@ -254,6 +254,18 @@ export default new bp.Integration({
 
             return request
           },
+          overrideResponse: (response) => {
+            if (input.model?.id === 'accounts/fireworks/models/deepseek-r1') {
+              for (const choice of response.choices) {
+                if (choice.message.content) {
+                  // DeepSeek R1 returns its CoT in its response between <think> tags so we remove it.
+                  choice.message.content = choice.message.content.replace(/<think>.*<\/think>/gis, '')
+                }
+              }
+            }
+
+            return response
+          },
         }
       )
       metadata.setCost(output.botpress.cost)

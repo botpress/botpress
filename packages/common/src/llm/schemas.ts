@@ -66,6 +66,7 @@ export const ModelSchema = ModelRefSchema.extend({
       'roleplay',
       'storytelling',
       'reasoning',
+      'preview',
     ])
   ),
   input: z.object({
