@@ -1,4 +1,5 @@
 import { jsonSchemaToTypescriptZuiSchema } from '../../generators'
+import * as gen from '../../generators'
 import { Module, ReExportVariableModule } from '../../module'
 import * as strings from '../../strings'
 import * as types from './typings'
@@ -14,10 +15,14 @@ export class EventModule extends Module {
   }
 
   public async getContent() {
-    if (!this._event.schema) {
-      return `export const ${this.exportName} = z.object({});`
-    }
-    return jsonSchemaToTypescriptZuiSchema(this._event.schema, this.exportName)
+    return jsonSchemaToTypescriptZuiSchema(
+      this._event.schema,
+      this.exportName,
+      gen.primitiveRecordToTypescriptValues({
+        title: this._event.title,
+        description: this._event.description,
+      })
+    )
   }
 }
 

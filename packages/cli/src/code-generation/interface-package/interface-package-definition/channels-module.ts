@@ -1,5 +1,6 @@
 import { GENERATED_HEADER, INDEX_FILE } from '../../consts'
 import { jsonSchemaToTypescriptZuiSchema } from '../../generators'
+import * as gen from '../../generators'
 import { Module, ReExportVariableModule } from '../../module'
 import * as strings from '../../strings'
 import * as types from './typings'
@@ -16,7 +17,14 @@ class MessageModule extends Module {
   }
 
   public async getContent() {
-    return jsonSchemaToTypescriptZuiSchema(this._message.schema, this.exportName)
+    return jsonSchemaToTypescriptZuiSchema(
+      this._message.schema,
+      this.exportName,
+      gen.primitiveRecordToTypescriptValues({
+        title: this._message.title,
+        description: this._message.description,
+      })
+    )
   }
 }
 

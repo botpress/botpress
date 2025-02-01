@@ -1,4 +1,6 @@
+import { JSONSchema7 } from 'json-schema'
 import { jsonSchemaToTypescriptZuiSchema } from '../../generators'
+import * as gen from '../../generators'
 import { Module, ReExportVariableModule } from '../../module'
 import * as strings from '../../strings'
 import * as types from './typings'
@@ -17,11 +19,15 @@ export class ConfigurationModule extends Module {
   }
 
   public async getContent() {
-    const { schema } = this._configuration
-    if (!schema) {
-      return `export const ${this.exportName} = z.object({});`
-    }
-    return jsonSchemaToTypescriptZuiSchema(schema, this.exportName)
+    const schema: JSONSchema7 = this._configuration.schema ?? { type: 'object', properties: {} }
+    return jsonSchemaToTypescriptZuiSchema(
+      schema,
+      this.exportName,
+      gen.primitiveRecordToTypescriptValues({
+        title: this._configuration.title,
+        description: this._configuration.description,
+      })
+    )
   }
 }
 

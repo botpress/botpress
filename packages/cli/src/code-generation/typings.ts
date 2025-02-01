@@ -6,6 +6,8 @@ type PackageRef = { id?: string; name: string; version: string }
 type Schema = Record<string, any>
 type Aliases = Record<string, { name: string }>
 
+type TitleDescription = { title?: string; description?: string }
+
 export type File = { path: string; content: string }
 
 export type IntegrationDefinition = PackageRef & {
@@ -19,19 +21,19 @@ export type IntegrationDefinition = PackageRef & {
       channels?: Aliases
     }
   >
-  configuration?: {
+  configuration?: TitleDescription & {
     schema?: Schema
   }
   configurations?: Record<
     string,
-    {
+    TitleDescription & {
       schema?: Schema
     }
   >
   channels?: Record<
     string,
-    {
-      messages: Record<string, { schema: Schema }>
+    TitleDescription & {
+      messages: Record<string, TitleDescription & { schema: Schema }>
       conversation?: {
         tags?: Record<string, {}>
         creation?: {
@@ -46,15 +48,17 @@ export type IntegrationDefinition = PackageRef & {
   >
   states?: Record<
     string,
-    {
+    TitleDescription & {
       type: client.State['type']
       schema: Schema
     }
   >
-  events?: Record<string, { schema: Schema }>
+  events?: Record<string, TitleDescription & { schema: Schema }>
   actions?: Record<
     string,
-    {
+    TitleDescription & {
+      billable?: boolean
+      cacheable?: boolean
       input: {
         schema: Schema
       }
@@ -63,7 +67,7 @@ export type IntegrationDefinition = PackageRef & {
       }
     }
   >
-  entities?: Record<string, { schema: Schema }>
+  entities?: Record<string, TitleDescription & { schema: Schema }>
   user?: {
     tags?: Record<string, {}>
     creation?: {
@@ -74,27 +78,27 @@ export type IntegrationDefinition = PackageRef & {
 }
 
 export type InterfaceDefinition = PackageRef & {
-  entities?: Record<string, { schema: Schema }>
-  events?: Record<string, { schema: Schema }>
+  entities?: Record<string, TitleDescription & { schema: Schema }>
+  events?: Record<string, TitleDescription & { schema: Schema }>
   actions?: Record<
     string,
-    {
+    TitleDescription & {
+      billable?: boolean
+      cacheable?: boolean
       input: { schema: Schema }
-      output: {
-        schema: Schema
-      }
+      output: { schema: Schema }
     }
   >
-  channels?: Record<string, { messages: Record<string, { schema: Schema }> }>
+  channels?: Record<string, TitleDescription & { messages: Record<string, TitleDescription & { schema: Schema }> }>
 }
 
 export type PluginDefinition = PackageRef & {
-  configuration?: { schema?: Schema }
+  configuration?: TitleDescription & { schema?: Schema }
   user?: { tags: Record<string, {}> }
   conversation?: { tags: Record<string, {}> }
-  states?: Record<string, { type: client.State['type']; schema: Schema }>
-  events?: Record<string, { schema: Schema }>
-  actions?: Record<string, { input: { schema: Schema }; output: { schema: Schema } }>
+  states?: Record<string, TitleDescription & { type: client.State['type']; schema: Schema }>
+  events?: Record<string, TitleDescription & { schema: Schema }>
+  actions?: Record<string, TitleDescription & { input: { schema: Schema }; output: { schema: Schema } }>
   dependencies?: {
     interfaces?: Record<string, PackageRef>
     integrations?: Record<string, PackageRef>
