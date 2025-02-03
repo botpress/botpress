@@ -30,6 +30,14 @@
       "outputs": ["dist/**"],
       "dependsOn": ["generate", "^build"]
     },
+    "@botpress/vai#build": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["generate", "^build"]
+    },
+    "@botpress/zai#build": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["generate", "^build"]
+    },
     "check:type": {},
     "check:bplint": {}
   }

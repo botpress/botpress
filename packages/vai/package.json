@@ -1,0 +1,45 @@
+{
+  "name": "@botpress/vai",
+  "version": "0.0.5",
+  "description": "Vitest AI (vai) – a vitest extension for testing with LLMs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "npm run build:types && npm run build:neutral",
+    "build:neutral": "esbuild src/**/*.ts src/*.ts --platform=neutral --outdir=dist",
+    "build:types": "tsup",
+    "watch": "tsup --watch",
+    "test": "vitest run --config vitest.config.ts",
+    "test:update": "vitest -u run --config vitest.config.ts",
+    "test:watch": "vitest --config vitest.config.ts",
+    "build-with-latest-models": "pnpm run update-types && pnpm run update-models && pnpm run build",
+    "update-models": "ts-node ./src/scripts/update-models.ts",
+    "update-types": "ts-node ./src/scripts/update-types.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "json5": "^2.2.3",
+    "jsonrepair": "^3.10.0"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.191",
+    "dotenv": "^16.4.4",
+    "esbuild": "^0.16.12",
+    "tsup": "^8.0.2"
+  },
+  "peerDependencies": {
+    "@botpress/client": "^0.41.0",
+    "@bpinternal/thicktoken": "^1.0.1",
+    "@bpinternal/zui": "^0.13.4",
+    "lodash": "^4.17.21",
+    "vitest": "^2 || ^3 || ^4 || ^5"
+  }
+}

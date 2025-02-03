@@ -1,0 +1,14 @@
+vitest.config.ts
+vitest.setup.ts
+tsup.config.ts
+
+node_modules/
+scripts/
+.turbo
+
+*.test.ts
+*.test.js
+*.mts
+
+.env
+.env.local
