@@ -39,14 +39,17 @@ export default new sdk.IntegrationDefinition({
   .extend(creatable, ({ entities }) => ({
     entities: { item: entities.card },
     actions: { create: { name: 'cardCreate' } },
+    events: { created: { name: 'cardCreated' } },
   }))
   .extend(updatable, ({ entities }) => ({
     entities: { item: entities.card },
     actions: { update: { name: 'cardUpdate' } },
+    events: { updated: { name: 'cardUpdated' } },
   }))
   .extend(deletable, ({ entities }) => ({
     entities: { item: entities.card },
     actions: { delete: { name: 'cardDelete' } },
+    events: { deleted: { name: 'cardDeleted' } },
   }))
   .extend(listable, ({ entities }) => ({
     entities: { item: entities.list },
