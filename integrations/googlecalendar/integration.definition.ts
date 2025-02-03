@@ -29,6 +29,7 @@ export default new sdk.IntegrationDefinition({
   .extend(creatable, ({ entities }) => ({
     entities: { item: entities.event },
     actions: { create: { name: 'eventCreate' } },
+    events: { created: { name: 'eventCreated' } },
   }))
   .extend(readable, ({ entities }) => ({
     entities: { item: entities.event },
@@ -37,8 +38,10 @@ export default new sdk.IntegrationDefinition({
   .extend(updatable, ({ entities }) => ({
     entities: { item: entities.event },
     actions: { update: { name: 'eventUpdate' } },
+    events: { updated: { name: 'eventUpdated' } },
   }))
   .extend(deletable, ({ entities }) => ({
     entities: { item: entities.event },
     actions: { delete: { name: 'eventDelete' } },
+    events: { deleted: { name: 'eventDeleted' } },
   }))
