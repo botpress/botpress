@@ -55,6 +55,7 @@ export {
   ConversationDefinition as BotConversationDefinition,
   MessageDefinition as BotMessageDefinition,
   ActionDefinition as BotActionDefinition,
+  TableDefinition as BotTableDefinition,
   BotLogger,
 } from './bot'
 
@@ -68,7 +69,11 @@ export {
   //
   DefaultPlugin,
   PluginDefinition,
+  PluginDefinitionProps,
   PluginImplementation as Plugin,
+  PluginImplementationProps as PluginProps,
+  PluginRuntimeProps,
+  PluginHandlers,
 } from './plugin'
 
 export {

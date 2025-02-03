@@ -11,6 +11,8 @@ import {
   updateRecordOutputSchema,
   updateTableInputSchema,
   updateTableOutputSchema,
+  listRecordsInputSchema,
+  listRecordsOutputSchema,
 } from './src/misc/custom-schemas'
 
 export default new IntegrationDefinition({
@@ -18,7 +20,7 @@ export default new IntegrationDefinition({
   title: 'Airtable',
   description:
     'Access and manage Airtable data to allow your chatbot to retrieve details, update records, and organize information.',
-  version: '0.0.3',
+  version: '0.0.4',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -80,6 +82,15 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: updateRecordOutputSchema,
+      },
+    },
+    listRecords: {
+      title: 'List Records',
+      input: {
+        schema: listRecordsInputSchema,
+      },
+      output: {
+        schema: listRecordsOutputSchema,
       },
     },
   },

@@ -3,7 +3,6 @@ import chalk from 'chalk'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { parsePackageRef } from '../package-ref'
-import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 
 export type GetPluginCommandDefinition = typeof commandDefinitions.plugins.subcommands.get
@@ -22,7 +21,7 @@ export class GetPluginCommand extends GlobalCommand<GetPluginCommandDefinition> 
       const plugin = await api.findPublicPlugin(parsedRef)
       if (plugin) {
         this.logger.success(`Plugin ${chalk.bold(this.argv.pluginRef)}:`)
-        this.logger.json(utils.object.omit(plugin, 'code'))
+        this.logger.json(plugin)
         return
       }
     } catch (thrown) {

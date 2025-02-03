@@ -3,11 +3,12 @@
   "tasks": {
     "generate": {
       "outputs": ["src/gen/**"],
-      "dependsOn": ["^generate"]
+      "dependsOn": ["^generate", "^build"]
     },
     "build": {
       "outputs": ["bp_modules/**", ".botpress/**"],
-      "dependsOn": ["generate", "^build"]
+      "dependsOn": ["generate", "^build"],
+      "env": ["BP_*"]
     },
     "@botpress/client#build": {
       "outputs": ["dist/**"],
@@ -23,6 +24,10 @@
     },
     "@botpress/cli#build": {
       "outputs": ["dist/**", "templates/*/.botpress/**"],
+      "dependsOn": ["generate", "^build"]
+    },
+    "@botpress/cognitive#build": {
+      "outputs": ["dist/**"],
       "dependsOn": ["generate", "^build"]
     },
     "check:type": {},

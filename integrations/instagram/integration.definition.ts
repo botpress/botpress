@@ -154,9 +154,16 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(proactiveUser, ({ user }) => ({
-    user,
+  .extend(proactiveUser, ({ entities }) => ({
+    entities: {
+      user: entities.user,
+    },
   }))
-  .extend(proactiveConversation, ({ dm }) => ({
-    conversation: dm,
+  .extend(proactiveConversation, ({ entities }) => ({
+    entities: {
+      conversation: entities.dm,
+    },
+    actions: {
+      getOrCreateConversation: { name: 'getOrCreateConversationDm' },
+    },
   }))

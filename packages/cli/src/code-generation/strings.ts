@@ -1,7 +1,7 @@
 import * as utils from '../utils'
 type StrTransform = (str: string) => string
 
-const TYPESCRIPT_RESERVED = new Set([
+const TYPESCRIPT_RESERVED_TOKENS = new Set([
   'break',
   'as',
   'any',
@@ -63,15 +63,21 @@ const TYPESCRIPT_RESERVED = new Set([
   'while',
   'with',
 ])
-const escapeReserved = (str: string): string => {
-  if (TYPESCRIPT_RESERVED.has(str)) {
+
+const SPECIAL_FILE_NAME_CHARS = /[^a-zA-Z0-9_\-\.]/g
+
+const escapeTypescriptReserved = (str: string): string => {
+  if (TYPESCRIPT_RESERVED_TOKENS.has(str)) {
     return `_${str}`
   }
   return str
 }
 
+const escapeFileNameSpecialChars = (str: string): string => str.replace(SPECIAL_FILE_NAME_CHARS, '-')
+
 const apply = (str: string, ...transforms: StrTransform[]) => transforms.reduce((acc, transform) => transform(acc), str)
 
 export const typeName = (name: string) => apply(name, utils.casing.to.pascalCase)
-export const importAlias = (name: string) => apply(name, utils.casing.to.camelCase, escapeReserved)
-export const varName = (name: string) => apply(name, utils.casing.to.camelCase, escapeReserved)
+export const importAlias = (name: string) => apply(name, utils.casing.to.camelCase, escapeTypescriptReserved)
+export const varName = (name: string) => apply(name, utils.casing.to.camelCase, escapeTypescriptReserved)
+export const fileName = (name: string) => apply(name, escapeFileNameSpecialChars)

@@ -1,10 +1,10 @@
-import { isApiError, ApiError, UnknownError } from '@botpress/client'
+import * as client from '@botpress/client'
 import axios, { AxiosError } from 'axios'
 import { VError } from 'verror'
 import * as consts from './consts'
 
-type KnownApiError = Exclude<ApiError, UnknownError>
-const isKnownApiError = (e: unknown): e is KnownApiError => isApiError(e) && !(e instanceof UnknownError)
+type KnownApiError = Exclude<client.ApiError, client.UnknownError>
+const isKnownApiError = (e: unknown): e is KnownApiError => client.isApiError(e) && !(e instanceof client.UnknownError)
 
 export class BotpressCLIError extends VError {
   public static wrap(thrown: unknown, message: string): BotpressCLIError {
@@ -16,7 +16,7 @@ export class BotpressCLIError extends VError {
     if (thrown instanceof BotpressCLIError) {
       return thrown
     }
-    if (thrown instanceof UnknownError) {
+    if (thrown instanceof client.UnknownError) {
       const inst = new HTTPError(500, 'An unknown error has occurred.')
       inst.debug = thrown.message
       return inst

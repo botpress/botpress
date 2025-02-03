@@ -1,6 +1,6 @@
 {
   "name": "@botpress/chat",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "Botpress Chat API Client",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -12,7 +12,8 @@
     "build:type": "tsc -p ./tsconfig.build.json",
     "build:browser": "ts-node -T ./build.ts --browser",
     "build:node": "ts-node -T ./build.ts --node",
-    "build": "pnpm build:type && pnpm build:node && pnpm build:browser"
+    "build": "pnpm build:type && pnpm build:node && pnpm build:browser",
+    "test:e2e": "vitest run --dir ./e2e"
   },
   "dependencies": {
     "axios": "1.2.5",
@@ -30,9 +31,13 @@
     "@types/eventsource": "^1.1.12",
     "@types/json-schema": "^7.0.12",
     "@types/jsonwebtoken": "^9.0.3",
+    "@types/lodash": "^4.14.191",
     "@types/qs": "^6.9.7",
+    "@types/uuid": "^9.0.1",
     "@types/web": "^0.0.115",
     "esbuild": "^0.16.12",
-    "esbuild-plugin-polyfill-node": "^0.3.0"
+    "esbuild-plugin-polyfill-node": "^0.3.0",
+    "lodash": "^4.17.21",
+    "uuid": "^9.0.0"
   }
 }

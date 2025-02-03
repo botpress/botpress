@@ -10,7 +10,7 @@ type Serveable = BotImpl | IntegrationImpl
 export type ServeCommandDefinition = typeof commandDefinitions.serve
 export class ServeCommand extends ProjectCommand<ServeCommandDefinition> {
   public async run(): Promise<void> {
-    const outfile = this.projectPaths.abs.outFile
+    const outfile = this.projectPaths.abs.outFileCJS
     if (!fs.existsSync(outfile)) {
       throw new errors.NoBundleFoundError()
     }

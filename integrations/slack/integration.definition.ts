@@ -34,7 +34,7 @@ export default new IntegrationDefinition({
   name: 'slack',
   title: 'Slack',
   description: 'Automate interactions with your team.',
-  version: '1.1.0',
+  version: '1.1.1',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
@@ -240,4 +240,6 @@ export default new IntegrationDefinition({
     extractScript: 'extract.vrl',
     fallbackHandlerScript: 'fallbackHandler.vrl',
   },
-}).extend(typingIndicator, () => ({}))
+}).extend(typingIndicator, () => ({
+  entities: {},
+}))

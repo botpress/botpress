@@ -1,7 +1,7 @@
-import * as client from '@botpress/client'
-export type ApiInterfaceDefinition = client.Interface
-export type ApiActionDefinition = ApiInterfaceDefinition['actions'][string]
-export type ApiChannelDefinition = ApiInterfaceDefinition['channels'][string]
-export type ApiMessageDefinition = ApiChannelDefinition['messages'][string]
-export type ApiEntityDefinition = ApiInterfaceDefinition['entities'][string]
-export type ApiEventDefinition = ApiInterfaceDefinition['events'][string]
+import * as types from '../../typings'
+export type InterfaceDefinition = types.InterfaceDefinition
+export type ActionDefinition = NonNullable<InterfaceDefinition['actions']>[string]
+export type ChannelDefinition = NonNullable<InterfaceDefinition['channels']>[string]
+export type MessageDefinition = NonNullable<ChannelDefinition['messages']>[string]
+export type EntityDefinition = NonNullable<InterfaceDefinition['entities']>[string]
+export type EventDefinition = NonNullable<InterfaceDefinition['events']>[string]

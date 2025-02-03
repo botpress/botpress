@@ -13,7 +13,7 @@ import { integrationName } from './package.json'
 export default new sdk.IntegrationDefinition({
   name: integrationName,
   title: 'Trello',
-  version: '1.1.1',
+  version: '1.1.2',
   readme: 'hub.md',
   description: 'Update cards, add comments, create new cards, and read board members from your chatbot.',
   icon: 'icon.svg',
@@ -28,42 +28,58 @@ export default new sdk.IntegrationDefinition({
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
 })
-  .extend(listable, (entities) => ({
-    item: entities.card,
+  .extend(listable, ({ entities }) => ({
+    entities: { item: entities.card },
+    actions: { list: { name: 'cardList' } },
   }))
-  .extend(readable, (entities) => ({
-    item: entities.card,
+  .extend(readable, ({ entities }) => ({
+    entities: { item: entities.card },
+    actions: { read: { name: 'cardRead' } },
   }))
-  .extend(creatable, (entities) => ({
-    item: entities.card,
+  .extend(creatable, ({ entities }) => ({
+    entities: { item: entities.card },
+    actions: { create: { name: 'cardCreate' } },
+    events: { created: { name: 'cardCreated' } },
   }))
-  .extend(updatable, (entities) => ({
-    item: entities.card,
+  .extend(updatable, ({ entities }) => ({
+    entities: { item: entities.card },
+    actions: { update: { name: 'cardUpdate' } },
+    events: { updated: { name: 'cardUpdated' } },
   }))
-  .extend(deletable, (entities) => ({
-    item: entities.card,
+  .extend(deletable, ({ entities }) => ({
+    entities: { item: entities.card },
+    actions: { delete: { name: 'cardDelete' } },
+    events: { deleted: { name: 'cardDeleted' } },
   }))
-  .extend(listable, (entities) => ({
-    item: entities.list,
+  .extend(listable, ({ entities }) => ({
+    entities: { item: entities.list },
+    actions: { list: { name: 'listList' } },
   }))
-  .extend(readable, (entities) => ({
-    item: entities.list,
+  .extend(readable, ({ entities }) => ({
+    entities: { item: entities.list },
+    actions: { read: { name: 'listRead' } },
   }))
-  .extend(listable, (entities) => ({
-    item: entities.board,
+  .extend(listable, ({ entities }) => ({
+    entities: { item: entities.board },
+    actions: { list: { name: 'boardList' } },
   }))
-  .extend(readable, (entities) => ({
-    item: entities.board,
+  .extend(readable, ({ entities }) => ({
+    entities: { item: entities.board },
+    actions: { read: { name: 'boardRead' } },
   }))
-  .extend(listable, (entities) => ({
-    item: entities.boardMember,
+  .extend(listable, ({ entities }) => ({
+    entities: { item: entities.boardMember },
+    actions: { list: { name: 'boardMemberList' } },
   }))
-  .extend(readable, (entities) => ({
-    item: entities.boardMember,
+  .extend(readable, ({ entities }) => ({
+    entities: { item: entities.boardMember },
+    actions: { read: { name: 'boardMemberRead' } },
   }))
-  .extend(listable, (entities) => ({
-    item: entities.cardMember,
+  .extend(listable, ({ entities }) => ({
+    entities: { item: entities.cardMember },
+    actions: { list: { name: 'cardMemberList' } },
   }))
-  .extend(readable, (entities) => ({
-    item: entities.cardMember,
+  .extend(readable, ({ entities }) => ({
+    entities: { item: entities.cardMember },
+    actions: { read: { name: 'cardMemberRead' } },
   }))

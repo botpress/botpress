@@ -1,7 +1,5 @@
 import { z, InterfaceDefinition } from '@botpress/sdk'
 
-const templateName = '{{camelCase name}}{{pascalCase conversation}}'
-
 export default new InterfaceDefinition({
   name: 'proactiveConversation',
   version: '0.0.2',
@@ -28,5 +26,4 @@ export default new InterfaceDefinition({
       },
     },
   },
-  templateName, // getOrCreateConversationTicket, getOrCreateConversationIssue, getOrCreateConversationPullRequest
 })

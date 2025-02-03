@@ -63,8 +63,6 @@ export type InterfaceDefinitionProps<
   channels?: {
     [K in keyof TChannels]: GenericChannelDefinition<TEntities, TChannels[K]>
   }
-
-  templateName?: string
 }
 
 export class InterfaceDefinition<
@@ -83,15 +81,12 @@ export class InterfaceDefinition<
   public readonly actions: { [K in keyof TActions]: ActionDefinition<TActions[K]> }
   public readonly channels: { [K in keyof TChannels]: ChannelDefinition<TChannels[K]> }
 
-  public readonly templateName: this['props']['templateName']
-
   public constructor(
     public readonly props: InterfaceDefinitionProps<TName, TVersion, TEntities, TActions, TEvents, TChannels>
   ) {
     this.name = props.name
     this.version = props.version
     this.entities = props.entities ?? ({} as this['entities'])
-    this.templateName = props.templateName
 
     const entityReferences = this._getEntityReference(this.entities)
 
