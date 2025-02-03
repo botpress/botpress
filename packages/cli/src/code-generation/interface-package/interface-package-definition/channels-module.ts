@@ -1,5 +1,6 @@
 import { GENERATED_HEADER, INDEX_FILE } from '../../consts'
 import { jsonSchemaToTypescriptZuiSchema } from '../../generators'
+import * as gen from '../../generators'
 import { Module, ReExportVariableModule } from '../../module'
 import * as strings from '../../strings'
 import * as types from './typings'
@@ -7,7 +8,7 @@ import * as types from './typings'
 class MessageModule extends Module {
   public constructor(
     name: string,
-    private _message: types.ApiMessageDefinition
+    private _message: types.MessageDefinition
   ) {
     super({
       path: `${name}.ts`,
@@ -16,12 +17,19 @@ class MessageModule extends Module {
   }
 
   public async getContent() {
-    return jsonSchemaToTypescriptZuiSchema(this._message.schema, this.exportName)
+    return jsonSchemaToTypescriptZuiSchema(
+      this._message.schema,
+      this.exportName,
+      gen.primitiveRecordToTypescriptValues({
+        title: this._message.title,
+        description: this._message.description,
+      })
+    )
   }
 }
 
 class MessagesModule extends ReExportVariableModule {
-  public constructor(channel: types.ApiChannelDefinition) {
+  public constructor(channel: types.ChannelDefinition) {
     super({ exportName: strings.varName('messages') })
     for (const [messageName, message] of Object.entries(channel.messages ?? {})) {
       const module = new MessageModule(messageName, message)
@@ -35,7 +43,7 @@ class ChannelModule extends Module {
 
   public constructor(
     channelName: string,
-    private _channel: types.ApiChannelDefinition
+    private _channel: types.ChannelDefinition
   ) {
     super({
       path: INDEX_FILE,
@@ -63,7 +71,7 @@ class ChannelModule extends Module {
 }
 
 export class ChannelsModule extends ReExportVariableModule {
-  public constructor(channels: Record<string, types.ApiChannelDefinition>) {
+  public constructor(channels: Record<string, types.ChannelDefinition>) {
     super({ exportName: strings.varName('channels') })
     for (const [channelName, channel] of Object.entries(channels)) {
       const module = new ChannelModule(channelName, channel)

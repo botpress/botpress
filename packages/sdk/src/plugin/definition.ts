@@ -7,6 +7,7 @@ import {
   ConversationDefinition,
   MessageDefinition,
   ActionDefinition,
+  TableDefinition,
 } from '../bot/definition'
 import { IntegrationPackage, InterfacePackage } from '../package'
 import { ZuiObjectSchema } from '../zui'
@@ -20,6 +21,7 @@ export {
   ConversationDefinition,
   MessageDefinition,
   ActionDefinition,
+  TableDefinition,
   IntegrationConfigInstance,
 } from '../bot/definition'
 
@@ -29,6 +31,7 @@ type BaseEvents = Record<string, ZuiObjectSchema>
 type BaseActions = Record<string, ZuiObjectSchema>
 type BaseInterfaces = Record<string, any>
 type BaseIntegrations = Record<string, any>
+type BaseTables = Record<string, ZuiObjectSchema>
 
 export type PluginDefinitionProps<
   TName extends string = string,
@@ -39,6 +42,7 @@ export type PluginDefinitionProps<
   TActions extends BaseActions = BaseActions,
   TInterfaces extends BaseInterfaces = BaseInterfaces,
   TIntegrations extends BaseIntegrations = BaseIntegrations,
+  TTables extends BaseTables = BaseTables,
 > = {
   name: TName
   version: TVersion
@@ -62,6 +66,9 @@ export type PluginDefinitionProps<
   actions?: {
     [K in keyof TActions]: ActionDefinition<TActions[K]>
   }
+  tables?: {
+    [K in keyof TTables]: TableDefinition<TTables[K]>
+  }
 }
 
 export class PluginDefinition<
@@ -73,6 +80,7 @@ export class PluginDefinition<
   TActions extends BaseActions = BaseActions,
   TInterfaces extends BaseInterfaces = BaseInterfaces,
   TIntegrations extends BaseIntegrations = BaseIntegrations,
+  TTables extends BaseTables = BaseTables,
 > {
   public readonly name: this['props']['name']
   public readonly version: this['props']['version']
@@ -88,6 +96,7 @@ export class PluginDefinition<
   public readonly events: this['props']['events']
   public readonly recurringEvents: this['props']['recurringEvents']
   public readonly actions: this['props']['actions']
+  public readonly tables: this['props']['tables']
 
   public constructor(
     public readonly props: PluginDefinitionProps<
@@ -98,7 +107,8 @@ export class PluginDefinition<
       TEvents,
       TActions,
       TInterfaces,
-      TIntegrations
+      TIntegrations,
+      TTables
     >
   ) {
     this.name = props.name
@@ -113,5 +123,6 @@ export class PluginDefinition<
     this.events = props.events
     this.recurringEvents = props.recurringEvents
     this.actions = props.actions
+    this.tables = props.tables
   }
 }

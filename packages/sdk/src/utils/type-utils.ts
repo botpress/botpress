@@ -5,12 +5,23 @@ export type SafeCast<T, U> = [T] extends [never] ? U : Cast<T, U>
 export type Writable<T> = { -readonly [K in keyof T]: T[K] }
 export type Default<T, U> = undefined extends T ? U : T
 
+export type AtLeastOne<T> = [T, ...T[]]
+export type AtLeastOneProperty<T> = {
+  [K in keyof T]?: T[K]
+} & {
+  [K in keyof T]: Pick<T, K>
+}[keyof T]
+export type ExactlyOneProperty<T> = {
+  [K in keyof T]: { [P in K]: T[P] } & { [P in Exclude<keyof T, K>]?: never }
+}[keyof T]
+
 export type IsExtend<X, Y> = X extends Y ? true : false
 export type IsEquivalent<X, Y> = IsExtend<X, Y> extends true ? IsExtend<Y, X> : false
 export type IsIdentical<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? true : false
 export type IsEqual<X, Y> = IsIdentical<Normalize<X>, Normalize<Y>>
 
 export type AssertExtends<_A extends B, B> = true
+export type AssertNotExtends<A, B> = A extends B ? false : true
 export type AssertTrue<_T extends true> = true
 export type AssertAll<_T extends true[]> = true
 
@@ -62,3 +73,5 @@ export type DeepPartial<T> = T extends (...args: infer A) => infer R
           : T extends object
             ? DeepPartialObject<T>
             : T
+
+export type SafeOmit<T, K extends keyof T> = Omit<T, K>

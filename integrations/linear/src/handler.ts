@@ -2,6 +2,7 @@ import { Request } from '@botpress/sdk'
 import { LinearWebhooks, LINEAR_WEBHOOK_SIGNATURE_HEADER, LINEAR_WEBHOOK_TS_FIELD } from '@linear/sdk'
 
 import { fireIssueCreated } from './events/issueCreated'
+import { fireIssueDeleted } from './events/issueDeleted'
 import { fireIssueUpdated } from './events/issueUpdated'
 import { LinearEvent, handleOauth } from './misc/linear'
 import { getUserAndConversation } from './misc/utils'
@@ -39,6 +40,11 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
   if (linearEvent.type === 'issue' && linearEvent.action === 'update') {
     await fireIssueUpdated({ linearEvent, client, ctx })
+    return
+  }
+
+  if (linearEvent.type === 'issue' && linearEvent.action === 'remove') {
+    await fireIssueDeleted({ linearEvent, client, ctx })
     return
   }
 

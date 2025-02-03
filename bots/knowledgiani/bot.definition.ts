@@ -5,6 +5,9 @@ import openai from './bp_modules/openai'
 import personality from './bp_modules/personality'
 import telegram from './bp_modules/telegram'
 
+type OpenAiModel = sdk.z.infer<typeof openai.definition.entities.modelRef.schema>
+const openAiLLM = openai.definition.interfaces['llm<modelRef>']
+
 export default new sdk.BotDefinition({})
   .addIntegration(telegram, {
     enabled: true,
@@ -18,16 +21,32 @@ export default new sdk.BotDefinition({})
   })
   .addPlugin(personality, {
     configuration: {
-      model: 'gpt-3.5-turbo-0125',
+      model: 'gpt-3.5-turbo-0125' satisfies OpenAiModel['id'],
       personality: 'Respond as if you were Mario the famous video game character of Nintendo',
     },
     interfaces: {
-      llm: openai.definition,
+      llm: {
+        id: openai.id,
+        name: openai.name,
+        version: openai.version,
+        entities: openAiLLM.entities,
+        actions: openAiLLM.actions,
+        events: openAiLLM.events,
+        channels: openAiLLM.channels,
+      },
     },
   })
   .addPlugin(knowledge, {
     configuration: {},
     interfaces: {
-      llm: openai.definition,
+      llm: {
+        id: openai.id,
+        name: openai.name,
+        version: openai.version,
+        entities: openAiLLM.entities,
+        actions: openAiLLM.actions,
+        events: openAiLLM.events,
+        channels: openAiLLM.channels,
+      },
     },
   })

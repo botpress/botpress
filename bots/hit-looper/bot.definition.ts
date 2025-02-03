@@ -1,52 +1,32 @@
+/* bplint-disable */ // zui `toTypescriptSchema` does not preserve title and description properties
 import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
-import telegram from './bp_modules/telegram'
+import chat from './bp_modules/chat'
+import hitl from './bp_modules/hitl'
 import zendesk from './bp_modules/zendesk'
+
+const zendeskHitl = zendesk.definition.interfaces['hitl']
 
 export default new sdk.BotDefinition({
   configuration: {
     schema: sdk.z.object({}),
   },
-  states: {
-    flow: {
-      type: 'conversation',
-      schema: sdk.z.object({
-        hitlEnabled: sdk.z.boolean().title('HITL Enabled').describe('Whether the bot is in HITL mode'),
-      }),
-    },
-  },
+  states: {},
   events: {},
   recurringEvents: {},
   user: {
     tags: {
-      downstream: {
-        title: 'Downstream User ID',
-        description: 'ID of the downstream user binded to the upstream one',
-      },
-      upstream: {
-        title: 'Upstream User ID',
-        description: 'ID of the upstream user binded to the downstream one',
+      email: {
+        title: 'Email',
+        description: 'The email of the user',
       },
     },
   },
-  conversation: {
-    tags: {
-      downstream: {
-        title: 'Downstream Conversation ID',
-        description: 'ID of the downstream conversation binded to the upstream one',
-      },
-      upstream: {
-        title: 'Upstream Conversation ID',
-        description: 'ID of the upstream conversation binded to the downstream one',
-      },
-    },
-  },
+  conversation: {},
 })
-  .addIntegration(telegram, {
+  .addIntegration(chat, {
     enabled: true,
-    configuration: {
-      botToken: genenv.HITLOOPER_TELEGRAM_BOT_TOKEN,
-    },
+    configuration: {},
   })
   .addIntegration(zendesk, {
     enabled: true,
@@ -54,5 +34,19 @@ export default new sdk.BotDefinition({
       apiToken: genenv.HITLOOPER_ZENDESK_API_TOKEN,
       email: genenv.HITLOOPER_ZENDESK_EMAIL,
       organizationSubdomain: genenv.HITLOOPER_ZENDESK_ORGANIZATION_SUBDOMAIN,
+    },
+  })
+  .addPlugin(hitl, {
+    configuration: {},
+    interfaces: {
+      hitl: {
+        id: zendesk.id,
+        name: zendesk.name,
+        version: zendesk.version,
+        entities: zendeskHitl.entities,
+        actions: zendeskHitl.actions,
+        events: zendeskHitl.events,
+        channels: zendeskHitl.channels,
+      },
     },
   })
