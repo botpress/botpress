@@ -3,6 +3,7 @@ import { ExtendedClient, getExtendedClient } from './bp-client'
 import { Model as RawModel } from './gen'
 import { BotpressClientLike } from './types'
 
+export const DOWNTIME_THRESHOLD_MINUTES = 5
 const PREFERENCES_FILE_SUFFIX = 'models.config.json'
 
 // Biases for vendors and models
@@ -75,7 +76,7 @@ export const getFastModels = (models: Model[], boosts: Record<ModelRef, number> 
 export const pickModel = (models: ModelRef[], downtimes: ModelPreferences['downtimes'] = []) => {
   const copy = [...models]
   const elasped = (date: string) => new Date().getTime() - new Date(date).getTime()
-  const DOWNTIME_THRESHOLD = 1000 * 60 * 5 // 5 minutes
+  const DOWNTIME_THRESHOLD = 1000 * 60 * DOWNTIME_THRESHOLD_MINUTES
 
   if (!copy.length) {
     throw new Error('At least one model is required')
@@ -149,18 +150,24 @@ export class RemoteModelProvider extends ModelProvider {
   public async fetchModelPreferences(): Promise<ModelPreferences | null> {
     try {
       const { file } = await this._client.getFile({ id: this._preferenceFileKey })
-      const { data } = await this._client.axios.get(file.url, {
-        // we piggy-back axios to avoid adding a new dependency
-        // unset all headers to avoid S3 pre-signed signature mismatch
-        headers: Object.keys(this._client.config.headers).reduce(
-          (acc, key) => {
-            acc[key] = undefined
-            return acc
-          },
-          {} as Record<string, undefined>
-        ),
-      })
-      return data as ModelPreferences
+
+      if (globalThis.fetch !== undefined) {
+        const response = await fetch(file.url)
+        return (await response.json()) as ModelPreferences
+      } else {
+        const { data } = await this._client.axios.get(file.url, {
+          // we piggy-back axios to avoid adding a new dependency
+          // unset all headers to avoid S3 pre-signed signature mismatch
+          headers: Object.keys(this._client.config.headers).reduce(
+            (acc, key) => {
+              acc[key] = undefined
+              return acc
+            },
+            {} as Record<string, undefined>
+          ),
+        })
+        return data as ModelPreferences
+      }
     } catch (err) {
       if (err instanceof ResourceNotFoundError) {
         return null
