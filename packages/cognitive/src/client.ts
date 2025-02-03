@@ -6,6 +6,7 @@ import { getActionFromError } from './errors'
 import { type GenerateContentOutput } from './gen'
 import { InterceptorManager } from './interceptors'
 import {
+  DOWNTIME_THRESHOLD_MINUTES,
   getBestModels,
   getFastModels,
   ModelPreferences,
@@ -65,9 +66,20 @@ export class Cognitive {
 
   public async setPreferences(preferences: ModelPreferences, save: boolean = false): Promise<void> {
     this._preferences = preferences
+
     if (save) {
       await this._provider.saveModelPreferences(preferences)
     }
+  }
+
+  private _cleanupOldDowntimes(): void {
+    const now = Date.now()
+    const thresholdMs = 1000 * 60 * DOWNTIME_THRESHOLD_MINUTES
+
+    this._preferences!.downtimes = this._preferences!.downtimes.filter((downtime) => {
+      const downtimeStart = new Date(downtime.startedAt).getTime()
+      return now - downtimeStart <= thresholdMs
+    })
   }
 
   private async _selectModel(ref: string): Promise<{ integration: string; model: string }> {
@@ -154,6 +166,8 @@ export class Cognitive {
               startedAt: new Date().toISOString(),
               reason: 'Model is down',
             })
+
+            this._cleanupOldDowntimes()
 
             await this._provider.saveModelPreferences({
               ...(this._preferences ?? { best: [], downtimes: [], fast: [] }),
