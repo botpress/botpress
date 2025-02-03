@@ -1,7 +1,10 @@
-import { type ZodSchema, z } from '@bpinternal/zui'
+import z from '@bpinternal/zui'
 import JSON5 from 'json5'
+import llm from '../../bp_modules/llm'
 import { Context } from '../context'
-import { llm } from '../sdk-interfaces/llm/generateContent'
+
+type GenerateContentInput = z.TypeOf<typeof llm.definition.actions.generateContent.input.schema>
+type GenerateContentOutput = z.TypeOf<typeof llm.definition.actions.generateContent.output.schema>
 
 const nonEmptyString = z.string().trim().min(1)
 const nonEmptyObject = z
@@ -30,14 +33,14 @@ const Example = z.object({
   output: Output,
 })
 
-type InputOptions<T extends ZodSchema = ZodSchema> = z.input<typeof Options> & { outputSchema: T }
+type InputOptions<T extends z.ZodSchema = z.ZodSchema> = z.input<typeof Options> & { outputSchema: T }
 type Options = z.infer<typeof Options>
 const Options = z.object({
   systemMessage: z.string(),
   examples: z.array(Example).default([]),
   input: Input,
 
-  outputSchema: z.custom<ZodSchema<any>>((value) => typeof value === 'object' && value !== null && '_def' in value),
+  outputSchema: z.custom<z.ZodSchema<any>>((value) => typeof value === 'object' && value !== null && '_def' in value),
   model: z.string(),
 })
 
@@ -47,13 +50,13 @@ type Message = {
 }
 
 const isValidExample =
-  (outputSchema: ZodSchema) =>
+  (outputSchema: z.ZodSchema) =>
   (example: Example): example is Example =>
     Input.safeParse(example.input).success &&
     Output.safeParse(example.output).success &&
     outputSchema.safeParse(example.output.result).success
 
-export async function predictJson<T extends ZodSchema>(_options: InputOptions<T>): Promise<Output<z.infer<T>>> {
+export async function predictJson<T extends z.ZodSchema>(_options: InputOptions<T>): Promise<Output<z.infer<T>>> {
   const options = Options.parse(_options)
   const [integration, model] = options.model.split('__')
 
@@ -94,10 +97,10 @@ ${await outputSchema.toTypescriptAsync()}
       temperature: 0,
       responseFormat: 'json_object',
       model: { id: model! },
-    } satisfies llm.generateContent.Input,
+    } as GenerateContentInput,
   })
 
-  const output = result.output as llm.generateContent.Output
+  const output = result.output as GenerateContentOutput
 
   if (!output.choices.length || typeof output.choices?.[0]?.content !== 'string') {
     throw new Error('Invalid response from the model')

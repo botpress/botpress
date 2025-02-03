@@ -4,7 +4,7 @@ import { Context } from '../context'
 import { Output } from './predictJson'
 
 export class AsyncExpectError<T> extends Error {
-  constructor(
+  public constructor(
     message: string,
     public readonly output: Output<T>
   ) {

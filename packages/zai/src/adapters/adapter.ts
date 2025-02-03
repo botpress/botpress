@@ -19,7 +19,7 @@ export type GetExamplesProps<TInput> = {
 }
 
 export abstract class Adapter {
-  abstract getExamples<TInput, TOutput>(
+  public abstract getExamples<TInput, TOutput>(
     props: GetExamplesProps<TInput>
   ): Promise<
     Array<{
@@ -31,5 +31,5 @@ export abstract class Adapter {
     }>
   >
 
-  abstract saveExample<TInput, TOutput>(props: SaveExampleProps<TInput, TOutput>): Promise<void>
+  public abstract saveExample<TInput, TOutput>(props: SaveExampleProps<TInput, TOutput>): Promise<void>
 }

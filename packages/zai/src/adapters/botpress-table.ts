@@ -60,25 +60,25 @@ const TableJsonSchema = Object.entries(TableSchema.shape).reduce((acc, [key, val
 }, {})
 
 export class TableAdapter extends Adapter {
-  private client: Client
-  private tableName: string
+  private _client: Client
+  private _tableName: string
 
-  private status: 'initialized' | 'ready' | 'error'
+  private _status: 'initialized' | 'ready' | 'error'
 
-  constructor(props: z.input<typeof Props>) {
+  public constructor(props: z.input<typeof Props>) {
     super()
     props = Props.parse(props)
-    this.client = props.client
-    this.tableName = props.tableName
-    this.status = 'ready'
+    this._client = props.client
+    this._tableName = props.tableName
+    this._status = 'ready'
   }
 
   public async getExamples<TInput, TOutput>({ taskType, taskId, input }: GetExamplesProps<TInput>) {
-    await this.assertTableExists()
+    await this._assertTableExists()
 
-    const { rows } = await this.client
+    const { rows } = await this._client
       .findTableRows({
-        table: this.tableName,
+        table: this._tableName,
         search: JSON.stringify({ value: input }).substring(0, 1023), // Search is limited to 1024 characters
         limit: 10, // TODO
         filter: {
@@ -114,11 +114,11 @@ export class TableAdapter extends Adapter {
     metadata,
     status = 'pending',
   }: SaveExampleProps<TInput, TOutput>) {
-    await this.assertTableExists()
+    await this._assertTableExists()
 
-    await this.client
+    await this._client
       .upsertTableRows({
-        table: this.tableName,
+        table: this._tableName,
         keyColumn: 'key',
         rows: [
           {
@@ -139,14 +139,14 @@ export class TableAdapter extends Adapter {
       })
   }
 
-  private async assertTableExists() {
-    if (this.status !== 'ready') {
+  private async _assertTableExists() {
+    if (this._status !== 'ready') {
       return
     }
 
-    const { table, created } = await this.client
+    const { table, created } = await this._client
       .getOrCreateTable({
-        table: this.tableName,
+        table: this._tableName,
         factor: FACTOR,
         frozen: true,
         isComputeEnabled: false,
@@ -157,7 +157,7 @@ export class TableAdapter extends Adapter {
         schema: TableJsonSchema,
       })
       .catch(() => {
-        this.status = 'error'
+        this._status = 'error'
         return { table: null, created: false }
       })
 
@@ -201,10 +201,10 @@ export class TableAdapter extends Adapter {
       }
 
       if (issues.length) {
-        this.status = 'error'
+        this._status = 'error'
       }
     }
 
-    this.status = 'initialized'
+    this._status = 'initialized'
   }
 }

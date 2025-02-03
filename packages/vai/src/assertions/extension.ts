@@ -34,7 +34,7 @@ ${stack}
 
     try {
       expect((await promise).result).toMatchObject(obj)
-    } catch (err) {
+    } catch {
       const newError = new Error()
       newError.stack = newStack
 

@@ -29,6 +29,7 @@ export function rate<T extends Input>(value: T, condition: string, options?: Rat
   })
 
   return {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     ...toAssertion(promise),
     toBe: (expected: number) => asyncExpect(promise, (expect) => expect.toEqual(expected)),
     toMatchInlineSnapshot: makeToMatchInlineSnapshot(promise),

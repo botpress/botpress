@@ -79,7 +79,7 @@ export const getZai = () => {
 export let tokenizer: TextTokenizer = null!
 
 beforeAll(async () => {
-  tokenizer = await getWasmTokenizer()
+  tokenizer = (await getWasmTokenizer()) as TextTokenizer
 })
 
 export const BotpressDocumentation = fs.readFileSync(path.join(__dirname, './botpress_docs.txt'), 'utf-8').trim()

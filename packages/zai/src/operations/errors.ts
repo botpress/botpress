@@ -1,5 +1,5 @@
 export class JsonParsingError extends Error {
-  constructor(
+  public constructor(
     public json: unknown,
     public error: Error
   ) {

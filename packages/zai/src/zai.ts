@@ -6,7 +6,7 @@ import { Adapter } from './adapters/adapter'
 import { TableAdapter } from './adapters/botpress-table'
 import { MemoryAdapter } from './adapters/memory'
 import { Models } from './models'
-import { llm } from './sdk-interfaces/llm/generateContent'
+import { GenerateContentInput, GenerateContentOutput } from './sdk-interfaces/llm'
 
 import { BotpressClient, GenerationMetadata } from './utils'
 
@@ -67,20 +67,20 @@ export class Zai {
   protected static tokenizer: TextTokenizer = null!
   protected client: Client
 
-  private originalConfig: ZaiConfig
+  private _originalConfig: ZaiConfig
 
-  private userId: string | undefined
-  private integration: string
-  private model: string
-  private retry: { maxRetries: number }
+  private _userId: string | undefined
+  private _integration: string
+  private _model: string
+  private _retry: { maxRetries: number }
 
   protected Model: (typeof Models)[number]
   protected namespace: string
   protected adapter: Adapter
   protected activeLearning: ActiveLearning
 
-  constructor(config: ZaiConfig) {
-    this.originalConfig = config
+  public constructor(config: ZaiConfig) {
+    this._originalConfig = config
     const parsed = ZaiConfig.parse(config)
 
     this.client = parsed.client
@@ -90,11 +90,11 @@ export class Zai {
       throw new Error(`Invalid model ID: ${parsed.modelId}. Expected format: <integration>__<modelId>`)
     }
 
-    this.integration = integration!
-    this.model = modelId!
+    this._integration = integration!
+    this._model = modelId!
     this.namespace = parsed.namespace
-    this.userId = parsed.userId
-    this.retry = parsed.retry as { maxRetries: number }
+    this._userId = parsed.userId
+    this._retry = parsed.retry as { maxRetries: number }
     this.Model = Models.find((m) => m.id === parsed.modelId)!
     this.activeLearning = parsed.activeLearning
 
@@ -105,13 +105,13 @@ export class Zai {
 
   /** @internal */
   protected async callModel(
-    props: Partial<llm.generateContent.Input>
-  ): Promise<llm.generateContent.Output & { metadata: GenerationMetadata }> {
-    let retries = this.retry.maxRetries
+    props: Partial<GenerateContentInput>
+  ): Promise<GenerateContentOutput & { metadata: GenerationMetadata }> {
+    let retries = this._retry.maxRetries
     while (retries-- >= 0) {
       try {
         return await this._callModel(props)
-      } catch (e) {
+      } catch {
         if (retries >= 0) {
           await new Promise((resolve) => setTimeout(resolve, 1000))
         } else {
@@ -125,31 +125,31 @@ export class Zai {
 
   /** @internal */
   private async _callModel(
-    props: Partial<llm.generateContent.Input>
-  ): Promise<llm.generateContent.Output & { metadata: GenerationMetadata }> {
-    let retries = this.retry.maxRetries
+    props: Partial<GenerateContentInput>
+  ): Promise<GenerateContentOutput & { metadata: GenerationMetadata }> {
+    let retries = this._retry.maxRetries
     do {
       const start = Date.now()
-      const input: llm.generateContent.Input = {
+      const input: GenerateContentInput = {
         messages: [],
         temperature: 0.0,
         topP: 1,
-        model: { id: this.model },
-        userId: this.userId,
+        model: { id: this._model },
+        userId: this._userId,
         ...props,
       }
 
       const { output } = (await this.client.callAction({
-        type: `${this.integration}:generateContent`,
+        type: `${this._integration}:generateContent`,
         input,
-      })) as unknown as { output: llm.generateContent.Output }
+      })) as unknown as { output: GenerateContentOutput }
 
       const latency = Date.now() - start
 
       return {
         ...output,
         metadata: {
-          model: this.model,
+          model: this._model,
           latency,
           cost: { input: output.usage.inputCost, output: output.usage.outputCost },
           tokens: { input: output.usage.inputTokens, output: output.usage.outputTokens },
@@ -164,7 +164,7 @@ export class Zai {
         // there's an issue with wasm, it doesn't load immediately
         await new Promise((resolve) => setTimeout(resolve, 25))
       }
-      return getWasmTokenizer()
+      return getWasmTokenizer() as TextTokenizer
     })()
     return Zai.tokenizer
   }
@@ -179,14 +179,14 @@ export class Zai {
 
   public with(options: Partial<ZaiConfig>): Zai {
     return new Zai({
-      ...this.originalConfig,
+      ...this._originalConfig,
       ...options,
     })
   }
 
   public learn(taskId: string) {
     return new Zai({
-      ...this.originalConfig,
+      ...this._originalConfig,
       activeLearning: { ...this.activeLearning, taskId, enable: true },
     })
   }

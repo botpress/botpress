@@ -11,60 +11,61 @@ const client = new Client({
   token: process.env.CLOUD_PAT,
 })
 
-const { bot } = await client.getBot({
-  id: process.env.CLOUD_BOT_ID!,
-})
+const main = async () => {
+  const { bot } = await client.getBot({
+    id: process.env.CLOUD_BOT_ID!,
+  })
 
-type Model = {
-  id: string
-  name: string
-  integration: string
-  input: { maxTokens: number }
-  output: { maxTokens: number }
-}
+  type Model = {
+    id: string
+    name: string
+    integration: string
+    input: { maxTokens: number }
+    output: { maxTokens: number }
+  }
 
-const models: Model[] = []
+  const models: Model[] = []
 
-for (const integrationId in bot.integrations) {
-  const botIntegration = bot.integrations[integrationId]
-  if (botIntegration?.public && botIntegration?.enabled && botIntegration?.status === 'registered') {
-    try {
-      const { integration } = await client.getPublicIntegrationById({
-        id: botIntegration.id,
-      })
+  for (const integrationId in bot.integrations) {
+    const botIntegration = bot.integrations[integrationId]
+    if (botIntegration?.public && botIntegration?.enabled && botIntegration?.status === 'registered') {
+      try {
+        const { integration } = await client.getPublicIntegrationById({
+          id: botIntegration.id,
+        })
 
-      const canListModels = Object.keys(integration.actions).includes(LLM_LIST_MODELS)
-      if (!canListModels) {
-        continue
-      }
-
-      const { output } = await client.callAction({
-        type: `${integration.name}:${LLM_LIST_MODELS}`,
-        input: {},
-      })
-
-      if (_.isArray(output?.models)) {
-        for (const model of output.models) {
-          models.push({
-            id: `${integration.name}__${model.id}`,
-            name: model.name,
-            integration: integration.name,
-            input: { maxTokens: model.input.maxTokens },
-            output: { maxTokens: model.output.maxTokens },
-          })
+        const canListModels = Object.keys(integration.actions).includes(LLM_LIST_MODELS)
+        if (!canListModels) {
+          continue
         }
+
+        const { output } = await client.callAction({
+          type: `${integration.name}:${LLM_LIST_MODELS}`,
+          input: {},
+        })
+
+        if (_.isArray(output?.models)) {
+          for (const model of output.models) {
+            models.push({
+              id: `${integration.name}__${model.id}`,
+              name: model.name,
+              integration: integration.name,
+              input: { maxTokens: model.input.maxTokens },
+              output: { maxTokens: model.output.maxTokens },
+            })
+          }
+        }
+      } catch (err: unknown) {
+        console.error('Error fetching integration:', err instanceof Error ? err.message : `${err}`)
       }
-    } catch (err: unknown) {
-      console.error('Error fetching integration:', err instanceof Error ? err.message : `${err}`)
     }
   }
-}
 
-const content = JSON.stringify(_.orderBy(models, ['integration', 'name']), null, 2)
+  const content = JSON.stringify(_.orderBy(models, ['integration', 'name']), null, 2)
 
-fs.writeFileSync(
-  './src/models.ts',
-  `
+  fs.writeFileSync(
+    './src/models.ts',
+    `
 // This file is generated. Do not edit it manually.
 // See 'scripts/update-models.ts'
 
@@ -72,5 +73,15 @@ fs.writeFileSync(
 /* tslint:disable */
 
 export const Models = ${content} as const`,
-  'utf-8'
-)
+    'utf-8'
+  )
+}
+
+void main()
+  .then(() => {
+    process.exit(0)
+  })
+  .catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })

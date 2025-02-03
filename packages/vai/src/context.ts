@@ -22,11 +22,11 @@ class VaiContext {
   #client: Client | null = null
   #wrapError = false
 
-  get wrapError() {
+  public get wrapError() {
     return this.#wrapError
   }
 
-  get client() {
+  public get client() {
     if (!this.#client) {
       throw new Error('Botpress client is not set')
     }
@@ -34,23 +34,23 @@ class VaiContext {
     return this.#client
   }
 
-  get evaluatorModel(): EvaluatorModel {
+  public get evaluatorModel(): EvaluatorModel {
     return getTestMetadata().evaluatorModel ?? 'openai__gpt-4o-mini-2024-07-18'
   }
 
-  get scenario() {
+  public get scenario() {
     return getTestMetadata().scenario
   }
 
-  get isVaiTest() {
+  public get isVaiTest() {
     return getTestMetadata().isVaiTest
   }
 
-  setClient(cognitive: Client) {
+  public setClient(cognitive: Client) {
     this.#client = cognitive
   }
 
-  swallowErrors() {
+  public swallowErrors() {
     if (!getCurrentTest()) {
       throw new Error('cancelBail is a Vitest hook and must be called within a test')
     }

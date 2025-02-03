@@ -10,7 +10,8 @@
     "import": "./dist/index.js"
   },
   "scripts": {
-    "build": "npm run build:types && npm run build:neutral",
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && pnpm run build:types && pnpm run build:neutral",
     "build:neutral": "esbuild src/**/*.ts src/*.ts --platform=neutral --outdir=dist",
     "build:types": "tsup",
     "watch": "tsup --watch",
@@ -35,11 +36,15 @@
     "dotenv": "^16.4.4",
     "esbuild": "^0.16.12",
     "lodash": "^4.17.21",
-    "tsup": "^8.0.2"
+    "tsup": "^8.0.2",
+    "@botpresshub/llm": "workspace:*"
   },
   "peerDependencies": {
-    "@botpress/client": "^0.41.0",
+    "@botpress/client": "0.41.0",
     "@bpinternal/thicktoken": "^1.0.0",
     "@bpinternal/zui": "^0.13.4"
+  },
+  "bpDependencies": {
+    "llm": "../../interfaces/llm"
   }
 }

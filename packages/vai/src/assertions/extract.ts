@@ -30,6 +30,7 @@ export function extract<T extends Input, S extends AnyZodObject>(
   })
 
   return {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     ...toAssertion(promise),
     toBe: (expected: z.infer<S>) => asyncExpect(promise, (expect) => expect.toEqual(expected)),
     toMatchObject: (expected: Partial<z.infer<S>>) => asyncExpect(promise, (expect) => expect.toMatchObject(expected)),

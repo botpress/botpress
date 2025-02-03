@@ -2142,7 +2142,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: ^0.41.0
+        specifier: 0.41.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2163,6 +2163,9 @@ importers:
         specifier: ^2 || ^3 || ^4 || ^5
         version: 2.1.8(@types/node@18.19.67)
     devDependencies:
+      '@botpresshub/llm':
+        specifier: workspace:*
+        version: link:../../interfaces/llm
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
@@ -2179,7 +2182,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/client':
-        specifier: ^0.41.0
+        specifier: 0.41.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.0

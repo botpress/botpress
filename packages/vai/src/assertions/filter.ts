@@ -68,6 +68,7 @@ You need to return an array of objects with the index and a boolean value indica
   })
 
   return {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     ...toAssertion(promise),
     toBe: (expected: U[]) => asyncExpect(promise, (expect) => expect.toEqual(expected)),
     toMatchInlineSnapshot: makeToMatchInlineSnapshot(promise),

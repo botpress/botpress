@@ -21,6 +21,7 @@ export function check<T extends Input>(value: T, condition: string, options?: Ch
   })
 
   return {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     ...toAssertion(promise),
     toBe: (expected: boolean) => asyncExpect(promise, (expect) => expect.toEqual(expected)),
     toMatchInlineSnapshot: makeToMatchInlineSnapshot(promise),
