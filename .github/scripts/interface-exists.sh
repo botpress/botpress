@@ -10,6 +10,6 @@ interface_def=$(pnpm bp read --work-dir $interface_path --json)
 name=$(echo $interface_def | jq -r ".name")
 version=$(echo $interface_def | jq -r ".version")
 
-command="pnpm bp interfaces get \"$name@$version\" --json"
+command="pnpm bp interfaces get \"$name@$version\" --json >/dev/null 2>&1"
 exists=$(eval $command && echo 1 || echo 0) 
 echo $exists
