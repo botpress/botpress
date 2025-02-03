@@ -3,7 +3,7 @@ import { Request } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
 import { INTEGRATION_NAME } from '../integration.definition'
-import { getCredentials, MetaClient } from './misc/client'
+import { getCredentials, getVerifyToken, MetaClient } from './misc/client'
 import { getInterstitialUrl, redirectTo } from './misc/html-utils'
 import { handleMessage } from './misc/incoming-message'
 import { sendMessage } from './misc/outgoing-message'
@@ -130,7 +130,7 @@ const integration = new bp.Integration({
       const challenge = query['hub.challenge']
 
       if (mode === 'subscribe') {
-        if (token === ctx.configuration.verifyToken) {
+        if (token === getVerifyToken(ctx)) {
           if (!challenge) {
             logger.forBot().warn('Returning HTTP 400 as no challenge parameter was received in query string of request')
             return {

@@ -56,7 +56,7 @@ jobs:
           github_secrets: "--secrets GITHUB_APP_ID=${{ secrets.PRODUCTION_GITHUB_APP_ID }} --secrets 'GITHUB_PRIVATE_KEY=${{ secrets.PRODUCTION_GITHUB_PRIVATE_KEY }}' --secrets GITHUB_WEBHOOK_SECRET=${{ secrets.PRODUCTION_GITHUB_WEBHOOK_SECRET }}"
           google_ai_secrets: '--secrets GOOGLE_AI_API_KEY=${{ secrets.GOOGLE_AI_API_KEY }}'
           intercom_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_INTERCOM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_INTERCOM_CLIENT_SECRET }}'
-          instagram_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_INSTAGRAM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_INSTAGRAM_CLIENT_SECRET }}'
+          instagram_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_INSTAGRAM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_INSTAGRAM_CLIENT_SECRET }} --secrets VERIFY_TOKEN=${{ secrets.PRODUCTION_INSTAGRAM_VERIFY_TOKEN }}'
       - name: Deploy Plugins
         uses: ./.github/actions/deploy-plugins
         with:
