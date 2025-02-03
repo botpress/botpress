@@ -151,8 +151,23 @@ export class RemoteModelProvider extends ModelProvider {
     try {
       const { file } = await this._client.getFile({ id: this._preferenceFileKey })
 
-      const response = await fetch(file.url)
-      return (await response.json()) as ModelPreferences
+      if (globalThis.fetch !== undefined) {
+        const response = await fetch(file.url)
+        return (await response.json()) as ModelPreferences
+      } else {
+        const { data } = await this._client.axios.get(file.url, {
+          // we piggy-back axios to avoid adding a new dependency
+          // unset all headers to avoid S3 pre-signed signature mismatch
+          headers: Object.keys(this._client.config.headers).reduce(
+            (acc, key) => {
+              acc[key] = undefined
+              return acc
+            },
+            {} as Record<string, undefined>
+          ),
+        })
+        return data as ModelPreferences
+      }
     } catch (err) {
       if (err instanceof ResourceNotFoundError) {
         return null
