@@ -1,6 +1,6 @@
 import { describe, it, expect, afterAll, beforeEach, afterEach, vi } from 'vitest'
 
-import { getClient, getZai } from './__tests'
+import { getClient, getZai } from './utils'
 
 import { check } from '@botpress/vai'
 import { Client } from '@botpress/client'

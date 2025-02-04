@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
 import { check } from '@botpress/vai'
 
-import { getClient, getZai, metadata, tokenizer } from './__tests'
-import { TableAdapter } from '../adapters/botpress-table'
+import { getClient, getZai, metadata, tokenizer } from './utils'
+import { TableAdapter } from '../src/adapters/botpress-table'
 
 const Zoe = `
 Part 1. Zoe walks to the park.

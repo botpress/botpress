@@ -1,6 +1,5 @@
 import { Client } from '@botpress/client'
 import { setupClient } from '@botpress/vai'
-
 import { beforeAll } from 'vitest'
 
 globalThis.STUDIO = false

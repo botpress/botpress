@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, afterAll, vi } from 'vitest'
 
-import { getClient, getZai, metadata } from './__tests'
-import { TableAdapter } from '../adapters/botpress-table'
+import { getClient, getZai, metadata } from './utils'
+import { TableAdapter } from '../src/adapters/botpress-table'
 import { Client } from '@botpress/client'
 
 describe('zai.filter', { timeout: 60_000 }, () => {

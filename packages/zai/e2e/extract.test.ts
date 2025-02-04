@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
 
-import { BotpressDocumentation, getClient, getZai, metadata } from './__tests'
+import { BotpressDocumentation, getClient, getZai, metadata } from './utils'
 
 import { z } from '@bpinternal/zui'
 import { check } from '@botpress/vai'
 
-import { TableAdapter } from '../adapters/botpress-table'
+import { TableAdapter } from '../src/adapters/botpress-table'
 
 describe('zai.extract', () => {
   const zai = getZai()

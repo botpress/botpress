@@ -15,9 +15,9 @@
     "build:neutral": "esbuild src/**/*.ts src/*.ts --platform=neutral --outdir=dist",
     "build:types": "tsup",
     "watch": "tsup --watch",
-    "test": "vitest run --config vitest.config.ts",
-    "test:update": "vitest -u run --config vitest.config.ts",
-    "test:watch": "vitest --config vitest.config.ts",
+    "test:e2e": "vitest run --config vitest.config.ts",
+    "test:e2e:update": "vitest -u run --config vitest.config.ts",
+    "test:e2e:watch": "vitest --config vitest.config.ts",
     "build-with-latest-models": "pnpm run update-types && pnpm run update-models && pnpm run build",
     "update-models": "ts-node ./scripts/update-models.mts",
     "update-types": "ts-node ./scripts/update-types.mts"

@@ -8,5 +8,5 @@
     }
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["src/**/*", "vitest.d.ts"]
+  "include": ["src/**/*", "vitest.d.ts", "e2e/**/*"]
 }

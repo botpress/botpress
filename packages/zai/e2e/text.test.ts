@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { check } from '@botpress/vai'
 
-import { getZai, tokenizer } from './__tests'
+import { getZai, tokenizer } from './utils'
 
 describe('zai.text', { timeout: 60_000 }, () => {
   const zai = getZai()

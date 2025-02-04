@@ -1,13 +1,14 @@
 import { Client } from '@botpress/client'
 import { type TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
-
 import fs from 'node:fs'
 import path from 'node:path'
 import { beforeAll } from 'vitest'
+import { Zai } from '../src'
+import { fastHash } from '../src/utils'
 
-import { Zai } from '../..'
-
-import { fastHash } from '../../utils'
+const DATA_PATH = path.join(__dirname, 'data')
+const CACHE_PATH = path.join(DATA_PATH, 'cache.jsonl')
+const DOC_PATH = path.join(DATA_PATH, 'botpress_docs.txt')
 
 export const getClient = () => {
   return new Client({
@@ -31,10 +32,7 @@ function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
   return map
 }
 
-const cache: Map<string, { key: string; value: any }> = readJSONL(
-  path.resolve(import.meta.dirname, './cache.jsonl'),
-  'key'
-)
+const cache: Map<string, { key: string; value: any }> = readJSONL(CACHE_PATH, 'key')
 
 export const getCachedClient = () => {
   const client = getClient()
@@ -54,7 +52,7 @@ export const getCachedClient = () => {
           cache.set(key, { key, value: response })
 
           fs.appendFileSync(
-            path.resolve(import.meta.dirname, './cache.jsonl'),
+            CACHE_PATH,
             JSON.stringify({
               key,
               value: response,
@@ -82,6 +80,6 @@ beforeAll(async () => {
   tokenizer = (await getWasmTokenizer()) as TextTokenizer
 })
 
-export const BotpressDocumentation = fs.readFileSync(path.join(__dirname, './botpress_docs.txt'), 'utf-8').trim()
+export const BotpressDocumentation = fs.readFileSync(DOC_PATH, 'utf-8').trim()
 
 export const metadata = { cost: { input: 1, output: 1 }, latency: 0, model: '', tokens: { input: 1, output: 1 } }

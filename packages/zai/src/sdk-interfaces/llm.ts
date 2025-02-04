@@ -1,5 +1,5 @@
 import z from '@bpinternal/zui'
-import llm from '../../bp_modules/llm'
+import type llm from '../../bp_modules/llm'
 
 export type GenerateContentInput = z.TypeOf<typeof llm.definition.actions.generateContent.input.schema>
 export type GenerateContentOutput = z.TypeOf<typeof llm.definition.actions.generateContent.output.schema>

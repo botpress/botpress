@@ -1,8 +1,6 @@
 import { describe, it, expect, afterAll, beforeEach, afterEach } from 'vitest'
-
-import { BotpressDocumentation, getClient, getZai, metadata } from './__tests'
-
-import { TableAdapter } from '../adapters/botpress-table'
+import { BotpressDocumentation, getClient, getZai, metadata } from './utils'
+import { TableAdapter } from '../src/adapters/botpress-table'
 
 describe('zai.check', { timeout: 60_000 }, () => {
   const zai = getZai()

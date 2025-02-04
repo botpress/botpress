@@ -1,7 +1,7 @@
 import { check } from '@botpress/vai'
 import { describe, it } from 'vitest'
 
-import { BotpressDocumentation, getZai } from './__tests'
+import { BotpressDocumentation, getZai } from './utils'
 
 describe('zai.summarize', () => {
   const zai = getZai()

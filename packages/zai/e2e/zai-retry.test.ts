@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 
-import { getClient, getZai } from './__tests'
+import { getClient, getZai } from './utils'
 
 import { Client } from '@botpress/client'
 
