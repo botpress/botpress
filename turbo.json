@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": ["BP_*"],
   "tasks": {
     "generate": {
       "outputs": ["src/gen/**"],
@@ -7,8 +8,7 @@
     },
     "build": {
       "outputs": ["bp_modules/**", ".botpress/**"],
-      "dependsOn": ["generate", "^build"],
-      "env": ["BP_*"]
+      "dependsOn": ["generate", "^build"]
     },
     "@botpress/client#build": {
       "outputs": ["dist/**"],

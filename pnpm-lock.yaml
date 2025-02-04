@@ -2068,9 +2068,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../client
-      '@botpress/common':
+      '@botpresshub/llm':
         specifier: workspace:*
-        version: link:../common
+        version: link:../../interfaces/llm
       '@bpinternal/zui':
         specifier: 0.13.5
         version: 0.13.5

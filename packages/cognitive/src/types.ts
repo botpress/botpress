@@ -1,5 +1,5 @@
-import { type GenerateContentInput, type GenerateContentOutput } from './gen'
 import { ModelProvider, ModelRef } from './models'
+import { type GenerateContentInput, type GenerateContentOutput } from './sdk-interfaces/llm'
 
 export type BotpressClientLike = {
   callAction(...params: any): Promise<any>

@@ -8,10 +8,9 @@
   "license": "MIT",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "generate": "ts-node -T ./types.ts ./src/gen",
     "build:type": "tsup --tsconfig tsconfig.build.json ./src/index.ts --dts-resolve --dts-only --clean",
     "build:neutral": "ts-node -T ./build.ts --neutral",
-    "build": "pnpm build:type && pnpm build:neutral && size-limit",
+    "build": "pnpm bp add -y && pnpm build:type && pnpm build:neutral && size-limit",
     "test:e2e": "vitest run --dir ./e2e"
   },
   "size-limit": [
@@ -30,7 +29,7 @@
   },
   "devDependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/common": "workspace:*",
+    "@botpresshub/llm": "workspace:*",
     "@bpinternal/zui": "0.13.5",
     "@size-limit/file": "^11.1.6",
     "@types/axios": "^0.14.4",
@@ -40,5 +39,8 @@
     "esbuild": "^0.16.12",
     "size-limit": "^11.1.6",
     "tsup": "^8.0.2"
+  },
+  "bpDependencies": {
+    "llm": "../../interfaces/llm"
   }
 }
