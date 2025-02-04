@@ -16,46 +16,29 @@ export default new IntegrationDefinition({
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
-    schema: z
-      .object({
-        useManualConfiguration: z
-          .boolean()
-          .optional()
-          .title('Use manual configuration')
-          .describe('Skip oAuth and supply details from a Meta App'),
+    schema: z.object({}),
+  },
+  configurations: {
+    manual: {
+      title: 'Manual Configuration',
+      description: 'Configure by manually supplying the Meta app details',
+      schema: z.object({
         verifyToken: z
           .string()
-          .optional()
           .title('Verify Token')
-          .describe('Token used for verification for the Callback URL at API setup View'),
+          .describe('Token used for verifying the Callback URL at API setup View'),
         accessToken: z
           .string()
           .optional()
           .title('Access token')
-          .describe('Access Token from the Instagram Account from the API setup View'),
-        clientId: z.string().optional().title('Client ID').describe('Instagram App Id from API setup View'),
-        clientSecret: z
-          .string()
-          .optional()
-          .title('Client Secret')
-          .describe('Instagram App secret from API setup View used for webhook signature check'),
+          .describe('Access Token for the Instagram Account from the API setup View'),
         instagramId: z
           .string()
           .optional()
           .title('Instagram account ID')
           .describe('Instagram Account Id from API setup View'),
-      })
-      .hidden((formData) => {
-        const showConfig = !formData?.useManualConfiguration
-
-        return {
-          verifyToken: showConfig,
-          accessToken: showConfig,
-          clientId: showConfig,
-          clientSecret: showConfig,
-          instagramId: showConfig,
-        }
       }),
+    },
   },
   states: {
     oauth: {

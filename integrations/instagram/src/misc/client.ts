@@ -202,13 +202,11 @@ export class MetaClient {
 export async function getCredentials(
   client: bp.Client,
   ctx: bp.Context
-): Promise<{ instagramId?: string; accessToken: string; clientSecret: string; clientId: string }> {
-  if (ctx.configuration.useManualConfiguration) {
+): Promise<{ instagramId?: string; accessToken: string }> {
+  if (ctx.configurationType === 'manual') {
     return {
       instagramId: ctx.configuration.instagramId || '',
       accessToken: ctx.configuration.accessToken || '',
-      clientSecret: ctx.configuration.clientSecret || '',
-      clientId: ctx.configuration.clientId || '',
     }
   }
 
@@ -222,19 +220,13 @@ export async function getCredentials(
   return {
     instagramId: state.payload.instagramId,
     accessToken: state.payload.accessToken,
-    clientSecret: bp.secrets.CLIENT_SECRET,
-    clientId: bp.secrets.CLIENT_ID,
   }
 }
 
 export function getVerifyToken(ctx: bp.Context): string {
-  const { useManualConfiguration, verifyToken: customVerifyToken } = ctx.configuration
   let verifyToken: string
-  if (useManualConfiguration) {
-    if (!customVerifyToken) {
-      throw new RuntimeError('Verify token is missing')
-    }
-    verifyToken = customVerifyToken
+  if (ctx.configurationType === 'manual') {
+    verifyToken = ctx.configuration.verifyToken
   } else {
     // Should normally be verified in the fallbackHandler script
     verifyToken = bp.secrets.VERIFY_TOKEN
