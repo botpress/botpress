@@ -23,7 +23,7 @@ beforeAll(async () => {
     token,
   })
 
-  const { integration } = await client.getIntegrationByName({
+  const { integration } = await client.getPublicIntegration({
     name: 'openai',
     version: 'latest',
   })
