@@ -5,12 +5,12 @@ import { z } from '@bpinternal/zui'
 import { Adapter } from './adapters/adapter'
 import { TableAdapter } from './adapters/botpress-table'
 import { MemoryAdapter } from './adapters/memory'
-import { GenerateContentInput, GenerateContentOutput } from './llm'
+import { GenerateContentInput, GenerateContentOutput, Model } from './llm'
 import { Models } from './models'
 
 import { BotpressClient, GenerationMetadata } from './utils'
 
-type ModelId = (typeof Models)[number]['id']
+type ModelId = Model['id']
 
 type ActiveLearning = z.input<typeof ActiveLearning>
 const ActiveLearning = z.object({
@@ -74,7 +74,7 @@ export class Zai {
   private _model: string
   private _retry: { maxRetries: number }
 
-  protected Model: (typeof Models)[number]
+  protected Model: Model
   protected namespace: string
   protected adapter: Adapter
   protected activeLearning: ActiveLearning

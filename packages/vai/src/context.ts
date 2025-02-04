@@ -1,9 +1,9 @@
 import type { Client } from '@botpress/client'
 import { onTestFinished } from 'vitest'
 import { getCurrentTest } from 'vitest/suite'
-import { Models } from './models'
+import { Model } from './llm'
 
-export type EvaluatorModel = (typeof Models)[number]['id']
+export type EvaluatorModel = Model['id']
 
 export type TestMetadata = {
   isVaiTest: boolean
