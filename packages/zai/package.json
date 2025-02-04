@@ -32,12 +32,12 @@
   },
   "devDependencies": {
     "@botpress/vai": "workspace:*",
+    "@botpresshub/llm": "workspace:*",
     "@types/lodash-es": "^4.17.12",
     "dotenv": "^16.4.4",
     "esbuild": "^0.16.12",
     "lodash": "^4.17.21",
-    "tsup": "^8.0.2",
-    "@botpresshub/llm": "workspace:*"
+    "tsup": "^8.0.2"
   },
   "peerDependencies": {
     "@botpress/client": "0.41.0",

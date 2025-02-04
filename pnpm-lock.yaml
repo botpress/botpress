@@ -2203,6 +2203,9 @@ importers:
       '@botpress/vai':
         specifier: workspace:*
         version: link:../vai
+      '@botpresshub/llm':
+        specifier: workspace:*
+        version: link:../../interfaces/llm
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
