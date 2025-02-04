@@ -1,8 +1,4 @@
-// This file is generated. Do not edit it manually.
-// See 'scripts/update-models.ts'
-
-/* tslint:disable */
-
+// TODO: fetch model from API when instantiating Zai instead of hardcoding all models here
 export const Models = [
   {
     id: 'anthropic__claude-3-haiku-20240307',
