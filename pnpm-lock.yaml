@@ -2145,7 +2145,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 0.41.1
+        specifier: 0.41.2
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2188,7 +2188,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/client':
-        specifier: 0.41.1
+        specifier: 0.41.2
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
