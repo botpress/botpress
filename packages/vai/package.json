@@ -12,7 +12,7 @@
   },
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build": "bp add -y && pnpm run build:types && pnpm run build:neutral",
+    "build": "pnpm run build:types && pnpm run build:neutral",
     "build:neutral": "ts-node -T ./build.ts",
     "build:types": "tsup",
     "watch": "tsup --watch",
@@ -28,7 +28,7 @@
     "jsonrepair": "^3.10.0"
   },
   "devDependencies": {
-    "@botpresshub/llm": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@types/lodash": "^4.14.191",
     "dotenv": "^16.4.4",
     "esbuild": "^0.16.12",
@@ -41,8 +41,5 @@
     "@bpinternal/zui": "^0.13.4",
     "lodash": "^4.17.21",
     "vitest": "^2 || ^3 || ^4 || ^5"
-  },
-  "bpDependencies": {
-    "llm": "../../interfaces/llm"
   }
 }

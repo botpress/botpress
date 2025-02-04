@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@botpress/vai": "workspace:*",
-    "@botpresshub/llm": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@types/lodash-es": "^4.17.12",
     "dotenv": "^16.4.4",
     "esbuild": "^0.16.12",
@@ -41,8 +41,5 @@
     "@botpress/client": "0.41.1",
     "@bpinternal/thicktoken": "^1.0.0",
     "@bpinternal/zui": "^0.13.4"
-  },
-  "bpDependencies": {
-    "llm": "../../interfaces/llm"
   }
 }

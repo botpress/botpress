@@ -1,10 +1,10 @@
 import { z } from '@bpinternal/zui'
 import JSON5 from 'json5'
-import llm from '../../bp_modules/llm'
 import { Context } from '../context'
+import * as llm from '../llm'
 
-type GenerateContentInput = z.TypeOf<typeof llm.definition.actions.generateContent.input.schema>
-type GenerateContentOutput = z.TypeOf<typeof llm.definition.actions.generateContent.output.schema>
+type GenerateContentInput = llm.GenerateContentInput
+type GenerateContentOutput = llm.GenerateContentOutput
 
 const nonEmptyString = z.string().trim().min(1)
 const nonEmptyObject = z

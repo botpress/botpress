@@ -2068,9 +2068,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../client
-      '@botpresshub/llm':
+      '@botpress/common':
         specifier: workspace:*
-        version: link:../../interfaces/llm
+        version: link:../common
       '@bpinternal/zui':
         specifier: 0.13.5
         version: 0.13.5
@@ -2166,9 +2166,9 @@ importers:
         specifier: ^2 || ^3 || ^4 || ^5
         version: 2.1.8(@types/node@18.19.67)
     devDependencies:
-      '@botpresshub/llm':
+      '@botpress/common':
         specifier: workspace:*
-        version: link:../../interfaces/llm
+        version: link:../common
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
@@ -2206,12 +2206,12 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../common
       '@botpress/vai':
         specifier: workspace:*
         version: link:../vai
-      '@botpresshub/llm':
-        specifier: workspace:*
-        version: link:../../interfaces/llm
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12

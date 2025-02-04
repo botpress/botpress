@@ -5,8 +5,8 @@ import { z } from '@bpinternal/zui'
 import { Adapter } from './adapters/adapter'
 import { TableAdapter } from './adapters/botpress-table'
 import { MemoryAdapter } from './adapters/memory'
+import { GenerateContentInput, GenerateContentOutput } from './llm'
 import { Models } from './models'
-import { GenerateContentInput, GenerateContentOutput } from './sdk-interfaces/llm'
 
 import { BotpressClient, GenerationMetadata } from './utils'
 
