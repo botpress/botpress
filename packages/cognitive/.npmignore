@@ -3,4 +3,3 @@ tsconfig.tsbuildinfo
 src/
 tsconfig.json
 .env
-bp_modules/

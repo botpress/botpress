@@ -5,4 +5,3 @@ node_modules/
 .env
 .env.local
 .turbo
-bp_modules/

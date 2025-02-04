@@ -4,7 +4,6 @@ import { getTestClient } from './client'
 import MODELS from './models.json'
 import { RemoteModelProvider } from '../src/models'
 import { GenerateContentOutput } from '../src/llm'
-import { InputProps } from '../src/types'
 
 const RandomResponse = {
   output: {
@@ -14,7 +13,7 @@ const RandomResponse = {
     model: '',
     provider: '',
     usage: { inputCost: 1, inputTokens: 2, outputCost: 3, outputTokens: 4 },
-  } as GenerateContentOutput,
+  } satisfies GenerateContentOutput,
   meta: {},
 } as const
 
@@ -63,18 +62,18 @@ describe('client', () => {
 
   describe('predict (request)', () => {
     test('fetches models when preferences are not available and saves the preferences', async () => {
-      await client.generateContent({ messages: [], model: 'best' } as InputProps)
+      await client.generateContent({ messages: [], model: 'best' })
       expect(provider.fetchModelPreferences).toHaveBeenCalled()
       expect(provider.fetchInstalledModels).toHaveBeenCalled()
       expect(provider.saveModelPreferences).toHaveBeenCalled()
     })
 
     test('fetches model preferences the first time generateContent is called', async () => {
-      await client.generateContent({ messages: [], model: 'fast' } as InputProps)
+      await client.generateContent({ messages: [], model: 'fast' })
       // fetchInstalledModels is called because fetchModelPreferences returned null
       expect(provider.fetchInstalledModels).toHaveBeenCalledTimes(1)
       // A second call won't fetch again if preferences are cached
-      await client.generateContent({ messages: [], model: 'fast' } as InputProps)
+      await client.generateContent({ messages: [], model: 'fast' })
       expect(provider.fetchInstalledModels).toHaveBeenCalledTimes(1)
     })
   })
@@ -87,8 +86,8 @@ describe('client', () => {
         isApiError: true,
         code: 400,
         id: '123',
-        type: 'Runtime',
-        metadata: { subtype: 'UPSTREAM_PROVIDER_FAILED' },
+        type: 'UPSTREAM_PROVIDER_FAILED',
+        subtype: 'UPSTREAM_PROVIDER_FAILED',
       })
 
       provider.fetchModelPreferences.mockResolvedValue({
@@ -96,7 +95,7 @@ describe('client', () => {
       })
 
       // First generate call triggers fallback
-      await client.generateContent({ messages: [], model: 'a:a' } as InputProps)
+      await client.generateContent({ messages: [], model: 'a:a' })
 
       expect(bp.callAction).toHaveBeenCalledTimes(2)
       expect(provider.saveModelPreferences).toHaveBeenCalledOnce()
@@ -110,15 +109,13 @@ describe('client', () => {
       const ac = new AbortController()
       ac.abort('Manual abort')
 
-      await expect(client.generateContent({ messages: [], signal: ac.signal } as InputProps)).rejects.toMatch(
-        'Manual abort'
-      )
+      await expect(client.generateContent({ messages: [], signal: ac.signal })).rejects.toMatch('Manual abort')
     })
   })
 
   describe('predict (response)', () => {
     test('request cost and metrics are returned', async () => {
-      const resp = await client.generateContent({ messages: [] } as InputProps)
+      const resp = await client.generateContent({ messages: [] })
       expect(resp.meta.cost.input).toBe(1)
       expect(resp.meta.cost.output).toBe(3)
       expect(resp.meta.tokens.input).toBe(2)
