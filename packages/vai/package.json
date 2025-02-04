@@ -18,10 +18,7 @@
     "watch": "tsup --watch",
     "test:e2e": "vitest run --config vitest.config.ts",
     "test:e2e:update": "vitest -u run --config vitest.config.ts",
-    "test:e2e:watch": "vitest --config vitest.config.ts",
-    "build-with-latest-models": "pnpm run update-types && pnpm run update-models && pnpm run build",
-    "update-models": "ts-node ./src/scripts/update-models.ts",
-    "update-types": "ts-node ./src/scripts/update-types.ts"
+    "test:e2e:watch": "vitest --config vitest.config.ts"
   },
   "keywords": [],
   "author": "",
