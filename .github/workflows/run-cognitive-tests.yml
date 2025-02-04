@@ -1,6 +1,9 @@
 name: Run Cognitive Tests
 
-on: pull_request
+on:
+  pull_request:
+    paths:
+      - 'packages/cognitive/**'
 
 permissions:
   id-token: write

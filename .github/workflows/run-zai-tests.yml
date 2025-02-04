@@ -1,6 +1,9 @@
 name: Run Zai Tests
 
-on: pull_request
+on:
+  pull_request:
+    paths:
+      - 'packages/zai/**'
 
 permissions:
   id-token: write

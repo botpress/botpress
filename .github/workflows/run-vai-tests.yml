@@ -1,6 +1,9 @@
 name: Run Vai Tests
 
-on: pull_request
+on:
+  pull_request:
+    paths:
+      - 'packages/vai/**'
 
 permissions:
   id-token: write
