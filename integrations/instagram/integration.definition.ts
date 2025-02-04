@@ -23,6 +23,10 @@ export default new IntegrationDefinition({
       title: 'Manual Configuration',
       description: 'Configure by manually supplying the Meta app details',
       schema: z.object({
+        clientSecret: z
+          .string()
+          .title('Client Secret')
+          .describe('Instagram App secret from API setup View used for webhook signature check'),
         verifyToken: z
           .string()
           .title('Verify Token')
