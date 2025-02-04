@@ -1,6 +1,6 @@
 import { describe } from 'vitest'
-import { check } from '..'
-import { compare } from './compare'
+import { check } from '../src'
+import { compare } from '../src/task/compare'
 
 describe('compare', () => {
   compare('simple check', ['hello', 'howdy!', 'goodbye'] as const, async ({ scenario }) => {

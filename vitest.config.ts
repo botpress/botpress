@@ -2,6 +2,6 @@ import { configDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    exclude: [...configDefaults.exclude, '**/*.utils.test.ts', '**/e2e/**', 'packages/vai/**', 'packages/zai/**'],
+    exclude: [...configDefaults.exclude, '**/*.utils.test.ts', '**/e2e/**'],
   },
 })

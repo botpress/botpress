@@ -1,5 +1,5 @@
 import { describe, test } from 'vitest'
-import { filter } from './filter'
+import { filter } from '../src/assertions/filter'
 
 describe('filter', { timeout: 30_000 }, () => {
   const companies = [

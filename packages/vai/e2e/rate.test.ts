@@ -1,5 +1,5 @@
 import { describe, test } from 'vitest'
-import { rate } from './rate'
+import { rate } from '../src/assertions/rate'
 
 describe('rate', { timeout: 30_000 }, () => {
   describe('works with strings and simple criteria', () => {

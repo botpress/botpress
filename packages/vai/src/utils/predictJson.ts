@@ -1,4 +1,4 @@
-import z from '@bpinternal/zui'
+import { z } from '@bpinternal/zui'
 import JSON5 from 'json5'
 import llm from '../../bp_modules/llm'
 import { Context } from '../context'

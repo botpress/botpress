@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from 'vitest'
-import { setEvaluator } from './setEvaluator'
-import { Context } from '../context'
+import { setEvaluator } from '../src/hooks/setEvaluator'
+import { Context } from '../src/context'
 
 describe('setEvaluator', () => {
   let defaultModel: string

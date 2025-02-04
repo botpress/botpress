@@ -1,5 +1,5 @@
 import { describe, test } from 'vitest'
-import { extract } from './extract'
+import { extract } from '../src/assertions/extract'
 import { z } from '@bpinternal/zui'
 
 describe('extract', { timeout: 30_000 }, () => {

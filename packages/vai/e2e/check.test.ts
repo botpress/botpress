@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { check } from './check'
-import { Context } from '../context'
-import { AsyncExpectError } from '../utils/asyncAssertion'
+import { check } from '../src/assertions/check'
+import { Context } from '../src/context'
+import { AsyncExpectError } from '../src/utils/asyncAssertion'
 
 describe('check (promise)', () => {
   test('simple promise', async () => {
