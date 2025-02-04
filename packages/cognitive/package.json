@@ -8,7 +8,6 @@
   "license": "MIT",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "generate": "ts-node -T ./types.ts ./src/gen",
     "build:type": "tsup --tsconfig tsconfig.build.json ./src/index.ts --dts-resolve --dts-only --clean",
     "build:neutral": "ts-node -T ./build.ts --neutral",
     "build": "pnpm build:type && pnpm build:neutral && size-limit",

@@ -3,7 +3,7 @@ import { Cognitive } from '../src/client'
 import { getTestClient } from './client'
 import MODELS from './models.json'
 import { RemoteModelProvider } from '../src/models'
-import { GenerateContentOutput } from '../src/gen'
+import { GenerateContentOutput } from '../src/llm'
 
 const RandomResponse = {
   output: {
