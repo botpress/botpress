@@ -8,15 +8,16 @@ import * as uuid from 'uuid'
 import * as apiUtils from '../api'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
+import * as tables from '../tables'
 import * as utils from '../utils'
 import { Worker } from '../worker'
 import { BuildCommand } from './build-command'
 import { ProjectCommand, ProjectDefinition } from './project-command'
-import * as tables from '../tables'
 
 const DEFAULT_BOT_PORT = 8075
 const DEFAULT_INTEGRATION_PORT = 8076
 const TUNNEL_HELLO_INTERVAL = 5000
+const FILEWATCHER_DEBOUNCE_MS = 2000
 
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
@@ -133,6 +134,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
         },
         {
           ignore: [this.projectPaths.abs.outDir],
+          debounceMs: FILEWATCHER_DEBOUNCE_MS,
         }
       )
 
