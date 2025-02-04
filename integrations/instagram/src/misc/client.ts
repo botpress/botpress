@@ -226,3 +226,19 @@ export async function getCredentials(
     clientId: bp.secrets.CLIENT_ID,
   }
 }
+
+export function getVerifyToken(ctx: bp.Context): string {
+  const { useManualConfiguration, verifyToken: customVerifyToken } = ctx.configuration
+  let verifyToken: string
+  if (useManualConfiguration) {
+    if (!customVerifyToken) {
+      throw new RuntimeError('Verify token is missing')
+    }
+    verifyToken = customVerifyToken
+  } else {
+    // Should normally be verified in the fallbackHandler script
+    verifyToken = bp.secrets.VERIFY_TOKEN
+  }
+
+  return verifyToken
+}

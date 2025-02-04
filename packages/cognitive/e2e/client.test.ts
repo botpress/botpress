@@ -86,8 +86,8 @@ describe('client', () => {
         isApiError: true,
         code: 400,
         id: '123',
-        type: 'UPSTREAM_PROVIDER_FAILED',
-        subtype: 'UPSTREAM_PROVIDER_FAILED',
+        type: 'Runtime',
+        metadata: { subtype: 'UPSTREAM_PROVIDER_FAILED' },
       })
 
       provider.fetchModelPreferences.mockResolvedValue({
