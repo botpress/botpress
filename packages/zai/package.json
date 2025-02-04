@@ -28,8 +28,8 @@
     "lodash-es": "^4.17.21"
   },
   "devDependencies": {
-    "@botpress/vai": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@botpress/vai": "workspace:*",
     "@types/lodash-es": "^4.17.12",
     "dotenv": "^16.4.4",
     "esbuild": "^0.16.12",
