@@ -2178,6 +2178,9 @@ importers:
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
+      glob:
+        specifier: ^9.3.4
+        version: 9.3.5
       tsup:
         specifier: ^8.0.2
         version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
@@ -2218,6 +2221,9 @@ importers:
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
+      glob:
+        specifier: ^9.3.4
+        version: 9.3.5
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -11039,7 +11045,7 @@ packages:
       fs.realpath: 1.0.0
       minimatch: 8.0.4
       minipass: 4.2.8
-      path-scurry: 1.9.2
+      path-scurry: 1.10.2
     dev: true
 
   /globals@11.12.0:
@@ -12886,6 +12892,7 @@ packages:
   /lru-cache@9.1.2:
     resolution: {integrity: sha512-ERJq3FOzJTxBbFjZ7iDs+NiK4VI9Wz+RdrrAB8dio1oV+YvdPzUEE4QNiT2VD51DkIbCYRUUzCRkssXCHqSnKQ==}
     engines: {node: 14 || >=16.14}
+    dev: false
 
   /lru-memoizer@2.2.0:
     resolution: {integrity: sha512-QfOZ6jNkxCcM/BkIPnFsqDhtrazLRsghi9mBwFAzol5GCvj4EkFT899Za3+QwikCg5sRX8JstioBDwOxEyzaNw==}
@@ -13678,14 +13685,6 @@ packages:
     dependencies:
       lru-cache: 10.2.0
       minipass: 6.0.2
-
-  /path-scurry@1.9.2:
-    resolution: {integrity: sha512-qSDLy2aGFPm8i4rsbHd4MNyTcrzHFsLQykrtbuGRknZZCBBVXSv2tSCDN2Cg6Rt/GFRw8GoW9y9Ecw5rIPG1sg==}
-    engines: {node: '>=16 || 14 >=14.17'}
-    dependencies:
-      lru-cache: 9.1.2
-      minipass: 6.0.2
-    dev: true
 
   /path-to-regexp@0.1.12:
     resolution: {integrity: sha512-RA1GjUVMnvYFxuqovrEqZoxxW5NUZqbwKtYz/Tt7nXerk0LbLblQmrsgdeOxV5SFHf0UDggjS/bSeOZwt1pmEQ==}
