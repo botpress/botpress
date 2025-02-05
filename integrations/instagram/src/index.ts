@@ -1,30 +1,14 @@
 import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { getCredentials, InstagramClient } from './misc/client'
+import * as actions from './actions'
 import { sendMessage } from './misc/outgoing-message'
 import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage } from './misc/utils'
 import { handler } from './webhook'
 import * as bp from '.botpress'
-
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
-  actions: {
-    getOrCreateUser: async ({ client, ctx, input, logger }) => {
-      const credentials = await getCredentials(client, ctx)
-      const metaClient = new InstagramClient(logger, credentials)
-      const profile = await metaClient.getUserProfile(input.user.id)
-      const { user } = await client.getOrCreateUser({ tags: { id: profile.id } })
-      return { userId: user.id }
-    },
-    getOrCreateConversationDm: async ({ client, ctx, input, logger }) => {
-      const credentials = await getCredentials(client, ctx)
-      const metaClient = new InstagramClient(logger, credentials)
-      const profile = await metaClient.getUserProfile(input.conversation.id)
-      const { conversation } = await client.getOrCreateConversation({ channel: 'channel', tags: { id: profile.id } })
-      return { conversationId: conversation.id }
-    },
-  },
+  actions,
   channels: {
     channel: {
       messages: {
