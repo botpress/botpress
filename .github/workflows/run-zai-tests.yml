@@ -1,16 +1,16 @@
-name: Run Cognitive Tests
+name: Run Zai Tests
 
 on:
   pull_request:
     paths:
-      - 'packages/cognitive/**'
+      - 'packages/zai/**'
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  run-cognitive-tests:
+  run-zai-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -20,7 +20,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          extra_filters: '-F @botpress/cognitive'
+          extra_filters: '-F @botpress/zai'
       - name: Login
         env:
           BP_API_URL: 'https://api.botpress.dev'
@@ -28,12 +28,12 @@ jobs:
           BP_TOKEN: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
         run: |
           pnpm bp login
-      - name: Run Cognitive Tests
+      - name: Run Zai Tests
         run: |
-          bot_id=$(pnpm bp bots new --name "cognitive-tests" --if-not-exists --json | jq -r ".id")
+          bot_id=$(pnpm bp bots new --name "zai-tests" --if-not-exists --json | jq -r ".id")
           echo "bot_id=$bot_id"
 
           export CLOUD_API_ENDPOINT='https://api.botpress.dev'
           export CLOUD_BOT_ID=$bot_id
           export CLOUD_PAT=${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
-          pnpm -F cognitive run test:e2e
+          pnpm -F zai run test:e2e

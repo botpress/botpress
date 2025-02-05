@@ -1,4 +1,4 @@
-import { type GenerateContentInput, type GenerateContentOutput } from './gen'
+import { type GenerateContentInput, type GenerateContentOutput } from './llm'
 import { ModelProvider, ModelRef } from './models'
 
 export type BotpressClientLike = {
