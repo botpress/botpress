@@ -1,15 +1,9 @@
 import { RuntimeError } from '@botpress/client'
-import { Request } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import queryString from 'query-string'
-import { INTEGRATION_NAME } from '../integration.definition'
-import { getCredentials, getVerifyToken, MetaClient } from './misc/client'
-import { getInterstitialUrl, redirectTo } from './misc/html-utils'
-import { handleMessage } from './misc/incoming-message'
+import { getCredentials, InstagramClient } from './misc/client'
 import { sendMessage } from './misc/outgoing-message'
-import { InstagramPayload } from './misc/types'
 import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage } from './misc/utils'
-import { handleWizard } from './misc/wizard'
+import { handler } from './webhook'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
@@ -18,14 +12,14 @@ const integration = new bp.Integration({
   actions: {
     getOrCreateUser: async ({ client, ctx, input, logger }) => {
       const credentials = await getCredentials(client, ctx)
-      const metaClient = new MetaClient(logger, credentials)
+      const metaClient = new InstagramClient(logger, credentials)
       const profile = await metaClient.getUserProfile(input.user.id)
       const { user } = await client.getOrCreateUser({ tags: { id: profile.id } })
       return { userId: user.id }
     },
     getOrCreateConversationDm: async ({ client, ctx, input, logger }) => {
       const credentials = await getCredentials(client, ctx)
-      const metaClient = new MetaClient(logger, credentials)
+      const metaClient = new InstagramClient(logger, credentials)
       const profile = await metaClient.getUserProfile(input.conversation.id)
       const { conversation } = await client.getOrCreateConversation({ channel: 'channel', tags: { id: profile.id } })
       return { conversationId: conversation.id }
@@ -100,86 +94,7 @@ const integration = new bp.Integration({
       },
     },
   },
-  handler: async ({ req, client, ctx, logger }) => {
-    if (detectIdentifierIssue(req, ctx)) {
-      return redirectTo(getInterstitialUrl(false, 'Not allowed'))
-    }
-
-    if (req.query?.includes('code') || req.query?.includes('wizard-step')) {
-      try {
-        return await handleWizard(req, client, ctx, logger)
-      } catch (err: any) {
-        let errorMessage = '(OAuth registration) Error: ' + err.message
-
-        console.log({ err, data: err.response.data })
-        if (err.response) {
-          errorMessage += '\n Data: ' + JSON.stringify(err.response.data)
-        }
-        logger.forBot().error(errorMessage)
-        return redirectTo(getInterstitialUrl(false, errorMessage))
-      }
-    }
-
-    logger.forBot().debug('Handler received request from Instagram with payload:', req.body)
-
-    if (req.query) {
-      const query: Record<string, string | string[] | null> = queryString.parse(req.query)
-
-      const mode = query['hub.mode']
-      const token = query['hub.verify_token']
-      const challenge = query['hub.challenge']
-
-      if (mode === 'subscribe') {
-        if (token === getVerifyToken(ctx)) {
-          if (!challenge) {
-            logger.forBot().warn('Returning HTTP 400 as no challenge parameter was received in query string of request')
-            return {
-              status: 400,
-            }
-          }
-
-          return {
-            body: typeof challenge === 'string' ? challenge : '',
-          }
-        } else {
-          logger
-            .forBot()
-            .warn("Returning HTTP 403 as the Instagram token doesn't match the one in the bot configuration")
-          return {
-            status: 403,
-          }
-        }
-      } else {
-        logger.forBot().warn(`Returning HTTP 400 as the '${mode}' mode received in the query string isn't supported`)
-        return {
-          status: 400,
-        }
-      }
-    }
-
-    if (!req.body) {
-      logger.forBot().warn('Handler received an empty body, so the message was ignored')
-      return
-    }
-
-    try {
-      const data = JSON.parse(req.body) as InstagramPayload
-
-      for (const { messaging } of data.entry) {
-        for (const message of messaging) {
-          if (message.message?.is_echo) {
-            continue
-          }
-          await handleMessage(message, { client, ctx, logger })
-        }
-      }
-    } catch (e: any) {
-      logger.forBot().error('Error while handling request:', e)
-      logger.forBot().debug('Request body received:', req.body)
-    }
-
-    return
-  },
+  handler,
 })
 
 export default sentryHelpers.wrapIntegration(integration, {
@@ -187,17 +102,3 @@ export default sentryHelpers.wrapIntegration(integration, {
   environment: bp.secrets.SENTRY_ENVIRONMENT,
   release: bp.secrets.SENTRY_RELEASE,
 })
-
-export const getGlobalWebhookUrl = () => {
-  return `${process.env.BP_WEBHOOK_URL}/integration/global/${INTEGRATION_NAME}`
-}
-
-export const detectIdentifierIssue = (req: Request, ctx: bp.Context) => {
-  /* because of the wizard, we need to accept the query param "state" as an identifier
-   * but we need to prevent anyone of using anything other than the webhookId there for security reasons
-   */
-
-  const query = queryString.parse(req.query)
-
-  return !!(query['state']?.length && query['state'] !== ctx.webhookId)
-}

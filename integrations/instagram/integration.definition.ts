@@ -33,14 +33,9 @@ export default new IntegrationDefinition({
           .describe('Token used for verifying the Callback URL at API setup View'),
         accessToken: z
           .string()
-          .optional()
           .title('Access token')
           .describe('Access Token for the Instagram Account from the API setup View'),
-        instagramId: z
-          .string()
-          .optional()
-          .title('Instagram account ID')
-          .describe('Instagram Account Id from API setup View'),
+        instagramId: z.string().title('Instagram account ID').describe('Instagram Account Id from API setup View'),
       }),
     },
   },
@@ -50,12 +45,10 @@ export default new IntegrationDefinition({
       schema: z.object({
         accessToken: z
           .string()
-          .optional()
           .title('Access token')
           .describe('Access token used to authenticate requests to the Instagram API'),
         instagramId: z
           .string()
-          .optional()
           .title('Instagram account ID')
           .describe('The Instagram account ID associated with the access token'),
       }),

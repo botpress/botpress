@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { getCredentials, MetaClient } from './client'
+import { getCredentials, InstagramClient } from './client'
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
@@ -11,12 +11,12 @@ type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'
 
 export async function sendMessage(
   { ack, ctx, client, conversation, logger }: SendMessageProps,
-  send: (client: MetaClient, toInstagramId: string) => Promise<{ message_id: string }>
+  send: (client: InstagramClient, toInstagramId: string) => Promise<{ message_id: string }>
 ) {
   console.log('Will send message')
 
   const { accessToken, instagramId } = await getCredentials(client, ctx)
-  const metaClient = new MetaClient(logger, { accessToken, instagramId })
+  const metaClient = new InstagramClient(logger, { accessToken, instagramId })
   const recipientId = getRecipientId(conversation)
 
   console.log({ recipientId })

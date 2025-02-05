@@ -1,12 +1,11 @@
 import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
 import qs from 'qs'
-import { getGlobalOauthWebhookUrl } from './utils'
 import * as bp from '.botpress'
 
 type InstagramClientConfig = { accessToken?: string; instagramId?: string }
 
-export class MetaClient {
+export class InstagramClient {
   private _clientId: string
   private _clientSecret: string
   private _version: string = 'v21.0'
@@ -25,7 +24,7 @@ export class MetaClient {
       client_id: this._clientId,
       client_secret: this._clientSecret,
       grant_type: 'authorization_code',
-      redirect_uri: getGlobalOauthWebhookUrl(),
+      redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
       code,
     }
 
@@ -107,7 +106,7 @@ export class MetaClient {
     return response.data
   }
 
-  public setAuthConfig(newConfig: InstagramClientConfig) {
+  public updateAuthConfig(newConfig: InstagramClientConfig) {
     this._authConfig = { ...this._authConfig, ...newConfig }
   }
 
@@ -233,4 +232,14 @@ export function getVerifyToken(ctx: bp.Context): string {
   }
 
   return verifyToken
+}
+
+export function getClientSecret(ctx: bp.Context): string {
+  let clientSecret: string
+  if (ctx.configurationType === 'manual') {
+    clientSecret = ctx.configuration.clientSecret
+  } else {
+    clientSecret = bp.secrets.CLIENT_SECRET
+  }
+  return clientSecret
 }

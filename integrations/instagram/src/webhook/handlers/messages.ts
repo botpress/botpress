@@ -1,11 +1,27 @@
-import { getCredentials, InstagramClient } from './client'
-import { InstagramMessage } from './types'
+import { getCredentials, InstagramClient } from 'src/misc/client'
+import { InstagramMessage, InstagramPayload } from 'src/misc/types'
 import * as bp from '.botpress'
 
-export async function handleMessage(
-  message: InstagramMessage,
-  { client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: bp.Logger }
-) {
+export const messagesHandler = async (props: bp.HandlerProps) => {
+  const { logger, req } = props
+  if (!req.body) {
+    logger.debug('Handler received an empty body, so the message was ignored')
+    return
+  }
+
+  const data = JSON.parse(req.body) as InstagramPayload // TODO: Parse with schema
+
+  for (const { messaging } of data.entry) {
+    for (const message of messaging) {
+      if (message.message?.is_echo) {
+        continue
+      }
+      await _handleMessage(message, props)
+    }
+  }
+}
+
+async function _handleMessage(message: InstagramMessage, { client, ctx, logger }: bp.HandlerProps) {
   if (message?.message?.text) {
     logger.forBot().debug('Received text message from Instagram:', message.message.text)
 
