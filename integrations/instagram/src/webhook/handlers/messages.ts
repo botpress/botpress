@@ -9,7 +9,7 @@ export const messagesHandler = async (props: bp.HandlerProps) => {
     return
   }
 
-  const data = JSON.parse(req.body) as InstagramPayload // TODO: Parse with schema
+  const data = JSON.parse(req.body) as InstagramPayload
 
   for (const { messaging } of data.entry) {
     for (const message of messaging) {
