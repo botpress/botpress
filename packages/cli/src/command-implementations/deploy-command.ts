@@ -111,9 +111,19 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
       const line = this.logger.line()
       line.started(startedMessage)
-      await api.client.updateIntegration(updateBody).catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${name}"`)
-      })
+
+      if (this.argv.dryRun) {
+        this.logger.log('Dry-run mode is active. Simulating integration update...')
+
+        await api.client.validateIntegrationUpdate(updateBody).catch((thrown) => {
+          throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${name}"`)
+        })
+      } else {
+        await api.client.updateIntegration(updateBody).catch((thrown) => {
+          throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${name}"`)
+        })
+      }
+
       line.success(successMessage)
     } else {
       this.logger.debug(`looking for previous version of integration "${name}"`)
@@ -136,9 +146,19 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
       const line = this.logger.line()
       line.started(startedMessage)
-      await api.client.createIntegration(createBody).catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${name}"`)
-      })
+
+      if (this.argv.dryRun) {
+        this.logger.log('Dry-run mode is active. Simulating integration creation...')
+
+        await api.client.validateIntegrationCreation(createBody).catch((thrown) => {
+          throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${name}"`)
+        })
+      } else {
+        await api.client.createIntegration(createBody).catch((thrown) => {
+          throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${name}"`)
+        })
+      }
+
       line.success(successMessage)
     }
   }
@@ -180,16 +200,28 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
       const line = this.logger.line()
       line.started(startedMessage)
-      await api.client.updateInterface(updateBody).catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, `Could not update interface "${name}"`)
-      })
+
+      if (this.argv.dryRun) {
+        this.logger.warn('Dry-run mode is not supported for interface updates. Skipping deployment...')
+      } else {
+        await api.client.updateInterface(updateBody).catch((thrown) => {
+          throw errors.BotpressCLIError.wrap(thrown, `Could not update interface "${name}"`)
+        })
+      }
+
       line.success(successMessage)
     } else {
       const line = this.logger.line()
       line.started(startedMessage)
-      await api.client.createInterface(createBody).catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, `Could not create interface "${name}"`)
-      })
+
+      if (this.argv.dryRun) {
+        this.logger.warn('Dry-run mode is not supported for interface creation. Skipping deployment...')
+      } else {
+        await api.client.createInterface(createBody).catch((thrown) => {
+          throw errors.BotpressCLIError.wrap(thrown, `Could not create interface "${name}"`)
+        })
+      }
+
       line.success(successMessage)
     }
   }
@@ -239,16 +271,28 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
       const line = this.logger.line()
       line.started(startedMessage)
-      await api.client.updatePlugin(updateBody).catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, `Could not update plugin "${name}"`)
-      })
+
+      if (this.argv.dryRun) {
+        this.logger.warn('Dry-run mode is not supported for plugin updates. Skipping deployment...')
+      } else {
+        await api.client.updatePlugin(updateBody).catch((thrown) => {
+          throw errors.BotpressCLIError.wrap(thrown, `Could not update plugin "${name}"`)
+        })
+      }
+
       line.success(successMessage)
     } else {
       const line = this.logger.line()
       line.started(startedMessage)
-      await api.client.createPlugin(createBody).catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, `Could not create plugin "${name}"`)
-      })
+
+      if (this.argv.dryRun) {
+        this.logger.warn('Dry-run mode is not supported for plugin creation. Skipping deployment...')
+      } else {
+        await api.client.createPlugin(createBody).catch((thrown) => {
+          throw errors.BotpressCLIError.wrap(thrown, `Could not create plugin "${name}"`)
+        })
+      }
+
       line.success(successMessage)
     }
   }
@@ -310,6 +354,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     argvBotId: string | undefined,
     argvCreateNew: boolean | undefined
   ) {
+    if (this.argv.dryRun) {
+      this.logger.warn('Dry-run mode is not supported for bot deployments. Skipping deployment...')
+      return
+    }
+
     const outfile = this.projectPaths.abs.outFileCJS
     const code = await fs.promises.readFile(outfile, 'utf-8')
 
