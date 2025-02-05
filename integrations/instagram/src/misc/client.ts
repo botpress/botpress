@@ -1,6 +1,5 @@
 import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
-import qs from 'qs'
 import * as bp from '.botpress'
 
 type InstagramClientConfig = { accessToken?: string; instagramId?: string }
@@ -30,7 +29,8 @@ export class InstagramClient {
 
     console.log('Getting short lived token with: ', { formData })
 
-    let res = await axios.post('https://api.instagram.com/oauth/access_token', qs.stringify(formData), {
+    const queryString = new URLSearchParams(formData)
+    let res = await axios.post('https://api.instagram.com/oauth/access_token', queryString.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
