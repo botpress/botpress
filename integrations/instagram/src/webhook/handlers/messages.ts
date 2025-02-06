@@ -54,8 +54,6 @@ async function _handleMessage(message: InstagramMessage, { client, ctx, logger }
       }
     }
 
-    console.log('Will Create Message', { message, user, conversation })
-
     await client.getOrCreateMessage({
       type: 'text',
       tags: {
