@@ -1,6 +1,6 @@
 import { ResourceNotFoundError } from '@botpress/client'
 import { ExtendedClient, getExtendedClient } from './bp-client'
-import { Model as RawModel } from './gen'
+import { Model as RawModel } from './llm'
 import { BotpressClientLike } from './types'
 
 export const DOWNTIME_THRESHOLD_MINUTES = 5

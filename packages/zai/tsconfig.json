@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "strict": false,
+    "paths": {
+      "@botpress/zai": ["./src/zai.ts"]
+    }
+  },
+  "exclude": ["node_modules", "dist"],
+  "include": ["src/**/*", "vitest.d.ts", "e2e/**/*"]
+}

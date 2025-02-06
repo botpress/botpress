@@ -1,0 +1,7 @@
+src/
+node_modules/
+*.test.ts
+*.test.js
+.env
+.env.local
+.turbo

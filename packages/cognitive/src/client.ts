@@ -3,8 +3,8 @@ import { createNanoEvents, Unsubscribe } from 'nanoevents'
 
 import { ExtendedClient, getExtendedClient } from './bp-client'
 import { getActionFromError } from './errors'
-import { type GenerateContentOutput } from './gen'
 import { InterceptorManager } from './interceptors'
+import { GenerateContentOutput } from './llm'
 import {
   DOWNTIME_THRESHOLD_MINUTES,
   getBestModels,

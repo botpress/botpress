@@ -1,0 +1,39 @@
+name: Run Vai Tests
+
+on:
+  pull_request:
+    paths:
+      - 'packages/vai/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  run-vai-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_OPTIONS: '--max_old_space_size=8192'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          extra_filters: '-F @botpress/vai'
+      - name: Login
+        env:
+          BP_API_URL: 'https://api.botpress.dev'
+          BP_WORKSPACE_ID: ${{ secrets.STAGING_E2E_TESTS_WORKSPACE_ID }}
+          BP_TOKEN: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
+        run: |
+          pnpm bp login
+      - name: Run Vai Tests
+        run: |
+          bot_id=$(pnpm bp bots new --name "vai-tests" --if-not-exists --json | jq -r ".id")
+          echo "bot_id=$bot_id"
+
+          export CLOUD_API_ENDPOINT='https://api.botpress.dev'
+          export CLOUD_BOT_ID=$bot_id
+          export CLOUD_PAT=${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
+          pnpm -F vai run test:e2e
