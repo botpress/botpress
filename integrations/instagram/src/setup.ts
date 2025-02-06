@@ -16,9 +16,12 @@ const refreshAccessToken = async ({ client, ctx, logger }: Parameters<bp.Integra
     })
     .catch(() => ({ state: undefined }))
 
-  if (!state || ctx.configurationType === 'manual') {
+  const isManualConfig = ctx.configurationType === 'manual'
+  const instagramId = isManualConfig ? ctx.configuration.instagramId : (state?.payload.instagramId ?? 'unknown user')
+  if (!state || isManualConfig) {
     // No access token to refresh: never set or manual config. Disable refreshes.
-    client.configureIntegration({ scheduleRegisterCall: undefined })
+    await client.configureIntegration({ scheduleRegisterCall: undefined })
+    logger.debug('Token refresh stopped for Instagram user', instagramId)
     return
   }
 
@@ -28,6 +31,7 @@ const refreshAccessToken = async ({ client, ctx, logger }: Parameters<bp.Integra
     throw new RuntimeError(message)
   }
 
+  logger.debug('Refreshing access token for Instagram user', instagramId)
   const credentials = state.payload
   const instagramClient = new InstagramClient(logger, credentials)
   const accessTokenInfos = await instagramClient.refreshAccessToken().catch((err) => {

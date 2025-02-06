@@ -7,15 +7,9 @@ import { subscribeHandler } from './handlers/subscribe'
 import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
-  const { logger, req } = props
+  const { req } = props
   if (req.path.startsWith('/oauth')) {
     return await oauthCallbackHandler(props)
-  }
-
-  logger.forBot().debug(`Handler received request from Instagram: ${req}`)
-  const validationResult = _validateRequestAuthentication(req, props)
-  if (validationResult.error) {
-    return { status: 403, body: validationResult.message }
   }
 
   const queryParams = new URLSearchParams(req.query)
@@ -23,6 +17,10 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
     return await subscribeHandler(props)
   }
 
+  const validationResult = _validateRequestAuthentication(req, props)
+  if (validationResult.error) {
+    return { status: 403, body: validationResult.message }
+  }
   return await messagesHandler(props)
 }
 

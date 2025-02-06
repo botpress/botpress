@@ -55,6 +55,7 @@ export const oauthCallbackHandler: bp.IntegrationProps['handler'] = async (props
     identifier: instagramId,
     scheduleRegisterCall: 'monthly', // Refresh token before 60 days as per the documentation:
   })
+  logger.debug('Token refresh scheduled for Instagram user', instagramId)
   await client.updateUser({ id: ctx.botUserId, tags: { id: instagramId } })
   return { status: 200 }
 }

@@ -21,6 +21,7 @@ export const subscribeHandler: bp.IntegrationProps['handler'] = async (props: bp
   }
 
   return {
-    body: typeof challenge === 'string' ? challenge : '',
+    status: 200,
+    body: challenge,
   }
 }
