@@ -17,8 +17,10 @@ export class InstagramClient {
     this._clientId = bp.secrets.CLIENT_ID
     this._clientSecret = bp.secrets.CLIENT_SECRET
   }
-
-  public async getAccessTokenFromCode(code: string) {
+  public async getAccessTokenFromCode(code: string): Promise<{
+    accessToken: string
+    expirationTime: number
+  }> {
     const formData = {
       client_id: this._clientId,
       client_secret: this._clientSecret,
@@ -27,16 +29,12 @@ export class InstagramClient {
       code,
     }
 
-    console.log('Getting short lived token with: ', { formData })
-
     const queryString = new URLSearchParams(formData)
     let res = await axios.post('https://api.instagram.com/oauth/access_token', queryString.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     })
-
-    console.log('Short lived request', { res })
 
     const shortLivedTokenData = z
       .object({
@@ -50,24 +48,35 @@ export class InstagramClient {
       access_token: shortLivedTokenData.access_token,
     })
 
-    console.log('Will ask long with data: ', {
-      query,
-      url: `${this._baseGraphApiUrl}/access_token?${query.toString()}`,
-    })
-
     res = await axios.get(`${this._baseGraphApiUrl}/access_token?${query.toString()}`)
 
-    console.log('Long lived request', { res })
-
-    const longLivedTokenData = z
+    const { access_token, expires_in } = z
       .object({
         access_token: z.string(),
+        expires_in: z.number(),
       })
       .parse(res.data)
 
-    console.log('returning long lived access token:', { long: longLivedTokenData.access_token })
+    return { accessToken: access_token, expirationTime: Date.now() + expires_in * 1000 }
+  }
 
-    return longLivedTokenData.access_token
+  public async refreshAccessToken(): Promise<{ accessToken: string; expirationTime: number }> {
+    const query = new URLSearchParams({
+      grant_type: 'ig_refresh_token',
+      access_token: this._getAccessToken(),
+    })
+    const response = await axios.get(`${this._baseGraphApiUrl}/refresh_access_token?${query.toString()}`)
+    const { access_token, expires_in } = z
+      .object({
+        access_token: z.string(),
+        expires_in: z.number(),
+      })
+      .parse(response.data)
+
+    return {
+      accessToken: access_token,
+      expirationTime: Date.now() + expires_in * 1000,
+    }
   }
 
   public async subscribeToWebhooks(accessToken: string) {
@@ -75,8 +84,6 @@ export class InstagramClient {
       const response = await axios.post(`${this._baseGraphApiUrl}/me/subscribed_apps?access_token=${accessToken}`, {
         subscribed_fields: ['messages', 'messaging_postbacks'],
       })
-
-      console.log('Subscribe response', { response })
 
       if (!response?.data?.success) {
         throw new RuntimeError('No Success subscribing')
@@ -96,12 +103,7 @@ export class InstagramClient {
     })
 
     const url = `${this._baseGraphApiUrl}/${this._version}/${instagramId}?${query.toString()}`
-
-    console.log('querying user v2', { url, query })
-
     const response = await axios.get<{ id: string; name: string; username: string } & Record<string, any>>(url)
-
-    console.log('Response to getUserProfile', response)
 
     return response.data
   }

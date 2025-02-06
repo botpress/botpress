@@ -13,17 +13,11 @@ export async function sendMessage(
   { ack, ctx, client, conversation, logger }: SendMessageProps,
   send: (client: InstagramClient, toInstagramId: string) => Promise<{ message_id: string }>
 ) {
-  console.log('Will send message')
-
   const { accessToken, instagramId } = await getCredentials(client, ctx)
   const metaClient = new InstagramClient(logger, { accessToken, instagramId })
   const recipientId = getRecipientId(conversation)
 
-  console.log({ recipientId })
-
   const { message_id } = await send(metaClient, recipientId)
-
-  console.log({ message_id })
 
   await ack({
     tags: {

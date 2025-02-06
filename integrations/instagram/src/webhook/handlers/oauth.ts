@@ -19,10 +19,11 @@ export const oauthCallbackHandler: bp.IntegrationProps['handler'] = async (props
 
   const instagramClient = new InstagramClient(logger)
 
-  const accessToken = await instagramClient.getAccessTokenFromCode(code).catch(() => undefined)
-  if (!accessToken) {
+  const accessTokenInfo = await instagramClient.getAccessTokenFromCode(code).catch(() => undefined)
+  if (!accessTokenInfo) {
     return { status: 500, body: 'Error while getting access token from Instagram' }
   }
+  const { accessToken, expirationTime } = accessTokenInfo
   instagramClient.updateAuthConfig({ accessToken })
 
   const profile = await instagramClient.getUserProfile('me', ['user_id']).catch(() => undefined)
@@ -46,9 +47,14 @@ export const oauthCallbackHandler: bp.IntegrationProps['handler'] = async (props
     payload: {
       accessToken,
       instagramId,
+      expirationTime,
     },
   })
-  await client.configureIntegration({ identifier: instagramId })
+
+  await client.configureIntegration({
+    identifier: instagramId,
+    scheduleRegisterCall: 'monthly', // Refresh token before 60 days as per the documentation:
+  })
   await client.updateUser({ id: ctx.botUserId, tags: { id: instagramId } })
   return { status: 200 }
 }

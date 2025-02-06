@@ -51,6 +51,10 @@ export default new IntegrationDefinition({
           .string()
           .title('Instagram account ID')
           .describe('The Instagram account ID associated with the access token'),
+        expirationTime: z
+          .number()
+          .title('Expiration time')
+          .describe('The time when the access token expires, expressed as a Unix timestamp (epoch) in milliseconds'),
       }),
     },
   },
