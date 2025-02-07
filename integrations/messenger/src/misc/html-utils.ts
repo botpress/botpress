@@ -51,7 +51,6 @@ export const redirectTo = async (url: string) => {
 }
 
 export const generateButtonDialog = (props: Parameters<typeof ButtonDialogPage>[0] & { title: string }) => {
-  // const converter = new showdown.Converter()
   props.description = marked.parse(props.description, { async: false }) as string
 
   return generateHtml({
