@@ -225,23 +225,10 @@ export async function getCredentials(
 }
 
 export function getVerifyToken(ctx: bp.Context): string {
-  let verifyToken: string
-  if (ctx.configurationType === 'manual') {
-    verifyToken = ctx.configuration.verifyToken
-  } else {
-    // Should normally be verified in the fallbackHandler script
-    verifyToken = bp.secrets.VERIFY_TOKEN
-  }
-
-  return verifyToken
+  // Should normally be verified in the fallbackHandler script with OAuth
+  return ctx.configurationType === 'manual' ? ctx.configuration.verifyToken : bp.secrets.VERIFY_TOKEN
 }
 
 export function getClientSecret(ctx: bp.Context): string {
-  let clientSecret: string
-  if (ctx.configurationType === 'manual') {
-    clientSecret = ctx.configuration.clientSecret
-  } else {
-    clientSecret = bp.secrets.CLIENT_SECRET
-  }
-  return clientSecret
+  return ctx.configurationType === 'manual' ? ctx.configuration.clientSecret : bp.secrets.CLIENT_SECRET
 }
