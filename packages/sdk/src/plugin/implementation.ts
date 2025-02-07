@@ -106,9 +106,12 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         get: (_, prop) => {
           const specificHandlers = this._messageHandlers[prop as string] ?? []
           const globalHandlers = this._messageHandlers['*'] ?? []
-          const allHandlers = [...specificHandlers, ...globalHandlers]
-          return allHandlers.map(
-            (handler) => (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) })
+          const allHandlers = utils.arrays.unique([...specificHandlers, ...globalHandlers])
+          return allHandlers.map((handler) =>
+            utils.functions.setName(
+              (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+              handler.name
+            )
           )
         },
       }
@@ -121,15 +124,21 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       {
         get: (_, prop: string) => {
           // if prop is "github:prOpened", included both "github:prOpened" and "creatable:itemCreated"
-          const specificHandlers = Object.entries(this._eventHandlers)
+
+          const specificHandlers = this._eventHandlers[prop] ?? []
+
+          const interfaceHandlers = Object.entries(this._eventHandlers)
             .filter(([e]) => this._eventResolvesTo(e, prop))
             .flatMap(([, handlers]) => handlers ?? [])
 
           const globalHandlers = this._eventHandlers['*'] ?? []
-          const allHandlers = [...specificHandlers, ...globalHandlers]
+          const allHandlers = utils.arrays.unique([...specificHandlers, ...interfaceHandlers, ...globalHandlers])
 
-          return allHandlers.map(
-            (handler) => (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) })
+          return allHandlers.map((handler) =>
+            utils.functions.setName(
+              (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+              handler.name
+            )
           )
         },
       }
@@ -143,10 +152,12 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         get: (_, prop) => {
           const specificHandlers = this._stateExpiredHandlers[prop as string] ?? []
           const globalHandlers = this._stateExpiredHandlers['*'] ?? []
-          const allHandlers = [...specificHandlers, ...globalHandlers]
-          return allHandlers.map(
-            (handler) => (input: StateExpiredPayloads<any>[string]) =>
-              handler({ ...input, ...this._getTools(input.client) })
+          const allHandlers = utils.arrays.unique([...specificHandlers, ...globalHandlers])
+          return allHandlers.map((handler) =>
+            utils.functions.setName(
+              (input: StateExpiredPayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+              handler.name
+            )
           )
         },
       }
@@ -168,8 +179,13 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
               get: (_, prop2) => {
                 const specificHandlers = hooks[prop2 as string] ?? []
                 const globalHandlers = hooks['*'] ?? []
-                const handlers = [...specificHandlers, ...globalHandlers]
-                return handlers.map((handler) => (input: any) => handler({ ...input, ...this._getTools(input.client) }))
+                const handlers = utils.arrays.unique([...specificHandlers, ...globalHandlers])
+                return handlers.map((handler) =>
+                  utils.functions.setName(
+                    (input: any) => handler({ ...input, ...this._getTools(input.client) }),
+                    handler.name
+                  )
+                )
               },
             }
           )

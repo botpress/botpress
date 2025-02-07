@@ -69,7 +69,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
           const selfGlobalHandlers = this._messageHandlers['*'] ?? []
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
           const pluginHandlers = Object.values(this._plugins).flatMap((plugin) => plugin.messageHandlers[prop] ?? [])
-          return [...selfHandlers, ...pluginHandlers]
+          return utils.arrays.unique([...selfHandlers, ...pluginHandlers])
         },
       }
     ) as MessageHandlersMap<TBot>
@@ -85,7 +85,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
           const selfGlobalHandlers = this._eventHandlers['*'] ?? []
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
           const pluginHandlers = Object.values(this._plugins).flatMap((plugin) => plugin.eventHandlers[prop] ?? [])
-          return [...selfHandlers, ...pluginHandlers]
+          return utils.arrays.unique([...selfHandlers, ...pluginHandlers])
         },
       }
     ) as EventHandlersMap<TBot>
@@ -103,7 +103,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
           const pluginHandlers = Object.values(this._plugins).flatMap(
             (plugin) => plugin.stateExpiredHandlers[prop] ?? []
           )
-          return [...selfHandlers, ...pluginHandlers]
+          return utils.arrays.unique([...selfHandlers, ...pluginHandlers])
         },
       }
     ) as StateExpiredHandlersMap<TBot>
@@ -129,7 +129,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
                   (plugin) => (plugin.hookHandlers[hookType]?.[prop2] ?? []) as typeof selfHandlers
                 )
 
-                return [...selfHandlers, ...pluginHandlers]
+                return utils.arrays.unique([...selfHandlers, ...pluginHandlers])
               },
             }
           )
