@@ -20,6 +20,12 @@ const noBuild = {
   default: false,
 } satisfies CommandOption
 
+const dryRun = {
+  type: 'boolean',
+  description: 'Ask the API not to perform the actual operation',
+  default: false,
+} as const satisfies CommandOption
+
 const apiUrl = {
   type: 'string',
   description: 'The URL of the Botpress server',
@@ -175,6 +181,7 @@ const deploySchema = {
   ...secretsSchema,
   botId: { type: 'string', description: 'The bot ID to deploy. Only used when deploying a bot' },
   noBuild,
+  dryRun,
   createNewBot: { type: 'boolean', description: 'Create a new bot when deploying. Only used when deploying a bot' },
   sourceMap,
   minify,
