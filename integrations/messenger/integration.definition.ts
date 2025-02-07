@@ -36,7 +36,11 @@ export default new IntegrationDefinition({
           .min(1)
           .describe('Access Token from a System Account that has permission to the Meta app'),
         clientId: z.string().title('Client ID').min(1).describe('Meta app client id'),
-        clientSecret: z.string().title('Client Secret').optional().describe('Meta app secret used for webhook signature check'),
+        clientSecret: z
+          .string()
+          .title('Client Secret')
+          .optional()
+          .describe('Meta app secret used for webhook signature check'),
         pageId: z.string().min(1).describe('Id from the Facebook page').title('Page ID'),
       }),
     },
