@@ -10,7 +10,14 @@ import { MetaOauthClient } from './whatsapp'
 export type WizardHandlerProps = bp.HandlerProps & { wizardPath: string }
 type Credentials = Awaited<ReturnType<typeof getCredentialsState>>
 type WizardStepHandlerProps = WizardHandlerProps & { credentials: Credentials }
-type WizardStep = 'start-confirm' | 'setup' | 'get-access-token' | 'verify-waba' | 'verify-number' | 'wrap-up' | 'finish-wrap-up'
+type WizardStep =
+  | 'start-confirm'
+  | 'setup'
+  | 'get-access-token'
+  | 'verify-waba'
+  | 'verify-number'
+  | 'wrap-up'
+  | 'finish-wrap-up'
 
 const ACCESS_TOKEN_UNAVAILABLE_ERROR = 'Access token unavailable, please try again.'
 const WABA_ID_UNAVAILABLE_ERROR = 'Whatsapp Business Account ID unavailable, please try again.'
