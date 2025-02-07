@@ -6,7 +6,7 @@ export const subscribeHandler: bp.IntegrationProps['handler'] = async (props: bp
 
   const queryParams = new URLSearchParams(req.query)
   const mode = queryParams.get('hub.mode')
-  if (!mode || mode !== 'subscribe') {
+  if (mode !== 'subscribe') {
     return { status: 400, body: "Mode should be set to 'subscribe'" }
   }
 
