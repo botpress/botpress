@@ -6,9 +6,9 @@ import * as uuid from 'uuid'
 import * as apiUtils from '../../src/api'
 import impl from '../../src/command-implementations'
 import defaults from '../defaults'
+import * as retry from '../retry'
 import { Test, TestProps } from '../typings'
 import * as utils from '../utils'
-import * as retry from '../retry'
 
 const issueSchema = sdk.z.object({
   id: sdk.z.string(),
