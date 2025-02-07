@@ -1,12 +1,10 @@
 import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
-import qs from 'qs'
-import { getGlobalOauthWebhookUrl } from './utils'
 import * as bp from '.botpress'
 
 type InstagramClientConfig = { accessToken?: string; instagramId?: string }
 
-export class MetaClient {
+export class InstagramClient {
   private _clientId: string
   private _clientSecret: string
   private _version: string = 'v21.0'
@@ -19,25 +17,24 @@ export class MetaClient {
     this._clientId = bp.secrets.CLIENT_ID
     this._clientSecret = bp.secrets.CLIENT_SECRET
   }
-
-  public async getAccessTokenFromCode(code: string) {
+  public async getAccessTokenFromCode(code: string): Promise<{
+    accessToken: string
+    expirationTime: number
+  }> {
     const formData = {
       client_id: this._clientId,
       client_secret: this._clientSecret,
       grant_type: 'authorization_code',
-      redirect_uri: getGlobalOauthWebhookUrl(),
+      redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
       code,
     }
 
-    console.log('Getting short lived token with: ', { formData })
-
-    let res = await axios.post('https://api.instagram.com/oauth/access_token', qs.stringify(formData), {
+    const queryString = new URLSearchParams(formData)
+    let res = await axios.post('https://api.instagram.com/oauth/access_token', queryString.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     })
-
-    console.log('Short lived request', { res })
 
     const shortLivedTokenData = z
       .object({
@@ -51,24 +48,35 @@ export class MetaClient {
       access_token: shortLivedTokenData.access_token,
     })
 
-    console.log('Will ask long with data: ', {
-      query,
-      url: `${this._baseGraphApiUrl}/access_token?${query.toString()}`,
-    })
-
     res = await axios.get(`${this._baseGraphApiUrl}/access_token?${query.toString()}`)
 
-    console.log('Long lived request', { res })
-
-    const longLivedTokenData = z
+    const { access_token, expires_in } = z
       .object({
         access_token: z.string(),
+        expires_in: z.number(),
       })
       .parse(res.data)
 
-    console.log('returning long lived access token:', { long: longLivedTokenData.access_token })
+    return { accessToken: access_token, expirationTime: Date.now() + expires_in * 1000 }
+  }
 
-    return longLivedTokenData.access_token
+  public async refreshAccessToken(): Promise<{ accessToken: string; expirationTime: number }> {
+    const query = new URLSearchParams({
+      grant_type: 'ig_refresh_token',
+      access_token: this._getAccessToken(),
+    })
+    const response = await axios.get(`${this._baseGraphApiUrl}/refresh_access_token?${query.toString()}`)
+    const { access_token, expires_in } = z
+      .object({
+        access_token: z.string(),
+        expires_in: z.number(),
+      })
+      .parse(response.data)
+
+    return {
+      accessToken: access_token,
+      expirationTime: Date.now() + expires_in * 1000,
+    }
   }
 
   public async subscribeToWebhooks(accessToken: string) {
@@ -76,8 +84,6 @@ export class MetaClient {
       const response = await axios.post(`${this._baseGraphApiUrl}/me/subscribed_apps?access_token=${accessToken}`, {
         subscribed_fields: ['messages', 'messaging_postbacks'],
       })
-
-      console.log('Subscribe response', { response })
 
       if (!response?.data?.success) {
         throw new RuntimeError('No Success subscribing')
@@ -97,17 +103,12 @@ export class MetaClient {
     })
 
     const url = `${this._baseGraphApiUrl}/${this._version}/${instagramId}?${query.toString()}`
-
-    console.log('querying user v2', { url, query })
-
     const response = await axios.get<{ id: string; name: string; username: string } & Record<string, any>>(url)
-
-    console.log('Response to getUserProfile', response)
 
     return response.data
   }
 
-  public setAuthConfig(newConfig: InstagramClientConfig) {
+  public updateAuthConfig(newConfig: InstagramClientConfig) {
     this._authConfig = { ...this._authConfig, ...newConfig }
   }
 
@@ -202,13 +203,11 @@ export class MetaClient {
 export async function getCredentials(
   client: bp.Client,
   ctx: bp.Context
-): Promise<{ instagramId?: string; accessToken: string; clientSecret: string; clientId: string }> {
-  if (ctx.configuration.useManualConfiguration) {
+): Promise<{ instagramId?: string; accessToken: string }> {
+  if (ctx.configurationType === 'manual') {
     return {
       instagramId: ctx.configuration.instagramId || '',
       accessToken: ctx.configuration.accessToken || '',
-      clientSecret: ctx.configuration.clientSecret || '',
-      clientId: ctx.configuration.clientId || '',
     }
   }
 
@@ -222,23 +221,27 @@ export async function getCredentials(
   return {
     instagramId: state.payload.instagramId,
     accessToken: state.payload.accessToken,
-    clientSecret: bp.secrets.CLIENT_SECRET,
-    clientId: bp.secrets.CLIENT_ID,
   }
 }
 
 export function getVerifyToken(ctx: bp.Context): string {
-  const { useManualConfiguration, verifyToken: customVerifyToken } = ctx.configuration
   let verifyToken: string
-  if (useManualConfiguration) {
-    if (!customVerifyToken) {
-      throw new RuntimeError('Verify token is missing')
-    }
-    verifyToken = customVerifyToken
+  if (ctx.configurationType === 'manual') {
+    verifyToken = ctx.configuration.verifyToken
   } else {
     // Should normally be verified in the fallbackHandler script
     verifyToken = bp.secrets.VERIFY_TOKEN
   }
 
   return verifyToken
+}
+
+export function getClientSecret(ctx: bp.Context): string {
+  let clientSecret: string
+  if (ctx.configurationType === 'manual') {
+    clientSecret = ctx.configuration.clientSecret
+  } else {
+    clientSecret = bp.secrets.CLIENT_SECRET
+  }
+  return clientSecret
 }
