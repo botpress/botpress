@@ -10,7 +10,7 @@ import { MetaOauthClient } from './whatsapp'
 export type WizardHandlerProps = bp.HandlerProps & { wizardPath: string }
 type Credentials = Awaited<ReturnType<typeof getCredentialsState>>
 type WizardStepHandlerProps = WizardHandlerProps & { credentials: Credentials }
-type WizardStep = 'start-confirm' | 'setup' | 'get-access-token' | 'verify-waba' | 'verify-number' | 'wrap-up'
+type WizardStep = 'start-confirm' | 'setup' | 'get-access-token' | 'verify-waba' | 'verify-number' | 'wrap-up' | 'finish-wrap-up'
 
 const ACCESS_TOKEN_UNAVAILABLE_ERROR = 'Access token unavailable, please try again.'
 const WABA_ID_UNAVAILABLE_ERROR = 'Whatsapp Business Account ID unavailable, please try again.'
@@ -34,6 +34,10 @@ export const handleWizard = async (props: WizardHandlerProps): Promise<Response>
     handlerResponse = await handleWizardVerifyWaba(stepHandlerProps)
   } else if (wizardSubpath.startsWith('/verify-number')) {
     handlerResponse = await handleWizardVerifyNumber(stepHandlerProps)
+  } else if (wizardSubpath.startsWith('/wrap-up')) {
+    handlerResponse = await doStepWrapUp(stepHandlerProps)
+  } else if (wizardSubpath.startsWith('/finish-wrap-up')) {
+    handlerResponse = await doStepFinishWrapUp(stepHandlerProps)
   }
 
   return (
@@ -213,6 +217,12 @@ const doStepVerifyNumber = async (
   return await doStepWrapUp({ ...props, credentials: newCredentials })
 }
 
+const doStepFinishWrapUp = async (props: WizardStepHandlerProps): Promise<Response> => {
+  const { ctx } = props
+  await trackWizardStep(ctx, 'finish-wrap-up', 'completed')
+  return redirectTo(getInterstitialUrl(true))
+}
+
 const doStepWrapUp = async (props: WizardStepHandlerProps): Promise<Response> => {
   const { client, ctx, logger, credentials } = props
   await trackWizardStep(ctx, 'wrap-up', 'completed')
@@ -233,7 +243,21 @@ const doStepWrapUp = async (props: WizardStepHandlerProps): Promise<Response> =>
   await oauthClient.registerNumber(phoneNumberId, accessToken)
   await oauthClient.subscribeToWebhooks(wabaId, accessToken)
 
-  return redirectTo(getInterstitialUrl(true))
+  return generateButtonDialog({
+    title: 'Configuration Complete',
+    description: `Your configuration is now complete and the selected WhatsApp number will start answering as this bot, you can add the number to your personal contacts and test it.
+
+          Here are some things to verify if you are unable to talk with your bot on WhatsApp.
+
+          - Confirm if you added the correct number (With country and area code)
+          - Double check if you published this bot
+          - Wait a few hours (3-4) for Meta to process the Setup
+          - Verify if your display name was not denied by Meta (you will get an email in the Facebook accounts email address)
+        `,
+    buttons: [
+      { display: 'Okay', type: 'primary', action: 'NAVIGATE', payload: getWizardStepUrl('finish-wrap-up', ctx) },
+    ],
+  })
 }
 
 const trackWizardStep = async (ctx: bp.Context, step: WizardStep, status?: string) => {
