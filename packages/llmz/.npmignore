@@ -1,0 +1,16 @@
+tsup.config.ts
+
+node_modules/
+scripts/
+.turbo
+
+*.test.ts
+*.test.js
+tsconfig.json
+vitest.*.ts
+
+.env
+.env.local
+
+src
+scripts
