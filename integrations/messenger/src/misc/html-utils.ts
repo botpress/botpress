@@ -1,3 +1,4 @@
+import { marked } from 'marked'
 import { render } from 'preact-render-to-string'
 import ButtonDialogPage from './pages/button-dialog'
 import SelectDialogPage from './pages/select-dialog'
@@ -50,6 +51,9 @@ export const redirectTo = async (url: string) => {
 }
 
 export const generateButtonDialog = (props: Parameters<typeof ButtonDialogPage>[0] & { title: string }) => {
+  // const converter = new showdown.Converter()
+  props.description = marked.parse(props.description, { async: false }) as string
+
   return generateHtml({
     body: render(ButtonDialogPage(props)),
     options: { title: props.title },

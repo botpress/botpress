@@ -1041,6 +1041,9 @@ importers:
       axios:
         specifier: ^1.6.2
         version: 1.6.2
+      marked:
+        specifier: ^13.0.2
+        version: 13.0.2
       messaging-api-messenger:
         specifier: ^1.1.0
         version: 1.1.0
@@ -1488,6 +1491,9 @@ importers:
       axios:
         specifier: ^1.6.2
         version: 1.6.8
+      marked:
+        specifier: ^13.0.2
+        version: 13.0.2
       preact:
         specifier: ^10.23.1
         version: 10.23.1

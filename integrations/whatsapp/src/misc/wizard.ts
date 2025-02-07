@@ -252,14 +252,15 @@ const doStepWrapUp = async (props: WizardStepHandlerProps): Promise<Response> =>
 
   return generateButtonDialog({
     title: 'Configuration Complete',
-    description: `Your configuration is now complete and the selected WhatsApp number will start answering as this bot, you can add the number to your personal contacts and test it.
+    description: `
+Your configuration is now complete and the selected WhatsApp number will start answering as this bot, you can add the number to your personal contacts and test it.
 
-          Here are some things to verify if you are unable to talk with your bot on WhatsApp.
+**Here are some things to verify if you are unable to talk with your bot on WhatsApp**
 
-          - Confirm if you added the correct number (With country and area code)
-          - Double check if you published this bot
-          - Wait a few hours (3-4) for Meta to process the Setup
-          - Verify if your display name was not denied by Meta (you will get an email in the Facebook accounts email address)
+- Confirm if you added the correct number (With country and area code)
+- Double check if you published this bot
+- Wait a few hours (3-4) for Meta to process the Setup
+- Verify if your display name was not denied by Meta (you will get an email in the Facebook accounts email address)
         `,
     buttons: [
       { display: 'Okay', type: 'primary', action: 'NAVIGATE', payload: getWizardStepUrl('finish-wrap-up', ctx) },
