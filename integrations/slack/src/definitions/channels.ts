@@ -5,6 +5,7 @@ type ChannelDef = NonNullable<IntegrationDefinitionProps['channels']>[string]
 
 const messages = {
   ...baseMessages.defaults,
+  markdown: baseMessages.markdown,
   text: {
     schema: textSchema,
   },
@@ -62,6 +63,12 @@ export const thread = {
   messages,
   message: { tags: messageTags },
   conversation: {
-    tags: { ...convoTags, thread: {} },
+    tags: {
+      ...convoTags,
+      thread: {
+        title: 'Thread ID',
+        description: 'The Slack ID of the thread',
+      },
+    },
   },
 } satisfies ChannelDef

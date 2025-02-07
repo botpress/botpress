@@ -1,27 +1,36 @@
 {
   "name": "@botpress/sdk",
-  "version": "1.2.1",
+  "version": "3.0.2",
   "description": "Botpress SDK",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "scripts": {
     "check:type": "tsc --noEmit",
     "build:type": "tsc --emitDeclarationOnly --declaration",
-    "build:node": "ts-node -T build.ts",
-    "build": "pnpm build:type && pnpm build:node"
+    "build:browser": "ts-node -T ./build.ts --browser",
+    "build:node": "ts-node -T ./build.ts --node",
+    "build": "pnpm build:type && pnpm build:node && pnpm build:browser"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.34.0",
-    "@bpinternal/zui": "0.12.0"
+    "@botpress/client": "0.41.2",
+    "browser-or-node": "^2.1.1"
   },
   "devDependencies": {
-    "@types/node": "^18.11.17",
-    "esbuild": "^0.16.10",
-    "ts-node": "^10.9.1",
-    "tsup": "^8.0.2",
-    "typescript": "^4.9.4"
+    "esbuild": "^0.16.12",
+    "esbuild-plugin-polyfill-node": "^0.3.0",
+    "tsup": "^8.0.2"
+  },
+  "peerDependencies": {
+    "@bpinternal/zui": "^0.13.5",
+    "esbuild": "^0.16.12"
+  },
+  "peerDependenciesMeta": {
+    "esbuild": {
+      "optional": true
+    }
   }
 }

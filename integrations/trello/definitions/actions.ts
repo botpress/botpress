@@ -36,6 +36,8 @@ import {
   moveCardUpOutputSchema,
   updateCardInputSchema,
   updateCardOutputSchema,
+  getAllCardMembersInputSchema,
+  getAllCardMembersOutputSchema,
 } from './schemas'
 
 export const actions = {
@@ -217,6 +219,16 @@ export const actions = {
     },
     output: {
       schema: getMemberByIdOrUsernameOutputSchema,
+    },
+  },
+  getAllCardMembers: {
+    title: 'Get all card members',
+    description: 'Get all members of a card',
+    input: {
+      schema: getAllCardMembersInputSchema,
+    },
+    output: {
+      schema: getAllCardMembersOutputSchema,
     },
   },
 } as const satisfies NonNullable<IntegrationDefinitionProps['actions']>

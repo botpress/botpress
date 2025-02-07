@@ -1,0 +1,22 @@
+{
+  "name": "@botpresshub/hitl-plugin",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpresshub/hitl": "workspace:*",
+    "@types/lodash": "^4.14.191"
+  },
+  "bpDependencies": {
+    "hitl": "../../interfaces/hitl"
+  }
+}

@@ -1,5 +1,7 @@
+/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import typingIndicator from 'bp_modules/typing-indicator'
 
 export const channel = 'channel' // TODO: Rename to "whatsapp" once support for integration versioning is finished.
 
@@ -32,9 +34,9 @@ export const INTEGRATION_NAME = 'whatsapp'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.1.0',
+  version: '2.4.0',
   title: 'WhatsApp',
-  description: 'This integration allows your bot to interact with WhatsApp.',
+  description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configurations: {
@@ -47,6 +49,10 @@ export default new IntegrationDefinition({
         },
       },
       schema: z.object({
+        typingIndicatorEmoji: z
+          .boolean()
+          .default(false)
+          .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
         verifyToken: z
           .string()
           .min(1)
@@ -67,7 +73,12 @@ export default new IntegrationDefinition({
       linkTemplateScript: 'linkTemplate.vrl',
       required: true,
     },
-    schema: z.object({}),
+    schema: z.object({
+      typingIndicatorEmoji: z
+        .boolean()
+        .default(false)
+        .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
+    }),
   },
   identifier: {
     extractScript: 'extract.vrl',
@@ -75,7 +86,15 @@ export default new IntegrationDefinition({
   },
   channels: {
     [channel]: {
-      messages: messages.defaults,
+      messages: {
+        ...messages.defaults,
+        markdown: messages.markdown,
+        file: {
+          schema: messages.defaults.file.schema.extend({
+            filename: z.string().optional(),
+          }),
+        },
+      },
       message: {
         tags: {
           id: {},
@@ -146,7 +165,7 @@ export default new IntegrationDefinition({
       optional: true,
     },
   },
-})
+}).extend(typingIndicator, () => ({ entities: {} }))
 
 export const getOAuthConfigId = () => {
   if (process.env.BP_WEBHOOK_URL?.includes('dev')) {

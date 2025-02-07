@@ -19,15 +19,16 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(gsheets, {
+  .addIntegration(gsheets, {
     enabled: true,
+    configurationType: 'serviceAccountKey',
     configuration: {
       clientEmail: genenv.SHEETZY_GSHEETS_CLIENT_EMAIL,
       privateKey: genenv.SHEETZY_GSHEETS_PRIVATE_KEY,
       spreadsheetId: genenv.SHEETZY_GSHEETS_SPREADSHEET_ID,
     },
   })
-  .add(telegram, {
+  .addIntegration(telegram, {
     enabled: true,
     configuration: {
       botToken: genenv.SHEETZY_TELEGRAM_BOT_TOKEN,

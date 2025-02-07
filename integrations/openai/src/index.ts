@@ -20,6 +20,48 @@ const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 //  https://openai.com/api/pricing/
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
+  'o3-mini-2025-01-31': {
+    name: 'GPT o3-mini',
+    description:
+      'o3-mini is our most recent small reasoning model, providing high intelligence at the same cost and latency targets of o1-mini. o3-mini also supports key developer features, like Structured Outputs, function calling, Batch API, and more. Like other models in the o-series, it is designed to excel at science, math, and coding tasks. The knowledge cutoff for o3-mini models is October, 2023.',
+    tags: ['reasoning', 'general-purpose'],
+    input: {
+      costPer1MTokens: 1.1,
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 4.4,
+      maxTokens: 100_000,
+    },
+  },
+  'o1-2024-12-17': {
+    name: 'GPT o1',
+    description:
+      'The o1 model is designed to solve hard problems across domains. The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.',
+    tags: ['reasoning', 'vision', 'general-purpose'],
+    input: {
+      costPer1MTokens: 15,
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 60,
+      maxTokens: 100_000,
+    },
+  },
+  'o1-mini-2024-09-12': {
+    name: 'GPT o1-mini',
+    description:
+      'The o1-mini model is a fast and affordable reasoning model for specialized tasks. The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.',
+    tags: ['reasoning', 'vision', 'general-purpose'],
+    input: {
+      costPer1MTokens: 3,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 12,
+      maxTokens: 65_536,
+    },
+  },
   'gpt-4o-mini-2024-07-18': {
     name: 'GPT-4o Mini',
     description:
@@ -31,6 +73,20 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     },
     output: {
       costPer1MTokens: 0.6,
+      maxTokens: 16_384,
+    },
+  },
+  'gpt-4o-2024-11-20': {
+    name: 'GPT-4o (November 2024)',
+    description:
+      "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
+    tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    input: {
+      costPer1MTokens: 2.5,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 10,
       maxTokens: 16_384,
     },
   },
@@ -161,6 +217,13 @@ export default new bp.Integration({
           provider,
           models: languageModels,
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
+          overrideRequest: (request) => {
+            if (input.model?.id.startsWith('o1-') || input.model?.id.startsWith('o3-')) {
+              // The o1 models don't allow setting temperature
+              delete request.temperature
+            }
+            return request
+          },
         }
       )
       metadata.setCost(output.botpress.cost)
@@ -255,7 +318,13 @@ export default new bp.Integration({
         speed: input.speed ?? 1,
       }
 
-      const response = await openAIClient.audio.speech.create(params)
+      let response: Response
+
+      try {
+        response = await openAIClient.audio.speech.create(params)
+      } catch (err: any) {
+        throw llm.createUpstreamProviderFailedError(err)
+      }
 
       const key = generateFileKey('openai-generateSpeech-', input, `.${params.response_format}`)
 

@@ -31,11 +31,15 @@ jobs:
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'production'
+          extra_filter: "-F '!intercom' -F '!instagram'"
           force: ${{ github.event.inputs.force == 'true' }}
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
+          googledrive_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GDRIVE_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GDRIVE_CLIENT_SECRET }} --secrets WEBHOOK_SECRET=${{ secrets.PRODUCTION_GDRIVE_WEBHOOK_SECRET }}'
           gmail_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GMAIL_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GMAIL_CLIENT_SECRET }} --secrets TOPIC_NAME=${{ secrets.PRODUCTION_GMAIL_TOPIC_NAME }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.PRODUCTION_GMAIL_WEBHOOK_SHARED_SECRET }} --secrets WEBHOOK_SERVICE_ACCOUNT=${{ secrets.PRODUCTION_GMAIL_WEBHOOK_SERVICE_ACCOUNT }}'
+          gsheets_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GSHEETS_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GSHEETS_CLIENT_SECRET }}'
+          googlecalendar_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GOOGLECALENDAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GOOGLECALENDAR_CLIENT_SECRET }}'
           linear_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_LINEAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_LINEAR_CLIENT_SECRET }} --secrets WEBHOOK_SIGNING_SECRET=${{ secrets.PRODUCTION_LINEAR_WEBHOOK_SIGNING_SECRET }}'
           slack_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_SLACK_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_SLACK_CLIENT_SECRET }} --secrets SIGNING_SECRET=${{ secrets.PRODUCTION_SLACK_SIGNING_SECRET }}'
           charts_secrets: '--secrets QUICKCHARTS_API_KEY=${{ secrets.QUICKCHARTS_API_KEY }}'
@@ -46,7 +50,17 @@ jobs:
           whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.PRODUCTION_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.PRODUCTION_WHATSAPP_NUMBER_PIN }} --secrets SEGMENT_KEY=${{ secrets.PRODUCTION_WHATSAPP_SEGMENT_KEY }}'
           anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
           fireworks_ai_secrets: '--secrets FIREWORKS_AI_API_KEY=${{ secrets.FIREWORKS_AI_API_KEY }}'
-          todoist_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_TODOIST_CLIENT_SECRET }}'
+          todoist_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_TODOIST_CLIENT_SECRET }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.PRODUCTION_TODOIST_WEBHOOK_SHARED_SECRET }}'
           cerebras_secrets: '--secrets CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}'
           messenger_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_MESSENGER_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_MESSENGER_CLIENT_SECRET  }} --secrets ACCESS_TOKEN=${{ secrets.PRODUCTION_MESSENGER_ACCESS_TOKEN  }}'
           github_secrets: "--secrets GITHUB_APP_ID=${{ secrets.PRODUCTION_GITHUB_APP_ID }} --secrets 'GITHUB_PRIVATE_KEY=${{ secrets.PRODUCTION_GITHUB_PRIVATE_KEY }}' --secrets GITHUB_WEBHOOK_SECRET=${{ secrets.PRODUCTION_GITHUB_WEBHOOK_SECRET }}"
+          google_ai_secrets: '--secrets GOOGLE_AI_API_KEY=${{ secrets.GOOGLE_AI_API_KEY }}'
+          intercom_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_INTERCOM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_INTERCOM_CLIENT_SECRET }}'
+          instagram_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_INSTAGRAM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_INSTAGRAM_CLIENT_SECRET }} --secrets VERIFY_TOKEN=${{ secrets.PRODUCTION_INSTAGRAM_VERIFY_TOKEN }}'
+      - name: Deploy Plugins
+        uses: ./.github/actions/deploy-plugins
+        with:
+          environment: 'staging'
+          force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
+          token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
+          cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}

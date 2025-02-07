@@ -6,13 +6,13 @@ import chalk from 'chalk'
 import fs from 'fs'
 import _ from 'lodash'
 import semver from 'semver'
-import { ApiClient } from '../api/client'
+import * as apiUtils from '../api'
 import * as codegen from '../code-generation'
 import type * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import { formatPackageRef, PackageRef } from '../package-ref'
-import { validateIntegrationDefinition, resolveInterfaces, resolveBotInterfaces } from '../sdk'
+import { validateIntegrationDefinition, validateBotDefinition } from '../sdk'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
@@ -27,13 +27,23 @@ type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
 type IntegrationInstance = NonNullable<sdk.BotDefinition['integrations']>[string]
 type RemoteIntegrationInstance = utils.types.Merge<IntegrationInstance, { id: string }>
 type LocalIntegrationInstance = utils.types.Merge<IntegrationInstance, { uri?: string }>
-type BotIntegrationRequest = NonNullable<NonNullable<client.ClientInputs['updateBot']['integrations']>[string]>
+type BotIntegrationRequest = NonNullable<NonNullable<apiUtils.UpdateBotRequestBody['integrations']>[string]>
+
+type InterfaceExtension = NonNullable<sdk.IntegrationDefinition['interfaces']>[string]
+type RemoteInterfaceExtension = utils.types.Merge<InterfaceExtension, { id: string }>
+type LocalInterfaceExtension = utils.types.Merge<InterfaceExtension, { uri?: string }>
+type IntegrationInterfaceRequest = NonNullable<NonNullable<apiUtils.UpdateIntegrationRequestBody['interfaces']>[string]>
+
+type LintIgnoredConfig = { bpLintDisabled?: boolean }
 
 export type ProjectType = ProjectDefinition['type']
-export type ProjectDefinition =
-  | { type: 'integration'; definition: sdk.IntegrationDefinition }
-  | { type: 'interface'; definition: sdk.InterfaceDeclaration }
-  | { type: 'bot'; definition: sdk.BotDefinition }
+export type ProjectDefinition = LintIgnoredConfig &
+  (
+    | { type: 'integration'; definition: sdk.IntegrationDefinition }
+    | { type: 'interface'; definition: sdk.InterfaceDefinition }
+    | { type: 'bot'; definition: sdk.BotDefinition }
+    | { type: 'plugin'; definition: sdk.PluginDefinition }
+  )
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
@@ -61,21 +71,24 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   protected async fetchBotIntegrationInstances(
     botDefinition: sdk.BotDefinition,
-    api: ApiClient
+    api: apiUtils.ApiClient
   ): Promise<Record<string, BotIntegrationRequest>> {
     const integrationList = _(botDefinition.integrations).values().filter(utils.guards.is.defined).value()
 
     const { remoteInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
 
-    const fetchedInstances: RemoteIntegrationInstance[] = await bluebird.map(localInstances, async (instance) => {
-      const ref: PackageRef = { type: 'name', name: instance.definition.name, version: instance.definition.version }
-      const integration = await api.findIntegration(ref)
-      if (!integration) {
-        const formattedRef = formatPackageRef(ref)
-        throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
+    const fetchedInstances: RemoteIntegrationInstance[] = await bluebird.map(
+      localInstances,
+      async (instance): Promise<RemoteIntegrationInstance> => {
+        const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
+        const integration = await api.findIntegration(ref)
+        if (!integration) {
+          const formattedRef = formatPackageRef(ref)
+          throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
+        }
+        return { ...instance, id: integration.id }
       }
-      return { ...instance, id: integration.id }
-    })
+    )
 
     return _([...fetchedInstances, ...remoteInstances])
       .keyBy((i) => i.id)
@@ -87,6 +100,32 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       .value()
   }
 
+  protected async fetchIntegrationInterfaceInstances(
+    integrationDefinition: sdk.IntegrationDefinition,
+    api: apiUtils.ApiClient
+  ): Promise<Record<string, IntegrationInterfaceRequest>> {
+    const interfaceList = _(integrationDefinition.interfaces).values().filter(utils.guards.is.defined).value()
+
+    const { remoteInstances, localInstances } = this._splitApiAndLocalInterfaceInstances(interfaceList)
+
+    const fetchedInstances: RemoteInterfaceExtension[] = await bluebird.map(
+      localInstances,
+      async (instance): Promise<RemoteInterfaceExtension> => {
+        const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
+        const interfaceInstance = await api.findPublicInterface(ref)
+        if (!interfaceInstance) {
+          const formattedRef = formatPackageRef(ref)
+          throw new errors.BotpressCLIError(`Interface "${formattedRef}" not found`)
+        }
+        return { ...instance, id: interfaceInstance.id }
+      }
+    )
+
+    return _([...fetchedInstances, ...remoteInstances])
+      .keyBy((i) => i.id)
+      .value()
+  }
+
   private _splitApiAndLocalIntegrationInstances(instances: IntegrationInstance[]): {
     remoteInstances: RemoteIntegrationInstance[]
     localInstances: LocalIntegrationInstance[]
@@ -94,8 +133,27 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const remoteInstances: RemoteIntegrationInstance[] = []
     const localInstances: LocalIntegrationInstance[] = []
     for (const instance of instances) {
-      if ('id' in instance) {
-        remoteInstances.push(instance)
+      const { id } = instance
+      if (id) {
+        remoteInstances.push({ ...instance, id })
+      } else {
+        localInstances.push(instance)
+      }
+    }
+
+    return { remoteInstances, localInstances }
+  }
+
+  private _splitApiAndLocalInterfaceInstances(instances: InterfaceExtension[]): {
+    remoteInstances: RemoteInterfaceExtension[]
+    localInstances: LocalInterfaceExtension[]
+  } {
+    const remoteInstances: RemoteInterfaceExtension[] = []
+    const localInstances: LocalInterfaceExtension[] = []
+    for (const instance of instances) {
+      const { id } = instance
+      if (id) {
+        remoteInstances.push({ ...instance, id })
       } else {
         localInstances.push(instance)
       }
@@ -109,15 +167,19 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     try {
       const integrationDefinition = await this._readIntegrationDefinitionFromFS(projectPaths)
       if (integrationDefinition) {
-        return { type: 'integration', definition: integrationDefinition }
+        return { type: 'integration', ...integrationDefinition }
       }
       const interfaceDefinition = await this._readInterfaceDefinitionFromFS(projectPaths)
       if (interfaceDefinition) {
-        return { type: 'interface', definition: interfaceDefinition }
+        return { type: 'interface', ...interfaceDefinition }
       }
       const botDefinition = await this._readBotDefinitionFromFS(projectPaths)
       if (botDefinition) {
-        return { type: 'bot', definition: botDefinition }
+        return { type: 'bot', ...botDefinition }
+      }
+      const pluginDefinition = await this._readPluginDefinitionFromFS(projectPaths)
+      if (pluginDefinition) {
+        return { type: 'plugin', ...pluginDefinition }
       }
     } catch (thrown: unknown) {
       throw errors.BotpressCLIError.wrap(thrown, 'Error while reading project definition')
@@ -128,7 +190,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   private async _readIntegrationDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition'>
-  ): Promise<sdk.IntegrationDefinition | undefined> {
+  ): Promise<({ definition: sdk.IntegrationDefinition } & LintIgnoredConfig) | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
@@ -136,12 +198,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return
     }
 
+    const bpLintDisabled = await this._isBpLintDisabled(abs.integrationDefinition)
+
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
-      cwd: abs.workDir,
-      outfile: '',
+      absWorkingDir: abs.workDir,
       entrypoint: rel.integrationDefinition,
-      write: false,
-      minify: false,
     })
 
     const artifact = outputFiles[0]
@@ -149,15 +210,14 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read integration definition')
     }
 
-    let { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
-    definition = resolveInterfaces(definition)
+    const { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
     validateIntegrationDefinition(definition)
-    return definition
+    return { definition, bpLintDisabled }
   }
 
   private async _readInterfaceDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'interfaceDefinition'>
-  ): Promise<sdk.InterfaceDeclaration | undefined> {
+  ): Promise<({ definition: sdk.InterfaceDefinition } & LintIgnoredConfig) | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
@@ -165,12 +225,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return
     }
 
+    const bpLintDisabled = await this._isBpLintDisabled(abs.interfaceDefinition)
+
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
-      cwd: abs.workDir,
-      outfile: '',
+      absWorkingDir: abs.workDir,
       entrypoint: rel.interfaceDefinition,
-      write: false,
-      minify: false,
     })
 
     const artifact = outputFiles[0]
@@ -178,14 +237,14 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read interface definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.InterfaceDeclaration }>(artifact.text)
+    const { default: definition } = utils.require.requireJsCode<{ default: sdk.InterfaceDefinition }>(artifact.text)
 
-    return definition
+    return { definition, bpLintDisabled }
   }
 
   private async _readBotDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'botDefinition'>
-  ): Promise<sdk.BotDefinition | undefined> {
+  ): Promise<({ definition: sdk.BotDefinition } & LintIgnoredConfig) | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
@@ -193,12 +252,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return
     }
 
+    const bpLintDisabled = await this._isBpLintDisabled(abs.botDefinition)
+
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
-      cwd: abs.workDir,
-      outfile: '',
+      absWorkingDir: abs.workDir,
       entrypoint: rel.botDefinition,
-      write: false,
-      minify: false,
     })
 
     const artifact = outputFiles[0]
@@ -207,8 +265,41 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
 
     const { default: definition } = utils.require.requireJsCode<{ default: sdk.BotDefinition }>(artifact.text)
-    // TODO: validate bot definition
-    return resolveBotInterfaces(definition)
+    validateBotDefinition(definition)
+    return { definition, bpLintDisabled }
+  }
+
+  private async _readPluginDefinitionFromFS(
+    projectPaths: utils.path.PathStore<'workDir' | 'pluginDefinition'>
+  ): Promise<({ definition: sdk.PluginDefinition } & LintIgnoredConfig) | undefined> {
+    const abs = projectPaths.abs
+    const rel = projectPaths.rel('workDir')
+
+    if (!fs.existsSync(abs.pluginDefinition)) {
+      return
+    }
+
+    const bpLintDisabled = await this._isBpLintDisabled(abs.pluginDefinition)
+
+    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+      absWorkingDir: abs.workDir,
+      entrypoint: rel.pluginDefinition,
+    })
+
+    const artifact = outputFiles[0]
+    if (!artifact) {
+      throw new errors.BotpressCLIError('Could not read plugin definition')
+    }
+
+    const { default: definition } = utils.require.requireJsCode<{ default: sdk.PluginDefinition }>(artifact.text)
+    // TODO: validate plugin definition
+    return { definition, bpLintDisabled }
+  }
+
+  private async _isBpLintDisabled(definitionPath: string): Promise<boolean> {
+    const tsContent = await fs.promises.readFile(definitionPath, 'utf-8')
+    const regex = /\/\* bplint-disable \*\//
+    return regex.test(tsContent)
   }
 
   protected displayWebhookUrls(bot: client.Bot) {
@@ -304,27 +395,58 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return envVariables
   }
 
-  protected async readIntegrationConfigDefinition<C extends client.ClientInputs['createIntegration']['configuration']>(
-    config: C
-  ): Promise<C> {
-    if (!config?.identifier) {
-      return config
-    }
+  protected async prepareCreateIntegrationBody(
+    integrationDef: sdk.IntegrationDefinition
+  ): Promise<apiUtils.CreateIntegrationRequestBody> {
+    const partialBody = await apiUtils.prepareCreateIntegrationBody(integrationDef)
+    const code = await this.readProjectFile(this.projectPaths.abs.outFileCJS)
+    const icon = await this.readProjectFile(integrationDef.icon, 'base64')
+    const readme = await this.readProjectFile(integrationDef.readme, 'base64')
+    const extractScript = await this.readProjectFile(integrationDef.identifier?.extractScript)
+    const fallbackHandlerScript = await this.readProjectFile(integrationDef.identifier?.fallbackHandlerScript)
     return {
-      ...config,
+      ...partialBody,
+      code,
+      icon,
+      readme,
       identifier: {
-        ...config.identifier,
-        linkTemplateScript: await this.readProjectFile(config.identifier.linkTemplateScript),
+        extractScript,
+        fallbackHandlerScript,
       },
+      configuration: integrationDef.configuration
+        ? {
+            schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration),
+            identifier: {
+              required: integrationDef.configuration.identifier?.required,
+              linkTemplateScript: await this.readProjectFile(
+                integrationDef.configuration.identifier?.linkTemplateScript
+              ),
+            },
+          }
+        : undefined,
+      configurations: integrationDef.configurations
+        ? await utils.records.mapValuesAsync(integrationDef.configurations, async (configuration) => ({
+            title: configuration.title,
+            description: configuration.description,
+            schema: await utils.schema.mapZodToJsonSchema(configuration),
+            identifier: {
+              required: configuration.identifier?.required,
+              linkTemplateScript: await this.readProjectFile(configuration.identifier?.linkTemplateScript),
+            },
+          }))
+        : undefined,
     }
   }
 
-  protected readProjectFile = async (filePath: string | undefined): Promise<string | undefined> => {
+  protected readProjectFile = async (
+    filePath: string | undefined,
+    encoding: BufferEncoding = 'utf-8'
+  ): Promise<string | undefined> => {
     if (!filePath) {
       return undefined
     }
     const absoluteFilePath = utils.path.absoluteFrom(this.projectPaths.abs.workDir, filePath)
-    return fs.promises.readFile(absoluteFilePath, 'utf-8').catch((thrown) => {
+    return fs.promises.readFile(absoluteFilePath, encoding).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, `Could not read file "${absoluteFilePath}"`)
     })
   }

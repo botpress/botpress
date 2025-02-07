@@ -8,6 +8,7 @@ import impl from '../../src/command-implementations'
 import defaults from '../defaults'
 import { Test, TestProps } from '../typings'
 import * as utils from '../utils'
+import * as retry from '../retry'
 
 const issueSchema = sdk.z.object({
   id: sdk.z.string(),
@@ -99,7 +100,12 @@ export const addIntegration: Test = {
       ...creds,
     }
 
-    const bpClient = new client.Client({ apiUrl: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
+    const bpClient = new client.Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
 
     const integrationSuffix = uuid.v4().replace(/-/g, '')
     const name = `myintegration${integrationSuffix}`
@@ -125,7 +131,7 @@ export const addIntegration: Test = {
         [
           'import * as sdk from "@botpress/sdk"',
           `import anIntegration from "./bp_modules/${workspaceHandle}-${name}"`,
-          'export default new sdk.BotDefinition({}).add(anIntegration, {',
+          'export default new sdk.BotDefinition({}).addIntegration(anIntegration, {',
           '  enabled: true,',
           '  configurationType: null,',
           '  configuration: {},',
@@ -143,6 +149,7 @@ export const addIntegration: Test = {
           packageType: undefined,
           installPath: botDir,
           packageRef: integration.id,
+          useDev: false,
         })
         .then(utils.handleExitCode)
 

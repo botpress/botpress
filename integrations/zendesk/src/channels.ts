@@ -5,7 +5,10 @@ import * as bp from '.botpress'
 type IntegrationLogger = bp.Logger
 
 class Tags<T extends Record<string, string>> {
-  private constructor(private _t: { tags: T }, private _logger: IntegrationLogger) {}
+  private constructor(
+    private _t: { tags: T },
+    private _logger: IntegrationLogger
+  ) {}
 
   public static of<T extends Record<string, string>>(t: { tags: T }, logger: IntegrationLogger) {
     return new Tags(t, logger)

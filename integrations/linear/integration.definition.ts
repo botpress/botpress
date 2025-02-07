@@ -1,14 +1,16 @@
+/* bplint-disable */
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import deletable from './bp_modules/deletable'
 import listable from './bp_modules/listable'
 import { actions, channels, events, configuration, configurations, user, states, entities } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'linear',
-  version: '1.0.1',
+  version: '1.1.0',
   title: 'Linear',
   description:
-    'Elevate project management with Linear. Update, create, and track issues effortlessly. Improve collaboration with workflow actions like marking duplicates, managing teams and connect your chatbot directly in discussions',
+    'Manage your projects autonomously. Have your bot participate in discussions, manage issues and teams, and track progress.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration,
@@ -34,6 +36,19 @@ export default new IntegrationDefinition({
     },
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
-}).extend(listable, (entities) => ({
-  item: entities.issue,
-}))
+})
+  .extend(listable, ({ entities }) => ({
+    entities: { item: entities.issue },
+    actions: {
+      list: { name: 'issueList' },
+    },
+  }))
+  .extend(deletable, ({ entities }) => ({
+    entities: { item: entities.issue },
+    actions: {
+      delete: { name: 'issueDelete' },
+    },
+    events: {
+      deleted: { name: 'issueDeleted' },
+    },
+  }))

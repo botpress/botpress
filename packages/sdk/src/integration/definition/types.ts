@@ -1,5 +1,5 @@
 import { SchemaDefinition } from '../../schema'
-import { AnyZodObject } from '../../zui'
+import { ZuiObjectSchema } from '../../zui'
 import {
   BaseConfig,
   BaseEvents,
@@ -61,7 +61,7 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   title?: string
   description?: string
   input: SchemaDefinition<TAction>
-  output: SchemaDefinition<AnyZodObject> // cannot infer both input and output types (typescript limitation)
+  output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
   billable?: boolean
   cacheable?: boolean
 }
@@ -95,21 +95,26 @@ export type EntityDefinition<TEntity extends BaseEntities[string] = BaseEntities
 export type ResolvedInterface<
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
-  TChannels extends BaseChannels = BaseChannels
+  TChannels extends BaseChannels = BaseChannels,
 > = {
   actions: { [K in keyof TActions]: ActionDefinition<TActions[K]> }
   events: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
   channels: { [K in keyof TChannels]: ChannelDefinition<TChannels[K]> }
 }
 
-export type InterfaceImplementationStatement<
+/**
+ * A.K.A. Interface Implementation Statetement
+ * Used by an integration to explicitly declare that it implements an interface
+ */
+export type InterfaceExtension<
   TEntities extends BaseEntities = BaseEntities,
   TActions extends BaseActions = BaseActions,
   TEvents extends BaseEvents = BaseEvents,
-  TChannels extends BaseChannels = BaseChannels
+  TChannels extends BaseChannels = BaseChannels,
 > = {
-  name: string
-  version: string
+  id?: string // id of the interface to implement
+  name: string // name of the interface to implement
+  version: string // version of the interface to implement
   entities: { [K in keyof TEntities]: { name: string } }
   actions: { [K in keyof TActions]: { name: string } }
   events: { [K in keyof TEvents]: { name: string } }

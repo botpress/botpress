@@ -1,16 +1,16 @@
 import type { Server } from 'node:http'
 import { serve } from '../serve'
-import { BaseIntegration } from './generic'
 import {
-  RegisterFunction,
-  UnregisterFunction,
-  WebhookFunction,
-  CreateUserFunction,
-  CreateConversationFunction,
-  ActionFunctions,
-  ChannelFunctions,
+  RegisterHandler as RegisterFunction,
+  UnregisterHandler as UnregisterFunction,
+  WebhookHandler as WebhookFunction,
+  CreateUserHandler as CreateUserFunction,
+  CreateConversationHandler as CreateConversationFunction,
+  ActionHandlers as ActionFunctions,
+  ChannelHandlers as ChannelFunctions,
   integrationHandler,
 } from './server'
+import { BaseIntegration } from './types'
 
 export type IntegrationImplementationProps<TIntegration extends BaseIntegration = BaseIntegration> = {
   register: RegisterFunction<TIntegration>
@@ -47,6 +47,6 @@ export class IntegrationImplementation<TIntegration extends BaseIntegration = Ba
     this.webhook = props.handler
   }
 
-  public readonly handler = integrationHandler<TIntegration>(this)
+  public readonly handler = integrationHandler(this as IntegrationImplementation<any>)
   public readonly start = (port?: number): Promise<Server> => serve(this.handler, port)
 }

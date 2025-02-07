@@ -27,7 +27,7 @@ export class IntegrationImplementationModule extends Module {
       `import * as ${this._typingsModule.name} from "./${typingsImport}"`,
       `export * from "./${typingsImport}"`,
       '',
-      `type TIntegration = ${this._typingsModule.name}.${this._typingsModule.exportName}`,
+      `type TIntegration = sdk.DefaultIntegration<${this._typingsModule.name}.${this._typingsModule.exportName}>`,
       '',
       'export type IntegrationProps = sdk.IntegrationProps<TIntegration>',
       '',

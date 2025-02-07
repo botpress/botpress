@@ -41,7 +41,7 @@ export const MessageSchema = z.object({
         })
       )
     )
-    .optional()
+    // .optional() // cannot be optional because there is a bug in "@bpinternal/zui" that prevents it - Fleur
     .nullable()
     .describe(
       'Required unless `type` is "tool_call". If `type` is "multipart", this field must be an array of content objects. If `type` is "tool_result" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is "tool_call" then the `toolCalls` field should be used instead.'
@@ -65,6 +65,8 @@ export const ModelSchema = ModelRefSchema.extend({
       'function-calling',
       'roleplay',
       'storytelling',
+      'reasoning',
+      'preview',
     ])
   ),
   input: z.object({
@@ -132,10 +134,13 @@ export const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema
     debug: z.boolean().optional().hidden().describe('Set to `true` to output debug information to the bot logs'),
     meta: z
       .object({
-        promptCategory: z
+        promptSource: z
           .string()
           .optional()
-          .describe('Category of the prompt, e.g. cards/ai-generate, cards/ai-task, nodes/autonomous, etc.'),
+          .describe(
+            'Source of the prompt, e.g. agent/:id/:version cards/ai-generate, cards/ai-task, nodes/autonomous, etc.'
+          ),
+        promptCategory: z.string().optional(), // Deprecated, for backwards compatibility
         integrationName: z
           .string()
           .optional()

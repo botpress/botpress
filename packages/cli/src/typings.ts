@@ -1,5 +1,5 @@
 import type yargs from '@bpinternal/yargs-extra'
-// eslint-disable-next-line no-duplicate-imports
+
 import type { YargsConfig, YargsSchema } from '@bpinternal/yargs-extra'
 
 export type CommandPositionalOption = yargs.PositionalOptions & { positional: true; idx: number }

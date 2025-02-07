@@ -19,7 +19,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          filter: '@botpress/cli'
+          extra_filters: '-F @botpress/cli'
       - run: |
           pnpm run -F cli test:e2e -v \
             --api-url https://api.botpress.dev \

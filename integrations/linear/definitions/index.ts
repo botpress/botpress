@@ -35,7 +35,7 @@ export const channels = {
   issue: {
     title: 'Issue',
     description: 'A linear issue',
-    messages: messages.defaults,
+    messages: { ...messages.defaults, markdown: messages.markdown },
     message: {
       tags: {
         id: {

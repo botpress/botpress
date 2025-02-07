@@ -6,6 +6,7 @@ import { ApiBot, fetchAllBots } from '../api'
 import defaults from '../defaults'
 import { Test } from '../typings'
 import * as utils from '../utils'
+import * as retry from '../retry'
 
 const fetchBot = async (client: Client, botName: string): Promise<ApiBot | undefined> => {
   const bots = await fetchAllBots(client)
@@ -27,7 +28,12 @@ export const createDeployBot: Test = {
       ...creds,
     }
 
-    const client = new Client({ apiUrl: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
+    const client = new Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
 
     await impl.init({ ...argv, workDir: baseDir, name: botName, type: 'bot' }).then(utils.handleExitCode)
     await utils.fixBotpressDependencies({ workDir: botDir, target: dependencies })

@@ -25,7 +25,7 @@ class IntegrationFixtureCreator {
   }
 }
 
-test('find previous integration version', async ({}) => {
+test('find previous integration version', async () => {
   const client: Partial<client.Client> = {
     listIntegrations: async ({ name }: { name?: string; version?: string }) => {
       const creator = new IntegrationFixtureCreator(name!)

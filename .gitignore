@@ -7,10 +7,11 @@ local/data
 *.tsbuildinfo
 __snapshots__
 .ignore.me.*
-.env
+.env*
 .botpress
 .botpresshome
 .botpresshome.*
 .turbo
 .genenv/
 .genenv.*
+tilt_config.json

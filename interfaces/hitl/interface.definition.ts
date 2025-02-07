@@ -1,4 +1,5 @@
-import { z, AnyZodObject, messages, InterfaceDeclaration } from '@botpress/sdk'
+/* bplint-disable */
+import { z, AnyZodObject, messages, InterfaceDefinition } from '@botpress/sdk'
 
 const withUserId = <S extends z.AnyZodObject>(s: { schema: S }) => ({
   ...s,
@@ -13,8 +14,13 @@ const messageSourceSchema = z.union([
   z.object({ type: z.literal('bot') }),
 ])
 
+const allMessages = {
+  ...messages.defaults,
+  markdown: messages.markdown,
+} satisfies Record<string, { schema: AnyZodObject }>
+
 type Tuple<T> = [T, T, ...T[]]
-const messagePayloadSchemas: AnyZodObject[] = Object.entries(messages.defaults).map(([k, v]) =>
+const messagePayloadSchemas: AnyZodObject[] = Object.entries(allMessages).map(([k, v]) =>
   z.object({
     source: messageSourceSchema,
     type: z.literal(k),
@@ -24,7 +30,7 @@ const messagePayloadSchemas: AnyZodObject[] = Object.entries(messages.defaults).
 
 const messageSchema = z.union(messagePayloadSchemas as Tuple<AnyZodObject>)
 
-export default new InterfaceDeclaration({
+export default new InterfaceDefinition({
   name: 'hitl',
   version: '0.4.0',
   entities: {},
@@ -44,6 +50,7 @@ export default new InterfaceDeclaration({
     },
   },
   actions: {
+    // TODO: allow for an interface to extend 'proactiveUser' and reuse its actions
     createUser: {
       input: {
         schema: () =>

@@ -1,7 +1,9 @@
 import { RuntimeError } from '@botpress/client'
-import { z } from '@botpress/sdk'
+import { Request, z } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { Client, ReplyToConversationMessageType } from 'intercom-client'
+import * as crypto from 'crypto'
+import { ReplyToConversationMessageType } from 'intercom-client'
+import { getAuthenticatedIntercomClient, getSignatureSecret, handleOAuth } from './auth'
 import * as html from './html.utils'
 import * as types from './types'
 import * as bp from '.botpress'
@@ -10,6 +12,11 @@ type Card = bp.channels.channel.card.Card
 type Location = bp.channels.channel.location.Location
 
 type IntercomMessage = z.infer<typeof conversationSourceSchema>
+
+type VerifyResult =
+  | { result: 'success'; isError: false; parsedNotification: z.infer<typeof webhookNotificationSchema> }
+  | { result: 'error'; isError: true; message: string }
+  | { result: 'ignore'; isError: false; message?: string }
 
 const conversationSourceSchema = z.object({
   id: z.string(),
@@ -38,100 +45,119 @@ const conversationSchema = z.object({
   }),
 })
 
+const pingSchema = z.object({
+  type: z.literal('ping'),
+})
+
 const webhookNotificationSchema = z.object({
   type: z.literal('notification_event'),
   topic: z.string(),
   data: z.object({
-    item: conversationSchema,
+    item: z.union([conversationSchema, pingSchema]),
   }),
 })
 
 const integration = new bp.Integration({
-  register: async () => {},
+  register: async ({ client, ctx }) => {
+    const adminId = ctx.configuration.adminId
+    await client.updateUser({
+      id: ctx.botUserId,
+      tags: { id: adminId },
+    })
+  },
   unregister: async () => {},
   actions: {},
   channels: {
     channel: {
       messages: {
-        text: async ({ payload, conversation, ack, ctx }) => {
+        text: async ({ payload, conversation, ack, client, ctx }) => {
           await sendMessage({
             body: payload.text,
             conversation,
+            client,
             ctx,
             ack,
           })
         },
-        image: async ({ payload, ctx, conversation, ack }) => {
+        image: async ({ payload, client, ctx, conversation, ack }) => {
           await sendMessage({
             body: '',
             conversation,
+            client,
             ctx,
             ack,
             attachmentUrls: [payload.imageUrl],
           })
         },
-        markdown: async ({ ctx, conversation, ack, payload }) => {
+        markdown: async ({ client, ctx, conversation, ack, payload }) => {
           await sendMessage({
             body: payload.markdown,
             conversation,
+            client,
             ctx,
             ack,
           })
         },
-        audio: async ({ ctx, conversation, ack, payload }) => {
+        audio: async ({ client, ctx, conversation, ack, payload }) => {
           await sendMessage({
             body: '',
             conversation,
+            client,
             ctx,
             ack,
             attachmentUrls: [payload.audioUrl],
           })
         },
-        video: async ({ ctx, conversation, ack, payload }) => {
+        video: async ({ client, ctx, conversation, ack, payload }) => {
           await sendMessage({
             body: '',
             conversation,
+            client,
             ctx,
             ack,
             attachmentUrls: [payload.videoUrl],
           })
         },
-        file: async ({ ctx, conversation, ack, payload }) => {
+        file: async ({ client, ctx, conversation, ack, payload }) => {
           await sendMessage({
             body: '',
             conversation,
+            client,
             ctx,
             ack,
             attachmentUrls: [payload.fileUrl],
           })
         },
-        location: async ({ ctx, conversation, ack, payload }) => {
+        location: async ({ client, ctx, conversation, ack, payload }) => {
           await sendMessage({
             body: formatGoogleMapLink(payload),
             conversation,
+            client,
             ctx,
             ack,
           })
         },
-        carousel: async ({ ctx, conversation, ack, payload }) => {
+        carousel: async ({ client, ctx, conversation, ack, payload }) => {
           const carousel = payload.items.map((card) => createCard(card)).join('')
 
           await sendMessage({
             body: carousel,
             conversation,
+            client,
             ctx,
             ack,
           })
         },
-        card: async ({ ctx, conversation, ack, payload }) => {
+        card: async ({ client, ctx, conversation, ack, payload }) => {
           await sendMessage({
             body: createCard(payload),
             conversation,
+            client,
             ctx,
             ack,
           })
         },
-        dropdown: async ({ ctx, conversation, ack, payload }) => {
+        dropdown: async ({ client, ctx, conversation, ack, payload }) => {
           const choices = payload.options.map((choice) => html.li(choice.value))
 
           const message = composeMessage(
@@ -143,11 +169,12 @@ const integration = new bp.Integration({
           await sendMessage({
             body: message,
             conversation,
+            client,
             ctx,
             ack,
           })
         },
-        choice: async ({ ctx, conversation, ack, payload }) => {
+        choice: async ({ client, ctx, conversation, ack, payload }) => {
           const choices = payload.options.map((choice) => html.li(choice.value))
 
           const message = composeMessage(
@@ -159,6 +186,7 @@ const integration = new bp.Integration({
           await sendMessage({
             body: message,
             conversation,
+            client,
             ctx,
             ack,
           })
@@ -169,47 +197,43 @@ const integration = new bp.Integration({
       },
     },
   },
-  handler: async ({ req, client, ctx }) => {
+  handler: async (props) => {
     console.info('Handler received request')
 
-    if (!req.body) {
-      console.warn('Handler received an empty body')
-      return
-    }
-    const parsedBody = webhookNotificationSchema.safeParse(await JSON.parse(req.body))
-
-    if (!parsedBody.success) {
-      console.warn(`Handler received an invalid body: ${parsedBody.error}`)
-      return
+    const { req, client, ctx } = props
+    if (req.path.startsWith('/oauth')) {
+      return await handleOAuth(props)
     }
 
-    if (parsedBody.data.topic === 'conversation.admin.replied') {
-      return // ignore admin replies, since the bot is an admin we don't want to reply to ourselves
+    const verifyResult = verifyRequest(req, ctx)
+    if (verifyResult.isError) {
+      throw new RuntimeError(`Invalid request received: ${verifyResult.message}`)
+    } else if (verifyResult.result === 'ignore') {
+      console.info(`Handler ignored request: ${verifyResult.message ?? 'Unknown reason'}`)
+      return
+    }
+
+    const notification = verifyResult.parsedNotification
+    if (notification.data.item.type === 'ping') {
+      console.info('Handler received a ping event')
+      return
     }
 
     const {
+      topic,
       data: {
         item: {
           id: conversationId,
-          admin_assignee_id: adminAssigneeId,
           conversation_parts: { conversation_parts },
           source: firstConversationPart,
         },
       },
-    } = parsedBody.data
-
-    if (ctx.configuration.adminId !== adminAssigneeId) {
-      return // ignore conversations not assigned to the bot
-    }
-
-    if (!conversationId) {
-      throw new Error('Handler received an conversation id')
-    }
+    } = notification
 
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        id: `${conversationId}`,
+        id: conversationId,
       },
     })
 
@@ -234,15 +258,13 @@ const integration = new bp.Integration({
         return // ignore bot messages
       }
 
-      const { user } = await client.getOrCreateUser({
-        tags: {
-          id: `${authorId}`,
-          email: `${email}`,
-        },
+      const user = await getOrCreateUserAndUpdate(client, {
+        id: authorId,
+        email,
       })
 
-      await client.createMessage({
-        tags: { id: `${messageId}` },
+      await client.getOrCreateMessage({
+        tags: { id: messageId },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -250,15 +272,15 @@ const integration = new bp.Integration({
       })
     }
 
-    if (parsedBody.data.topic === 'conversation.user.created') {
+    if (topic === 'conversation.user.created') {
       await createMessage(firstConversationPart) // important, intercom keeps the first message in a separate object
     }
 
     for (const part of conversation_parts) {
       await createMessage(part)
     }
-    console.info('Handler finished processing request')
 
+    console.info('Handler finished processing request')
     return
   },
   createUser: async ({ client, tags, ctx }) => {
@@ -267,11 +289,11 @@ const integration = new bp.Integration({
       return
     }
 
-    const intercomClient = new Client({ tokenAuth: { token: ctx.configuration.accessToken } })
-    const contact = await intercomClient.contacts.find({ id: userId })
-
-    const { user } = await client.getOrCreateUser({
-      tags: { id: `${contact.id}`, email: `${contact.email}` },
+    const intercomClient = await getAuthenticatedIntercomClient(client, ctx)
+    const { id, email } = await intercomClient.contacts.find({ id: userId })
+    const user = await getOrCreateUserAndUpdate(client, {
+      id,
+      email,
     })
 
     return {
@@ -286,12 +308,12 @@ const integration = new bp.Integration({
       return
     }
 
-    const intercomClient = new Client({ tokenAuth: { token: ctx.configuration.accessToken } })
+    const intercomClient = await getAuthenticatedIntercomClient(client, ctx)
     const chat = await intercomClient.conversations.find({ id: conversationId })
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { id: `${chat.id}` },
+      tags: { id: chat.id },
     })
 
     return {
@@ -309,15 +331,18 @@ export default sentryHelpers.wrapIntegration(integration, {
 })
 
 async function sendMessage(
-  props: Pick<types.MessageHandlerProps, 'conversation' | 'ctx' | 'ack'> & { body: string; attachmentUrls?: string[] }
+  props: Pick<types.MessageHandlerProps, 'conversation' | 'client' | 'ctx' | 'ack'> & {
+    body: string
+    attachmentUrls?: string[]
+  }
 ) {
-  const { body, attachmentUrls, ctx, conversation, ack } = props
+  const { body, attachmentUrls, client, ctx, conversation, ack } = props
   const { configuration } = ctx
-  const client = new Client({ tokenAuth: { token: configuration.accessToken } })
+  const intercomClient = await getAuthenticatedIntercomClient(client, ctx)
 
   const {
     conversation_parts: { conversation_parts: conversationParts },
-  } = await client.conversations.replyByIdAsAdmin({
+  } = await intercomClient.conversations.replyByIdAsAdmin({
     id: conversation.tags.id ?? '',
     adminId: configuration.adminId,
     messageType: ReplyToConversationMessageType.COMMENT,
@@ -325,7 +350,8 @@ async function sendMessage(
     attachmentUrls,
   })
 
-  await ack({ tags: { id: `${conversationParts.at(-1)?.id ?? ''}` } })
+  const lastMessageId = conversationParts.at(-1)?.id
+  await ack({ tags: { id: lastMessageId } })
 }
 
 function composeMessage(...parts: string[]) {
@@ -354,4 +380,72 @@ function createCard({ title, subtitle, imageUrl, actions }: Card) {
 
 function formatGoogleMapLink(payload: Location) {
   return `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
+}
+
+function extractSignature(req: Request) {
+  const signatureKv = req.headers['x-hub-signature']
+  if (!signatureKv) {
+    return undefined
+  }
+  const signature = signatureKv.split('=')[1]
+  return signature
+}
+
+function isSignatureValid(signature: string, body: string, secret: string) {
+  const hash = crypto.createHmac('sha1', secret).update(body).digest('hex')
+  return hash === signature
+}
+
+function verifyRequest(req: Request, ctx: bp.Context): VerifyResult {
+  if (!req.body) {
+    return { result: 'error', isError: true, message: 'Handler received an empty body' }
+  }
+  const signature = extractSignature(req)
+  const secret = getSignatureSecret(ctx)
+  if (!signature || !isSignatureValid(signature, req.body, secret)) {
+    return { result: 'error', isError: true, message: 'Handler received request with invalid signature' }
+  }
+
+  let parsedJSON
+  try {
+    parsedJSON = JSON.parse(req.body)
+  } catch {
+    return { result: 'error', isError: true, message: 'Handler received an invalid JSON body' }
+  }
+  const parsedBody = webhookNotificationSchema.safeParse(parsedJSON)
+  if (!parsedBody.success) {
+    return { result: 'error', isError: true, message: `Handler received an invalid body: ${parsedBody.error}` }
+  }
+
+  const parsedNotification = parsedBody.data
+  if (parsedNotification.data.item.type === 'ping') {
+    // No further validation for ping events
+    return { result: 'success', isError: false, parsedNotification }
+  }
+
+  const SUBSCRIBED_TOPICS = ['conversation.user.created', 'conversation.user.replied']
+  if (!SUBSCRIBED_TOPICS.includes(parsedNotification.topic)) {
+    return { result: 'ignore', isError: false, message: `Ignoring topic: ${parsedNotification.topic}` }
+  }
+
+  if (ctx.configuration.adminId !== parsedNotification.data.item.admin_assignee_id) {
+    // Ignore conversations not assigned to the bot
+    return { result: 'ignore', isError: false, message: 'Ignoring conversations not assigned to the bot' }
+  }
+
+  return { result: 'success', isError: false, parsedNotification }
+}
+
+const getOrCreateUserAndUpdate = async (client: bp.Client, { id, email }: { id: string; email?: string | null }) => {
+  let { user } = await client.getOrCreateUser({
+    tags: { id },
+  })
+  if (email && email !== user.tags.email) {
+    const updateResponse = await client.updateUser({
+      id: user.id,
+      tags: { email },
+    })
+    user = updateResponse.user
+  }
+  return user
 }

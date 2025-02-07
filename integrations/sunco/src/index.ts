@@ -38,7 +38,29 @@ const SAY_PREFIX = 'say::'
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
-  actions: {},
+  actions: {
+    startTypingIndicator: async ({ client, ctx, input }) => {
+      const { conversationId } = input
+      await sendActivity({
+        client,
+        ctx,
+        conversationId,
+        typingStatus: 'start',
+        markAsRead: true,
+      })
+      return {}
+    },
+    stopTypingIndicator: async ({ client, ctx, input }) => {
+      const { conversationId } = input
+      await sendActivity({
+        client,
+        ctx,
+        conversationId,
+        typingStatus: 'stop',
+      })
+      return {}
+    },
+  },
   channels: {
     channel: {
       messages: {
@@ -65,8 +87,7 @@ const integration = new bp.Integration({
             // 400 errors can be sent if file has unsupported type
             // See: https://docs.smooch.io/guide/validating-files/#rejections
             if (err.status === 400 && err.response?.text) {
-              // eslint-disable-next-line no-console
-              console.log(err.response.text)
+              console.info(err.response.text)
             }
             throw e
           }
@@ -295,5 +316,29 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
 
   if (messages.length > 1) {
     console.warn('More than one message was sent')
+  }
+}
+
+type SendActivityProps = Pick<bp.AnyMessageProps, 'ctx' | 'client'> & {
+  conversationId: string
+  typingStatus?: 'start' | 'stop'
+  markAsRead?: boolean
+}
+async function sendActivity({ client, ctx, conversationId, typingStatus, markAsRead }: SendActivityProps) {
+  const { conversation } = await client.getConversation({ id: conversationId })
+  const suncoConversationId = getConversationId(conversation)
+  const { appId, keyId, keySecret } = ctx.configuration
+  const suncoClient = createClient(keyId, keySecret)
+  if (markAsRead) {
+    await suncoClient.activity.postActivity(appId, suncoConversationId, {
+      type: 'conversation:read',
+      author: { type: 'business' },
+    })
+  }
+  if (typingStatus) {
+    await suncoClient.activity.postActivity(appId, suncoConversationId, {
+      type: `typing:${typingStatus}`,
+      author: { type: 'business' },
+    })
   }
 }

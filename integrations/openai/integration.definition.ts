@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import llm from './bp_modules/llm'
 import stt from './bp_modules/speech-to-text'
@@ -15,7 +16,9 @@ export const TextToSpeechPricePer1MCharacters: Record<TextToSpeechModel, number>
 export default new IntegrationDefinition({
   name: 'openai',
   title: 'OpenAI',
-  version: '7.0.1',
+  description:
+    'Gain access to OpenAI models for text generation, speech synthesis, audio transcription, and image generation.',
+  version: '12.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -82,9 +85,8 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(llm, ({ modelRef }) => ({ modelRef }))
-  .extend(tti, ({ imageModelRef, imageGenerationParams }) => ({
-    imageModelRef,
-    imageGenerationParams,
+  .extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))
+  .extend(tti, ({ entities: { imageModelRef, imageGenerationParams } }) => ({
+    entities: { imageModelRef, imageGenerationParams },
   }))
-  .extend(stt, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))
+  .extend(stt, ({ entities: { speechToTextModelRef } }) => ({ entities: { speechToTextModelRef } }))

@@ -13,6 +13,7 @@ const captureScreenshot = {
       imageUrl: z.string(),
     }),
   },
+  cacheable: true,
 }
 
 const fullPage = z.object({
@@ -26,6 +27,13 @@ const browsePages = {
   input: {
     schema: z.object({
       urls: z.array(z.string()),
+      waitFor: z
+        .number()
+        .optional()
+        .default(350)
+        .describe(
+          'Time to wait before extracting the content (in milliseconds). Set this value higher for dynamic pages.'
+        ),
     }),
   },
   output: {
@@ -33,6 +41,7 @@ const browsePages = {
       results: z.array(fullPage),
     }),
   },
+  cacheable: true,
 }
 
 const domainNameRegex = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i
@@ -92,6 +101,7 @@ const webSearch = {
       ),
     }),
   },
+  cacheable: true,
 }
 
 export const actionDefinitions = {

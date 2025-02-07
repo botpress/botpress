@@ -1,6 +1,0 @@
-export { TrelloBoardRepository } from './trelloBoardRepository'
-export { TrelloCardRepository } from './trelloCardRepository'
-export { TrelloCardCommentRepository } from './trelloCardCommentRepository'
-export { TrelloListRepository } from './trelloListRepository'
-export { TrelloMemberRepository } from './trelloMemberRepository'
-export { TrelloWebhookRepository } from './trelloWebhookRepository'

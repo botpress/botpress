@@ -7,18 +7,18 @@ type ValueOf<T> = T[Extract<keyof T, string>]
 
 type CommonActionProps<
   IP extends sdk.IntegrationProps<TIntegration>,
-  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
+  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
 > = Parameters<ValueOf<IP['actions']>>[0]
 type ToolFactory<
   ReturnType,
   IP extends sdk.IntegrationProps<TIntegration>,
-  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
+  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
 > = (props: CommonActionProps<IP, TIntegration>) => ReturnType | Promise<ReturnType>
 
 type InferToolsFromToolset<
   Toolset,
   IP extends sdk.IntegrationProps<TIntegration>,
-  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
+  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
 > = {
   [Tool in Extract<keyof Toolset, string>]: Toolset[Tool] extends ToolFactory<infer ReturnType, IP, TIntegration>
     ? Awaited<ReturnType>
@@ -59,7 +59,7 @@ export const createActionWrapper =
   <
     IP extends sdk.IntegrationProps<TIntegration>,
     TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
-    ACTIONS extends IP['actions'] = IP['actions']
+    ACTIONS extends IP['actions'] = IP['actions'],
   >() =>
   <TOOLSET extends Record<string, ToolFactory<any, IP, TIntegration>>, EXTRAMETA extends Record<string, any> = {}>({
     toolFactories,
@@ -84,7 +84,7 @@ export const createActionWrapper =
     actionImpl: (
       props: APROPS & InferToolsFromToolset<TOOLSET, IP, TIntegration>,
       input: APROPS['input']
-    ) => ReturnType<AFUNC>
+    ) => VoidIfEmptyRecord<ReturnType<AFUNC>>
   ): AFUNC =>
     (async (props: APROPS) => {
       const tools: Record<string, any> = {}
@@ -92,11 +92,16 @@ export const createActionWrapper =
         tools[tool] = await factory(props)
       }
 
-      return await actionImpl(
-        {
-          ...props,
-          ...tools,
-        } as APROPS & InferToolsFromToolset<TOOLSET, IP, TIntegration>,
-        props.input
+      return (
+        (await actionImpl(
+          {
+            ...props,
+            ...tools,
+          } as APROPS & InferToolsFromToolset<TOOLSET, IP, TIntegration>,
+          props.input
+        )) ?? {}
       )
     }) as AFUNC
+
+type IsEmptyRecord<T> = T extends Record<string, never> ? (keyof T extends never ? true : false) : false
+type VoidIfEmptyRecord<T extends Promise<any>> = IsEmptyRecord<Awaited<T>> extends true ? T | Promise<void> : T

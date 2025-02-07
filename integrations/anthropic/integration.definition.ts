@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { modelId } from 'src/schemas'
 import llm from './bp_modules/llm'
@@ -5,7 +6,8 @@ import llm from './bp_modules/llm'
 export default new IntegrationDefinition({
   name: 'anthropic',
   title: 'Anthropic',
-  version: '3.3.3',
+  description: 'Access a curated list of Claude models to set as your chosen LLM.',
+  version: '7.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -20,6 +22,6 @@ export default new IntegrationDefinition({
       description: 'Anthropic API key',
     },
   },
-}).extend(llm, ({ modelRef }) => ({
-  modelRef,
+}).extend(llm, ({ entities }) => ({
+  entities: { modelRef: entities.modelRef },
 }))

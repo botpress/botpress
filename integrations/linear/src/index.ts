@@ -30,6 +30,13 @@ const integration = new bp.Integration({
         meta: { nextToken: res.nextCursor },
       }
     },
+    issueDelete: async (props) => {
+      return actions.deleteIssue({
+        ...props,
+        type: 'deleteIssue',
+        input: { id: props.input.id },
+      })
+    },
   },
 })
 

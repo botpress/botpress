@@ -1,4 +1,5 @@
 import { createIssue } from './create-issue'
+import { deleteIssue } from './delete-issue'
 import { findTarget } from './find-target'
 import { getIssue } from './get-issue'
 import { getUser } from './get-user'
@@ -19,4 +20,5 @@ export default {
   listUsers,
   markAsDuplicate,
   createIssue,
+  deleteIssue,
 } satisfies Partial<bp.IntegrationProps['actions']>

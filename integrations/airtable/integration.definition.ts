@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import {
   createRecordInputSchema,
@@ -10,12 +11,16 @@ import {
   updateRecordOutputSchema,
   updateTableInputSchema,
   updateTableOutputSchema,
+  listRecordsInputSchema,
+  listRecordsOutputSchema,
 } from './src/misc/custom-schemas'
 
 export default new IntegrationDefinition({
   name: 'airtable',
   title: 'Airtable',
-  version: '0.0.2',
+  description:
+    'Access and manage Airtable data to allow your chatbot to retrieve details, update records, and organize information.',
+  version: '0.0.4',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -77,6 +82,15 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: updateRecordOutputSchema,
+      },
+    },
+    listRecords: {
+      title: 'List Records',
+      input: {
+        schema: listRecordsInputSchema,
+      },
+      output: {
+        schema: listRecordsOutputSchema,
       },
     },
   },

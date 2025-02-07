@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import { modelId } from 'src/schemas'
 import llm from './bp_modules/llm'
@@ -5,7 +6,9 @@ import llm from './bp_modules/llm'
 export default new IntegrationDefinition({
   name: 'cerebras',
   title: 'Cerebras',
-  version: '0.2.2',
+  description:
+    'Get access to a curated list of Cerebras models for content generation and chat completions within your bot.',
+  version: '4.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -20,6 +23,6 @@ export default new IntegrationDefinition({
       description: 'Cerebras API key',
     },
   },
-}).extend(llm, ({ modelRef }) => ({
-  modelRef,
+}).extend(llm, ({ entities: { modelRef } }) => ({
+  entities: { modelRef },
 }))

@@ -22,6 +22,9 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
     if (projectDef.type === 'bot') {
       return await this._generateBot(projectDef.definition)
     }
+    if (projectDef.type === 'plugin') {
+      return await this._generatePlugin(projectDef.definition)
+    }
     throw new errors.UnsupportedProjectType()
   }
 
@@ -50,6 +53,21 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
     const fromWorkDir = this.projectPaths.rel('workDir')
 
     const generatedFiles = await codegen.generateBotImplementation(botDefinition)
+
+    await this._writeGeneratedFilesToOutFolder(generatedFiles)
+
+    line.success(`Typings available at ${chalk.grey(fromWorkDir.outDir)}`)
+  }
+
+  private async _generatePlugin(pluginDefinition: sdk.PluginDefinition): Promise<void> {
+    const line = this.logger.line()
+
+    const { name } = pluginDefinition
+    line.started(`Generating typings for plugin ${chalk.bold(name)}...`)
+
+    const fromWorkDir = this.projectPaths.rel('workDir')
+
+    const generatedFiles = await codegen.generatePluginImplementation(pluginDefinition)
 
     await this._writeGeneratedFilesToOutFolder(generatedFiles)
 

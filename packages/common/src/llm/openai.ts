@@ -1,4 +1,4 @@
-import { InvalidPayloadError, RuntimeError } from '@botpress/client'
+import { InvalidPayloadError } from '@botpress/client'
 import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
 import OpenAI from 'openai'
@@ -15,6 +15,7 @@ import {
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
+import { createUpstreamProviderFailedError } from './errors'
 import { GenerateContentInput, GenerateContentOutput, ToolCall, Message, ModelDetails } from './types'
 
 const OpenAIErrorSchema = z
@@ -40,6 +41,11 @@ export async function generateContent<M extends string>(
     provider: string
     models: Record<M, ModelDetails>
     defaultModel: M
+    overrideRequest?: (request: ChatCompletionCreateParamsNonStreaming) => ChatCompletionCreateParamsNonStreaming
+    overrideResponse?: (
+      response: OpenAI.Chat.Completions.ChatCompletion,
+      request: ChatCompletionCreateParamsNonStreaming
+    ) => OpenAI.Chat.Completions.ChatCompletion
   }
 ): Promise<GenerateContentOutput> {
   const modelId = (input.model?.id || props.defaultModel) as M
@@ -76,7 +82,7 @@ export async function generateContent<M extends string>(
 
   let response: OpenAI.Chat.Completions.ChatCompletion | undefined
 
-  const request: ChatCompletionCreateParamsNonStreaming = {
+  let request: ChatCompletionCreateParamsNonStreaming = {
     model: modelId,
     max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and is defaulting this to 0
     temperature: input.temperature,
@@ -88,6 +94,10 @@ export async function generateContent<M extends string>(
     messages,
     tool_choice: mapToOpenAIToolChoice(input.toolChoice),
     tools: mapToOpenAITools(input.tools),
+  }
+
+  if (props.overrideRequest) {
+    request = props.overrideRequest(request)
   }
 
   if (input.debug) {
@@ -108,16 +118,19 @@ export async function generateContent<M extends string>(
           parsedError.data.error?.message ?? err.message
         }`
 
-        throw new RuntimeError(message)
+        throw createUpstreamProviderFailedError(err, message)
       }
     }
 
-    // Fallback
-    throw new RuntimeError(err.message)
+    throw createUpstreamProviderFailedError(err, `${props.provider} error: ${err.message}`)
   } finally {
     if (input.debug && response) {
       logger.forBot().info(`Response received from ${props.provider}: ` + JSON.stringify(response, null, 2))
     }
+  }
+
+  if (props.overrideResponse) {
+    response = props.overrideResponse(response, request)
   }
 
   const inputTokens = response.usage?.prompt_tokens || 0

@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import qs from 'qs'
+import { getCorsHeaders } from './cors'
 import * as bp from '.botpress'
 
 type EventEvent = bp.events.event.Event
@@ -26,6 +27,16 @@ const integration = new bp.Integration({
   handler: async (args) => {
     debugRequest(args)
 
+    const corsHeaders = getCorsHeaders(args)
+
+    if (args.req.method.toLowerCase() === 'options') {
+      // preflight request
+      return {
+        status: 200,
+        headers: corsHeaders,
+      }
+    }
+
     const { req, client, ctx } = args
 
     if (ctx.configuration.secret && req.headers['x-bp-secret'] !== ctx.configuration.secret) {
@@ -42,7 +53,7 @@ const integration = new bp.Integration({
     let body = {}
     try {
       body = JSON.parse(req.body ?? '{}')
-    } catch (err) {}
+    } catch {}
 
     await client.createEvent({
       type: 'webhook:event',
@@ -53,6 +64,11 @@ const integration = new bp.Integration({
         path: req.path,
       },
     })
+
+    return {
+      status: 200,
+      headers: corsHeaders,
+    }
   },
   register: async () => {},
   unregister: async () => {},

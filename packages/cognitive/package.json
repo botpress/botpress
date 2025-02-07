@@ -1,0 +1,43 @@
+{
+  "name": "@botpress/cognitive",
+  "version": "0.1.4",
+  "description": "Wrapper around the Botpress Client to call LLMs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build:type": "tsup --tsconfig tsconfig.build.json ./src/index.ts --dts-resolve --dts-only --clean",
+    "build:neutral": "ts-node -T ./build.ts --neutral",
+    "build": "pnpm build:type && pnpm build:neutral && size-limit",
+    "test:e2e": "vitest run --dir ./e2e"
+  },
+  "size-limit": [
+    {
+      "limit": "50 kB",
+      "path": "dist/index.cjs"
+    },
+    {
+      "limit": "50 kB",
+      "path": "dist/index.mjs"
+    }
+  ],
+  "dependencies": {
+    "exponential-backoff": "^3.1.1",
+    "nanoevents": "^9.1.0"
+  },
+  "devDependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@bpinternal/zui": "0.13.5",
+    "@size-limit/file": "^11.1.6",
+    "@types/axios": "^0.14.4",
+    "@types/debug": "^4.1.12",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.4",
+    "esbuild": "^0.16.12",
+    "size-limit": "^11.1.6",
+    "tsup": "^8.0.2"
+  }
+}

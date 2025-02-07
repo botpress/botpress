@@ -6,6 +6,7 @@ export const channels = {
     description: 'Messages in an email thread',
     messages: {
       ...sdk.messages.defaults,
+      markdown: sdk.messages.markdown,
       image: {
         schema: sdk.messages.defaults.image.schema.extend({
           title: sdk.z.string().optional().title('Alt text').describe('Alt text for the image'),

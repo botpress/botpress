@@ -1,12 +1,12 @@
 import { z, IntegrationDefinitionProps, ActionDefinition } from '@botpress/sdk'
 import { linearIdsSchema, userProfileSchema, issueSchema } from './schemas'
 
-const channels = ['issue'] as const
+const _channels = ['issue'] as const
 
 export type Target = {
   displayName: string
   tags: { [key: string]: string }
-  channel: (typeof channels)[number]
+  channel: (typeof _channels)[number]
 }
 
 const findTarget = {
@@ -169,7 +169,6 @@ const updateIssue = {
       labels: z
         .array(z.string())
         .optional()
-        .default(['type/dx'])
         .title('Set labels')
         .describe('One or multiple labels to assign to this issue'),
       project: z.string().optional().title('Associate to project...').describe('A project to associate to this issue'),
@@ -202,6 +201,19 @@ const createIssue = {
   },
 } as const satisfies ActionDefinition
 
+const deleteIssue = {
+  title: 'Delete Issue',
+  description: 'Delete an issue on Linear',
+  input: {
+    schema: z.object({
+      id: z.string().title('Issue ID').describe('The issue ID on Linear. Ex: {{event.payload.linearIds.issueId}}'),
+    }),
+  },
+  output: {
+    schema: z.object({}),
+  },
+} as const satisfies ActionDefinition
+
 export const actions = {
   findTarget,
   listIssues,
@@ -212,4 +224,5 @@ export const actions = {
   getUser,
   updateIssue,
   createIssue,
+  deleteIssue,
 } as const satisfies IntegrationDefinitionProps['actions']

@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import hitl from './bp_modules/hitl'
@@ -6,10 +7,10 @@ import { actions, events, configuration, channels, states, user } from './src/de
 export default new IntegrationDefinition({
   name: 'zendesk',
   title: 'Zendesk',
-  version: '1.0.6',
+  version: '1.0.8',
   icon: 'icon.svg',
   description:
-    'Optimize your support workflow using Zendesk. Seamlessly integrate your chatbot into Zendesk chat, enabling you to trigger workflows from ticket updates. Easily manage tickets, access conversations, and engage with customers',
+    'Optimize your support workflow. Trigger workflows from ticket updates as well as manage tickets, access conversations, and engage with customers.',
   readme: 'hub.md',
   configuration,
   states,
@@ -18,4 +19,18 @@ export default new IntegrationDefinition({
   actions,
   events,
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
-}).extend(hitl, () => ({}))
+}).extend(hitl, () => ({
+  entities: {},
+  channels: {
+    hitl: {
+      title: 'Zendesk Ticket',
+      conversation: {
+        tags: {
+          id: {
+            title: 'Zendesk Ticket ID',
+          },
+        },
+      },
+    },
+  },
+}))

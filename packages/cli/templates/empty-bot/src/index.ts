@@ -1,5 +1,7 @@
 import * as bp from '.botpress'
 
-const bot = new bp.Bot({})
+const bot = new bp.Bot({
+  actions: {},
+})
 
 export default bot

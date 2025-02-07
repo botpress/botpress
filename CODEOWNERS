@@ -1,33 +1,62 @@
 # Global
-* @botpress/cloud-services
+* @botpress/engineering
 
 # Scripts
 /scripts @franklevasseur
 
 # Client, SDK, CLI
-/packages @botpress/cloud-services
+/packages @botpress/engineering
 
 # Bots
 /packages/bots @franklevasseur
 
+# Plugins
+/plugins @botpress/engineering
+
 # Integrations
-/integrations/charts @allardy @botpress/cloud-services
-/integrations/pdf-generator @lakshya0246 @botpress/cloud-services
-/integrations/dalle @franklevasseur @botpress/cloud-services
-/integrations/gmail @michaelmass @botpress/cloud-services
-/integrations/googlecalendar @franklevasseur @botpress/cloud-services
-/integrations/groq @AbrahamLopez10 @botpress/cloud-services
-/integrations/gsheets @franklevasseur @botpress/cloud-services
-/integrations/intercom @chsir17 @ptrckbp @botpress/cloud-services
-/integrations/linear @allardy @botpress/cloud-services
-/integrations/notion @lakshya0246 @botpress/cloud-services
-/integrations/openai @AbrahamLopez10 @botpress/cloud-services
-/integrations/slack @michaelmass @botpress/cloud-services
-/integrations/teams @franklevasseur @botpress/cloud-services
-/integrations/telegram @franklevasseur @botpress/cloud-services
-/integrations/twilio @AbrahamLopez10 @botpress/cloud-services
-/integrations/browser @allardy @botpress/cloud-services
-/integrations/webhook @franklevasseur @botpress/cloud-services
-/integrations/whatsapp @AbrahamLopez10 @botpress/cloud-services
-/integrations/zapier @AbrahamLopez10 @botpress/cloud-services
-/integrations/zendesk @davidvitora @franklevasseur @botpress/cloud-services
+## Utils
+/integrations/browser @allardy @botpress/engineering
+/integrations/charts @allardy @botpress/engineering
+/integrations/pdf-generator @allardy @botpress/engineering
+
+## LLM
+/integrations/anthropic @AbrahamLopez10 @botpress/engineering
+/integrations/cerebras @AbrahamLopez10 @botpress/engineering
+/integrations/fireworks-ai @AbrahamLopez10 @botpress/engineering
+/integrations/google-ai @AbrahamLopez10 @botpress/engineering
+/integrations/groq @AbrahamLopez10 @botpress/engineering
+/integrations/openai @AbrahamLopez10 @botpress/engineering
+
+## Others
+/integrations/airtable @pascal-botpress @botpress/engineering
+/integrations/asana @SebastienPoitras @botpress/engineering
+/integrations/chat @franklevasseur @botpress/engineering
+/integrations/clickup @franklevasseur @botpress/engineering
+/integrations/dropbox @pascal-botpress @botpress/engineering
+/integrations/freshchat @SebastienPoitras @botpress/engineering
+/integrations/github @pascal-botpress @botpress/engineering
+/integrations/gmail @pascal-botpress @botpress/engineering
+/integrations/googlecalendar @pascal-botpress @botpress/engineering
+/integrations/googledrive @pascal-botpress @botpress/engineering
+/integrations/gsheets @pascal-botpress @botpress/engineering
+/integrations/instagram @SebastienPoitras @botpress/engineering
+/integrations/intercom @SebastienPoitras @botpress/engineering
+/integrations/line @SebastienPoitras @botpress/engineering
+/integrations/linear @franklevasseur @botpress/engineering
+/integrations/mailchimp @SebastienPoitras @botpress/engineering
+/integrations/messenger @SebastienPoitras @botpress/engineering
+/integrations/notion @pascal-botpress @botpress/engineering
+/integrations/slack @pascal-botpress @botpress/engineering
+/integrations/stripe @SebastienPoitras @botpress/engineering
+/integrations/sunco @SebastienPoitras @botpress/engineering
+/integrations/teams @franklevasseur @botpress/engineering
+/integrations/telegram @franklevasseur @botpress/engineering
+/integrations/todoist @SebastienPoitras @botpress/engineering
+/integrations/trello @pascal-botpress @botpress/engineering
+/integrations/twilio @SebastienPoitras @botpress/engineering
+/integrations/viber @SebastienPoitras @botpress/engineering
+/integrations/vonage @SebastienPoitras @botpress/engineering
+/integrations/webhook @franklevasseur @botpress/engineering
+/integrations/whatsapp @SebastienPoitras @botpress/engineering
+/integrations/zapier @SebastienPoitras @botpress/engineering
+/integrations/zendesk @franklevasseur @botpress/engineering

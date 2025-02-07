@@ -1,0 +1,30 @@
+name: Run Chat Tests
+
+on: pull_request
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  run-chat-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_OPTIONS: '--max_old_space_size=8192'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          extra_filters: '-F @botpresshub/chat -F @bp-bots/echo -F @botpress/chat'
+      - name: Install tilt
+        run: curl -k -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
+      - name: Run Tilt
+        run: |
+          tilt ci -f ./echo.Tiltfile -- \
+            --skip-install \
+            --skip-build \
+            --bp-domain 'botpress.dev' \
+            --bp-workspace-id '95de33eb-1551-4af9-9088-e5dcb02efd09' \
+            --bp-token ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
