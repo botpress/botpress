@@ -1,9 +1,9 @@
 import * as sdk from '@botpress/sdk'
 import * as apiUtils from '../api'
 import * as errors from '../errors'
+import * as logger from '../logger'
 import * as utils from '../utils'
 import * as schemas from './schemas'
-import * as logger from '../logger'
 
 export class TablesPublisher {
   private readonly _api: apiUtils.ApiClient
