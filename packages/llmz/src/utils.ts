@@ -242,3 +242,15 @@ export const isValidSchema = (schema: JSONSchema): boolean => {
     return false
   }
 }
+
+export function isJsonSchema(schema: unknown): schema is JSONSchema {
+  return !!schema && typeof schema === 'object' && ('$schema' in schema || 'type' in schema || 'properties' in schema)
+}
+
+export function isValidIdentifier(name: string): boolean {
+  if (typeof name !== 'string') {
+    return false
+  }
+
+  return /^[A-Z]{1,}[A-Z0-9_]{0,50}$/i.test(name)
+}

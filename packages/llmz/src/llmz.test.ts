@@ -6,6 +6,7 @@ import { Tool } from './tool.js'
 
 import { ExecutionResult, Traces } from './types.js'
 import { getCachedCognitiveClient } from './__tests__/index.js'
+import { ObjectInstance } from './objects.js'
 
 const cognitive = getCachedCognitiveClient()
 
@@ -105,7 +106,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     it('using an object and global tool', async () => {
       let greeted = false
 
-      const john = llmz.makeObject({
+      const john = new ObjectInstance({
         name: 'User',
         properties: [
           { name: 'name', value: 'John' },
@@ -238,7 +239,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
   })
 
   it('cannot mutate object with new property', async () => {
-    const obj = llmz.makeObject({
+    const obj = new ObjectInstance({
       name: 'User',
       properties: [{ name: 'name', value: 20 }],
     })
@@ -265,7 +266,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
   })
 
   it('object with write properties with no schema can change value', async () => {
-    const obj = llmz.makeObject({
+    const obj = new ObjectInstance({
       name: 'MyObject',
       properties: [{ name: 'name', value: 'john', writable: true }],
     })
@@ -299,7 +300,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
   })
 
   it('object with write properties with no schema can change value to anything', async () => {
-    const obj = llmz.makeObject({
+    const obj = new ObjectInstance({
       name: 'MyObject',
       properties: [{ name: 'name', value: 'john', writable: true }],
     })
@@ -323,7 +324,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
   })
 
   it('object with write properties with schema get validated', async () => {
-    const obj = llmz.makeObject({
+    const obj = new ObjectInstance({
       name: 'MyObject',
       properties: [{ name: 'name', value: 'john', writable: true, type: z.string() }],
     })
@@ -344,7 +345,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
   })
 
   it('can access object properties', async () => {
-    const obj = llmz.makeObject({
+    const obj = new ObjectInstance({
       name: 'User',
       properties: [{ name: 'name', value: 'john', writable: true, type: z.string() }],
     })
@@ -375,7 +376,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
   })
 
   it('object with schema with catch/transform works', async () => {
-    const obj = llmz.makeObject({
+    const obj = new ObjectInstance({
       name: 'User',
       properties: [{ name: 'name', value: 'john', writable: true, type: z.string().catch(() => 'fallback') }],
     })
@@ -421,9 +422,11 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
   })
 
   it('events are fired on traces and iterations', async () => {
-    const obj = llmz.makeObject({
+    const obj = new ObjectInstance({
       name: 'MyObject',
-      properties: [{ name: 'name', writable: true, type: z.string(), description: 'The name of the object' }],
+      properties: [
+        { name: 'name', writable: true, type: z.string(), description: 'The name of the object', value: undefined },
+      ],
       tools: [
         new Tool({
           name: 'sayHello',

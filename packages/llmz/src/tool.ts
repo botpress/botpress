@@ -1,7 +1,7 @@
 import { type JSONSchema, type ZodType, type TypeOf, z } from '@bpinternal/zui'
 import { isEmpty, uniq } from 'lodash-es'
 import { getTypings as generateTypings } from './typings.js'
-import { convertObjectToZuiLiterals } from './utils.js'
+import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier } from './utils.js'
 
 export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSONSchema = any> {
   private _staticInputValues?: unknown
@@ -216,17 +216,3 @@ export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSON
     })
   }
 }
-
-function isJsonSchema(schema: unknown): schema is JSONSchema {
-  return !!schema && typeof schema === 'object' && ('$schema' in schema || 'type' in schema || 'properties' in schema)
-}
-
-function isValidIdentifier(name: string): boolean {
-  if (typeof name !== 'string') {
-    return false
-  }
-
-  return /^[A-Z]{1,}[A-Z0-9_]{0,50}$/i.test(name)
-}
-
-export type ExecuteProps = {}

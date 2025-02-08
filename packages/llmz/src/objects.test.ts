@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { z } from '@bpinternal/zui'
 
-import { ObjectInstance, getObjectTypings, makeObject } from './objects.js'
+import { ObjectInstance } from './objects.js'
 import { init } from './utils.js'
 import { Tool } from './tool.js'
 
@@ -11,31 +11,25 @@ describe('Objects', () => {
   })
 
   it('minimum viable object', () => {
-    makeObject({
+    new ObjectInstance({
       name: 'add',
     })
   })
 
   it('with description', () => {
-    makeObject({
+    new ObjectInstance({
       name: 'add',
       description: 'Adds two numbers',
     })
   })
 
   it('name is assignable', () => {
-    expect(() =>
-      makeObject({
-        name: 'add numbers',
-      })
+    expect(
+      () =>
+        new ObjectInstance({
+          name: 'add numbers',
+        })
     ).toThrow(/name/i)
-  })
-
-  it('cant duplicate ', () => {
-    const obj = makeObject({
-      name: 'add',
-    })
-    expect(() => ObjectInstance.parse({ ...obj })).toThrow(/makeObject/i)
   })
 })
 
@@ -45,17 +39,16 @@ describe('Object typings', () => {
   })
 
   it('simple object with no properties', async () => {
-    const obj = makeObject({
+    const obj = new ObjectInstance({
       name: 'MyObject',
     })
 
-    const typings = await getObjectTypings(obj).withProperties().withTools().build()
-
+    const typings = await obj.getTypings()
     expect(typings).toMatchInlineSnapshot(`"export namespace MyObject {}"`)
   })
 
   it('some basic properties', async () => {
-    const obj = makeObject({
+    const obj = new ObjectInstance({
       name: 'MyObject',
       properties: [
         { name: 'age', value: 20 },
@@ -72,7 +65,7 @@ describe('Object typings', () => {
       ],
     })
 
-    const typings = await getObjectTypings(obj).withProperties().withTools().build()
+    const typings = await obj.getTypings()
 
     expect(typings).toMatchInlineSnapshot(`
       "export namespace MyObject {
@@ -96,7 +89,7 @@ describe('Object typings', () => {
   })
 
   it('with tools', async () => {
-    const obj = makeObject({
+    const obj = new ObjectInstance({
       name: 'MyObject',
       description: 'This is a test object.\nThis is a second line.',
       tools: [
@@ -113,7 +106,7 @@ describe('Object typings', () => {
       ],
     })
 
-    const typings = await getObjectTypings(obj).withProperties().withTools().build()
+    const typings = await obj.getTypings()
 
     expect(typings).toMatchInlineSnapshot(`
       "/**
@@ -132,7 +125,7 @@ describe('Object typings', () => {
   })
 
   it('with tools and properties', async () => {
-    const obj = makeObject({
+    const obj = new ObjectInstance({
       name: 'MyObject',
       properties: [
         { name: 'age', value: 20 },
@@ -152,7 +145,7 @@ describe('Object typings', () => {
       ],
     })
 
-    const typings = await getObjectTypings(obj).withProperties().withTools().build()
+    const typings = await obj.getTypings()
 
     expect(typings).toMatchInlineSnapshot(`
       "export namespace MyObject {
@@ -175,21 +168,16 @@ describe('Object typings', () => {
 
   it('object with invalid identifier property', async () => {
     const typings = () =>
-      getObjectTypings(
-        makeObject({
-          name: 'MyObject',
-          properties: [{ name: 'Age of the user!', value: 20 }],
-        })
-      )
-        .withProperties()
-        .withTools()
-        .build()
+      new ObjectInstance({
+        name: 'MyObject',
+        properties: [{ name: 'Age of the user!', value: 20 }],
+      }).getTypings()
 
     expect(typings).toThrow()
   })
 
   it('object with read/write properties', async () => {
-    const obj = makeObject({
+    const obj = new ObjectInstance({
       name: 'MyObject',
       properties: [
         { name: 'AgeOfUser', value: 20, writable: true },
@@ -198,7 +186,7 @@ describe('Object typings', () => {
       ],
     })
 
-    const typings = await getObjectTypings(obj).withProperties().withTools().build()
+    const typings = await obj.getTypings()
 
     expect(typings).toMatchInlineSnapshot(`
       "export namespace MyObject {
@@ -214,11 +202,11 @@ describe('Object typings', () => {
   })
 
   it('object properties with schema defined has typings inlined', async () => {
-    const obj = makeObject({
+    const obj = new ObjectInstance({
       name: 'MyObject',
       properties: [
         { name: 'AgeOfUser', value: 20, type: z.number() },
-        { name: 'name', type: z.string(), writable: true },
+        { name: 'name', type: z.string(), value: undefined, writable: true },
         {
           name: 'address',
           value: { street: '123 Main St', city: 'Toronto' },
@@ -231,7 +219,7 @@ describe('Object typings', () => {
       ],
     })
 
-    const typings = await getObjectTypings(obj).withProperties().withTools().build()
+    const typings = await obj.getTypings()
 
     expect(typings).toMatchInlineSnapshot(`
       "export namespace MyObject {
@@ -250,12 +238,12 @@ describe('Object typings', () => {
   })
 
   it('e2e with value, types and writable', async () => {
-    const obj = makeObject({
+    const obj = new ObjectInstance({
       name: 'MyObject',
       properties: [
         { name: 'test1', type: z.array(z.string()), value: ['a', 'b'] },
-        { name: 'test2', type: z.array(z.string()) },
-        { name: 'test3', type: z.array(z.string()), description: 'With a description here' },
+        { name: 'test2', type: z.array(z.string()), value: undefined },
+        { name: 'test3', type: z.array(z.string()), description: 'With a description here', value: undefined },
         {
           name: 'test4',
           type: z.array(z.string()),
@@ -272,8 +260,8 @@ describe('Object typings', () => {
       ],
       tools: [],
     })
-    const typings = await getObjectTypings(obj).withProperties().withTools().build()
-    expect(typings).toMatchInlineSnapshot(`
+
+    expect(await obj.getTypings()).toMatchInlineSnapshot(`
       "export namespace MyObject {
         // ---------------- //
         //    Properties    //

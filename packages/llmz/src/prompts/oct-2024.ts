@@ -1,7 +1,6 @@
 import Handlebars from 'handlebars'
 import { isPlainObject } from 'lodash-es'
 import { inspect } from '../inspect.js'
-import { getObjectTypings } from '../objects.js'
 import { OAI } from '../openai.js'
 import { wrapContent } from '../truncator.js'
 
@@ -49,15 +48,15 @@ export const getSystemMessage: PromptVersion['getSystemMessage'] = async (props)
   // Parallelize the generation of typings for each object
   const objectTypingsPromise = props.objects.map((obj) => ({
     ...obj,
-    typings: getObjectTypings(obj).withTools().withProperties().build(),
+    typings: obj.getTypings(),
   }))
 
   for (const obj of objectTypingsPromise) {
     dts += (await obj.typings) + '\n\n\n'
-    for (const tool of obj.tools) {
+    for (const tool of obj.tools ?? []) {
       tool_names.push(`${obj.name}.${tool.name}`)
     }
-    for (const prop of obj.properties) {
+    for (const prop of obj.properties ?? []) {
       if (prop.writable) {
         writeable_vars.push(`${obj.name}.${prop.name}`)
       } else {

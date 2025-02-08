@@ -2,45 +2,112 @@ import { z } from '@bpinternal/zui'
 
 import { formatTypings } from './formatting.js'
 import { hoistTypings } from './hoist.js'
+import { Tool } from './tool.js'
 import { getTypings } from './typings.js'
-import { Identifier, escapeString, getMultilineComment } from './utils.js'
-
-const SchemaType = z.custom<z.Schema>((value) => value instanceof z.Schema)
+import { escapeString, getMultilineComment, isValidIdentifier } from './utils.js'
 
 /** How many lines of code an object needs to have before we insert a comment for end tag */
 const LARGE_OBJECT_LINES_OF_CODE = 10
 
-export type ObjectProperty = z.TypeOf<typeof ObjectProperty>
-const ObjectProperty = z.object({
-  name: Identifier,
-  value: z.any(),
-  type: SchemaType.optional(),
-  description: z.string().optional(),
-  writable: z.boolean().default(false).optional(),
-})
-
-export type ObjectDefinition = z.input<typeof ObjectDefinition>
-export type ObjectInstance = z.output<typeof ObjectDefinition>
-
-const ObjectDefinition = z.object({
-  name: Identifier,
-  description: z.string().optional(),
-  properties: z.array(ObjectProperty).min(0).max(100).optional().default([]),
-  tools: z.array(z.any()).min(0).max(100).optional().default([]),
-})
-
-const instanceMap = new WeakMap<object, true>()
-export const makeObject = (props: ObjectDefinition): ObjectInstance => {
-  const obj = ObjectDefinition.parse(props)
-  instanceMap.set(obj, true)
-  return obj
+export type ObjectProperty = {
+  name: string
+  value: any
+  type?: z.Schema
+  description?: string
+  writable?: boolean
 }
 
-export const ObjectInstance = z.custom<ObjectInstance>((value: any) => instanceMap.has(value!), {
-  message: 'Objects must be created with llmz `makeObject`',
-})
+export class ObjectInstance {
+  public name: string
+  public description?: string
+  public properties?: ObjectProperty[]
+  public tools?: Tool[]
+  public metadata?: Record<string, unknown>
 
-export function getObjectTypings(obj: ObjectInstance) {
+  public constructor(props: {
+    name: string
+    description?: string
+    tools?: Tool[]
+    properties?: ObjectProperty[]
+    metadata?: Record<string, unknown>
+  }) {
+    if (!isValidIdentifier(props.name)) {
+      throw new Error(
+        `Invalid name for tool ${props.name}. A tool name must start with a letter and contain only letters, numbers, and underscores. It must be 1-50 characters long.`
+      )
+    }
+
+    if (props.description !== undefined && typeof props.description !== 'string') {
+      throw new Error(
+        `Invalid description for tool ${props.name}. Expected a string, but got type "${typeof props.description}"`
+      )
+    }
+
+    if (props.metadata !== undefined && typeof props.metadata !== 'object') {
+      throw new Error(
+        `Invalid metadata for tool ${props.name}. Expected an object, but got type "${typeof props.metadata}"`
+      )
+    }
+
+    if (props.properties !== undefined && !Array.isArray(props.properties)) {
+      throw new Error(
+        `Invalid properties for tool ${props.name}. Expected an array, but got type "${typeof props.properties}"`
+      )
+    }
+
+    if (props.tools !== undefined && !Array.isArray(props.tools)) {
+      throw new Error(`Invalid tools for tool ${props.name}. Expected an array, but got type "${typeof props.tools}"`)
+    }
+
+    if (props.properties?.length) {
+      if (props.properties.length > 100) {
+        throw new Error(
+          `Too many properties for tool ${props.name}. Expected at most 100 properties, but got ${props.properties.length}`
+        )
+      }
+
+      for (const prop of props.properties) {
+        if (props.properties.filter((p) => p.name === prop.name).length > 1) {
+          throw new Error(`Duplicate property name "${prop.name}" in tool ${props.name}`)
+        }
+
+        if (!isValidIdentifier(prop.name)) {
+          throw new Error(
+            `Invalid name for property ${prop.name}. A property name must start with a letter and contain only letters, numbers, and underscores. It must be 1-50 characters long.`
+          )
+        }
+
+        if (prop.description !== undefined && typeof prop.description !== 'string') {
+          throw new Error(
+            `Invalid description for property ${prop.name}. Expected a string, but got type "${typeof prop.description}"`
+          )
+        }
+
+        if (props.description && props.description.length >= 5000) {
+          throw new Error(
+            `Description for property ${prop.name} is too long. Expected at most 5000 characters, but got ${props.description.length}`
+          )
+        }
+
+        if (typeof prop.writable !== 'boolean') {
+          prop.writable = false
+        }
+      }
+    }
+
+    this.name = props.name
+    this.description = props.description
+    this.metadata = props.metadata ?? {}
+    this.properties = props.properties
+    this.tools = Tool.withUniqueNames(props.tools ?? [])
+  }
+
+  public async getTypings() {
+    return getObjectTypings(this).withProperties().withTools().build()
+  }
+}
+
+function getObjectTypings(obj: ObjectInstance) {
   let includeProperties = false
   let includeTools = false
   let hoisting = false
@@ -88,7 +155,7 @@ export function getObjectTypings(obj: ObjectInstance) {
 
       for (const tool of obj.tools) {
         const fnType = z
-          .function(tool.zInput, tool.zOutput)
+          .function(tool.zInput as any, tool.zOutput)
           .title(tool.name)
           .describe(tool.description ?? '')
 
@@ -215,10 +282,4 @@ function embedPropertyValue(property: ObjectProperty): string {
   }
 
   return 'unknown'
-}
-
-export namespace Objects {
-  export type Definition = ObjectDefinition
-  export type Instance = ObjectInstance
-  export type Property = ObjectProperty
 }

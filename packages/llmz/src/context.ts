@@ -1,41 +1,59 @@
-import { z } from '@bpinternal/zui'
-
+import { type Cognitive } from '@botpress/cognitive'
 import { ulid } from 'ulid'
-import { ObjectDefinition, ObjectInstance } from './objects.js'
+import { ObjectInstance } from './objects.js'
 import type { OAI } from './openai.js'
 import { Oct2024Prompt } from './prompts/oct-2024.js'
 import { SnapshotResult } from './snapshots.js'
 import { Tool } from './tool.js'
 import { TranscriptArray, TranscriptMessage } from './transcript.js'
-import { Tokens } from './utils.js'
+import { Iteration } from './types.js'
 
-export type CreateContextProps = Omit<z.input<typeof CreateContextProps>, 'objects'> & {
-  objects?: ObjectDefinition[]
-}
-
-export const LLMZ_DEFAULT_VERSION = Oct2024Prompt.version
-
-export const CreateContextProps = z.object({
-  instructions: Tokens(0, 100_000).optional(),
-  objects: z.array(ObjectInstance).min(0).max(100).optional().default([]),
-  tools: z.array(z.any()).min(0).max(100).optional().default([]),
-  /** TODO: throw MaxLoopReached */
-  loop: z.number().min(1).max(100).optional().default(1),
-  temperature: z.number().min(0).max(2).optional().default(0.2),
-  models: z.record(z.any()).optional(),
-  model: z.string().optional().default('openai__gpt-4o-2024-11-20'),
-  // participants: z.array(z.string()).optional(),
-  transcript: z.array(TranscriptMessage).min(0).max(100).optional().default([]),
-  metadata: z.record(z.any()).default({}),
-})
+type Model = Parameters<InstanceType<typeof Cognitive>['generateContent']>[0]['model']
 
 export type Context = Awaited<ReturnType<typeof createContext>> & {
   appliedSnapshot?: SnapshotResult
 }
 
-export const createContext = (props: CreateContextProps) => {
-  const opts = CreateContextProps.parse(props)
-  const transcript = new TranscriptArray(...(opts.transcript ?? []))
+export const createContext = (props: {
+  instructions?: string
+  objects?: ObjectInstance[]
+  tools?: Tool[]
+  loop?: number
+  temperature?: number
+  model?: Model
+  transcript?: TranscriptMessage[]
+  metadata?: Record<string, any>
+}) => {
+  const transcript = new TranscriptArray(Array.isArray(props.transcript) ? props.transcript : [])
+  let tools = Tool.withUniqueNames(props.tools ?? [])
+  const objects = props.objects ?? []
+  const loop = props.loop ?? 1
+  const temperature = props.temperature ?? 0.7
+  const iterations: Iteration[] = []
+
+  if (objects && objects.length > 100) {
+    throw new Error('Too many objects. Expected at most 100 objects.')
+  }
+
+  if (tools && tools.length > 100) {
+    throw new Error('Too many tools. Expected at most 100 tools.')
+  }
+
+  if (props.instructions && props.instructions.length > 1_000_000) {
+    throw new Error('Instructions are too long. Expected at most 1,000,000 characters.')
+  }
+
+  if (props.transcript && props.transcript.length > 250) {
+    throw new Error('Too many transcript messages. Expected at most 250 messages.')
+  }
+
+  if (loop < 1 || loop > 100) {
+    throw new Error('Invalid loop. Expected a number between 1 and 100.')
+  }
+
+  if (temperature < 0 || temperature > 2) {
+    throw new Error('Invalid temperature. Expected a number between 0 and 2.')
+  }
 
   // These are the variables that will be injected into the VM, mainly for partial execution when the VM calls `think`
   // This is a way to pass data between iterations
@@ -48,13 +66,12 @@ export const createContext = (props: CreateContextProps) => {
 
   const version = Oct2024Prompt
 
-  for (const obj of opts.objects) {
-    obj.tools = Tool.withUniqueNames(obj.tools)
-    tool_names.push(...obj.tools.map((tool) => ({ object: obj.name, name: tool.name })))
+  for (const obj of objects) {
+    tools = Tool.withUniqueNames(tools)
+    tool_names.push(...tools.map((tool) => ({ object: obj.name, name: tool.name })))
   }
 
-  opts.tools = Tool.withUniqueNames(opts.tools)
-  for (const tool of opts.tools) {
+  for (const tool of tools) {
     tool_names.push({ name: tool.name })
   }
 
@@ -63,9 +80,9 @@ export const createContext = (props: CreateContextProps) => {
   async function getMessages() {
     const messages: OAI.Message[] = [
       await version.getSystemMessage({
-        globalTools: opts.tools,
-        objects: opts.objects,
-        instructions: opts.instructions,
+        globalTools: tools,
+        objects,
+        instructions: props.instructions ?? '',
         transcript,
       }),
     ]
@@ -75,9 +92,9 @@ export const createContext = (props: CreateContextProps) => {
     if (shouldAddInitialUserMessage && !!version.getInitialUserMessage) {
       messages.push(
         await version.getInitialUserMessage({
-          globalTools: opts.tools,
-          objects: opts.objects,
-          instructions: opts.instructions,
+          globalTools: props.tools ?? [],
+          objects,
+          instructions: props.instructions,
           transcript,
         })
       )
@@ -88,15 +105,19 @@ export const createContext = (props: CreateContextProps) => {
 
   return {
     id: `llmz_${ulid()}`,
-    __options: opts,
     transcript,
     getMessages,
     partialExecutionMessages,
     tool_names,
     iteration: 0,
-    iterations: [],
+    iterations,
     injectedVariables,
     version,
-    metadata: opts.metadata,
+    metadata: props.metadata,
+    model: props.model,
+    loop,
+    temperature,
+    tools,
+    objects,
   }
 }

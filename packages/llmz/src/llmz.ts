@@ -20,10 +20,11 @@ import {
   VMSignal,
 } from './errors.js'
 import { HookedArray } from './handlers.js'
-import { makeObject, ObjectInstance } from './objects.js'
 
+import { type ObjectInstance } from './objects.js'
 import { createSnapshot, rejectContextSnapshot, resolveContextSnapshot } from './snapshots.js'
-import { Tool } from './tool.js'
+import { type Tool } from './tool.js'
+
 import { TranscriptMessage } from './transcript.js'
 import { truncateWrappedContent, wrapContent } from './truncator.js'
 import { ExecutionResult, Iteration, ObjectMutation, Trace } from './types.js'
@@ -63,11 +64,7 @@ export type ExecutionHooks = {
   onTrace?: (event: { trace: Trace; iteration: number }) => void
 }
 
-type Options = {
-  loop?: number
-  temperature?: number
-  model?: string
-}
+type Options = Partial<Pick<Parameters<typeof createContext>[0], 'loop' | 'temperature' | 'model'>>
 
 export type ExecutionProps = {
   instructions?: string
@@ -94,22 +91,20 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
 
   const { cognitive, signal, onIterationEnd, onTrace, onIterationStart } = props
 
-  const iterations: Iteration[] = []
-
   try {
     while (true) {
       if (signal?.aborted) {
         throw new Error('The operation was aborted.')
       }
 
-      const iterationId = ctx.id + '_' + (iterations.length + 1)
+      const iterationId = ctx.id + '_' + (ctx.iterations.length + 1)
 
       try {
         const traces = new HookedArray<Trace>()
 
         traces.onPush((traces) => {
           for (const trace of traces) {
-            onTrace?.({ trace, iteration: iterations.length })
+            onTrace?.({ trace, iteration: ctx.iterations.length })
           }
         })
 
@@ -122,7 +117,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
           onIterationStart,
         })
 
-        iterations.push(iteration)
+        ctx.iterations.push(iteration)
 
         try {
           await onIterationEnd?.(iteration)
@@ -137,7 +132,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
           return {
             status: 'interrupted',
             snapshot: createSnapshot(iteration.signal),
-            iterations,
+            iterations: ctx.iterations,
             context: ctx,
             signal: iteration.signal,
           }
@@ -146,7 +141,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
         if (iteration.status === 'success') {
           return {
             status: 'success',
-            iterations,
+            iterations: ctx.iterations,
             context: ctx,
           }
         }
@@ -166,7 +161,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
           throw error
         }
         // The iteration should be in the list even though it failed internally
-        iterations.push({
+        ctx.iterations.push({
           id: generateIterationId(),
           status: 'error',
           error: error instanceof Error ? error : new Error(error?.toString() ?? 'Unknown error'),
@@ -182,7 +177,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
             tokens: 0,
             spend: 0,
             output: '',
-            model: ctx.__options.model,
+            model: ctx.model ?? '',
           },
           started_ts: Date.now(),
           ended_ts: Date.now(),
@@ -194,7 +189,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
   } catch (error) {
     return {
       status: 'error',
-      iterations,
+      iterations: ctx.iterations,
       context: ctx,
       error: error instanceof Error ? error : new Error(error?.toString() ?? 'Unknown error'),
     }
@@ -217,7 +212,7 @@ const executeIteration = async ({
   traces: Trace[]
   abortSignal?: AbortController['signal']
 } & ExecutionHooks): Promise<Iteration> => {
-  if (ctx.iteration++ >= ctx.__options.loop) {
+  if (ctx.iteration++ >= ctx.loop) {
     throw new LoopExceededError()
   }
 
@@ -237,12 +232,10 @@ const executeIteration = async ({
       x.content.trim().length > 0
   )
 
-  const [integration, model] = ctx.__options.model!.split('__')
-
   const output = await cognitive.generateContent({
     systemPrompt: messages.find((x) => x.role === 'system')?.content,
-    model: integration && model ? `${integration}:${model}` : undefined,
-    temperature: ctx.__options.temperature,
+    model: ctx.model as any | undefined,
+    temperature: ctx.temperature,
     responseFormat: 'text',
     messages: messages
       .filter((x) => x.role === 'user' || x.role === 'assistant')
@@ -284,7 +277,7 @@ const executeIteration = async ({
     started_at: startedAt,
     ended_at: llm.ended_at,
     status: 'success',
-    model: ctx.__options.model,
+    model: ctx.model ?? '',
   })
 
   if (assistantResponse.type !== 'code') {
@@ -305,7 +298,7 @@ const executeIteration = async ({
 
   const changes = new Map<string, ObjectMutation>()
 
-  for (const obj of ctx.__options.objects) {
+  for (const obj of ctx.objects) {
     const internalValues: Record<string, string> = {}
     const instance: Record<string, any> = {}
 
@@ -357,7 +350,7 @@ const executeIteration = async ({
       })
     }
 
-    for (const tool of obj.tools) {
+    for (const tool of obj.tools ?? []) {
       instance[tool.name] = wrapTool({ tool, traces, object: obj.name })
     }
 
@@ -367,7 +360,7 @@ const executeIteration = async ({
     vmContext[obj.name] = instance
   }
 
-  for (const tool of ctx.__options.tools) {
+  for (const tool of ctx.tools) {
     const wrapped = wrapTool({ tool, traces })
     for (const key of [tool.name, ...(tool.aliases ?? [])]) {
       vmContext[key] = wrapped
@@ -709,7 +702,6 @@ function wrapTool({ tool, traces, object }: Props) {
 }
 
 export const llmz = {
-  makeObject,
   executeContext,
   createSnapshot,
   resolveContextSnapshot,

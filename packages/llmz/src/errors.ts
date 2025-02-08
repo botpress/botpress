@@ -1,6 +1,6 @@
 import { JSONSchema } from '@bpinternal/zui'
 
-import { Assignment } from './compiler/plugins/track-tool-calls.js'
+import { type Assignment } from './compiler/plugins/track-tool-calls.js'
 
 type ErrorConstructor = new (...args: any[]) => Error
 
@@ -12,7 +12,7 @@ function registerErrorClass(name: string, errorClass: ErrorConstructor) {
 const tryParseMessage = (str: string) => {
   try {
     return JSON.parse(str)
-  } catch (err) {
+  } catch {
     return str
   }
 }
@@ -29,7 +29,7 @@ export namespace Signals {
 
       return JSON.stringify({
         ...(typeof msg === 'object' ? msg : { message: msg }),
-        properties: { ...error }
+        properties: { ...error },
       })
     }
 
@@ -37,7 +37,7 @@ export namespace Signals {
       name: error.constructor.name,
       message: error.message,
       stack: error.stack,
-      properties: { ...error }
+      properties: { ...error },
     })
   }
 
@@ -67,7 +67,7 @@ export namespace Signals {
 
         return errorInstance
       }
-    } catch (err) {
+    } catch {
       // If parsing fails, return the original input
     }
 
@@ -221,7 +221,7 @@ export class CodeFormattingError extends Error {
     public code: string
   ) {
     super(message, {
-      cause: 'Code formatting error'
+      cause: 'Code formatting error',
     })
   }
 }
