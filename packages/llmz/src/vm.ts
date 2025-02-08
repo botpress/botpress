@@ -1,4 +1,4 @@
-import type { Isolate } from 'isolated-vm'
+import { type Isolate } from 'isolated-vm'
 import { isFunction, maxBy, mapValues } from 'lodash-es'
 import { SourceMapConsumer } from 'source-map-js'
 

@@ -1,18 +1,16 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  entry: ['src/*.{ts,tsx}', 'src/**/*.{ts,tsx}', '!src/**/*.test.{ts,tsx}', '!src/**/__tests__/**'],
+  entry: ['src/index.ts', '!src/**/*.test.{ts,tsx}', '!src/**/__tests__/**'],
   outDir: 'dist',
-  dts: true,
-  format: ['esm'],
+  dts: false,
+  format: ['esm', 'cjs'],
   target: 'node16',
-
+  noExternal: ['lodash-es', 'source-map-js'],
+  cjsInterop: true,
   sourcemap: false,
-
-  outExtension: () => {
-    return { js: '.js', dts: '.d.ts' }
-  },
   clean: true,
-  splitting: false,
+  splitting: true,
   minify: false,
+  bundle: true,
 })

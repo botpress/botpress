@@ -1,4 +1,4 @@
-import { type TextTokenizer, getWasmTokenizer } from '@botpress/wasm'
+import { type TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
 import { JSONSchema, z } from '@bpinternal/zui'
 import { pickBy, startCase, camelCase, isPlainObject, deburr } from 'lodash-es'
 
@@ -13,7 +13,7 @@ export const init = async () => {
     await new Promise((resolve) => setTimeout(resolve, 50))
   }
 
-  tokenizer = await getWasmTokenizer()
+  tokenizer = (await getWasmTokenizer()) as TextTokenizer
 }
 
 export const getTokenizer = () => {

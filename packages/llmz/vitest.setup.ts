@@ -1,5 +1,3 @@
-import { Client } from '@botpress/client'
-import { setupClient } from '@botpress/vai'
 import { beforeAll } from 'vitest'
 import { init } from './src/utils.js'
 
@@ -13,12 +11,4 @@ beforeAll(async () => {
   if (!process.env.CLOUD_BOT_ID) {
     throw new Error('Missing CLOUD_BOT_ID')
   }
-
-  setupClient(
-    new Client({
-      apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.dev',
-      botId: process.env.CLOUD_BOT_ID,
-      token: process.env.CLOUD_PAT,
-    })
-  )
 })

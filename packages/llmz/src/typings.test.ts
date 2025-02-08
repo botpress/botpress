@@ -11,7 +11,7 @@ describe('functions', () => {
       .returns(z.number())
       .describe('Add two numbers together.\nThis is a multiline description')
 
-    expect(getTypings(fn, { declaration: true })).rejects.toThrow(/title/i)
+    await expect(getTypings(fn, { declaration: true })).rejects.toThrow(/title/i)
   })
 
   it('function with multi-line description', async () => {
@@ -149,7 +149,7 @@ describe('functions', () => {
 describe('objects', () => {
   it('title mandatory to declare', async () => {
     const obj = z.object({ a: z.number(), b: z.string() })
-    expect(getTypings(obj, { declaration: true })).rejects.toThrow(/title/i)
+    await expect(getTypings(obj, { declaration: true })).rejects.toThrow(/title/i)
   })
 
   it('normal object', async () => {
@@ -189,11 +189,11 @@ describe('objects', () => {
               .object({
                 f: z.boolean().optional().default(true).describe('This is f'),
                 g: z.enum(['ga', 'gb']).default('ga').describe('This is g'),
-                h: z.array(z.string()).default([]).describe('This is h')
+                h: z.array(z.string()).default([]).describe('This is h'),
               })
-              .describe('The Knowledge Bases to Query')
+              .describe('The Knowledge Bases to Query'),
           })
-        )
+        ),
       })
       .title('MyObject')
       .describe('This is my object.\nThis is a multiline description.\n\n\n')
@@ -256,7 +256,7 @@ describe('objects', () => {
   it('object with a description & optional', async () => {
     const obj = z
       .object({
-        someStr: z.string().describe('Description').optional()
+        someStr: z.string().describe('Description').optional(),
       })
       .title('MyObject')
 
@@ -273,7 +273,7 @@ describe('objects', () => {
   it('object with optional and a description (opposite of previous test)', async () => {
     const obj = z
       .object({
-        someStr: z.string().optional().describe('Description')
+        someStr: z.string().optional().describe('Description'),
       })
       .title('MyObject')
 
@@ -290,7 +290,7 @@ describe('objects', () => {
   it('object with nullable object and no properties', async () => {
     const obj = z
       .object({
-        address: z.object({}).nullable()
+        address: z.object({}).nullable(),
       })
       .title('MyObject')
 
@@ -307,10 +307,10 @@ describe('objects', () => {
             z.number(),
             z.object({
               street: z.string(),
-              number: z.number()
+              number: z.number(),
             })
           )
-          .describe('This is a record')
+          .describe('This is a record'),
       })
       .title('MyObject')
 
@@ -332,10 +332,10 @@ describe('objects', () => {
           z
             .object({
               status: z.string(),
-              error: z.string().optional()
+              error: z.string().optional(),
             })
             .optional()
-        )
+        ),
       })
       .title('MyObject')
 
@@ -360,11 +360,11 @@ describe('objects', () => {
               z.number(),
               z.object({
                 street: z.string(),
-                number: z.number()
+                number: z.number(),
               })
             )
             .describe('This is a record')
-        )
+        ),
       })
       .title('MyObject')
 
@@ -408,7 +408,7 @@ describe('objects', () => {
           .string()
           .title('A')
           .describe('This is A')
-          .transform((val) => val.toUpperCase())
+          .transform((val) => val.toUpperCase()),
       })
       .title('MyObject')
 
@@ -427,7 +427,7 @@ describe('objects', () => {
       .object({
         'Hello World!': z.string(),
         'Hey?': z.string().optional(),
-        'Hey!': z.string().optional()
+        'Hey!': z.string().optional(),
       })
       .title('MyObject')
 
@@ -452,8 +452,8 @@ describe('objects', () => {
         tupleLiteral: z.tuple([z.literal('a'), z.literal(1)]),
         emptyTyple: z.tuple([]),
         nested: z.object({
-          nestedLiteral: z.literal('nested')
-        })
+          nestedLiteral: z.literal('nested'),
+        }),
       })
       .title('MyObject')
 
@@ -504,7 +504,7 @@ describe('objects', () => {
     const obj = z
       .object({
         Date: z.string().describe('Test\nHello').describe('Test2'),
-        'Hello World!': z.string().optional()
+        'Hello World!': z.string().optional(),
       })
       .required({ Date: true })
 
@@ -520,7 +520,7 @@ describe('objects', () => {
   it('double optional', async () => {
     const obj = z
       .object({
-        Date: z.optional(z.string().optional().optional())
+        Date: z.optional(z.string().optional().optional()),
       })
       .required({ Date: false } as any)
 

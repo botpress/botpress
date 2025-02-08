@@ -1,10 +1,10 @@
+import { type Cognitive } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 
 import { omit, clamp, isPlainObject, isEqual } from 'lodash-es'
 import ms from 'ms'
 import { ulid } from 'ulid'
 
-import { CognitiveClient } from './client.js'
 import { Context, createContext } from './context.js'
 import {
   AssignmentError,
@@ -23,11 +23,11 @@ import { HookedArray } from './handlers.js'
 import { makeObject, ObjectInstance } from './objects.js'
 
 import { createSnapshot, rejectContextSnapshot, resolveContextSnapshot } from './snapshots.js'
-import { ToolImplementation, Tools, makeTool } from './tools.js'
+import { Tool } from './tool.js'
 import { TranscriptMessage } from './transcript.js'
 import { truncateWrappedContent, wrapContent } from './truncator.js'
 import { ExecutionResult, Iteration, ObjectMutation, Trace } from './types.js'
-import { Tokens, init, stripInvalidIdentifiers } from './utils.js'
+import { init, stripInvalidIdentifiers } from './utils.js'
 import { runAsyncFunction } from './vm.js'
 
 const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : JSON.stringify(err))
@@ -72,10 +72,10 @@ type Options = {
 export type ExecutionProps = {
   instructions?: string
   objects?: ObjectInstance[]
-  tools?: ToolImplementation[]
+  tools?: Tool[]
   options?: Options
   transcript?: TranscriptMessage[]
-  cognitive: CognitiveClient
+  cognitive: Cognitive
   signal?: AbortController['signal']
 } & ExecutionHooks
 
@@ -213,7 +213,7 @@ const executeIteration = async ({
 }: {
   id: string
   ctx: Context
-  cognitive: CognitiveClient
+  cognitive: Cognitive
   traces: Trace[]
   abortSignal?: AbortController['signal']
 } & ExecutionHooks): Promise<Iteration> => {
@@ -239,10 +239,9 @@ const executeIteration = async ({
 
   const [integration, model] = ctx.__options.model!.split('__')
 
-  const output = await cognitive({
-    integration: integration!,
+  const output = await cognitive.generateContent({
     systemPrompt: messages.find((x) => x.role === 'system')?.content,
-    model: { id: model! },
+    model: integration && model ? `${integration}:${model}` : undefined,
     temperature: ctx.__options.temperature,
     responseFormat: 'text',
     messages: messages
@@ -259,8 +258,8 @@ const executeIteration = async ({
   })
 
   const out =
-    output.choices?.[0]?.type === 'text' && typeof output.choices?.[0].content === 'string'
-      ? output.choices[0].content
+    output.output.choices?.[0]?.type === 'text' && typeof output.output.choices?.[0].content === 'string'
+      ? output.output.choices[0].content
       : null
 
   if (!out) {
@@ -270,14 +269,14 @@ const executeIteration = async ({
   const assistantResponse = ctx.version.parseAssistantResponse(out)
 
   const llm = {
-    cached: output.metadata.cached,
+    cached: output.meta.cached || false,
     ended_at: Date.now(),
     started_at: startedAt,
     status: 'success',
-    tokens: output.usage.inputTokens + output.usage.outputTokens,
-    spend: output.botpress.cost ?? 0,
+    tokens: output.meta.tokens.input + output.meta.tokens.output,
+    spend: output.meta.cost.input + output.meta.cost.output,
     output: assistantResponse.raw,
-    model: ctx.__options.model,
+    model: `${output.meta.model.integration}:${output.meta.model.model}`,
   } satisfies Iteration['llm']
 
   traces.push({
@@ -556,7 +555,6 @@ const executeIteration = async ({
   throw result.error
 }
 
-type Tool = Context['__options']['tools'][number]
 type Props = {
   tool: Tool
   object?: string
@@ -564,11 +562,9 @@ type Props = {
 }
 
 function wrapTool({ tool, traces, object }: Props) {
-  const getToolInput = (input: any) => tool.input?.safeParse(input).data ?? input
+  const getToolInput = (input: any) => tool.zInput.safeParse(input).data ?? input
 
-  const fn = (tool as Tools.Implementation).fn
-
-  return function (input: any, ctx: any) {
+  return function (input: any) {
     const alertSlowTool = setTimeout(
       () =>
         traces.push({
@@ -596,8 +592,8 @@ function wrapTool({ tool, traces, object }: Props) {
       if (error instanceof VMInterruptSignal) {
         error.toolCall = {
           name: tool.name,
-          inputSchema: tool.input?.toJsonSchema(),
-          outputSchema: tool.output?.toJsonSchema(),
+          inputSchema: tool.input,
+          outputSchema: tool.output,
           input,
         }
         error.message = Signals.serializeError(error)
@@ -644,7 +640,7 @@ function wrapTool({ tool, traces, object }: Props) {
     }
 
     try {
-      const result = fn(input, { ...ctx, traces })
+      const result = tool.execute(input)
       if (result instanceof Promise || ((result as any)?.then && (result as any)?.catch)) {
         return result
           .then((res: any) => {
@@ -713,8 +709,6 @@ function wrapTool({ tool, traces, object }: Props) {
 }
 
 export const llmz = {
-  Tokens,
-  makeTool,
   makeObject,
   executeContext,
   createSnapshot,

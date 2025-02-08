@@ -2,7 +2,6 @@ import { z } from '@bpinternal/zui'
 
 import { formatTypings } from './formatting.js'
 import { hoistTypings } from './hoist.js'
-import { ToolImplementation } from './tools.js'
 import { getTypings } from './typings.js'
 import { Identifier, escapeString, getMultilineComment } from './utils.js'
 
@@ -27,7 +26,7 @@ const ObjectDefinition = z.object({
   name: Identifier,
   description: z.string().optional(),
   properties: z.array(ObjectProperty).min(0).max(100).optional().default([]),
-  tools: z.array(ToolImplementation).min(0).max(100).optional().default([]),
+  tools: z.array(z.any()).min(0).max(100).optional().default([]),
 })
 
 const instanceMap = new WeakMap<object, true>()
@@ -88,16 +87,15 @@ export function getObjectTypings(obj: ObjectInstance) {
       typings.push('')
 
       for (const tool of obj.tools) {
-        const input = tool.input
-        const output = tool.output ?? z.void()
-
         const fnType = z
-          .function(input as any, output)
+          .function(tool.zInput, tool.zOutput)
           .title(tool.name)
           .describe(tool.description ?? '')
+
         let temp = await getTypings(fnType, {
           declaration: true,
         })
+
         temp = temp.replace('declare function ', 'function ')
         typings.push(temp)
       }

@@ -2,13 +2,12 @@ import { z } from '@bpinternal/zui'
 
 import { assert, describe, expect, it, vi } from 'vitest'
 import { llmz } from './llmz.js'
-import { makeTool } from './tools.js'
-import { check, extract } from '@botpress/vai'
-import { ExecutionResult, Traces } from './types.js'
-import { createClient } from './client.js'
-import { getCachedClient } from './__tests__/index.js'
+import { Tool } from './tool.js'
 
-const cognitive = createClient(getCachedClient())
+import { ExecutionResult, Traces } from './types.js'
+import { getCachedCognitiveClient } from './__tests__/index.js'
+
+const cognitive = getCachedCognitiveClient()
 
 const assertStatus = (result: ExecutionResult, status: ExecutionResult['status']) => {
   const error = result.status === 'error' ? result.error : null
@@ -51,22 +50,22 @@ const exec = (result: ExecutionResult) => {
 }
 
 const tMessage = () =>
-  makeTool({
+  new Tool({
     name: 'Message',
     aliases: ['IMAGE', 'CARD', 'BUTTON', 'CAROUSEL', 'VIDEO', 'AUDIO', 'FILE'],
     input: z.any(),
     output: z.void(),
-    fn: async () => {},
+    handler: async () => {},
   })
 
 const tNoop = (cb: () => void) =>
-  llmz.makeTool({
+  new Tool({
     name: 'noop',
-    fn: cb,
+    handler: async () => cb(),
   })
 
 const tPasswordProtectedAdd = (seed: number) =>
-  llmz.makeTool({
+  new Tool({
     name: 'addNumbers',
     description: 'Adds two numbers together, returns a secret sum',
     input: z.object({
@@ -75,7 +74,7 @@ const tPasswordProtectedAdd = (seed: number) =>
       password: z.string().optional(),
     }),
     output: z.string(),
-    fn: ({ a, b, password }) => {
+    handler: async ({ a, b, password }) => {
       if (password !== 'abc123') {
         throw new Error(`You need to provide the password "abc123" to execute this tool`)
       }
@@ -113,14 +112,14 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           { name: 'age', value: 25 },
         ],
         tools: [
-          llmz.makeTool({
+          new Tool({
             name: 'greet',
             input: z
               .object({
                 password: z.string(),
               })
               .optional(),
-            fn: (input) => {
+            handler: async (input) => {
               if (input?.password !== 'abc123') {
                 throw new Error('You need to provide the password to execute this tool. Received: ' + input?.password)
               }
@@ -130,7 +129,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         ],
       })
 
-      const tGetPasswordToGreetJohn = llmz.makeTool({
+      const tGetPasswordToGreetJohn = new Tool({
         name: 'getPassword',
         input: z
           .object({
@@ -138,7 +137,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           })
           .describe('Get the password to greet the user'),
         output: z.string(),
-        fn: (input) => {
+        handler: async (input) => {
           if (input.name !== 'John') {
             throw new Error('I only know the password for John')
           }
@@ -195,25 +194,25 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           'You are a calculator at the service of the user. You need to answer with the result of the operation and nothing else.',
         tools: [
           tMessage(),
-          llmz.makeTool({
+          new Tool({
             name: 'syncTool',
             input: z.object({
               a: z.number(),
               b: z.number(),
             }),
             output: z.string(),
-            fn: ({ a, b }) => {
+            handler: async ({ a, b }) => {
               return 'sync' + (a + b)
             },
           }),
-          llmz.makeTool({
+          new Tool({
             name: 'asyncTool',
             input: z.object({
               a: z.number(),
               b: z.number(),
             }),
-            output: z.promise(z.string()),
-            fn: async ({ a, b }) => {
+            output: z.string(),
+            handler: async ({ a, b }) => {
               return new Promise((resolve) => {
                 setTimeout(() => {
                   resolve('async' + (a + b))
@@ -315,7 +314,12 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
     expect(res.firstIteration.status).toBe('success')
     expect(res.firstIteration.mutations).toHaveLength(1)
-    check(res.firstIteration.mutations[0].after, 'looks like {a: 1}').toBe(true)
+    expect(res.firstIteration.mutations[0].property).toBe('name')
+    expect(res.firstIteration.mutations[0].after).toMatchInlineSnapshot(`
+      {
+        "a": 1,
+      }
+    `)
   })
 
   it('object with write properties with schema get validated', async () => {
@@ -350,10 +354,10 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       instructions: "Speak the user's name out loud",
       objects: [obj],
       tools: [
-        makeTool({
+        new Tool({
           name: 'speakLoudUserName',
           output: z.void(),
-          fn: () => {},
+          handler: async () => {},
           input: z.object({ name: z.string() }),
         }),
       ],
@@ -421,12 +425,12 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       name: 'MyObject',
       properties: [{ name: 'name', writable: true, type: z.string(), description: 'The name of the object' }],
       tools: [
-        llmz.makeTool({
+        new Tool({
           name: 'sayHello',
           input: z.object({
             name: z.string().describe('The name to greet'),
           }),
-          fn: ({ name }) => `Hello, ${name}!`,
+          handler: async ({ name }) => `Hello, ${name}!`,
         }),
       ],
     })
@@ -452,26 +456,25 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     let deleted = false
     let confirmMessages: string[] = []
 
-    const tFetchOrder = makeTool({
+    const tFetchOrder = new Tool({
       name: 'fetchOrder',
       output: z.string(),
-      fn: () => ORDER_ID,
+      handler: async () => ORDER_ID,
     })
 
-    const tConfirm = makeTool({
+    const tConfirm = new Tool({
       name: 'confirmWithUser',
       description: 'Confirms with the user',
       input: z.object({ message: z.string() }),
-      fn: (input, ctx) => {
+      handler: async (input) => {
         confirmMessages.push(input.message)
-        ctx.think('Have to wait for user to confirm', { confirmation: 'User has confirmed' })
       },
     })
 
-    const tDeleteOrder = makeTool({
+    const tDeleteOrder = new Tool({
       name: 'deleteOrder',
       input: z.object({ orderId: z.string() }),
-      fn: (input) => {
+      handler: async (input) => {
         if (input.orderId === ORDER_ID) {
           deleted = true
         }
@@ -483,14 +486,15 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       instructions:
         'Fetch the Order ID, confirm with the user the Order ID, then once you have the user confirmation, delete the order. Make sure to confirm.',
       transcript: [{ name: 'User', role: 'user', content: 'I want to delete my order' }],
-      tools: [tConfirm, tFetchOrder, tDeleteOrder, tMessage()],
+      tools: [tConfirm, tFetchOrder, tDeleteOrder],
       cognitive,
     })
+
     const res = exec(result)
 
     expect(res.firstIteration.status).toBe('partial')
-    check(res.allMessagesSent, 'should have asked for confirmation').toBe(true)
-    extract(result.context.injectedVariables, z.object({ orderId: z.string() }) as never).toMatchInlineSnapshot(`
+    expect(confirmMessages).length(1)
+    expect(result.context.injectedVariables).toMatchInlineSnapshot(`
       {
         "orderId": "O666",
       }

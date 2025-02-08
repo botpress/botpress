@@ -3,7 +3,7 @@ import { z } from '@bpinternal/zui'
 
 import { ObjectInstance, getObjectTypings, makeObject } from './objects.js'
 import { init } from './utils.js'
-import { makeTool } from './tools.js'
+import { Tool } from './tool.js'
 
 describe('Objects', () => {
   beforeAll(async () => {
@@ -12,28 +12,28 @@ describe('Objects', () => {
 
   it('minimum viable object', () => {
     makeObject({
-      name: 'add'
+      name: 'add',
     })
   })
 
   it('with description', () => {
     makeObject({
       name: 'add',
-      description: 'Adds two numbers'
+      description: 'Adds two numbers',
     })
   })
 
   it('name is assignable', () => {
     expect(() =>
       makeObject({
-        name: 'add numbers'
+        name: 'add numbers',
       })
     ).toThrow(/name/i)
   })
 
   it('cant duplicate ', () => {
     const obj = makeObject({
-      name: 'add'
+      name: 'add',
     })
     expect(() => ObjectInstance.parse({ ...obj })).toThrow(/makeObject/i)
   })
@@ -46,7 +46,7 @@ describe('Object typings', () => {
 
   it('simple object with no properties', async () => {
     const obj = makeObject({
-      name: 'MyObject'
+      name: 'MyObject',
     })
 
     const typings = await getObjectTypings(obj).withProperties().withTools().build()
@@ -68,8 +68,8 @@ describe('Object typings', () => {
         { name: 'emptyArray', value: [] },
         { name: 'emptyObject', value: {} },
         { name: 'simpleObject', value: { a: 1 } },
-        { name: 'simpleArray', value: [1, 2, 3] }
-      ]
+        { name: 'simpleArray', value: [1, 2, 3] },
+      ],
     })
 
     const typings = await getObjectTypings(obj).withProperties().withTools().build()
@@ -100,17 +100,17 @@ describe('Object typings', () => {
       name: 'MyObject',
       description: 'This is a test object.\nThis is a second line.',
       tools: [
-        makeTool({
+        new Tool({
           name: 'add',
           description: 'Adds two numbers',
           input: z.object({
             a: z.number(),
-            b: z.number()
+            b: z.number(),
           }),
           output: z.number(),
-          fn: ({ a, b }) => a + b
-        })
-      ]
+          handler: async ({ a, b }) => a + b,
+        }),
+      ],
     })
 
     const typings = await getObjectTypings(obj).withProperties().withTools().build()
@@ -136,20 +136,20 @@ describe('Object typings', () => {
       name: 'MyObject',
       properties: [
         { name: 'age', value: 20 },
-        { name: 'name', value: 'John Smith' }
+        { name: 'name', value: 'John Smith' },
       ],
       tools: [
-        makeTool({
+        new Tool({
           name: 'add',
           description: 'Adds two numbers',
           input: z.object({
             a: z.number(),
-            b: z.number()
+            b: z.number(),
           }),
           output: z.number(),
-          fn: ({ a, b }) => a + b
-        })
-      ]
+          handler: async ({ a, b }) => a + b,
+        }),
+      ],
     })
 
     const typings = await getObjectTypings(obj).withProperties().withTools().build()
@@ -178,7 +178,7 @@ describe('Object typings', () => {
       getObjectTypings(
         makeObject({
           name: 'MyObject',
-          properties: [{ name: 'Age of the user!', value: 20 }]
+          properties: [{ name: 'Age of the user!', value: 20 }],
         })
       )
         .withProperties()
@@ -194,8 +194,8 @@ describe('Object typings', () => {
       properties: [
         { name: 'AgeOfUser', value: 20, writable: true },
         { name: 'name', value: 'john', writable: true },
-        { name: 'nationality', value: 'canada', writable: false }
-      ]
+        { name: 'nationality', value: 'canada', writable: false },
+      ],
     })
 
     const typings = await getObjectTypings(obj).withProperties().withTools().build()
@@ -224,11 +224,11 @@ describe('Object typings', () => {
           value: { street: '123 Main St', city: 'Toronto' },
           type: z.object({
             street: z.string(),
-            city: z.string()
+            city: z.string(),
           }),
-          writable: false
-        }
-      ]
+          writable: false,
+        },
+      ],
     })
 
     const typings = await getObjectTypings(obj).withProperties().withTools().build()
@@ -260,17 +260,17 @@ describe('Object typings', () => {
           name: 'test4',
           type: z.array(z.string()),
           description: 'With a description and value here',
-          value: ['a', 'b']
+          value: ['a', 'b'],
         },
         {
           name: 'test5',
           type: z.array(z.string()),
           description: 'With a description and value here',
           value: ['a', 'b'],
-          writable: true
-        }
+          writable: true,
+        },
       ],
-      tools: []
+      tools: [],
     })
     const typings = await getObjectTypings(obj).withProperties().withTools().build()
     expect(typings).toMatchInlineSnapshot(`

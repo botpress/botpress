@@ -152,14 +152,14 @@ console.log( /* this is a comment */ test(5, 6));
     const a = 'world'
    `
 
-    expect(() => runAsyncFunction({}, code)).rejects.toThrowError(InvalidCodeError)
+    await expect(() => runAsyncFunction({}, code)).rejects.toThrowError(InvalidCodeError)
   })
 
   describe('signal handling', () => {
     const debugContext = {
       THROW_SIGNAL: () => {
         throw new ExecuteSignal()
-      }
+      },
     }
 
     it('signals throw with truncated code attached and variable values', async () => {
@@ -435,10 +435,10 @@ return {
           b: 'hello',
           c: true,
           d: {
-            e: 'world'
+            e: 'world',
           },
-          f: [1, 2, 3]
-        }
+          f: [1, 2, 3],
+        },
       }
 
       const result = await runAsyncFunction(context, code)
@@ -470,12 +470,12 @@ return {
           b: 'hello',
           c: true,
           d: {
-            e: 'world'
+            e: 'world',
           },
           f: [1, 2, 3],
           g: null,
-          h: undefined
-        }
+          h: undefined,
+        },
       }
 
       const result = await runAsyncFunction(context, code)
@@ -582,7 +582,7 @@ return {
       `
 
       const context = {
-        myObj: Object.seal({ name: 'Jane' })
+        myObj: Object.seal({ name: 'Jane' }),
       }
 
       const result = await runAsyncFunction(context, code)
@@ -599,7 +599,7 @@ return {
       `
 
       const context = {
-        myObj: Object.seal({ name: 'Jane' })
+        myObj: Object.seal({ name: 'Jane' }),
       }
 
       const result = await runAsyncFunction(context, code)
@@ -613,7 +613,7 @@ return {
       `
 
       const context = {
-        myObj: Object.preventExtensions({ name: 'Jane' })
+        myObj: Object.preventExtensions({ name: 'Jane' }),
       }
 
       const result = await runAsyncFunction(context, code)
@@ -632,7 +632,7 @@ return {
       `
 
       const context = {
-        myObj: Object.preventExtensions({ name: 'Jane' })
+        myObj: Object.preventExtensions({ name: 'Jane' }),
       }
 
       const result = await runAsyncFunction(context, code)
@@ -651,7 +651,7 @@ return {
       `
 
       const context = {
-        myObj: Object.preventExtensions({ name: 'Jane' })
+        myObj: Object.preventExtensions({ name: 'Jane' }),
       }
 
       const result = await runAsyncFunction(context, code)
@@ -667,7 +667,7 @@ return {
       `
 
       const context = {
-        myObj: Object.preventExtensions({ name: 'Jane', age: undefined, city: null })
+        myObj: Object.preventExtensions({ name: 'Jane', age: undefined, city: null }),
       }
 
       const result = await runAsyncFunction(context, code)
@@ -692,11 +692,11 @@ return {
         __origin: 'test',
         name: 'Jane',
         age: undefined,
-        city: null
+        city: null,
       }
 
       const myObj = {
-        __origin: 'test'
+        __origin: 'test',
       }
 
       Object.defineProperty(myObj, 'name', {
@@ -706,7 +706,7 @@ return {
         },
         set(value) {
           innerValues.name = value
-        }
+        },
       })
 
       Object.defineProperty(myObj, 'age', {
@@ -716,7 +716,7 @@ return {
         },
         set(value) {
           innerValues.age = value
-        }
+        },
       })
 
       Object.defineProperty(myObj, 'city', {
@@ -726,14 +726,14 @@ return {
         },
         set(value) {
           innerValues.city = value
-        }
+        },
       })
 
       Object.preventExtensions(myObj)
       Object.seal(myObj)
 
       const context = {
-        myObj
+        myObj,
       }
 
       const result = await runAsyncFunction(context, code)
@@ -760,8 +760,8 @@ return {
           myProperty: 'property:',
           myFn: async () => {
             return 'Hello World'
-          }
-        }
+          },
+        },
       }
 
       const result = await runAsyncFunction(context, code)
@@ -783,8 +783,8 @@ return {
           myObject: undefined,
           myFn: async () => {
             return 'Hello World'
-          }
-        }
+          },
+        },
       }
 
       const result = await runAsyncFunction(context, code)

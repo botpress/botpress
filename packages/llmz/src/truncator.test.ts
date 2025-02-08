@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest'
-import { TextTokenizer } from '@botpress/wasm'
+import { TextTokenizer } from '@bpinternal/thicktoken'
 
 import { truncateWrappedContent, wrapContent } from './truncator.js'
 import { getTokenizer, init } from './utils.js'
@@ -31,8 +31,8 @@ Header
 ${wrapContent(ONE_TOKEN.repeat(250))}
 -----------
 Footer
-`
-      }
+`,
+      },
     ]
 
     const tokenLimit = 25
@@ -70,8 +70,8 @@ Header
 /* ${wrapContent(ONE_TOKEN.repeat(250))} */
 -----------
 Footer
-`
-      }
+`,
+      },
     ]
 
     const tokenLimit = 25
@@ -102,12 +102,12 @@ Footer
     const messages = [
       {
         role: 'user',
-        content: `It's small enough`
+        content: `It's small enough`,
       },
       {
         role: 'user',
-        content: `That's what she said`
-      }
+        content: `That's what she said`,
+      },
     ]
 
     const tokenLimit = 25
@@ -127,7 +127,7 @@ ${wrapContent(ONE_TOKEN.repeat(2000))}
 And another one:
 ${wrapContent(ONE_TOKEN.repeat(5000))}
 ...
-`
+`,
       },
       {
         role: 'user',
@@ -137,20 +137,20 @@ ${wrapContent(ONE_TOKEN.repeat(1000))}
 
 And another one:
 ${wrapContent(ONE_TOKEN.repeat(9000))}
-`
+`,
       },
       {
         role: 'user',
         content: `
 ${wrapContent(ONE_TOKEN.repeat(10_000))}
-`
+`,
       },
       {
         role: 'user',
         content: `
 ${wrapContent(ONE_TOKEN.repeat(1000))}
-`
-      }
+`,
+      },
     ]
 
     const tokenLimit = 10_000
@@ -190,8 +190,8 @@ Here's a very big variable:
 ${wrapContent(ONE_TOKEN.repeat(1_000))}
 Now, here's some content that you can't truncate:
 ${ONE_TOKEN.repeat(1_000)}
-`
-      }
+`,
+      },
     ]
 
     expect(() => truncateWrappedContent({ messages, tokenLimit: 500, throwOnFailure: true })).toThrow()
@@ -206,8 +206,8 @@ Here's a very big variable:
 """
 ${wrapContent(N_TOKENS(1_000), { preserve: 'top' })}
 """
-`
-      }
+`,
+      },
     ]
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 20, throwOnFailure: false })
@@ -235,8 +235,8 @@ Here's a very big variable:
 """
 ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
 """
-`
-      }
+`,
+      },
     ]
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 20, throwOnFailure: false })
@@ -265,8 +265,8 @@ Here's a very big variable:
 """
 ${wrapContent(N_TOKENS(1_000), { preserve: 'both' })}
 """
-`
-      }
+`,
+      },
     ]
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 20, throwOnFailure: false })
@@ -302,8 +302,8 @@ ${wrapContent(N_TOKENS(1_500), { preserve: 'both' })}
 
 ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
 """
-`
-      }
+`,
+      },
     ]
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 60, throwOnFailure: false })
@@ -454,12 +454,12 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
     const messages = [
       {
         role: 'user',
-        content: wrapContent(N_TOKENS(4_000), { flex: 1 })
+        content: wrapContent(N_TOKENS(4_000), { flex: 1 }),
       },
       {
         role: 'user',
-        content: wrapContent(N_TOKENS(2_000), { flex: 4 })
-      }
+        content: wrapContent(N_TOKENS(2_000), { flex: 4 }),
+      },
     ]
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 2000, throwOnFailure: false })
@@ -476,12 +476,12 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
     const messages = [
       {
         role: 'user',
-        content: wrapContent(N_TOKENS(1000), { flex: 1, minTokens: 275 })
+        content: wrapContent(N_TOKENS(1000), { flex: 1, minTokens: 275 }),
       },
       {
         role: 'user',
-        content: wrapContent(N_TOKENS(1000), { flex: 4, minTokens: 100 })
-      }
+        content: wrapContent(N_TOKENS(1000), { flex: 4, minTokens: 100 }),
+      },
     ]
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 50, throwOnFailure: false })
@@ -501,24 +501,24 @@ describe('bug fixes', () => {
     const messages = [
       {
         role: 'user',
-        content: 'Before ' + wrapContent('Intact') + ' After'
+        content: 'Before ' + wrapContent('Intact') + ' After',
       },
       {
         role: 'user',
-        content: wrapContent('Before ' + wrapContent('Intact') + ' After')
+        content: wrapContent('Before ' + wrapContent('Intact') + ' After'),
       },
       {
         role: 'user',
-        content: 'Before ' + wrapContent(wrapContent('Intact')) + ' After'
+        content: 'Before ' + wrapContent(wrapContent('Intact')) + ' After',
       },
       {
         role: 'user',
-        content: wrapContent('Before ' + wrapContent('Intact')) + ' After'
+        content: wrapContent('Before ' + wrapContent('Intact')) + ' After',
       },
       {
         role: 'user',
-        content: wrapContent('Before ' + wrapContent('Intact') + ' After')
-      }
+        content: wrapContent('Before ' + wrapContent('Intact') + ' After'),
+      },
     ]
 
     const truncatedMessages = truncateWrappedContent({ messages, tokenLimit: 10000 })

@@ -5,7 +5,7 @@ import { ObjectDefinition, ObjectInstance } from './objects.js'
 import type { OAI } from './openai.js'
 import { Oct2024Prompt } from './prompts/oct-2024.js'
 import { SnapshotResult } from './snapshots.js'
-import { ToolImplementation, getToolsWithUniqueNames } from './tools.js'
+import { Tool } from './tool.js'
 import { TranscriptArray, TranscriptMessage } from './transcript.js'
 import { Tokens } from './utils.js'
 
@@ -18,7 +18,7 @@ export const LLMZ_DEFAULT_VERSION = Oct2024Prompt.version
 export const CreateContextProps = z.object({
   instructions: Tokens(0, 100_000).optional(),
   objects: z.array(ObjectInstance).min(0).max(100).optional().default([]),
-  tools: z.array(ToolImplementation).min(0).max(100).optional().default([]),
+  tools: z.array(z.any()).min(0).max(100).optional().default([]),
   /** TODO: throw MaxLoopReached */
   loop: z.number().min(1).max(100).optional().default(1),
   temperature: z.number().min(0).max(2).optional().default(0.2),
@@ -49,11 +49,11 @@ export const createContext = (props: CreateContextProps) => {
   const version = Oct2024Prompt
 
   for (const obj of opts.objects) {
-    obj.tools = getToolsWithUniqueNames(obj.tools ?? [])
+    obj.tools = Tool.withUniqueNames(obj.tools)
     tool_names.push(...obj.tools.map((tool) => ({ object: obj.name, name: tool.name })))
   }
 
-  opts.tools = getToolsWithUniqueNames(opts.tools ?? [])
+  opts.tools = Tool.withUniqueNames(opts.tools)
   for (const tool of opts.tools) {
     tool_names.push({ name: tool.name })
   }

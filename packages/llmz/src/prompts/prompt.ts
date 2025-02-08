@@ -2,7 +2,7 @@ import { CodeExecutionError, InvalidCodeError, ThinkSignal } from '../errors.js'
 import type { ObjectInstance } from '../objects.js'
 import { OAI } from '../openai.js'
 import { RejectCallback, ResolveCallback, SnapshotResult } from '../snapshots.js'
-import type { ToolImplementation } from '../tools.js'
+import { type Tool } from '../tool.js'
 import type { TranscriptArray } from '../transcript.js'
 
 export namespace LLMzPrompts {
@@ -10,7 +10,7 @@ export namespace LLMzPrompts {
     instructions?: string
     transcript: TranscriptArray
     objects: ObjectInstance[]
-    globalTools: ToolImplementation[]
+    globalTools: Tool[]
   }
 
   export type InvalidCodeProps = {

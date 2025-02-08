@@ -2,12 +2,16 @@
   "name": "@botpress/llmz",
   "type": "module",
   "description": "LLMz – An LLM-native Typescript VM built on top of Zui",
-  "version": "0.0.1-beta.6",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "version": "0.0.1-beta.9",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "scripts": {
-    "build": "tsup",
+    "build": "pnpm build:markdown && tsup",
     "watch": "tsup --watch",
     "test": "vitest run --config vitest.config.ts",
     "test:update": "vitest -u run --config vitest.config.ts",
@@ -34,11 +38,10 @@
     "lru-cache": "^11.0.2",
     "ms": "^2.1.3",
     "prettier": "^3.4.2",
-    "source-map-js": "1.2.0",
     "ulid": "^2.3.0"
   },
   "devDependencies": {
-    "@botpress/vai": "^0.0.5",
+    "@botpress/client": "^0.40.0",
     "@microsoft/api-extractor": "^7.49.0",
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.6.8",
@@ -50,25 +53,31 @@
     "dotenv": "^16.4.7",
     "esbuild": "^0.24.2",
     "glob": "^11.0.0",
+    "source-map-js": "1.2.1",
     "ts-node": "^10.9.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   },
   "peerDependencies": {
-    "@botpress/client": "^0.40.0",
     "@botpress/cognitive": "^0.1.1",
-    "@botpress/wasm": "^1.0.0",
+    "@bpinternal/thicktoken": "^1.0.0",
     "@bpinternal/zui": "^0.13.6"
   },
-  "dependenciesMeta": {
+  "peerDependenciesMeta": {
+    "@botpress/cognitive": {
+      "optional": false
+    },
+    "@bpinternal/thicktoken": {
+      "optional": false
+    },
     "@bpinternal/zui": {
-      "injected": true
+      "optional": false
     }
   },
   "pnpm": {
     "patchedDependencies": {
-      "source-map-js@1.2.0": "patches/source-map-js@1.2.0.patch"
+      "source-map-js@1.2.1": "patches/source-map-js@1.2.1.patch"
     }
   }
 }

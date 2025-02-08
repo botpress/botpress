@@ -1,8 +1,8 @@
 import { Client } from '@botpress/client'
+import { Cognitive } from '@botpress/cognitive'
 
 import fs from 'node:fs'
 import path from 'node:path'
-import { IClonable } from '../client'
 
 function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
   const lines = fs.readFileSync(filePath, 'utf-8').split(/\r?\n/).filter(Boolean)
@@ -18,50 +18,62 @@ function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
   return map
 }
 
-const cache: Map<string, { key: string; value: any }> = readJSONL(
-  path.resolve(import.meta.dirname, './cache.jsonl'),
-  'key'
-)
+const cache: Map<string, { key: string; value: any }> = readJSONL(path.resolve(__dirname, './cache.jsonl'), 'key')
 
-export const getCachedClient = (
-  client: Client = new Client({
-    apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.dev',
-    botId: process.env.CLOUD_BOT_ID,
-    token: process.env.CLOUD_PAT
-  })
-) => {
-  const proxy: IClonable<Client> = new Proxy(client, {
-    get(target, prop) {
-      if (prop === 'callAction') {
-        return async (...args: Parameters<Client['callAction']>) => {
-          const key = fastHash(JSON.stringify(args))
-          const cached = cache.get(key)
+class CachedClient extends Client {
+  private _client: Client
 
-          if (cached) {
-            return cached.value
-          }
+  public constructor(options: ConstructorParameters<typeof Client>[0]) {
+    super(options)
+    this._client = new Client(options)
+  }
 
-          const response = await target.callAction(...args)
-          cache.set(key, { key, value: response })
+  public callAction = async (...args: Parameters<Client['callAction']>) => {
+    const key = fastHash(JSON.stringify(args))
+    const cached = cache.get(key)
 
-          fs.appendFileSync(
-            path.resolve(import.meta.dirname, './cache.jsonl'),
-            JSON.stringify({
-              key,
-              value: response
-            }) + '\n'
-          )
-
-          return response
-        }
-      }
-      return Reflect.get(target, prop)
+    if (cached) {
+      return cached.value
     }
-  }) as IClonable<Client>
 
-  proxy.clone = () => getCachedClient(client)
+    const response = await this._client.callAction(...args)
+    cache.set(key, { key, value: response })
 
-  return proxy
+    fs.appendFileSync(
+      path.resolve(__dirname, './cache.jsonl'),
+      JSON.stringify({
+        key,
+        value: response,
+      }) + '\n'
+    )
+
+    return response
+  }
+
+  public clone() {
+    return this
+  }
+}
+
+export const getCachedCognitiveClient = () => {
+  const cognitive = new Cognitive({
+    client: new CachedClient({
+      apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.dev',
+      botId: process.env.CLOUD_BOT_ID,
+      token: process.env.CLOUD_PAT,
+    }),
+    provider: {
+      deleteModelPreferences: async () => {},
+      saveModelPreferences: async () => {},
+      fetchInstalledModels: async () => [],
+      fetchModelPreferences: async () => ({
+        best: ['openai:gpt-4o-2024-11-20'] as const,
+        fast: ['openai:gpt-4o-2024-11-20'] as const,
+        downtimes: [],
+      }),
+    },
+  })
+  return cognitive
 }
 
 function fastHash(str: string): string {

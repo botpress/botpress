@@ -3,7 +3,6 @@ import { isPlainObject } from 'lodash-es'
 import { inspect } from '../inspect.js'
 import { getObjectTypings } from '../objects.js'
 import { OAI } from '../openai.js'
-import { getToolTypings } from '../tools.js'
 import { wrapContent } from '../truncator.js'
 
 import SYSTEM_PROMPT_TEXT from './oct-2024-system.md.js'
@@ -78,7 +77,7 @@ export const getSystemMessage: PromptVersion['getSystemMessage'] = async (props)
   }
 
   for (const tool of props.globalTools) {
-    dts += (await getToolTypings(tool)) + '\n'
+    dts += (await tool.getTypings()) + '\n'
     tool_names.push(tool.name)
     if (tool.name === 'Message') {
       canTalk = true
