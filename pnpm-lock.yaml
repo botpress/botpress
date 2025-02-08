@@ -2112,8 +2112,8 @@ importers:
         specifier: ^0.1.1
         version: 0.1.4
       '@bpinternal/thicktoken':
-        specifier: ^1.0.0
-        version: 1.0.2
+        specifier: ^1.0.3
+        version: 1.0.3
       '@bpinternal/zui':
         specifier: ^0.13.6
         version: 0.13.6
@@ -4102,10 +4102,8 @@ packages:
       - supports-color
     dev: true
 
-  /@bpinternal/thicktoken@1.0.2:
-    resolution: {integrity: sha512-3PJXxIPkoFwFl+RmZMoMj0usHchP2krMKUlGyvDSd/sEHf+qA1rJjRJq7em/Y+lXDNlzis7k6j3QBYudGPvLAQ==}
-    dependencies:
-      tiktoken: 1.0.20
+  /@bpinternal/thicktoken@1.0.3:
+    resolution: {integrity: sha512-ifAaTJ6d6j4IgMgKU5qPVcyOIEbdTGklJ/V1r2woWcU8WtPo5CufU0jaZiZZaBFKFSeHpjPPHu/SgGIdm78C4A==}
     dev: false
 
   /@bpinternal/tunnel@0.1.1:
@@ -15874,10 +15872,6 @@ packages:
 
   /through@2.3.8:
     resolution: {integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==}
-
-  /tiktoken@1.0.20:
-    resolution: {integrity: sha512-zVIpXp84kth/Ni2me1uYlJgl2RZ2EjxwDaWLeDY/s6fZiyO9n1QoTOM5P7ZSYfToPvAvwYNMbg5LETVYVKyzfQ==}
-    dev: false
 
   /timers-ext@0.1.7:
     resolution: {integrity: sha512-b85NUNzTSdodShTIbky6ZF02e8STtVVfD+fu4aXXShEELpozH+bCpJLYMPZbsABN2wDH7fJpqIoXxJpzbf0NqQ==}

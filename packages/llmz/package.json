@@ -61,7 +61,7 @@
   },
   "peerDependencies": {
     "@botpress/cognitive": "^0.1.1",
-    "@bpinternal/thicktoken": "^1.0.0",
+    "@bpinternal/thicktoken": "^1.0.3",
     "@bpinternal/zui": "^0.13.6"
   },
   "peerDependenciesMeta": {
