@@ -40,7 +40,7 @@ jobs:
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'staging'
-          force: ${{ github.event_name == 'pull_request' || github.event.inputs.force == 'true' }}
+          force: ${{ github.event.inputs.force == 'true' }}
           dry_run: ${{ github.event_name == 'pull_request' }}
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
