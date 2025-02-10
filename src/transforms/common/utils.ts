@@ -46,6 +46,30 @@ export function unknownToTypescriptValue(x: unknown): string {
   return JSON.stringify(x)
 }
 
+/**
+ * @returns a valid typescript value usable in `const myValue = ${x}`
+ */
+export const arrayOfUnknownToTypescriptArray = (arr: Primitive[], asConst?: boolean) => {
+  const maybeAsConst = asConst ? ' as const' : ''
+
+  return `[ ${arr.map(unknownToTypescriptValue).join(', ')} ]${maybeAsConst}`
+}
+
+/**
+ * @returns a valid typescript value usable in `const myValue = ${x}`
+ */
+export const recordOfUnknownToTypescriptRecord = (
+  record: Record<string | number | symbol, unknown>,
+  asConst?: boolean,
+) => {
+  const entries = Object.entries(record)
+  const maybeAsConst = asConst ? ' as const' : ''
+
+  return `{ ${entries
+    .map(([key, value]) => `${toPropertyKey(key)}: ${unknownToTypescriptValue(value)}`)
+    .join(', ')} }${maybeAsConst}`
+}
+
 export const toPropertyKey = (key: string) => {
   if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key)) {
     return key

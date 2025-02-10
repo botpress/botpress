@@ -1,8 +1,9 @@
-import { describe, expect } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { toTypescriptSchema as toTypescript } from '.'
 import { evalZuiString } from '../common/eval-zui-string'
 import * as errors from '../common/errors'
 import z, { ZodLiteral, ZodSchema, ZodType } from '../../z'
+import { UIComponentDefinitions } from '../../ui'
 
 const evalZui = (source: string): ZodSchema => {
   const evalResult = evalZuiString(source)
@@ -13,129 +14,129 @@ const evalZui = (source: string): ZodSchema => {
 }
 
 const assert = (source: ZodType) => ({
-  toGenerateItself: async () => {
+  toGenerateItself() {
     const actual = toTypescript(source)
     const destination = evalZui(actual)
     expect(source.isEqual(destination)).toBe(true)
   },
-  toThrowErrorWhenGenerating: async () => {
+  toThrowErrorWhenGenerating() {
     const fn = () => toTypescript(source)
     expect(fn).toThrowError(errors.ZuiToTypescriptSchemaError)
   },
 })
 
-describe('toTypescriptZuiString', () => {
-  test('string', async () => {
+describe.concurrent('toTypescriptZuiString', () => {
+  test('string', () => {
     const schema = z.string()
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('number', async () => {
+  test('number', () => {
     const schema = z.number()
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('nan', async () => {
+  test('nan', () => {
     const schema = z.nan()
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('bigint', async () => {
+  test('bigint', () => {
     const schema = z.bigint()
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('boolean', async () => {
+  test('boolean', () => {
     const schema = z.boolean()
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('date', async () => {
+  test('date', () => {
     const schema = z.date()
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('undefined', async () => {
+  test('undefined', () => {
     const schema = z.undefined()
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('null', async () => {
+  test('null', () => {
     const schema = z.null()
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('any', async () => {
+  test('any', () => {
     const schema = z.any()
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('unknown', async () => {
+  test('unknown', () => {
     const schema = z.unknown()
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('never', async () => {
+  test('never', () => {
     const schema = z.never()
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('void', async () => {
+  test('void', () => {
     const schema = z.void()
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('array', async () => {
+  test('array', () => {
     const schema = z.array(z.string())
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('object', async () => {
+  test('object', () => {
     const schema = z.object({
       a: z.string(),
       b: z.number(),
     })
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('union', async () => {
+  test('union', () => {
     const schema = z.union([z.string(), z.number(), z.boolean()])
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('discriminatedUnion', async () => {
+  test('discriminatedUnion', () => {
     const schema = z.discriminatedUnion('type', [
       z.object({ type: z.literal('A'), a: z.string() }),
       z.object({ type: z.literal('B'), b: z.number() }),
     ])
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('intersection', async () => {
+  test('intersection', () => {
     const schema = z.intersection(z.object({ a: z.string() }), z.object({ b: z.number() }))
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('tuple', async () => {
+  test('tuple', () => {
     const schema = z.tuple([z.string(), z.number()])
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('record', async () => {
+  test('record', () => {
     const schema = z.record(z.string(), z.number())
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('map', async () => {
+  test('map', () => {
     const schema = z.map(z.string(), z.number())
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('set', async () => {
+  test('set', () => {
     const schema = z.set(z.string())
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('function with no argument', async () => {
+  test('function with no argument', () => {
     const schema = z.function().returns(z.void())
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('function with multiple arguments', async () => {
+  test('function with multiple arguments', () => {
     const schema = z.function().args(z.number(), z.string()).returns(z.boolean())
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('lazy', async () => {
+  test('lazy', () => {
     const schema = z.lazy(() => z.string())
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('literal string', async () => {
+  test('literal string', () => {
     const schema = z.literal('banana')
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('literal number', async () => {
+  test('literal number', () => {
     const schema = z.literal(42)
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('literal symbol', async () => {
+  test('literal symbol', () => {
     const source = z.literal(Symbol('banana'))
     const dest = evalZui(toTypescript(source)) as ZodLiteral
 
@@ -144,79 +145,227 @@ describe('toTypescriptZuiString', () => {
     expect(typeof value).toBe('symbol')
     expect(value.description).toBe('banana')
   })
-  test('literal bigint', async () => {
+  test('literal bigint', () => {
     const schema = z.literal(BigInt(42))
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('literal boolean', async () => {
+  test('literal boolean', () => {
     const schema = z.literal(true)
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('literal null', async () => {
+  test('literal null', () => {
     const schema = z.literal(null)
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('literal undefined', async () => {
+  test('literal undefined', () => {
     const schema = z.literal(undefined)
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('enum', async () => {
+  test('enum', () => {
     const schema = z.enum(['banana', 'apple', 'orange'])
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('effects', async () => {
+  test('effects', () => {
     const schema = z.string().transform((s) => s.toUpperCase())
-    await assert(schema).toThrowErrorWhenGenerating()
+    assert(schema).toThrowErrorWhenGenerating()
   })
-  test('nativeEnum', async () => {
+  test('nativeEnum', () => {
     const schema = z.nativeEnum({
       Banana: 'banana',
       Apple: 'apple',
       Orange: 'orange',
     })
-    await assert(schema).toThrowErrorWhenGenerating()
+    assert(schema).toThrowErrorWhenGenerating()
   })
-  test('optional', async () => {
+  test('optional', () => {
     const schema = z.optional(z.string())
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('nullable', async () => {
+  test('nullable', () => {
     const schema = z.nullable(z.string())
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('default', async () => {
+  test('default', () => {
     const schema1 = z.string().default('banana')
-    await assert(schema1).toGenerateItself()
+    assert(schema1).toGenerateItself()
 
     const schema2 = z.string().array().default(['banana'])
-    await assert(schema2).toGenerateItself()
+    assert(schema2).toGenerateItself()
   })
-  test('catch', async () => {
+  test('catch', () => {
     const schema = z.string().catch('banana')
-    await assert(schema).toThrowErrorWhenGenerating()
+    assert(schema).toThrowErrorWhenGenerating()
   })
-  test('promise', async () => {
+  test('promise', () => {
     const schema = z.promise(z.string())
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('branded', async () => {
+  test('branded', () => {
     const schema = z.string().brand('MyString')
-    await assert(schema).toThrowErrorWhenGenerating()
+    assert(schema).toThrowErrorWhenGenerating()
   })
-  test('pipeline', async () => {
+  test('pipeline', () => {
     const schema = z.pipeline(z.string(), z.number())
-    await assert(schema).toThrowErrorWhenGenerating()
+    assert(schema).toThrowErrorWhenGenerating()
   })
-  test('symbol', async () => {
+  test('symbol', () => {
     const schema = z.symbol()
-    await assert(schema).toThrowErrorWhenGenerating()
+    assert(schema).toThrowErrorWhenGenerating()
   })
-  test('readonly', async () => {
+  test('readonly', () => {
     const schema = z.readonly(z.string())
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
   })
-  test('ref', async () => {
+  test('ref', () => {
     const schema = z.ref('#item')
-    await assert(schema).toGenerateItself()
+    assert(schema).toGenerateItself()
+  })
+
+  describe.concurrent('first-party zod modifiers', () => {
+    test('describe', () => {
+      // Arrange
+      const description = 'patate'
+      const schema = z.string().describe(description)
+
+      // Act
+      const evaluated = evalZui(toTypescript(schema))
+
+      // Assert
+      assert(schema).toGenerateItself()
+      expect(evaluated.description).toBe(description)
+    })
+  })
+
+  describe.concurrent('zui extensions', () => {
+    test('title', () => {
+      // Arrange
+      const title = 'patate'
+      const schema = z.string().title(title)
+
+      // Act & Assert
+      const evaluated = evalZui(toTypescript(schema))
+      assert(schema).toGenerateItself()
+      expect(evaluated.getMetadata().title).toBe(title)
+    })
+
+    test('displayAs', () => {
+      // Arrange
+      const testComponentDefinitions = {
+        string: {
+          customstringcomponent: {
+            id: 'customstringcomponent',
+            params: z.object({ multiline: z.boolean() }),
+          },
+        },
+        array: {},
+        object: {},
+        boolean: {},
+        number: {},
+        discriminatedUnion: {},
+      } as const satisfies UIComponentDefinitions
+      const schema = z
+        .string()
+        .displayAs<typeof testComponentDefinitions>({ id: 'customstringcomponent', params: { multiline: true } })
+
+      // Act & Assert
+      const evaluated = evalZui(toTypescript(schema))
+      assert(schema).toGenerateItself()
+      expect(evaluated.getMetadata().displayAs).toEqual([
+        'customstringcomponent',
+        {
+          multiline: true,
+        },
+      ])
+    })
+
+    test('disabled', () => {
+      // Arrange
+      const schema = z.string().disabled()
+
+      // Act & Assert
+      const evaluated = evalZui(toTypescript(schema))
+      assert(schema).toGenerateItself()
+      expect(evaluated.getMetadata().disabled).toBe(true)
+    })
+
+    test('disabled(false)', () => {
+      // Arrange
+      const schema = z.string().disabled(false)
+
+      // Act & Assert
+      const evaluated = evalZui(toTypescript(schema))
+      assert(schema).toGenerateItself()
+      expect(evaluated.getMetadata().disabled).toBe(undefined)
+    })
+
+    test('disabled(fn: bool)', () => {
+      // Arrange
+      const schema = z.string().disabled(() => true)
+
+      // Act & Assert
+      const evaluated = evalZui(toTypescript(schema))
+      assert(schema).toGenerateItself()
+      expect(evaluated.getMetadata().disabled).toBe('()=>true')
+    })
+
+    test('hidden', () => {
+      // Arrange
+      const schema = z.string().hidden()
+
+      // Act & Assert
+      const evaluated = evalZui(toTypescript(schema))
+      assert(schema).toGenerateItself()
+      expect(evaluated.getMetadata().hidden).toBe(true)
+    })
+
+    test('hidden(false)', () => {
+      // Arrange
+      const schema = z.string().hidden(false)
+
+      // Act & Assert
+      const evaluated = evalZui(toTypescript(schema))
+      assert(schema).toGenerateItself()
+      expect(evaluated.getMetadata().hidden).toBe(undefined)
+    })
+
+    test('hidden(fn: bool)', () => {
+      // Arrange
+      const schema = z.string().hidden(() => true)
+
+      // Act & Assert
+      const evaluated = evalZui(toTypescript(schema))
+      assert(schema).toGenerateItself()
+      expect(evaluated.getMetadata().hidden).toBe('()=>true')
+    })
+
+    test('placeholder', () => {
+      // Arrange
+      const schema = z.string().placeholder('patate')
+
+      // Act & Assert
+      const evaluated = evalZui(toTypescript(schema))
+      assert(schema).toGenerateItself()
+      expect(evaluated.getMetadata().placeholder).toBe('patate')
+    })
+
+    test('secret', () => {
+      // Arrange
+      const schema = z.string().secret()
+
+      // Act & Assert
+      const evaluated = evalZui(toTypescript(schema))
+      assert(schema).toGenerateItself()
+      expect(evaluated.getMetadata().secret).toBe(true)
+    })
+
+    test('metadata', () => {
+      // Arrange
+      const schema = z.string().metadata({ patate: 'pilée' })
+
+      // Act & Assert
+      const evaluated = evalZui(toTypescript(schema))
+      assert(schema).toGenerateItself()
+      expect(evaluated.getMetadata().patate).toBe('pilée')
+    })
   })
 })
