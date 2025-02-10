@@ -3,7 +3,7 @@ import { Cognitive } from '../src/client'
 import { getTestClient } from './client'
 import MODELS from './models.json'
 import { RemoteModelProvider } from '../src/models'
-import { GenerateContentOutput } from '../src/gen'
+import { GenerateContentOutput } from '../src/llm'
 
 const RandomResponse = {
   output: {
@@ -86,8 +86,8 @@ describe('client', () => {
         isApiError: true,
         code: 400,
         id: '123',
-        type: 'UPSTREAM_PROVIDER_FAILED',
-        subtype: 'UPSTREAM_PROVIDER_FAILED',
+        type: 'Runtime',
+        metadata: { subtype: 'UPSTREAM_PROVIDER_FAILED' },
       })
 
       provider.fetchModelPreferences.mockResolvedValue({

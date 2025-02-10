@@ -3,6 +3,7 @@ import pathlib from 'path'
 import impl from '../../src/command-implementations'
 import { ApiIntegration, fetchAllIntegrations } from '../api'
 import defaults from '../defaults'
+import * as retry from '../retry'
 import { Test } from '../typings'
 import * as utils from '../utils'
 
@@ -29,7 +30,12 @@ export const prependWorkspaceHandle: Test = {
       ...creds,
     }
 
-    const client = new Client({ apiUrl: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
+    const client = new Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
 
     await impl
       .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })

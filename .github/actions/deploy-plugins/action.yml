@@ -1,0 +1,67 @@
+name: Deploy Plugins
+description: Deploys plugins
+
+input:
+  environment:
+    type: choice
+    description: 'Environment to deploy to'
+    required: true
+    options:
+      - staging
+      - production
+  extra_filter:
+    type: string
+    description: 'Pnpm additional filters to select plugins to deploy'
+    required: false
+    default: ''
+  force:
+    type: boolean
+    description: 'Force re-deploying plugins'
+    default: false
+    required: false
+  token_cloud_ops_account:
+    description: 'Cloud Ops account token'
+    required: true
+  cloud_ops_workspace_id:
+    description: 'Cloud Ops workspace id'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Deploys Plugins
+      env:
+        ENVIRONMENT: ${{ inputs.environment }}
+        TOKEN_CLOUD_OPS_ACCOUNT: ${{ inputs.token_cloud_ops_account }}
+        CLOUD_OPS_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
+      shell: bash
+      run: |
+        api_url="${{ inputs.environment == 'staging' && 'https://api.botpress.dev' || 'https://api.botpress.cloud' }}"
+
+        # login
+
+        echo "### Logging in to $api_url ###"
+        pnpm bp login -y --api-url $api_url --workspaceId "$CLOUD_OPS_WORKSPACE_ID" --token "$TOKEN_CLOUD_OPS_ACCOUNT"
+
+        # deploy
+
+        redeploy=${{ inputs.force == 'true' && 1 || 0 }}
+        all_filters="-F '{plugins/*}' ${{ inputs.extra_filter }}"
+        list_plugins_cmd="pnpm list $all_filters --json"
+        plugin_paths=$(eval $list_plugins_cmd | jq -r "map(".path") | .[]")
+
+        for plugin_path in $plugin_paths; do
+            plugin=$(basename $plugin_path)
+            exists=$(./.github/scripts/plugin-exists.sh $plugin)
+
+            base_command="bp deploy -v -y" # all plugins are public right now            
+            if [ $exists -eq 0 ]; then
+                echo -e "\nDeploying plugin: ### $plugin ###\n"
+                pnpm retry -n 2 -- pnpm -F $plugin -c exec -- "$base_command"
+            elif [ $redeploy -eq 1 ]; then
+                echo -e "\nRe-deploying plugin: ### $plugin ###\n"
+                pnpm retry -n 2 -- pnpm -F $plugin -c exec -- "$base_command"
+            else
+                echo -e "\nSkipping plugin: ### $plugin ###\n"
+            fi
+        done

@@ -9,7 +9,7 @@ export default new IntegrationDefinition({
   title: 'Fireworks AI',
   description:
     'Choose from curated Fireworks AI models for content generation, chat completions, and audio transcription.',
-  version: '4.0.0',
+  version: '6.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -30,5 +30,5 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(llm, ({ modelRef }) => ({ modelRef }))
-  .extend(stt, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))
+  .extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))
+  .extend(stt, ({ entities: { speechToTextModelRef } }) => ({ entities: { speechToTextModelRef } }))

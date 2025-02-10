@@ -1,4 +1,13 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
+env = to_string!(.env)
 
-"{{ webhookUrl }}/{{ webhookId }}?wizard-step=start-confirm"
+clientId = "1280853706663377"
+if env == "preview" {
+  clientId = "469201159404720"
+}
+
+redirectUri = "{{ webhookUrl }}/oauth"
+scope = "instagram_business_basic,instagram_business_manage_messages"
+
+"https://www.instagram.com/oauth/authorize?enable_fb_login=1&force_authentication=0&client_id={{ clientId }}&redirect_uri={{ redirectUri }}&state={{ webhookId }}&response_type=code&scope={{ scope }}"

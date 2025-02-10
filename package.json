@@ -43,6 +43,7 @@
     "oxlint": "^0.15.5",
     "prettier": "^3.4.2",
     "retry-cli": "^0.7.0",
+    "semver": "^7.3.8",
     "sherif": "1.0.1",
     "ts-node": "^10.9.2",
     "turbo": "^2.3.3",

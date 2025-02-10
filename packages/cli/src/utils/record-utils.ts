@@ -1,3 +1,4 @@
+import bluebird from 'bluebird'
 import _ from 'lodash'
 
 export const setNullOnMissingValues = <A, B>(
@@ -47,13 +48,14 @@ export const mapValuesAsync = async <A, B>(
   record: Record<string, A>,
   fn: (value: A, key: string) => Promise<B>
 ): Promise<Record<string, B>> => {
-  const newRecord: Record<string, B> = {}
+  const entries: [string, A][] = Object.entries(record)
 
-  for (const [key, value] of Object.entries(record)) {
-    newRecord[key] = await fn(value, key)
-  }
+  const newEntries = await bluebird.map(
+    entries,
+    async ([key, value]): Promise<[string, B]> => [key, await fn(value, key)]
+  )
 
-  return newRecord
+  return Object.fromEntries(newEntries)
 }
 
 export const mapKeys = <A>(record: Record<string, A>, fn: (value: A, key: string) => string): Record<string, A> => {

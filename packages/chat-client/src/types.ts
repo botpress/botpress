@@ -17,12 +17,17 @@ type Simplify<T> = T extends (...args: infer A) => infer R
         : T
 
 export type Headers = Record<string, string>
-export type ClientProps = {
-  apiUrl: string
+
+type CommonClientProps = {
   timeout?: number
   headers?: Headers
   debug?: boolean
 }
+
+type ApiUrlClientProps = CommonClientProps & { apiUrl: string }
+type WebhookIdClientProps = CommonClientProps & { webhookId: string; baseApiUrl?: string }
+
+export type ClientProps = ApiUrlClientProps | WebhookIdClientProps
 
 export type ConnectProps = ClientProps & {
   encryptionKey?: string

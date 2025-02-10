@@ -13,16 +13,17 @@ export abstract class Module {
   private _localDependencies: Module[] = []
 
   public get path(): string {
-    return this._def.path
+    return this._def.path.split(pathlib.sep).map(strings.fileName).join(pathlib.sep)
   }
 
   /**
-   * @returns file name without extension
+   * @returns module name (equivalent to unescaped file name without extension)
    */
   public get name(): string {
-    const basename = pathlib.basename(this.path)
+    const path = this._def.path
+    const basename = pathlib.basename(path)
     if (basename === consts.INDEX_FILE || basename === consts.INDEX_DECLARATION_FILE) {
-      const dirPath = pathlib.dirname(this.path)
+      const dirPath = pathlib.dirname(path)
       const dirname = pathlib.basename(dirPath)
       return dirname
     }
@@ -119,11 +120,14 @@ export class ReExportTypeModule extends Module {
 }
 
 export class ReExportVariableModule extends Module {
-  protected constructor(def: { exportName: string }) {
+  private _extraProps: Record<string, string> = {}
+
+  protected constructor(def: { exportName: string; extraProps?: Record<string, string> }) {
     super({
       ...def,
       path: consts.INDEX_FILE,
     })
+    this._extraProps = def.extraProps ?? {}
   }
 
   public async getContent(): Promise<string> {
@@ -139,10 +143,15 @@ export class ReExportVariableModule extends Module {
 
     content += '\n'
 
+    const depProps: Record<string, string> = Object.fromEntries(
+      this.deps.map(({ name, exportName }) => [name, `${strings.importAlias(name)}.${exportName}`])
+    )
+
+    const allProps = { ...depProps, ...this._extraProps }
+
     content += `export const ${this.exportName} = {\n`
-    for (const { name, exportName: exports } of this.deps) {
-      const importAlias = strings.importAlias(name)
-      content += `  "${name}": ${importAlias}.${exports},\n`
+    for (const [key, value] of Object.entries(allProps)) {
+      content += `  "${key}": ${value},\n`
     }
     content += '}'
 

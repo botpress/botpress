@@ -18,7 +18,7 @@ export default new IntegrationDefinition({
   title: 'OpenAI',
   description:
     'Gain access to OpenAI models for text generation, speech synthesis, audio transcription, and image generation.',
-  version: '10.1.0',
+  version: '12.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -85,9 +85,8 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(llm, ({ modelRef }) => ({ modelRef }))
-  .extend(tti, ({ imageModelRef, imageGenerationParams }) => ({
-    imageModelRef,
-    imageGenerationParams,
+  .extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))
+  .extend(tti, ({ entities: { imageModelRef, imageGenerationParams } }) => ({
+    entities: { imageModelRef, imageGenerationParams },
   }))
-  .extend(stt, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))
+  .extend(stt, ({ entities: { speechToTextModelRef } }) => ({ entities: { speechToTextModelRef } }))

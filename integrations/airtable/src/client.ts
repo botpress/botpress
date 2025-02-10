@@ -1,7 +1,7 @@
 import Airtable, { type FieldSet, type Records } from 'airtable'
 import axios, { AxiosInstance } from 'axios'
-import { TableFields } from './misc/types'
 import { stringify } from 'querystring'
+import { TableFields } from './misc/types'
 
 export class AirtableApi {
   private _base: Airtable.Base

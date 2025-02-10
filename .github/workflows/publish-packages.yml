@@ -21,8 +21,6 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          turbo_team: ${{ secrets.TURBO_TEAM }}
-          turbo_token: ${{ secrets.TURBO_TOKEN }}
           extra_filters: '-F @botpress/*'
 
       - name: Publish Client
@@ -49,4 +47,14 @@ jobs:
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           path: './packages/cognitive'
+          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
+      - name: Publish Vai
+        uses: botpress/gh-actions/publish-if-not-exists@master
+        with:
+          path: './packages/vai'
+          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
+      - name: Publish Zai
+        uses: botpress/gh-actions/publish-if-not-exists@master
+        with:
+          path: './packages/vai'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'

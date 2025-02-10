@@ -6,6 +6,7 @@ import * as uuid from 'uuid'
 import * as apiUtils from '../../src/api'
 import impl from '../../src/command-implementations'
 import defaults from '../defaults'
+import * as retry from '../retry'
 import { Test, TestProps } from '../typings'
 import * as utils from '../utils'
 
@@ -99,7 +100,12 @@ export const addIntegration: Test = {
       ...creds,
     }
 
-    const bpClient = new client.Client({ apiUrl: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
+    const bpClient = new client.Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
 
     const integrationSuffix = uuid.v4().replace(/-/g, '')
     const name = `myintegration${integrationSuffix}`

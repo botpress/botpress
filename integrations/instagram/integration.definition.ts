@@ -16,46 +16,31 @@ export default new IntegrationDefinition({
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
-    schema: z
-      .object({
-        useManualConfiguration: z
-          .boolean()
-          .optional()
-          .title('Use manual configuration')
-          .describe('Skip oAuth and supply details from a Meta App'),
-        verifyToken: z
-          .string()
-          .optional()
-          .title('Verify Token')
-          .describe('Token used for verification for the Callback URL at API setup View'),
-        accessToken: z
-          .string()
-          .optional()
-          .title('Access token')
-          .describe('Access Token from the Instagram Account from the API setup View'),
-        clientId: z.string().optional().title('Client ID').describe('Instagram App Id from API setup View'),
+    schema: z.object({}),
+  },
+  configurations: {
+    manual: {
+      title: 'Manual Configuration',
+      description: 'Configure by manually supplying the Meta app details',
+      schema: z.object({
         clientSecret: z
           .string()
-          .optional()
+          .secret()
           .title('Client Secret')
           .describe('Instagram App secret from API setup View used for webhook signature check'),
-        instagramId: z
+        verifyToken: z
           .string()
-          .optional()
-          .title('Instagram account ID')
-          .describe('Instagram Account Id from API setup View'),
-      })
-      .hidden((formData) => {
-        const showConfig = !formData?.useManualConfiguration
-
-        return {
-          verifyToken: showConfig,
-          accessToken: showConfig,
-          clientId: showConfig,
-          clientSecret: showConfig,
-          instagramId: showConfig,
-        }
+          .secret()
+          .title('Verify Token')
+          .describe('Token used for verifying the Callback URL at API setup View'),
+        accessToken: z
+          .string()
+          .secret()
+          .title('Access token')
+          .describe('Access Token for the Instagram Account from the API setup View'),
+        instagramId: z.string().title('Instagram account ID').describe('Instagram Account Id from API setup View'),
       }),
+    },
   },
   states: {
     oauth: {
@@ -63,14 +48,16 @@ export default new IntegrationDefinition({
       schema: z.object({
         accessToken: z
           .string()
-          .optional()
           .title('Access token')
           .describe('Access token used to authenticate requests to the Instagram API'),
         instagramId: z
           .string()
-          .optional()
           .title('Instagram account ID')
           .describe('The Instagram account ID associated with the access token'),
+        expirationTime: z
+          .number()
+          .title('Expiration time')
+          .describe('The time when the access token expires, expressed as a Unix timestamp (epoch) in milliseconds'),
       }),
     },
   },
@@ -119,6 +106,9 @@ export default new IntegrationDefinition({
     CLIENT_SECRET: {
       description: 'The client secret of your Meta app.',
     },
+    VERIFY_TOKEN: {
+      description: 'The verify token of your Meta app.',
+    },
   },
   user: {
     tags: {
@@ -151,9 +141,16 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(proactiveUser, ({ user }) => ({
-    user,
+  .extend(proactiveUser, ({ entities }) => ({
+    entities: {
+      user: entities.user,
+    },
   }))
-  .extend(proactiveConversation, ({ dm }) => ({
-    conversation: dm,
+  .extend(proactiveConversation, ({ entities }) => ({
+    entities: {
+      conversation: entities.dm,
+    },
+    actions: {
+      getOrCreateConversation: { name: 'getOrCreateConversationDm' },
+    },
   }))

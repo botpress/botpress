@@ -1,41 +1,16 @@
-import type { Client, Integration } from '@botpress/client'
-import type * as sdk from '@botpress/sdk'
+import * as client from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
-
-export type CreateIntegrationBody = Parameters<Client['createIntegration']>[0]
-export type UpdateIntegrationBody = Parameters<Client['updateIntegration']>[0]
-
-type UpdateIntegrationChannelsBody = NonNullable<UpdateIntegrationBody['channels']>
-type UpdateIntegrationChannelBody = UpdateIntegrationChannelsBody[string]
-
-type Channels = Integration['channels']
-type Channel = Integration['channels'][string]
+import * as types from './types'
 
 export const prepareCreateIntegrationBody = async (
-  integration: sdk.IntegrationDefinition
-): Promise<CreateIntegrationBody> => ({
+  integration: sdk.IntegrationDefinition | sdk.IntegrationPackage['definition']
+): Promise<types.CreateIntegrationRequestBody> => ({
   name: integration.name,
   version: integration.version,
-  title: integration.title,
-  description: integration.description,
-  icon: integration.icon,
-  readme: integration.readme,
+  title: 'title' in integration ? integration.title : undefined,
+  description: 'description' in integration ? integration.description : undefined,
   user: integration.user,
-  identifier: integration.identifier,
-  secrets: undefined,
-  interfaces: {},
-  configuration: integration.configuration
-    ? {
-        ...integration.configuration,
-        schema: await utils.schema.mapZodToJsonSchema(integration.configuration),
-      }
-    : undefined,
-  configurations: integration.configurations
-    ? await utils.records.mapValuesAsync(integration.configurations, async (configuration) => ({
-        ...configuration,
-        schema: await utils.schema.mapZodToJsonSchema(configuration),
-      }))
-    : undefined,
   events: integration.events
     ? await utils.records.mapValuesAsync(integration.events, async (event) => ({
         ...event,
@@ -78,10 +53,14 @@ export const prepareCreateIntegrationBody = async (
     : undefined,
 })
 
+type UpdateIntegrationChannelsBody = NonNullable<types.UpdateIntegrationRequestBody['channels']>
+type UpdateIntegrationChannelBody = UpdateIntegrationChannelsBody[string]
+type Channels = client.Integration['channels']
+type Channel = client.Integration['channels'][string]
 export const prepareUpdateIntegrationBody = (
-  localIntegration: UpdateIntegrationBody,
-  remoteIntegration: Integration
-): UpdateIntegrationBody => {
+  localIntegration: types.UpdateIntegrationRequestBody,
+  remoteIntegration: client.Integration
+): types.UpdateIntegrationRequestBody => {
   const actions = utils.records.setNullOnMissingValues(localIntegration.actions, remoteIntegration.actions)
   const events = utils.records.setNullOnMissingValues(localIntegration.events, remoteIntegration.events)
   const states = utils.records.setNullOnMissingValues(localIntegration.states, remoteIntegration.states)
@@ -91,7 +70,7 @@ export const prepareUpdateIntegrationBody = (
     tags: utils.records.setNullOnMissingValues(localIntegration.user?.tags, remoteIntegration.user?.tags),
   }
 
-  const channels = prepareUpdateIntegrationChannelsBody(localIntegration.channels ?? {}, remoteIntegration.channels)
+  const channels = _prepareUpdateIntegrationChannelsBody(localIntegration.channels ?? {}, remoteIntegration.channels)
 
   const interfaces = utils.records.setNullOnMissingValues(localIntegration.interfaces, remoteIntegration.interfaces)
 
@@ -113,7 +92,7 @@ export const prepareUpdateIntegrationBody = (
   }
 }
 
-const prepareUpdateIntegrationChannelsBody = (
+const _prepareUpdateIntegrationChannelsBody = (
   localChannels: UpdateIntegrationChannelsBody,
   remoteChannels: Channels
 ): UpdateIntegrationChannelsBody => {
@@ -123,7 +102,7 @@ const prepareUpdateIntegrationChannelsBody = (
   for (const [channelName, [localChannel, remoteChannel]] of Object.entries(zipped)) {
     if (localChannel && remoteChannel) {
       // channel has to be updated
-      channelBody[channelName] = prepareUpdateIntegrationChannelBody(localChannel, remoteChannel)
+      channelBody[channelName] = _prepareUpdateIntegrationChannelBody(localChannel, remoteChannel)
     } else if (localChannel) {
       // channel has to be created
       channelBody[channelName] = localChannel
@@ -138,7 +117,7 @@ const prepareUpdateIntegrationChannelsBody = (
   return channelBody
 }
 
-const prepareUpdateIntegrationChannelBody = (
+const _prepareUpdateIntegrationChannelBody = (
   localChannel: UpdateIntegrationChannelBody,
   remoteChannel: Channel
 ): UpdateIntegrationChannelBody => ({

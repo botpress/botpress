@@ -1,0 +1,2 @@
+export const PROMPT_INPUT_BUFFER = 1048
+export const PROMPT_OUTPUT_BUFFER = 512

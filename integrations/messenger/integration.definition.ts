@@ -6,7 +6,7 @@ export const INTEGRATION_NAME = 'messenger'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.1.1',
+  version: '2.1.2',
   title: 'Messenger',
   description: 'Give your bot access to one of the world’s largest messaging platform.',
   icon: 'icon.svg',
@@ -112,7 +112,7 @@ export default new IntegrationDefinition({
   user: {
     tags: { id: { title: 'User ID', description: 'The Messenger ID of the user' } },
   },
-}).extend(typingIndicator, () => ({}))
+}).extend(typingIndicator, () => ({ entities: {} }))
 
 export const getOAuthConfigId = () => {
   if (process.env.BP_WEBHOOK_URL?.includes('dev')) {

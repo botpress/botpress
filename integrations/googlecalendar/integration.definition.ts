@@ -8,7 +8,7 @@ import { actions, entities, configuration, configurations, identifier, events, s
 
 export default new sdk.IntegrationDefinition({
   name: 'googlecalendar',
-  version: '1.0.1',
+  version: '1.0.2',
   description: 'Sync with your calendar to manage events, appointments, and schedules directly within the chatbot.',
   title: 'Google Calendar',
   readme: 'hub.md',
@@ -22,18 +22,26 @@ export default new sdk.IntegrationDefinition({
   secrets,
   states,
 })
-  .extend(listable, (entities) => ({
-    item: entities.event,
+  .extend(listable, ({ entities }) => ({
+    entities: { item: entities.event },
+    actions: { list: { name: 'eventList' } },
   }))
-  .extend(creatable, (entities) => ({
-    item: entities.event,
+  .extend(creatable, ({ entities }) => ({
+    entities: { item: entities.event },
+    actions: { create: { name: 'eventCreate' } },
+    events: { created: { name: 'eventCreated' } },
   }))
-  .extend(readable, (entities) => ({
-    item: entities.event,
+  .extend(readable, ({ entities }) => ({
+    entities: { item: entities.event },
+    actions: { read: { name: 'eventRead' } },
   }))
-  .extend(updatable, (entities) => ({
-    item: entities.event,
+  .extend(updatable, ({ entities }) => ({
+    entities: { item: entities.event },
+    actions: { update: { name: 'eventUpdate' } },
+    events: { updated: { name: 'eventUpdated' } },
   }))
-  .extend(deletable, (entities) => ({
-    item: entities.event,
+  .extend(deletable, ({ entities }) => ({
+    entities: { item: entities.event },
+    actions: { delete: { name: 'eventDelete' } },
+    events: { deleted: { name: 'eventDeleted' } },
   }))

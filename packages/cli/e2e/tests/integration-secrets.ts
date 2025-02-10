@@ -6,6 +6,7 @@ import * as uuid from 'uuid'
 import impl from '../../src/command-implementations'
 import { fetchAllIntegrations, ApiIntegration } from '../api'
 import defaults from '../defaults'
+import * as retry from '../retry'
 import { Test } from '../typings'
 import * as utils from '../utils'
 
@@ -52,7 +53,12 @@ export const requiredSecrets: Test = {
       ...creds,
     }
 
-    const client = new Client({ apiUrl: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
+    const client = new Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
 
     await impl
       .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })
@@ -64,7 +70,6 @@ export const requiredSecrets: Test = {
       OPTIONAL_SECRET: { optional: true },
     })
     fs.writeFileSync(definitionPath, modifiedDefinition, 'utf-8')
-    await impl.build({ ...argv, workDir: integrationDir }).then(utils.handleExitCode)
 
     await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
     await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)

@@ -2,7 +2,7 @@
   "name": "@botpresshub/logger",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build": "bp add -y && bp build",
+    "build": "bp add -y && bp build --minify false",
     "add:integrations": "echo 'no integrations to add'"
   },
   "private": true,

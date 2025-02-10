@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    paths: 'integrations/**'
 
   workflow_dispatch:
     inputs:
@@ -24,9 +26,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
-        with:
-          turbo_team: ${{ secrets.TURBO_TEAM }}
-          turbo_token: ${{ secrets.TURBO_TOKEN }}
       - name: Deploy Interfaces
         uses: ./.github/actions/deploy-interfaces
         with:
@@ -39,6 +38,7 @@ jobs:
         with:
           environment: 'staging'
           force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
+          dry_run: ${{ github.event_name == 'pull_request' }}
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
@@ -62,4 +62,11 @@ jobs:
           github_secrets: "--secrets GITHUB_APP_ID=${{ secrets.STAGING_GITHUB_APP_ID }} --secrets 'GITHUB_PRIVATE_KEY=${{ secrets.STAGING_GITHUB_PRIVATE_KEY }}' --secrets GITHUB_WEBHOOK_SECRET=${{ secrets.STAGING_GITHUB_WEBHOOK_SECRET }}"
           google_ai_secrets: '--secrets GOOGLE_AI_API_KEY=${{ secrets.GOOGLE_AI_API_KEY }}'
           intercom_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_INTERCOM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_INTERCOM_CLIENT_SECRET }}'
-          instagram_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_INSTAGRAM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_INSTAGRAM_CLIENT_SECRET }}'
+          instagram_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_INSTAGRAM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_INSTAGRAM_CLIENT_SECRET }} --secrets VERIFY_TOKEN=${{ secrets.STAGING_INSTAGRAM_VERIFY_TOKEN }}'
+      - name: Deploy Plugins
+        uses: ./.github/actions/deploy-plugins
+        with:
+          environment: 'staging'
+          force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
+          token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
+          cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
