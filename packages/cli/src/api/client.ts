@@ -82,6 +82,14 @@ export class ApiClient {
     return this.client.updateWorkspace({ id: this.workspaceId, ...props })
   }
 
+  public async getIntegration(ref: ApiPackageRef): Promise<Integration> {
+    const integration = await this.findIntegration(ref)
+    if (!integration) {
+      throw new Error(`Integration "${formatPackageRef(ref)}" not found`)
+    }
+    return integration
+  }
+
   public async findIntegration(ref: ApiPackageRef): Promise<Integration | undefined> {
     const formatted = formatPackageRef(ref)
 
@@ -125,6 +133,14 @@ export class ApiClient {
       .getPublicIntegration(ref)
       .then((r) => r.integration)
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
+  }
+
+  public async getPublicInterface(ref: ApiPackageRef): Promise<Interface> {
+    const intrface = await this.findPublicInterface(ref)
+    if (!intrface) {
+      throw new Error(`Interface "${formatPackageRef(ref)}" not found`)
+    }
+    return intrface
   }
 
   public async findPublicInterface(ref: ApiPackageRef): Promise<Interface | undefined> {

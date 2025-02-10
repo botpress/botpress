@@ -87,10 +87,9 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     this.logger.debug('Preparing integration request body...')
 
-    let createBody = await this.prepareCreateIntegrationBody(integrationDef)
-    createBody = {
-      ...createBody,
-      interfaces: await this.fetchIntegrationInterfaceInstances(integrationDef, api),
+    const createBody = {
+      ...(await this.prepareCreateIntegrationBody(integrationDef)),
+      ...(await this.prepareIntegrationDependencies(integrationDef, api)),
       public: this.argv.public,
     }
 
@@ -252,6 +251,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const createBody = {
       ...(await apiUtils.prepareCreatePluginBody(pluginDef)),
+      ...(await this.preparePluginDependencies(pluginDef, api)),
       code: {
         node: codeCJS,
         browser: codeESM,
@@ -386,14 +386,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
 
-    const integrationInstances = await this.fetchBotIntegrationInstances(botDefinition, api)
-    const createBotBody = await apiUtils.prepareCreateBotBody(botDefinition)
     const updateBotBody = apiUtils.prepareUpdateBotBody(
       {
-        ...createBotBody,
+        ...(await apiUtils.prepareCreateBotBody(botDefinition)),
+        ...(await this.prepareBotDependencies(botDefinition, api)),
         id: bot.id,
         code,
-        integrations: integrationInstances,
       },
       bot
     )
