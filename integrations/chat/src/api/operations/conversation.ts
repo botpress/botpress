@@ -279,6 +279,10 @@ export const removeParticipant: types.AuthenticatedOperations['removeParticipant
     throw new errors.ForbiddenError('You are not the owner of this conversation')
   }
 
+  if (participantId === owner) {
+    throw new errors.InvalidPayloadError('You cannot remove yourself from the conversation because you are its owner')
+  }
+
   await props.client.removeParticipant({
     id: conversationId,
     userId: participantId,

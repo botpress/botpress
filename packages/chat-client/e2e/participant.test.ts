@@ -123,3 +123,19 @@ test('signal listener is disconnected when participant is removed', async () => 
   await listener2.disconnect()
   listener2.cleanup()
 }, 20_000)
+
+test('api forbids removing owner from conversation participants', async () => {
+  const client = new chat.Client({ apiUrl })
+
+  const { user: user1, key: userKey1 } = await client.createUser({})
+
+  const { conversation } = await client.createConversation({ 'x-user-key': userKey1 })
+
+  await expect(
+    client.removeParticipant({
+      'x-user-key': userKey1,
+      conversationId: conversation.id,
+      userId: user1.id,
+    })
+  ).rejects.toThrow(chat.InvalidPayloadError)
+})
