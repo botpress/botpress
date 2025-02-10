@@ -29,10 +29,8 @@ const main = async () => {
     throw new Error('WEBHOOK_ID is required')
   }
 
-  const apiUrl = `https://chat.botpress.cloud/${webhookId}`
-
   // 0. connect and create a user
-  const client = await chat.Client.connect({ apiUrl })
+  const client = await chat.Client.connect({ webhookId })
 
   // 1. create a conversation
   const { conversation } = await client.createConversation({})
@@ -51,8 +49,8 @@ const main = async () => {
 
   // 4. list messages
   const { messages } = await client
-    .listConversationMessages({
-      id: conversation.id,
+    .listMessages({
+      conversationId: conversation.id,
     })
     .then(({ messages }) => ({
       messages: _.sortBy(messages, (m) => new Date(m.createdAt).getTime()),
@@ -81,11 +79,11 @@ You can also listen for messages and events in real-time.
 // ...
 
 const listener = await client.listenConversation({
-  id: conversationId,
+  id: conversation.id,
 })
 
 const botResponse = await new Promise<chat.Message>((resolve) => {
-  const onMessage = (ev: chat.Events['message_created']) => {
+  const onMessage = (ev: chat.Signals['message_created']) => {
     if (ev.userId === client.user.id) {
       // message created by my current user, ignoring...
       return
@@ -109,7 +107,7 @@ const state = { messages } // your application state
 const onDisconnection = async () => {
   try {
     await listener.connect()
-    const { messages } = await client.listConversationMessages({ id: conversationId })
+    const { messages } = await client.listMessages({ conversationId: conversation.id })
     state.messages = messages
   } catch (thrown) {
     console.error('failed to reconnect, retrying...', thrown)
