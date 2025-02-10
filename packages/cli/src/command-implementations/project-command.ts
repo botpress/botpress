@@ -379,13 +379,13 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     deps: Record<string, T>,
     fetcher: (dep: T) => Promise<{ id: string }>
   ): Promise<Record<string, T & { id: string }>> => {
-    const isRemote = (dep: T): dep is T & { id: string } => !!dep.id
+    const isRemote = (dep: T): dep is T & { id: string } => dep.id !== undefined
     return utils.records.mapValuesAsync(deps, async (dep): Promise<T & { id: string }> => {
       if (isRemote(dep)) {
         return dep
       }
       const { id } = await fetcher(dep)
-      return { id, ...dep }
+      return { ...dep, id }
     })
   }
 
