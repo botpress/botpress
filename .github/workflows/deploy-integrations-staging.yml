@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+
   pull_request:
     paths: 'integrations/**'
 
@@ -21,13 +22,14 @@ permissions:
 
 jobs:
   deploy-staging:
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-22.04-8
     steps:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
       - name: Deploy Interfaces
         uses: ./.github/actions/deploy-interfaces
+        if: ${{ github.event_name != 'pull_request' }}
         with:
           environment: 'staging'
           force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
@@ -65,6 +67,7 @@ jobs:
           instagram_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_INSTAGRAM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_INSTAGRAM_CLIENT_SECRET }} --secrets VERIFY_TOKEN=${{ secrets.STAGING_INSTAGRAM_VERIFY_TOKEN }}'
       - name: Deploy Plugins
         uses: ./.github/actions/deploy-plugins
+        if: ${{ github.event_name != 'pull_request' }}
         with:
           environment: 'staging'
           force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
