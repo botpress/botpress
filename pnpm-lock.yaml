@@ -2026,8 +2026,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.70.0
-        version: 0.70.0(openapi-types@12.1.3)
+        specifier: 0.71.0
+        version: 0.71.0(openapi-types@12.1.3)
       '@types/qs':
         specifier: ^6.9.7
         version: 6.9.7
@@ -3901,6 +3901,17 @@ packages:
       - debug
       - openapi-types
       - supports-color
+    dev: false
+
+  /@botpress/api@0.71.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-xGXZkJtO6VVuzpl0pdw7es7dkVqH0zV/AwajszbTdCkcW+7cfs02c6tIJbvD0G6n6fAaMgx3c6NybMgYbWtPaA==}
+    dependencies:
+      '@bpinternal/opapi': 0.12.1(openapi-types@12.1.3)
+    transitivePeerDependencies:
+      - debug
+      - openapi-types
+      - supports-color
+    dev: true
 
   /@bpinternal/const@0.0.20:
     resolution: {integrity: sha512-AVeQy25M9eXMvjnLZVbFmr++qkONYrwW7qLXD9q9ccD4WLEgMmJZ6e+BSUnwPEBQ8LiqWQXf/YJ1MJxoVkcyNw==}
