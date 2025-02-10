@@ -62,7 +62,7 @@ export class ApiClient {
 
   public async findWorkspaceByHandle(handle: string): Promise<client.ClientOutputs['getWorkspace'] | undefined> {
     const { workspaces } = await this.client.listWorkspaces({ handle })
-    return workspaces[0] // There should be only one workspace with the given handle
+    return workspaces[0] // There should be only one workspace with a given handle
   }
 
   public switchWorkspace(workspaceId: string): ApiClient {
