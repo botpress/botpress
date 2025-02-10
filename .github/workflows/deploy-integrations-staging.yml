@@ -6,7 +6,8 @@ on:
       - master
 
   pull_request:
-    paths: 'integrations/**'
+    branches:
+      - master
 
   workflow_dispatch:
     inputs:
