@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   deploy-production:
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-22.04-8
     steps:
       - uses: actions/checkout@v2
       - name: Setup
@@ -43,11 +43,11 @@ jobs:
           linear_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_LINEAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_LINEAR_CLIENT_SECRET }} --secrets WEBHOOK_SIGNING_SECRET=${{ secrets.PRODUCTION_LINEAR_WEBHOOK_SIGNING_SECRET }}'
           slack_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_SLACK_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_SLACK_CLIENT_SECRET }} --secrets SIGNING_SECRET=${{ secrets.PRODUCTION_SLACK_SIGNING_SECRET }}'
           charts_secrets: '--secrets QUICKCHARTS_API_KEY=${{ secrets.QUICKCHARTS_API_KEY }}'
+          whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.PRODUCTION_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.PRODUCTION_WHATSAPP_NUMBER_PIN }} --secrets SEGMENT_KEY=${{ secrets.PRODUCTION_WHATSAPP_SEGMENT_KEY }}'
           pdf_secrets: '--secrets PDFSHIFT_API_KEY=${{ secrets.PDFSHIFT_API_KEY }}'
           browser_secrets: '--secrets FIRECRAWL_API_KEY=${{ secrets.FIRECRAWL_API_KEY }} --secrets SCREENSHOT_API_KEY=${{ secrets.SCREENSHOT_API_KEY }}'
           openai_secrets: '--secrets OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}'
           groq_secrets: '--secrets GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}'
-          whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.PRODUCTION_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.PRODUCTION_WHATSAPP_NUMBER_PIN }} --secrets SEGMENT_KEY=${{ secrets.PRODUCTION_WHATSAPP_SEGMENT_KEY }}'
           anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
           fireworks_ai_secrets: '--secrets FIREWORKS_AI_API_KEY=${{ secrets.FIREWORKS_AI_API_KEY }}'
           todoist_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_TODOIST_CLIENT_SECRET }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.PRODUCTION_TODOIST_WEBHOOK_SHARED_SECRET }}'
@@ -61,6 +61,6 @@ jobs:
         uses: ./.github/actions/deploy-plugins
         with:
           environment: 'staging'
-          force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
+          force: ${{ github.event.inputs.force == 'true' }}
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
