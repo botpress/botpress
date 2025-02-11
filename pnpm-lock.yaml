@@ -1809,7 +1809,7 @@ importers:
         specifier: 0.4.9
         version: link:../chat-client
       '@botpress/client':
-        specifier: 0.42.0
+        specifier: 0.43.0
         version: link:../client
       '@botpress/sdk':
         specifier: 3.1.0
@@ -1930,7 +1930,7 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.42.0
+        specifier: 0.43.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 3.1.0
@@ -1946,7 +1946,7 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.42.0
+        specifier: 0.43.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 3.1.0
@@ -1975,7 +1975,7 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.42.0
+        specifier: 0.43.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 3.1.0
@@ -1991,7 +1991,7 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.42.0
+        specifier: 0.43.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 3.1.0
@@ -2099,7 +2099,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.42.0
+        specifier: 0.43.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^0.13.5
@@ -2130,7 +2130,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 0.42.0
+        specifier: 0.43.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2173,7 +2173,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/client':
-        specifier: 0.42.0
+        specifier: 0.43.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
