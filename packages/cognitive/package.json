@@ -28,8 +28,7 @@
     "nanoevents": "^9.1.0"
   },
   "devDependencies": {
-    "@botpress/client": "workspace:*",
-    "@botpress/common": "workspace:*",
+    "@botpress/client": "0.43.0",
     "@bpinternal/zui": "0.13.5",
     "@size-limit/file": "^11.1.6",
     "@types/axios": "^0.14.4",

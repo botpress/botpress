@@ -28,7 +28,6 @@
     "jsonrepair": "^3.10.0"
   },
   "devDependencies": {
-    "@botpress/common": "workspace:*",
     "@types/lodash": "^4.14.191",
     "dotenv": "^16.4.4",
     "esbuild": "^0.16.12",
