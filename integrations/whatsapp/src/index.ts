@@ -164,6 +164,7 @@ const integration = new bp.Integration({
       const token = query['hub.verify_token']
       const challenge = query['hub.challenge']
 
+      // For oAuth, this is handled at fallbackHandler.vrl
       if (mode === 'subscribe' && ctx.configurationType === 'manualApp') {
         if (token === ctx.configuration.verifyToken) {
           if (!challenge) {

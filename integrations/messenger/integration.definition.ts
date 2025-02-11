@@ -6,7 +6,7 @@ export const INTEGRATION_NAME = 'messenger'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.2.0',
+  version: '3.0.0',
   title: 'Messenger',
   description: 'Give your bot access to one of the world’s largest messaging platform.',
   icon: 'icon.svg',
@@ -96,6 +96,10 @@ export default new IntegrationDefinition({
     },
     ACCESS_TOKEN: {
       description: 'Access token for internal Meta App',
+    },
+    VERIFY_TOKEN: {
+      description: 'The verify token for the Meta Webhooks subscription, optional since its only useful for oAuth.',
+      optional: true,
     },
   },
   user: {

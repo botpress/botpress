@@ -32,9 +32,16 @@ const TagsForCreatingConversation = {
 
 export const INTEGRATION_NAME = 'whatsapp'
 
+const commonConfigSchema = z.object({
+  typingIndicatorEmoji: z
+    .boolean()
+    .default(false)
+    .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
+})
+
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.4.0',
+  version: '3.0.0',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -48,24 +55,22 @@ export default new IntegrationDefinition({
           title: 'Default Phone Number ID for starting conversations',
         },
       },
-      schema: z.object({
-        typingIndicatorEmoji: z
-          .boolean()
-          .default(false)
-          .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
-        verifyToken: z
-          .string()
-          .min(1)
-          .describe(
-            'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
-          ),
-        accessToken: z
-          .string()
-          .min(1)
-          .describe('Access Token from a System Account that has permission to the Meta app'),
-        clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
-        phoneNumberId: z.string().min(1).describe('Default Phone id used for starting conversations'),
-      }),
+      schema: z
+        .object({
+          verifyToken: z
+            .string()
+            .min(1)
+            .describe(
+              'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
+            ),
+          accessToken: z
+            .string()
+            .min(1)
+            .describe('Access Token from a System Account that has permission to the Meta app'),
+          clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
+          phoneNumberId: z.string().min(1).describe('Default Phone id used for starting conversations'),
+        })
+        .merge(commonConfigSchema),
     },
   },
   configuration: {
@@ -73,12 +78,7 @@ export default new IntegrationDefinition({
       linkTemplateScript: 'linkTemplate.vrl',
       required: true,
     },
-    schema: z.object({
-      typingIndicatorEmoji: z
-        .boolean()
-        .default(false)
-        .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
-    }),
+    schema: commonConfigSchema,
   },
   identifier: {
     extractScript: 'extract.vrl',
@@ -162,6 +162,10 @@ export default new IntegrationDefinition({
     },
     SEGMENT_KEY: {
       description: 'Tracking key for general product analytics',
+      optional: true,
+    },
+    VERIFY_TOKEN: {
+      description: 'The verify token for the Meta Webhooks subscription, optional since its only useful for oAuth.',
       optional: true,
     },
   },
