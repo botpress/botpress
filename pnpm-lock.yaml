@@ -1809,7 +1809,7 @@ importers:
         specifier: 0.4.9
         version: link:../chat-client
       '@botpress/client':
-        specifier: 0.43.0
+        specifier: 0.42.0
         version: link:../client
       '@botpress/sdk':
         specifier: 3.1.0
@@ -1930,7 +1930,7 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.43.0
+        specifier: 0.42.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 3.1.0
@@ -1946,7 +1946,7 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.43.0
+        specifier: 0.42.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 3.1.0
@@ -1975,7 +1975,7 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.43.0
+        specifier: 0.42.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 3.1.0
@@ -1991,7 +1991,7 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.43.0
+        specifier: 0.42.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 3.1.0
@@ -2051,8 +2051,11 @@ importers:
         version: 9.1.0
     devDependencies:
       '@botpress/client':
-        specifier: 0.43.0
+        specifier: workspace:*
         version: link:../client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../common
       '@bpinternal/zui':
         specifier: 0.13.5
         version: 0.13.5
@@ -2096,7 +2099,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.43.0
+        specifier: 0.42.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^0.13.5
@@ -2128,7 +2131,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 0.42.0
-        version: 0.42.0
+        version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
         version: 1.0.2
@@ -2148,6 +2151,9 @@ importers:
         specifier: ^2 || ^3 || ^4 || ^5
         version: 2.1.8(@types/node@18.19.67)
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../common
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
@@ -2168,7 +2174,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 0.42.0
-        version: 0.42.0
+        version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
         version: 1.0.2
@@ -2185,6 +2191,9 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../common
       '@botpress/vai':
         specifier: workspace:*
         version: link:../vai
@@ -3892,18 +3901,6 @@ packages:
       - debug
       - openapi-types
       - supports-color
-
-  /@botpress/client@0.42.0:
-    resolution: {integrity: sha512-mylxQzCqkAbQJ6BaMPLFDj7sZpm221LvwSlF9nQL0oNGnPFDcJsv+DlMFaI1ncIpMyoVa3ncDHsz2XxmDs/aTA==}
-    dependencies:
-      axios: 1.7.9
-      axios-retry: 4.5.0(axios@1.7.9)
-      browser-or-node: 2.1.1
-      qs: 6.13.0
-      type-fest: 3.11.1
-    transitivePeerDependencies:
-      - debug
-    dev: false
 
   /@bpinternal/const@0.0.20:
     resolution: {integrity: sha512-AVeQy25M9eXMvjnLZVbFmr++qkONYrwW7qLXD9q9ccD4WLEgMmJZ6e+BSUnwPEBQ8LiqWQXf/YJ1MJxoVkcyNw==}
@@ -8298,15 +8295,6 @@ packages:
       axios: 0.x || 1.x
     dependencies:
       axios: 1.6.1
-      is-retry-allowed: 2.2.0
-    dev: false
-
-  /axios-retry@4.5.0(axios@1.7.9):
-    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
-    peerDependencies:
-      axios: 0.x || 1.x
-    dependencies:
-      axios: 1.7.9
       is-retry-allowed: 2.2.0
     dev: false
 
