@@ -20,12 +20,10 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
 
   try {
-    //await upstreamCm.respond({ text: 'Closing ticket...' })
+    // Call stopHitl in the hitl integration (zendesk, etc.):
     await props.actions.hitl.stopHitl({ conversationId: downstreamConversationId })
-    await upstreamCm.respond({ text: 'Ticket closed.' })
   } finally {
-    await upstreamCm.setHitlActive(false)
-    await downstreamCm.setHitlActive(false)
+    await Promise.all([upstreamCm.setHitlInactive(), downstreamCm.setHitlInactive()])
   }
 
   return {}

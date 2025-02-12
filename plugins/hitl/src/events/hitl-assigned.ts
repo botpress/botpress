@@ -23,16 +23,15 @@ export const handleEvent: bp.EventHandlers['hitl:hitlAssigned'] = async (props) 
   const { user: humanAgentUser } = await props.client.getUser({ id: humanAgentUserId })
   const humanAgentName = humanAgentUser?.name ?? 'A Human Agent'
 
-  try {
-    await upstreamCm.respond({
+  await Promise.all([
+    upstreamCm.respond({
       text: (props.configuration.onHitlHandoffMessage ?? DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE).replaceAll(
         '$humanAgentName',
         humanAgentName
       ),
-    })
-  } finally {
-    await downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName)
-    await upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName)
-  }
+    }),
+    downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
+    upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
+  ])
   return
 }

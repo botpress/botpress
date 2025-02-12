@@ -20,6 +20,10 @@ export class ConversationManager {
     private _convId: string
   ) {}
 
+  public get conversationId(): string {
+    return this._convId
+  }
+
   public async setHumanAgent(humanAgentId: string, humanAgentName: string) {
     await this._props.client.updateConversation({ id: this._convId, tags: { humanAgentId, humanAgentName } })
   }
@@ -29,8 +33,12 @@ export class ConversationManager {
     return hitlState.hitlActive
   }
 
-  public async setHitlActive(hitlActive: boolean): Promise<void> {
-    await this._patchHitlState({ hitlActive })
+  public async setHitlActive(): Promise<void> {
+    await this._setHitlState({ hitlActive: true })
+  }
+
+  public async setHitlInactive(): Promise<void> {
+    await this._setHitlState({ hitlActive: false })
   }
 
   public async respond({ text, userId }: RespondProps): Promise<void> {
@@ -43,6 +51,11 @@ export class ConversationManager {
     })
   }
 
+  public async abortHitlSession(errorMessage: string): Promise<void> {
+    await this.setHitlInactive()
+    await this.respond({ text: errorMessage })
+  }
+
   private async _getHitlState(): Promise<bp.states.hitl.Hitl> {
     const response = await this._props.client.getOrSetState({
       id: this._convId,
@@ -53,21 +66,12 @@ export class ConversationManager {
     return response.state.payload
   }
 
-  private async _patchHitlState(state: Partial<HitlState>): Promise<void> {
-    try {
-      await this._props.client.patchState({
-        id: this._convId,
-        type: 'conversation',
-        name: 'hitl',
-        payload: state,
-      })
-    } catch {
-      await this._props.client.setState({
-        id: this._convId,
-        type: 'conversation',
-        name: 'hitl',
-        payload: { ...DEFAULT_STATE, ...state },
-      })
-    }
+  private async _setHitlState(state: HitlState): Promise<void> {
+    await this._props.client.setState({
+      id: this._convId,
+      type: 'conversation',
+      name: 'hitl',
+      payload: state,
+    })
   }
 }

@@ -44,7 +44,9 @@ export default new sdk.PluginDefinition({
             .string()
             .title('User Email')
             .optional()
-            .describe('Email of the user that starts the HITL mode'),
+            .describe(
+              'Email of the user that starts the HITL mode. If this value is unset, the agent will try to use the email provided by the channel.'
+            ),
           conversationId: sdk.z
             .string()
             .title('Conversation ID') // this is the upstream conversation

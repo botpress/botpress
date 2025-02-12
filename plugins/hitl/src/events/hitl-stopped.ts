@@ -20,19 +20,14 @@ export const handleEvent: bp.EventHandlers['hitl:hitlStopped'] = async (props) =
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
   const humanAgentName = downstreamConversation.conversation.tags['humanAgentName'] ?? 'The Human Agent'
 
-  try {
-    await props.actions.hitl.stopHitl({ conversationId: upstreamConversationId })
-    await upstreamCm.respond({
+  await Promise.all([
+    upstreamCm.respond({
       text: (props.configuration.onHitlHandoffMessage ?? DEFAULT_HITL_STOPPED_MESSAGE).replaceAll(
         '$humanAgentName',
         humanAgentName
       ),
-    })
-    await downstreamCm.respond({ text: 'Ticket was closed.' })
-  } finally {
-    await downstreamCm.setHitlActive(false)
-    await upstreamCm.setHitlActive(false)
-  }
-
-  return
+    }),
+    downstreamCm.setHitlInactive(),
+    upstreamCm.setHitlInactive(),
+  ])
 }

@@ -13,8 +13,8 @@ export const handleMessage: NonNullable<bp.HookHandlers['before_incoming_message
   return await _handleUpstreamMessage(props, conversation)
 }
 
-const CONTINUE_MESSAGE = { stop: false } as const // let the message propagate to the bot
-const STOP_MESSAGE = { stop: true } as const // prevent the message from propagating to the bot
+const LET_BOT_HANDLE_MESSAGE = { stop: false } as const // let the message propagate to the bot
+const STOP_MESSAGE_HANDLING = { stop: true } as const // prevent the message from propagating to the bot
 
 const _handleDownstreamMessage = async (
   props: bp.HookHandlerProps['before_incoming_message'],
@@ -23,32 +23,32 @@ const _handleDownstreamMessage = async (
   const downstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
-    return CONTINUE_MESSAGE
+    return LET_BOT_HANDLE_MESSAGE
   }
 
   if (props.data.type !== 'text') {
-    // TODO: find out what to do here
-    return STOP_MESSAGE
-  }
-
-  const text: string = props.data.payload.text
-  if (text.trim().startsWith('/')) {
-    return CONTINUE_MESSAGE // TODO: remove this
+    console.error('Downstream conversation received a non-text message')
+    await downstreamCm.respond({ text: 'Sorry, the patient can only receive text messages. Please try again.' })
+    return STOP_MESSAGE_HANDLING
   }
 
   const upstreamConversationId = downstreamConversation.tags['upstream']
+
   if (!upstreamConversationId) {
-    console.error('Downstream conversation was not binded to upstream conversation')
-    await downstreamCm.respond({ text: 'Something went wrong, you are not connected to a patient...' })
-    // TODO: maybe disable hitl before returning
-    return CONTINUE_MESSAGE
+    return await _abortHitlSession({
+      cm: downstreamCm,
+      internalReason: 'Downstream conversation was not bound to upstream conversation',
+      reasonShownToUser: 'Something went wrong, you are not connected to a human agent...',
+      props,
+    })
   }
 
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
 
   console.info('Sending message to upstream')
+  const text: string = props.data.payload.text
   await upstreamCm.respond({ text })
-  return STOP_MESSAGE
+  return STOP_MESSAGE_HANDLING
 }
 
 const _handleUpstreamMessage = async (
@@ -58,35 +58,40 @@ const _handleUpstreamMessage = async (
   const upstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
   const isHitlActive = await upstreamCm.isHitlActive()
   if (!isHitlActive) {
-    return CONTINUE_MESSAGE
+    return LET_BOT_HANDLE_MESSAGE
   }
 
   if (props.data.type !== 'text') {
-    // TODO: find out what to do here
-    return STOP_MESSAGE
+    console.error('Upstream conversation received a non-text message')
+    await upstreamCm.respond({ text: 'Sorry, I can only handle text messages for now. Please try again.' })
+    return STOP_MESSAGE_HANDLING
   }
 
   const text: string = props.data.payload.text
   if (text.trim().startsWith('/')) {
-    return CONTINUE_MESSAGE // TODO: remove this
+    return LET_BOT_HANDLE_MESSAGE // TODO: remove this
   }
 
   const { user: upstreamUser } = await props.client.getUser({ id: props.data.userId })
 
   const downstreamConversationId = upstreamConversation.tags['downstream']
   if (!downstreamConversationId) {
-    console.error('Upstream conversation was not binded to downstream conversation')
-    await upstreamCm.respond({ text: 'Something went wrong, you are not connected to a human agent...' })
-    // TODO: maybe disable hitl before returning
-    return CONTINUE_MESSAGE
+    return await _abortHitlSession({
+      cm: upstreamCm,
+      internalReason: 'Upstream conversation was not bound to downstream conversation',
+      reasonShownToUser: 'Something went wrong, you are not connected to a human agent...',
+      props,
+    })
   }
 
   const downstreamUserId = upstreamUser.tags['downstream']
   if (!downstreamUserId) {
-    console.error('Upstream user was not binded to downstream user')
-    await upstreamCm.respond({ text: 'Something went wrong, you are not connected to a human agent...' })
-    // TODO: maybe disable hitl before returning
-    return CONTINUE_MESSAGE
+    return await _abortHitlSession({
+      cm: upstreamCm,
+      internalReason: 'Upstream user was not bound to downstream user',
+      reasonShownToUser: 'Something went wrong, you are not connected to a human agent...',
+      props,
+    })
   }
 
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
@@ -97,5 +102,27 @@ const _handleUpstreamMessage = async (
     text,
   })
 
-  return STOP_MESSAGE
+  return STOP_MESSAGE_HANDLING
+}
+
+const _abortHitlSession = async ({
+  cm,
+  internalReason,
+  reasonShownToUser,
+  props,
+}: {
+  cm: conv.ConversationManager
+  internalReason: string
+  reasonShownToUser: string
+  props: bp.HookHandlerProps['before_incoming_message']
+}) => {
+  console.error(internalReason)
+
+  await cm.abortHitlSession(reasonShownToUser)
+  await props.actions.hitl.stopHitl({
+    conversationId: cm.conversationId,
+    reason: 'cancel',
+  })
+
+  return STOP_MESSAGE_HANDLING
 }
