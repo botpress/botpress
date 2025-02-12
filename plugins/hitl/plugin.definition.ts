@@ -1,11 +1,35 @@
 import * as sdk from '@botpress/sdk'
 import hitl from './bp_modules/hitl'
 
+export const DEFAULT_HITL_HANDOFF_MESSAGE =
+  'I have escalated this conversation to a human agent. They should be with you shortly.'
+export const DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE = '$humanAgentName has joined the conversation.'
+export const DEFAULT_HITL_STOPPED_MESSAGE = '$humanAgentName closed the conversation. I will continue assisting you.'
+
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.0.1',
+  version: '0.1.0',
   configuration: {
-    schema: sdk.z.object({}),
+    schema: sdk.z.object({
+      onHitlHandoffMessage: sdk.z
+        .string()
+        .title('Escalation Started Message')
+        .describe('The message to send to the user when transferring to a human agent')
+        .optional()
+        .placeholder(DEFAULT_HITL_HANDOFF_MESSAGE),
+      onHumanAgentAssignedMessage: sdk.z
+        .string()
+        .title('Human Agent Assigned Message')
+        .describe('The message to send to the user when a human agent is assigned')
+        .optional()
+        .placeholder(DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE),
+      onHitlStoppedMessage: sdk.z
+        .string()
+        .title('Escalation Terminated Message')
+        .describe('The message to send to the user when the hitl session stops and control is tranfered back to bot')
+        .optional()
+        .placeholder(DEFAULT_HITL_STOPPED_MESSAGE),
+    }),
   },
   actions: {
     startHitl: {
@@ -13,8 +37,8 @@ export default new sdk.PluginDefinition({
       description: 'Starts the HITL mode',
       input: {
         schema: sdk.z.object({
-          title: sdk.z.string().title('Title').describe('Title of the HITL ticket'),
-          description: sdk.z.string().title('Description').optional().describe('Description of the HITL ticket'),
+          title: sdk.z.string().title('Ticket Title').describe('Title of the HITL ticket'),
+          description: sdk.z.string().title('Ticket Description').optional().describe('Description of the HITL ticket'),
           userId: sdk.z.string().title('User ID').describe('ID of the user that starts the HITL mode'),
           userEmail: sdk.z
             .string()
@@ -23,7 +47,7 @@ export default new sdk.PluginDefinition({
             .describe('Email of the user that starts the HITL mode'),
           conversationId: sdk.z
             .string()
-            .title('Conversation ID')
+            .title('Conversation ID') // this is the upstream conversation
             .describe('ID of the conversation on which to start the HITL mode'),
         }),
       },
@@ -44,7 +68,7 @@ export default new sdk.PluginDefinition({
     hitl: {
       type: 'conversation',
       schema: sdk.z.object({
-        hitlActive: sdk.z.boolean().title('HITL Enabled').describe('Whether the bot is in HITL mode'),
+        hitlActive: sdk.z.boolean().title('Is HITL Enabled?').describe('Whether the bot is in HITL mode'),
       }),
     },
   },
@@ -69,6 +93,14 @@ export default new sdk.PluginDefinition({
       upstream: {
         title: 'Upstream Conversation ID',
         description: 'ID of the upstream conversation binded to the downstream one',
+      },
+      humanAgentId: {
+        title: 'Human Agent ID',
+        description: 'ID of the human agent assigned to the ticket',
+      },
+      humanAgentName: {
+        title: 'Human Agent Name',
+        description: 'Name of the human agent assigned to the ticket',
       },
     },
   },

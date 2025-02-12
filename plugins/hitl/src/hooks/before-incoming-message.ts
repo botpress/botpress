@@ -2,16 +2,27 @@ import * as client from '@botpress/client'
 import * as conv from '../conv-manager'
 import * as bp from '.botpress'
 
-const CONTINUE_MESSAGE = { stop: false } // let the message propagate to the bot
-const STOP_MESSAGE = { stop: true } // prevent the message from propagating to the bot
+export const handleMessage: NonNullable<bp.HookHandlers['before_incoming_message']['*']> = async (props) => {
+  const { conversation } = await props.client.getConversation({
+    id: props.data.conversationId,
+  })
+  const { integration } = conversation
+  if (integration === props.interfaces.hitl.name) {
+    return await _handleDownstreamMessage(props, conversation)
+  }
+  return await _handleUpstreamMessage(props, conversation)
+}
 
-const handleDownstreamMessage = async (
+const CONTINUE_MESSAGE = { stop: false } as const // let the message propagate to the bot
+const STOP_MESSAGE = { stop: true } as const // prevent the message from propagating to the bot
+
+const _handleDownstreamMessage = async (
   props: bp.HookHandlerProps['before_incoming_message'],
   downstreamConversation: client.Conversation
 ) => {
   const downstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
-  const hitlState = await downstreamCm.getHitlState()
-  if (!hitlState.hitlActive) {
+  const isHitlActive = await downstreamCm.isHitlActive()
+  if (!isHitlActive) {
     return CONTINUE_MESSAGE
   }
 
@@ -40,13 +51,13 @@ const handleDownstreamMessage = async (
   return STOP_MESSAGE
 }
 
-const handleUpstreamMessage = async (
+const _handleUpstreamMessage = async (
   props: bp.HookHandlerProps['before_incoming_message'],
   upstreamConversation: client.Conversation
 ) => {
   const upstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
-  const hitlState = await upstreamCm.getHitlState()
-  if (!hitlState.hitlActive) {
+  const isHitlActive = await upstreamCm.isHitlActive()
+  if (!isHitlActive) {
     return CONTINUE_MESSAGE
   }
 
@@ -87,15 +98,4 @@ const handleUpstreamMessage = async (
   })
 
   return STOP_MESSAGE
-}
-
-export const handleMessage: NonNullable<bp.HookHandlers['before_incoming_message']['*']> = async (props) => {
-  const { conversation } = await props.client.getConversation({
-    id: props.data.conversationId,
-  })
-  const { integration } = conversation
-  if (integration === props.interfaces.hitl.name) {
-    return await handleDownstreamMessage(props, conversation)
-  }
-  return await handleUpstreamMessage(props, conversation)
 }

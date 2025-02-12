@@ -1,6 +1,7 @@
 import * as conv from '../conv-manager'
 import * as user from '../user-linker'
 import * as bp from '.botpress'
+import { DEFAULT_HITL_HANDOFF_MESSAGE } from '../../plugin.definition'
 
 type StartHitlInput = bp.interfaces.hitl.actions.startHitl.input.Input
 type MessageHistoryElement = NonNullable<StartHitlInput['messageHistory']>[number]
@@ -9,12 +10,13 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
   const { conversationId: upstreamConversationId, userId: upstreamUserId } = props.input
 
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
-  const hitlState = await upstreamCm.getHitlState()
-  if (hitlState.hitlActive) {
+  if (await upstreamCm.isHitlActive()) {
     return {}
   }
 
-  await upstreamCm.respond({ text: 'Connecting you to a human agent...' })
+  await upstreamCm.respond({
+    text: props.configuration.onHitlHandoffMessage ?? DEFAULT_HITL_HANDOFF_MESSAGE,
+  })
 
   const users = new user.UserLinker(props)
   const downstreamUserId = await users.getDownstreamUserId(upstreamUserId)
@@ -61,10 +63,8 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
     },
   })
 
-  await upstreamCm.setHitlState({ hitlActive: true })
-  await downstreamCm.setHitlState({ hitlActive: true })
-
-  await upstreamCm.respond({ text: 'Connected to a human agent...' })
+  await upstreamCm.setHitlActive(true)
+  await downstreamCm.setHitlActive(true)
 
   return {}
 }

@@ -1,9 +1,10 @@
-import { DEFAULT_HITL_STOPPED_MESSAGE } from '../../plugin.definition'
+import { DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE } from '../../plugin.definition'
 import * as conv from '../conv-manager'
 import * as bp from '.botpress'
 
-export const handleEvent: bp.EventHandlers['hitl:hitlStopped'] = async (props) => {
-  const { conversationId: downstreamConversationId } = props.event.payload
+export const handleEvent: bp.EventHandlers['hitl:hitlAssigned'] = async (props) => {
+  const { conversationId: downstreamConversationId, userId: humanAgentUserId } = props.event.payload
+
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
@@ -18,21 +19,20 @@ export const handleEvent: bp.EventHandlers['hitl:hitlStopped'] = async (props) =
   }
 
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
-  const humanAgentName = downstreamConversation.conversation.tags['humanAgentName'] ?? 'The Human Agent'
+
+  const { user: humanAgentUser } = await props.client.getUser({ id: humanAgentUserId })
+  const humanAgentName = humanAgentUser?.name ?? 'A Human Agent'
 
   try {
-    await props.actions.hitl.stopHitl({ conversationId: upstreamConversationId })
     await upstreamCm.respond({
-      text: (props.configuration.onHitlHandoffMessage ?? DEFAULT_HITL_STOPPED_MESSAGE).replaceAll(
+      text: (props.configuration.onHitlHandoffMessage ?? DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE).replaceAll(
         '$humanAgentName',
         humanAgentName
       ),
     })
-    await downstreamCm.respond({ text: 'Ticket was closed.' })
   } finally {
-    await downstreamCm.setHitlActive(false)
-    await upstreamCm.setHitlActive(false)
+    await downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName)
+    await upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName)
   }
-
   return
 }

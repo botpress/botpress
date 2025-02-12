@@ -1,1 +1,1 @@
-export * from './before-incoming-message'
+export * as beforeIncomingMessage from './before-incoming-message'
