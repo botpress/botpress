@@ -7,13 +7,18 @@ export const generateHtml = ({
   header,
   body,
   options,
+  httpHeaders,
 }: {
   header?: string
   body?: string
   options?: { title?: string }
+  httpHeaders?: Record<string, string>
 }) => {
   return {
-    headers: { 'content-type': 'text/html' },
+    headers: {
+      'content-type': 'text/html',
+      ...httpHeaders,
+    },
     body: `
       <!DOCTYPE html>
       <html lang="en">
@@ -47,6 +52,7 @@ export const redirectTo = async (url: string) => {
     `,
     body: '<p>You are being redirected, please wait...</p>',
     options: { title: 'Redirecting' },
+    httpHeaders: { 'x-bp-disable-interstitial': 'true' },
   })
 }
 
@@ -56,6 +62,7 @@ export const generateButtonDialog = (props: Parameters<typeof ButtonDialogPage>[
   return generateHtml({
     body: render(ButtonDialogPage(props)),
     options: { title: props.title },
+    httpHeaders: { 'x-bp-disable-interstitial': 'true' },
   })
 }
 
@@ -63,6 +70,7 @@ export const generateSelectDialog = (props: Parameters<typeof SelectDialogPage>[
   return generateHtml({
     body: render(SelectDialogPage(props)),
     options: { title: props.title },
+    httpHeaders: { 'x-bp-disable-interstitial': 'true' },
   })
 }
 

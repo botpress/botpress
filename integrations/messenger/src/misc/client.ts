@@ -14,11 +14,11 @@ export class MetaClient {
     this._clientSecret = bp.secrets.CLIENT_SECRET
   }
 
-  public async getAccessToken(code: string) {
+  public async getAccessToken(code: string, redirectUri: string) {
     const query = new URLSearchParams({
       client_id: this._clientId,
       client_secret: this._clientSecret,
-      redirect_uri: getGlobalWebhookUrl(),
+      redirect_uri: redirectUri,
       code,
     })
 
