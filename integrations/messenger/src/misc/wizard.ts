@@ -2,7 +2,6 @@ import { Request } from '@botpress/sdk'
 import queryString from 'query-string'
 import * as bp from '../../.botpress'
 import { getOAuthConfigId } from '../../integration.definition'
-import { getGlobalWebhookUrl } from '../index'
 import { MetaClient } from './client'
 import { generateButtonDialog, generateSelectDialog, getInterstitialUrl, redirectTo } from './html-utils'
 

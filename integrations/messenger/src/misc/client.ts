@@ -1,6 +1,5 @@
 import { z } from '@botpress/sdk'
 import axios from 'axios'
-import { getGlobalWebhookUrl } from '../index'
 import * as bp from '.botpress'
 
 export class MetaClient {
