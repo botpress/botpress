@@ -184,6 +184,7 @@ async function buildContentPart(
       text: content,
     }
   } else if (typeof content === 'object') {
+    // TODO: Support input audio content, but this will require also supporting separate pricing for input audio tokens as Google charges them at a higher rate than text/image/video tokens.
     if (content.type === 'text') {
       if (!content.text) {
         throw new InvalidPayloadError('`text` property is required when message content type is "text"')
