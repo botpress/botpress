@@ -51,7 +51,7 @@ doubleSuite
     } catch (err) {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${(doubleSuite as any).name}: ${e.target}`)
+    console.log(`${doubleSuite.name}: ${e.target}`)
   })
 
 manySuite
@@ -72,7 +72,7 @@ manySuite
     } catch (err) {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${(manySuite as any).name}: ${e.target}`)
+    console.log(`${manySuite.name}: ${e.target}`)
   })
 
 export default {

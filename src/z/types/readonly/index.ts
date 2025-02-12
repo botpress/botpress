@@ -66,7 +66,7 @@ export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
       innerType: type,
       typeName: ZodFirstPartyTypeKind.ZodReadonly,
       ...processCreateParams(params),
-    }) as any
+    })
   }
 
   unwrap() {

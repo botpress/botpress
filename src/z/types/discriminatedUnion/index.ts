@@ -46,7 +46,7 @@ const getDiscriminator = <T extends ZodTypeAny>(type: T): Primitive[] => {
     return type.options
   } else if (type instanceof ZodNativeEnum) {
     // eslint-disable-next-line ban/ban
-    return util.objectValues(type.enum as any)
+    return util.objectValues(type.enum)
   } else if (type instanceof ZodDefault) {
     return getDiscriminator(type._def.innerType)
   } else if (type instanceof ZodUndefined) {
@@ -141,13 +141,13 @@ export class ZodDiscriminatedUnion<
         data: ctx.data,
         path: ctx.path,
         parent: ctx,
-      }) as any
+      }) as ParseReturnType<this['_output']>
     } else {
       return option._parseSync({
         data: ctx.data,
         path: ctx.path,
         parent: ctx,
-      }) as any
+      }) as ParseReturnType<this['_output']>
     }
   }
 

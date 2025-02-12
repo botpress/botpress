@@ -121,7 +121,7 @@ export class ZodArray<T extends ZodTypeAny = ZodTypeAny, Cardinality extends Arr
 
     if (ctx.common.async) {
       return Promise.all(
-        ([...ctx.data] as any[]).map((item, i) => {
+        [...ctx.data].map((item, i) => {
           return def.type._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i))
         }),
       ).then((result) => {
@@ -129,7 +129,7 @@ export class ZodArray<T extends ZodTypeAny = ZodTypeAny, Cardinality extends Arr
       })
     }
 
-    const result = ([...ctx.data] as any[]).map((item, i) => {
+    const result = [...ctx.data].map((item, i) => {
       return def.type._parseSync(new ParseInputLazyPath(ctx, item, ctx.path, i))
     })
 
@@ -144,25 +144,25 @@ export class ZodArray<T extends ZodTypeAny = ZodTypeAny, Cardinality extends Arr
     return new ZodArray({
       ...this._def,
       minLength: { value: minLength, message: errorUtil.toString(message) },
-    }) as any
+    }) as this
   }
 
   max(maxLength: number, message?: errorUtil.ErrMessage): this {
     return new ZodArray({
       ...this._def,
       maxLength: { value: maxLength, message: errorUtil.toString(message) },
-    }) as any
+    }) as this
   }
 
   length(len: number, message?: errorUtil.ErrMessage): this {
     return new ZodArray({
       ...this._def,
       exactLength: { value: len, message: errorUtil.toString(message) },
-    }) as any
+    }) as this
   }
 
   nonempty(message?: errorUtil.ErrMessage): ZodArray<T, 'atleastone'> {
-    return this.min(1, message) as any
+    return this.min(1, message) as ZodArray<T, 'atleastone'>
   }
 
   static create = <T extends ZodTypeAny>(schema: T, params?: RawCreateParams): ZodArray<T> => {

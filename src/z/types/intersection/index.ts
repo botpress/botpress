@@ -113,7 +113,7 @@ export class ZodIntersection<T extends ZodTypeAny = ZodTypeAny, U extends ZodTyp
         status.dirty()
       }
 
-      return { status: status.value, value: merged.data as any }
+      return { status: status.value, value: merged.data }
     }
 
     if (ctx.common.async) {

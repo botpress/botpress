@@ -107,22 +107,22 @@ export class ZodSet<Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return new ZodSet({
       ...this._def,
       minSize: { value: minSize, message: errorUtil.toString(message) },
-    }) as any
+    }) as this
   }
 
   max(maxSize: number, message?: errorUtil.ErrMessage): this {
     return new ZodSet({
       ...this._def,
       maxSize: { value: maxSize, message: errorUtil.toString(message) },
-    }) as any
+    }) as this
   }
 
   size(size: number, message?: errorUtil.ErrMessage): this {
-    return this.min(size, message).max(size, message) as any
+    return this.min(size, message).max(size, message) as this
   }
 
   nonempty(message?: errorUtil.ErrMessage): ZodSet<Value> {
-    return this.min(1, message) as any
+    return this.min(1, message) as this
   }
 
   static create = <Value extends ZodTypeAny = ZodTypeAny>(

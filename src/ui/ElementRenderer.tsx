@@ -73,7 +73,7 @@ export const FormElementRenderer: FC<FormRendererProps> = ({
   }
 
   if (fieldSchema.type === 'array' && type === 'array') {
-    const Component = _component as any as ZuiReactComponent<'array', string, any>
+    const Component = _component as ZuiReactComponent<'array', string, any>
     const schema = baseProps.schema as ArraySchema
     const dataArray = Array.isArray(data) ? data : typeof data === 'object' ? data : []
     const props: Omit<ZuiReactComponentProps<'array', string, any>, 'children'> = {
@@ -196,8 +196,8 @@ export const FormElementRenderer: FC<FormRendererProps> = ({
 
   const props: ZuiReactControlComponentProps<'boolean' | 'number' | 'string', string, any> = {
     ...baseProps,
-    type: type as any as 'boolean' | 'number' | 'string',
-    schema: baseProps.schema as any as PrimitiveSchema,
+    type: type as 'boolean' | 'number' | 'string',
+    schema: baseProps.schema as PrimitiveSchema,
     config: {},
     required,
     data,

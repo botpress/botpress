@@ -126,7 +126,7 @@ test('throws when the given set has invalid input', () => {
 })
 
 test('throws when the given set has multiple invalid entries', () => {
-  const result = stringSet.safeParse(new Set([1, 2] as any[]) as Set<any>)
+  const result = stringSet.safeParse(new Set([1, 2]) as Set<any>)
 
   expect(result.success).toEqual(false)
   if (result.success === false) {

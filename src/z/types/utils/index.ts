@@ -20,11 +20,11 @@ export namespace util {
   }
 
   export const arrayToEnum = <T extends string, U extends [T, ...T[]]>(items: U): { [k in U[number]]: k } => {
-    const obj: any = {}
+    const obj: { [k in U[number]]?: k } = {}
     for (const item of items) {
       obj[item] = item
     }
-    return obj as any
+    return obj as { [k in U[number]]: k }
   }
 
   export const getValidEnumValues = (obj: any) => {

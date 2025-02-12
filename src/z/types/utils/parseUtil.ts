@@ -156,8 +156,9 @@ export type SyncParseReturnType<T = any> = OK<T> | DIRTY<T> | INVALID
 export type AsyncParseReturnType<T> = Promise<SyncParseReturnType<T>>
 export type ParseReturnType<T> = SyncParseReturnType<T> | AsyncParseReturnType<T>
 
-export const isAborted = (x: ParseReturnType<any>): x is INVALID => (x as any).status === 'aborted'
-export const isDirty = <T>(x: ParseReturnType<T>): x is OK<T> | DIRTY<T> => (x as any).status === 'dirty'
-export const isValid = <T>(x: ParseReturnType<T>): x is OK<T> => (x as any).status === 'valid'
+export const isAborted = (x: ParseReturnType<any>): x is INVALID => (x as SyncParseReturnType).status === 'aborted'
+export const isDirty = <T>(x: ParseReturnType<T>): x is OK<T> | DIRTY<T> =>
+  (x as SyncParseReturnType).status === 'dirty'
+export const isValid = <T>(x: ParseReturnType<T>): x is OK<T> => (x as SyncParseReturnType).status === 'valid'
 export const isAsync = <T>(x: ParseReturnType<T>): x is AsyncParseReturnType<T> =>
   typeof Promise !== 'undefined' && x instanceof Promise

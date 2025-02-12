@@ -113,7 +113,7 @@ export class ZodFunction<
           error.addIssue(makeArgsIssue(args, e))
           throw error
         })
-        const result = await Reflect.apply(fn, this, parsedArgs as any)
+        const result = await Reflect.apply(fn, this, parsedArgs)
         const parsedReturns = await (me._def.returns as unknown as ZodPromise<ZodTypeAny>)._def.type
           .parseAsync(result, params)
           .catch((e) => {
@@ -138,7 +138,7 @@ export class ZodFunction<
           throw new ZodError([makeReturnsIssue(result, parsedReturns.error)])
         }
         return parsedReturns.data
-      }) as any
+      })
     }
   }
 
@@ -155,7 +155,7 @@ export class ZodFunction<
   ): ZodFunction<ZodTuple<Items, ZodUnknown>, Returns> {
     return new ZodFunction({
       ...this._def,
-      args: ZodTuple.create(items).rest(ZodUnknown.create()) as any,
+      args: ZodTuple.create(items).rest(ZodUnknown.create()),
     })
   }
 
@@ -172,12 +172,12 @@ export class ZodFunction<
     ? (...args: Args['_input']) => ReturnType<F>
     : OuterTypeOfFunction<Args, Returns> {
     const validatedFunc = this.parse(func)
-    return validatedFunc as any
+    return validatedFunc
   }
 
   strictImplement(func: InnerTypeOfFunction<Args, Returns>): InnerTypeOfFunction<Args, Returns> {
     const validatedFunc = this.parse(func)
-    return validatedFunc as any
+    return validatedFunc
   }
 
   validate = this.implement
@@ -192,11 +192,11 @@ export class ZodFunction<
   ): ZodFunction<T, U>
   static create(args?: AnyZodTuple, returns?: ZodTypeAny, params?: RawCreateParams) {
     return new ZodFunction({
-      args: (args ? args : ZodTuple.create([]).rest(ZodUnknown.create())) as any,
+      args: args ? args : ZodTuple.create([]).rest(ZodUnknown.create()),
       returns: returns || ZodUnknown.create(),
       typeName: ZodFirstPartyTypeKind.ZodFunction,
       ...processCreateParams(params),
-    }) as any
+    })
   }
 
   isEqual(schema: ZodType): boolean {

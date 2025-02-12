@@ -48,7 +48,7 @@ export class ZodNativeEnum<T extends EnumLike = EnumLike> extends ZodType<T[keyo
       })
       return INVALID
     }
-    return OK(input.data as any)
+    return OK(input.data)
   }
 
   get enum() {

@@ -142,7 +142,7 @@ export const its = {
     } => x.enum !== undefined,
   },
   a: {
-    nullable: (x: JsonSchemaObject): x is JsonSchemaObject & { nullable: true } => (x as any).nullable === true,
+    nullable: (x: JsonSchemaObject): x is JsonSchemaObject & { nullable: true } => x.nullable === true,
     multipleType: (x: JsonSchemaObject): x is JsonSchemaObject & { type: string[] } => Array.isArray(x.type),
     not: (
       x: JsonSchemaObject,

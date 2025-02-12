@@ -51,7 +51,7 @@ export class ZodOptional<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
       innerType: type,
       typeName: ZodFirstPartyTypeKind.ZodOptional,
       ...processCreateParams(params),
-    }) as any
+    })
   }
 
   isEqual(schema: ZodType): boolean {

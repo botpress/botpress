@@ -29,7 +29,7 @@ emptySuite
     } catch (err) {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${(emptySuite as any).name}: ${e.target}`)
+    console.log(`${emptySuite.name}: ${e.target}`)
   })
 
 shortSuite
@@ -45,7 +45,7 @@ shortSuite
     } catch (err) {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${(shortSuite as any).name}: ${e.target}`)
+    console.log(`${shortSuite.name}: ${e.target}`)
   })
 
 longSuite
@@ -61,7 +61,7 @@ longSuite
     } catch (err) {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${(longSuite as any).name}: ${e.target}`)
+    console.log(`${longSuite.name}: ${e.target}`)
   })
 
 export default {

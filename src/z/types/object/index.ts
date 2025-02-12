@@ -93,7 +93,7 @@ function deepPartialify(schema: ZodTypeAny): any {
     return new ZodObject({
       ...schema._def,
       shape: () => newShape,
-    }) as any
+    })
   } else if (schema instanceof ZodArray) {
     return new ZodArray({
       ...schema._def,
@@ -270,21 +270,21 @@ export class ZodObject<
             },
           }
         : {}),
-    }) as any
+    })
   }
 
   strip(): ZodObject<T, 'strip', Catchall> {
     return new ZodObject({
       ...this._def,
       unknownKeys: 'strip',
-    }) as any
+    })
   }
 
   passthrough(): ZodObject<T, 'passthrough', Catchall> {
     return new ZodObject({
       ...this._def,
       unknownKeys: 'passthrough',
-    }) as any
+    })
   }
 
   /**
@@ -308,7 +308,7 @@ export class ZodObject<
   //         ...def.shape(),
   //         ...augmentation,
   //       }),
-  //     }) as any;
+  //     })
   //   };
   extend<Augmentation extends ZodRawShape>(
     augmentation: Augmentation,
@@ -319,7 +319,7 @@ export class ZodObject<
         ...this._def.shape(),
         ...augmentation,
       }),
-    }) as any
+    })
   }
   // extend<
   //   Augmentation extends ZodRawShape,
@@ -352,7 +352,7 @@ export class ZodObject<
   //       ...this._def.shape(),
   //       ...augmentation,
   //     }),
-  //   }) as any;
+  //   })
   // }
   /**
    * @deprecated Use `.extend` instead
@@ -375,7 +375,7 @@ export class ZodObject<
         ...merging._def.shape(),
       }),
       typeName: ZodFirstPartyTypeKind.ZodObject,
-    }) as any
+    })
     return merged
   }
   // merge<
@@ -410,7 +410,7 @@ export class ZodObject<
   //     shape: () =>
   //       objectUtil.mergeShapes(this._def.shape(), merging._def.shape()),
   //     typeName: ZodFirstPartyTypeKind.ZodObject,
-  //   }) as any;
+  //   });
   //   return merged;
   // }
   setKey<Key extends string, Schema extends ZodTypeAny>(
@@ -423,7 +423,13 @@ export class ZodObject<
     UnknownKeys,
     Catchall
   > {
-    return this.augment({ [key]: schema }) as any
+    return this.augment({ [key]: schema }) as ZodObject<
+      T & {
+        [k in Key]: Schema
+      },
+      UnknownKeys,
+      Catchall
+    >
   }
   // merge<Incoming extends AnyZodObject>(
   //   merging: Incoming
@@ -443,14 +449,14 @@ export class ZodObject<
   //     shape: () =>
   //       objectUtil.mergeShapes(this._def.shape(), merging._def.shape()),
   //     typeName: ZodFirstPartyTypeKind.ZodObject,
-  //   }) as any;
+  //   });
   //   return merged;
   // }
   catchall<Index extends ZodTypeAny>(index: Index): ZodObject<T, UnknownKeys, Index> {
     return new ZodObject({
       ...this._def,
       catchall: index,
-    }) as any
+    })
   }
 
   pick<
@@ -469,7 +475,7 @@ export class ZodObject<
     return new ZodObject({
       ...this._def,
       shape: () => shape,
-    }) as any
+    })
   }
 
   omit<
@@ -488,14 +494,14 @@ export class ZodObject<
     return new ZodObject({
       ...this._def,
       shape: () => shape,
-    }) as any
+    })
   }
 
   /**
    * @deprecated
    */
   deepPartial(): partialUtil.DeepPartial<this> {
-    return deepPartialify(this) as any
+    return deepPartialify(this)
   }
 
   partial(): ZodObject<
@@ -534,7 +540,7 @@ export class ZodObject<
     return new ZodObject({
       ...this._def,
       shape: () => newShape,
-    }) as any
+    })
   }
 
   required(): ZodObject<
@@ -578,7 +584,7 @@ export class ZodObject<
     return new ZodObject({
       ...this._def,
       shape: () => newShape,
-    }) as any
+    })
   }
 
   keyof(): ZodEnum<enumUtil.UnionToTupleString<keyof T>> {
@@ -608,7 +614,7 @@ export class ZodObject<
       catchall: ZodNever.create(),
       typeName: ZodFirstPartyTypeKind.ZodObject,
       ...processCreateParams(params),
-    }) as any
+    })
   }
 
   static strictCreate = <T extends ZodRawShape>(shape: T, params?: RawCreateParams): ZodObject<T, 'strict'> => {
@@ -618,7 +624,7 @@ export class ZodObject<
       catchall: ZodNever.create(),
       typeName: ZodFirstPartyTypeKind.ZodObject,
       ...processCreateParams(params),
-    }) as any
+    })
   }
 
   static lazycreate = <T extends ZodRawShape>(shape: () => T, params?: RawCreateParams): ZodObject<T, 'strip'> => {
@@ -628,7 +634,7 @@ export class ZodObject<
       catchall: ZodNever.create(),
       typeName: ZodFirstPartyTypeKind.ZodObject,
       ...processCreateParams(params),
-    }) as any
+    })
   }
 }
 

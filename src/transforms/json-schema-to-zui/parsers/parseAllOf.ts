@@ -32,7 +32,7 @@ export function parseAllOf(schema: JsonSchemaObject & { allOf: JsonSchema[] }, r
       path: [...refs.path, 'allOf', (item as any)[originalIndex]],
     })
   } else {
-    const [left, right] = half(ensureOriginalIndex(schema.allOf)) as any
+    const [left, right] = half(ensureOriginalIndex(schema.allOf))
 
     return `z.intersection(${parseAllOf({ allOf: left }, refs)}, ${parseAllOf(
       {

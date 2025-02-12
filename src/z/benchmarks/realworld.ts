@@ -55,7 +55,7 @@ shortSuite
     People.parse(people)
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${(shortSuite as any).name}: ${e.target}`)
+    console.log(`${shortSuite.name}: ${e.target}`)
   })
 
 export default {

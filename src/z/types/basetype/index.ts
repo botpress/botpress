@@ -391,10 +391,10 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   }
 
   optional(): ZodOptional<this> {
-    return ZodOptional.create(this, this._def) as any
+    return ZodOptional.create(this, this._def)
   }
   nullable(): ZodNullable<this> {
-    return ZodNullable.create(this, this._def) as any
+    return ZodNullable.create(this, this._def)
   }
   nullish(): ZodOptional<ZodNullable<this>> {
     return this.nullable().optional()
@@ -407,7 +407,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   }
 
   or<T extends ZodTypeAny>(option: T): ZodUnion<[this, T]> {
-    return ZodUnion.create([this, option], this._def) as any
+    return ZodUnion.create([this, option], this._def)
   }
 
   and<T extends ZodTypeAny>(incoming: T): ZodIntersection<this, T> {
@@ -422,7 +422,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
       schema: this,
       typeName: ZodFirstPartyTypeKind.ZodEffects,
       effect: { type: 'transform', transform },
-    }) as any
+    })
   }
 
   default(def: util.noUndefined<Input>): ZodDefault<this>

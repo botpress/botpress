@@ -56,9 +56,9 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return new ZodDefault({
       innerType: type,
       typeName: ZodFirstPartyTypeKind.ZodDefault,
-      defaultValue: typeof value === 'function' ? value : () => value as any,
+      defaultValue: typeof value === 'function' ? value : () => value,
       ...processCreateParams(params),
-    }) as any
+    })
   }
 
   isEqual(schema: ZodType): boolean {

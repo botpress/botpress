@@ -51,7 +51,7 @@ export class ZodNullable<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
       innerType: type,
       typeName: ZodFirstPartyTypeKind.ZodNullable,
       ...processCreateParams(params),
-    }) as any
+    })
   }
 
   isEqual(schema: ZodType): boolean {

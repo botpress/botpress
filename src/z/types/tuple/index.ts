@@ -101,10 +101,10 @@ export class ZodTuple<
       status.dirty()
     }
 
-    const items = ([...ctx.data] as any[])
+    const items = [...ctx.data]
       .map((item, itemIndex) => {
         const schema = this._def.items[itemIndex] || this._def.rest
-        if (!schema) return null as any as SyncParseReturnType<any>
+        if (!schema) return null
         return schema._parse(new ParseInputLazyPath(ctx, item, ctx.path, itemIndex))
       })
       .filter((x) => !!x) // filter nulls

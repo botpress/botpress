@@ -167,7 +167,7 @@ export function parseObject(objectSchema: JsonSchemaObject & { type: 'object' } 
           typeof x === 'object' && !x.type && (x.properties || x.additionalProperties || x.patternProperties)
             ? { ...x, type: 'object' }
             : x,
-        ) as any,
+        ),
       },
       refs,
     )})`
@@ -181,7 +181,7 @@ export function parseObject(objectSchema: JsonSchemaObject & { type: 'object' } 
           typeof x === 'object' && !x.type && (x.properties || x.additionalProperties || x.patternProperties)
             ? { ...x, type: 'object' }
             : x,
-        ) as any,
+        ),
       },
       refs,
     )})`
@@ -195,7 +195,7 @@ export function parseObject(objectSchema: JsonSchemaObject & { type: 'object' } 
           typeof x === 'object' && !x.type && (x.properties || x.additionalProperties || x.patternProperties)
             ? { ...x, type: 'object' }
             : x,
-        ) as any,
+        ),
       },
       refs,
     )})`

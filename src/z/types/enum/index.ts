@@ -94,7 +94,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
     for (const val of this._def.values) {
       enumValues[val] = val
     }
-    return enumValues as any
+    return enumValues
   }
 
   get Values(): Values<T> {
@@ -102,7 +102,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
     for (const val of this._def.values) {
       enumValues[val] = val
     }
-    return enumValues as any
+    return enumValues
   }
 
   get Enum(): Values<T> {
@@ -110,7 +110,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
     for (const val of this._def.values) {
       enumValues[val] = val
     }
-    return enumValues as any
+    return enumValues
   }
 
   extract<ToExtract extends readonly [T[number], ...T[number][]]>(
@@ -120,7 +120,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
     return ZodEnum.create(values, {
       ...this._def,
       ...newDef,
-    }) as any
+    })
   }
 
   exclude<ToExclude extends readonly [T[number], ...T[number][]]>(
@@ -130,7 +130,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
     return ZodEnum.create(this.options.filter((opt) => !values.includes(opt)) as FilterEnum<T, ToExclude[number]>, {
       ...this._def,
       ...newDef,
-    }) as any
+    }) as ZodEnum<typecast<Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>>
   }
 
   static create = createZodEnum

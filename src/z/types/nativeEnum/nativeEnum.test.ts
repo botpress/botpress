@@ -52,7 +52,7 @@ test('from enum', () => {
     Banana = 'banana',
   }
 
-  const FruitEnum = z.nativeEnum(Fruits as any)
+  const FruitEnum = z.nativeEnum(Fruits)
   type FruitEnum = z.infer<typeof FruitEnum>
   FruitEnum.parse(Fruits.Cantaloupe)
   FruitEnum.parse(Fruits.Apple)

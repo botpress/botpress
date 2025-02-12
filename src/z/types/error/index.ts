@@ -217,7 +217,7 @@ export class ZodError<T = any> extends Error {
       function (issue: ZodIssue) {
         return issue.message
       }
-    const fieldErrors: ZodFormattedError<T> = { _errors: [] } as any
+    const fieldErrors = { _errors: [] } as ZodFormattedError<T>
     const processError = (error: ZodError) => {
       for (const issue of error.issues) {
         if (issue.code === 'invalid_union') {
@@ -227,7 +227,7 @@ export class ZodError<T = any> extends Error {
         } else if (issue.code === 'invalid_arguments') {
           processError(issue.argumentsError)
         } else if (issue.path.length === 0) {
-          ;(fieldErrors as any)._errors.push(mapper(issue))
+          fieldErrors._errors.push(mapper(issue))
         } else {
           let curr: any = fieldErrors
           let i = 0
@@ -292,7 +292,7 @@ export class ZodError<T = any> extends Error {
 
   flatten(): typeToFlattenedError<T>
   flatten<U>(mapper?: (issue: ZodIssue) => U): typeToFlattenedError<T, U>
-  flatten<U = string>(mapper: (issue: ZodIssue) => U = (issue: ZodIssue) => issue.message as any): any {
+  flatten<U = string>(mapper: (issue: ZodIssue) => U = (issue: ZodIssue) => issue.message as U): any {
     const fieldErrors: any = {}
     const formErrors: U[] = []
     for (const sub of this.issues) {
