@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   deploy-production:
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-22.04-8
     steps:
       - uses: actions/checkout@v2
       - name: Setup
@@ -31,7 +31,7 @@ jobs:
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'production'
-          extra_filter: "-F '!intercom' -F '!instagram'"
+          extra_filter: "-F '!intercom'"
           force: ${{ github.event.inputs.force == 'true' }}
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
@@ -61,6 +61,6 @@ jobs:
         uses: ./.github/actions/deploy-plugins
         with:
           environment: 'staging'
-          force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
+          force: ${{ github.event.inputs.force == 'true' }}
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}

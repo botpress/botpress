@@ -1,7 +1,6 @@
 import type * as client from '@botpress/client'
 import type * as sdk from '@botpress/sdk'
 import type { YargsConfig } from '@bpinternal/yargs-extra'
-import bluebird from 'bluebird'
 import chalk from 'chalk'
 import fs from 'fs'
 import _ from 'lodash'
@@ -11,7 +10,6 @@ import * as codegen from '../code-generation'
 import type * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
-import { formatPackageRef, PackageRef } from '../package-ref'
 import { validateIntegrationDefinition, validateBotDefinition } from '../sdk'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
@@ -23,16 +21,6 @@ export type ProjectCache = { botId: string; devId: string }
 type ConfigurableProjectPaths = { workDir: string }
 type ConstantProjectPaths = typeof consts.fromWorkDir
 type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
-
-type IntegrationInstance = NonNullable<sdk.BotDefinition['integrations']>[string]
-type RemoteIntegrationInstance = utils.types.Merge<IntegrationInstance, { id: string }>
-type LocalIntegrationInstance = utils.types.Merge<IntegrationInstance, { uri?: string }>
-type BotIntegrationRequest = NonNullable<NonNullable<apiUtils.UpdateBotRequestBody['integrations']>[string]>
-
-type InterfaceExtension = NonNullable<sdk.IntegrationDefinition['interfaces']>[string]
-type RemoteInterfaceExtension = utils.types.Merge<InterfaceExtension, { id: string }>
-type LocalInterfaceExtension = utils.types.Merge<InterfaceExtension, { uri?: string }>
-type IntegrationInterfaceRequest = NonNullable<NonNullable<apiUtils.UpdateIntegrationRequestBody['interfaces']>[string]>
 
 type LintIgnoredConfig = { bpLintDisabled?: boolean }
 
@@ -67,99 +55,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   protected get projectCache() {
     return new utils.cache.FSKeyValueCache<ProjectCache>(this.projectPaths.abs.projectCacheFile)
-  }
-
-  protected async fetchBotIntegrationInstances(
-    botDefinition: sdk.BotDefinition,
-    api: apiUtils.ApiClient
-  ): Promise<Record<string, BotIntegrationRequest>> {
-    const integrationList = _(botDefinition.integrations).values().filter(utils.guards.is.defined).value()
-
-    const { remoteInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
-
-    const fetchedInstances: RemoteIntegrationInstance[] = await bluebird.map(
-      localInstances,
-      async (instance): Promise<RemoteIntegrationInstance> => {
-        const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
-        const integration = await api.findIntegration(ref)
-        if (!integration) {
-          const formattedRef = formatPackageRef(ref)
-          throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
-        }
-        return { ...instance, id: integration.id }
-      }
-    )
-
-    return _([...fetchedInstances, ...remoteInstances])
-      .keyBy((i) => i.id)
-      .mapValues(({ enabled, configurationType, configuration }) => ({
-        enabled,
-        configurationType: configurationType ?? null,
-        configuration,
-      }))
-      .value()
-  }
-
-  protected async fetchIntegrationInterfaceInstances(
-    integrationDefinition: sdk.IntegrationDefinition,
-    api: apiUtils.ApiClient
-  ): Promise<Record<string, IntegrationInterfaceRequest>> {
-    const interfaceList = _(integrationDefinition.interfaces).values().filter(utils.guards.is.defined).value()
-
-    const { remoteInstances, localInstances } = this._splitApiAndLocalInterfaceInstances(interfaceList)
-
-    const fetchedInstances: RemoteInterfaceExtension[] = await bluebird.map(
-      localInstances,
-      async (instance): Promise<RemoteInterfaceExtension> => {
-        const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
-        const interfaceInstance = await api.findPublicInterface(ref)
-        if (!interfaceInstance) {
-          const formattedRef = formatPackageRef(ref)
-          throw new errors.BotpressCLIError(`Interface "${formattedRef}" not found`)
-        }
-        return { ...instance, id: interfaceInstance.id }
-      }
-    )
-
-    return _([...fetchedInstances, ...remoteInstances])
-      .keyBy((i) => i.id)
-      .value()
-  }
-
-  private _splitApiAndLocalIntegrationInstances(instances: IntegrationInstance[]): {
-    remoteInstances: RemoteIntegrationInstance[]
-    localInstances: LocalIntegrationInstance[]
-  } {
-    const remoteInstances: RemoteIntegrationInstance[] = []
-    const localInstances: LocalIntegrationInstance[] = []
-    for (const instance of instances) {
-      const { id } = instance
-      if (id) {
-        remoteInstances.push({ ...instance, id })
-      } else {
-        localInstances.push(instance)
-      }
-    }
-
-    return { remoteInstances, localInstances }
-  }
-
-  private _splitApiAndLocalInterfaceInstances(instances: InterfaceExtension[]): {
-    remoteInstances: RemoteInterfaceExtension[]
-    localInstances: LocalInterfaceExtension[]
-  } {
-    const remoteInstances: RemoteInterfaceExtension[] = []
-    const localInstances: LocalInterfaceExtension[] = []
-    for (const instance of instances) {
-      const { id } = instance
-      if (id) {
-        remoteInstances.push({ ...instance, id })
-      } else {
-        localInstances.push(instance)
-      }
-    }
-
-    return { remoteInstances, localInstances }
   }
 
   protected async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
@@ -436,6 +331,62 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
           }))
         : undefined,
     }
+  }
+
+  protected async prepareBotDependencies(
+    botDef: sdk.BotDefinition,
+    api: apiUtils.ApiClient
+  ): Promise<Partial<apiUtils.UpdateBotRequestBody>> {
+    const integrations = await this._fetchDependencies(botDef.integrations ?? {}, ({ name, version }) =>
+      api.getIntegration({ type: 'name', name, version })
+    )
+    return {
+      integrations: _(integrations)
+        .keyBy((i) => i.id)
+        .value(),
+    }
+  }
+
+  protected async prepareIntegrationDependencies(
+    integrationDef: sdk.IntegrationDefinition,
+    api: apiUtils.ApiClient
+  ): Promise<Partial<apiUtils.CreateIntegrationRequestBody>> {
+    const interfaces = await this._fetchDependencies(integrationDef.interfaces ?? {}, ({ name, version }) =>
+      api.getPublicInterface({ type: 'name', name, version })
+    )
+    return { interfaces }
+  }
+
+  protected async preparePluginDependencies(
+    pluginDef: sdk.PluginDefinition,
+    api: apiUtils.ApiClient
+  ): Promise<Partial<apiUtils.CreatePluginRequestBody>> {
+    const integrations = await this._fetchDependencies(pluginDef.integrations ?? {}, ({ name, version }) =>
+      api.getIntegration({ type: 'name', name, version })
+    )
+    const interfaces = await this._fetchDependencies(pluginDef.interfaces ?? {}, ({ name, version }) =>
+      api.getPublicInterface({ type: 'name', name, version })
+    )
+    return {
+      dependencies: {
+        integrations,
+        interfaces,
+      },
+    }
+  }
+
+  private _fetchDependencies = async <T extends { id?: string; name: string; version: string }>(
+    deps: Record<string, T>,
+    fetcher: (dep: T) => Promise<{ id: string }>
+  ): Promise<Record<string, T & { id: string }>> => {
+    const isRemote = (dep: T): dep is T & { id: string } => dep.id !== undefined
+    return utils.records.mapValuesAsync(deps, async (dep): Promise<T & { id: string }> => {
+      if (isRemote(dep)) {
+        return dep
+      }
+      const { id } = await fetcher(dep)
+      return { ...dep, id }
+    })
   }
 
   protected readProjectFile = async (

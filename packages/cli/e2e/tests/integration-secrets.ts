@@ -6,9 +6,9 @@ import * as uuid from 'uuid'
 import impl from '../../src/command-implementations'
 import { fetchAllIntegrations, ApiIntegration } from '../api'
 import defaults from '../defaults'
+import * as retry from '../retry'
 import { Test } from '../typings'
 import * as utils from '../utils'
-import * as retry from '../retry'
 
 type SecretDef = NonNullable<sdk.IntegrationDefinitionProps['secrets']>
 

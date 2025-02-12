@@ -72,6 +72,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
 
   protected async ensureLoginAndCreateClient(credentials: YargsConfig<typeof config.schemas.credentials>) {
     const cache = this.globalCache
+
     const token = await cache.get('token')
     const workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
     const apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))

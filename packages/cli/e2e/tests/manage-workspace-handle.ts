@@ -3,9 +3,9 @@ import pathlib from 'path'
 import impl from '../../src/command-implementations'
 import { ApiIntegration, fetchAllIntegrations } from '../api'
 import defaults from '../defaults'
+import * as retry from '../retry'
 import { Test } from '../typings'
 import * as utils from '../utils'
-import * as retry from '../retry'
 
 const fetchIntegration = async (client: Client, integrationName: string): Promise<ApiIntegration | undefined> => {
   const integrations = await fetchAllIntegrations(client)

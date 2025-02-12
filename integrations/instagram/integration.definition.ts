@@ -25,14 +25,17 @@ export default new IntegrationDefinition({
       schema: z.object({
         clientSecret: z
           .string()
+          .secret()
           .title('Client Secret')
           .describe('Instagram App secret from API setup View used for webhook signature check'),
         verifyToken: z
           .string()
+          .secret()
           .title('Verify Token')
           .describe('Token used for verifying the Callback URL at API setup View'),
         accessToken: z
           .string()
+          .secret()
           .title('Access token')
           .describe('Access Token for the Instagram Account from the API setup View'),
         instagramId: z.string().title('Instagram account ID').describe('Instagram Account Id from API setup View'),

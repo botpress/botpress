@@ -11,6 +11,21 @@ const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'models/gemini-1.5-flash-002'
 // NOTE: Gemini output token limits are actually much higher than the limits enforced below, but we're limiting it to 128K for now as they have a tiered token cost that goes up for prompts longer than 128K tokens, as our model pricing is currently based on a flat price per 1M tokens (no matter the prompt size) which is the standard across all major LLM providers except for Google AI.
 // Reference: https://ai.google.dev/pricing
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
+  'models/gemini-2.0-flash': {
+    name: 'Gemini 2.0 Flash',
+    description:
+      'Gemini 2.0 Flash delivers next-gen features and improved capabilities, including superior speed, native tool use, multimodal generation, and a 1M token context window.',
+    tags: ['recommended', 'low-cost', 'general-purpose', 'vision'],
+    input: {
+      // Note: Cost per 1M input audio tokens is significantly higher, but we don't yet support audio content for input.
+      costPer1MTokens: 0.1,
+      maxTokens: 1_048_576,
+    },
+    output: {
+      costPer1MTokens: 0.4,
+      maxTokens: 8192,
+    },
+  },
   'models/gemini-1.5-flash-8b-001': {
     name: 'Gemini 1.5 Flash-8B',
     description:

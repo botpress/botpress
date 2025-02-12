@@ -4,9 +4,9 @@ import * as uuid from 'uuid'
 import impl from '../../src/command-implementations'
 import { ApiBot, fetchAllBots } from '../api'
 import defaults from '../defaults'
+import * as retry from '../retry'
 import { Test } from '../typings'
 import * as utils from '../utils'
-import * as retry from '../retry'
 
 const fetchBot = async (client: Client, botName: string): Promise<ApiBot | undefined> => {
   const bots = await fetchAllBots(client)

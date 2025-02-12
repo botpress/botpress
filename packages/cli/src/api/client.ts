@@ -61,8 +61,8 @@ export class ApiClient {
   }
 
   public async findWorkspaceByHandle(handle: string): Promise<client.ClientOutputs['getWorkspace'] | undefined> {
-    const workspaces = await paging.listAllPages(this.client.listWorkspaces, (r) => r.workspaces)
-    return workspaces.find((w) => w.handle === handle)
+    const { workspaces } = await this.client.listWorkspaces({ handle })
+    return workspaces[0] // There should be only one workspace with a given handle
   }
 
   public switchWorkspace(workspaceId: string): ApiClient {
@@ -80,6 +80,14 @@ export class ApiClient {
     props: utils.types.SafeOmit<client.ClientInputs['updateWorkspace'], 'id'>
   ): Promise<client.ClientOutputs['updateWorkspace']> {
     return this.client.updateWorkspace({ id: this.workspaceId, ...props })
+  }
+
+  public async getIntegration(ref: ApiPackageRef): Promise<Integration> {
+    const integration = await this.findIntegration(ref)
+    if (!integration) {
+      throw new Error(`Integration "${formatPackageRef(ref)}" not found`)
+    }
+    return integration
   }
 
   public async findIntegration(ref: ApiPackageRef): Promise<Integration | undefined> {
@@ -125,6 +133,14 @@ export class ApiClient {
       .getPublicIntegration(ref)
       .then((r) => r.integration)
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
+  }
+
+  public async getPublicInterface(ref: ApiPackageRef): Promise<Interface> {
+    const intrface = await this.findPublicInterface(ref)
+    if (!intrface) {
+      throw new Error(`Interface "${formatPackageRef(ref)}" not found`)
+    }
+    return intrface
   }
 
   public async findPublicInterface(ref: ApiPackageRef): Promise<Interface | undefined> {

@@ -217,7 +217,17 @@ export const convertTelegramMessageToBotpressMessage = async ({
     }
   }
 
-  throw new Error('Unsupported message type')
+  if ('location' in message) {
+    return {
+      type: 'location',
+      payload: {
+        latitude: message.location.latitude,
+        longitude: message.location.longitude,
+      },
+    }
+  }
+
+  throw new RuntimeError(`Unsupported message type from Telegram: ${JSON.stringify(message)}`)
 }
 
 type Handler = bp.IntegrationProps['handler']
