@@ -174,6 +174,9 @@ test('api allows sending and receiving messages with metadata', async () => {
   expect(sentMessage.message.metadata).toEqual(metadata)
   expect(receivedSelfMessage.metadata).toEqual(metadata)
   expect(receivedBotMessage.metadata).toEqual(metadata)
+  expect(sentMessage.message.payload).not.toHaveProperty('metadata')
+  expect(receivedSelfMessage.payload).not.toHaveProperty('metadata')
+  expect(receivedBotMessage.payload).not.toHaveProperty('metadata')
 
   const fetchedMessages = await client.listMessages({ conversationId }).then((r) => r.messages)
 
