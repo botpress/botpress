@@ -196,6 +196,11 @@ bot.on.message('*', async (args) => {
         await api.respond({ type: 'text', text: `Message ${i}` })
       }
       break
+    case 'metadata':
+      const { payload } = args.message
+      const metadata = 'metadata' in payload ? payload.metadata : {}
+      await api.respond({ type: 'text', text: 'metadata', metadata })
+      break
     default:
       const { name } = args.user
       const hiMsg = name ? `Hi, ${name}` : 'Hi'

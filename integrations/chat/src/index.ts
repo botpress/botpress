@@ -57,7 +57,8 @@ const makeEmitter = (options: Options): SignalEmitter => {
 }
 
 const messageToSignal = (args: MessageArgs): MessageCreatedSignal['data']['payload'] => {
-  const { type, payload } = args
+  const { type } = args
+  const { metadata: _, ...payload } = args.payload
   return {
     type,
     ...payload,
@@ -117,6 +118,7 @@ const emitMessage = async (args: MessageArgs) => {
       userId: args.user.id,
       createdAt: args.message.createdAt,
       payload: messageToSignal(args),
+      metadata: args.payload.metadata,
       isBot: true,
     },
   })
