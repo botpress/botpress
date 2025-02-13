@@ -1,4 +1,5 @@
 import { Response } from '@botpress/sdk'
+import { marked } from 'marked'
 import { render } from 'preact-render-to-string'
 import ButtonDialogPage from './pages/button-dialog'
 import SelectDialogPage from './pages/select-dialog'
@@ -57,6 +58,8 @@ export const redirectTo = (url: string) => {
 }
 
 export const generateButtonDialog = (props: Parameters<typeof ButtonDialogPage>[0] & { title: string }) => {
+  props.description = marked.parse(props.description, { async: false }) as string
+
   return generateHtml({
     body: render(ButtonDialogPage(props)),
     options: { title: props.title },

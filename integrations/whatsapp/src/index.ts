@@ -25,15 +25,15 @@ import * as bp from '.botpress'
 
 const integration = new bp.Integration({
   register: async (input) => {
-    const { useManualConfiguration, accessToken, clientSecret, phoneNumberId, verifyToken } = input.ctx.configuration
-
     await identifyBot(input.ctx.botId, {
-      [INTEGRATION_NAME + 'OauthType']: useManualConfiguration ? 'manual' : 'oauth',
+      [INTEGRATION_NAME + 'OauthType']: input.ctx.configurationType === 'manualApp' ? 'manual' : 'oauth',
     })
 
-    if (!useManualConfiguration) {
+    if (input.ctx.configurationType !== 'manualApp') {
       return // nothing more to do if we're not using manual configuration
     }
+
+    const { accessToken, clientSecret, phoneNumberId, verifyToken } = input.ctx.configuration
 
     if (accessToken && clientSecret && phoneNumberId && verifyToken) {
       // let's check the credentials
@@ -161,7 +161,8 @@ const integration = new bp.Integration({
       const token = query['hub.verify_token']
       const challenge = query['hub.challenge']
 
-      if (mode === 'subscribe') {
+      // For oAuth, this is handled at fallbackHandler.vrl
+      if (mode === 'subscribe' && ctx.configurationType === 'manualApp') {
         if (token === ctx.configuration.verifyToken) {
           if (!challenge) {
             logger.forBot().warn('Returning HTTP 400 as no challenge parameter was received in query string of request')

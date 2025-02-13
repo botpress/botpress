@@ -32,51 +32,53 @@ const TagsForCreatingConversation = {
 
 export const INTEGRATION_NAME = 'whatsapp'
 
+const commonConfigSchema = z.object({
+  typingIndicatorEmoji: z
+    .boolean()
+    .default(false)
+    .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
+})
+
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.3.1',
+  version: '3.0.0',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
   readme: 'hub.md',
+  configurations: {
+    manualApp: {
+      title: 'Manual Configuration',
+      description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
+      ui: {
+        phoneNumberId: {
+          title: 'Default Phone Number ID for starting conversations',
+        },
+      },
+      schema: z
+        .object({
+          verifyToken: z
+            .string()
+            .min(1)
+            .describe(
+              'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
+            ),
+          accessToken: z
+            .string()
+            .min(1)
+            .describe('Access Token from a System Account that has permission to the Meta app'),
+          clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
+          phoneNumberId: z.string().min(1).describe('Default Phone id used for starting conversations'),
+        })
+        .merge(commonConfigSchema),
+    },
+  },
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
+      required: true,
     },
-    ui: {
-      phoneNumberId: {
-        title: 'Default Phone Number ID for starting conversations',
-      },
-      useManualConfiguration: {
-        title: 'Use Manual Configuration',
-      },
-    },
-    schema: z
-      .object({
-        typingIndicatorEmoji: z
-          .boolean()
-          .default(false)
-          .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
-        useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
-        verifyToken: z.string().optional().describe('Token used for verification when subscribing to webhooks'),
-        accessToken: z
-          .string()
-          .optional()
-          .describe('Access Token from a System Account that has permission to the Meta app'),
-        clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
-        phoneNumberId: z.string().optional().describe('Default Phone used for starting conversations'),
-      })
-      .hidden((formData) => {
-        const showConfig = !formData?.useManualConfiguration
-
-        return {
-          typingInficatorEmoji: false,
-          verifyToken: showConfig,
-          accessToken: showConfig,
-          clientSecret: showConfig,
-          phoneNumberId: showConfig,
-        }
-      }),
+    schema: commonConfigSchema,
   },
   identifier: {
     extractScript: 'extract.vrl',
@@ -160,6 +162,10 @@ export default new IntegrationDefinition({
     },
     SEGMENT_KEY: {
       description: 'Tracking key for general product analytics',
+      optional: true,
+    },
+    VERIFY_TOKEN: {
+      description: 'The verify token for the Meta Webhooks subscription, optional since its only useful for oAuth.',
       optional: true,
     },
   },

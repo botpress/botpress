@@ -12,8 +12,8 @@ export default ({
 }) => {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-      <div style={{ textAlign: 'center', maxWidth: 400, width: '100%' }}>
-        <p>{description}</p>
+      <div style={{ maxWidth: 500, width: '100%' }}>
+        <div dangerouslySetInnerHTML={{ __html: description }}></div>
         <div style={{ columnGap: 5, display: 'flex', justifyContent: 'center' }}>
           {buttons.map((button) => {
             switch (button.action) {
