@@ -233,6 +233,7 @@ const executeIteration = async ({
   )
 
   const output = await cognitive.generateContent({
+    signal: abortSignal,
     systemPrompt: messages.find((x) => x.role === 'system')?.content,
     model: ctx.model as any | undefined,
     temperature: ctx.temperature,
@@ -394,7 +395,7 @@ const executeIteration = async ({
   // In that scenario, the non-code blocks will become messages and llmz will take responsibility of telling its consumers what messages are meant for the user
 
   try {
-    result = await runAsyncFunction(vmContext, assistantResponse.code.trim(), traces)
+    result = await runAsyncFunction(vmContext, assistantResponse.code.trim(), traces, abortSignal)
   } catch (err) {
     if (err instanceof InvalidCodeError) {
       result = err

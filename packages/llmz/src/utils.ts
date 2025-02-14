@@ -1,4 +1,6 @@
-import { type TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
+// @ts-ignore
+import { TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
+
 import { JSONSchema, z } from '@bpinternal/zui'
 import { pickBy, startCase, camelCase, isPlainObject, deburr } from 'lodash-es'
 

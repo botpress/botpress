@@ -2,21 +2,21 @@
   "name": "@botpress/llmz",
   "type": "module",
   "description": "LLMz – An LLM-native Typescript VM built on top of Zui",
-  "version": "0.0.1-beta.9",
+  "version": "0.0.1-beta.16",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
   },
   "scripts": {
-    "build": "pnpm build:markdown && tsup",
+    "build": "pnpm build:markdown && tsup && pnpm tsc --emitDeclarationOnly",
     "watch": "tsup --watch",
     "test": "vitest run --config vitest.config.ts",
     "test:update": "vitest -u run --config vitest.config.ts",
     "test:watch": "vitest --config vitest.config.ts",
-    "build:markdown": "ts-node --esm ./scripts/compile-markdown.mts"
+    "build:markdown": "tsx ./scripts/compile-markdown.mts"
   },
   "keywords": [],
   "author": "",
@@ -50,12 +50,14 @@
     "@types/bytes": "^3.1.5",
     "@types/lodash-es": "^4.17.12",
     "@types/ms": "^0.7.34",
+    "@types/node": "^18.19.67",
     "dotenv": "^16.4.7",
     "esbuild": "^0.24.2",
     "glob": "^11.0.0",
     "source-map-js": "1.2.1",
     "ts-node": "^10.9.2",
     "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   },
@@ -63,6 +65,11 @@
     "@botpress/cognitive": "^0.1.1",
     "@bpinternal/thicktoken": "^1.0.3",
     "@bpinternal/zui": "^0.13.6"
+  },
+  "dependenciesMeta": {
+    "@bpinternal/zui": {
+      "injected": true
+    }
   },
   "peerDependenciesMeta": {
     "@botpress/cognitive": {

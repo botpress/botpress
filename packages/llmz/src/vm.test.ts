@@ -1,7 +1,7 @@
 import { assert, describe, expect, it, vi } from 'vitest'
 
 import { CodeExecutionError, ExecuteSignal, InvalidCodeError } from './errors.js'
-import { runAsyncFunction } from './vm.js'
+import { runAsyncFunction, USE_ISOLATED_VM } from './vm.js'
 import { Traces } from './types.js'
 
 describe('llmz/vm', () => {
@@ -250,7 +250,7 @@ Hey!
       const result = await runAsyncFunction({ message }, code)
       expect(result.success).toBe(true)
       expect(message.mock.calls.length).toBe(1)
-      expect(message.mock.calls[0][0]).toMatchInlineSnapshot(`
+      expect(message.mock.calls[0]![0]).toMatchInlineSnapshot(`
         {
           "__jsx": true,
           "children": [
@@ -313,8 +313,8 @@ End.
       const result = await runAsyncFunction({ mEssAge }, code)
       expect(result.success).toBe(true)
       expect(mEssAge.mock.calls.length).toBe(1)
-      expect(mEssAge.mock.calls[0][0].props.id).toBe(1)
-      expect(mEssAge.mock.calls[0][0].children[0]).toMatchInlineSnapshot(`
+      expect(mEssAge.mock.calls[0]![0].props.id).toBe(1)
+      expect(mEssAge.mock.calls[0]![0].children[0]).toMatchInlineSnapshot(`
         "
         # Hello world! 
         This is a multi-line message 
@@ -801,6 +801,49 @@ return {
           "userName": "unset",
         }
       `)
+    })
+  })
+
+  describe('global variables', () => {
+    it.skipIf(!USE_ISOLATED_VM)('aborting execution', async () => {
+      const code = `
+      await longFn()
+      notCalled()
+      `
+
+      const controller = new AbortController()
+
+      let called = false
+
+      const exec = runAsyncFunction(
+        {
+          count: 0,
+          longFn: async () => {
+            await new Promise((resolve) => setTimeout(resolve, 5_000))
+          },
+          notCalled: () => {
+            called = true
+          },
+        },
+        code,
+        [],
+        controller.signal
+      )
+
+      await new Promise((resolve) =>
+        setTimeout(() => {
+          controller.abort()
+          resolve(void 0)
+        }, 100)
+      )
+
+      controller.abort()
+
+      const result = await exec
+
+      expect(result.success).toBe(false)
+      expect(result.error).toMatchInlineSnapshot(`[Error: Execution was aborted]`)
+      expect(called).toBe(false)
     })
   })
 })

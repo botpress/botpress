@@ -33,11 +33,11 @@ const exec = (result: ExecutionResult) => {
   const getTracesOfType = <T extends Traces.Trace>(type: T['type']) => traces.filter((t): t is T => t.type === type)
 
   return {
-    firstIteration: result.iterations[0],
+    firstIteration: result.iterations[0]!,
     lastIteration: result.iterations.slice(-1)[0],
     getTracesOfType,
     allCodeExecutions: getTracesOfType<Traces.CodeExecution>('code_execution'),
-    allToolCalls: getTracesOfType<Traces.ToolCall>('tool_call'),
+    allToolCalls: getTracesOfType<Traces.ToolCall>('tool_call') ?? [],
     allMessagesSent: [
       ...getTracesOfType<Traces.MessageTrace>('send_message').map((x) =>
         x.message.type === 'text' ? x.message.text : JSON.stringify(x.message)
@@ -182,8 +182,8 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       })
       const res = exec(updatedContext)
 
-      expect(res.firstIteration.status).toBe('error')
-      expect(res.lastIteration.status).toBe('success')
+      expect(res.firstIteration?.status).toBe('error')
+      expect(res.lastIteration?.status).toBe('success')
       expect(updatedContext.iterations).length.greaterThanOrEqual(2)
       expect(res.allMessagesSent.join('\n')).toContain('666')
     })
@@ -233,7 +233,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       })
       const res = exec(updatedContext)
 
-      expect(res.lastIteration.status).toBe('success')
+      expect(res.lastIteration?.status).toBe('success')
       expect(res.allToolCalls.map((x) => x.tool_name)).containSubset(['syncTool', 'asyncTool'])
     })
   })
@@ -260,8 +260,8 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     })
 
     const res = exec(updatedContext)
-    expect(res.firstIteration.code).toContain('.age =')
-    expect(res.firstIteration.status).toBe('error')
+    expect(res.firstIteration?.code).toContain('.age =')
+    expect(res.firstIteration?.status).toBe('error')
     expect(res.allErrors.join('')).toContain('property')
   })
 
@@ -286,8 +286,8 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     })
     const res = exec(updatedContext)
 
-    expect(res.firstIteration.mutations).toHaveLength(1)
-    expect(res.firstIteration.mutations).toMatchInlineSnapshot(`
+    expect(res.firstIteration?.mutations).toHaveLength(1)
+    expect(res.firstIteration?.mutations).toMatchInlineSnapshot(`
       [
         {
           "after": "yoyo",
@@ -313,10 +313,10 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     })
     const res = exec(updatedContext)
 
-    expect(res.firstIteration.status).toBe('success')
-    expect(res.firstIteration.mutations).toHaveLength(1)
-    expect(res.firstIteration.mutations[0].property).toBe('name')
-    expect(res.firstIteration.mutations[0].after).toMatchInlineSnapshot(`
+    expect(res.firstIteration?.status).toBe('success')
+    expect(res.firstIteration?.mutations).toHaveLength(1)
+    expect(res.firstIteration.mutations[0]!.property).toBe('name')
+    expect(res.firstIteration.mutations[0]!.after).toMatchInlineSnapshot(`
       {
         "a": 1,
       }
@@ -368,7 +368,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
     expect(res.firstIteration.status).toBe('success')
     expect(res.allToolCalls).toHaveLength(1)
-    expect(res.allToolCalls[0].input).toMatchInlineSnapshot(`
+    expect(res.allToolCalls[0]!.input).toMatchInlineSnapshot(`
       {
         "name": "john",
       }
@@ -450,7 +450,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     })
 
     expect(onIterationStart).toHaveBeenCalledTimes(1)
-    expect(onTrace).toHaveBeenCalledTimes(updatedContext.iterations[0].traces.length)
+    expect(onTrace).toHaveBeenCalledTimes(updatedContext.iterations[0]!.traces.length)
   })
 
   it('variables declared in previous iterations are injected back to subsequent iterations', async () => {
@@ -521,19 +521,19 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     })
 
     expect(result.iterations).toHaveLength(2)
-    assert(result.iterations[0].status === 'partial', 'First iteration should be partial')
-    expect(result.iterations[1].status).toBe('success')
+    assert(result.iterations[0]!.status === 'partial', 'First iteration should be partial')
+    expect(result.iterations[1]!.status).toBe('success')
 
-    const ctx = JSON.stringify(result.iterations[0].signal.context)
+    const ctx = JSON.stringify(result.iterations[0]!.signal.context)
     expect(ctx).toContain('adam')
     expect(ctx).toContain('eats')
     expect(ctx).toContain('bread')
 
-    const thought = result.iterations[1].messages.slice(-1)[0]
-    expect(thought.content).toContain('## Important message from the VM')
-    expect(thought.content).toContain('The assistant requested to think')
-    expect(thought.content).toContain('adam')
-    expect(thought.content).toContain('eats')
-    expect(thought.content).toContain('bread')
+    const thought = result.iterations[1]!.messages.slice(-1)[0]
+    expect(thought?.content).toContain('## Important message from the VM')
+    expect(thought?.content).toContain('The assistant requested to think')
+    expect(thought?.content).toContain('adam')
+    expect(thought?.content).toContain('eats')
+    expect(thought?.content).toContain('bread')
   })
 })

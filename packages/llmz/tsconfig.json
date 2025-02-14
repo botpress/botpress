@@ -9,8 +9,10 @@
     "baseUrl": ".",
     "rootDir": "src",
     "outDir": "dist",
-    "declaration": true
+    "declaration": true,
+    "skipLibCheck": true,
+    "typeRoots": ["node_modules/@types"]
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["**/*.test.ts", "src/__tests__"]
+  "exclude": ["**/*.test.ts", "src/**/*.test.ts", "**/__tests__", "node_modules"]
 }

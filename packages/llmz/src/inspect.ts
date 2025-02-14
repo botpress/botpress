@@ -17,7 +17,7 @@ const DEFAULT_OPTIONS: PreviewOptions = {
   tokens: 100_000,
 }
 
-interface PrintResult {
+type PrintResult = {
   output: string
   truncated: boolean
 }
@@ -301,7 +301,7 @@ function previewObject(obj: unknown, options: PreviewOptions) {
   return lines.join('\n').replace(/\n{2,}/g, SECTION_SEP)
 }
 
-function previewLongText(text: string) {
+function previewLongText(text: string, length: number = LONG_TEXT_LENGTH) {
   const lines: string[] = []
 
   // Regex patterns to match URLs and email addresses

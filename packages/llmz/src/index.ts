@@ -1,14 +1,13 @@
-// export { llmz } from './llmz.js'
-export * as Messages from './jsx.js'
-export * from './tool.js'
+export { Tool } from './tool.js'
+export { ObjectInstance } from './objects.js'
 
-import { type llmz } from './llmz.js'
-export type { ExecutionProps, ExecutionHooks } from './llmz.js'
+import { type ExecutionProps } from './llmz.js'
+import { type ExecutionResult } from './types.js'
 
-export const executeContext: typeof llmz.executeContext = async (...props) => {
+export const executeContext = async (props: ExecutionProps) => {
   // Code splitting to improve import performance
   const { executeContext } = (await import('./llmz.js')).llmz
-  return executeContext(...props)
+  return executeContext(props) as Promise<ExecutionResult>
 }
 
 /**

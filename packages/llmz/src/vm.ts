@@ -18,7 +18,7 @@ import { Trace, Traces, VMExecutionResult } from './types.js'
 const IS_NODE = typeof process !== 'undefined' && process.versions != null && process.versions.node != null
 const IS_CI = !!process.env.CI
 const VM_DRIVER = process.env.VM_DRIVER ?? (IS_CI ? 'node' : 'isolated-vm')
-const USE_ISOLATED_VM = IS_NODE && VM_DRIVER === 'isolated-vm'
+export const USE_ISOLATED_VM = IS_NODE && VM_DRIVER === 'isolated-vm'
 const LINE_OFFSET = USE_ISOLATED_VM ? 3 : 1
 
 const MAX_VM_EXECUTION_TIME = 60_000
@@ -34,7 +34,7 @@ const requireEsm = async (id: string) => {
 }
 
 // We do this because we want it to work in the browser and isolated-vm is only used when running in NodeJS
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 const getIsolatedVm = async () => (await requireEsm('isolated-vm')) as typeof import('isolated-vm')
 
 // These are the identifiers that we want to exclude from the variable tracking system
@@ -63,7 +63,12 @@ function getCompiledCode(code: string, traces: Trace[] = []): CompiledCode {
 
 // TODO: use debug() to log what's going on, remove console.log and also log which driver is being used
 
-export async function runAsyncFunction(context: any, code: string, traces: Trace[] = []): Promise<VMExecutionResult> {
+export async function runAsyncFunction(
+  context: any,
+  code: string,
+  traces: Trace[] = [],
+  signal: AbortSignal | null = null
+): Promise<VMExecutionResult> {
   const transformed = getCompiledCode(code, traces)
   const lines_executed = new Map<number, number>()
   const variables: { [k: string]: () => any } = {}
@@ -158,7 +163,6 @@ export async function runAsyncFunction(context: any, code: string, traces: Trace
     const AsyncFunction: (...args: unknown[]) => (...args: unknown[]) => AsyncGenerator<JsxComponent> =
       async function* () {}.constructor as any
 
-    // eslint-disable-next-line no-return-await
     return await (async () => {
       const topLevelProperties = Object.keys(context).filter(
         (x) => !NO_TRACKING.includes(x) && typeof context[x] !== 'function' && typeof context[x] !== 'object'
@@ -206,6 +210,17 @@ export async function runAsyncFunction(context: any, code: string, traces: Trace
   const isolatedContext = await isolate.createContext()
   const jail = isolatedContext.global
   const trackedProperties = new Set<string>()
+
+  const abort = () => {
+    if (USE_ISOLATED_VM) {
+      isolate.dispose()
+      isolatedContext.release()
+    }
+  }
+
+  if (signal) {
+    signal.addEventListener('abort', abort)
+  }
 
   await jail.set('global', jail.derefInto())
 
@@ -449,12 +464,24 @@ do {
       }
     )
     .catch((err) => {
-      copyBackContextFromJail() // Copy back even when there's an error in the middle of the execution
+      if (signal?.aborted) {
+        return handleCatch(new Error('Execution was aborted'), traces, variables, lines_executed)
+      } else {
+        copyBackContextFromJail() // Copy back even when there's an error in the middle of the execution
+      }
+
       return handleCatch(err, traces, variables, lines_executed)
     })
 
-  isolate.dispose()
-  isolatedContext.release()
+  signal?.removeEventListener('abort', abort)
+
+  try {
+    isolate.dispose()
+  } catch {}
+
+  try {
+    isolatedContext.release()
+  } catch {}
 
   return final
 }

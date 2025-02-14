@@ -466,7 +466,19 @@ describe('Inspect Text', () => {
 
   it('long text', () => {
     const text = 'Hello, World '.repeat(5000)
-    expect(inspect(text, 'superLongText', OPTIONS)).toMatchInlineSnapshot(`"Error: length is not defined"`)
+    expect(inspect(text, 'superLongText', OPTIONS)).toMatchInlineSnapshot(`
+      "// const superLongText: string
+      // The string is too long to fully display, here is a preview:
+      Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World Hello, World H ... <truncated>
+      --------------
+      // Analysis Summary
+      --------------
+      Length:               65,000 chars
+      Word Count:           10,001 words
+      Unique Words:         3
+      Most Common Words:    "Hello," 5000 times
+                            "World" 5000 times"
+    `)
   })
 
   it('long text with emails, urls etc', () => {
@@ -474,6 +486,315 @@ describe('Inspect Text', () => {
     text += '\nsylvain.perron@botpress.com\nhttps://botpress.com\nhello@world.com\nhttps://hi.com/mypage/image.png'
     text += '\nyooy\n'.repeat(1000)
 
-    expect(inspect(text, 'superLongText', OPTIONS)).toMatchInlineSnapshot(`"Error: length is not defined"`)
+    expect(inspect(text, 'superLongText', OPTIONS)).toMatchInlineSnapshot(`
+      "// const superLongText: string
+      // The string is too long to fully display, here is a preview:
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, World 
+      Hello, W ... <truncated>
+      --------------
+      // Analysis Summary
+      --------------
+      Found URLs:           2
+      URLs:                https://botpress.com, https://hi.com/mypage/image.png
+      Found Emails:         2
+      Emails:              sylvain.perron@botpress.com, hello@world.com
+      Length:               20,097 chars
+      Word Count:           3,005 words
+      Unique Words:         8
+      Most Common Words:    "Hello," 1000 times
+                            "World" 1000 times
+                            "yooy" 1000 times"
+    `)
   })
 })
