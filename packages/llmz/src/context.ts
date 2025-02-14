@@ -27,7 +27,7 @@ export const createContext = (props: {
   const transcript = new TranscriptArray(Array.isArray(props.transcript) ? props.transcript : [])
   let tools = Tool.withUniqueNames(props.tools ?? [])
   const objects = props.objects ?? []
-  const loop = props.loop ?? 1
+  const loop = props.loop ?? 3
   const temperature = props.temperature ?? 0.7
   const iterations: Iteration[] = []
 

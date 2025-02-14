@@ -6,6 +6,8 @@ scripts/
 
 *.test.ts
 *.test.js
+*.tgz
+
 tsconfig.json
 vitest.*.ts
 
@@ -14,3 +16,4 @@ vitest.*.ts
 
 src
 scripts
+TODO

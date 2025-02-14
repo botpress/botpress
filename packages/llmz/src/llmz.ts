@@ -1,4 +1,4 @@
-import { type Cognitive } from '@botpress/cognitive'
+import { Cognitive, type BotpressClientLike } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 
 import { omit, clamp, isPlainObject, isEqual } from 'lodash-es'
@@ -72,7 +72,8 @@ export type ExecutionProps = {
   tools?: Tool[]
   options?: Options
   transcript?: TranscriptMessage[]
-  cognitive: Cognitive
+  /** An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive) */
+  client: Cognitive | BotpressClientLike
   signal?: AbortController['signal']
 } & ExecutionHooks
 
@@ -89,7 +90,9 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
     transcript: props.transcript,
   })
 
-  const { cognitive, signal, onIterationEnd, onTrace, onIterationStart } = props
+  const { signal, onIterationEnd, onTrace, onIterationStart } = props
+
+  const cognitive = props.client instanceof Cognitive ? props.client : new Cognitive({ client: props.client })
 
   try {
     while (true) {
