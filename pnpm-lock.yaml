@@ -2116,7 +2116,7 @@ importers:
         version: 1.0.3
       '@bpinternal/zui':
         specifier: ^0.13.6
-        version: 0.13.6
+        version: 0.14.2
       bytes:
         specifier: ^3.1.2
         version: 3.1.2
@@ -4172,8 +4172,8 @@ packages:
       react:
         optional: true
 
-  /@bpinternal/zui@0.13.6:
-    resolution: {integrity: sha512-LK09xntsesmlv3lJKR5ZP4c52vtRqE/5h+dTHQZiQveXQOO6w7cXJ2z97Q1mmuH71oEDTiaNw9qoWV34LPGSdQ==}
+  /@bpinternal/zui@0.14.2:
+    resolution: {integrity: sha512-5XLjKHa3Z+NAd1Nz5NfroOHfs0GwMi8R+ZcQGi7zx4OD7RS1VIpcM3wTtwkjj9UjfGOD++8Fz99Dz4gV8t03mQ==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     peerDependencies:
       react: ^18.2.0
