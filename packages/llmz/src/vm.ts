@@ -24,11 +24,13 @@ const LINE_OFFSET = USE_ISOLATED_VM ? 3 : 1
 const MAX_VM_EXECUTION_TIME = 60_000
 
 const requireEsm = async (id: string) => {
-  if (typeof require !== 'undefined') {
-    // CommonJS
-    return require(id)
+  // @ts-ignore
+  if (typeof globalThis.window === 'undefined' && typeof globalThis.require !== 'undefined') {
+    // Node environment: use eval to bypass bundler detection
+    // eslint-disable
+    return eval('require')(id)
   } else {
-    // ESM
+    // Browser environment
     return await import(id).then((m) => m.default ?? m)
   }
 }

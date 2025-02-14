@@ -163,6 +163,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
         if (error instanceof LoopExceededError) {
           throw error
         }
+
         // The iteration should be in the list even though it failed internally
         ctx.iterations.push({
           id: generateIterationId(),
