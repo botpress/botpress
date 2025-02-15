@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-import { Oct2024Prompt } from './oct-2024.js'
+import { ChatModePrompt } from './chat-mode.js'
 
 describe('October Prompt', { timeout: 60_000 }, () => {
   describe('parseAssistantResponse', () => {
@@ -15,7 +15,7 @@ return { action: 'listen' }
 \`\`\`
 `.trim()
 
-      const response = Oct2024Prompt.parseAssistantResponse(input)
+      const response = ChatModePrompt.parseAssistantResponse(input)
 
       if (response.type !== 'code') {
         throw 'Expected a code response'
@@ -40,7 +40,7 @@ return { action: 'listen' }
 ■fn_end
 `.trim()
 
-      const response = Oct2024Prompt.parseAssistantResponse(input)
+      const response = ChatModePrompt.parseAssistantResponse(input)
 
       if (response.type !== 'code') {
         throw 'Expected a code response'
@@ -63,7 +63,7 @@ return { action: 'listen' }
 \`\`\`
 `.trim()
 
-      const response = Oct2024Prompt.parseAssistantResponse(input)
+      const response = ChatModePrompt.parseAssistantResponse(input)
 
       if (response.type !== 'code') {
         throw 'Expected a code response'
@@ -86,7 +86,7 @@ return { action: 'listen' }
 
 `.trim()
 
-      const response = Oct2024Prompt.parseAssistantResponse(input)
+      const response = ChatModePrompt.parseAssistantResponse(input)
 
       if (response.type !== 'code') {
         throw 'Expected a code response'

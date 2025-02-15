@@ -4,9 +4,10 @@ import { inspect } from '../inspect.js'
 import { OAI } from '../openai.js'
 import { wrapContent } from '../truncator.js'
 
-import SYSTEM_PROMPT_TEXT from './oct-2024-system.md.js'
-import USER_PROMPT_TEXT from './oct-2024-user.md.js'
-import { LLMzPrompts, PromptVersion } from './prompt.js'
+import SYSTEM_PROMPT_TEXT from './chat-mode/system.md.js'
+import USER_PROMPT_TEXT from './chat-mode/user.md.js'
+
+import { LLMzPrompts, Prompt } from './prompt.js'
 
 const replacePlaceholders = (prompt: string, values: Record<string, unknown>) => {
   const regex = new RegExp('■■■([A-Z0-9_\\.-]+)■■■', 'gi')
@@ -37,7 +38,7 @@ const replacePlaceholders = (prompt: string, values: Record<string, unknown>) =>
   return compiled.replace(/\n{3,}/g, '\n\n').trim()
 }
 
-export const getSystemMessage: PromptVersion['getSystemMessage'] = async (props) => {
+export const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
   let dts = ''
 
   const tool_names: string[] = []
@@ -123,7 +124,7 @@ ${variables_example}
   }
 }
 
-const getInitialUserMessage: PromptVersion['getInitialUserMessage'] = async (props) => {
+const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => {
   const transcript = [...props.transcript].reverse()
   let recap = 'Nobody has spoken yet in this conversation. You can start by saying something.'
 
@@ -434,11 +435,7 @@ const parseAssistantResponse = (response: string) => {
   } as const
 }
 
-export const Oct2024Prompt: PromptVersion<'01-Oct-2024'> = {
-  version: '01-Oct-2024',
-  status: 'stable',
-  description: 'This version improves the generation of messages.',
-  displayName: 'October 2024',
+export const ChatModePrompt: Prompt = {
   getSystemMessage,
   getInitialUserMessage,
   getThinkingMessage,

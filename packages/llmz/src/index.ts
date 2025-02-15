@@ -23,5 +23,5 @@ export const init = async () => {
   await import('./utils.js')
   await import('./truncator.js')
   await import('./typings.js')
-  await import('./prompts/oct-2024.js')
+  await import('./prompts/chat-mode.js')
 }

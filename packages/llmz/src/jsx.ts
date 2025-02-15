@@ -34,13 +34,13 @@ export const createJsxComponent = (props: Omit<JsxComponent, '__jsx'>): JsxCompo
   __jsx: true,
   type: isString(props.type) ? props.type.toUpperCase() : '__unknown__',
   children: Array.isArray(props.children) ? props.children : props.children ? [props.children] : [],
-  props: isPlainObject(props.props) ? props.props : {}
+  props: isPlainObject(props.props) ? props.props : {},
 })
 
 export const Jsx = z.custom<JsxComponent>(
   (value) => isAnyJsxComponent(value),
   (value) => ({
     params: { value },
-    message: `Invalid JSX component: ${value}`
+    message: `Invalid JSX component: ${value}`,
   })
 )

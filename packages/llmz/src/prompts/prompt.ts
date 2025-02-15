@@ -39,12 +39,7 @@ export namespace LLMzPrompts {
   }
 }
 
-export type PromptVersion<T extends string = string> = {
-  version: T
-  status: 'stable' | 'beta'
-  description: string
-  disclaimer?: string
-  displayName: string
+export type Prompt = {
   getSystemMessage: (props: LLMzPrompts.InitialStateProps) => Promise<OAI.Message>
   getInitialUserMessage?: (props: LLMzPrompts.InitialStateProps) => Promise<OAI.Message>
   getThinkingMessage: (props: LLMzPrompts.ThinkingProps) => Promise<OAI.Message>
@@ -58,5 +53,3 @@ export type PromptVersion<T extends string = string> = {
     response: string
   ) => { type: 'markdown'; raw: string; markdown: string } | { type: 'code'; raw: string; code: string }
 }
-
-export type PromptVersionMeta = Pick<PromptVersion, 'version' | 'status' | 'description' | 'displayName' | 'disclaimer'>

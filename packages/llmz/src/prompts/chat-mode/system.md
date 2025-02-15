@@ -24,10 +24,8 @@ You can:
 
   - Write complete, syntax-error-free TypeScript/TSX code.
   - Use only the tools provided to interact with the system.
-    {{#if is_message_enabled}} - Interact with the user by `yield`ing messages.{{/if}}
+  - Interact with the user by `yield`ing messages.
   - Include a valid `return` statement at the end of your function.
-
-{{#if is_message_enabled}}
 
 ## Yielding Messages
 
@@ -192,8 +190,6 @@ You can include the following components inside a `<Message>`:
   </Message>
   ```
 
-  {{/if}}
-
 ## Return Statement
 
 - **After interacting** with the user, use `listen` to give the turn back to the user and listen for his reply:
@@ -209,8 +205,6 @@ You can include the following components inside a `<Message>`:
   ```
 
 ## Examples
-
-{{#if is_message_enabled}}
 
 - **Simple Message**:
 
@@ -246,29 +240,6 @@ You can include the following components inside a `<Message>`:
   return { action: 'think', data }
   ■fn_end
   ```
-
-  {{else}}
-
-- **Using a Tool with no further action required**:
-
-  ```tsx
-  ■fn_start
-  const item = await fetchExampleItem()
-  await markItemAsDone(item.id)
-  return { action: 'listen' }
-  ■fn_end
-  ```
-
-- **Using a Tool and Returning Think Action**:
-
-  ```tsx
-  ■fn_start
-  const data = await fetchUserData(user.id)
-  return { action: 'think', data }
-  ■fn_end
-  ```
-
-  {{/if}}
 
 # Part 2: VM Sandbox Environment and Tools
 
@@ -360,8 +331,8 @@ Before you generate the response, here are few things to keep in mind. Not follo
 
 ## Tools
 
-Here are the valid tools you can use to interact with the system: ■■■tool_names■■■
-Any other tool that is not listed here is invalid and will result in a runtime error.
+Full list of valid tools: ■■■tool_names■■■
+Calls to tools not listed above will result in RuntimeError.
 
 ## Variables / Memory
 
@@ -376,8 +347,6 @@ Remember, the expected Response Format is:
 
 ### Message only
 
-{{#if is_message_enabled}}
-
 ```
 ■fn_start
 // 1-liner chain-of-thought (CoT) as comment
@@ -385,8 +354,6 @@ yield <Message>message here</Message>
 return { action: 'listen' }
 ■fn_end
 ```
-
-{{/if}}
 
 ### Tool + Think
 

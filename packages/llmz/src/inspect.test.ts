@@ -335,7 +335,7 @@ describe('Inspect Array', () => {
   })
 
   it('empty array', () => {
-    const items = []
+    const items: unknown = []
     expect(inspect(items, 'emptyArr', OPTIONS)).toMatchInlineSnapshot(`
       "// const emptyArr: Array
       // Array Is Empty (0 element)"
@@ -425,7 +425,7 @@ describe('Inspect Object', () => {
       name: 'John',
       age: 21,
       dob: new Date('2000-01-01'),
-      that: { IS: { such_a_: { deeply: { nested: { obj: 'Hello, world'.repeat(10000) } } } } }
+      that: { IS: { such_a_: { deeply: { nested: { obj: 'Hello, world'.repeat(10000) } } } } },
     }
     expect(inspect(obj, 'smallObject', OPTIONS)).toMatchInlineSnapshot(`
       "// const smallObject: object

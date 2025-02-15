@@ -31,7 +31,7 @@ return { action: 'listen' }
     const result = await runAsyncFunction({ Message }, code)
     expect(result.success).toBe(true)
     expect(Message.mock.calls.length).toBe(1)
-    expect(Message.mock.calls[0][0]).toMatchInlineSnapshot(`
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
       {
         "__jsx": true,
         "children": [
@@ -110,7 +110,7 @@ return { action: 'listen' }
       const result = await runAsyncFunction({ Message, user }, code)
       expect(result.success).toBe(true)
       expect(Message.mock.calls.length).toBe(1)
-      expect(Message.mock.calls[0][0]).toMatchInlineSnapshot(`
+      expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
         {
           "__jsx": true,
           "children": [
@@ -132,7 +132,7 @@ return { action: 'listen' }
       const result = await runAsyncFunction({ Message, user }, code)
       expect(result.success).toBe(true)
       expect(Message.mock.calls.length).toBe(1)
-      expect(Message.mock.calls[0][0]).toMatchInlineSnapshot(`
+      expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
         {
           "__jsx": true,
           "children": [
@@ -156,7 +156,7 @@ return { action: 'listen' }
       const result = await runAsyncFunction({ Message, user }, code)
       expect(result.success).toBe(true)
       expect(Message.mock.calls.length).toBe(1)
-      expect(Message.mock.calls[0][0]).toMatchInlineSnapshot(`
+      expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
         {
           "__jsx": true,
           "children": [
@@ -185,7 +185,7 @@ return { action: 'listen' }
       const result = await runAsyncFunction({ Message, user }, code)
       expect(result.success).toBe(true)
       expect(Message.mock.calls.length).toBe(1)
-      expect(Message.mock.calls[0][0]).toMatchInlineSnapshot(`
+      expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
         {
           "__jsx": true,
           "children": [
@@ -221,7 +221,7 @@ return { action: 'listen' }
       const result = await runAsyncFunction({ Message, user }, code)
       expect(result.success).toBe(true)
       expect(Message.mock.calls.length).toBe(1)
-      expect(Message.mock.calls[0][0]).toMatchInlineSnapshot(`
+      expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
         {
           "__jsx": true,
           "children": [
@@ -252,7 +252,7 @@ return { action: 'listen' }
       const result = await runAsyncFunction({ Message, user, myArray: [user, user] }, code)
       expect(result.success).toBe(true)
       expect(Message.mock.calls.length).toBe(1)
-      expect(Message.mock.calls[0][0]).toMatchInlineSnapshot(`
+      expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
         {
           "__jsx": true,
           "children": [
@@ -315,7 +315,7 @@ return { action: 'listen' }
     const result = await runAsyncFunction({ Message, user, myArray: [user, user] }, code)
     expect(result.success).toBe(true)
     expect(Message.mock.calls.length).toBe(1)
-    expect(Message.mock.calls[0][0]).toMatchInlineSnapshot(`
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
       {
         "__jsx": true,
         "children": [
@@ -364,7 +364,7 @@ return { action: 'listen' }
     const result = await runAsyncFunction({ Message, user, myArray: [user, user] }, code)
     expect(result.success).toBe(true)
     expect(Message.mock.calls.length).toBe(1)
-    expect(Message.mock.calls[0][0]).toMatchInlineSnapshot(`
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
       {
         "__jsx": true,
         "children": [

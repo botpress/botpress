@@ -2,7 +2,7 @@ import { type Cognitive } from '@botpress/cognitive'
 import { ulid } from 'ulid'
 import { ObjectInstance } from './objects.js'
 import type { OAI } from './openai.js'
-import { Oct2024Prompt } from './prompts/oct-2024.js'
+import { ChatModePrompt } from './prompts/chat-mode.js'
 import { SnapshotResult } from './snapshots.js'
 import { Tool } from './tool.js'
 import { TranscriptArray, TranscriptMessage } from './transcript.js'
@@ -64,7 +64,7 @@ export const createContext = (props: {
     name: string
   }> = []
 
-  const version = Oct2024Prompt
+  const version = ChatModePrompt
 
   for (const obj of objects) {
     tools = Tool.withUniqueNames(tools)

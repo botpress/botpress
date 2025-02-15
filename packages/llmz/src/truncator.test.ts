@@ -1,5 +1,7 @@
-import { beforeAll, describe, expect, it } from 'vitest'
+// @ts-ignore
 import { TextTokenizer } from '@bpinternal/thicktoken'
+
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { truncateWrappedContent, wrapContent } from './truncator.js'
 import { getTokenizer, init } from './utils.js'
@@ -41,7 +43,7 @@ Footer
     const totalTokens = truncatedMessages.reduce((acc, msg) => acc + tokenizer.count(msg.content), 0)
 
     expect(totalTokens).toBeLessThanOrEqual(tokenLimit)
-    expect(truncatedMessages[0].content).toMatchInlineSnapshot(`
+    expect(truncatedMessages[0]!.content).toMatchInlineSnapshot(`
       "
       Header
       -----------
@@ -80,7 +82,7 @@ Footer
     const totalTokens = truncatedMessages.reduce((acc, msg) => acc + tokenizer.count(msg.content), 0)
 
     expect(totalTokens).toBeLessThanOrEqual(tokenLimit)
-    expect(truncatedMessages[0].content).toMatchInlineSnapshot(`
+    expect(truncatedMessages[0]!.content).toMatchInlineSnapshot(`
       "
       Header
       -----------
@@ -112,8 +114,8 @@ Footer
 
     const tokenLimit = 25
     const truncatedMessages = truncateWrappedContent({ messages, tokenLimit })
-    expect(truncatedMessages[0].content).toMatch(messages[0].content)
-    expect(truncatedMessages[1].content).toMatch(messages[1].content)
+    expect(truncatedMessages[0]!.content).toMatch(messages[0]!.content)
+    expect(truncatedMessages[1]!.content).toMatch(messages[1]!.content)
   })
 
   it('truncates multiple messages and each wrappers equally', async () => {
@@ -212,7 +214,7 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'top' })}
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 20, throwOnFailure: false })
 
-    expect(truncated[0].content).toMatchInlineSnapshot(`
+    expect(truncated[0]!.content).toMatchInlineSnapshot(`
       "
       Here's a very big variable:
       """
@@ -241,7 +243,7 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 20, throwOnFailure: false })
 
-    expect(truncated[0].content).toMatchInlineSnapshot(`
+    expect(truncated[0]!.content).toMatchInlineSnapshot(`
       "
       Here's a very big variable:
       """
@@ -271,7 +273,7 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'both' })}
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 20, throwOnFailure: false })
 
-    expect(truncated[0].content).toMatchInlineSnapshot(`
+    expect(truncated[0]!.content).toMatchInlineSnapshot(`
       "
       Here's a very big variable:
       """
@@ -308,7 +310,7 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 60, throwOnFailure: false })
 
-    expect(truncated[0].content).toMatchInlineSnapshot(`
+    expect(truncated[0]!.content).toMatchInlineSnapshot(`
       "
       Here's a very big variable:
       """
