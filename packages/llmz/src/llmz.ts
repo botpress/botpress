@@ -11,11 +11,9 @@ import {
   CodeExecutionError,
   ExecuteSignal,
   InvalidCodeError,
-  ListenSignal,
   LoopExceededError,
   Signals,
   ThinkSignal,
-  TransitionSignal,
   VMInterruptSignal,
   VMSignal,
 } from './errors.js'
@@ -440,33 +438,9 @@ const executeIteration = async ({
   }
 
   if (signal instanceof ThinkSignal) {
-    // If there's no variables, it means the code block didn't execute any code
     // Since every tool call is assigned to a variable, we can assume that if there's no variables, there's no tool calls
     // Similarly, if there's no variables, there's no JS computation such as "const a = 1 + 1"
     // More importantly, if there's no variables, there's nothing to think about that the initial context doesn't already know
-
-    // TODO: in the future, remove the below line entirely, as it's a temporary workaround to prevent overthinking of Aug/Jul prompts
-    // They used to be able to "think" at any time by calling a tool
-    const hasExecutedCode = ctx.version.version === '01-Oct-2024' ? true : Object.keys(signal.variables).length > 0
-    if (!hasExecutedCode) {
-      // If there's no code execution, we don't need to think about anything, we can just exit successfully
-      // There's no need to push the code execution trace, as there was no code execution worth logging
-      return {
-        ...iterationProps,
-        code: assistantResponse.code.trim(),
-        id,
-        status: 'success',
-        variables: result.variables,
-        signal,
-        started_ts: startedAt,
-        ended_ts: Date.now(),
-        llm,
-        mutations: [...changes.values()],
-        traces: result.traces,
-        messages: [...messages],
-        return_value: result.success ? result.return_value : undefined,
-      } satisfies Iteration
-    }
 
     ctx.partialExecutionMessages.push({
       role: 'assistant',
@@ -597,18 +571,6 @@ function wrapTool({ tool, traces, object }: Props) {
         error.message = Signals.serializeError(error)
       }
 
-      if (error instanceof ListenSignal) {
-        traces.push({
-          type: 'listen_signal',
-          started_at: Date.now(),
-          line: 0,
-          ended_at: Date.now(),
-        })
-        success = true
-        output = error
-        return true
-      }
-
       if (error instanceof ThinkSignal) {
         traces.push({
           type: 'think_signal',
@@ -621,7 +583,7 @@ function wrapTool({ tool, traces, object }: Props) {
         return true
       }
 
-      if (error instanceof ExecuteSignal || error instanceof TransitionSignal) {
+      if (error instanceof ExecuteSignal) {
         traces.push({
           type: 'execute_signal',
           started_at: Date.now(),

@@ -113,27 +113,9 @@ export class VMInterruptSignal extends VMSignal {
   }
 }
 
-export class ListenSignal extends VMInterruptSignal {
-  constructor() {
-    super('Listen signal received')
-    this.message = Signals.serializeError(this)
-  }
-}
-
 export class ExecuteSignal extends VMInterruptSignal {
   constructor() {
     super('Execute Signal received')
-    this.message = Signals.serializeError(this)
-  }
-}
-
-export class TransitionSignal extends VMInterruptSignal {
-  constructor(
-    public reason: string,
-    public transition: unknown
-  ) {
-    // TODO: fix this, doesn't belong in LLMz
-    super('Transition Signal received')
     this.message = Signals.serializeError(this)
   }
 }
@@ -160,16 +142,6 @@ export class ThinkSignal extends VMLoopSignal {
   }
   toString() {
     return Signals.serializeError(this)
-  }
-}
-
-export class InspectSignal extends VMLoopSignal {
-  constructor(
-    public reason: string,
-    public context?: any
-  ) {
-    super('Inspect signal received')
-    this.message = Signals.serializeError(this)
   }
 }
 
@@ -242,11 +214,8 @@ export class AssignmentError extends Error {
 
 registerErrorClass('VMSignal', VMSignal)
 registerErrorClass('VMInterruptSignal', VMInterruptSignal)
-registerErrorClass('ListenSignal', ListenSignal)
 registerErrorClass('ExecuteSignal', ExecuteSignal)
-registerErrorClass('TransitionSignal', TransitionSignal)
 registerErrorClass('VMLoopSignal', VMLoopSignal)
 registerErrorClass('ThinkSignal', ThinkSignal)
-registerErrorClass('InspectSignal', InspectSignal)
 registerErrorClass('CodeExecutionError', CodeExecutionError)
 registerErrorClass('AssignmentError', AssignmentError)

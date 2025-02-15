@@ -3,9 +3,8 @@ import { ulid } from 'ulid'
 
 import { Assignment } from './compiler/plugins/track-tool-calls.js'
 import { Context } from './context.js'
-import { ExecuteSignal, ListenSignal, VMInterruptSignal } from './errors.js'
+import { ExecuteSignal, VMInterruptSignal } from './errors.js'
 import { extractType, inspect } from './inspect.js'
-import { isValidSchema } from './utils.js'
 
 const MAX_SNAPSHOT_SIZE_BYTES = 4_000
 
@@ -50,10 +49,6 @@ export type SnapshotResult<T extends Callback = Callback, R = unknown> = {
   result: R
 }
 
-export const isListenSnapshot = (snapshot: unknown): snapshot is Snapshot => {
-  return (snapshot as Snapshot)?.signalType === ListenSignal.name
-}
-
 export const isSubworkflowSnapshot = (snapshot: unknown): snapshot is Snapshot => {
   return (snapshot as Snapshot)?.signalType === ExecuteSignal.name
 }
@@ -70,30 +65,6 @@ export const createSnapshot = (signal: VMInterruptSignal): Snapshot => {
   })
 
   const callbacks: Callback[] = []
-
-  if (signal instanceof ExecuteSignal || signal instanceof ListenSignal) {
-    const toolName = signal.toolCall?.name ?? 'unknown'
-
-    const resolve = {
-      type: 'resolve',
-      description: `Execution of tool "${toolName}" succeeded`,
-      success: true,
-      schema:
-        signal.toolCall?.outputSchema && isValidSchema(signal.toolCall?.outputSchema)
-          ? signal.toolCall?.outputSchema
-          : undefined,
-      assignment: signal.toolCall?.assignment,
-    } satisfies Callback
-
-    const reject = {
-      type: 'reject',
-      description: `Execution of tool "${toolName}" failed`,
-      success: false,
-      schema: undefined,
-    } satisfies Callback
-
-    callbacks.push(resolve, reject)
-  }
 
   return {
     id: 'snapshot_' + ulid(),
@@ -145,7 +116,7 @@ export const resolveContextSnapshot = ({
       const fn = new Function(resolve.assignment.evalFn)
       const assignmentValue = fn(value)
       Object.assign(injectedVariables, assignmentValue)
-    } catch (error) {}
+    } catch {}
   }
 
   context.partialExecutionMessages.push(

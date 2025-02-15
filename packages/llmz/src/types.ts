@@ -1,6 +1,5 @@
 import { type Context } from './context.js'
-import { type VMInterruptSignal } from './errors.js'
-import { type ThinkSignal, type VMSignal } from './errors.js'
+import { type VMInterruptSignal, type ThinkSignal, type VMSignal } from './errors.js'
 import { type OAI } from './openai.js'
 import { type Snapshot } from './snapshots.js'
 
@@ -44,13 +43,6 @@ export namespace Traces {
   export type ToolSlow = TraceTemplate<
     'tool_slow',
     { tool_name: string; object?: string; input: any; duration: number }
-  >
-
-  export type ListenSignal = TraceTemplate<
-    'listen_signal',
-    {
-      line: number
-    }
   >
 
   export type ThinkSignal = TraceTemplate<
@@ -117,7 +109,6 @@ export namespace Traces {
     | Log
     | ToolCall
     | ToolSlow
-    | ListenSignal
     | PropertyMutation
     | MessageTrace
     | YieldTrace

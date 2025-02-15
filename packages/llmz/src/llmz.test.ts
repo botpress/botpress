@@ -8,7 +8,7 @@ import { ExecutionResult, Traces } from './types.js'
 import { getCachedCognitiveClient } from './__tests__/index.js'
 import { ObjectInstance } from './objects.js'
 
-const cognitive = getCachedCognitiveClient()
+const client = getCachedCognitiveClient()
 
 const assertStatus = (result: ExecutionResult, status: ExecutionResult['status']) => {
   const error = result.status === 'error' ? result.error : null
@@ -97,7 +97,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           },
         ],
         tools: [tNoop(() => (greeted = true))],
-        cognitive,
+        client,
       })
       assertStatus(updatedContext, 'success')
       expect(greeted).toBe(true)
@@ -158,7 +158,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           },
         ],
         tools: [tGetPasswordToGreetJohn],
-        cognitive,
+        client,
       })
 
       expect(updatedContext.iterations.length).toBe(1)
@@ -178,7 +178,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
             name: 'Student',
           },
         ],
-        cognitive,
+        client,
       })
       const res = exec(updatedContext)
 
@@ -229,7 +229,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
             name: 'Student',
           },
         ],
-        cognitive,
+        client,
       })
       const res = exec(updatedContext)
 
@@ -256,7 +256,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           name: 'Student',
         },
       ],
-      cognitive,
+      client,
     })
 
     const res = exec(updatedContext)
@@ -282,7 +282,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           name: 'Student',
         },
       ],
-      cognitive,
+      client,
     })
     const res = exec(updatedContext)
 
@@ -309,7 +309,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       options: { loop: 1 },
       instructions: `Don't speak. All you do is run code. Run this exact code. Don't change anything, even if the typings look off. Run this: \`\`\`MyObject.name = { a: 1 };\`\`\``,
       objects: [obj],
-      cognitive,
+      client,
     })
     const res = exec(updatedContext)
 
@@ -334,7 +334,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       instructions:
         "Don't speak. All you do is run code. Run this exact code. Don't change anything, even if the typings look off. I want to test assigning a number on purpose.\n```MyObject.name = Number(21);```",
       objects: [obj],
-      cognitive,
+      client,
     })
     const res = exec(updatedContext)
 
@@ -362,7 +362,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           input: z.object({ name: z.string() }),
         }),
       ],
-      cognitive,
+      client,
     })
     const res = exec(updatedContext)
 
@@ -393,7 +393,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           name: 'Student',
         },
       ],
-      cognitive,
+      client,
     })
     const res = exec(updatedContext)
 
@@ -444,7 +444,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       options: { loop: 1 },
       instructions: 'Greet the user John and Sylvain in this order.',
       objects: [obj],
-      cognitive,
+      client,
       onIterationStart,
       onTrace,
     })
@@ -490,7 +490,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         'Fetch the Order ID, confirm with the user the Order ID, then once you have the user confirmation, delete the order. Make sure to confirm.',
       transcript: [{ name: 'User', role: 'user', content: 'I want to delete my order' }],
       tools: [tConfirm, tFetchOrder, tDeleteOrder],
-      cognitive,
+      client,
     })
 
     const res = exec(result)
@@ -517,7 +517,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         },
       ],
       tools: [tNoop(() => {})],
-      cognitive,
+      client,
     })
 
     expect(result.iterations).toHaveLength(2)
