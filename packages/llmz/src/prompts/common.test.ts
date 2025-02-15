@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-import { ChatModePrompt } from './chat-mode.js'
+import { parseAssistantResponse } from './common'
 
 describe('October Prompt', { timeout: 60_000 }, () => {
   describe('parseAssistantResponse', () => {
@@ -15,11 +15,7 @@ return { action: 'listen' }
 \`\`\`
 `.trim()
 
-      const response = ChatModePrompt.parseAssistantResponse(input)
-
-      if (response.type !== 'code') {
-        throw 'Expected a code response'
-      }
+      const response = parseAssistantResponse(input)
 
       expect(response.code).toMatchInlineSnapshot(`
         "// Start the onboarding capability as the user greeted with "Hi"
@@ -40,11 +36,7 @@ return { action: 'listen' }
 ■fn_end
 `.trim()
 
-      const response = ChatModePrompt.parseAssistantResponse(input)
-
-      if (response.type !== 'code') {
-        throw 'Expected a code response'
-      }
+      const response = parseAssistantResponse(input)
 
       expect(response.code).toMatchInlineSnapshot(`
         "// Start the onboarding capability as the user greeted with "Hi"
@@ -63,7 +55,7 @@ return { action: 'listen' }
 \`\`\`
 `.trim()
 
-      const response = ChatModePrompt.parseAssistantResponse(input)
+      const response = parseAssistantResponse(input)
 
       if (response.type !== 'code') {
         throw 'Expected a code response'
@@ -86,7 +78,7 @@ return { action: 'listen' }
 
 `.trim()
 
-      const response = ChatModePrompt.parseAssistantResponse(input)
+      const response = parseAssistantResponse(input)
 
       if (response.type !== 'code') {
         throw 'Expected a code response'

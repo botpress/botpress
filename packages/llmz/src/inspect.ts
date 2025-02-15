@@ -93,7 +93,7 @@ export function extractType(value: unknown, generic: boolean = true): string {
     return 'null'
   }
 
-  if (value === undefined) {
+  if (value === undefined || typeof value === 'undefined') {
     return 'undefined'
   }
 
@@ -121,6 +121,22 @@ export function extractType(value: unknown, generic: boolean = true): string {
     }
 
     return 'Array'
+  }
+
+  if (typeof value === 'number') {
+    return 'number'
+  }
+
+  if (typeof value === 'boolean') {
+    return 'boolean'
+  }
+
+  if (typeof value === 'bigint') {
+    return 'bigint'
+  }
+
+  if (typeof value === 'function') {
+    return 'function'
   }
 
   if (typeof value === 'object' && value instanceof Date) {
@@ -181,6 +197,30 @@ function previewValue(value: unknown, length: number = LONG_TEXT_LENGTH) {
 
   if (typeof value === 'object') {
     return '<object> ' + previewObj(value)
+  }
+
+  if (typeof value === 'bigint') {
+    return '<bigint> ' + value.toString()
+  }
+
+  if (typeof value === 'function') {
+    return '<function> ' + value.toString()
+  }
+
+  if (typeof value === 'boolean') {
+    return '<boolean> ' + value.toString()
+  }
+
+  if (value instanceof Error) {
+    return '<error> ' + previewError(value)
+  }
+
+  if (typeof value === 'number') {
+    return '<number> ' + value.toString()
+  }
+
+  if (typeof value === 'symbol') {
+    return '<symbol> ' + value.toString()
   }
 
   return `${typeof value} ` + (value?.toString() ?? '<unknown>')
@@ -379,6 +419,8 @@ export const inspect = (value: unknown, name?: string, options: PreviewOptions =
       return header + previewError(value as Error)
     } else if (genericType === 'object') {
       return header + previewObject(value, options)
+    } else if (genericType === 'boolean') {
+      return header + previewValue(value)
     } else if (typeof value === 'string') {
       if (getTokenizer().count(value) < options.tokens) {
         return header + previewValue(value)
@@ -386,9 +428,9 @@ export const inspect = (value: unknown, name?: string, options: PreviewOptions =
         return header + previewLongText(value)
       }
     }
+
+    return header + previewValue(value)
   } catch (err: any) {
     return `Error: ${err?.message ?? 'Unknown Error'}`
   }
-
-  throw new Error('Unsupported type')
 }

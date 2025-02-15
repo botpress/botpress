@@ -26,7 +26,7 @@ describe('Inspect Array', () => {
       "// const shortArray: Array
       // Full Array Preview
       --------------
-      [0]              number 1
+      [0]              <number> 1
       [1]              <string> 'hello'
       [2]              <nil>
       [3]              <date> 2020-10-12T00:00:00.000Z
@@ -44,7 +44,7 @@ describe('Inspect Array', () => {
       Unique Items:    11
       Types:           {"string":7,"null":1,"number":3}
       Minimum Values:  [<string> '3', <string> '4', <string> '5']
-      Maximum Values:  [number 7, number 8, number 9]
+      Maximum Values:  [<number> 7, <number> 8, <number> 9]
       Memory Usage:    2KB
       Nil Values:      1
       // Array Preview (truncated)
@@ -57,9 +57,9 @@ describe('Inspect Array', () => {
       [5]              <string> '4'
       [6]              <string> '5'
       [7]              <string> '6'
-      [8]              number 7
-      [9]              number 8
-      [10]             number 9"
+      [8]              <number> 7
+      [9]              <number> 8
+      [10]             <number> 9"
     `)
   })
 
@@ -73,12 +73,12 @@ describe('Inspect Array', () => {
       Unique Items:    253
       Types:           {"number":1,"string":250,"null":1,"date":1}
       Minimum Values:  [<date> 2020-10-12T00:00:00.000Z, <string> 'hello', <string> 'value1']
-      Maximum Values:  [<string> 'value98', <string> 'value99', number 1]
+      Maximum Values:  [<string> 'value98', <string> 'value99', <number> 1]
       Memory Usage:    2.61KB
       Nil Values:      1
       // Array Preview (truncated)
       --------------
-      [0]              number 1
+      [0]              <number> 1
       [1]              <string> 'hello'
       [2]              <nil>
       [3]              <date> 2020-10-12T00:00:00.000Z

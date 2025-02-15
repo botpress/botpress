@@ -1,8 +1,9 @@
 import { type Cognitive } from '@botpress/cognitive'
 import { ulid } from 'ulid'
+import { Exit } from './exit.js'
 import { ObjectInstance } from './objects.js'
 import type { OAI } from './openai.js'
-import { ChatModePrompt } from './prompts/chat-mode.js'
+import { DualModePrompt } from './prompts/dual-modes.js'
 import { SnapshotResult } from './snapshots.js'
 import { Tool } from './tool.js'
 import { TranscriptArray, TranscriptMessage } from './transcript.js'
@@ -18,6 +19,7 @@ export const createContext = (props: {
   instructions?: string
   objects?: ObjectInstance[]
   tools?: Tool[]
+  exits?: Exit[]
   loop?: number
   temperature?: number
   model?: Model
@@ -27,6 +29,7 @@ export const createContext = (props: {
   const transcript = new TranscriptArray(Array.isArray(props.transcript) ? props.transcript : [])
   let tools = Tool.withUniqueNames(props.tools ?? [])
   const objects = props.objects ?? []
+  const exits = props.exits ?? []
   const loop = props.loop ?? 3
   const temperature = props.temperature ?? 0.7
   const iterations: Iteration[] = []
@@ -37,6 +40,10 @@ export const createContext = (props: {
 
   if (tools && tools.length > 100) {
     throw new Error('Too many tools. Expected at most 100 tools.')
+  }
+
+  if (exits && exits.length > 100) {
+    throw new Error('Too many exits. Expected at most 100 exits.')
   }
 
   if (props.instructions && props.instructions.length > 1_000_000) {
@@ -55,6 +62,10 @@ export const createContext = (props: {
     throw new Error('Invalid temperature. Expected a number between 0 and 2.')
   }
 
+  if (!tools.find((x) => x.name.toLowerCase() === 'message') && exits.length === 0) {
+    throw new Error("When no 'message' tool is present, at least one exit is required.")
+  }
+
   // These are the variables that will be injected into the VM, mainly for partial execution when the VM calls `think`
   // This is a way to pass data between iterations
   const injectedVariables: Record<string, any> = {}
@@ -64,7 +75,7 @@ export const createContext = (props: {
     name: string
   }> = []
 
-  const version = ChatModePrompt
+  const version = DualModePrompt
 
   for (const obj of objects) {
     tools = Tool.withUniqueNames(tools)
@@ -84,6 +95,7 @@ export const createContext = (props: {
         objects,
         instructions: props.instructions ?? '',
         transcript,
+        exits,
       }),
     ]
 
@@ -96,6 +108,7 @@ export const createContext = (props: {
           objects,
           instructions: props.instructions,
           transcript,
+          exits,
         })
       )
     }

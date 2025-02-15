@@ -17,6 +17,7 @@ import {
   VMInterruptSignal,
   VMSignal,
 } from './errors.js'
+import { Exit } from './exit.js'
 import { HookedArray } from './handlers.js'
 
 import { type ObjectInstance } from './objects.js'
@@ -68,6 +69,7 @@ export type ExecutionProps = {
   instructions?: string
   objects?: ObjectInstance[]
   tools?: Tool[]
+  exits?: Exit[]
   options?: Options
   transcript?: TranscriptMessage[]
   /** An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive) */
@@ -86,6 +88,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
     temperature: props.options?.temperature,
     model: props.options?.model,
     transcript: props.transcript,
+    exits: props.exits,
   })
 
   const { signal, onIterationEnd, onTrace, onIterationStart } = props
@@ -282,10 +285,6 @@ const executeIteration = async ({
     status: 'success',
     model: ctx.model ?? '',
   })
-
-  if (assistantResponse.type !== 'code') {
-    throw new Error('Only code responses are supported')
-  }
 
   try {
     await onIterationStart?.({ id, traces, llm, started_ts: startedAt, messages })

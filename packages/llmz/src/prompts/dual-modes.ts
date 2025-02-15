@@ -1,44 +1,25 @@
-import Handlebars from 'handlebars'
 import { isPlainObject } from 'lodash-es'
 import { inspect } from '../inspect.js'
 import { OAI } from '../openai.js'
 import { wrapContent } from '../truncator.js'
 
-import SYSTEM_PROMPT_TEXT from './chat-mode/system.md.js'
-import USER_PROMPT_TEXT from './chat-mode/user.md.js'
+import CHAT_SYSTEM_PROMPT_TEXT from './chat-mode/system.md.js'
+import CHAT_USER_PROMPT_TEXT from './chat-mode/user.md.js'
 
+import { parseAssistantResponse, replacePlaceholders } from './common.js'
 import { LLMzPrompts, Prompt } from './prompt.js'
 
-const replacePlaceholders = (prompt: string, values: Record<string, unknown>) => {
-  const regex = new RegExp('■■■([A-Z0-9_\\.-]+)■■■', 'gi')
-  const obj = Object.assign({}, values)
+import WORKER_SYSTEM_PROMPT_TEXT from './worker-mode/system.md.js'
+import WORKER_USER_PROMPT_TEXT from './worker-mode/user.md.js'
 
-  const replaced = prompt.replace(regex, (_match, name) => {
-    if (name in values) {
-      delete obj[name]
-      return typeof values[name] === 'string' ? (values[name] as string) : JSON.stringify(values[name])
-    } else {
-      throw new Error(`Placeholder not found: ${name}`)
-    }
-  })
-
-  const remaining = Object.keys(obj).filter((key) => key !== 'is_message_enabled')
-
-  if (remaining.length) {
-    throw new Error(`Missing placeholders: ${remaining.join(', ')}`)
-  }
-
-  const compile = Handlebars.compile(replaced)
-
-  const compiled = compile({
-    is_message_enabled: false,
-    ...values,
-  })
-
-  return compiled.replace(/\n{3,}/g, '\n\n').trim()
+type ExitType = {
+  name: string
+  description: string
+  has_typings: boolean
+  typings?: string
 }
 
-export const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
+const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
   let dts = ''
 
   const tool_names: string[] = []
@@ -79,8 +60,27 @@ export const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
   for (const tool of props.globalTools) {
     dts += (await tool.getTypings()) + '\n'
     tool_names.push(tool.name)
-    if (tool.name === 'Message') {
+    if (tool.name?.toLowerCase() === 'message') {
       canTalk = true
+    }
+  }
+
+  const exits: ExitType[] = []
+
+  for (const exit of props.exits) {
+    if (exit.zSchema) {
+      exits.push({
+        name: exit.name,
+        description: exit.description,
+        has_typings: true,
+        typings: exit.zSchema.toTypescript(),
+      })
+    } else {
+      exits.push({
+        name: exit.name,
+        description: exit.description,
+        has_typings: false,
+      })
     }
   }
 
@@ -111,7 +111,7 @@ ${variables_example}
 
   return {
     role: 'system' as const,
-    content: replacePlaceholders(SYSTEM_PROMPT_TEXT, {
+    content: replacePlaceholders(canTalk ? CHAT_SYSTEM_PROMPT_TEXT : WORKER_SYSTEM_PROMPT_TEXT, {
       is_message_enabled: canTalk,
       'tools.d.ts': dts,
       identity: props.instructions?.length ? props.instructions : 'No specific instructions provided',
@@ -120,11 +120,13 @@ ${variables_example}
       readonly_vars: readonly_vars.join(', '),
       writeable_vars: writeable_vars.join(', '),
       variables_example,
+      exits,
     }).trim(),
   }
 }
 
 const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => {
+  const isChatMode = props.globalTools.find((tool) => tool.name.toLowerCase() === 'message')
   const transcript = [...props.transcript].reverse()
   let recap = 'Nobody has spoken yet in this conversation. You can start by saying something.'
 
@@ -145,7 +147,7 @@ ${transcript[0]?.content.trim()}
 
   return {
     role: 'user',
-    content: replacePlaceholders(USER_PROMPT_TEXT, {
+    content: replacePlaceholders(isChatMode ? CHAT_USER_PROMPT_TEXT : WORKER_USER_PROMPT_TEXT, {
       recap,
     }).trim(),
   }
@@ -184,31 +186,6 @@ Expected output:
 \`\`\`
 `.trim(),
   }
-}
-
-const getFeedbackMessage = async (props: LLMzPrompts.FeedbackProps) => {
-  return {
-    role: 'user',
-    name: 'VM',
-    content: `
-## Important message from the VM
-
-The code you provided has been deemed incorrect by a group of expert reviewers. Here's their feedback:
-\`\`\`
-${wrapContent(props.feedback)}
-\`\`\`
-
-Please fix the code according to the feedback and try again.
-
-Expected output:
-
-\`\`\`tsx
-■fn_start
-// code here
-■fn_end
-\`\`\`
-`.trim(),
-  } as const
 }
 
 const getCodeExecutionErrorMessage = async (props: LLMzPrompts.CodeExecutionErrorProps): Promise<OAI.Message> => {
@@ -397,50 +374,11 @@ Expected output:
 
 const getStopTokens = () => ['■fn_end']
 
-const parseAssistantResponse = (response: string) => {
-  const raw = response
-  let code = response
-
-  const START_TOKEN = '■fn_start'
-  const END_TOKEN = '■fn_end'
-
-  if (!code.includes(START_TOKEN)) {
-    code = `${START_TOKEN}\n${code.trim()}`
-  }
-
-  if (!code.includes(END_TOKEN)) {
-    code = `${code.trim()}\n${END_TOKEN}`
-  }
-
-  const start = Math.max(code.indexOf(START_TOKEN) + START_TOKEN.length, 0)
-  const end = Math.min(code.indexOf(END_TOKEN), code.length)
-
-  code = code
-    .slice(start, end)
-    .trim()
-    .split('\n')
-    .filter((line, index, arr) => {
-      const isFirstOrLastLine = index === 0 || index === arr.length - 1
-      if (isFirstOrLastLine && line.trim().startsWith('```')) {
-        return false
-      }
-      return true
-    })
-    .join('\n')
-
-  return {
-    type: 'code',
-    raw,
-    code,
-  } as const
-}
-
-export const ChatModePrompt: Prompt = {
+export const DualModePrompt: Prompt = {
   getSystemMessage,
   getInitialUserMessage,
   getThinkingMessage,
   getInvalidCodeMessage,
-  getFeedbackMessage,
   getCodeExecutionErrorMessage,
   getSnapshotResolvedMessage,
   getSnapshotRejectedMessage,

@@ -1,4 +1,5 @@
 export { Tool } from './tool.js'
+export { Exit } from './exit.js'
 export { ObjectInstance } from './objects.js'
 
 import { type ExecutionProps } from './llmz.js'
@@ -18,10 +19,11 @@ export const executeContext = async (props: ExecutionProps) => {
 export const init = async () => {
   await import('./llmz.js')
   await import('./tool.js')
+  await import('./exit.js')
   await import('./jsx.js')
   await import('./vm.js')
   await import('./utils.js')
   await import('./truncator.js')
   await import('./typings.js')
-  await import('./prompts/chat-mode.js')
+  await import('./prompts/dual-modes.js')
 }

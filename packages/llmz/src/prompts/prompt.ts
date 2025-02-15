@@ -1,3 +1,4 @@
+import { Exit } from 'src/exit.js'
 import { CodeExecutionError, InvalidCodeError, ThinkSignal } from '../errors.js'
 import type { ObjectInstance } from '../objects.js'
 import { OAI } from '../openai.js'
@@ -11,14 +12,11 @@ export namespace LLMzPrompts {
     transcript: TranscriptArray
     objects: ObjectInstance[]
     globalTools: Tool[]
+    exits: Exit[]
   }
 
   export type InvalidCodeProps = {
     error: InvalidCodeError
-  }
-
-  export type FeedbackProps = {
-    feedback: string
   }
 
   export type CodeExecutionErrorProps = {
@@ -44,12 +42,9 @@ export type Prompt = {
   getInitialUserMessage?: (props: LLMzPrompts.InitialStateProps) => Promise<OAI.Message>
   getThinkingMessage: (props: LLMzPrompts.ThinkingProps) => Promise<OAI.Message>
   getInvalidCodeMessage: (props: LLMzPrompts.InvalidCodeProps) => Promise<OAI.Message>
-  getFeedbackMessage: (props: LLMzPrompts.FeedbackProps) => Promise<OAI.Message<'user'>>
   getCodeExecutionErrorMessage: (props: LLMzPrompts.CodeExecutionErrorProps) => Promise<OAI.Message>
   getSnapshotResolvedMessage: (props: LLMzPrompts.SnapshotResolvedProps) => OAI.Message
   getSnapshotRejectedMessage: (props: LLMzPrompts.SnapshotRejectedProps) => OAI.Message
   getStopTokens: () => string[]
-  parseAssistantResponse: (
-    response: string
-  ) => { type: 'markdown'; raw: string; markdown: string } | { type: 'code'; raw: string; code: string }
+  parseAssistantResponse: (response: string) => { type: 'code'; raw: string; code: string }
 }

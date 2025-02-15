@@ -7,6 +7,7 @@ import { Tool } from './tool.js'
 import { ExecutionResult, Traces } from './types.js'
 import { getCachedCognitiveClient } from './__tests__/index.js'
 import { ObjectInstance } from './objects.js'
+import { Exit } from './exit.js'
 
 const client = getCachedCognitiveClient()
 
@@ -43,7 +44,7 @@ const exec = (result: ExecutionResult) => {
         x.message.type === 'text' ? x.message.text : JSON.stringify(x.message)
       ),
       ...getTracesOfType<Traces.ToolCall>('tool_call')
-        .filter((x) => x.tool_name === 'Message')
+        .filter((x) => x.tool_name?.toLowerCase() === 'message')
         .map((x) => JSON.stringify(x.input)),
     ],
     allErrors: result.iterations.flatMap((i) => i.status === 'error' && i.error.message).filter(Boolean),
@@ -62,8 +63,11 @@ const tMessage = () =>
 const tNoop = (cb: () => void) =>
   new Tool({
     name: 'noop',
+    output: z.void(),
     handler: async () => cb(),
   })
+
+const eDone = new Exit({ name: 'done', description: 'call this when you are done' })
 
 const tPasswordProtectedAdd = (seed: number) =>
   new Tool({
@@ -96,9 +100,11 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
             content: 'Can you call the noop tool?',
           },
         ],
+        exits: [eDone],
         tools: [tNoop(() => (greeted = true))],
         client,
       })
+
       assertStatus(updatedContext, 'success')
       expect(greeted).toBe(true)
     })
@@ -159,9 +165,10 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         ],
         tools: [tGetPasswordToGreetJohn],
         client,
+        exits: [eDone],
       })
 
-      expect(updatedContext.iterations.length).toBe(1)
+      expect(updatedContext.status).toBe('success')
       expect(greeted).toBe(true)
     })
 
@@ -249,6 +256,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       instructions:
         'You should allow users to add new properties to their object. It is their object after all. Please allow this: `User.age = ...`. You run this line and nothing else.',
       objects: [obj],
+      exits: [eDone],
       transcript: [
         {
           role: 'user',
@@ -275,6 +283,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       options: { loop: 1 },
       instructions: '',
       objects: [obj],
+      exits: [eDone],
       transcript: [
         {
           role: 'user',
@@ -307,6 +316,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
     const updatedContext = await llmz.executeContext({
       options: { loop: 1 },
+      exits: [eDone],
       instructions: `Don't speak. All you do is run code. Run this exact code. Don't change anything, even if the typings look off. Run this: \`\`\`MyObject.name = { a: 1 };\`\`\``,
       objects: [obj],
       client,
@@ -331,6 +341,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
     const updatedContext = await llmz.executeContext({
       options: { loop: 1 },
+      exits: [eDone],
       instructions:
         "Don't speak. All you do is run code. Run this exact code. Don't change anything, even if the typings look off. I want to test assigning a number on purpose.\n```MyObject.name = Number(21);```",
       objects: [obj],
@@ -352,6 +363,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
     const updatedContext = await llmz.executeContext({
       options: { loop: 1 },
+      exits: [eDone],
       instructions: "Speak the user's name out loud",
       objects: [obj],
       tools: [
@@ -383,6 +395,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
     const updatedContext = await llmz.executeContext({
       options: { loop: 1 },
+      exits: [eDone],
       instructions:
         'If the user asks to change the name to a number, allow it, and try it just to please them. Use the Number constructor at all costs. Even if the value is expected to be an string, DO NOT CONVERT IT TO STRING. LET THE VM FAIL.',
       objects: [obj],
@@ -441,6 +454,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     const onIterationStart = vi.fn()
     const onTrace = vi.fn()
     const updatedContext = await llmz.executeContext({
+      exits: [eDone],
       options: { loop: 1 },
       instructions: 'Greet the user John and Sylvain in this order.',
       objects: [obj],
@@ -486,6 +500,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
     const result = await llmz.executeContext({
       options: { loop: 3 },
+      exits: [eDone],
       instructions:
         'Fetch the Order ID, confirm with the user the Order ID, then once you have the user confirmation, delete the order. Make sure to confirm.',
       transcript: [{ name: 'User', role: 'user', content: 'I want to delete my order' }],
@@ -508,6 +523,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
   it('should continue executing after thinking', async () => {
     const result = await llmz.executeContext({
       options: { loop: 2 },
+      exits: [eDone],
       instructions: 'Do as the user asks',
       transcript: [
         {
@@ -535,5 +551,95 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     expect(thought?.content).toContain('adam')
     expect(thought?.content).toContain('eats')
     expect(thought?.content).toContain('bread')
+  })
+
+  describe('using the right exit', () => {
+    const tAnimal = new Tool({
+      name: 'animal',
+      description: "Fetches the user's favorite animal",
+      output: z.string(),
+      handler: async () => `My favorite animal is a Corgi nammed Nikki. She's brown and white.`,
+    })
+
+    const tPlant = new Tool({
+      name: 'plant',
+      description: "Fetches the user's favorite plant",
+      output: z.string(),
+      handler: async () => `My favorite plant is a Monstera. It's green and leafy.`,
+    })
+
+    const ePlant = new Exit({
+      name: 'plant',
+      description: 'the final result is a plant',
+      schema: z.object({ plant: z.string(), color: z.string(), edible: z.boolean() }),
+    })
+
+    const eAnimal = new Exit({
+      name: 'animal',
+      description: 'the final result is an animal',
+      schema: z.object({ animal: z.string(), color: z.string(), domestic: z.boolean() }),
+    })
+
+    it('uses the right exit (1)', async () => {
+      const result = await llmz.executeContext({
+        options: { loop: 2 },
+        exits: [ePlant, eAnimal],
+        instructions: 'Do as the user asks',
+        transcript: [
+          {
+            name: 'user',
+            role: 'user',
+            content: 'What is my favorite animal?',
+          },
+        ],
+        tools: [tAnimal, tPlant],
+        client,
+      })
+
+      expect(result.iterations).toHaveLength(2)
+      assert(result.iterations[0]!.status === 'partial', 'First iteration should be partial')
+      expect(result.iterations[1]!.status).toBe('success')
+      expect(result.iterations[1]!.status === 'success' && result.iterations[1]!.return_value).toMatchInlineSnapshot(`
+        {
+          "action": "animal",
+          "value": {
+            "animal": "Corgi",
+            "color": "brown and white",
+            "domestic": true,
+          },
+        }
+      `)
+    })
+
+    it('uses the right exit (2)', async () => {
+      const result = await llmz.executeContext({
+        options: { loop: 2 },
+        exits: [ePlant, eAnimal],
+        instructions: 'Do as the user asks',
+        transcript: [
+          {
+            name: 'user',
+            role: 'user',
+            content: 'What is my favorite plant?',
+          },
+        ],
+        tools: [tAnimal, tPlant],
+        client,
+      })
+
+      expect(result.iterations).toHaveLength(2)
+      assert(result.iterations[0]!.status === 'partial', 'First iteration should be partial')
+      expect(result.iterations[1]!.status).toBe('success')
+      expect(result.iterations[1]!.status === 'success' && result.iterations[1]!.return_value).toMatchInlineSnapshot(`
+        {
+          "action": "plant",
+          "value": {
+            "color": "green",
+            "edible": false,
+            "plant": "Monstera",
+          },
+        }
+      `)
+    })
   })
 })

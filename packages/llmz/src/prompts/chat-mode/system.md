@@ -192,17 +192,47 @@ You can include the following components inside a `<Message>`:
 
 ## Return Statement
 
-- **After interacting** with the user, use `listen` to give the turn back to the user and listen for his reply:
+**Important**: `action` can only be one of: 'listen', 'think', {{#each exits}}'{{name}}', {{/each}}
 
-  ```tsx
-  return { action: 'listen' }
-  ```
+{{#each exits}}
+
+{{#if has_typings}}
+
+- **{{name}}**: {{description}}
+
+**typeof value** must respect this format:
+
+```
+{{typings}}
+```
+
+```tsx
+return { action: '{{name}}', value: /*...*/ }
+```
+
+{{else}}
+
+- **{{name}}**: {{description}}
+
+```tsx
+return { action: '{{name}}' }
+```
+
+{{/if}}
+
+{{/each}}
 
 - **If further processing** is needed before continuing, use `think` to print the value of variables and re-generate code:
 
   ```tsx
   return { action: 'think', variable1, variable2 }
   ```
+
+- **After interacting with the user**, use listen to give the turn back to the user and listen for his reply:
+
+```tsx
+return { action: 'listen' }
+```
 
 ## Examples
 
