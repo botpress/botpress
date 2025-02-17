@@ -28,7 +28,7 @@ const _handleDownstreamMessage = async (
   }
 
   if (props.data.type !== 'text') {
-    console.error('Downstream conversation received a non-text message')
+    props.logger.with(props.data).error('Downstream conversation received a non-text message')
     await downstreamCm.respond({
       text: props.configuration.onIncompatibleMsgTypeMessage ?? DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
     })
@@ -48,7 +48,7 @@ const _handleDownstreamMessage = async (
 
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
 
-  console.info('Sending message to upstream')
+  props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
   const text: string = props.data.payload.text
   await upstreamCm.respond({ text })
   return STOP_MESSAGE_HANDLING
@@ -65,7 +65,7 @@ const _handleUpstreamMessage = async (
   }
 
   if (props.data.type !== 'text') {
-    console.error('Upstream conversation received a non-text message')
+    props.logger.with(props.data).error('Upstream conversation received a non-text message')
     await upstreamCm.respond({ text: 'Sorry, I can only handle text messages for now. Please try again.' })
     return STOP_MESSAGE_HANDLING
   }
@@ -99,7 +99,7 @@ const _handleUpstreamMessage = async (
 
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
 
-  console.info('Sending message to downstream')
+  props.logger.withConversationId(upstreamConversation.id).info('Sending message to downstream')
   await downstreamCm.respond({
     userId: downstreamUserId,
     text,
@@ -119,7 +119,7 @@ const _abortHitlSession = async ({
   reasonShownToUser: string
   props: bp.HookHandlerProps['before_incoming_message']
 }) => {
-  console.error(internalReason)
+  props.logger.withConversationId(cm.conversationId).error(internalReason)
 
   await cm.abortHitlSession(reasonShownToUser)
   await props.actions.hitl.stopHitl({

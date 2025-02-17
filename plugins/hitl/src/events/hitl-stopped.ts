@@ -13,12 +13,13 @@ export const handleEvent: bp.EventHandlers['hitl:hitlStopped'] = async (props) =
   const downstreamConversation = await props.client.getConversation({ id: downstreamConversationId })
   const upstreamConversationId = downstreamConversation.conversation.tags['upstream']
   if (!upstreamConversationId) {
-    console.error('downstream conversation was not binded to upstream conversation')
+    props.logger
+      .withConversationId(downstreamConversationId)
+      .error('Downstream conversation was not binded to upstream conversation')
     return
   }
 
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
-  const humanAgentName = downstreamConversation.conversation.tags['humanAgentName'] ?? 'The Human Agent'
 
   await Promise.allSettled([
     upstreamCm.respond({

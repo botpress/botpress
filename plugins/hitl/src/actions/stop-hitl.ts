@@ -14,7 +14,9 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
   const upstreamConversation = await props.client.getConversation({ id: upstreamConversationId })
   const downstreamConversationId = upstreamConversation.conversation.tags['downstream']
   if (!downstreamConversationId) {
-    console.error('Upstream conversation was not binded to downstream conversation')
+    props.logger
+      .withConversationId(upstreamConversationId)
+      .error('Upstream conversation was not binded to downstream conversation')
     return {}
   }
 
