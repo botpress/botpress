@@ -20,9 +20,9 @@ export const handleEvent: bp.EventHandlers['hitl:hitlStopped'] = async (props) =
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
   const humanAgentName = downstreamConversation.conversation.tags['humanAgentName'] ?? 'The Human Agent'
 
-  await Promise.all([
+  await Promise.allSettled([
     upstreamCm.respond({
-      text: (props.configuration.onHitlHandoffMessage ?? DEFAULT_HITL_STOPPED_MESSAGE).replaceAll(
+      text: (props.configuration.onHitlStoppedMessage ?? DEFAULT_HITL_STOPPED_MESSAGE).replaceAll(
         '$humanAgentName',
         humanAgentName
       ),

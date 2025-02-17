@@ -1,3 +1,4 @@
+import { DEFAULT_USER_HITL_CANCELLED_MESSAGE } from 'plugin.definition'
 import * as conv from '../conv-manager'
 import * as bp from '.botpress'
 
@@ -18,6 +19,10 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
   }
 
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
+
+  await downstreamCm.respond({
+    text: `( ${props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE} )`,
+  })
 
   try {
     // Call stopHitl in the hitl integration (zendesk, etc.):

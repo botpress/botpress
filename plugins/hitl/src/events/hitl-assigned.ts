@@ -25,7 +25,7 @@ export const handleEvent: bp.EventHandlers['hitl:hitlAssigned'] = async (props) 
 
   await Promise.all([
     upstreamCm.respond({
-      text: (props.configuration.onHitlHandoffMessage ?? DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE).replaceAll(
+      text: (props.configuration.onHumanAgentAssignedMessage ?? DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE).replaceAll(
         '$humanAgentName',
         humanAgentName
       ),

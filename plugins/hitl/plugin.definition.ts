@@ -5,6 +5,7 @@ export const DEFAULT_HITL_HANDOFF_MESSAGE =
   'I have escalated this conversation to a human agent. They should be with you shortly.'
 export const DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE = '$humanAgentName has joined the conversation.'
 export const DEFAULT_HITL_STOPPED_MESSAGE = '$humanAgentName closed the conversation. I will continue assisting you.'
+export const DEFAULT_USER_HITL_CANCELLED_MESSAGE = 'The user has ended the session.'
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
@@ -29,6 +30,12 @@ export default new sdk.PluginDefinition({
         .describe('The message to send to the user when the hitl session stops and control is tranfered back to bot')
         .optional()
         .placeholder(DEFAULT_HITL_STOPPED_MESSAGE),
+      onUserHitlCancelledMessage: sdk.z
+        .string()
+        .title('Escalation Aborted Message')
+        .describe('The message to send to the human agent when the user abruptly ends the hitl session')
+        .optional()
+        .placeholder(DEFAULT_USER_HITL_CANCELLED_MESSAGE),
     }),
   },
   actions: {
