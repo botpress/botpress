@@ -3,9 +3,9 @@ import hitl from './bp_modules/hitl'
 
 export const DEFAULT_HITL_HANDOFF_MESSAGE =
   'I have escalated this conversation to a human agent. They should be with you shortly.'
-export const DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE = '$humanAgentName has joined the conversation.'
-export const DEFAULT_HITL_STOPPED_MESSAGE = '$humanAgentName closed the conversation. I will continue assisting you.'
-export const DEFAULT_USER_HITL_CANCELLED_MESSAGE = 'The user has ended the session.'
+export const DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE = 'A human agent has joined the conversation.'
+export const DEFAULT_HITL_STOPPED_MESSAGE = 'The human agent closed the conversation. I will continue assisting you.'
+export const DEFAULT_USER_HITL_CANCELLED_MESSAGE = '( The user has ended the session. )'
 
 export default new sdk.PluginDefinition({
   name: 'hitl',

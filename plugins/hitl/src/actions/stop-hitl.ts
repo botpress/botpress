@@ -21,7 +21,7 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
 
   await downstreamCm.respond({
-    text: `( ${props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE} )`,
+    text: props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   })
 
   try {

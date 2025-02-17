@@ -22,10 +22,7 @@ export const handleEvent: bp.EventHandlers['hitl:hitlStopped'] = async (props) =
 
   await Promise.allSettled([
     upstreamCm.respond({
-      text: (props.configuration.onHitlStoppedMessage ?? DEFAULT_HITL_STOPPED_MESSAGE).replaceAll(
-        '$humanAgentName',
-        humanAgentName
-      ),
+      text: props.configuration.onHitlStoppedMessage ?? DEFAULT_HITL_STOPPED_MESSAGE,
     }),
     downstreamCm.setHitlInactive(),
     upstreamCm.setHitlInactive(),

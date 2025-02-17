@@ -25,10 +25,7 @@ export const handleEvent: bp.EventHandlers['hitl:hitlAssigned'] = async (props) 
 
   await Promise.all([
     upstreamCm.respond({
-      text: (props.configuration.onHumanAgentAssignedMessage ?? DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE).replaceAll(
-        '$humanAgentName',
-        humanAgentName
-      ),
+      text: props.configuration.onHumanAgentAssignedMessage ?? DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE,
     }),
     downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
