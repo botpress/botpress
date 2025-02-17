@@ -6,6 +6,8 @@ export const DEFAULT_HITL_HANDOFF_MESSAGE =
 export const DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE = 'A human agent has joined the conversation.'
 export const DEFAULT_HITL_STOPPED_MESSAGE = 'The human agent closed the conversation. I will continue assisting you.'
 export const DEFAULT_USER_HITL_CANCELLED_MESSAGE = '( The user has ended the session. )'
+export const DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE =
+  'Sorry, the user can only receive text messages. Please resend your message as a text message.'
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
@@ -36,6 +38,14 @@ export default new sdk.PluginDefinition({
         .describe('The message to send to the human agent when the user abruptly ends the hitl session')
         .optional()
         .placeholder(DEFAULT_USER_HITL_CANCELLED_MESSAGE),
+      onIncompatibleMsgTypeMessage: sdk.z
+        .string()
+        .title('Incompatible Message Type Warning')
+        .describe(
+          'The warning to send to the human agent when they send a message that is not supported by the hitl session'
+        )
+        .optional()
+        .placeholder(DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE),
     }),
   },
   actions: {

@@ -1,6 +1,7 @@
 import * as client from '@botpress/client'
 import * as conv from '../conv-manager'
 import * as bp from '.botpress'
+import { DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE } from 'plugin.definition'
 
 export const handleMessage: NonNullable<bp.HookHandlers['before_incoming_message']['*']> = async (props) => {
   const { conversation } = await props.client.getConversation({
@@ -28,7 +29,9 @@ const _handleDownstreamMessage = async (
 
   if (props.data.type !== 'text') {
     console.error('Downstream conversation received a non-text message')
-    await downstreamCm.respond({ text: 'Sorry, the patient can only receive text messages. Please try again.' })
+    await downstreamCm.respond({
+      text: props.configuration.onIncompatibleMsgTypeMessage ?? DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
+    })
     return STOP_MESSAGE_HANDLING
   }
 
