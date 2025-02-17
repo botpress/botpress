@@ -12,16 +12,17 @@ const plugin = new bp.Plugin({
 
 plugin.on.beforeIncomingMessage('*', async (props) => {
   console.info('Before incoming message', props.data.payload)
-  return await hooks.handleMessage(props)
+  return await hooks.beforeIncomingMessage.handleMessage(props)
 })
 
 plugin.on.event('hitl:hitlAssigned', async (props) => {
   console.info('HITL assigned', props.event.payload)
+  return await events.hitlAssigned.handleEvent(props)
 })
 
 plugin.on.event('hitl:hitlStopped', async (props) => {
   console.info('HITL stopped', props.event.payload)
-  return await events.handleHitlStopped(props)
+  return await events.hitlStopped.handleEvent(props)
 })
 
 export default plugin
