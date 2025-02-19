@@ -1,7 +1,7 @@
 import * as conv from '../conv-manager'
+import * as msg from '../messages'
 import * as user from '../user-linker'
 import * as bp from '.botpress'
-import { DEFAULT_HITL_HANDOFF_MESSAGE } from '../../plugin.definition'
 
 type StartHitlInput = bp.interfaces.hitl.actions.startHitl.input.Input
 type MessageHistoryElement = NonNullable<StartHitlInput['messageHistory']>[number]
@@ -37,9 +37,7 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
 }
 
 const _sendHandoffMessage = (props: Props, upstreamCm: conv.ConversationManager): Promise<void> =>
-  upstreamCm.respond({
-    text: props.configuration.onHitlHandoffMessage ?? DEFAULT_HITL_HANDOFF_MESSAGE,
-  })
+  upstreamCm.respond({ text: msg.hitlHandoffMessage(props) })
 
 const _buildMessageHistory = async (
   props: Props,

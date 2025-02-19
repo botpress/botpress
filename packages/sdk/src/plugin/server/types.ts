@@ -101,6 +101,7 @@ export type CommonHandlerProps<TPlugin extends types.BasePlugin> = {
   configuration: PluginConfiguration<TPlugin>
   interfaces: types.PluginInterfaceExtensions<TPlugin>
   actions: proxy.ActionProxy<TPlugin>
+  render: types.PluginRenderFunction
 }
 
 export type MessagePayloads<TPlugin extends types.BasePlugin> = {

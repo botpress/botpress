@@ -35,3 +35,5 @@ export type PluginInterfaceExtension<TInterface extends BaseInterface = BaseInte
 export type PluginInterfaceExtensions<TPlugin extends BasePlugin = BasePlugin> = {
   [K in keyof TPlugin['interfaces']]: PluginInterfaceExtension<TPlugin['interfaces'][K]>
 }
+
+export type PluginRenderFunction = (s: string) => string

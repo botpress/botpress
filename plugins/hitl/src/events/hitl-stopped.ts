@@ -1,5 +1,5 @@
-import { DEFAULT_HITL_STOPPED_MESSAGE } from '../../plugin.definition'
 import * as conv from '../conv-manager'
+import * as msg from '../messages'
 import * as bp from '.botpress'
 
 export const handleEvent: bp.EventHandlers['hitl:hitlStopped'] = async (props) => {
@@ -22,9 +22,7 @@ export const handleEvent: bp.EventHandlers['hitl:hitlStopped'] = async (props) =
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
 
   await Promise.allSettled([
-    upstreamCm.respond({
-      text: props.configuration.onHitlStoppedMessage ?? DEFAULT_HITL_STOPPED_MESSAGE,
-    }),
+    upstreamCm.respond({ text: msg.hitlStoppedMessage(props) }),
     downstreamCm.setHitlInactive(),
     upstreamCm.setHitlInactive(),
   ])

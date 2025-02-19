@@ -1,5 +1,5 @@
-import { DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE } from '../../plugin.definition'
 import * as conv from '../conv-manager'
+import * as msg from '../messages'
 import * as bp from '.botpress'
 
 export const handleEvent: bp.EventHandlers['hitl:hitlAssigned'] = async (props) => {
@@ -26,9 +26,7 @@ export const handleEvent: bp.EventHandlers['hitl:hitlAssigned'] = async (props) 
   const humanAgentName = humanAgentUser?.name ?? 'A Human Agent'
 
   await Promise.all([
-    upstreamCm.respond({
-      text: props.configuration.onHumanAgentAssignedMessage ?? DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE,
-    }),
+    upstreamCm.respond({ text: msg.humanAgentAssignedMessage(props) }),
     downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
   ])

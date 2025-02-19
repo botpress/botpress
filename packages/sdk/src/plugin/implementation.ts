@@ -25,7 +25,7 @@ import {
   PluginConfiguration,
   StateExpiredPayloads,
 } from './server/types'
-import { BasePlugin, PluginInterfaceExtensions } from './types'
+import { BasePlugin, PluginInterfaceExtensions, PluginRenderFunction } from './types'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>
@@ -34,12 +34,14 @@ export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> =
 export type PluginRuntimeProps<TPlugin extends BasePlugin = BasePlugin> = {
   configuration: PluginConfiguration<TPlugin>
   interfaces: PluginInterfaceExtensions<TPlugin>
+  render?: PluginRenderFunction
 }
 
 type Tools<TPlugin extends BasePlugin = BasePlugin> = {
   configuration: PluginConfiguration<TPlugin>
   interfaces: PluginInterfaceExtensions<TPlugin>
   actions: ActionProxy<TPlugin>
+  render: PluginRenderFunction
 }
 
 export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotHandlers<TPlugin> {
@@ -79,12 +81,14 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
   }
 
   private _getTools(client: BotSpecificClient<any>): Tools {
-    const { configuration, interfaces } = this._runtime
+    const { configuration, interfaces, render } = this._runtime
     const actions = proxyActions(client, interfaces) as ActionProxy<BasePlugin>
+    const defaultRender: PluginRenderFunction = (s) => s
     return {
       configuration,
       interfaces,
       actions,
+      render: render ?? defaultRender,
     }
   }
 
