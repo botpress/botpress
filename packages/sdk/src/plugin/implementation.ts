@@ -9,6 +9,7 @@ import {
 } from '../bot'
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
+import { BasePlugin, PluginInterfaceExtensions } from './common'
 import { formatEventRef, parseEventRef, resolveEvent } from './interface-resolution'
 import {
   MessageHandlersMap,
@@ -25,7 +26,6 @@ import {
   PluginConfiguration,
   StateExpiredPayloads,
 } from './server/types'
-import { BasePlugin, PluginInterfaceExtensions } from './types'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>

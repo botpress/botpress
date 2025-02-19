@@ -1,8 +1,8 @@
-import { DefaultChannel, DefaultIntegration } from '../../integration/types/generic'
+import { DefaultChannel, DefaultIntegration } from '../../integration/common/generic'
 import { test } from 'vitest'
 import * as utils from '../../utils/type-utils'
 import { BaseBot, DefaultBot } from './generic'
-import * as types from './common'
+import * as types from './types'
 import { FooBarBazBot, EmptyBot, FooBarBazIntegration } from '../../fixtures'
 
 test('EnumerateStates should enumerate states', () => {

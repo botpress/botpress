@@ -1,6 +1,6 @@
 import * as client from '@botpress/client'
 import * as utils from '../../utils/type-utils'
-import * as common from '../types'
+import * as common from '../common'
 
 type BaseChannelDefinition = common.BaseIntegration['channels'][string]
 type GetChannelByName<

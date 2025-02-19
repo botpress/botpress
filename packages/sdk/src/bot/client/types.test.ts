@@ -2,7 +2,7 @@ import * as client from '@botpress/client'
 import { describe, test } from 'vitest'
 import * as utils from '../../utils/type-utils'
 import * as types from './types'
-import { BaseBot } from '../types'
+import { BaseBot } from '../common'
 import { FooBarBazBot, EmptyBot } from '../../fixtures'
 
 describe('ClientInputs', () => {

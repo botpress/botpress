@@ -1,5 +1,5 @@
 import * as client from '@botpress/client'
-import * as common from '../types'
+import * as common from '../common'
 import * as types from './types'
 
 export * from './types'

@@ -1,7 +1,7 @@
 import { test } from 'vitest'
 import * as client from '@botpress/client'
 import * as utils from '../../utils/type-utils'
-import * as common from '../types/generic'
+import * as common from '../common'
 import * as types from './types'
 import { EmptyPlugin, FooBarBazPlugin } from '../../fixtures'
 
