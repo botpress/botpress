@@ -98,6 +98,12 @@ const _handleUpstreamMessage = async (
   }
 
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
+  const isDownstreamHitlActive = await downstreamCm.isHitlActive()
+
+  if (!isDownstreamHitlActive) {
+    await upstreamCm.setHitlInactive()
+    return LET_BOT_HANDLE_MESSAGE
+  }
 
   props.logger.withConversationId(upstreamConversation.id).info('Sending message to downstream')
   await downstreamCm.respond({

@@ -11,7 +11,7 @@ export const DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE =
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.1.0',
+  version: '0.1.1',
   configuration: {
     schema: sdk.z.object({
       onHitlHandoffMessage: sdk.z
