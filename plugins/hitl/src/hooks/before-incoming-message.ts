@@ -1,7 +1,7 @@
 import * as client from '@botpress/client'
+import { DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE } from 'plugin.definition'
 import * as conv from '../conv-manager'
 import * as bp from '.botpress'
-import { DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE } from 'plugin.definition'
 
 export const handleMessage: NonNullable<bp.HookHandlers['before_incoming_message']['*']> = async (props) => {
   const { conversation } = await props.client.getConversation({
@@ -24,7 +24,7 @@ const _handleDownstreamMessage = async (
   const downstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
-    return LET_BOT_HANDLE_MESSAGE
+    return STOP_MESSAGE_HANDLING // we don't want the bot to chat with the human agent in a closed ticket
   }
 
   if (props.data.type !== 'text') {
