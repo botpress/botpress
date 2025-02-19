@@ -36,11 +36,7 @@ export class UserLinker {
     const { userId: downstreamUserId } = await this._props.actions.hitl.createUser({
       name: upstreamUserOverrides?.name ?? upstreamUser.tags['name'] ?? upstreamUser.name ?? 'Unknown User',
       pictureUrl: upstreamUserOverrides?.pictureUrl ?? upstreamUser.tags['pictureUrl'] ?? upstreamUser.pictureUrl,
-      email:
-        upstreamUserOverrides?.email ??
-        upstreamUser.tags['email'] ??
-        upstreamUser.tags.email ??
-        'anonymous@noemail.com',
+      email: upstreamUserOverrides?.email ?? upstreamUser.tags['email'] ?? 'anonymous@noemail.com',
     })
 
     const [{ user: updatedUpstreamUser }, { user: updatedDownstreamUser }] = await Promise.all([
