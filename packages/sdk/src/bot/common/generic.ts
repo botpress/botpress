@@ -1,6 +1,7 @@
-import { BaseIntegration, DefaultIntegration, InputBaseIntegration } from '../../integration/types/generic'
-import { BaseInterface, InputBaseInterface, DefaultInterface } from '../../interface/types/generic'
+import { BaseIntegration, DefaultIntegration, InputBaseIntegration } from '../../integration/common/generic'
 import * as utils from '../../utils/type-utils'
+
+export * from '../../integration/common/generic'
 
 export type BaseAction = {
   input: any
@@ -118,31 +119,23 @@ export type BaseTable = {
   isComputeEnabled?: boolean
 }
 
-export type BasePlugin = {
-  configuration: any
+export type BaseBot = {
   integrations: Record<string, BaseIntegration>
-  interfaces: Record<string, BaseInterface>
   events: Record<string, any>
   states: Record<string, any>
   actions: Record<string, BaseAction>
   tables: Record<string, BaseTable>
 }
 
-export type InputBasePlugin = utils.DeepPartial<BasePlugin>
-export type DefaultPlugin<B extends utils.DeepPartial<BasePlugin>> = {
-  configuration: utils.Default<B['configuration'], BasePlugin['configuration']>
-  events: utils.Default<B['events'], BasePlugin['events']>
-  states: utils.Default<B['states'], BasePlugin['states']>
-  actions: utils.Default<B['actions'], BasePlugin['actions']>
-  tables: utils.Default<B['tables'], BasePlugin['tables']>
+export type InputBaseBot = utils.DeepPartial<BaseBot>
+export type DefaultBot<B extends InputBaseBot> = {
+  events: utils.Default<B['events'], BaseBot['events']>
+  states: utils.Default<B['states'], BaseBot['states']>
+  actions: utils.Default<B['actions'], BaseBot['actions']>
   integrations: undefined extends B['integrations']
-    ? BasePlugin['integrations']
+    ? BaseBot['integrations']
     : {
         [K in keyof B['integrations']]: DefaultIntegration<utils.Cast<B['integrations'][K], InputBaseIntegration>>
       }
-  interfaces: undefined extends B['interfaces']
-    ? BasePlugin['interfaces']
-    : {
-        [K in keyof B['interfaces']]: DefaultInterface<utils.Cast<B['interfaces'][K], InputBaseInterface>>
-      }
+  tables: utils.Default<B['tables'], BaseBot['tables']>
 }

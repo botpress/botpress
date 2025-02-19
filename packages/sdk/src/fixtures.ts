@@ -1,6 +1,6 @@
-import { DefaultBot } from './bot/types/generic'
-import { DefaultChannel, DefaultIntegration } from './integration/types/generic'
-import { DefaultPlugin } from './plugin/types/generic'
+import { DefaultBot } from './bot/common/generic'
+import { DefaultChannel, DefaultIntegration } from './integration/common/generic'
+import { DefaultPlugin } from './plugin/common/generic'
 
 type _FooBarBazIntegration = {
   actions: {

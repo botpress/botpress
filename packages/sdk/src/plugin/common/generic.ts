@@ -1,7 +1,6 @@
-import { BaseIntegration, DefaultIntegration, InputBaseIntegration } from '../../integration/types/generic'
+import { BaseIntegration, DefaultIntegration, InputBaseIntegration } from '../../integration/common/generic'
+import { BaseInterface, InputBaseInterface, DefaultInterface } from '../../interface/common/generic'
 import * as utils from '../../utils/type-utils'
-
-export * from '../../integration/types/generic'
 
 export type BaseAction = {
   input: any
@@ -119,23 +118,31 @@ export type BaseTable = {
   isComputeEnabled?: boolean
 }
 
-export type BaseBot = {
+export type BasePlugin = {
+  configuration: any
   integrations: Record<string, BaseIntegration>
+  interfaces: Record<string, BaseInterface>
   events: Record<string, any>
   states: Record<string, any>
   actions: Record<string, BaseAction>
   tables: Record<string, BaseTable>
 }
 
-export type InputBaseBot = utils.DeepPartial<BaseBot>
-export type DefaultBot<B extends InputBaseBot> = {
-  events: utils.Default<B['events'], BaseBot['events']>
-  states: utils.Default<B['states'], BaseBot['states']>
-  actions: utils.Default<B['actions'], BaseBot['actions']>
+export type InputBasePlugin = utils.DeepPartial<BasePlugin>
+export type DefaultPlugin<B extends utils.DeepPartial<BasePlugin>> = {
+  configuration: utils.Default<B['configuration'], BasePlugin['configuration']>
+  events: utils.Default<B['events'], BasePlugin['events']>
+  states: utils.Default<B['states'], BasePlugin['states']>
+  actions: utils.Default<B['actions'], BasePlugin['actions']>
+  tables: utils.Default<B['tables'], BasePlugin['tables']>
   integrations: undefined extends B['integrations']
-    ? BaseBot['integrations']
+    ? BasePlugin['integrations']
     : {
         [K in keyof B['integrations']]: DefaultIntegration<utils.Cast<B['integrations'][K], InputBaseIntegration>>
       }
-  tables: utils.Default<B['tables'], BaseBot['tables']>
+  interfaces: undefined extends B['interfaces']
+    ? BasePlugin['interfaces']
+    : {
+        [K in keyof B['interfaces']]: DefaultInterface<utils.Cast<B['interfaces'][K], InputBaseInterface>>
+      }
 }

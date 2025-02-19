@@ -3,7 +3,7 @@ import * as plugin from '../../plugin'
 import * as utils from '../../utils/type-utils'
 import { type BotLogger } from '../bot-logger'
 import { BotSpecificClient } from '../client'
-import * as types from '../types'
+import * as types from '../common'
 
 export type BotOperation = 'event_received' | 'register' | 'unregister' | 'ping' | 'action_triggered'
 export type BotContext = {

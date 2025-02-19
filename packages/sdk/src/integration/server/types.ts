@@ -2,7 +2,7 @@ import { type Conversation, type Message, type User } from '@botpress/client'
 import { Request, Response } from '../../serve'
 import { Cast, Merge, ValueOf } from '../../utils/type-utils'
 import { IntegrationSpecificClient } from '../client'
-import { BaseIntegration, ToTags } from '../types'
+import { BaseIntegration, ToTags } from '../common'
 import { type IntegrationLogger } from './integration-logger'
 
 type IntegrationOperation =

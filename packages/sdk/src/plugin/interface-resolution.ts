@@ -1,4 +1,4 @@
-import { PluginInterfaceExtensions } from './types'
+import { PluginInterfaceExtensions } from './common'
 
 export type ParsedActionRef = {
   namespace: string // interface or integration name

@@ -1,5 +1,6 @@
 import type { Server } from 'node:http'
 import { serve } from '../serve'
+import { BaseIntegration } from './common'
 import {
   RegisterHandler as RegisterFunction,
   UnregisterHandler as UnregisterFunction,
@@ -10,7 +11,6 @@ import {
   ChannelHandlers as ChannelFunctions,
   integrationHandler,
 } from './server'
-import { BaseIntegration } from './types'
 
 export type IntegrationImplementationProps<TIntegration extends BaseIntegration = BaseIntegration> = {
   register: RegisterFunction<TIntegration>
