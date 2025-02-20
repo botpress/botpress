@@ -8,6 +8,12 @@ import {
 } from '../common/utils'
 import * as errors from '../common/errors'
 import { zuiKey } from '../../ui/constants'
+import { generateStringChecks } from './string-checks'
+import { generateNumberChecks } from './number-checks'
+import { generateBigIntChecks } from './bigint-checks'
+import { generateDateChecks } from './date-checks'
+import { generateArrayChecks } from './array-checks'
+import { generateSetChecks } from './set-checks'
 
 /**
  *
@@ -27,22 +33,22 @@ function sUnwrapZod(schema: z.Schema): string {
 
   switch (def.typeName) {
     case z.ZodFirstPartyTypeKind.ZodString:
-      return `z.string()${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
+      return `z.string()${generateStringChecks(def)}${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodNumber:
-      return `z.number()${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
+      return `z.number()${generateNumberChecks(def)}${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodNaN:
       return `z.nan()${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodBigInt:
-      return `z.bigint()${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
+      return `z.bigint()${generateBigIntChecks(def)}${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodBoolean:
       return `z.boolean()${_addZuiExtensions(def)}${_maybeDescribe(schema._def)}`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodDate:
-      return `z.date()${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
+      return `z.date()${generateDateChecks(def)}${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodUndefined:
       return `z.undefined()${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
@@ -63,7 +69,7 @@ function sUnwrapZod(schema: z.Schema): string {
       return `z.void()${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodArray:
-      return `z.array(${sUnwrapZod(def.type)})${_addZuiExtensions(def)}${_maybeDescribe(def)}`
+      return `z.array(${sUnwrapZod(def.type)})${generateArrayChecks(def)}${_addZuiExtensions(def)}${_maybeDescribe(def)}`
 
     case z.ZodFirstPartyTypeKind.ZodObject:
       const props = mapValues(def.shape(), (value) => {
@@ -110,7 +116,7 @@ function sUnwrapZod(schema: z.Schema): string {
       return `z.map(${mapKeyType}, ${mapValueType})${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodSet:
-      return `z.set(${sUnwrapZod(def.valueType)})${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
+      return `z.set(${sUnwrapZod(def.valueType)})${generateSetChecks(def)}${_addZuiExtensions(def)}${_maybeDescribe(def)}`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodFunction:
       const args = def.args.items.map(sUnwrapZod)
