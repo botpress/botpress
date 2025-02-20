@@ -46,6 +46,12 @@ export type PluginDefinitionProps<
 > = {
   name: TName
   version: TVersion
+
+  title?: string
+  description?: string
+  icon?: string
+  readme?: string
+
   integrations?: {
     [K in keyof TIntegrations]: IntegrationPackage
   }
@@ -85,6 +91,11 @@ export class PluginDefinition<
   public readonly name: this['props']['name']
   public readonly version: this['props']['version']
 
+  public readonly title: this['props']['title']
+  public readonly description: this['props']['description']
+  public readonly icon: this['props']['icon']
+  public readonly readme: this['props']['readme']
+
   public readonly integrations: this['props']['integrations']
   public readonly interfaces: this['props']['interfaces']
 
@@ -113,6 +124,10 @@ export class PluginDefinition<
   ) {
     this.name = props.name
     this.version = props.version
+    this.icon = props.icon
+    this.readme = props.readme
+    this.title = props.title
+    this.description = props.description
     this.integrations = props.integrations
     this.interfaces = props.interfaces
     this.user = props.user
