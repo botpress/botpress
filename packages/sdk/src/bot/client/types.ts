@@ -1,6 +1,6 @@
 import * as client from '@botpress/client'
 import * as utils from '../../utils/type-utils'
-import * as common from '../types'
+import * as common from '../common'
 
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
 type Res<F extends (...args: any[]) => any> = ReturnType<F>

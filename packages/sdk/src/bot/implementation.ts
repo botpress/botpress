@@ -2,6 +2,7 @@ import type { Server } from 'node:http'
 import { BasePlugin, PluginImplementation } from '../plugin'
 import { serve } from '../serve'
 import * as utils from '../utils'
+import { BaseBot } from './common'
 import {
   botHandler,
   MessageHandlersMap,
@@ -17,7 +18,6 @@ import {
   BotHandlers,
   UnimplementedActionHandlers,
 } from './server'
-import { BaseBot } from './types'
 
 export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}> = {
   actions: UnimplementedActionHandlers<TBot, TPlugins>

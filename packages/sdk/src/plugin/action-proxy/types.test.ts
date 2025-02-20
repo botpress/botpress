@@ -2,7 +2,7 @@ import { test } from 'vitest'
 import { EmptyPlugin, FooBarBazPlugin } from '../../fixtures'
 import { ActionProxy } from './types'
 import * as utils from '../../utils/type-utils'
-import { BasePlugin } from '../types'
+import { BasePlugin } from '../common'
 
 test('ActionProxy of FooBarBazPlugin should reflect actions of bot, integration and interface deps', async () => {
   type Actual = ActionProxy<FooBarBazPlugin>

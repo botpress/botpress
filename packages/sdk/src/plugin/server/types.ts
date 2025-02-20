@@ -2,19 +2,19 @@ import * as client from '@botpress/client'
 import * as bot from '../../bot'
 import * as utils from '../../utils/type-utils'
 import * as proxy from '../action-proxy'
-import * as types from '../types'
+import * as common from '../common'
 
-type EnumeratePluginEvents<TPlugin extends types.BasePlugin> = bot.EnumerateEvents<TPlugin> &
-  types.EnumerateInterfaceEvents<TPlugin>
+type EnumeratePluginEvents<TPlugin extends common.BasePlugin> = bot.EnumerateEvents<TPlugin> &
+  common.EnumerateInterfaceEvents<TPlugin>
 
-type _IncomingEvents<TPlugin extends types.BasePlugin> = {
+type _IncomingEvents<TPlugin extends common.BasePlugin> = {
   [K in keyof EnumeratePluginEvents<TPlugin>]: utils.Merge<
     client.Event,
     { type: K; payload: EnumeratePluginEvents<TPlugin>[K] }
   >
 }
 
-type _IncomingMessages<TPlugin extends types.BasePlugin> = {
+type _IncomingMessages<TPlugin extends common.BasePlugin> = {
   // TODO: use bot definiton message property to infer allowed tags
   [K in keyof bot.GetMessages<TPlugin>]: utils.Merge<
     //
@@ -23,21 +23,21 @@ type _IncomingMessages<TPlugin extends types.BasePlugin> = {
   >
 }
 
-type _IncomingStates<TPlugin extends types.BasePlugin> = {
+type _IncomingStates<TPlugin extends common.BasePlugin> = {
   [K in keyof bot.EnumerateStates<TPlugin>]: utils.Merge<
     client.State,
     { name: K; payload: bot.EnumerateStates<TPlugin>[K] }
   >
 }
 
-type _OutgoingMessageRequests<TPlugin extends types.BasePlugin> = {
+type _OutgoingMessageRequests<TPlugin extends common.BasePlugin> = {
   [K in keyof bot.GetMessages<TPlugin>]: utils.Merge<
     client.ClientInputs['createMessage'],
     { type: K; payload: bot.GetMessages<TPlugin>[K] }
   >
 }
 
-type _OutgoingMessageResponses<TPlugin extends types.BasePlugin> = {
+type _OutgoingMessageResponses<TPlugin extends common.BasePlugin> = {
   [K in keyof bot.GetMessages<TPlugin>]: utils.Merge<
     client.ClientOutputs['createMessage'],
     {
@@ -46,65 +46,65 @@ type _OutgoingMessageResponses<TPlugin extends types.BasePlugin> = {
   >
 }
 
-type _OutgoingCallActionRequests<TPlugin extends types.BasePlugin> = {
+type _OutgoingCallActionRequests<TPlugin extends common.BasePlugin> = {
   [K in keyof bot.EnumerateActionInputs<TPlugin>]: utils.Merge<
     client.ClientInputs['callAction'],
     { type: K; input: bot.EnumerateActionInputs<TPlugin>[K] }
   >
 }
 
-type _OutgoingCallActionResponses<TPlugin extends types.BasePlugin> = {
+type _OutgoingCallActionResponses<TPlugin extends common.BasePlugin> = {
   [K in keyof bot.EnumerateActionOutputs<TPlugin>]: utils.Merge<
     client.ClientOutputs['callAction'],
     { output: bot.EnumerateActionOutputs<TPlugin>[K] }
   >
 }
 
-export type AnyIncomingEvent<_TPlugin extends types.BasePlugin> = client.Event
-export type AnyIncomingMessage<_TPlugin extends types.BasePlugin> = client.Message
-export type AnyOutgoingMessageRequest<_TPlugin extends types.BasePlugin> = client.ClientInputs['createMessage']
-export type AnyOutgoingMessageResponse<_TPlugin extends types.BasePlugin> = client.ClientOutputs['createMessage']
-export type AnyOutgoingCallActionRequest<_TPlugin extends types.BasePlugin> = client.ClientInputs['callAction']
-export type AnyOutgoingCallActionResponse<_TPlugin extends types.BasePlugin> = client.ClientOutputs['callAction']
+export type AnyIncomingEvent<_TPlugin extends common.BasePlugin> = client.Event
+export type AnyIncomingMessage<_TPlugin extends common.BasePlugin> = client.Message
+export type AnyOutgoingMessageRequest<_TPlugin extends common.BasePlugin> = client.ClientInputs['createMessage']
+export type AnyOutgoingMessageResponse<_TPlugin extends common.BasePlugin> = client.ClientOutputs['createMessage']
+export type AnyOutgoingCallActionRequest<_TPlugin extends common.BasePlugin> = client.ClientInputs['callAction']
+export type AnyOutgoingCallActionResponse<_TPlugin extends common.BasePlugin> = client.ClientOutputs['callAction']
 
-export type IncomingEvents<TPlugin extends types.BasePlugin> = _IncomingEvents<TPlugin> & {
+export type IncomingEvents<TPlugin extends common.BasePlugin> = _IncomingEvents<TPlugin> & {
   '*': AnyIncomingEvent<TPlugin>
 }
-export type IncomingMessages<TPlugin extends types.BasePlugin> = _IncomingMessages<TPlugin> & {
+export type IncomingMessages<TPlugin extends common.BasePlugin> = _IncomingMessages<TPlugin> & {
   '*': AnyIncomingMessage<TPlugin>
 }
-export type IncomingStates<_TPlugin extends types.BasePlugin> = _IncomingStates<_TPlugin> & {
+export type IncomingStates<_TPlugin extends common.BasePlugin> = _IncomingStates<_TPlugin> & {
   '*': client.State
 }
-export type OutgoingMessageRequests<TPlugin extends types.BasePlugin> = _OutgoingMessageRequests<TPlugin> & {
+export type OutgoingMessageRequests<TPlugin extends common.BasePlugin> = _OutgoingMessageRequests<TPlugin> & {
   '*': AnyOutgoingMessageRequest<TPlugin>
 }
-export type OutgoingMessageResponses<TPlugin extends types.BasePlugin> = _OutgoingMessageResponses<TPlugin> & {
+export type OutgoingMessageResponses<TPlugin extends common.BasePlugin> = _OutgoingMessageResponses<TPlugin> & {
   '*': AnyOutgoingMessageResponse<TPlugin>
 }
-export type OutgoingCallActionRequests<TPlugin extends types.BasePlugin> = _OutgoingCallActionRequests<TPlugin> & {
+export type OutgoingCallActionRequests<TPlugin extends common.BasePlugin> = _OutgoingCallActionRequests<TPlugin> & {
   '*': AnyOutgoingCallActionRequest<TPlugin>
 }
-export type OutgoingCallActionResponses<TPlugin extends types.BasePlugin> = _OutgoingCallActionResponses<TPlugin> & {
+export type OutgoingCallActionResponses<TPlugin extends common.BasePlugin> = _OutgoingCallActionResponses<TPlugin> & {
   '*': AnyOutgoingCallActionResponse<TPlugin>
 }
 
 // TODO: some ressources should be strongly type while leaving room for unknown definitions
-export type PluginClient<_TPlugin extends types.BasePlugin> = bot.BotSpecificClient<types.BasePlugin>
+export type PluginClient<_TPlugin extends common.BasePlugin> = bot.BotSpecificClient<common.BasePlugin>
 
-export type PluginConfiguration<TPlugin extends types.BasePlugin> = TPlugin['configuration']
+export type PluginConfiguration<TPlugin extends common.BasePlugin> = TPlugin['configuration']
 
-export type CommonHandlerProps<TPlugin extends types.BasePlugin> = {
+export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
   ctx: bot.BotContext
   logger: bot.BotLogger
   client: PluginClient<TPlugin>
   configuration: PluginConfiguration<TPlugin>
-  interfaces: types.PluginInterfaceExtensions<TPlugin>
+  interfaces: common.PluginInterfaceExtensions<TPlugin>
   actions: proxy.ActionProxy<TPlugin>
-  render: types.PluginRenderFunction
+  render: common.PluginRenderFunction
 }
 
-export type MessagePayloads<TPlugin extends types.BasePlugin> = {
+export type MessagePayloads<TPlugin extends common.BasePlugin> = {
   [K in keyof IncomingMessages<TPlugin>]: CommonHandlerProps<TPlugin> & {
     message: IncomingMessages<TPlugin>[K]
     user: client.User
@@ -119,31 +119,31 @@ export type MessagePayloads<TPlugin extends types.BasePlugin> = {
   }
 }
 
-export type MessageHandlers<TPlugin extends types.BasePlugin> = {
+export type MessageHandlers<TPlugin extends common.BasePlugin> = {
   [K in keyof IncomingMessages<TPlugin>]: (args: MessagePayloads<TPlugin>[K]) => Promise<void>
 }
 
-export type EventPayloads<TPlugin extends types.BasePlugin> = {
+export type EventPayloads<TPlugin extends common.BasePlugin> = {
   [K in keyof IncomingEvents<TPlugin>]: CommonHandlerProps<TPlugin> & { event: IncomingEvents<TPlugin>[K] }
 }
 
-export type EventHandlers<TPlugin extends types.BasePlugin> = {
+export type EventHandlers<TPlugin extends common.BasePlugin> = {
   [K in keyof IncomingEvents<TPlugin>]: (args: EventPayloads<TPlugin>[K]) => Promise<void>
 }
 
-export type StateExpiredPayloads<TPlugin extends types.BasePlugin> = {
+export type StateExpiredPayloads<TPlugin extends common.BasePlugin> = {
   [K in keyof IncomingStates<TPlugin>]: CommonHandlerProps<TPlugin> & { state: IncomingStates<TPlugin>[K] }
 }
 
-export type StateExpiredHandlers<TPlugin extends types.BasePlugin> = {
+export type StateExpiredHandlers<TPlugin extends common.BasePlugin> = {
   [K in keyof IncomingStates<TPlugin>]: (args: StateExpiredPayloads<TPlugin>[K]) => Promise<void>
 }
 
-export type ActionHandlerPayloads<TPlugin extends types.BasePlugin> = {
+export type ActionHandlerPayloads<TPlugin extends common.BasePlugin> = {
   [K in keyof TPlugin['actions']]: CommonHandlerProps<TPlugin> & { type?: K; input: TPlugin['actions'][K]['input'] }
 }
 
-export type ActionHandlers<TPlugin extends types.BasePlugin> = {
+export type ActionHandlers<TPlugin extends common.BasePlugin> = {
   [K in keyof TPlugin['actions']]: (
     props: ActionHandlerPayloads<TPlugin>[K]
   ) => Promise<TPlugin['actions'][K]['output']>
@@ -162,9 +162,9 @@ type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = 
  *   - after_incoming_call_action
  */
 
-export type HookDefinitionType = keyof HookDefinitions<types.BasePlugin>
+export type HookDefinitionType = keyof HookDefinitions<common.BasePlugin>
 
-export type HookDefinitions<TPlugin extends types.BasePlugin> = {
+export type HookDefinitions<TPlugin extends common.BasePlugin> = {
   before_incoming_event: HookDefinition<{
     stoppable: true
     data: _IncomingEvents<TPlugin> & { '*': AnyIncomingEvent<TPlugin> }
@@ -199,13 +199,13 @@ export type HookDefinitions<TPlugin extends types.BasePlugin> = {
   }>
 }
 
-export type HookData<TPlugin extends types.BasePlugin> = {
+export type HookData<TPlugin extends common.BasePlugin> = {
   [H in keyof HookDefinitions<TPlugin>]: {
     [T in keyof HookDefinitions<TPlugin>[H]['data']]: HookDefinitions<TPlugin>[H]['data'][T]
   }
 }
 
-export type HookInputs<TPlugin extends types.BasePlugin> = {
+export type HookInputs<TPlugin extends common.BasePlugin> = {
   [H in keyof HookData<TPlugin>]: {
     [T in keyof HookData<TPlugin>[H]]: CommonHandlerProps<TPlugin> & {
       data: HookData<TPlugin>[H][T]
@@ -213,7 +213,7 @@ export type HookInputs<TPlugin extends types.BasePlugin> = {
   }
 }
 
-export type HookOutputs<TPlugin extends types.BasePlugin> = {
+export type HookOutputs<TPlugin extends common.BasePlugin> = {
   [H in keyof HookData<TPlugin>]: {
     [T in keyof HookData<TPlugin>[H]]: {
       data?: HookData<TPlugin>[H][T]
@@ -221,7 +221,7 @@ export type HookOutputs<TPlugin extends types.BasePlugin> = {
   }
 }
 
-export type HookHandlers<TPlugin extends types.BasePlugin> = {
+export type HookHandlers<TPlugin extends common.BasePlugin> = {
   [H in keyof HookData<TPlugin>]: {
     [T in keyof HookData<TPlugin>[H]]: (
       input: HookInputs<TPlugin>[H][T]
@@ -229,25 +229,25 @@ export type HookHandlers<TPlugin extends types.BasePlugin> = {
   }
 }
 
-export type MessageHandlersMap<TPlugin extends types.BasePlugin> = {
+export type MessageHandlersMap<TPlugin extends common.BasePlugin> = {
   [T in keyof IncomingMessages<TPlugin>]?: MessageHandlers<TPlugin>[T][]
 }
 
-export type EventHandlersMap<TPlugin extends types.BasePlugin> = {
+export type EventHandlersMap<TPlugin extends common.BasePlugin> = {
   [T in keyof IncomingEvents<TPlugin>]?: EventHandlers<TPlugin>[T][]
 }
 
-export type StateExpiredHandlersMap<TPlugin extends types.BasePlugin> = {
+export type StateExpiredHandlersMap<TPlugin extends common.BasePlugin> = {
   [T in keyof IncomingStates<TPlugin>]?: StateExpiredHandlers<TPlugin>[T][]
 }
 
-export type HookHandlersMap<TPlugin extends types.BasePlugin> = {
+export type HookHandlersMap<TPlugin extends common.BasePlugin> = {
   [H in keyof HookData<TPlugin>]: {
     [T in keyof HookData<TPlugin>[H]]?: HookHandlers<TPlugin>[H][T][]
   }
 }
 
-export type PluginHandlers<TPlugin extends types.BasePlugin> = {
+export type PluginHandlers<TPlugin extends common.BasePlugin> = {
   actionHandlers: ActionHandlers<TPlugin>
   messageHandlers: MessageHandlersMap<TPlugin>
   eventHandlers: EventHandlersMap<TPlugin>
