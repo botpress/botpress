@@ -1,3 +1,4 @@
+import { JSONSchema7 } from 'json-schema'
 import { ZodFirstPartyTypeKind } from '../../z'
 
 type Transform =
@@ -39,6 +40,19 @@ export class ZuiToJsonSchemaError extends ZuiTransformError {
 export class UnsupportedZuiToJsonSchemaError extends ZuiToJsonSchemaError {
   public constructor(type: ZodFirstPartyTypeKind) {
     super(`Zod type ${type} cannot be transformed to JSON Schema.`)
+  }
+}
+
+// json-schema-to-zui-error
+export class JSONSchemaToZuiError extends ZuiTransformError {
+  public constructor(message?: string) {
+    super('json-schema-to-zui', message)
+  }
+}
+
+export class UnsupportedJSONSchemaToZuiError extends JSONSchemaToZuiError {
+  public constructor(schema: JSONSchema7) {
+    super(`JSON Schema ${JSON.stringify(schema)} cannot be transformed to ZUI type.`)
   }
 }
 

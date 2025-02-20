@@ -101,4 +101,8 @@ export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
       util.compareFunctions(this._def.catchValue, schema._def.catchValue)
     )
   }
+
+  get _metadataRoot() {
+    return this._def.innerType._metadataRoot
+  }
 }

@@ -525,7 +525,7 @@ export class ZodObject<
     Catchall
   >
   partial(mask?: any) {
-    const newShape: any = {}
+    const newShape: Record<string, ZodTypeAny | undefined> = {}
 
     util.objectKeys(this.shape).forEach((key) => {
       const fieldSchema = this.shape[key]
@@ -539,7 +539,7 @@ export class ZodObject<
 
     return new ZodObject({
       ...this._def,
-      shape: () => newShape,
+      shape: () => newShape as ZodRawShape,
     })
   }
 

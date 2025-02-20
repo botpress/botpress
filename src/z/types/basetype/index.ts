@@ -45,7 +45,6 @@ import {
   ZodPromise,
   ZodReadonly,
   ZodUnion,
-  KindToDef,
 } from '../index'
 import { CatchFn } from '../catch'
 import type { ZuiSchemaOptions } from '../../../transforms/zui-to-json-schema/zui-extension'
@@ -486,9 +485,10 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
 
   /** append metadata to object */
   metadata(data: Record<string, ZuiMetadata>): this {
+    const root = this._metadataRoot
     for (const [key, value] of Object.entries(data)) {
-      this._def[zuiKey] = {
-        ...this._def[zuiKey],
+      root._def[zuiKey] = {
+        ...root._def[zuiKey],
         [key]: value,
       }
     }
@@ -497,44 +497,34 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
 
   /** get metadata of object */
   getMetadata(): Record<string, ZuiMetadata> {
-    return { ...this._def[zuiKey] }
+    return { ...this._metadataRoot._def[zuiKey] }
   }
 
   /** set metadata of object */
   setMetadata(data: Record<string, ZuiMetadata>): void {
-    this._def[zuiKey] = { ...data }
+    this._metadataRoot._def[zuiKey] = { ...data }
   }
 
-  /**
-   * @deprecated use `getMetadata` instead
-   */
   get ui(): Record<string, ZuiMetadata> {
-    const root = this._getMetadataRoot()
-    return { ...root._def[zuiKey] }
+    return { ...this._metadataRoot._def[zuiKey] }
   }
 
   private _setZuiMeta(key: string, value: ZuiMetadata) {
-    const root = this._getMetadataRoot()
+    const root = this._metadataRoot
     root._def[zuiKey] = {
       ...root._def[zuiKey],
       [key]: value,
     }
   }
 
-  private _getMetadataRoot(): ZodType {
-    // TODO: this kind of logic should be handled in the UI layer, not here
-    const def = this._def as KindToDef<any>
-    switch (def.typeName) {
-      case ZodFirstPartyTypeKind.ZodNullable:
-      case ZodFirstPartyTypeKind.ZodDefault:
-      case ZodFirstPartyTypeKind.ZodOptional:
-      case ZodFirstPartyTypeKind.ZodReadonly:
-        return def.innerType
-      case ZodFirstPartyTypeKind.ZodEffects:
-        return def.schema
-      default:
-        return this
-    }
+  /**
+   * Some Schemas aren't meant to contain metadata, like ZodDefault.
+   * In a zui construction like `z.string().default('hello').title('Hello')`, the user's intention is usually to set a title on the string, not on the default value.
+   * Also, in JSON-Schema, default is not a data-type like it is in Zui, but an annotation added on the schema itself. Therefore, only one metadata can apply to both the schema and the default value.
+   * This property is used to get the root schema that should contain the metadata.
+   */
+  get _metadataRoot(): ZodType {
+    return this
   }
 
   /**

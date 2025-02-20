@@ -39,4 +39,8 @@ export class ZodLazy<T extends ZodTypeAny = ZodTypeAny> extends ZodType<output<T
     if (!(schema instanceof ZodLazy)) return false
     return this._def.getter().isEqual(schema._def.getter())
   }
+
+  get _metadataRoot() {
+    return this._def.getter()._metadataRoot
+  }
 }

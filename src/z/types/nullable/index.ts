@@ -58,4 +58,8 @@ export class ZodNullable<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     if (!(schema instanceof ZodNullable)) return false
     return this._def.innerType.isEqual(schema._def.innerType)
   }
+
+  get _metadataRoot() {
+    return this._def.innerType._metadataRoot
+  }
 }

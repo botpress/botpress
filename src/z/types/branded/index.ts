@@ -2,7 +2,7 @@ import { ZodFirstPartyTypeKind, ZodType, ZodTypeAny, ZodTypeDef, ParseInput, Par
 
 type Key = string | number | symbol
 
-export interface ZodBrandedDef<T extends ZodTypeAny> extends ZodTypeDef {
+export interface ZodBrandedDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
   type: T
   typeName: ZodFirstPartyTypeKind.ZodBranded
 }
@@ -36,5 +36,9 @@ export class ZodBranded<T extends ZodTypeAny = ZodTypeAny, B extends Key = Key> 
   isEqual(schema: ZodType): boolean {
     if (!(schema instanceof ZodBranded)) return false
     return this._def.type.isEqual(schema._def.type)
+  }
+
+  get _metadataRoot() {
+    return this._def.type._metadataRoot
   }
 }

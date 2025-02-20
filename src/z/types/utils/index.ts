@@ -3,14 +3,17 @@ import type { ZodErrorMap } from '../error'
 import type { ProcessedCreateParams, RawCreateParams } from '../index'
 
 export namespace util {
-  type AssertEqual<T, U> = (<V>() => V extends T ? 1 : 2) extends <V>() => V extends U ? 1 : 2 ? true : false
+  export type IsEqual<T, U> = (<V>() => V extends T ? 1 : 2) extends <V>() => V extends U ? 1 : 2 ? true : false
 
   export type isAny<T> = 0 extends 1 & T ? true : false
-  export const assertEqual = <A, B>(val: AssertEqual<A, B>) => val
+  export const assertEqual = <A, B>(val: IsEqual<A, B>) => val
   export function assertIs<T>(_arg: T): void {}
   export function assertNever(_x: never): never {
     throw new Error('assertNever called')
   }
+
+  export type AssertNever<_T extends never> = true
+  export type AssertTrue<_T extends true> = true
 
   export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
   export type OmitKeys<T, K extends string> = Pick<T, Exclude<keyof T, K>>
@@ -93,6 +96,25 @@ export namespace util {
      */
     return a.toString() === b.toString()
   }
+
+  export const mock = <T>(): T => ({}) as T
+
+  export type Satisfies<X extends Y, Y> = X
+
+  type NormalizeObject<T extends object> = T extends infer O ? { [K in keyof O]: Normalize<O[K]> } : never
+  export type Normalize<T> = T extends (...args: infer A) => infer R
+    ? (...args: Normalize<A>) => Normalize<R>
+    : T extends Array<infer E>
+      ? Array<Normalize<E>>
+      : T extends ReadonlyArray<infer E>
+        ? ReadonlyArray<Normalize<E>>
+        : T extends Promise<infer R>
+          ? Promise<Normalize<R>>
+          : T extends Buffer
+            ? Buffer
+            : T extends object
+              ? NormalizeObject<T>
+              : T
 }
 
 export namespace objectUtil {

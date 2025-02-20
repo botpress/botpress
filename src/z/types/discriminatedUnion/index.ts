@@ -77,7 +77,7 @@ export type ZodDiscriminatedUnionOption<Discriminator extends string> = ZodObjec
 >
 
 export interface ZodDiscriminatedUnionDef<
-  Discriminator extends string,
+  Discriminator extends string = string,
   Options extends ZodDiscriminatedUnionOption<string>[] = ZodDiscriminatedUnionOption<string>[],
 > extends ZodTypeDef {
   discriminator: Discriminator

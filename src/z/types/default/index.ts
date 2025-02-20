@@ -68,4 +68,8 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
       isEqual(this._def.defaultValue(), schema._def.defaultValue())
     )
   }
+
+  get _metadataRoot() {
+    return this._def.innerType._metadataRoot
+  }
 }

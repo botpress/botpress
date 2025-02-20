@@ -58,4 +58,8 @@ export class ZodOptional<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     if (!(schema instanceof ZodOptional)) return false
     return this._def.innerType.isEqual(schema._def.innerType)
   }
+
+  get _metadataRoot(): ZodType {
+    return this._def.innerType._metadataRoot
+  }
 }

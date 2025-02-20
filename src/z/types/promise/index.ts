@@ -74,4 +74,8 @@ export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     if (!(schema instanceof ZodPromise)) return false
     return this._def.type.isEqual(schema._def.type)
   }
+
+  get _metadataRoot() {
+    return this._def.type._metadataRoot
+  }
 }

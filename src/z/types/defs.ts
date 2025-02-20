@@ -32,6 +32,8 @@ import type {
   ZodUnionDef,
   ZodUnknownDef,
   ZodVoidDef,
+  ZodRefDef,
+  ZodSetDef,
 } from './index'
 
 export type ZodDef =
@@ -42,8 +44,8 @@ export type ZodDef =
   | ZodDateDef
   | ZodUndefinedDef
   | ZodNullDef
-  | ZodDefaultDef
-  | ZodCatchDef
+  | ZodDefaultDef // contains functions
+  | ZodCatchDef // contains functions
   | ZodReadonlyDef
   | ZodDiscriminatedUnionDef<any>
   | ZodBrandedDef<any>
@@ -53,21 +55,23 @@ export type ZodDef =
   | ZodNeverDef
   | ZodVoidDef
   | ZodArrayDef
-  | ZodObjectDef
+  | ZodObjectDef // contains functions
   | ZodUnionDef
   | ZodIntersectionDef
   | ZodTupleDef
   | ZodRecordDef
   | ZodMapDef
   | ZodFunctionDef
-  | ZodLazyDef
+  | ZodLazyDef // contains functions
   | ZodLiteralDef
   | ZodEnumDef
-  | ZodEffectsDef
+  | ZodEffectsDef // contains functions
   | ZodNativeEnumDef
   | ZodOptionalDef
   | ZodNullableDef
   | ZodPromiseDef
+  | ZodRefDef
+  | ZodSetDef
 
 export enum ZodFirstPartyTypeKind {
   ZodString = 'ZodString',
