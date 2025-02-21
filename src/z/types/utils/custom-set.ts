@@ -1,4 +1,4 @@
-import { isEqual } from 'lodash-es'
+import { isEqual } from './is-equal'
 
 export type CustomSetOptions<T> = {
   compare: (a: T, b: T) => boolean
