@@ -1,7 +1,7 @@
+import { DEFAULT_HITL_HANDOFF_MESSAGE } from '../../plugin.definition'
 import * as conv from '../conv-manager'
 import * as user from '../user-linker'
 import * as bp from '.botpress'
-import { DEFAULT_HITL_HANDOFF_MESSAGE } from '../../plugin.definition'
 
 type StartHitlInput = bp.interfaces.hitl.actions.startHitl.input.Input
 type MessageHistoryElement = NonNullable<StartHitlInput['messageHistory']>[number]
@@ -10,6 +10,17 @@ type Props = Parameters<bp.PluginProps['actions']['startHitl']>[0]
 export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) => {
   const { conversationId: upstreamConversationId, userId: upstreamUserId, userEmail: upstreamUserEmail } = props.input
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
+
+  const { conversation: upstreamConversation } = await props.client.getConversation({ id: upstreamConversationId })
+
+  if (upstreamConversation.tags.upstream || upstreamConversation.integration === props.interfaces.hitl.name) {
+    // Without this check, closing the downstream conversation (the ticket) can
+    // result in the bot calling startHitl a second time, but using the
+    // downstream conversation as if it was the upstream conversation. Human
+    // support agents would thus see "I have escalated this to a human" inside
+    // the ticket after closing it.
+    return {}
+  }
 
   if (await upstreamCm.isHitlActive()) {
     return {}
