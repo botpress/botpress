@@ -59,7 +59,11 @@ export default new sdk.PluginDefinition({
         schema: sdk.z.object({
           title: sdk.z.string().title('Ticket Title').describe('Title of the HITL ticket'),
           description: sdk.z.string().title('Ticket Description').optional().describe('Description of the HITL ticket'),
-          userId: sdk.z.string().title('User ID').describe('ID of the user that starts the HITL mode'),
+          userId: sdk.z
+            .string()
+            .title('User ID')
+            .describe('ID of the user that starts the HITL mode')
+            .default('{{ event.userId }}'),
           userEmail: sdk.z
             .string()
             .title('User Email')
@@ -70,7 +74,8 @@ export default new sdk.PluginDefinition({
           conversationId: sdk.z
             .string()
             .title('Conversation ID') // this is the upstream conversation
-            .describe('ID of the conversation on which to start the HITL mode'),
+            .describe('ID of the conversation on which to start the HITL mode')
+            .default('{{ event.conversationId }}'),
         }),
       },
       output: { schema: sdk.z.object({}) },
@@ -80,7 +85,10 @@ export default new sdk.PluginDefinition({
       description: 'Stop the HITL mode',
       input: {
         schema: sdk.z.object({
-          conversationId: sdk.z.string().describe('ID of the conversation on which to stop the HITL mode'),
+          conversationId: sdk.z
+            .string()
+            .describe('ID of the conversation on which to stop the HITL mode')
+            .default('{{ event.conversationId }}'),
         }),
       },
       output: { schema: sdk.z.object({}) },
