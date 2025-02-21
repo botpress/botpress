@@ -11,7 +11,10 @@ export const DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE =
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.1.1',
+  version: '0.1.2',
+  title: 'Human In The Loop',
+  description: 'Seamlessly transfer conversations to human agents',
+  icon: 'icon.svg',
   configuration: {
     schema: sdk.z.object({
       onHitlHandoffMessage: sdk.z
