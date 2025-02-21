@@ -8,7 +8,13 @@ export const executeMessageCreate = async ({
   freshchatEvent: MessageCreateFreshchatEvent
   client: bp.Client
 }) => {
+  // Ignore non agent messages
   if (freshchatEvent.actor.actor_type === 'user') {
+    return
+  }
+
+  // Ignore private messages
+  if (freshchatEvent.data.message.message_type === 'private') {
     return
   }
 
