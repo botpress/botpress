@@ -231,6 +231,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const { name, version } = pluginDef
 
+    if (pluginDef.icon && !pluginDef.icon.toLowerCase().endsWith('.svg')) {
+      throw new errors.BotpressCLIError('Icon must be an SVG file')
+    }
+
+    if (pluginDef.readme && !pluginDef.readme.toLowerCase().endsWith('.md')) {
+      throw new errors.BotpressCLIError('Readme must be a Markdown file')
+    }
+
     const plugin = await api.findPublicPlugin({ type: 'name', name, version })
 
     let message: string
@@ -249,9 +257,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     this.logger.debug('Preparing plugin request body...')
 
+    const icon = await this.readProjectFile(pluginDef.icon, 'base64')
+    const readme = await this.readProjectFile(pluginDef.readme, 'base64')
+
     const createBody = {
       ...(await apiUtils.prepareCreatePluginBody(pluginDef)),
       ...(await this.preparePluginDependencies(pluginDef, api)),
+      icon,
+      readme,
       code: {
         node: codeCJS,
         browser: codeESM,

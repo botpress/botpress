@@ -8,6 +8,8 @@ export const prepareCreatePluginBody = async (
 ): Promise<types.CreatePluginRequestBody> => ({
   name: plugin.name,
   version: plugin.version,
+  title: 'title' in plugin ? plugin.title : undefined,
+  description: 'description' in plugin ? plugin.description : undefined,
   user: {
     tags: plugin.user?.tags ?? {},
   },

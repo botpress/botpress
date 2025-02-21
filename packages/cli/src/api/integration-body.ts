@@ -80,7 +80,7 @@ export const prepareUpdateIntegrationBody = (
   )
 
   return {
-    ...localIntegration,
+    ..._maybeRemoveVrlScripts(localIntegration, remoteIntegration),
     actions,
     events,
     states,
@@ -90,6 +90,48 @@ export const prepareUpdateIntegrationBody = (
     interfaces,
     configurations,
   }
+}
+
+const _maybeRemoveVrlScripts = (
+  localIntegration: types.UpdateIntegrationRequestBody,
+  remoteIntegration: client.Integration
+): types.UpdateIntegrationRequestBody => {
+  const newIntegration = structuredClone(localIntegration)
+
+  if (
+    remoteIntegration.configuration?.identifier?.linkTemplateScript &&
+    !localIntegration.configuration?.identifier?.linkTemplateScript
+  ) {
+    newIntegration.configuration ??= remoteIntegration.configuration
+    newIntegration.configuration.identifier ??= remoteIntegration.configuration.identifier
+    newIntegration.configuration.identifier.linkTemplateScript = null
+    newIntegration.configuration.identifier.required = false
+  }
+
+  if (remoteIntegration.identifier.extractScript && !localIntegration.identifier?.extractScript) {
+    newIntegration.identifier ??= remoteIntegration.identifier
+    newIntegration.identifier.extractScript = null
+  }
+
+  if (remoteIntegration.identifier.fallbackHandlerScript && !localIntegration.identifier?.fallbackHandlerScript) {
+    newIntegration.identifier ??= remoteIntegration.identifier
+    newIntegration.identifier.fallbackHandlerScript = null
+  }
+
+  for (const configName of Object.keys(localIntegration.configurations ?? {})) {
+    if (
+      remoteIntegration.configurations[configName]?.identifier.linkTemplateScript &&
+      !localIntegration.configurations?.[configName]?.identifier?.linkTemplateScript
+    ) {
+      newIntegration.configurations ??= remoteIntegration.configurations
+      newIntegration.configurations[configName] ??= remoteIntegration.configurations[configName]
+      newIntegration.configurations[configName].identifier ??= remoteIntegration.configurations[configName].identifier
+      newIntegration.configurations[configName].identifier.linkTemplateScript = null
+      newIntegration.configurations[configName].identifier.required = false
+    }
+  }
+
+  return newIntegration
 }
 
 const _prepareUpdateIntegrationChannelsBody = (
