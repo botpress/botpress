@@ -13,10 +13,10 @@ export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSON
   public input?: JSONSchema
   public output?: JSONSchema
 
-  public setStaticInputValues(values: unknown | undefined) {
+  public setStaticInputValues(values: unknown | undefined): this {
     if (values === null || values === undefined) {
       this._staticInputValues = undefined
-      return
+      return this
     }
 
     const input = this.input ? z.fromJsonSchema(this.input) : z.any()
@@ -34,6 +34,7 @@ export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSON
     }
 
     this._staticInputValues = values
+    return this
   }
 
   public get zInput() {
@@ -58,7 +59,7 @@ export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSON
     return this.output ? z.fromJsonSchema(this.output) : z.void()
   }
 
-  public rename(name: string) {
+  public rename(name: string): this {
     const before = this.name
 
     if (!isValidIdentifier(name)) {
@@ -74,7 +75,7 @@ export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSON
   }
 
   public clone() {
-    return new Tool({
+    return <Tool<I, O>>new Tool({
       name: this.name,
       aliases: [...this.aliases],
       description: this.description,
@@ -84,8 +85,6 @@ export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSON
       handler: this._handler,
     }).setStaticInputValues(this._staticInputValues)
   }
-
-  public withStaticInputs() {}
 
   private _handler: (args: unknown) => Promise<unknown>
 

@@ -196,7 +196,6 @@ export async function runAsyncFunction(
         res = Signals.maybeDeserializeError(res)
         return {
           success: true,
-          traces,
           variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
           signal: res instanceof VMSignal ? res : undefined,
           lines_executed: Array.from(lines_executed),
@@ -454,7 +453,6 @@ do {
 
         return {
           success: true,
-          traces,
           variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
           signal: res instanceof VMSignal ? res : undefined,
           lines_executed: Array.from(lines_executed),

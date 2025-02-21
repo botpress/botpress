@@ -2,7 +2,7 @@ import { assert, describe, expect, it, vi } from 'vitest'
 
 import { CodeExecutionError, ExecuteSignal, InvalidCodeError } from './errors.js'
 import { runAsyncFunction, USE_ISOLATED_VM } from './vm.js'
-import { Traces } from './types.js'
+import { Trace, Traces } from './types.js'
 
 describe('llmz/vm', () => {
   it('stack traces points to original source map code', async () => {
@@ -20,11 +20,12 @@ Hi!
   }
 }
 `
-    const result = await runAsyncFunction({}, code)
+    let traces = []
+    const result = await runAsyncFunction({}, code, traces)
 
     assert(result.success === false)
     expect(result.error.message).toMatchInlineSnapshot(`"Something went wrong"`)
-    expect(result.traces).toHaveLength(21)
+    expect(traces).toHaveLength(21)
     assert(result.error instanceof CodeExecutionError)
     expect(result.error.stacktrace).toMatchInlineSnapshot(`
       "  001 | 
@@ -441,11 +442,12 @@ return {
         },
       }
 
-      const result = await runAsyncFunction(context, code)
+      let traces: Trace[] = []
+      const result = await runAsyncFunction(context, code, traces)
 
       assert(result.success)
       expect(result.return_value).toMatchInlineSnapshot(`"{"a":10,"b":"hello","c":true,"d":{"e":"world"},"f":[1,2,3]}"`)
-      expect(result.traces.find((x): x is Traces.Log => x.type === 'log')?.message).toMatchInlineSnapshot(
+      expect(traces.find((x): x is Traces.Log => x.type === 'log')?.message).toMatchInlineSnapshot(
         `"{"a":10,"b":"hello","c":true,"d":{"e":"world"},"f":[1,2,3]}"`
       )
     })
@@ -478,7 +480,8 @@ return {
         },
       }
 
-      const result = await runAsyncFunction(context, code)
+      let traces: Trace[] = []
+      const result = await runAsyncFunction(context, code, traces)
 
       assert(result.success)
       expect(result.return_value).toMatchInlineSnapshot(`
@@ -500,7 +503,7 @@ return {
         }
       `)
 
-      expect(result.traces.find((x): x is Traces.Log => x.type === 'log')?.message).toMatchInlineSnapshot(
+      expect(traces.find((x): x is Traces.Log => x.type === 'log')?.message).toMatchInlineSnapshot(
         `"{"a":20,"b":"hello world","c":false,"d":{"e":"world!"},"f":[1,2,3,4],"g":null}"`
       )
 
@@ -805,6 +808,23 @@ return {
   })
 
   describe('global variables', () => {
+    it('can re-declare variables part of the context (var, const, let)', async () => {
+      const code = `
+        const a = 10
+        let b = 20
+        var c = 30
+        d = 40
+        // e is not touched
+        return a + b + c + d + e
+      `
+
+      const context = { a: 1, b: 2, c: 3, d: 4, e: 5 }
+      const result = await runAsyncFunction(context, code)
+
+      assert(result.success)
+      expect(result.return_value).toBe(105)
+    })
+
     it.skipIf(!USE_ISOLATED_VM)('aborting execution', async () => {
       const code = `
       await longFn()

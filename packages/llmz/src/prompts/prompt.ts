@@ -1,5 +1,4 @@
 import { Exit } from 'src/exit.js'
-import { CodeExecutionError, InvalidCodeError, ThinkSignal } from '../errors.js'
 import type { ObjectInstance } from '../objects.js'
 import { OAI } from '../openai.js'
 import { RejectCallback, ResolveCallback, SnapshotResult } from '../snapshots.js'
@@ -16,15 +15,18 @@ export namespace LLMzPrompts {
   }
 
   export type InvalidCodeProps = {
-    error: InvalidCodeError
+    code: string
+    message: string
   }
 
   export type CodeExecutionErrorProps = {
-    error: CodeExecutionError
+    message: string
+    stacktrace: string
   }
 
   export type ThinkingProps = {
-    signal: ThinkSignal
+    reason?: string
+    variables: unknown
   }
 
   export type SnapshotResolvedProps = {
@@ -39,7 +41,7 @@ export namespace LLMzPrompts {
 
 export type Prompt = {
   getSystemMessage: (props: LLMzPrompts.InitialStateProps) => Promise<OAI.Message>
-  getInitialUserMessage?: (props: LLMzPrompts.InitialStateProps) => Promise<OAI.Message>
+  getInitialUserMessage: (props: LLMzPrompts.InitialStateProps) => Promise<OAI.Message>
   getThinkingMessage: (props: LLMzPrompts.ThinkingProps) => Promise<OAI.Message>
   getInvalidCodeMessage: (props: LLMzPrompts.InvalidCodeProps) => Promise<OAI.Message>
   getCodeExecutionErrorMessage: (props: LLMzPrompts.CodeExecutionErrorProps) => Promise<OAI.Message>

@@ -177,16 +177,6 @@ export class LoopExceededError extends Error {
   }
 }
 
-export class InvalidNotebookError extends Error {
-  constructor(
-    message: string,
-    public notebook: string
-  ) {
-    super(message)
-    this.message = Signals.serializeError(this)
-  }
-}
-
 export class CodeFormattingError extends Error {
   constructor(
     message: string,

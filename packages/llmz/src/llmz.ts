@@ -1,32 +1,30 @@
 import { Cognitive, type BotpressClientLike } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 
-import { omit, clamp, isPlainObject, isEqual } from 'lodash-es'
+import { omit, clamp, isEqual, isPlainObject } from 'lodash-es'
 import ms from 'ms'
-import { ulid } from 'ulid'
 
-import { Context, createContext } from './context.js'
+import { Context, Iteration } from './context.js'
 import {
   AssignmentError,
   CodeExecutionError,
   ExecuteSignal,
   InvalidCodeError,
-  LoopExceededError,
   Signals,
   ThinkSignal,
   VMInterruptSignal,
   VMSignal,
 } from './errors.js'
 import { Exit } from './exit.js'
-import { HookedArray } from './handlers.js'
+import { ValueOrGetter } from './getter.js'
 
 import { type ObjectInstance } from './objects.js'
-import { createSnapshot, rejectContextSnapshot, resolveContextSnapshot } from './snapshots.js'
+
 import { type Tool } from './tool.js'
 
 import { TranscriptMessage } from './transcript.js'
-import { truncateWrappedContent, wrapContent } from './truncator.js'
-import { ExecutionResult, Iteration, ObjectMutation, Trace } from './types.js'
+import { truncateWrappedContent } from './truncator.js'
+import { ExecutionResult, Trace } from './types.js'
 import { init, stripInvalidIdentifiers } from './utils.js'
 import { runAsyncFunction } from './vm.js'
 
@@ -49,29 +47,29 @@ const getModelOutputLimit = (inputLength: number) =>
 
 export type ExecutionHooks = {
   /**
-   * Called after the notebook execution ends.
+   * Called after each iteration ends
    *
    * **Warning**: This should not be a long task as it blocks the execution
    */
   onIterationEnd?: (iteration: Iteration) => Promise<void> | void
-  /**
-   * Called before the notebook execution starts; after the LLM call and notebook parsing
-   *
-   * **Warning**: This should not be a long task as it blocks the execution
-   */
-  onIterationStart?: (iteration: Partial<Iteration>) => Promise<void> | void
   onTrace?: (event: { trace: Trace; iteration: number }) => void
+
+  // TODO: canLoop?(iteration: Iteration): boolean
+  // TODO: canExit?(iteration: Iteration): boolean
+
+  // TODO: validateExit?(exit: Exit, value: unknown): Promise<boolean>
+  onExit?: (exit: Exit, value: unknown) => Promise<void> | void
 }
 
-type Options = Partial<Pick<Parameters<typeof createContext>[0], 'loop' | 'temperature' | 'model'>>
+type Options = Partial<Pick<Context, 'loop' | 'temperature' | 'model'>>
 
 export type ExecutionProps = {
-  instructions?: string
-  objects?: ObjectInstance[]
-  tools?: Tool[]
-  exits?: Exit[]
+  instructions?: ValueOrGetter<string, Context>
+  objects?: ValueOrGetter<ObjectInstance[], Context>
+  tools?: ValueOrGetter<Tool[], Context>
+  exits?: ValueOrGetter<Exit[], Context>
+  transcript?: ValueOrGetter<TranscriptMessage[], Context>
   options?: Options
-  transcript?: TranscriptMessage[]
   /** An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive) */
   client: Cognitive | BotpressClientLike
   signal?: AbortController['signal']
@@ -80,7 +78,11 @@ export type ExecutionProps = {
 const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   await init()
 
-  const ctx = createContext({
+  const { signal, onIterationEnd, onTrace, onExit } = props
+  const cognitive = props.client instanceof Cognitive ? props.client : new Cognitive({ client: props.client })
+  const cleanups: (() => void)[] = []
+
+  const ctx = new Context({
     instructions: props.instructions,
     objects: props.objects,
     tools: props.tools,
@@ -91,104 +93,90 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
     exits: props.exits,
   })
 
-  const { signal, onIterationEnd, onTrace, onIterationStart } = props
-
-  const cognitive = props.client instanceof Cognitive ? props.client : new Cognitive({ client: props.client })
-
   try {
     while (true) {
-      if (signal?.aborted) {
-        throw new Error('The operation was aborted.')
+      if (ctx.iterations.length >= ctx.loop) {
+        return {
+          status: 'error',
+          context: ctx,
+          error: `Loop limit exceeded. Maximum allowed loops: ${ctx.loop}`,
+          iterations: ctx.iterations,
+        }
       }
 
-      const iterationId = ctx.id + '_' + (ctx.iterations.length + 1)
+      const iteration = await ctx.nextIteration()
 
-      try {
-        const traces = new HookedArray<Trace>()
-
-        traces.onPush((traces) => {
+      cleanups.push(
+        iteration.traces.onPush((traces) => {
+          // TODO: unsubscribe after the iteration ends
           for (const trace of traces) {
             onTrace?.({ trace, iteration: ctx.iterations.length })
           }
         })
+      )
 
-        const iteration = await executeIteration({
-          id: iterationId,
+      try {
+        await executeIteration({
+          iteration,
           ctx,
           cognitive,
-          traces,
           abortSignal: signal,
-          onIterationStart,
+          onExit,
         })
-
-        ctx.iterations.push(iteration)
-
-        try {
-          await onIterationEnd?.(iteration)
-        } catch (err) {
-          console.error(err)
-        }
-
-        if (signal?.aborted) {
-          throw new Error('The operation was aborted.')
-        }
-        if (iteration.status === 'success' && iteration.signal instanceof VMInterruptSignal) {
-          return {
-            status: 'interrupted',
-            snapshot: createSnapshot(iteration.signal),
-            iterations: ctx.iterations,
-            context: ctx,
-            signal: iteration.signal,
-          }
-        }
-
-        if (iteration.status === 'success') {
-          return {
-            status: 'success',
-            iterations: ctx.iterations,
-            context: ctx,
-          }
-        }
-
-        if (iteration.status === 'partial' && iteration.signal instanceof ThinkSignal) {
-          // we add the thinking context to the injected variables so that the next iteration can use them
-          if (isPlainObject(iteration.variables)) {
-            Object.assign(ctx.injectedVariables, iteration.variables)
-          }
-
-          if (isPlainObject(iteration.signal.context)) {
-            Object.assign(ctx.injectedVariables, iteration.signal.context)
-          }
-        }
-      } catch (error) {
-        if (error instanceof LoopExceededError) {
-          throw error
-        }
-
-        // The iteration should be in the list even though it failed internally
-        ctx.iterations.push({
-          id: generateIterationId(),
-          status: 'error',
-          error: error instanceof Error ? error : new Error(error?.toString() ?? 'Unknown error'),
-          messages: await ctx.getMessages(),
-          variables: {},
-          traces: [],
-          mutations: [],
-          llm: {
-            started_at: Date.now(),
-            ended_at: Date.now(),
-            status: 'error',
-            cached: false,
-            tokens: 0,
-            spend: 0,
-            output: '',
-            model: ctx.model ?? '',
+      } catch (err) {
+        // this should not happen, but if it does, we want to catch it and mark the iteration as failed and loop
+        iteration.end({
+          type: 'execution_error',
+          execution_error: {
+            stack: (err as Error).stack ?? 'No stack trace available',
+            message: 'An unexpected error occurred: ' + getErrorMessage(err),
           },
-          started_ts: Date.now(),
-          ended_ts: Date.now(),
         })
+      }
 
-        throw error
+      try {
+        await onIterationEnd?.(iteration)
+      } catch (err) {
+        console.error(err)
+      }
+
+      // Successful states
+      if (iteration.status.type === 'exit_success') {
+        return {
+          status: 'success',
+          context: ctx,
+          iterations: ctx.iterations,
+        }
+      }
+
+      if (iteration.status.type === 'callback_requested') {
+        throw new Error('Callbacks are not yet implemented')
+        // TODO: implement snapshots
+        // return {
+        //   status: 'interrupted',
+        //   snapshot: createSnapshot({} as any) as any, // TODO: fixme
+        //   context: ctx,
+        //   iterations: ctx.iterations,
+        //   signal: {} as any, // TODO: fixme
+        // }
+      }
+
+      // Retryable errors
+      if (
+        iteration.status.type === 'thinking_requested' ||
+        iteration.status.type === 'exit_error' ||
+        iteration.status.type === 'execution_error' ||
+        iteration.status.type === 'invalid_code_error'
+      ) {
+        continue
+      }
+
+      // Fatal errors
+      return {
+        context: ctx,
+        error: iteration.error ?? `Unknown error. Status: ${iteration.status.type}`,
+        status: 'error',
+        iterations: ctx.iterations,
       }
     }
   } catch (error) {
@@ -196,38 +184,38 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
       status: 'error',
       iterations: ctx.iterations,
       context: ctx,
-      error: error instanceof Error ? error : new Error(error?.toString() ?? 'Unknown error'),
+      error: error instanceof Error ? error.message : (error?.toString() ?? 'Unknown error'),
+    }
+  } finally {
+    for (const cleanup of cleanups) {
+      try {
+        cleanup()
+      } catch {}
     }
   }
 }
 
-const generateIterationId = () => `iteration_${ulid()}`
-
 const executeIteration = async ({
-  id,
+  iteration,
   ctx,
   cognitive,
-  traces,
   abortSignal,
-  onIterationStart,
+  onExit,
 }: {
-  id: string
   ctx: Context
+  iteration: Iteration
   cognitive: Cognitive
-  traces: Trace[]
   abortSignal?: AbortController['signal']
-} & ExecutionHooks): Promise<Iteration> => {
-  if (ctx.iteration++ >= ctx.loop) {
-    throw new LoopExceededError()
-  }
+} & ExecutionHooks): Promise<void> => {
+  // TODO: expose "getTokenLimits()"
 
-  const startedAt = Date.now()
-
+  let startedAt = Date.now()
+  const traces = iteration.traces
   const modelLimit = 128_000 // ctx.__options.model // TODO: fixme
   const responseLengthBuffer = getModelOutputLimit(modelLimit)
 
   const messages = truncateWrappedContent({
-    messages: await ctx.getMessages(),
+    messages: iteration.messages,
     tokenLimit: modelLimit - responseLengthBuffer,
     throwOnFailure: false,
   }).filter(
@@ -254,12 +242,14 @@ const executeIteration = async ({
           }) as const
       ),
     stopSequences: ctx.version.getStopTokens(),
-  })
+  }) // TODO: handle errors here and mark iteration as failed for this reason
 
   const out =
     output.output.choices?.[0]?.type === 'text' && typeof output.output.choices?.[0].content === 'string'
       ? output.output.choices[0].content
       : null
+
+  // TODO: do better handling of the different types of errors and potentially retry the request
 
   if (!out) {
     throw new Error('No output from LLM')
@@ -267,7 +257,9 @@ const executeIteration = async ({
 
   const assistantResponse = ctx.version.parseAssistantResponse(out)
 
-  const llm = {
+  iteration.code = assistantResponse.code.trim()
+
+  iteration.llm = {
     cached: output.meta.cached || false,
     ended_at: Date.now(),
     started_at: startedAt,
@@ -276,37 +268,25 @@ const executeIteration = async ({
     spend: output.meta.cost.input + output.meta.cost.output,
     output: assistantResponse.raw,
     model: `${output.meta.model.integration}:${output.meta.model.model}`,
-  } satisfies Iteration['llm']
+  }
 
   traces.push({
     type: 'llm_call',
     started_at: startedAt,
-    ended_at: llm.ended_at,
+    ended_at: iteration.llm.ended_at,
     status: 'success',
     model: ctx.model ?? '',
   })
 
-  try {
-    await onIterationStart?.({ id, traces, llm, started_ts: startedAt, messages })
-  } catch {}
+  const vmContext = { ...stripInvalidIdentifiers(iteration.variables) }
 
-  const iterationProps: Partial<Iteration> = {
-    id,
-    message: undefined,
-    code: undefined,
-  }
-
-  const vmContext = { ...stripInvalidIdentifiers(ctx.injectedVariables) }
-
-  const changes = new Map<string, ObjectMutation>()
-
-  for (const obj of ctx.objects) {
+  for (const obj of iteration.objects) {
     const internalValues: Record<string, string> = {}
     const instance: Record<string, any> = {}
 
     for (const { name, value, writable, type } of obj.properties ?? []) {
       internalValues[name] = value
-      const changeSet = `${obj.name}.${name}`
+
       const initialValue = value
       const schema = type ?? z.any()
 
@@ -347,7 +327,7 @@ const executeIteration = async ({
             value: parsed.data,
           })
 
-          changes.set(changeSet, { object: obj.name, property: name, before: initialValue, after: parsed.data })
+          iteration.trackMutation({ object: obj.name, property: name, before: initialValue, after: parsed.data })
         },
       })
     }
@@ -362,7 +342,7 @@ const executeIteration = async ({
     vmContext[obj.name] = instance
   }
 
-  for (const tool of ctx.tools) {
+  for (const tool of iteration.tools) {
     const wrapped = wrapTool({ tool, traces })
     for (const key of [tool.name, ...(tool.aliases ?? [])]) {
       vmContext[key] = wrapped
@@ -375,155 +355,183 @@ const executeIteration = async ({
       started_at: Date.now(),
       reason: 'The operation was aborted by user.',
     })
-    return {
-      ...iterationProps,
-      code: assistantResponse.code.trim(),
-      id,
-      status: 'error',
-      variables: {},
-      error: new Error('The operation was aborted.'),
-      started_ts: startedAt,
-      mutations: [...changes.values()],
-      ended_ts: Date.now(),
-      llm,
-      traces,
-      messages: [...messages],
-    } satisfies Iteration
+    // TODO: handle abortions better.. there's more than one path possible
+
+    return iteration.end({
+      type: 'aborted',
+      aborted: {
+        reason: abortSignal?.reason ?? 'The operation was aborted',
+      },
+    })
   }
 
-  let result: Awaited<ReturnType<typeof runAsyncFunction>> | InvalidCodeError
-  // This is temporary, until we support full notebook behaviour, that is, multiple code blocks and messages executed in sequence
-  // In that scenario, the non-code blocks will become messages and llmz will take responsibility of telling its consumers what messages are meant for the user
+  type Result = Awaited<ReturnType<typeof runAsyncFunction>>
+
+  startedAt = Date.now()
+  const result: Result = await runAsyncFunction(vmContext, assistantResponse.code.trim(), traces, abortSignal).catch(
+    (err) => {
+      return {
+        success: false,
+        error: err as Error,
+        lines_executed: [],
+        traces: [],
+        variables: {},
+      } satisfies Result
+    }
+  )
+
+  if (result.error && result.error instanceof InvalidCodeError) {
+    return iteration.end({
+      type: 'invalid_code_error',
+      invalid_code_error: {
+        message: result.error.message,
+      },
+    })
+  }
+
+  traces.push({
+    type: 'code_execution',
+    lines_executed: result.lines_executed ?? 0,
+    started_at: startedAt,
+    ended_at: Date.now(),
+  })
+
+  if (result.error && result.error instanceof CodeExecutionError) {
+    return iteration.end({
+      type: 'execution_error',
+      execution_error: {
+        message: result.error.message,
+        stack: result.error.stack ?? 'No stack trace available',
+      },
+    })
+  }
+
+  if (abortSignal?.aborted) {
+    return iteration.end({
+      type: 'aborted',
+      aborted: {
+        reason: abortSignal?.reason ?? 'The operation was aborted',
+      },
+    })
+  }
+
+  if (!result.success) {
+    return iteration.end({
+      type: 'execution_error',
+      execution_error: {
+        message: result?.error?.message ?? 'Unknown error occurred',
+        stack: result.error.stack ?? 'No stack trace available',
+      },
+    })
+  }
+
+  if (result.signal instanceof ThinkSignal) {
+    return iteration.end({
+      type: 'thinking_requested',
+      thinking_requested: {
+        variables: result.signal.variables,
+        reason: result.signal.reason,
+      },
+    })
+  }
+
+  if (result.signal instanceof VMInterruptSignal) {
+    return iteration.end({
+      type: 'callback_requested',
+      callback_requested: {
+        reason: result.signal.message,
+        stack: result.signal.truncatedCode,
+      },
+    })
+  }
+
+  const validActions = [...iteration.exits.map((x) => x.name.toLowerCase()), 'think']
+  let returnValue: { action: string; value?: unknown } | null =
+    result.success && result.return_value ? result.return_value : null
+
+  const returnAction = returnValue?.action
+  const returnExit =
+    iteration.exits.find((x) => x.name.toLowerCase() === returnAction?.toLowerCase()) ??
+    iteration.exits.find((x) => x.aliases.some((a) => a.toLowerCase() === returnAction?.toLowerCase()))
+
+  if (returnAction === 'think') {
+    const variables = omit(returnValue ?? {}, 'action')
+    if (isPlainObject(variables) && Object.keys(variables).length > 0) {
+      return iteration.end({
+        type: 'thinking_requested',
+        thinking_requested: {
+          variables,
+          reason: 'Thinking requested',
+        },
+      })
+    }
+
+    return iteration.end({
+      type: 'thinking_requested',
+      thinking_requested: {
+        reason: 'Thinking requested',
+        variables: iteration.variables,
+      },
+    })
+  }
+
+  if (!returnAction) {
+    return iteration.end({
+      type: 'exit_error',
+      exit_error: {
+        exit: 'n/a',
+        message: `Code did not return an action. Valid actions are: ${validActions.join(', ')}`,
+        return_value: returnValue,
+      },
+    })
+  }
+
+  if (!returnExit) {
+    return iteration.end({
+      type: 'exit_error',
+      exit_error: {
+        exit: returnAction,
+        message: `Exit "${returnAction}" not found. Valid actions are: ${validActions.join(', ')}`,
+        return_value: returnValue,
+      },
+    })
+  }
+
+  if (returnExit.zSchema) {
+    const parsed = returnExit.zSchema.safeParse(returnValue?.value)
+    if (!parsed.success) {
+      return iteration.end({
+        type: 'exit_error',
+        exit_error: {
+          exit: returnExit.name,
+          message: `Invalid return value for exit ${returnExit.name}: ${getErrorMessage(parsed.error)}`,
+          return_value: returnValue,
+        },
+      })
+    }
+    returnValue = { action: returnExit.name, value: parsed.data }
+  }
 
   try {
-    result = await runAsyncFunction(vmContext, assistantResponse.code.trim(), traces, abortSignal)
+    await onExit?.(returnExit, returnValue?.value)
   } catch (err) {
-    if (err instanceof InvalidCodeError) {
-      result = err
-    } else {
-      throw err
-    }
-  }
-
-  if (result instanceof InvalidCodeError) {
-    ctx.partialExecutionMessages.push({
-      role: 'assistant',
-      content: wrapContent(assistantResponse.raw, { preserve: 'top', flex: 4, minTokens: 25 }),
+    return iteration.end({
+      type: 'exit_error',
+      exit_error: {
+        exit: returnExit.name,
+        message: `Error executing exit ${returnExit.name}: ${getErrorMessage(err)}`,
+        return_value: returnValue,
+      },
     })
-
-    ctx.partialExecutionMessages.push(await ctx.version.getInvalidCodeMessage({ error: result }))
-
-    return {
-      ...iterationProps,
-      code: assistantResponse.code.trim(),
-      id,
-      status: 'error',
-      variables: {},
-      error: result,
-      started_ts: startedAt,
-      mutations: [...changes.values()],
-      ended_ts: Date.now(),
-      llm,
-      traces,
-      messages: [...messages],
-    } satisfies Iteration
   }
 
-  let signal = result.signal
-
-  if (result.success && result.return_value?.action === 'think') {
-    signal = new ThinkSignal('Thinking requested', omit(result.return_value, 'action'))
-    signal.variables = result.variables
-  }
-
-  if (signal instanceof ThinkSignal) {
-    // Since every tool call is assigned to a variable, we can assume that if there's no variables, there's no tool calls
-    // Similarly, if there's no variables, there's no JS computation such as "const a = 1 + 1"
-    // More importantly, if there's no variables, there's nothing to think about that the initial context doesn't already know
-
-    ctx.partialExecutionMessages.push({
-      role: 'assistant',
-      content: wrapContent(assistantResponse.raw, { preserve: 'top', flex: 4, minTokens: 25 }),
-    })
-
-    ctx.partialExecutionMessages.push(await ctx.version.getThinkingMessage({ signal }))
-
-    traces.push({
-      type: 'code_execution',
-      lines_executed: result.lines_executed,
-      started_at: startedAt,
-      ended_at: Date.now(),
-    })
-
-    return {
-      ...iterationProps,
-      code: assistantResponse.code.trim(),
-      id,
-      variables: result.signal?.variables ?? {},
-      status: 'partial',
-      signal,
-      started_ts: startedAt,
-      mutations: [...changes.values()],
-      ended_ts: Date.now(),
-      llm,
-      traces: result.traces,
-      messages: [...messages],
-    } satisfies Iteration
-  }
-
-  if (result.success || signal instanceof VMInterruptSignal) {
-    ctx.partialExecutionMessages = []
-    ctx.iteration = 0
-
-    traces.push({
-      type: 'code_execution',
-      lines_executed: result.lines_executed,
-      started_at: startedAt,
-      ended_at: Date.now(),
-    })
-
-    return {
-      ...iterationProps,
-      code: assistantResponse.code.trim(),
-      id,
-      status: 'success',
-      variables: result.variables,
-      signal,
-      started_ts: startedAt,
-      ended_ts: Date.now(),
-      llm,
-      mutations: [...changes.values()],
-      traces: result.traces,
-      messages: [...messages],
-      return_value: result.success ? result.return_value : undefined,
-    } satisfies Iteration
-  }
-
-  if (result.error instanceof CodeExecutionError) {
-    ctx.partialExecutionMessages.push({
-      role: 'assistant',
-      content: wrapContent(assistantResponse.raw, { preserve: 'top', flex: 4, minTokens: 25 }),
-    })
-
-    ctx.partialExecutionMessages.push(await ctx.version.getCodeExecutionErrorMessage({ error: result.error }))
-
-    return {
-      ...iterationProps,
-      code: assistantResponse.code.trim(),
-      id,
-      status: 'error',
-      variables: result.variables,
-      error: result.error,
-      started_ts: startedAt,
-      mutations: [...changes.values()],
-      ended_ts: Date.now(),
-      llm,
-      traces: result.traces,
-      messages: [...messages],
-    } satisfies Iteration
-  }
-
-  throw result.error
+  return iteration.end({
+    type: 'exit_success',
+    exit_success: {
+      exit_name: returnExit.name,
+      return_value: returnValue?.value,
+    },
+  })
 }
 
 type Props = {
@@ -669,7 +677,4 @@ function wrapTool({ tool, traces, object }: Props) {
 
 export const llmz = {
   executeContext,
-  createSnapshot,
-  resolveContextSnapshot,
-  rejectContextSnapshot,
 }

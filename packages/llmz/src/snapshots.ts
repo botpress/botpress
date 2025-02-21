@@ -84,12 +84,6 @@ export const resolveContextSnapshot = ({
   context: Context
   value: unknown
 }): Context => {
-  if (context.partialExecutionMessages.length > 0) {
-    throw new Error(
-      'Cannot restore a snapshot on a context that has already been partially executed, please create a new context'
-    )
-  }
-
   if (context.iterations.length > 0) {
     throw new Error(
       'Cannot restore a snapshot on a context that has already been executed, please create a new context'
@@ -109,31 +103,31 @@ export const resolveContextSnapshot = ({
     value = result.data
   }
 
-  const injectedVariables: Record<string, unknown> = context.injectedVariables ?? {}
+  // const injectedVariables: Record<string, unknown> = context.injectedVariables ?? {}
 
-  if (resolve.assignment) {
-    try {
-      const fn = new Function(resolve.assignment.evalFn)
-      const assignmentValue = fn(value)
-      Object.assign(injectedVariables, assignmentValue)
-    } catch {}
-  }
+  // if (resolve.assignment) {
+  //   try {
+  //     const fn = new Function(resolve.assignment.evalFn)
+  //     const assignmentValue = fn(value)
+  //     Object.assign(injectedVariables, assignmentValue)
+  //   } catch {}
+  // }
 
-  context.partialExecutionMessages.push(
-    context.version.getSnapshotResolvedMessage({
-      result: {
-        callback: resolve,
-        result: value,
-        snapshot,
-      },
-      injectedVariables,
-    })
-  )
+  // context.partialExecutionMessages.push(
+  //   context.version.getSnapshotResolvedMessage({
+  //     result: {
+  //       callback: resolve,
+  //       result: value,
+  //       snapshot,
+  //     },
+  //     injectedVariables,
+  //   })
+  // )
 
-  context.injectedVariables = {
-    ...injectedVariables,
-    // Inject the resolved value of the tool call into the proper variables
-  }
+  // context.injectedVariables = {
+  //   ...injectedVariables,
+  //   // Inject the resolved value of the tool call into the proper variables
+  // }
 
   context.appliedSnapshot = {
     snapshot,
@@ -144,45 +138,42 @@ export const resolveContextSnapshot = ({
   return context
 }
 
-export const rejectContextSnapshot = ({
-  context,
-  snapshot,
-  error,
-}: {
-  snapshot: Snapshot
-  context: Context
-  error: unknown
-}): Context => {
-  if (context.partialExecutionMessages.length > 0) {
-    throw new Error(
-      'Cannot reject a snapshot on a context that has already been partially executed, please create a new context'
-    )
+export const rejectContextSnapshot = (
+  {
+    // context,
+    // snapshot,
+    // error,
+  }: {
+    // snapshot: Snapshot
+    // context: Context
+    // error: unknown
   }
-
-  if (context.iterations.length > 0) {
-    throw new Error('Cannot reject a snapshot on a context that has already been executed, please create a new context')
-  }
-
-  const reject = snapshot.callbacks.find((callback) => callback.type === 'reject')
-  if (!reject || reject.type !== 'reject') {
-    throw new Error('Snapshot does not contain a reject callback')
-  }
-
-  context.partialExecutionMessages.push(
-    context.version.getSnapshotRejectedMessage({
-      result: {
-        callback: reject,
-        snapshot,
-        result: error,
-      },
-    })
-  )
-
-  context.appliedSnapshot = {
-    snapshot,
-    callback: reject,
-    result: error,
-  }
-
-  return { ...context }
+) => {
+  // if (context.partialExecutionMessages.length > 0) {
+  //   throw new Error(
+  //     'Cannot reject a snapshot on a context that has already been partially executed, please create a new context'
+  //   )
+  // }
+  // if (context.iterations.length > 0) {
+  //   throw new Error('Cannot reject a snapshot on a context that has already been executed, please create a new context')
+  // }
+  // const reject = snapshot.callbacks.find((callback) => callback.type === 'reject')
+  // if (!reject || reject.type !== 'reject') {
+  //   throw new Error('Snapshot does not contain a reject callback')
+  // }
+  // context.partialExecutionMessages.push(
+  //   context.version.getSnapshotRejectedMessage({
+  //     result: {
+  //       callback: reject,
+  //       snapshot,
+  //       result: error,
+  //     },
+  //   })
+  // )
+  // context.appliedSnapshot = {
+  //   snapshot,
+  //   callback: reject,
+  //   result: error,
+  // }
+  // return { ...context }
 }

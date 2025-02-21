@@ -105,10 +105,6 @@ ${variables_example}
 \`\`\``
   }
 
-  if (!dts) {
-    throw new Error('No typings generated')
-  }
-
   return {
     role: 'system' as const,
     content: replacePlaceholders(canTalk ? CHAT_SYSTEM_PROMPT_TEXT : WORKER_SYSTEM_PROMPT_TEXT, {
@@ -126,9 +122,12 @@ ${variables_example}
 }
 
 const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => {
+  // TODO: iteration.mode -> chat vs worker based on tools
   const isChatMode = props.globalTools.find((tool) => tool.name.toLowerCase() === 'message')
   const transcript = [...props.transcript].reverse()
-  let recap = 'Nobody has spoken yet in this conversation. You can start by saying something.'
+  let recap = isChatMode
+    ? 'Nobody has spoken yet in this conversation. You can start by saying something.'
+    : 'Nobody has spoken yet in this conversation.'
 
   const hasUserSpokenLast = transcript.length && transcript[0]?.role === 'user'
   const hasAssistantSpokenLast = transcript.length && transcript[0]?.role === 'assistant'
@@ -166,13 +165,13 @@ Code:
 
 \`\`\`tsx
 ■fn_start
-${wrapContent(props.error.code)}
+${wrapContent(props.code)}
 ■fn_end
 \`\`\`
 
 Error:
 \`\`\`
-${wrapContent(props.error.message, { flex: 4 })}
+${wrapContent(props.message, { flex: 4 })}
 \`\`\`
 
 Please fix the error and try again.
@@ -197,11 +196,11 @@ const getCodeExecutionErrorMessage = async (props: LLMzPrompts.CodeExecutionErro
 
 An error occurred while executing the code.
 
-${wrapContent(props.error.message, { preserve: 'top', flex: 4 })}
+${wrapContent(props.message, { preserve: 'top', flex: 4 })}
 
 Stack Trace:
 \`\`\`
-${wrapContent(props.error.stacktrace, { flex: 6, preserve: 'top' })}
+${wrapContent(props.stacktrace, { flex: 6, preserve: 'top' })}
 \`\`\`
 
 Let the user know that an error occurred, and if possible, try something else. Do not repeat yourself in the message.
@@ -220,8 +219,8 @@ Expected output:
 const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<OAI.Message> => {
   let context = ''
 
-  if (isPlainObject(props.signal.context)) {
-    const mapped = Object.entries(props.signal.context ?? {}).reduce<string[]>((acc, [key, value]) => {
+  if (isPlainObject(props.variables)) {
+    const mapped = Object.entries(props.variables ?? {}).reduce<string[]>((acc, [key, value]) => {
       const inspected = inspect(value, key)
 
       if (inspected) {
@@ -233,8 +232,8 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<OAI
     }, [])
 
     context = mapped.join('\n\n')
-  } else if (Array.isArray(props.signal.context)) {
-    const mapped = props.signal.context.map((value, index) => {
+  } else if (Array.isArray(props.variables)) {
+    const mapped = props.variables.map((value, index) => {
       const inspected = inspect(value, `Index ${index}`)
 
       if (inspected) {
@@ -245,10 +244,10 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<OAI
     })
 
     context = mapped.join('\n\n')
-  } else if (typeof props.signal.context === 'string') {
-    context = props.signal.context
+  } else if (typeof props.variables === 'string') {
+    context = props.variables
   } else {
-    context = inspect(props.signal.context) ?? JSON.stringify(props.signal.context, null, 2)
+    context = inspect(props.variables) ?? JSON.stringify(props.variables, null, 2)
   }
 
   return {
@@ -259,7 +258,7 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<OAI
 
 The assistant requested to think. Here's the context:
 -------------------
-Reason: ${props.signal.reason}
+Reason: ${props.reason || 'Thinking requested'}
 Context:
 ${wrapContent(context, { preserve: 'top' })}
 -------------------

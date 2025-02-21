@@ -1,6 +1,5 @@
-import { type Context } from './context.js'
-import { type VMInterruptSignal, type ThinkSignal, type VMSignal } from './errors.js'
-import { type OAI } from './openai.js'
+import { Iteration, type Context } from './context.js'
+import { type VMInterruptSignal, type VMSignal } from './errors.js'
 import { type Snapshot } from './snapshots.js'
 
 export namespace Traces {
@@ -130,7 +129,6 @@ export type VMExecutionResult =
       variables: { [k: string]: any }
       signal?: VMSignal
       error?: Error
-      traces: Trace[]
       lines_executed: [number, number][]
       return_value?: any
     }
@@ -150,42 +148,6 @@ export type ObjectMutation = {
   after: any
 }
 
-export type Iteration = {
-  id: string
-  messages: OAI.Message[]
-  message?: string
-  code?: string
-  traces: Trace[]
-  mutations: ObjectMutation[]
-  variables: Record<string, any>
-  llm: {
-    started_at: number
-    ended_at: number
-    status: 'success' | 'error'
-    cached: boolean
-    tokens: number
-    spend: number
-    output: string
-    model: string
-  }
-  started_ts: number
-  ended_ts: number
-} & (
-  | {
-      status: 'success'
-      signal?: VMSignal
-      return_value?: any
-    }
-  | {
-      status: 'partial'
-      signal: ThinkSignal
-    }
-  | {
-      status: 'error'
-      error: Error
-    }
-)
-
 export type SuccessExecutionResult = {
   status: 'success'
   iterations: Iteration[]
@@ -204,7 +166,7 @@ export type ErrorExecutionResult = {
   status: 'error'
   iterations: Iteration[]
   context: Context
-  error: Error
+  error: string
 }
 
 export type ExecutionResult = SuccessExecutionResult | PartialExecutionResult | ErrorExecutionResult
@@ -229,18 +191,4 @@ export type Tool = {
   input?: unknown
   output?: unknown
   metadata?: Record<string, any>
-}
-
-export type ObjProperty = { name: string; description?: string; type?: string; value?: unknown; writable?: boolean }
-export type Obj = { name: string; description: string; properties: ObjProperty[]; tools: Tool[] }
-
-export type CreateContext = {
-  id: `llmz_${string}`
-  instructions?: string
-  objects: Obj[]
-  tools: Tool[]
-  loop: number
-  temperature: number
-  model: string
-  transcript: OAI.Message[]
 }
