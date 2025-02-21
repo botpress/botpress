@@ -15,6 +15,7 @@ export default new sdk.PluginDefinition({
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
+  readme: 'hub.md',
   configuration: {
     schema: sdk.z.object({
       onHitlHandoffMessage: sdk.z
