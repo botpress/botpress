@@ -42,6 +42,11 @@ export class UnsupportedZuiToJsonSchemaError extends ZuiToJsonSchemaError {
     super(`Zod type ${type} cannot be transformed to JSON Schema.`)
   }
 }
+export class UnsupportedZuiCheckToJsonSchemaError extends ZuiToJsonSchemaError {
+  public constructor({ zodType, checkKind }: { zodType: ZodFirstPartyTypeKind; checkKind: string }) {
+    super(`Zod check .${checkKind}() of type ${zodType} cannot be transformed to JSON Schema.`)
+  }
+}
 
 // json-schema-to-zui-error
 export class JSONSchemaToZuiError extends ZuiTransformError {

@@ -37,7 +37,19 @@ type BaseZuiJsonSchema<Def extends Partial<z.ZodDef> = {}> = util.Satisfies<
   JSONSchema7
 >
 
-type _StringSchema = util.Satisfies<{ type: 'string' }, JSONSchema7> // TODO: support all string checks
+// From the JSON Schema spec: "Format is not limited to a specific set of valid values or types. Users may define their own custom keywords"
+type _ZodSpecificStringFormat = 'cuid' | 'cuid2' | 'emoji' | 'ulid'
+type _JsonSchemaStringFormat = 'date-time' | 'email' | 'ipv4' | 'ipv6' | 'uri' | 'uuid'
+type _StringSchema = util.Satisfies<
+  {
+    type: 'string'
+    pattern?: string
+    format?: _JsonSchemaStringFormat | _ZodSpecificStringFormat
+    minLength?: number
+    maxLength?: number
+  },
+  JSONSchema7
+>
 type _NumberSchema = util.Satisfies<{ type: 'number' | 'integer' }, JSONSchema7> // TODO: support all number checks
 type _BigIntSchema = util.Satisfies<{ type: 'integer' }, JSONSchema7> // TODO: support all bigint checks
 type _BooleanSchema = util.Satisfies<{ type: 'boolean' }, JSONSchema7>

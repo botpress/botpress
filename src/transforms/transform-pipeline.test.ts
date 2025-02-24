@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import z from '../z'
 import { toJsonSchema } from './zui-to-json-schema-next'
 import { fromJsonSchema } from './json-schema-to-zui-next'
+import * as errors from './common/errors'
 
 const assert = (src: z.Schema) => ({
   toTransformBackToItself: () => {
@@ -17,90 +18,179 @@ const assert = (src: z.Schema) => ({
   },
 })
 
-describe('transformPipeline', () => {
-  describe('ZodString', async () => {
+describe.concurrent('transformPipeline', () => {
+  describe.concurrent('ZodString', async () => {
     it('should map a string to itself', async () => {
+      // Arrange
       const srcSchema = z.string()
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
 
-    // TODO: enable and fix these tests
-
-    it.skip('should map a string with min to itself', async () => {
+    it('should map a string with min to itself', async () => {
+      // Arrange
       const srcSchema = z.string().min(1)
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
-    it.skip('should map a string with max to itself', async () => {
+    it('should map a string with max to itself', async () => {
+      // Arrange
       const srcSchema = z.string().max(1)
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
-    it.skip('should map a string with length to itself', async () => {
+    it('should map a string with length to itself', async () => {
+      // Arrange
       const srcSchema = z.string().length(1)
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
-    it.skip('should map a string with email to itself', async () => {
+    it('should map a string with email to itself', async () => {
+      // Arrange
       const srcSchema = z.string().email()
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
-    it.skip('should map a string with url to itself', async () => {
+    it('should map a string with url to itself', async () => {
+      // Arrange
       const srcSchema = z.string().url()
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
-    it.skip('should map a string with emoji to itself', async () => {
+    it('should map a string with emoji to itself', async () => {
+      // Arrange
       const srcSchema = z.string().emoji()
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
-    it.skip('should map a string with uuid to itself', async () => {
+    it('should map a string with uuid to itself', async () => {
+      // Arrange
       const srcSchema = z.string().uuid()
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
-    it.skip('should map a string with cuid to itself', async () => {
+    it('should map a string with cuid to itself', async () => {
+      // Arrange
       const srcSchema = z.string().cuid()
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
-    it.skip('should map a string with includes to itself', async () => {
-      const srcSchema = z.string().includes('foo')
-      assert(srcSchema).toTransformBackToItself()
-    })
-    it.skip('should map a string with cuid2 to itself', async () => {
+    it('should map a string with cuid2 to itself', async () => {
+      // Arrange
       const srcSchema = z.string().cuid2()
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
-    it.skip('should map a string with ulid to itself', async () => {
+    it('should map a string with ulid to itself', async () => {
+      // Arrange
       const srcSchema = z.string().ulid()
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
-    it.skip('should map a string with startsWith to itself', async () => {
-      const srcSchema = z.string().startsWith('foo')
-      assert(srcSchema).toTransformBackToItself()
-    })
-    it.skip('should map a string with endsWith to itself', async () => {
-      const srcSchema = z.string().endsWith('foo')
-      assert(srcSchema).toTransformBackToItself()
-    })
-    it.skip('should map a string with regex to itself', async () => {
+    it('should map a string with regex to itself', async () => {
+      // Arrange
       const srcSchema = z.string().regex(/foo/)
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
-    it.skip('should map a string with trim to itself', async () => {
-      const srcSchema = z.string().trim()
-      assert(srcSchema).toTransformBackToItself()
-    })
-    it.skip('should map a string with toLowerCase to itself', async () => {
-      const srcSchema = z.string().toLowerCase()
-      assert(srcSchema).toTransformBackToItself()
-    })
-    it.skip('should map a string with toUpperCase to itself', async () => {
-      const srcSchema = z.string().toUpperCase()
-      assert(srcSchema).toTransformBackToItself()
-    })
-    it.skip('should map a string with datetime to itself', async () => {
+    it('should map a string with datetime to itself', async () => {
+      // Arrange
       const srcSchema = z.string().datetime()
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
-    it.skip('should map a string with ip to itself', async () => {
-      const srcSchema = z.string().ip()
+    it('should map a string with datetime and precision/offset to itself', async () => {
+      // Arrange
+      const srcSchema = z.string().datetime({ offset: true, precision: 2 })
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
+    })
+    it('should map a string with ip to itself', async () => {
+      // Arrange
+      const srcSchema = z.string().ip()
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+    it('should map a string with includes to a matching regex', async () => {
+      // Arrange
+      const srcSchema = z.string().includes('foo')
+
+      // Act
+      const dstSchema = fromJsonSchema(toJsonSchema(srcSchema)) as z.ZodString
+
+      // Assert
+      const check = dstSchema._def.checks[0]
+      expect(check?.kind).toBe('regex')
+      expect(check?.kind === 'regex' && check.regex.source).toBe('foo')
+    })
+    it('should map a string with startsWith to a matching regex', async () => {
+      // Arrange
+      const srcSchema = z.string().startsWith('foo')
+
+      // Act
+      const dstSchema = fromJsonSchema(toJsonSchema(srcSchema)) as z.ZodString
+
+      // Assert
+      const check = dstSchema._def.checks[0]
+      expect(check?.kind).toBe('regex')
+      expect(check?.kind === 'regex' && check.regex.source).toBe('^foo')
+    })
+    it('should map a string with endsWith to a matching regex', async () => {
+      // Arrange
+      const srcSchema = z.string().endsWith('foo')
+
+      // Act
+      const dstSchema = fromJsonSchema(toJsonSchema(srcSchema)) as z.ZodString
+
+      // Assert
+      const check = dstSchema._def.checks[0]
+      expect(check?.kind).toBe('regex')
+      expect(check?.kind === 'regex' && check.regex.source).toBe('foo$')
+    })
+    it('throws UnsupportedZuiCheckToJsonSchemaError when using .trim', async () => {
+      // Arrange
+      const srcSchema = z.string().trim()
+
+      // Act
+      const act = () => toJsonSchema(srcSchema)
+
+      // Assert
+      expect(act).toThrowError(errors.UnsupportedZuiCheckToJsonSchemaError)
+    })
+    it('throws UnsupportedZuiCheckToJsonSchemaError when using .toLowerCase', async () => {
+      // Arrange
+      const srcSchema = z.string().toLowerCase()
+
+      // Act
+      const act = () => toJsonSchema(srcSchema)
+
+      // Assert
+      expect(act).toThrowError(errors.UnsupportedZuiCheckToJsonSchemaError)
+    })
+    it('throws UnsupportedZuiCheckToJsonSchemaError when using .toUpperCase', async () => {
+      // Arrange
+      const srcSchema = z.string().toUpperCase()
+
+      // Act
+      const act = () => toJsonSchema(srcSchema)
+
+      // Assert
+      expect(act).toThrowError(errors.UnsupportedZuiCheckToJsonSchemaError)
     })
   })
 

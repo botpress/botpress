@@ -2,6 +2,7 @@ import { ZuiExtensionObject } from '../../ui/types'
 import z from '../../z'
 import * as json from '../common/json-schema'
 import * as err from '../common/errors'
+import { zodStringToJsonString } from './type-processors/string'
 
 /**
  * # \#\#\# Experimental \#\#\#
@@ -16,7 +17,7 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
 
   switch (def.typeName) {
     case z.ZodFirstPartyTypeKind.ZodString:
-      return { type: 'string', 'x-zui': def['x-zui'] } satisfies json.StringSchema
+      return zodStringToJsonString(schemaTyped as z.ZodString) satisfies json.StringSchema
 
     case z.ZodFirstPartyTypeKind.ZodNumber:
       const type = def.checks.some((check) => check.kind === 'int') ? 'integer' : 'number'

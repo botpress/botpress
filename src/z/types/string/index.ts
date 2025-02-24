@@ -18,6 +18,7 @@ import {
   ParseStatus,
 } from '../index'
 import { CustomSet } from '../utils/custom-set'
+import { generateDatetimeRegex } from './datetime'
 
 export type IpVersion = 'v4' | 'v6'
 export type ZodStringCheck =
@@ -70,30 +71,7 @@ export const ipv4Regex =
   /^(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))$/
 export const ipv6Regex =
   /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/
-// Adapted from https://stackoverflow.com/a/3143231
-export const datetimeRegex = (args: { precision: number | null; offset: boolean }) => {
-  if (args.precision) {
-    if (args.offset) {
-      return new RegExp(
-        `^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{${args.precision}}(([+-]\\d{2}(:?\\d{2})?)|Z)$`,
-      )
-    } else {
-      return new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{${args.precision}}Z$`)
-    }
-  } else if (args.precision === 0) {
-    if (args.offset) {
-      return new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(([+-]\\d{2}(:?\\d{2})?)|Z)$`)
-    } else {
-      return new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$`)
-    }
-  } else {
-    if (args.offset) {
-      return new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(([+-]\\d{2}(:?\\d{2})?)|Z)$`)
-    } else {
-      return new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$`)
-    }
-  }
-}
+
 function isValidIP(ip: string, version?: IpVersion) {
   if ((version === 'v4' || !version) && ipv4Regex.test(ip)) {
     return true
@@ -306,7 +284,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           status.dirty()
         }
       } else if (check.kind === 'datetime') {
-        const regex = datetimeRegex(check)
+        const regex = generateDatetimeRegex(check)
 
         if (!regex.test(input.data)) {
           ctx = this._getOrReturnCtx(input, ctx)

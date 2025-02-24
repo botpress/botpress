@@ -1,4 +1,4 @@
-import { JSONSchema7, JSONSchema7Definition, JSONSchema7Type } from 'json-schema'
+import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
 import * as errors from '../common/errors'
 import * as guards from './guards'
 import z from '../../z'
