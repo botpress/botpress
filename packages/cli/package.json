@@ -20,7 +20,7 @@
   "main": "dist/index.js",
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^11.7.0",
-    "@botpress/chat": "0.5.0",
+    "@botpress/chat": "0.5.1",
     "@botpress/client": "0.45.0",
     "@botpress/sdk": "3.2.0",
     "@bpinternal/const": "^0.0.20",
