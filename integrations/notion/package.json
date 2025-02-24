@@ -10,7 +10,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@notionhq/client": "^2.2.7"
+    "@notionhq/client": "^2.2.16"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

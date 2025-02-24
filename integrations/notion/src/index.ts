@@ -1,11 +1,6 @@
-import { addCommentToDiscussion, addCommentToPage, addPageToDb, deleteBlock, getDb } from './actions'
+import { NotionClient } from './notion'
+import { getOAuthToken, handleOAuthCallback } from './oauth'
 import * as bp from '.botpress'
-
-class NotImplementedError extends Error {
-  public constructor() {
-    super('Not implemented')
-  }
-}
 
 export default new bp.Integration({
   createConversation: async ({ client, channel }) => {
@@ -23,13 +18,74 @@ export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
-    deleteBlock,
-    addCommentToDiscussion,
-    addCommentToPage,
-    addPageToDb,
-    getDb,
+    addCommentToDiscussion: async ({ client, ctx, input }) => {
+      const auth = await getOAuthToken({ ctx, client })
+      const notion = new NotionClient({
+        auth,
+      })
+      await notion.comments.create({
+        discussion_id: input.discussionId,
+        rich_text: [
+          {
+            type: 'text',
+            text: {
+              content: input.commentBody,
+            },
+          },
+        ],
+      })
+
+      return {}
+    },
+    addCommentToPage: async ({ client, ctx, input }) => {
+      const auth = await getOAuthToken({ ctx, client })
+      const notion = new NotionClient({
+        auth,
+      })
+      return notion.comments.create({
+        parent: { page_id: input.pageId },
+        rich_text: [
+          {
+            type: 'text',
+            text: {
+              content: input.commentBody,
+            },
+          },
+        ],
+      })
+    },
+    getConnectedWorkspace: async ({ client, ctx }) => {
+      const { state } = await client.getState({
+        id: ctx.integrationId,
+        name: 'oauth',
+        type: 'integration',
+      })
+      return {
+        workspace_icon: state.payload.workspace_icon,
+        owner: state.payload.owner,
+        workspace_id: state.payload.workspace_id,
+        workspace_name: state.payload.workspace_name,
+      }
+    },
+    listPages: async ({ client, ctx }) => {
+      const auth = await getOAuthToken({ ctx, client })
+      const notion = new NotionClient({
+        auth,
+      })
+      const pages = await notion.listPages()
+      return {
+        meta: {},
+        items: pages,
+      }
+    },
   },
-  handler: async () => {
-    throw new NotImplementedError()
+  handler: async (props) => {
+    const { req, logger } = props
+    if (req.path.startsWith('/oauth')) {
+      logger.forBot().info('Handling Notion OAuth callback')
+
+      await handleOAuthCallback(props)
+    }
+    return
   },
 })
