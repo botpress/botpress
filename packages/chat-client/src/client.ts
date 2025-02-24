@@ -127,6 +127,11 @@ export class Client implements IClient {
     }
   }
 
+  /**
+   * The Chat-API is called like any other integrations by sending requests to the bridge webhook endpoint.
+   * This endpoint may return a successful status code even when the payload contains an error.
+   * This method parses the payload to check for an error and throws an error if one is found.
+   */
   private _checkPayloadForError = <T>(response: unknown): T => {
     if (typeof response !== 'object' || response === null) {
       return response as T
