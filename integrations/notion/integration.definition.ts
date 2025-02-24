@@ -17,9 +17,6 @@ export default new IntegrationDefinition({
     schema: z.object({}),
   },
   user: { tags: { id: {} } },
-  identifier: {
-    extractScript: 'extract.vrl',
-  },
   secrets: {
     CLIENT_ID: {
       description: 'The client ID of  Botpress Notion Integration.',
