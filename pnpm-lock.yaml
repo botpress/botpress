@@ -93,6 +93,12 @@ importers:
         specifier: ^2.1.4
         version: 2.1.4(@types/node@18.19.67)
 
+  bots/agentic:
+    dependencies:
+      '@botpress/adk':
+        specifier: workspace:*
+        version: link:../../packages/adk
+
   bots/bugbuster:
     dependencies:
       '@botpress/client':
@@ -1707,6 +1713,28 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+
+  packages/adk:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../sdk
+      '@bpinternal/yargs-extra':
+        specifier: ^0.0.3
+        version: 0.0.3
+      '@parcel/watcher':
+        specifier: ^2.1.0
+        version: 2.1.0
+    devDependencies:
+      esbuild:
+        specifier: ^0.16.12
+        version: 0.16.17
+      glob:
+        specifier: ^9.3.4
+        version: 9.3.5
 
   packages/chat-api:
     dependencies:

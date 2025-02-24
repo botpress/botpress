@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "dev": "adk dev"
+  },
+  "dependencies": {
+    "@botpress/adk": "workspace:*"
+  }
+}

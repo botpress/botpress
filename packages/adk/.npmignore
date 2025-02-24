@@ -1,0 +1,10 @@
+node_modules
+tsconfig.tsbuildinfo
+
+/src
+/e2e
+/tsconfig.json
+
+/templates/*/dist
+/templates/*/node_modules
+build.ts

@@ -1,0 +1,32 @@
+{
+  "name": "@botpress/adk",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "require": "./dist/index.js",
+    "import": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "pnpm build:type && pnpm build:node",
+    "build:type": "tsc --emitDeclarationOnly --declaration",
+    "build:node": "ts-node -T ./build.ts"
+  },
+  "bin": {
+    "adk": "./bin.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@bpinternal/yargs-extra": "^0.0.3",
+    "@parcel/watcher": "^2.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.16.12",
+    "glob": "^9.3.4"
+  }
+}
