@@ -1,6 +1,6 @@
 {
   "name": "@botpress/chat",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Botpress Chat API Client",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
