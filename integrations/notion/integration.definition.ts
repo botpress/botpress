@@ -4,10 +4,10 @@ import listable from 'bp_modules/listable'
 import { NotionEntities } from 'src/notion'
 
 export default new IntegrationDefinition({
-  name: 'notion-better',
-  description: 'Add pages and comments, manage databases, and engage in discussions — all within your chatbot.',
+  name: 'notion',
+  description: 'Import files from Notion to Botpress',
   title: 'Notion',
-  version: '0.3.5',
+  version: '1.0.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import { NotionClient } from './notion'
 import * as bp from '.botpress'
 
@@ -26,7 +27,7 @@ export const handleOAuthCallback: bp.IntegrationProps['handler'] = async ({ req,
     code: searchParams.get('code') ?? '',
     redirect_uri: bp.secrets.REDIRECT_URI,
   })
-  const state = await client.getOrSetState({
+  await client.getOrSetState({
     type: 'integration',
     name: 'oauth',
     id: ctx.integrationId,
@@ -34,6 +35,6 @@ export const handleOAuthCallback: bp.IntegrationProps['handler'] = async ({ req,
   })
 
   await client.configureIntegration({
-    identifier: state.state.payload.bot_id,
+    identifier: randomUUID(),
   })
 }
