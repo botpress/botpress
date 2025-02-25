@@ -69,7 +69,7 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     )
   }
 
-  get _metadataRoot() {
-    return this._def.innerType._metadataRoot
+  unwrap() {
+    return this._def.innerType.naked()
   }
 }

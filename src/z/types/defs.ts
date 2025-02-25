@@ -47,9 +47,9 @@ export type ZodDef =
   | ZodDefaultDef // contains functions
   | ZodCatchDef // contains functions
   | ZodReadonlyDef
-  | ZodDiscriminatedUnionDef<any>
-  | ZodBrandedDef<any>
-  | ZodPipelineDef<any, any>
+  | ZodDiscriminatedUnionDef
+  | ZodBrandedDef
+  | ZodPipelineDef
   | ZodAnyDef
   | ZodUnknownDef
   | ZodNeverDef

@@ -40,7 +40,7 @@ export class ZodLazy<T extends ZodTypeAny = ZodTypeAny> extends ZodType<output<T
     return this._def.getter().isEqual(schema._def.getter())
   }
 
-  get _metadataRoot() {
-    return this._def.getter()._metadataRoot
+  naked() {
+    return this._def.getter().naked()
   }
 }

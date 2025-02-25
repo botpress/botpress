@@ -50,6 +50,9 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
     return this._def.schema
   }
 
+  /**
+   * @deprecated use naked() instead
+   */
   sourceType(): T {
     return this._def.schema._def.typeName === ZodFirstPartyTypeKind.ZodEffects
       ? (this._def.schema as unknown as ZodEffects<T>).sourceType()
@@ -236,8 +239,8 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
     return false
   }
 
-  get _metadataRoot() {
-    return this._def.schema._metadataRoot
+  naked() {
+    return this._def.schema.naked()
   }
 }
 export { ZodEffects as ZodTransformer }

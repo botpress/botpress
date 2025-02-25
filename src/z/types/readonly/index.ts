@@ -78,7 +78,7 @@ export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.isEqual(schema._def.innerType)
   }
 
-  get _metadataRoot() {
-    return this._def.innerType._metadataRoot
+  naked() {
+    return this._def.innerType.naked()
   }
 }

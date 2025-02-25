@@ -524,7 +524,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * This property is used to get the root schema that should contain the metadata.
    */
   get _metadataRoot(): ZodType {
-    return this
+    return this.naked()
   }
 
   /**
@@ -635,27 +635,11 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     return jsonSchemaToZui(schema)
   }
 
-  naked(): this {
-    if ('unwrap' in this && typeof this.unwrap === 'function') {
-      return this.unwrap().naked() as this
-    }
-
-    if ('sourceType' in this && typeof this.sourceType === 'function') {
-      return this.sourceType().naked() as this
-    }
-
-    if ('removeCatch' in this && typeof this.removeCatch === 'function') {
-      return this.removeCatch().naked() as this
-    }
-
-    if ('innerType' in this && this.innerType instanceof ZodType) {
-      return this.innerType.naked() as this
-    }
-
-    if ('schema' in this && this.schema instanceof ZodType) {
-      return this.schema.naked() as this
-    }
-
+  /**
+   * Allows removing all wrappers around the schema
+   * @returns either this or the closest children schema that represents the actual data
+   */
+  naked(): ZodTypeAny {
     return this
   }
 }

@@ -38,7 +38,7 @@ export class ZodBranded<T extends ZodTypeAny = ZodTypeAny, B extends Key = Key> 
     return this._def.type.isEqual(schema._def.type)
   }
 
-  get _metadataRoot() {
-    return this._def.type._metadataRoot
+  naked(): ZodTypeAny {
+    return this._def.type.naked()
   }
 }
