@@ -147,6 +147,13 @@ const _handleHitlCloseCommand = async (
     }),
   ])
 
+  props.logger
+    .withConversationId(upstreamCm.conversationId)
+    .info('User ended the HITL session using the termination command')
+  props.logger
+    .withConversationId(downstreamCm.conversationId)
+    .info('User ended the HITL session using the termination command')
+
   try {
     // Call stopHitl in the hitl integration (zendesk, etc.):
     await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
