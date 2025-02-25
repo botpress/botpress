@@ -1,5 +1,10 @@
 import * as client from '@botpress/client'
-import { DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE } from 'plugin.definition'
+import {
+  DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
+  DEFAULT_USER_HITL_CANCELLED_MESSAGE,
+  DEFAULT_USER_HITL_CLOSE_COMMAND,
+  DEFAULT_USER_HITL_COMMAND_MESSAGE,
+} from 'plugin.definition'
 import * as conv from '../conv-manager'
 import * as bp from '.botpress'
 
@@ -70,11 +75,6 @@ const _handleUpstreamMessage = async (
     return STOP_MESSAGE_HANDLING
   }
 
-  const text: string = props.data.payload.text
-  if (text.trim().startsWith('/')) {
-    return LET_BOT_HANDLE_MESSAGE // TODO: remove this
-  }
-
   const { user: upstreamUser } = await props.client.getUser({ id: props.data.userId })
 
   const downstreamConversationId = upstreamConversation.tags['downstream']
@@ -99,10 +99,15 @@ const _handleUpstreamMessage = async (
 
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
 
+  if (_isHitlCloseCommand(props)) {
+    await _handleHitlCloseCommand(props, { downstreamCm, upstreamCm })
+    return STOP_MESSAGE_HANDLING
+  }
+
   props.logger.withConversationId(upstreamConversation.id).info('Sending message to downstream')
   await downstreamCm.respond({
     userId: downstreamUserId,
-    text,
+    text: props.data.payload.text,
   })
 
   return STOP_MESSAGE_HANDLING
@@ -122,10 +127,37 @@ const _abortHitlSession = async ({
   props.logger.withConversationId(cm.conversationId).error(internalReason)
 
   await cm.abortHitlSession(reasonShownToUser)
-  await props.actions.hitl.stopHitl({
-    conversationId: cm.conversationId,
-    reason: 'cancel',
-  })
 
   return STOP_MESSAGE_HANDLING
+}
+
+const _isHitlCloseCommand = (props: bp.HookHandlerProps['before_incoming_message']) =>
+  props.data.payload.text.trim().startsWith(props.configuration.userHitlCloseCommand ?? DEFAULT_USER_HITL_CLOSE_COMMAND)
+
+const _handleHitlCloseCommand = async (
+  props: bp.HookHandlerProps['before_incoming_message'],
+  { downstreamCm, upstreamCm }: { downstreamCm: conv.ConversationManager; upstreamCm: conv.ConversationManager }
+) => {
+  await Promise.allSettled([
+    downstreamCm.respond({
+      text: props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
+    }),
+    upstreamCm.respond({
+      text: props.configuration.onUserHitlCloseMessage ?? DEFAULT_USER_HITL_COMMAND_MESSAGE,
+    }),
+  ])
+
+  props.logger
+    .withConversationId(upstreamCm.conversationId)
+    .info('User ended the HITL session using the termination command')
+  props.logger
+    .withConversationId(downstreamCm.conversationId)
+    .info('User ended the HITL session using the termination command')
+
+  try {
+    // Call stopHitl in the hitl integration (zendesk, etc.):
+    await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
+  } finally {
+    await Promise.all([upstreamCm.setHitlInactive(), downstreamCm.setHitlInactive()])
+  }
 }

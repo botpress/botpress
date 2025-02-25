@@ -8,10 +8,13 @@ export const DEFAULT_HITL_STOPPED_MESSAGE = 'The human agent closed the conversa
 export const DEFAULT_USER_HITL_CANCELLED_MESSAGE = '( The user has ended the session. )'
 export const DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE =
   'Sorry, the user can only receive text messages. Please resend your message as a text message.'
+export const DEFAULT_USER_HITL_CLOSE_COMMAND = '/end'
+export const DEFAULT_USER_HITL_COMMAND_MESSAGE =
+  'You have ended the session with the human agent. I will continue assisting you.'
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.1.2',
+  version: '0.2.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -50,6 +53,18 @@ export default new sdk.PluginDefinition({
         )
         .optional()
         .placeholder(DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE),
+      userHitlCloseCommand: sdk.z
+        .string()
+        .title('Termination Command')
+        .describe('Users may use this command to end the hitl session at any time')
+        .optional()
+        .placeholder(DEFAULT_USER_HITL_CLOSE_COMMAND),
+      onUserHitlCloseMessage: sdk.z
+        .string()
+        .title('Termination Command Message')
+        .describe('The message to send to the user when they end the hitl session using the termination command')
+        .optional()
+        .placeholder(DEFAULT_USER_HITL_COMMAND_MESSAGE),
     }),
   },
   actions: {
