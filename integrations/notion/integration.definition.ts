@@ -1,7 +1,7 @@
 /* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import listable from 'bp_modules/listable'
 import { NotionEntities } from 'src/notion'
+import listable from './bp_modules/listable'
 
 export default new IntegrationDefinition({
   name: 'notion',
