@@ -2,6 +2,7 @@ import { z } from '@botpress/sdk'
 import { Client as NotionBaseClient } from '@notionhq/client'
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import { ClientOptions } from '@notionhq/client/build/src/Client'
+import { NotionToMarkdown } from 'notion-to-md'
 
 export namespace NotionEntities {
   export const Page = z.object({
@@ -80,6 +81,18 @@ export class NotionClient extends NotionBaseClient {
     super(options)
   }
 
+  public async getPageContent(id: string) {
+    const n2m = new NotionToMarkdown({
+      notionClient: this,
+      config: {
+        parseChildPages: false,
+      },
+    })
+    const mdblocks = await n2m.pageToMarkdown(id)
+    const mdString = n2m.toMarkdownString(mdblocks)
+    return mdString.parent || ''
+  }
+
   // TODO: add pagination
   public async listPages(): Promise<NotionEntities.Page[]> {
     const response = await this.search({
@@ -116,7 +129,9 @@ export class NotionClient extends NotionBaseClient {
     }
     return ''
   }
-
+  /**
+   * Duck test for PageObjectResponse
+   */
   public static isPageObjectResponse(response: any): response is PageObjectResponse {
     return response.object === 'page' && 'parent' in response && 'properties' in response && 'created_time' in response
   }

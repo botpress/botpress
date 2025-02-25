@@ -1063,6 +1063,9 @@ importers:
       '@notionhq/client':
         specifier: ^2.2.16
         version: 2.2.16
+      notion-to-md:
+        specifier: ^3.1.6
+        version: 3.1.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -12943,6 +12946,12 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
+  /markdown-table@2.0.0:
+    resolution: {integrity: sha512-Ezda85ToJUBhM6WGaG6veasyym+Tbs3cMAw/ZhOPqXiYsr0jgocBV3j3nx+4lk47plLlIqjwuTm/ywVI+zjJ/A==}
+    dependencies:
+      repeat-string: 1.6.1
+    dev: false
+
   /marked@13.0.2:
     resolution: {integrity: sha512-J6CPjP8pS5sgrRqxVRvkCIkZ6MFdRIjDkwUwgJ9nL2fbmM6qGQeB2C16hi8Cc9BOzj6xXzy0jyi0iPIfnMHYzA==}
     engines: {node: '>= 18'}
@@ -13295,6 +13304,16 @@ packages:
   /normalize-url@4.5.1:
     resolution: {integrity: sha512-9UZCFRHQdNrfTpGg8+1INIg93B6zE0aXMVFkw1WFwvO4SlZywU6aLg5Of0Ap/PgcbSw4LNxvMWXMeugwMCX0AA==}
     engines: {node: '>=8'}
+    dev: false
+
+  /notion-to-md@3.1.6:
+    resolution: {integrity: sha512-rMfGrX34TBmmUelIIdEfAue/iojrhFVFO19+xrhdGzMAoSmY3m93J9r+c4/nX7rZ8HL1bFg7NwDhw7UcBqhC8Q==}
+    engines: {node: '>=12'}
+    dependencies:
+      markdown-table: 2.0.0
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /npm-run-path@4.0.1:
@@ -14215,6 +14234,11 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       rc: 1.2.8
+    dev: false
+
+  /repeat-string@1.6.1:
+    resolution: {integrity: sha512-PV0dzCYDNfRi1jCDbJzpW7jNNDRuCOG/jI5ctQcGKt/clZD+YcPS3yIlWuTJMmESC8aevCFmWJy5wjAFgNqN6w==}
+    engines: {node: '>=0.10'}
     dev: false
 
   /request@2.88.2:

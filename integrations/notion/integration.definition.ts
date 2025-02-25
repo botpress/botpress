@@ -70,6 +70,35 @@ export default new IntegrationDefinition({
         }),
       },
     },
+    createFilesFromPages: {
+      input: {
+        schema: z
+          .object({
+            pages: z.array(
+              z.object({
+                id: z.string().describe('The ID of the Notion page to be uploaded to a botpress file'),
+                // We don't want to validate this because that's file API's job
+                fileProps: z
+                  .object({})
+                  .passthrough()
+                  .describe(
+                    'File size will be overriden with the actual size of the page. Refer to https://botpress.com/reference/upsertfile'
+                  ),
+              })
+            ),
+          })
+          .describe('Converts Notion pages to Botpress files'),
+      },
+      output: {
+        schema: z.object({
+          files: z.array(
+            z.object({
+              id: z.string(),
+            })
+          ),
+        }),
+      },
+    },
   },
   entities: {
     page: {

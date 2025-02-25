@@ -78,6 +78,38 @@ export default new bp.Integration({
         items: pages,
       }
     },
+    createFilesFromPages: async ({ client, ctx, input }) => {
+      const auth = await getOAuthToken({ ctx, client })
+      const notion = new NotionClient({
+        auth,
+      })
+
+      const files = await Promise.all(
+        input.pages.map(async (page) => {
+          const content = await notion.getPageContent(page.id)
+          if (!content) {
+            return
+          }
+          const buffer = Buffer.from(content ?? '', 'utf-8')
+
+          const { file } = await client.upsertFile({
+            ...(page.fileProps as any),
+            size: buffer.byteLength,
+          })
+
+          await fetch(file.uploadUrl, {
+            method: 'PUT',
+            body: buffer,
+          })
+
+          return file
+        })
+      )
+
+      return {
+        files: files.filter((f) => f !== undefined),
+      }
+    },
   },
   handler: async (props) => {
     const { req, logger } = props
