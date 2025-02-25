@@ -1,76 +1,24 @@
-name: Deploy Integrations Staging
-
-on:
-  push:
-    branches:
-      - master
-
-  pull_request:
-    paths: 'integrations/**'
-
-  workflow_dispatch:
-    inputs:
-      force:
-        description: 'Force re-deploying integrations'
-        type: boolean
-        required: false
-        default: false
-
-permissions:
-  id-token: write
-  contents: read
-
-jobs:
-  deploy-staging:
-    runs-on: depot-ubuntu-22.04-8
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup
-        uses: ./.github/actions/setup
-      - name: Deploy Interfaces
-        uses: ./.github/actions/deploy-interfaces
-        if: ${{ github.event_name != 'pull_request' }}
-        with:
-          environment: 'staging'
-          force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
-          token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
-          cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
-      - name: Deploy Integrations
-        uses: ./.github/actions/deploy-integrations
-        with:
-          environment: 'staging'
-          force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
-          dry_run: ${{ github.event_name == 'pull_request' }}
-          sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
-          cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
-          googledrive_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GDRIVE_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GDRIVE_CLIENT_SECRET }} --secrets WEBHOOK_SECRET=${{ secrets.STAGING_GDRIVE_WEBHOOK_SECRET }}'
-          gmail_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GMAIL_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GMAIL_CLIENT_SECRET }} --secrets TOPIC_NAME=${{ secrets.STAGING_GMAIL_TOPIC_NAME }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.STAGING_GMAIL_WEBHOOK_SHARED_SECRET }} --secrets WEBHOOK_SERVICE_ACCOUNT=${{ secrets.STAGING_GMAIL_WEBHOOK_SERVICE_ACCOUNT }}'
-          gsheets_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GSHEETS_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GSHEETS_CLIENT_SECRET }}'
-          googlecalendar_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GOOGLECALENDAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GOOGLECALENDAR_CLIENT_SECRET }}'
-          linear_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_LINEAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_LINEAR_CLIENT_SECRET }} --secrets WEBHOOK_SIGNING_SECRET=${{ secrets.STAGING_LINEAR_WEBHOOK_SIGNING_SECRET }}'
-          slack_secrets: --secrets CLIENT_ID=${{ secrets.STAGING_SLACK_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_SLACK_CLIENT_SECRET }} --secrets SIGNING_SECRET=${{ secrets.STAGING_SLACK_SIGNING_SECRET }}
-          charts_secrets: '--secrets QUICKCHARTS_API_KEY=${{ secrets.QUICKCHARTS_API_KEY }}'
-          whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.STAGING_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.STAGING_WHATSAPP_NUMBER_PIN }} --secrets SEGMENT_KEY=${{ secrets.STAGING_WHATSAPP_SEGMENT_KEY }} --secrets VERIFY_TOKEN=${{ secrets.META_VERIFY_TOKEN }}'
-          pdf_secrets: '--secrets PDFSHIFT_API_KEY=${{ secrets.PDFSHIFT_API_KEY }}'
-          browser_secrets: '--secrets FIRECRAWL_API_KEY=${{ secrets.FIRECRAWL_API_KEY }} --secrets SCREENSHOT_API_KEY=${{ secrets.SCREENSHOT_API_KEY }}'
-          openai_secrets: '--secrets OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}'
-          groq_secrets: '--secrets GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}'
-          anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
-          fireworks_ai_secrets: '--secrets FIREWORKS_AI_API_KEY=${{ secrets.FIREWORKS_AI_API_KEY }}'
-          todoist_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_TODOIST_CLIENT_SECRET }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.STAGING_TODOIST_WEBHOOK_SHARED_SECRET }}'
-          cerebras_secrets: '--secrets CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}'
-          messenger_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_MESSENGER_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_MESSENGER_CLIENT_SECRET  }} --secrets ACCESS_TOKEN=${{ secrets.STAGING_MESSENGER_ACCESS_TOKEN  }} --secrets VERIFY_TOKEN=${{ secrets.META_VERIFY_TOKEN }}'
-          github_secrets: "--secrets GITHUB_APP_ID=${{ secrets.STAGING_GITHUB_APP_ID }} --secrets 'GITHUB_PRIVATE_KEY=${{ secrets.STAGING_GITHUB_PRIVATE_KEY }}' --secrets GITHUB_WEBHOOK_SECRET=${{ secrets.STAGING_GITHUB_WEBHOOK_SECRET }}"
-          google_ai_secrets: '--secrets GOOGLE_AI_API_KEY=${{ secrets.GOOGLE_AI_API_KEY }}'
-          intercom_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_INTERCOM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_INTERCOM_CLIENT_SECRET }}'
-          instagram_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_INSTAGRAM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_INSTAGRAM_CLIENT_SECRET }} --secrets VERIFY_TOKEN=${{ secrets.STAGING_INSTAGRAM_VERIFY_TOKEN }}'
-          notion_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_NOTION_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_NOTION_CLIENT_SECRET }} --secrets WEBHOOK_URL=${{ secrets.STAGING_NOTION_WEBHOOK_URL }}'
-      - name: Deploy Plugins
-        uses: ./.github/actions/deploy-plugins
-        if: ${{ github.event_name != 'pull_request' }}
-        with:
-          environment: 'staging'
-          force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
-          token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
-          cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
+            - نام: محیط Setup Node.js
+  موارد استفاده: actions/setup-node@v4.2.0
+  با:
+    # همیشه تأیید اعتبار را در npmrc تنظیم کنید.
+    همیشه-auth: # اختیاری، پیش‌فرض نادرست است
+    # مشخصات نسخه نسخه مورد استفاده. مثال‌ها: 12.x، 10.15.1، >=10.15.0.
+    node-version: # اختیاری
+    # فایل حاوی مشخصات نسخه نسخه مورد استفاده. مثال‌ها: package.json، .nvmrc، .node-version، .tool-versions.
+    node-version-file: # اختیاری
+    # معماری هدف برای استفاده Node. مثال: x86، x64. به طور پیش فرض از معماری سیستم استفاده می کند.
+    معماری: # اختیاری
+    # اگر می‌خواهید اکشن آخرین نسخه موجود را که مشخصات نسخه را برآورده می‌کند بررسی کند، این گزینه را تنظیم کنید.
+    بررسی آخرین: # اختیاری
+    # رجیستری اختیاری برای تنظیم برای احراز هویت. رجیستری را در یک فایل سطح پروژه .npmrc و yarnrc. تنظیم می کند و auth را برای خواندن از env.NODE_AUTH_TOKEN تنظیم می کند.
+    registry-url: # اختیاری
+    # محدوده اختیاری برای احراز هویت در برابر رجیستری های محدوده. هنگام استفاده از رجیستری بسته های GitHub (https://npm.pkg.github.com/) به مالک مخزن باز می گردد.
+    دامنه: # اختیاری
+    # برای بیرون کشیدن توزیع های گره از نسخه های گره استفاده می شود. از آنجایی که یک پیش‌فرض وجود دارد، این معمولاً توسط کاربر ارائه نمی‌شود. هنگام اجرای این عمل در github.com، مقدار پیش فرض کافی است. هنگامی که در GHES اجرا می‌کنید، اگر با محدودیت نرخ مواجه هستید، می‌توانید یک نشانه دسترسی شخصی برای github.com ارسال کنید.
+    نشانه: # اختیاری، پیش‌فرض ${{ github.server_url == 'https://github.com' && github.token || '' }}
+    # برای تعیین یک مدیر بسته برای ذخیره سازی در فهرست پیش فرض استفاده می شود. مقادیر پشتیبانی شده: npm، نخ، pnpm.
+    حافظه پنهان: # اختیاری
+    # برای تعیین مسیر فایل وابستگی استفاده می‌شود: package-lock.json، yarn.lock، و غیره.
+    cache-dependency-path: # اختیاری
+          
