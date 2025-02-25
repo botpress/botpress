@@ -127,10 +127,6 @@ const _abortHitlSession = async ({
   props.logger.withConversationId(cm.conversationId).error(internalReason)
 
   await cm.abortHitlSession(reasonShownToUser)
-  await props.actions.hitl.stopHitl({
-    conversationId: cm.conversationId,
-    reason: 'cancel',
-  })
 
   return STOP_MESSAGE_HANDLING
 }
