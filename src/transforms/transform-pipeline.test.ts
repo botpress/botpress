@@ -194,14 +194,124 @@ describe.concurrent('transformPipeline', () => {
     })
   })
 
-  describe('ZodNumber', async () => {
+  describe.concurrent('ZodNumber', async () => {
     it('should map a number to itself', async () => {
+      // Arrange
       const srcSchema = z.number()
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
 
     it('should map an int to itself', async () => {
+      // Arrange
       const srcSchema = z.number().int()
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with gt to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().gt(5)
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with gte to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().gte(5)
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with min to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().min(5)
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with lt to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().lt(5)
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with lte to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().lte(5)
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with max to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().max(5)
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with positive to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().positive()
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with nonnegative to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().nonnegative()
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with negative to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().negative()
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with nonpositive to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().nonpositive()
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with multipleOf to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().multipleOf(5)
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with finite to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().finite()
+
+      // Act & Assert
+      assert(srcSchema).toTransformBackToItself()
+    })
+
+    it('should map a number with safe to itself', async () => {
+      // Arrange
+      const srcSchema = z.number().safe()
+
+      // Act & Assert
       assert(srcSchema).toTransformBackToItself()
     })
   })

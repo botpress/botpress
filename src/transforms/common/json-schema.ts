@@ -50,7 +50,19 @@ type _StringSchema = util.Satisfies<
   },
   JSONSchema7
 >
-type _NumberSchema = util.Satisfies<{ type: 'number' | 'integer' }, JSONSchema7> // TODO: support all number checks
+type _ZodSpecificNumberFormat = 'finite'
+type _NumberSchema = util.Satisfies<
+  {
+    type: 'number' | 'integer'
+    minimum?: number
+    exclusiveMinimum?: number
+    maximum?: number
+    exclusiveMaximum?: number
+    multipleOf?: number
+    format?: _ZodSpecificNumberFormat
+  },
+  JSONSchema7
+>
 type _BigIntSchema = util.Satisfies<{ type: 'integer' }, JSONSchema7> // TODO: support all bigint checks
 type _BooleanSchema = util.Satisfies<{ type: 'boolean' }, JSONSchema7>
 type _DateSchema = util.Satisfies<{ type: 'string'; format: 'date-time' }, JSONSchema7> // TODO: support all date checks

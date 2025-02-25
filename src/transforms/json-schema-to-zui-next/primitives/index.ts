@@ -1,6 +1,7 @@
 import { JSONSchema7, JSONSchema7Type } from 'json-schema'
 import * as errs from '../../common/errors'
 import z from '../../../z'
+import { numberJSONSchemaToZuiNumber } from './number'
 import { stringJSONSchemaToZuiString } from './string'
 
 type ZuiPrimitive = keyof ZuiPrimitiveSchemas
@@ -37,8 +38,10 @@ export const toZuiPrimitive = <T extends ZuiPrimitive>(type: T, schema: JSONSche
     if (type === 'string' && schema.type === 'string') {
       return stringJSONSchemaToZuiString(schema as JSONSchema7 & { type: 'string' }) as ZuiPrimitiveSchemas[T]
     }
-    if (type === 'number') {
-      return z.number() as ZuiPrimitiveSchemas[T]
+    if (type === 'number' && (schema.type === 'number' || schema.type === 'integer')) {
+      return numberJSONSchemaToZuiNumber(
+        schema as JSONSchema7 & { type: 'number' | 'integer' },
+      ) as ZuiPrimitiveSchemas[T]
     }
     if (type === 'boolean') {
       return z.boolean() as ZuiPrimitiveSchemas[T]
