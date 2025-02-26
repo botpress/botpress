@@ -17,8 +17,10 @@ export class UserLinker {
       upstreamUser = fetchedUser
     }
 
-    if (upstreamUser.tags.downstream && upstreamUser.tags.integrationName === this._props.interfaces.hitl.name) {
-      return upstreamUser.tags.downstream
+    const existingDownstreamUserId = await this._getExistingDownstreamUserId(upstreamUser)
+
+    if (existingDownstreamUserId !== null) {
+      return existingDownstreamUserId
     }
 
     const {
@@ -27,6 +29,22 @@ export class UserLinker {
     } = await this._linkUser(upstreamUser, upstreamUserOverrides)
 
     this._users[upstreamUserId] = updatedUpstreamUser
+
+    return downstreamUserId
+  }
+
+  private async _getExistingDownstreamUserId(upstreamUser: client.User) {
+    const downstreamUserId = upstreamUser?.tags?.downstream
+
+    if (!downstreamUserId || upstreamUser?.tags?.integrationName !== this._props.interfaces.hitl.name) {
+      return null
+    }
+
+    try {
+      await this._props.client.getUser({ id: downstreamUserId })
+    } catch {
+      return null
+    }
 
     return downstreamUserId
   }

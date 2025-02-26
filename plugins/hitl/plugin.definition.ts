@@ -114,7 +114,7 @@ export default new sdk.PluginDefinition({
     hitl: {
       type: 'conversation',
       schema: sdk.z.object({
-        hitlActive: sdk.z.boolean().title('Is HITL Enabled?').describe('Whether the bot is in HITL mode'),
+        hitlActive: sdk.z.boolean().title('Is HITL Enabled?').describe('Whether the conversation is in HITL mode'),
       }),
     },
   },
