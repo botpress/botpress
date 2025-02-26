@@ -17,7 +17,7 @@ export class UserLinker {
       upstreamUser = fetchedUser
     }
 
-    if (upstreamUser.tags.downstream) {
+    if (upstreamUser.tags.downstream && upstreamUser.tags.integrationName === this._props.interfaces.hitl.name) {
       return upstreamUser.tags.downstream
     }
 
@@ -48,12 +48,14 @@ export class UserLinker {
         id: upstreamUser.id,
         tags: {
           downstream: downstreamUserId,
+          integrationName: this._props.interfaces.hitl.name,
         },
       }),
       this._props.client.updateUser({
         id: downstreamUserId,
         tags: {
           upstream: upstreamUser.id,
+          integrationName: this._props.interfaces.hitl.name,
         },
       }),
     ])
