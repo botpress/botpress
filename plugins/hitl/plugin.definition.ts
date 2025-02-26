@@ -14,7 +14,7 @@ export const DEFAULT_USER_HITL_COMMAND_MESSAGE =
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.2.0',
+  version: '0.2.1',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -114,7 +114,7 @@ export default new sdk.PluginDefinition({
     hitl: {
       type: 'conversation',
       schema: sdk.z.object({
-        hitlActive: sdk.z.boolean().title('Is HITL Enabled?').describe('Whether the bot is in HITL mode'),
+        hitlActive: sdk.z.boolean().title('Is HITL Enabled?').describe('Whether the conversation is in HITL mode'),
       }),
     },
   },
@@ -127,6 +127,10 @@ export default new sdk.PluginDefinition({
       upstream: {
         title: 'Upstream User ID',
         description: 'ID of the upstream user binded to the downstream one',
+      },
+      integrationName: {
+        title: 'HITL Integration Name',
+        description: 'Name of the integration which created the downstream user',
       },
     },
   },
