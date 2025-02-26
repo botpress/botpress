@@ -65,6 +65,7 @@ jobs:
           google_ai_secrets: '--secrets GOOGLE_AI_API_KEY=${{ secrets.GOOGLE_AI_API_KEY }}'
           intercom_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_INTERCOM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_INTERCOM_CLIENT_SECRET }}'
           instagram_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_INSTAGRAM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_INSTAGRAM_CLIENT_SECRET }} --secrets VERIFY_TOKEN=${{ secrets.STAGING_INSTAGRAM_VERIFY_TOKEN }}'
+          notion_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_NOTION_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_NOTION_CLIENT_SECRET }} --secrets WEBHOOK_URL=${{ secrets.STAGING_NOTION_WEBHOOK_URL }}'
       - name: Deploy Plugins
         uses: ./.github/actions/deploy-plugins
         if: ${{ github.event_name != 'pull_request' }}
