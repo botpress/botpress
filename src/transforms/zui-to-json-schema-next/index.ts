@@ -27,26 +27,17 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
       throw new err.UnsupportedZuiToJsonSchemaError(z.ZodFirstPartyTypeKind.ZodNaN)
 
     case z.ZodFirstPartyTypeKind.ZodBigInt:
-      return {
-        type: 'integer',
-        'x-zui': {
-          ...def['x-zui'],
-          def: { typeName: z.ZodFirstPartyTypeKind.ZodBigInt },
-        },
-      } satisfies json.BigIntSchema
+      throw new err.UnsupportedZuiToJsonSchemaError(z.ZodFirstPartyTypeKind.ZodBigInt, {
+        suggestedAlternative: 'serialize bigint to string',
+      })
 
     case z.ZodFirstPartyTypeKind.ZodBoolean:
       return { type: 'boolean', 'x-zui': def['x-zui'] } satisfies json.BooleanSchema
 
     case z.ZodFirstPartyTypeKind.ZodDate:
-      return {
-        type: 'string',
-        format: 'date-time',
-        'x-zui': {
-          ...def['x-zui'],
-          def: { typeName: z.ZodFirstPartyTypeKind.ZodDate },
-        },
-      } satisfies json.DateSchema
+      throw new err.UnsupportedZuiToJsonSchemaError(z.ZodFirstPartyTypeKind.ZodDate, {
+        suggestedAlternative: 'use z.string().datetime() instead',
+      })
 
     case z.ZodFirstPartyTypeKind.ZodUndefined:
       return undefinedSchema(def['x-zui'])

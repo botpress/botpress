@@ -9,8 +9,6 @@ import { ZuiExtensionObject } from '../../ui/types'
  * Mutiple zui schemas map to the same JSON schema; undefined/never, any/unknown, union/discriminated-union
  * Adding some ZodDef to the ZuiExtension allows us to differentiate between them
  */
-type BigIntDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodBigInt }, Partial<z.ZodBigIntDef>>
-type DateDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodDate }, Partial<z.ZodDateDef>>
 type DiscriminatedUnionDef = util.Satisfies<
   { typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion; discriminator: string },
   Partial<z.ZodDiscriminatedUnionDef>
@@ -97,9 +95,7 @@ type _NullableSchema = util.Satisfies<{ anyOf: [ZuiJsonSchema, NullSchema] }, JS
 
 export type StringSchema = _StringSchema & BaseZuiJsonSchema
 export type NumberSchema = _NumberSchema & BaseZuiJsonSchema
-export type BigIntSchema = _BigIntSchema & BaseZuiJsonSchema<BigIntDef>
 export type BooleanSchema = _BooleanSchema & BaseZuiJsonSchema
-export type DateSchema = _DateSchema & BaseZuiJsonSchema<DateDef>
 export type NullSchema = _NullSchema & BaseZuiJsonSchema
 export type UndefinedSchema = _UndefinedSchema & BaseZuiJsonSchema<UndefinedDef>
 export type NeverSchema = _NeverSchema & BaseZuiJsonSchema
@@ -126,9 +122,7 @@ export type LiteralSchema = LiteralStringSchema | LiteralNumberSchema | LiteralB
 export type ZuiJsonSchema =
   | StringSchema
   | NumberSchema
-  | BigIntSchema
   | BooleanSchema
-  | DateSchema
   | UndefinedSchema
   | NullSchema
   | AnySchema

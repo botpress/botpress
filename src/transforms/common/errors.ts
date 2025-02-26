@@ -38,8 +38,11 @@ export class ZuiToJsonSchemaError extends ZuiTransformError {
   }
 }
 export class UnsupportedZuiToJsonSchemaError extends ZuiToJsonSchemaError {
-  public constructor(type: ZodFirstPartyTypeKind) {
-    super(`Zod type ${type} cannot be transformed to JSON Schema.`)
+  public constructor(type: ZodFirstPartyTypeKind, { suggestedAlternative }: { suggestedAlternative?: string } = {}) {
+    super(
+      `Zod type ${type} cannot be transformed to JSON Schema.` +
+        (suggestedAlternative ? ` Suggested alternative: ${suggestedAlternative}` : ''),
+    )
   }
 }
 export class UnsupportedZuiCheckToJsonSchemaError extends ZuiToJsonSchemaError {

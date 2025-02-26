@@ -91,9 +91,6 @@ function _fromJsonSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
   }
 
   if (schema.type === 'string') {
-    if (guards.isDateSchema(schema)) {
-      return z.date()
-    }
     if (schema.enum && schema.enum.length > 0) {
       return z.enum(schema.enum as [string, ...string[]])
     }
@@ -101,10 +98,6 @@ function _fromJsonSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
   }
 
   if (schema.type === 'integer') {
-    if (guards.isBigIntSchema(schema)) {
-      return z.bigint()
-    }
-
     const zSchema = toZuiPrimitive('number', schema)
     if (zSchema instanceof z.ZodNumber) {
       return zSchema.int()

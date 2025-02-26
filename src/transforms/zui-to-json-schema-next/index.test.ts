@@ -18,9 +18,8 @@ describe('zuiToJsonSchemaNext', () => {
     expect(() => toJsonSchema(z.nan())).toThrowError(errs.UnsupportedZuiToJsonSchemaError)
   })
 
-  test('should map ZodBigInt to BigIntSchema', () => {
-    const schema = toJsonSchema(z.bigint())
-    expect(schema).toEqual({ type: 'integer', 'x-zui': { def: { typeName: 'ZodBigInt' } } })
+  test('should not support ZodBigInt', () => {
+    expect(() => toJsonSchema(z.bigint())).toThrowError(errs.UnsupportedZuiToJsonSchemaError)
   })
 
   test('should map ZodBoolean to BooleanSchema', () => {
@@ -28,9 +27,8 @@ describe('zuiToJsonSchemaNext', () => {
     expect(schema).toEqual({ type: 'boolean' })
   })
 
-  test('should map ZodDate to DateSchema', () => {
-    const schema = toJsonSchema(z.date())
-    expect(schema).toEqual({ type: 'string', format: 'date-time', 'x-zui': { def: { typeName: 'ZodDate' } } })
+  test('should not support ZodDate', () => {
+    expect(() => toJsonSchema(z.date())).toThrowError(errs.UnsupportedZuiToJsonSchemaError)
   })
 
   test('should map ZodUndefined to UndefinedSchema', () => {

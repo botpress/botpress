@@ -1,6 +1,5 @@
-import * as errs from '../common/errors'
 import z from '../../z'
-import { test, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { fromJsonSchema } from './index'
 import { JSONSchema7 } from 'json-schema'
 import { ZuiJsonSchema } from '../common/json-schema'
@@ -25,7 +24,7 @@ const assert = (actual: z.Schema) => ({
   },
 })
 
-describe('zuifromJsonSchemaNext', () => {
+describe.concurrent('zuifromJsonSchemaNext', () => {
   test('should map StringSchema to ZodString', () => {
     const jSchema = buildSchema({ type: 'string' })
     const zSchema = fromJsonSchema(jSchema)
@@ -40,24 +39,10 @@ describe('zuifromJsonSchemaNext', () => {
     assert(zSchema).toEqual(expected)
   })
 
-  test('should map BigIntSchema to ZodBigInt', () => {
-    const jSchema = buildSchema({ type: 'integer' }, { def: { typeName: 'ZodBigInt' } })
-    const zSchema = fromJsonSchema(jSchema)
-    const expected = z.bigint()
-    assert(zSchema).toEqual(expected)
-  })
-
   test('should map BooleanSchema to ZodBoolean', () => {
     const jSchema = buildSchema({ type: 'boolean' })
     const zSchema = fromJsonSchema(jSchema)
     const expected = z.boolean()
-    assert(zSchema).toEqual(expected)
-  })
-
-  test('should map DateSchema to ZodDate', () => {
-    const jSchema = buildSchema({ type: 'string', format: 'date-time' }, { def: { typeName: 'ZodDate' } })
-    const zSchema = fromJsonSchema(jSchema)
-    const expected = z.date()
     assert(zSchema).toEqual(expected)
   })
 

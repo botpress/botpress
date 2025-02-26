@@ -316,18 +316,33 @@ describe.concurrent('transformPipeline', () => {
     })
   })
 
-  it('should map ZodBigInt to itself', async () => {
+  it('should throw UnsupportedZuiToJsonSchemaError for ZodBigInt', async () => {
+    // Arrange
     const srcSchema = z.bigint()
-    assert(srcSchema).toTransformBackToItself()
+
+    // Act
+    const act = () => toJsonSchema(srcSchema)
+
+    // Assert
+    expect(act).toThrowError(errors.UnsupportedZuiToJsonSchemaError)
   })
+
   it('should map ZodBoolean to itself', async () => {
     const srcSchema = z.boolean()
     assert(srcSchema).toTransformBackToItself()
   })
-  it('should map ZodDate to itself', async () => {
+
+  it('should throw UnsupportedZuiToJsonSchemaError for ZodDate', async () => {
+    // Arrange
     const srcSchema = z.date()
-    assert(srcSchema).toTransformBackToItself()
+
+    // Act
+    const act = () => toJsonSchema(srcSchema)
+
+    // Assert
+    expect(act).toThrowError(errors.UnsupportedZuiToJsonSchemaError)
   })
+
   it('should map ZodUndefined to itself', async () => {
     const srcSchema = z.undefined()
     assert(srcSchema).toTransformBackToItself()
