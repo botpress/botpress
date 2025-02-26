@@ -212,7 +212,7 @@ const selectParser = (def: any, typeName: ZodFirstPartyTypeKind, refs: Refs): Js
   }
 }
 
-const addMeta = (def: ZodTypeDef, refs: Refs, jsonSchema: JsonSchema7Type): JsonSchema7Type => {
+export const addMeta = <S extends JsonSchema7Type>(def: ZodTypeDef, refs: Refs, jsonSchema: S): S => {
   if (def.description) {
     jsonSchema.description = def.description
 

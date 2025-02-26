@@ -483,9 +483,10 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
 
   // BOTPRESS EXTENSIONS
 
-  /** append metadata to object */
+  /** append metadata to the schema */
   metadata(data: Record<string, ZuiMetadata>): this {
     const root = this._metadataRoot
+    root._def[zuiKey] ??= {}
     for (const [key, value] of Object.entries(data)) {
       root._def[zuiKey] = {
         ...root._def[zuiKey],
@@ -495,26 +496,22 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     return this
   }
 
-  /** get metadata of object */
+  /** get metadata of the schema */
   getMetadata(): Record<string, ZuiMetadata> {
     return { ...this._metadataRoot._def[zuiKey] }
   }
 
-  /** set metadata of object */
+  /** set metadata of the schema */
   setMetadata(data: Record<string, ZuiMetadata>): void {
     this._metadataRoot._def[zuiKey] = { ...data }
   }
 
+  /**
+   * get metadata of the schema
+   * @deprecated use `getMetadata()` instead
+   */
   get ui(): Record<string, ZuiMetadata> {
     return { ...this._metadataRoot._def[zuiKey] }
-  }
-
-  private _setZuiMeta(key: string, value: ZuiMetadata) {
-    const root = this._metadataRoot
-    root._def[zuiKey] = {
-      ...root._def[zuiKey],
-      [key]: value,
-    }
   }
 
   /**
@@ -534,17 +531,14 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     UI extends UIComponentDefinitions = EmptyComponentDefinitions,
     Type extends BaseType = ZodKindToBaseType<this['_def']>,
   >(options: ParseSchema<UI[Type][keyof UI[Type]]>): this {
-    this._def[zuiKey] ??= {}
-    this._def[zuiKey].displayAs = [options.id, options.params]
-    return this
+    return this.metadata({ displayAs: [options.id, options.params] })
   }
 
   /**
    * The title of the field. Defaults to the field name.
    */
   title(title: string): this {
-    this._setZuiMeta('title', title)
-    return this
+    return this.metadata({ title })
   }
 
   /**
@@ -562,8 +556,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     } else {
       data = value
     }
-    this._setZuiMeta('hidden', data)
-    return this
+    return this.metadata({ hidden: data })
   }
 
   /**
@@ -581,16 +574,14 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     } else {
       data = value
     }
-    this._setZuiMeta('disabled', data)
-    return this
+    return this.metadata({ disabled: data })
   }
 
   /**
    * Placeholder text for the field
    */
   placeholder(placeholder: string): this {
-    this._setZuiMeta('placeholder', placeholder)
-    return this
+    return this.metadata({ placeholder })
   }
 
   toJsonSchema(opts?: ZuiSchemaOptions): JSONSchema {
