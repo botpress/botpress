@@ -41,5 +41,9 @@
     "@bpinternal/zui": "^0.13.4",
     "lodash": "^4.17.21",
     "vitest": "^2 || ^3 || ^4 || ^5"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.6.2"
 }

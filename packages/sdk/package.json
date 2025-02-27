@@ -32,5 +32,9 @@
     "esbuild": {
       "optional": true
     }
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.6.2"
 }
