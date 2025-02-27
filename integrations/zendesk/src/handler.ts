@@ -1,3 +1,4 @@
+import { createOrUpdateUser } from '@botpress/common'
 import { getZendeskClient } from './client'
 import { articlePublished } from './events/article-published'
 import { articleUnpublished } from './events/article-unpublished'
@@ -46,26 +47,23 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
         },
       })
 
-      if (!zendeskTrigger.currentUser.externalId?.length) {
-        const { user: newUser } = await client.getOrCreateUser({
-          name: zendeskTrigger.currentUser.name,
-          tags: {
-            id: zendeskTrigger.currentUser.id,
-            email: zendeskTrigger.currentUser.email,
-            role: zendeskTrigger.currentUser.role,
-          },
-        })
-
-        await zendeskClient.updateUser(zendeskTrigger.currentUser.id, {
-          external_id: newUser.id,
-        })
-      }
-
-      const { user } = await client.getOrCreateUser({
+      const { user } = await createOrUpdateUser({
+        client,
+        name: zendeskTrigger.currentUser.name,
+        pictureUrl: zendeskTrigger.currentUser.remote_photo_url,
         tags: {
           id: zendeskTrigger.currentUser.id,
+          email: zendeskTrigger.currentUser.email,
+          role: zendeskTrigger.currentUser.role,
         },
+        discriminateByTags: ['id'],
       })
+
+      if (!zendeskTrigger.currentUser.externalId?.length) {
+        await zendeskClient.updateUser(zendeskTrigger.currentUser.id, {
+          external_id: user.id,
+        })
+      }
 
       const messageWithoutAuthor = zendeskTrigger.comment.split('\n').slice(3).join('\n')
 
