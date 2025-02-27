@@ -66,7 +66,12 @@ class ZendeskApi {
     return data.ticket
   }
 
-  public async createTicket(subject: string, comment: string, requester: TicketRequester): Promise<ZendeskTicket> {
+  public async createTicket(
+    subject: string,
+    comment: string,
+    requester: TicketRequester,
+    extraFields: Partial<ZendeskTicket> = {}
+  ): Promise<ZendeskTicket> {
     const requesterPayload = 'id' in requester ? { requester_id: requester.id } : { requester }
 
     const { data } = await this._client
@@ -75,6 +80,7 @@ class ZendeskApi {
           subject,
           comment: { body: comment },
           ...requesterPayload,
+          ...extraFields,
         },
       })
       .catch(summarizeAxiosError)
@@ -135,7 +141,7 @@ class ZendeskApi {
     }).catch(summarizeAxiosError)
   }
 
-  public async updateTicket(ticketId: string | number, updateFields: object): Promise<ZendeskTicket> {
+  public async updateTicket(ticketId: string | number, updateFields: Partial<ZendeskTicket>): Promise<ZendeskTicket> {
     const { data } = await this._client
       .put<{ ticket: ZendeskTicket }>(`/api/v2/tickets/${ticketId}.json`, {
         ticket: updateFields,
@@ -160,7 +166,7 @@ class ZendeskApi {
     return data.user
   }
 
-  public async updateUser(userId: number | string, fields: object): Promise<ZendeskUser> {
+  public async updateUser(userId: number | string, fields: Partial<ZendeskUser>): Promise<ZendeskUser> {
     const { data } = await this._client
       .put<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`, {
         user: fields,

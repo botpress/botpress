@@ -10,10 +10,17 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
     pictureUrl,
     tags: {
       email,
+      role: 'end-user',
     },
   })
 
-  const zendeskUser = await zendeskClient.createOrUpdateUser({ role: 'end-user', external_id: user.id, name, email })
+  const zendeskUser = await zendeskClient.createOrUpdateUser({
+    role: 'end-user',
+    external_id: user.id,
+    name,
+    email,
+    remote_photo_url: pictureUrl,
+  })
 
   await bpClient.updateUser({
     id: user.id,

@@ -27,6 +27,10 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     },
   })
 
+  await zendeskClient.updateTicket(zendeskTicketId, {
+    external_id: conversation.id,
+  })
+
   // TODO: possibly display the message history
 
   return {
