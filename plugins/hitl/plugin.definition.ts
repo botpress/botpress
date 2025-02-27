@@ -8,10 +8,17 @@ export const DEFAULT_HITL_STOPPED_MESSAGE = 'The human agent closed the conversa
 export const DEFAULT_USER_HITL_CANCELLED_MESSAGE = '( The user has ended the session. )'
 export const DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE =
   'Sorry, the user can only receive text messages. Please resend your message as a text message.'
+export const DEFAULT_USER_HITL_CLOSE_COMMAND = '/end'
+export const DEFAULT_USER_HITL_COMMAND_MESSAGE =
+  'You have ended the session with the human agent. I will continue assisting you.'
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.1.0',
+  version: '0.2.1',
+  title: 'Human In The Loop',
+  description: 'Seamlessly transfer conversations to human agents',
+  icon: 'icon.svg',
+  readme: 'hub.md',
   configuration: {
     schema: sdk.z.object({
       onHitlHandoffMessage: sdk.z
@@ -46,6 +53,18 @@ export default new sdk.PluginDefinition({
         )
         .optional()
         .placeholder(DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE),
+      userHitlCloseCommand: sdk.z
+        .string()
+        .title('Termination Command')
+        .describe('Users may use this command to end the hitl session at any time')
+        .optional()
+        .placeholder(DEFAULT_USER_HITL_CLOSE_COMMAND),
+      onUserHitlCloseMessage: sdk.z
+        .string()
+        .title('Termination Command Message')
+        .describe('The message to send to the user when they end the hitl session using the termination command')
+        .optional()
+        .placeholder(DEFAULT_USER_HITL_COMMAND_MESSAGE),
     }),
   },
   actions: {
@@ -56,7 +75,11 @@ export default new sdk.PluginDefinition({
         schema: sdk.z.object({
           title: sdk.z.string().title('Ticket Title').describe('Title of the HITL ticket'),
           description: sdk.z.string().title('Ticket Description').optional().describe('Description of the HITL ticket'),
-          userId: sdk.z.string().title('User ID').describe('ID of the user that starts the HITL mode'),
+          userId: sdk.z
+            .string()
+            .title('User ID')
+            .describe('ID of the user that starts the HITL mode')
+            .placeholder('{{ event.userId }}'),
           userEmail: sdk.z
             .string()
             .title('User Email')
@@ -67,7 +90,8 @@ export default new sdk.PluginDefinition({
           conversationId: sdk.z
             .string()
             .title('Conversation ID') // this is the upstream conversation
-            .describe('ID of the conversation on which to start the HITL mode'),
+            .describe('ID of the conversation on which to start the HITL mode')
+            .placeholder('{{ event.conversationId }}'),
         }),
       },
       output: { schema: sdk.z.object({}) },
@@ -77,7 +101,10 @@ export default new sdk.PluginDefinition({
       description: 'Stop the HITL mode',
       input: {
         schema: sdk.z.object({
-          conversationId: sdk.z.string().describe('ID of the conversation on which to stop the HITL mode'),
+          conversationId: sdk.z
+            .string()
+            .describe('ID of the conversation on which to stop the HITL mode')
+            .placeholder('{{ event.conversationId }}'),
         }),
       },
       output: { schema: sdk.z.object({}) },
@@ -87,7 +114,7 @@ export default new sdk.PluginDefinition({
     hitl: {
       type: 'conversation',
       schema: sdk.z.object({
-        hitlActive: sdk.z.boolean().title('Is HITL Enabled?').describe('Whether the bot is in HITL mode'),
+        hitlActive: sdk.z.boolean().title('Is HITL Enabled?').describe('Whether the conversation is in HITL mode'),
       }),
     },
   },
@@ -100,6 +127,10 @@ export default new sdk.PluginDefinition({
       upstream: {
         title: 'Upstream User ID',
         description: 'ID of the upstream user binded to the downstream one',
+      },
+      integrationName: {
+        title: 'HITL Integration Name',
+        description: 'Name of the integration which created the downstream user',
       },
     },
   },
