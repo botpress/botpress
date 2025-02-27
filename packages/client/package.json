@@ -34,5 +34,9 @@
     "esbuild": "^0.16.12",
     "lodash": "^4.17.21",
     "tsup": "^8.0.2"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.6.2"
 }

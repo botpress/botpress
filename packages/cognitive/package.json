@@ -39,5 +39,9 @@
     "esbuild": "^0.16.12",
     "size-limit": "^11.1.6",
     "tsup": "^8.0.2"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.6.2"
 }
