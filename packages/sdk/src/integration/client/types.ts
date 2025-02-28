@@ -148,6 +148,7 @@ export type CreateMessage<TIntegration extends common.BaseIntegration> = <
   x: utils.Merge<
     Arg<client.Client['createMessage']>,
     {
+      channel?: TChannel // Only present for type inference
       type: utils.Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
       payload: TIntegration['channels'][TChannel]['messages'][TMessage]
       tags: common.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
@@ -158,16 +159,17 @@ export type CreateMessage<TIntegration extends common.BaseIntegration> = <
 export type GetOrCreateMessage<TIntegration extends common.BaseIntegration> = <
   TChannel extends keyof TIntegration['channels'],
   TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
+  TTags extends keyof TIntegration['channels'][TChannel]['message']['tags'],
 >(
   x: utils.Merge<
     Arg<client.Client['getOrCreateMessage']>,
     {
+      channel?: TChannel // Only present for type inference
       type: utils.Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
       payload: TIntegration['channels'][TChannel]['messages'][TMessage]
-      tags: common.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
-      discriminateByTags?: Extract<keyof TIntegration['channels'][TChannel]['message']['tags'], string>[]
+      tags: common.ToTags<TTags>
+      discriminateByTags?: NoInfer<utils.Cast<TTags[], string[]>>
     }
-    // TODO: find a way to restrict discriminateByTags to only the tags that are specified in x.tags
   >
 ) => Promise<MessageResponse<TIntegration, TChannel, TMessage>>
 
@@ -237,14 +239,15 @@ export type ListUsers<TIntegration extends common.BaseIntegration> = (
   >
 ) => Res<client.Client['listUsers']>
 
-export type GetOrCreateUser<TIntegration extends common.BaseIntegration> = (
+export type GetOrCreateUser<TIntegration extends common.BaseIntegration> = <
+  TTags extends keyof TIntegration['user']['tags'],
+>(
   x: utils.Merge<
     Arg<client.Client['getOrCreateUser']>,
     {
-      tags: common.ToTags<keyof TIntegration['user']['tags']>
-      discriminateByTags?: Extract<keyof TIntegration['user']['tags'], string>[]
+      tags: common.ToTags<TTags>
+      discriminateByTags?: NoInfer<utils.Cast<TTags[], string[]>>
     }
-    // TODO: find a way to restrict discriminateByTags to only the tags that are specified in x.tags
   >
 ) => Promise<UserResponse<TIntegration>>
 
