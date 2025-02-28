@@ -196,6 +196,22 @@ describe.concurrent('ClientOperations', () => {
     type _assertion = utils.AssertExtends<Specific, General>
   })
 
+  test('getMessage response should include all possible message tags', () => {
+    type Actual = types.ClientOutputs<FooBarBazIntegration>['getMessage']['message']['tags']
+    type Expected = {
+      fooMessageTag1?: string | undefined
+      fooMessageTag2?: string | undefined
+      fooMessageTag3?: string | undefined
+      barMessageTag1?: string | undefined
+      barMessageTag2?: string | undefined
+      barMessageTag3?: string | undefined
+      bazMessageTag1?: string | undefined
+      bazMessageTag2?: string | undefined
+      bazMessageTag3?: string | undefined
+    }
+    type _assertion = utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+  })
+
   test('getOrCreateConversation with FooBarBazIntegration stricly enforces allowed tags', () => {
     const client = _mockClient<FooBarBazIntegration>()
 

@@ -1,6 +1,13 @@
 import { FooBarBazIntegration } from 'src/fixtures'
 import * as utils from '../../utils/type-utils'
-import { ConversationTags, MessageTags, GetChannelByName, GetMessageByName } from './sub-types'
+import {
+  ConversationTags,
+  MessageTags,
+  TagsOfMessage,
+  GetChannelByName,
+  GetMessageByName,
+  EnumerateMessages,
+} from './sub-types'
 import { test } from 'vitest'
 
 test('ConversationTags', () => {
@@ -20,6 +27,27 @@ test('ConversationTags', () => {
 
 test('MessageTags', () => {
   type Actual = MessageTags<FooBarBazIntegration>
+  type Expected =
+    | 'fooMessageTag1'
+    | 'fooMessageTag2'
+    | 'fooMessageTag3'
+    | 'barMessageTag1'
+    | 'barMessageTag2'
+    | 'barMessageTag3'
+    | 'bazMessageTag1'
+    | 'bazMessageTag2'
+    | 'bazMessageTag3'
+  type _assertion = utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+})
+
+test('TagsOfMessage with specific message', () => {
+  type Actual = TagsOfMessage<FooBarBazIntegration, 'messageFoo'>
+  type Expected = 'fooMessageTag1' | 'fooMessageTag2' | 'fooMessageTag3'
+  type _assertion = utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+})
+
+test('TagsOfMessage with specific message', () => {
+  type Actual = TagsOfMessage<FooBarBazIntegration, keyof EnumerateMessages<FooBarBazIntegration>>
   type Expected =
     | 'fooMessageTag1'
     | 'fooMessageTag2'

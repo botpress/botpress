@@ -9,6 +9,7 @@ import {
   MessageTags,
   WithOptionalPrefix,
   WithRequiredPrefix,
+  TagsOfMessage,
 } from './sub-types'
 
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
@@ -124,7 +125,7 @@ type MessageResponse<
     {
       type: utils.Cast<TMessage, string>
       payload: GetMessageByName<TIntegration, TMessage>['payload']
-      tags: common.ToTags<keyof GetMessageByName<TIntegration, TMessage>['tags']>
+      tags: common.ToTags<TagsOfMessage<TIntegration, TMessage>>
     }
   >
 }
@@ -155,12 +156,11 @@ export type GetOrCreateMessage<TIntegration extends common.BaseIntegration> = <
       discriminateByTags?: NoInfer<utils.Cast<TTags[], string[]>>
     }
   >
-) => Promise<MessageResponse<TIntegration>>
+) => Promise<MessageResponse<TIntegration, TMessage>>
 
-export type GetMessage<TIntegration extends common.BaseIntegration> = (x: Arg<client.Client['getMessage']>) => Promise<
-  // TODO: should return a union of all possible message types like in `GetEvent`
-  MessageResponse<TIntegration>
->
+export type GetMessage<TIntegration extends common.BaseIntegration> = (
+  x: Arg<client.Client['getMessage']>
+) => Promise<MessageResponse<TIntegration>>
 
 export type UpdateMessage<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
@@ -252,7 +252,7 @@ export type GetState<TIntegration extends common.BaseIntegration> = <TState exte
   x: utils.Merge<
     Arg<client.Client['getState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
+      name: utils.Cast<TState, string>
     }
   >
 ) => Promise<StateResponse<TIntegration, TState>>
@@ -261,7 +261,7 @@ export type SetState<TIntegration extends common.BaseIntegration> = <TState exte
   x: utils.Merge<
     Arg<client.Client['setState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
+      name: utils.Cast<TState, string>
       payload: TIntegration['states'][TState] | null
     }
   >
@@ -271,7 +271,7 @@ export type GetOrSetState<TIntegration extends common.BaseIntegration> = <TState
   x: utils.Merge<
     Arg<client.Client['getOrSetState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
+      name: utils.Cast<TState, string>
       payload: TIntegration['states'][TState]
     }
   >
@@ -281,7 +281,7 @@ export type PatchState<TIntegration extends common.BaseIntegration> = <TState ex
   x: utils.Merge<
     Arg<client.Client['patchState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
+      name: utils.Cast<TState, string>
       payload: Partial<TIntegration['states'][TState]>
     }
   >
