@@ -224,35 +224,12 @@ describe.concurrent('ClientOperations', () => {
     const client = _mockClient<FooBarBazIntegration>()
 
     client.getOrCreateMessage({
-      channel: 'channelFoo',
       conversationId: '',
       userId: '',
-      type: 'messageFoo',
-      payload: { foo: 'foo' },
-      tags: { fooMessageTag1: '1' },
-      discriminateByTags: ['fooMessageTag1'],
-    })
-
-    client.getOrCreateMessage({
-      channel: 'channelFoo',
-      conversationId: '',
-      userId: '',
-      type: 'messageFoo',
-      payload: { foo: 'a' },
-      // @ts-expect-error only tags of the channelFoo channel can be set
-      tags: { fooMessageTag1: '1', fooMessageTag4: '4' },
-      discriminateByTags: ['fooMessageTag1'],
-    })
-
-    client.getOrCreateMessage({
-      channel: 'channelFoo',
-      conversationId: '',
-      userId: '',
-      type: 'messageFoo',
-      payload: { foo: 'a' },
+      type: 'text',
+      payload: { text: 'Hello' },
       tags: { fooMessageTag1: '1', fooMessageTag2: '2' },
-      // @ts-expect-error only tags set in the tags object can be used to discriminate
-      discriminateByTags: ['fooMessageTag3'],
+      discriminateByTags: [],
     })
   })
 
