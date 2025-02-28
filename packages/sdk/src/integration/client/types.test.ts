@@ -196,6 +196,22 @@ describe.concurrent('ClientOperations', () => {
     type _assertion = utils.AssertExtends<Specific, General>
   })
 
+  test('getMessage response should include all possible message tags', () => {
+    type Actual = types.ClientOutputs<FooBarBazIntegration>['getMessage']['message']['tags']
+    type Expected = {
+      fooMessageTag1?: string | undefined
+      fooMessageTag2?: string | undefined
+      fooMessageTag3?: string | undefined
+      barMessageTag1?: string | undefined
+      barMessageTag2?: string | undefined
+      barMessageTag3?: string | undefined
+      bazMessageTag1?: string | undefined
+      bazMessageTag2?: string | undefined
+      bazMessageTag3?: string | undefined
+    }
+    type _assertion = utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+  })
+
   test('getOrCreateConversation with FooBarBazIntegration stricly enforces allowed tags', () => {
     const client = _mockClient<FooBarBazIntegration>()
 
@@ -223,7 +239,7 @@ describe.concurrent('ClientOperations', () => {
   test('getOrCreateMessage with FooBarBazIntegration stricly enforces allowed tags', () => {
     const client = _mockClient<FooBarBazIntegration>()
 
-    client.getOrCreateMessage<'channelFoo'>({
+    client.getOrCreateMessage({
       conversationId: '',
       userId: '',
       type: 'messageFoo',
@@ -232,7 +248,7 @@ describe.concurrent('ClientOperations', () => {
       discriminateByTags: ['fooMessageTag1'],
     })
 
-    client.getOrCreateMessage<'channelFoo'>({
+    client.getOrCreateMessage({
       conversationId: '',
       userId: '',
       type: 'messageFoo',
@@ -242,9 +258,7 @@ describe.concurrent('ClientOperations', () => {
       discriminateByTags: ['fooMessageTag1'],
     })
 
-    // FIXME: this should be an error
-    /*
-    client.getOrCreateMessage<'channelFoo'>({
+    client.getOrCreateMessage({
       conversationId: '',
       userId: '',
       type: 'messageFoo',
@@ -253,7 +267,6 @@ describe.concurrent('ClientOperations', () => {
       // @ts-expect-error only tags set in the tags object can be used to discriminate
       discriminateByTags: ['fooMessageTag3'],
     })
-    */
   })
 
   test('getOrCreateUser with FooBarBazIntegration stricly enforces allowed tags', () => {
