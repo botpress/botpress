@@ -60,6 +60,8 @@ export const requiredSecrets: Test = {
       retry: retry.config,
     })
 
+    await impl.login({ ...argv }).then(utils.handleExitCode)
+
     await impl
       .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })
       .then(utils.handleExitCode)
