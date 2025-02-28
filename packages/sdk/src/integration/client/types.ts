@@ -63,10 +63,17 @@ export type ListConversations<TIntegration extends common.BaseIntegration> = <
 
 export type GetOrCreateConversation<TIntegration extends common.BaseIntegration> = <
   ChannelName extends keyof TIntegration['channels'],
->(x: {
-  channel: utils.Cast<ChannelName, string>
-  tags: common.ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags']>
-}) => Promise<ConversationResponse<TIntegration, ChannelName>>
+>(
+  x: utils.Merge<
+    Arg<client.Client['getOrCreateConversation']>,
+    {
+      channel: utils.Cast<ChannelName, string>
+      tags: common.ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags']>
+      discriminateByTags?: Extract<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags'], string>[]
+    }
+    // TODO: find a way to restrict discriminateByTags to only the tags that are specified in x.tags
+  >
+) => Promise<ConversationResponse<TIntegration, ChannelName>>
 
 export type UpdateConversation<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
@@ -158,7 +165,9 @@ export type GetOrCreateMessage<TIntegration extends common.BaseIntegration> = <
       type: utils.Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
       payload: TIntegration['channels'][TChannel]['messages'][TMessage]
       tags: common.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
+      discriminateByTags?: Extract<keyof TIntegration['channels'][TChannel]['message']['tags'], string>[]
     }
+    // TODO: find a way to restrict discriminateByTags to only the tags that are specified in x.tags
   >
 ) => Promise<MessageResponse<TIntegration, TChannel, TMessage>>
 
@@ -233,7 +242,9 @@ export type GetOrCreateUser<TIntegration extends common.BaseIntegration> = (
     Arg<client.Client['getOrCreateUser']>,
     {
       tags: common.ToTags<keyof TIntegration['user']['tags']>
+      discriminateByTags?: Extract<keyof TIntegration['user']['tags'], string>[]
     }
+    // TODO: find a way to restrict discriminateByTags to only the tags that are specified in x.tags
   >
 ) => Promise<UserResponse<TIntegration>>
 
