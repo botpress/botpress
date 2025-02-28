@@ -63,15 +63,15 @@ export type ListConversations<TIntegration extends common.BaseIntegration> = <
 
 export type GetOrCreateConversation<TIntegration extends common.BaseIntegration> = <
   ChannelName extends keyof TIntegration['channels'],
+  TTags extends keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags'],
 >(
   x: utils.Merge<
     Arg<client.Client['getOrCreateConversation']>,
     {
       channel: utils.Cast<ChannelName, string>
-      tags: common.ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags']>
-      discriminateByTags?: Extract<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags'], string>[]
+      tags: common.ToTags<TTags>
+      discriminateByTags?: NoInfer<utils.Cast<TTags[], string[]>>
     }
-    // TODO: find a way to restrict discriminateByTags to only the tags that are specified in x.tags
   >
 ) => Promise<ConversationResponse<TIntegration, ChannelName>>
 
