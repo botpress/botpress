@@ -223,7 +223,7 @@ describe.concurrent('ClientOperations', () => {
   test('getOrCreateMessage with FooBarBazIntegration stricly enforces allowed tags', () => {
     const client = _mockClient<FooBarBazIntegration>()
 
-    client.getOrCreateMessage<'channelFoo'>({
+    client.getOrCreateMessage({
       conversationId: '',
       userId: '',
       type: 'messageFoo',
@@ -232,7 +232,7 @@ describe.concurrent('ClientOperations', () => {
       discriminateByTags: ['fooMessageTag1'],
     })
 
-    client.getOrCreateMessage<'channelFoo'>({
+    client.getOrCreateMessage({
       conversationId: '',
       userId: '',
       type: 'messageFoo',
@@ -242,9 +242,7 @@ describe.concurrent('ClientOperations', () => {
       discriminateByTags: ['fooMessageTag1'],
     })
 
-    // FIXME: this should be an error
-    /*
-    client.getOrCreateMessage<'channelFoo'>({
+    client.getOrCreateMessage({
       conversationId: '',
       userId: '',
       type: 'messageFoo',
@@ -253,7 +251,6 @@ describe.concurrent('ClientOperations', () => {
       // @ts-expect-error only tags set in the tags object can be used to discriminate
       discriminateByTags: ['fooMessageTag3'],
     })
-    */
   })
 
   test('getOrCreateUser with FooBarBazIntegration stricly enforces allowed tags', () => {
