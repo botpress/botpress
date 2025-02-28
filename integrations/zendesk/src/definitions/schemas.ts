@@ -12,14 +12,17 @@ export const ticketSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   tags: z.array(z.string()),
+  externalId: z.string().nullable(),
+  comment: z.record(z.any()).optional(),
 })
 
 const _zdTicketSchema = ticketSchema.transform((data) => ({
-  ...omit(data, ['requesterId', 'assigneeId', 'createdAt', 'updatedAt']),
+  ...omit(data, ['requesterId', 'assigneeId', 'createdAt', 'updatedAt', 'externalId']),
   created_at: data.createdAt,
   updated_at: data.updatedAt,
   requester_id: data.requesterId,
   assignee_id: data.assigneeId,
+  external_id: data.externalId,
 }))
 
 export type ZendeskTicket = z.output<typeof _zdTicketSchema>
@@ -27,11 +30,12 @@ export type Ticket = z.input<typeof ticketSchema>
 
 export const transformTicket = (ticket: ZendeskTicket): Ticket => {
   return {
-    ...omit(ticket, ['requester_id', 'assignee_id', 'created_at', 'updated_at']),
+    ...omit(ticket, ['requester_id', 'assignee_id', 'created_at', 'updated_at', 'external_id']),
     requesterId: ticket.requester_id,
     assigneeId: ticket.assignee_id,
     createdAt: ticket.created_at,
     updatedAt: ticket.updated_at,
+    externalId: ticket.external_id,
   }
 }
 
@@ -41,6 +45,7 @@ export const userSchema = z.object({
   email: z.string(),
   phone: z.string().nullable().optional(),
   photo: z.string().nullable().optional(),
+  remotePhotoUrl: z.string().nullable().optional(),
   role: z.enum(['end-user', 'agent', 'admin']),
   tags: z.array(z.string()),
   createdAt: z.string(),
@@ -50,11 +55,12 @@ export const userSchema = z.object({
 })
 
 const _zdUserSchema = userSchema.transform((data) => ({
-  ...omit(data, ['createdAt', 'updatedAt', 'externalId', 'userFields']),
+  ...omit(data, ['createdAt', 'updatedAt', 'externalId', 'userFields', 'remotePhotoUrl']),
   created_at: data.createdAt,
   updated_at: data.updatedAt,
   external_id: data.externalId,
   user_fields: data.userFields,
+  remote_photo_url: data.remotePhotoUrl,
 }))
 
 export type ZendeskUser = z.output<typeof _zdUserSchema>
@@ -62,11 +68,12 @@ export type User = z.input<typeof userSchema>
 
 export const transformUser = (ticket: ZendeskUser): User => {
   return {
-    ...omit(ticket, ['external_id', 'user_fields', 'created_at', 'updated_at']),
+    ...omit(ticket, ['external_id', 'user_fields', 'created_at', 'updated_at', 'remote_photo_url']),
     externalId: ticket.external_id,
     userFields: ticket.user_fields,
     createdAt: ticket.created_at,
     updatedAt: ticket.updated_at,
+    remotePhotoUrl: ticket.remote_photo_url,
   }
 }
 
