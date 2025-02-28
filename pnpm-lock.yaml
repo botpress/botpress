@@ -319,8 +319,8 @@ importers:
   integrations/anthropic:
     dependencies:
       '@anthropic-ai/sdk':
-        specifier: ^0.24.0
-        version: 0.24.0
+        specifier: ^0.38.0
+        version: 0.38.0
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
@@ -1083,8 +1083,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       openai:
-        specifier: ^4.53.0
-        version: 4.53.0
+        specifier: ^4.86.1
+        version: 4.86.1
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -2105,8 +2105,8 @@ importers:
         specifier: workspace:*
         version: link:../sdk
       openai:
-        specifier: ^4.53.0
-        version: 4.53.0
+        specifier: ^4.86.1
+        version: 4.86.1
 
   packages/sdk:
     dependencies:
@@ -2406,8 +2406,8 @@ packages:
       ts-deepmerge: 4.0.0
       zod: 3.22.4
 
-  /@anthropic-ai/sdk@0.24.0:
-    resolution: {integrity: sha512-iMb1bQimQrSw/Rq6duPiuCJ7uvlSciq5PWp17jVOfy5dK2EJY36ol10ttwb+Zf6yzkKHMdt+vNIpznj/HsPXOg==}
+  /@anthropic-ai/sdk@0.38.0:
+    resolution: {integrity: sha512-ZUYjadEEeb1wwKd9MEM+plSfl7zQjYixhjHRtyPsjO7MtzRmbZvBb1n1ofo2kHwb0aUiIdb3aAEbAwS9Bcbm/A==}
     dependencies:
       '@types/node': 18.19.67
       '@types/node-fetch': 2.6.4
@@ -2416,7 +2416,6 @@ packages:
       form-data-encoder: 1.7.2
       formdata-node: 4.4.1
       node-fetch: 2.7.0
-      web-streams-polyfill: 3.3.3
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -13458,6 +13457,29 @@ packages:
       formdata-node: 4.4.1
       node-fetch: 2.7.0
       web-streams-polyfill: 3.3.3
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /openai@4.86.1:
+    resolution: {integrity: sha512-x3iCLyaC3yegFVZaxOmrYJjitKxZ9hpVbLi+ZlT5UHuHTMlEQEbKXkGOM78z9qm2T5GF+XRUZCP2/aV4UPFPJQ==}
+    hasBin: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.23.8
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
+    dependencies:
+      '@types/node': 18.19.67
+      '@types/node-fetch': 2.6.4
+      abort-controller: 3.0.0
+      agentkeepalive: 4.5.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
     dev: false
