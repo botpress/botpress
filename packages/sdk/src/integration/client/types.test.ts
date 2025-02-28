@@ -3,6 +3,16 @@ import { BaseIntegration } from '../common'
 import { describe, test } from 'vitest'
 import * as utils from '../../utils/type-utils'
 import * as types from './types'
+import { FooBarBazIntegration } from '../../fixtures'
+
+const _mockClient = <TIntegration extends BaseIntegration>() =>
+  new Proxy<types.ClientOperations<TIntegration>>({} as any, {
+    get: () => {
+      return async () => {
+        return {}
+      }
+    },
+  })
 
 describe('ClientOperations', () => {
   test('createConversation of IntegrationSpecificClient extends general', () => {
@@ -184,5 +194,29 @@ describe('ClientOperations', () => {
     type Specific = types.ClientOperations<BaseIntegration>['updateFileMetadata']
     type General = client.Client['updateFileMetadata']
     type _assertion = utils.AssertExtends<Specific, General>
+  })
+})
+
+test('getOrCreateConversation with FooBarBazIntegration stricly enforces allowed tags', () => {
+  const client = _mockClient<FooBarBazIntegration>()
+
+  client.getOrCreateConversation({
+    channel: 'channelFoo',
+    tags: { fooConversationTag1: '1', fooConversationTag2: '2' },
+    discriminateByTags: ['fooConversationTag1'],
+  })
+
+  client.getOrCreateConversation({
+    channel: 'channelFoo',
+    // @ts-expect-error only tags of the channelFoo channel can be set
+    tags: { fooConversationTag1: '1', fooConversationTag2: '2', fooConversationTag4: '4' },
+    discriminateByTags: ['fooConversationTag1'],
+  })
+
+  client.getOrCreateConversation({
+    channel: 'channelFoo',
+    tags: { fooConversationTag1: '1', fooConversationTag2: '2' },
+    // @ts-expect-error only tags set in the tags object can be used to discriminate
+    discriminateByTags: ['fooConversationTag3'],
   })
 })
