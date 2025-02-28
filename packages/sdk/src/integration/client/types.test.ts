@@ -14,7 +14,7 @@ const _mockClient = <TIntegration extends BaseIntegration>() =>
     },
   })
 
-describe('ClientOperations', () => {
+describe.concurrent('ClientOperations', () => {
   test('createConversation of IntegrationSpecificClient extends general', () => {
     type Specific = types.ClientOperations<BaseIntegration>['createConversation']
     type General = client.Client['createConversation']
@@ -195,28 +195,85 @@ describe('ClientOperations', () => {
     type General = client.Client['updateFileMetadata']
     type _assertion = utils.AssertExtends<Specific, General>
   })
-})
 
-test('getOrCreateConversation with FooBarBazIntegration stricly enforces allowed tags', () => {
-  const client = _mockClient<FooBarBazIntegration>()
+  test('getOrCreateConversation with FooBarBazIntegration stricly enforces allowed tags', () => {
+    const client = _mockClient<FooBarBazIntegration>()
 
-  client.getOrCreateConversation({
-    channel: 'channelFoo',
-    tags: { fooConversationTag1: '1', fooConversationTag2: '2' },
-    discriminateByTags: ['fooConversationTag1'],
+    client.getOrCreateConversation({
+      channel: 'channelFoo',
+      tags: { fooConversationTag1: '1', fooConversationTag2: '2' },
+      discriminateByTags: ['fooConversationTag1'],
+    })
+
+    client.getOrCreateConversation({
+      channel: 'channelFoo',
+      // @ts-expect-error only tags of the channelFoo channel can be set
+      tags: { fooConversationTag1: '1', fooConversationTag2: '2', fooConversationTag4: '4' },
+      discriminateByTags: ['fooConversationTag1'],
+    })
+
+    client.getOrCreateConversation({
+      channel: 'channelFoo',
+      tags: { fooConversationTag1: '1', fooConversationTag2: '2' },
+      // @ts-expect-error only tags set in the tags object can be used to discriminate
+      discriminateByTags: ['fooConversationTag3'],
+    })
   })
 
-  client.getOrCreateConversation({
-    channel: 'channelFoo',
-    // @ts-expect-error only tags of the channelFoo channel can be set
-    tags: { fooConversationTag1: '1', fooConversationTag2: '2', fooConversationTag4: '4' },
-    discriminateByTags: ['fooConversationTag1'],
+  test('getOrCreateMessage with FooBarBazIntegration stricly enforces allowed tags', () => {
+    const client = _mockClient<FooBarBazIntegration>()
+
+    client.getOrCreateMessage({
+      channel: 'channelFoo',
+      conversationId: '',
+      userId: '',
+      type: 'messageFoo',
+      payload: { foo: 'foo' },
+      tags: { fooMessageTag1: '1' },
+      discriminateByTags: ['fooMessageTag1'],
+    })
+
+    client.getOrCreateMessage({
+      channel: 'channelFoo',
+      conversationId: '',
+      userId: '',
+      type: 'messageFoo',
+      payload: { foo: 'a' },
+      // @ts-expect-error only tags of the channelFoo channel can be set
+      tags: { fooMessageTag1: '1', fooMessageTag4: '4' },
+      discriminateByTags: ['fooMessageTag1'],
+    })
+
+    client.getOrCreateMessage({
+      channel: 'channelFoo',
+      conversationId: '',
+      userId: '',
+      type: 'messageFoo',
+      payload: { foo: 'a' },
+      tags: { fooMessageTag1: '1', fooMessageTag2: '2' },
+      // @ts-expect-error only tags set in the tags object can be used to discriminate
+      discriminateByTags: ['fooMessageTag3'],
+    })
   })
 
-  client.getOrCreateConversation({
-    channel: 'channelFoo',
-    tags: { fooConversationTag1: '1', fooConversationTag2: '2' },
-    // @ts-expect-error only tags set in the tags object can be used to discriminate
-    discriminateByTags: ['fooConversationTag3'],
+  test('getOrCreateUser with FooBarBazIntegration stricly enforces allowed tags', () => {
+    const client = _mockClient<FooBarBazIntegration>()
+
+    client.getOrCreateUser({
+      tags: { fooUserTag1: '1', fooUserTag2: '2', fooUserTag3: '3' },
+      discriminateByTags: ['fooUserTag1'],
+    })
+
+    client.getOrCreateUser({
+      // @ts-expect-error only defined user tags can be used
+      tags: { fooUserTag1: '1', fooUserTag2: '2', fooUserTag4: '4' },
+      discriminateByTags: ['fooUserTag1'],
+    })
+
+    client.getOrCreateUser({
+      tags: { fooUserTag1: '1', fooUserTag2: '2' },
+      // @ts-expect-error only tags set in the tags object can be used to discriminate
+      discriminateByTags: ['fooUserTag3'],
+    })
   })
 })

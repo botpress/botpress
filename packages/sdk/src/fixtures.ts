@@ -105,6 +105,13 @@ type _FooBarBazIntegration = {
       }
     }>
   }
+  user: {
+    tags: {
+      fooUserTag1: ''
+      fooUserTag2: ''
+      fooUserTag3: ''
+    }
+  }
 }
 
 type _TotoTutuTataInterface = {
