@@ -128,15 +128,10 @@ export const createConversation: CreateConversationFunction = async ({ client, c
     return
   }
 
-  type ThreadArgs = Parameters<typeof client.getOrCreateConversation<'thread'>>[0]
-  type DmArgs = Parameters<typeof client.getOrCreateConversation<'dm' | 'channel'>>[0]
-
-  const args: ThreadArgs | DmArgs =
+  const { conversation } =
     channel === 'thread'
-      ? { channel, tags: { id: response.channel.id, thread } }
-      : { channel, tags: { id: response.channel.id } }
-
-  const { conversation } = await client.getOrCreateConversation(args)
+      ? await client.getOrCreateConversation({ channel, tags: { id: response.channel.id, thread } })
+      : await client.getOrCreateConversation({ channel, tags: { id: response.channel.id } })
 
   return {
     body: JSON.stringify({ conversation: { id: conversation.id, thread } }),
