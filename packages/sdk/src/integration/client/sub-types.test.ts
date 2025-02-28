@@ -37,9 +37,6 @@ test('GetChannelByName', () => {
   type Actual = GetChannelByName<FooBarBazIntegration, 'channelFoo'>
   type Expected = {
     messages: {
-      text: {
-        text: string
-      }
       messageFoo: {
         foo: string
       }

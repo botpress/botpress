@@ -144,13 +144,15 @@ export type CreateMessage<TIntegration extends common.BaseIntegration> = <
 
 export type GetOrCreateMessage<TIntegration extends common.BaseIntegration> = <
   TMessage extends keyof EnumerateMessages<TIntegration>,
+  TTags extends keyof GetMessageByName<TIntegration, TMessage>['tags'],
 >(
   x: utils.Merge<
     Arg<client.Client['getOrCreateMessage']>,
     {
       type: utils.Cast<TMessage, string>
       payload: GetMessageByName<TIntegration, TMessage>['payload']
-      tags: common.ToTags<keyof GetMessageByName<TIntegration, TMessage>['tags']>
+      tags: common.ToTags<TTags>
+      discriminateByTags?: NoInfer<utils.Cast<TTags[], string[]>>
     }
   >
 ) => Promise<MessageResponse<TIntegration>>

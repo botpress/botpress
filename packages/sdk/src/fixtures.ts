@@ -43,7 +43,6 @@ type _FooBarBazIntegration = {
   channels: {
     channelFoo: DefaultChannel<{
       messages: {
-        text: { text: string }
         messageFoo: {
           foo: string
         }
@@ -65,7 +64,6 @@ type _FooBarBazIntegration = {
     }>
     channelBar: DefaultChannel<{
       messages: {
-        text: { text: string }
         messageBar: {
           bar: number
         }
@@ -87,7 +85,6 @@ type _FooBarBazIntegration = {
     }>
     channelBaz: DefaultChannel<{
       messages: {
-        text: { text: string }
         messageBaz: {
           baz: boolean
         }

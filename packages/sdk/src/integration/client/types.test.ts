@@ -226,10 +226,30 @@ describe.concurrent('ClientOperations', () => {
     client.getOrCreateMessage({
       conversationId: '',
       userId: '',
-      type: 'text',
-      payload: { text: 'Hello' },
+      type: 'messageFoo',
+      payload: { foo: 'foo' },
+      tags: { fooMessageTag1: '1' },
+      discriminateByTags: ['fooMessageTag1'],
+    })
+
+    client.getOrCreateMessage({
+      conversationId: '',
+      userId: '',
+      type: 'messageFoo',
+      payload: { foo: 'a' },
+      // @ts-expect-error only tags of the channelFoo channel can be set
+      tags: { fooMessageTag1: '1', fooMessageTag4: '4' },
+      discriminateByTags: ['fooMessageTag1'],
+    })
+
+    client.getOrCreateMessage({
+      conversationId: '',
+      userId: '',
+      type: 'messageFoo',
+      payload: { foo: 'a' },
       tags: { fooMessageTag1: '1', fooMessageTag2: '2' },
-      discriminateByTags: [],
+      // @ts-expect-error only tags set in the tags object can be used to discriminate
+      discriminateByTags: ['fooMessageTag3'],
     })
   })
 
