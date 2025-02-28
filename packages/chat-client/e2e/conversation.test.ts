@@ -61,3 +61,21 @@ test('get or create a conversation with a fid always returns the same conversati
   expect(await getOrCreate()).toBe(conversationFid)
   expect(await getOrCreate()).toBe(conversationFid) // operation is idempotent
 })
+
+test('get conversation is only allowed for participants', async () => {
+  const client = new chat.Client({ apiUrl })
+
+  const user1 = await client.createUser({})
+  const user2 = await client.createUser({})
+  const user3 = await client.createUser({})
+
+  const { conversation } = await client.createConversation({ 'x-user-key': user1.key })
+  await client.addParticipant({ conversationId: conversation.id, 'x-user-key': user1.key, userId: user2.user.id })
+
+  const promise1 = client.getConversation({ id: conversation.id, 'x-user-key': user1.key })
+  await expect(promise1).resolves.toBeTruthy()
+  const promise2 = client.getConversation({ id: conversation.id, 'x-user-key': user2.key })
+  await expect(promise2).resolves.toBeTruthy()
+  const promise3 = client.getConversation({ id: conversation.id, 'x-user-key': user3.key })
+  await expect(promise3).rejects.toThrow(chat.ForbiddenError)
+})
