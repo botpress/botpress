@@ -148,7 +148,6 @@ export type CreateMessage<TIntegration extends common.BaseIntegration> = <
   x: utils.Merge<
     Arg<client.Client['createMessage']>,
     {
-      channel?: TChannel // Only present for type inference
       type: utils.Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
       payload: TIntegration['channels'][TChannel]['messages'][TMessage]
       tags: common.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
@@ -158,16 +157,20 @@ export type CreateMessage<TIntegration extends common.BaseIntegration> = <
 
 export type GetOrCreateMessage<TIntegration extends common.BaseIntegration> = <
   TChannel extends keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
-  TTags extends keyof TIntegration['channels'][TChannel]['message']['tags'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages'] = NoInfer<
+    keyof TIntegration['channels'][TChannel]['messages']
+  >,
+  TTags extends keyof TIntegration['channels'][TChannel]['message']['tags'] = NoInfer<
+    keyof TIntegration['channels'][TChannel]['message']['tags']
+  >,
 >(
   x: utils.Merge<
     Arg<client.Client['getOrCreateMessage']>,
     {
-      channel?: TChannel // Only present for type inference
       type: utils.Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
       payload: TIntegration['channels'][TChannel]['messages'][TMessage]
       tags: common.ToTags<TTags>
+      // TODO: find a way to restrict discriminateByTags to tags present in x.tags
       discriminateByTags?: NoInfer<utils.Cast<TTags[], string[]>>
     }
   >
