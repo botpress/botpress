@@ -70,7 +70,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     this.logger.cleanup()
   }
 
-  protected async ensureLoginAndCreateClient(credentials: YargsConfig<typeof config.schemas.credentials>) {
+  protected async getAuthenticatedClient(credentials: YargsConfig<typeof config.schemas.credentials>) {
     const cache = this.globalCache
 
     const token = await cache.get('token')
@@ -78,7 +78,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     const apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
 
     if (!(token && workspaceId && apiUrl)) {
-      throw new errors.NotLoggedInError()
+      return null
     }
 
     if (apiUrl !== consts.defaultBotpressApiUrl) {
@@ -86,6 +86,16 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     }
 
     return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
+  }
+
+  protected async ensureLoginAndCreateClient(credentials: YargsConfig<typeof config.schemas.credentials>) {
+    const client = await this.getAuthenticatedClient(credentials)
+
+    if (client === null) {
+      throw new errors.NotLoggedInError()
+    }
+
+    return client
   }
 
   private _notifyUpdateCli = async (): Promise<void> => {
