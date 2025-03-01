@@ -1,5 +1,5 @@
-import { ResourceNotFoundError } from '@botpress/client'
 import { ExtendedClient, getExtendedClient } from './bp-client'
+import { isNotFoundError } from './errors'
 import { Model as RawModel } from './llm'
 import { BotpressClientLike } from './types'
 
@@ -169,9 +169,10 @@ export class RemoteModelProvider extends ModelProvider {
         return data as ModelPreferences
       }
     } catch (err) {
-      if (err instanceof ResourceNotFoundError) {
+      if (isNotFoundError(err)) {
         return null
       }
+
       throw err
     }
   }

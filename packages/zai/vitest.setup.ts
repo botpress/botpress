@@ -1,6 +1,6 @@
-import { Client } from '@botpress/client'
 import { setupClient } from '@botpress/vai'
 import { beforeAll } from 'vitest'
+import { getClient } from './e2e/utils'
 
 globalThis.STUDIO = false
 
@@ -13,29 +13,5 @@ beforeAll(async () => {
     throw new Error('Missing CLOUD_BOT_ID')
   }
 
-  const apiUrl: string = process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.dev'
-  const botId: string = process.env.CLOUD_BOT_ID
-  const token: string = process.env.CLOUD_PAT
-
-  const client = new Client({
-    apiUrl,
-    botId,
-    token,
-  })
-
-  const { integration } = await client.getPublicIntegration({
-    name: 'openai',
-    version: 'latest',
-  })
-
-  await client.updateBot({
-    id: botId,
-    integrations: {
-      [integration.id]: {
-        enabled: true,
-      },
-    },
-  })
-
-  setupClient(client)
+  setupClient(getClient())
 })

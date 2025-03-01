@@ -64,11 +64,11 @@ describe('zai.learn / generic', { timeout: 60_000 }, () => {
       throw new Error('Table is down')
     })
 
-    const client = {
-      ...getClient(),
-      findTableRows,
+    const client = getClient()
+    Object.assign(client, {
       upsertTableRows,
-    } as unknown as Client
+      findTableRows,
+    })
 
     const value = await zai
       .with({ client })

@@ -20,11 +20,12 @@ declare module '@botpress/zai' {
 Zai.prototype.text = async function (this: Zai, prompt, _options) {
   const options = Options.parse(_options ?? {})
   const tokenizer = await this.getTokenizer()
+  await this.fetchModelDetails()
 
-  prompt = tokenizer.truncate(prompt, Math.max(this.Model.input.maxTokens - PROMPT_INPUT_BUFFER, 100))
+  prompt = tokenizer.truncate(prompt, Math.max(this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER, 100))
 
   if (options.length) {
-    options.length = Math.min(this.Model.output.maxTokens - PROMPT_OUTPUT_BUFFER, options.length)
+    options.length = Math.min(this.ModelDetails.output.maxTokens - PROMPT_OUTPUT_BUFFER, options.length)
   }
 
   const instructions: string[] = []
@@ -50,7 +51,7 @@ Zai.prototype.text = async function (this: Zai, prompt, _options) {
 | 300-500 tokens| A long paragraph (200-300 words)   |`.trim()
   }
 
-  const output = await this.callModel({
+  const { output } = await this.callModel({
     systemPrompt: `
 Generate a text that fulfills the user prompt below. Answer directly to the prompt, without any acknowledgements or fluff. Also, make sure the text is standalone and complete.
 ${instructions.map((x) => `- ${x}`).join('\n')}

@@ -123,4 +123,41 @@ describe('client', () => {
       expect(resp.output.choices[0]?.content).toBe('This is the LLM response')
     })
   })
+
+  describe('getModelDetails', () => {
+    test('fetches model details', async () => {
+      const details = await client.getModelDetails('best')
+      expect(details).toMatchInlineSnapshot(`
+        {
+          "description": "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
+          "id": "gpt-4o-2024-11-20",
+          "input": {
+            "costPer1MTokens": 2.5,
+            "maxTokens": 128000,
+          },
+          "integration": "openai",
+          "name": "GPT-4o (November 2024)",
+          "output": {
+            "costPer1MTokens": 10,
+            "maxTokens": 16384,
+          },
+          "ref": "openai:gpt-4o-2024-11-20",
+          "tags": [
+            "recommended",
+            "vision",
+            "general-purpose",
+            "coding",
+            "agents",
+            "function-calling",
+          ],
+        }
+      `)
+    })
+  })
+})
+
+test('isCognitiveClient', () => {
+  const client = getTestClient()
+  expect(Cognitive.isCognitiveClient(client)).toBe(false)
+  expect(Cognitive.isCognitiveClient(new Cognitive({ client, provider: new MockProvider(client) }))).toBe(true)
 })

@@ -1,4 +1,3 @@
-import type { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
 
 export const stringify = (input: unknown, beautify = true) => {
@@ -8,14 +7,6 @@ export const stringify = (input: unknown, beautify = true) => {
       ? JSON.stringify(input, beautify ? null : undefined, beautify ? 2 : undefined)
       : '<input is null, false, undefined or empty>'
 }
-
-export const BotpressClient = z.custom<Client | any>(
-  (value) =>
-    typeof value === 'object' && value !== null && 'callAction' in value && typeof value.callAction === 'function',
-  {
-    message: 'Invalid Botpress Client. Make sure to pass an instance of @botpress/client',
-  }
-)
 
 export function fastHash(str: string): string {
   let hash = 0

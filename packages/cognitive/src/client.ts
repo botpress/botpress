@@ -9,6 +9,7 @@ import {
   DOWNTIME_THRESHOLD_MINUTES,
   getBestModels,
   getFastModels,
+  Model,
   ModelPreferences,
   ModelProvider,
   ModelRef,
@@ -18,6 +19,12 @@ import {
 import { CognitiveProps, Events, InputProps, Request, Response } from './types'
 
 export class Cognitive {
+  public ['$$IS_COGNITIVE'] = true
+
+  public static isCognitiveClient(obj: any): obj is Cognitive {
+    return obj?.$$IS_COGNITIVE === true
+  }
+
   public interceptors = {
     request: new InterceptorManager<Request>(),
     response: new InterceptorManager<Response>(),
@@ -28,16 +35,27 @@ export class Cognitive {
   private _provider: ModelProvider
   private _events = createNanoEvents<Events>()
   private _downtimes: ModelPreferences['downtimes'] = []
+  private _models: Model[] = []
 
   public constructor(props: CognitiveProps) {
     this._client = getExtendedClient(props.client)
     this._provider = props.provider ?? new RemoteModelProvider(props.client)
+  }
 
-    // debug('new cognitive client instance created')
+  public get client(): ExtendedClient {
+    return this._client
   }
 
   public on<K extends keyof Events>(this: this, event: K, cb: Events[K]): Unsubscribe {
     return this._events.on(event, cb)
+  }
+
+  public async fetchInstalledModels(): Promise<Model[]> {
+    if (!this._models.length) {
+      this._models = await this._provider.fetchInstalledModels()
+    }
+
+    return this._models
   }
 
   public async fetchPreferences(): Promise<ModelPreferences> {
@@ -51,7 +69,7 @@ export class Cognitive {
       return this._preferences
     }
 
-    const models = await this._provider.fetchInstalledModels()
+    const models = await this.fetchInstalledModels()
 
     this._preferences = {
       best: getBestModels(models).map((m) => m.ref),
@@ -105,6 +123,18 @@ export class Cognitive {
     }
 
     return parseRef(pickModel([ref as ModelRef, ...preferences.best, ...preferences.fast], downtimes))
+  }
+
+  public async getModelDetails(model: string) {
+    await this.fetchInstalledModels()
+    const { integration, model: modelName } = await this._selectModel(model)
+    const def = this._models.find((m) => m.integration === integration && (m.name === modelName || m.id === modelName))
+    if (!def) {
+      console.log('Models:', this._models)
+      throw new Error(`Model ${modelName} not found`)
+    }
+
+    return def
   }
 
   public async generateContent(input: InputProps): Promise<Response> {

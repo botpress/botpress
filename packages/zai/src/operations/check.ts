@@ -30,7 +30,8 @@ const END = '■END■'
 Zai.prototype.check = async function (this: Zai, input, condition, _options) {
   const options = Options.parse(_options ?? {})
   const tokenizer = await this.getTokenizer()
-  const PROMPT_COMPONENT = Math.max(this.Model.input.maxTokens - PROMPT_INPUT_BUFFER, 100)
+  await this.fetchModelDetails()
+  const PROMPT_COMPONENT = Math.max(this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER, 100)
 
   const taskId = this.taskId
   const taskType = 'zai.check'
@@ -131,7 +132,7 @@ ${END}
 `.trim()
     : ''
 
-  const output = await this.callModel({
+  const { output, meta } = await this.callModel({
     systemPrompt: `
 Check if the following condition is true or false for the given input. Before answering, make sure to read the input and the condition carefully.
 Justify your answer, then answer with either ${TRUE} or ${FALSE} at the very end, then add ${END} to finish the response.
@@ -179,7 +180,18 @@ In your "Analysis", please refer to the Expert Examples # to justify your decisi
       taskId,
       input: inputAsString,
       instructions: condition,
-      metadata: output.metadata,
+      metadata: {
+        cost: {
+          input: meta.cost.input,
+          output: meta.cost.output,
+        },
+        latency: meta.latency,
+        model: this.Model,
+        tokens: {
+          input: meta.tokens.input,
+          output: meta.tokens.output,
+        },
+      },
       output: finalAnswer,
       explanation: answer.replace(TRUE, '').replace(FALSE, '').replace(END, '').replace('Final Answer:', '').trim(),
     })

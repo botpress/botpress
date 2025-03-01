@@ -28,6 +28,7 @@
     "lodash-es": "^4.17.21"
   },
   "devDependencies": {
+    "@botpress/client": "workspace:^",
     "@botpress/common": "workspace:*",
     "@botpress/vai": "workspace:*",
     "@types/lodash-es": "^4.17.12",
@@ -38,8 +39,8 @@
     "tsup": "^8.0.2"
   },
   "peerDependencies": {
-    "@botpress/client": "0.45.0",
+    "@botpress/cognitive": "^0.1.5",
     "@bpinternal/thicktoken": "^1.0.0",
-    "@bpinternal/zui": "^0.13.4"
+    "@bpinternal/zui": "^0.17.1"
   }
 }
