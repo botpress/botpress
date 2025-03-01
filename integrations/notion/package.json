@@ -15,7 +15,8 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpresshub/listable": "workspace:*"
   },
   "bpDependencies": {
     "listable": "../../interfaces/listable"

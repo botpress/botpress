@@ -5,7 +5,7 @@ env = to_string!(.env)
 clientId = "1a3d872b-594c-8091-9282-00379efef107"
 
 if env == "production" {
-  clientId = "58baef132a1d4eff9c4afaafdca85299"
+  clientId = "1a9d872b-594c-80a4-8ec0-0037486f5672"
 }
 
 redirectUri = "{{ webhookUrl }}/oauth"
