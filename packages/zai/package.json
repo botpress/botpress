@@ -38,8 +38,12 @@
     "tsup": "^8.0.2"
   },
   "peerDependencies": {
-    "@botpress/client": "0.45.0",
+    "@botpress/client": "0.47.0",
     "@bpinternal/thicktoken": "^1.0.0",
     "@bpinternal/zui": "^0.13.4"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.6.2"
 }

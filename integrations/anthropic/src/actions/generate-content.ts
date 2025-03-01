@@ -4,6 +4,8 @@ import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
 import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
+import { DefaultReasoningEffort, ThinkingModeBudgetTokens } from 'src'
+import { ModelId } from 'src/schemas'
 
 // Reference: https://docs.anthropic.com/en/api/errors
 const AnthropicInnerErrorSchema = z.object({
@@ -11,17 +13,18 @@ const AnthropicInnerErrorSchema = z.object({
   error: z.object({ type: z.string(), message: z.string() }),
 })
 
-export async function generateContent<M extends string>(
+export async function generateContent(
   input: llm.GenerateContentInput,
   anthropic: Anthropic,
   logger: IntegrationLogger,
   params: {
-    models: Record<M, llm.ModelDetails>
-    defaultModel: M
+    models: Record<ModelId, llm.ModelDetails>
+    defaultModel: ModelId
   }
 ): Promise<llm.GenerateContentOutput> {
-  const modelId = (input.model?.id || params.defaultModel) as M
-  const model = params.models[modelId]
+  let modelId = (input.model?.id || params.defaultModel) as ModelId
+  let model = params.models[modelId]
+
   if (!model) {
     throw new InvalidPayloadError(
       `Model ID "${modelId}" is not allowed, supported model IDs are: ${Object.keys(params.models).join(', ')}`
@@ -76,6 +79,26 @@ export async function generateContent<M extends string>(
     messages,
   }
 
+  if (modelId === 'claude-3-7-sonnet-reasoning-20250219') {
+    modelId = 'claude-3-7-sonnet-20250219' // NOTE: The "-reasoning" model ID doesn't really exist in Anthropic, we use it as a simple way for users to switch between the reasoning mode and the standard mode.
+    request.model = modelId
+    model = params.models[modelId]
+
+    // Reference: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
+    request.thinking = {
+      type: 'enabled',
+      budget_tokens: ThinkingModeBudgetTokens[input.reasoningEffort ?? DefaultReasoningEffort],
+    }
+
+    // IMPORTANT: Thinking mode requires the max tokens to be greater than the thinking budget tokens, and we assume here that the max tokens indicated in the action input don't take into account the thinking budget tokens.
+    request.max_tokens = request.thinking.budget_tokens + request.max_tokens
+
+    // Note: These params aren't supported in thinking mode, see: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking
+    request.temperature = undefined
+    request.top_k = undefined
+    request.top_p = undefined
+  }
+
   if (input.debug) {
     logger.forBot().info('Request being sent to Anthropic: ' + JSON.stringify(request, null, 2))
   }
@@ -106,7 +129,7 @@ export async function generateContent<M extends string>(
   const cost = inputCost + outputCost
 
   const content = response.content
-    .filter((x): x is Anthropic.TextBlock => x.type === 'text') // Claude models only return "text" or "tool_use" blocks at the moment.
+    .filter((x): x is Anthropic.TextBlock => x.type === 'text') // Claude models only return "text", "thinking", or "tool_use" blocks at the moment.
     .map((content) => content.text)
     .join('\n\n')
 

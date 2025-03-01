@@ -16,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.45.0",
+    "@botpress/client": "0.47.0",
     "browser-or-node": "^2.1.1"
   },
   "devDependencies": {
@@ -32,5 +32,9 @@
     "esbuild": {
       "optional": true
     }
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.6.2"
 }
