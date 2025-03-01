@@ -16,5 +16,8 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*"
+  },
+  "bpDependencies": {
+    "listable": "../../interfaces/listable"
   }
 }
