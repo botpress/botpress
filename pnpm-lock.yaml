@@ -1765,6 +1765,9 @@ importers:
       type-fest:
         specifier: ^3.4.0
         version: 3.11.1
+      verror:
+        specifier: ^1.10.1
+        version: 1.10.1
       zod:
         specifier: ^3.21.4
         version: 3.22.4
@@ -1793,6 +1796,9 @@ importers:
       '@types/uuid':
         specifier: ^9.0.1
         version: 9.0.1
+      '@types/verror':
+        specifier: ^1.10.6
+        version: 1.10.6
       '@types/web':
         specifier: ^0.0.115
         version: 0.0.115
@@ -1815,7 +1821,7 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.5.0
+        specifier: 0.5.1
         version: link:../chat-client
       '@botpress/client':
         specifier: 0.45.0
