@@ -8,6 +8,6 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "openai": "^4.53.0"
+    "openai": "^4.86.1"
   }
 }

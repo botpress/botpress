@@ -42,5 +42,9 @@
     "@botpress/cognitive": "^0.1.5",
     "@bpinternal/thicktoken": "^1.0.0",
     "@bpinternal/zui": "^0.17.1"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.6.2"
 }
