@@ -23,6 +23,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@botpress/cognitive": "^0.1.6",
     "json5": "^2.2.3",
     "jsonrepair": "^3.10.0",
     "lodash-es": "^4.17.21"
@@ -39,7 +40,6 @@
     "tsup": "^8.0.2"
   },
   "peerDependencies": {
-    "@botpress/cognitive": "^0.1.5",
     "@bpinternal/thicktoken": "^1.0.0",
     "@bpinternal/zui": "^0.17.1"
   },

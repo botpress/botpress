@@ -130,7 +130,7 @@ export class Cognitive {
     const { integration, model: modelName } = await this._selectModel(model)
     const def = this._models.find((m) => m.integration === integration && (m.name === modelName || m.id === modelName))
     if (!def) {
-      console.log('Models:', this._models)
+      console.info('Models:', this._models)
       throw new Error(`Model ${modelName} not found`)
     }
 
