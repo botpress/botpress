@@ -1,5 +1,5 @@
-import { ResourceNotFoundError } from '@botpress/client'
 import { ExtendedClient, getExtendedClient } from './bp-client'
+import { isNotFoundError } from './errors'
 import { Model as RawModel } from './llm'
 import { BotpressClientLike } from './types'
 
@@ -112,7 +112,7 @@ export class RemoteModelProvider extends ModelProvider {
 
   public async fetchInstalledModels() {
     const { bot } = await this._client.getBot({ id: this._client.botId })
-    const models: any[] = []
+    const models: Model[] = []
 
     const registered = Object.values(bot.integrations).filter((x) => x.status === 'registered')
 
@@ -138,7 +138,7 @@ export class RemoteModelProvider extends ModelProvider {
               input: model.input,
               output: model.output,
               tags: model.tags,
-            } satisfies Model)
+            })
           }
         }
       })
@@ -169,9 +169,10 @@ export class RemoteModelProvider extends ModelProvider {
         return data as ModelPreferences
       }
     } catch (err) {
-      if (err instanceof ResourceNotFoundError) {
+      if (isNotFoundError(err)) {
         return null
       }
+
       throw err
     }
   }

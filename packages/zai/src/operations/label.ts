@@ -104,11 +104,12 @@ Zai.prototype.label = async function <T extends string>(this: Zai, input, _label
   const options = Options.parse(_options ?? {})
   const labels = Labels.parse(_labels)
   const tokenizer = await this.getTokenizer()
+  await this.fetchModelDetails()
 
   const taskId = this.taskId
   const taskType = 'zai.label'
 
-  const TOTAL_MAX_TOKENS = clamp(options.chunkLength, 1000, this.Model.input.maxTokens - PROMPT_INPUT_BUFFER)
+  const TOTAL_MAX_TOKENS = clamp(options.chunkLength, 1000, this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER)
   const CHUNK_EXAMPLES_MAX_TOKENS = clamp(Math.floor(TOTAL_MAX_TOKENS * 0.5), 250, 10_000)
   const CHUNK_INPUT_MAX_TOKENS = clamp(
     TOTAL_MAX_TOKENS - CHUNK_EXAMPLES_MAX_TOKENS,
@@ -239,7 +240,7 @@ ${END}
     })
     .join('\n\n')
 
-  const output = await this.callModel({
+  const { output, meta } = await this.callModel({
     stopSequences: [END],
     systemPrompt: `
 You need to tag the input with the following labels based on the question asked:
@@ -323,7 +324,18 @@ For example, you can say: "According to Expert Example #1, ..."`.trim(),
       taskType,
       taskId,
       instructions: options.instructions ?? '',
-      metadata: output.metadata,
+      metadata: {
+        cost: {
+          input: meta.cost.input,
+          output: meta.cost.output,
+        },
+        latency: meta.latency,
+        model: this.Model,
+        tokens: {
+          input: meta.tokens.input,
+          output: meta.tokens.output,
+        },
+      },
       input: inputAsString,
       output: final,
     })

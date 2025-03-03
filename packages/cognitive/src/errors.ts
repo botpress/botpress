@@ -38,6 +38,8 @@ export const getActionFromError = (error: any): Action => {
   return 'abort'
 }
 
+export const isNotFoundError = (error: any): boolean => isBotpressError(error) && error.type === 'ResourceNotFound'
+
 export const isBotpressError = (error: any): error is BotpressError =>
   typeof error === 'object' &&
   error !== null &&

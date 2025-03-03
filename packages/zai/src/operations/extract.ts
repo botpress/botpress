@@ -1,5 +1,5 @@
 // eslint-disable consistent-type-definitions
-import { z } from '@bpinternal/zui'
+import { z, ZodObject } from '@bpinternal/zui'
 
 import JSON5 from 'json5'
 import { jsonrepair } from 'jsonrepair'
@@ -25,12 +25,7 @@ const Options = z.object({
 declare module '@botpress/zai' {
   interface Zai {
     /** Extracts one or many elements from an arbitrary input */
-    extract<S extends z.AnyZodObject>(input: unknown, schema: S, options?: Options): Promise<z.infer<S>>
-    extract<S extends z.AnyZodObject>(
-      input: unknown,
-      schema: z.ZodArray<S>,
-      options?: Options
-    ): Promise<Array<z.infer<S>>>
+    extract<S extends z.AnyZodObject | z.ZodArray>(input: unknown, schema: S, options?: Options): Promise<z.TypeOf<S>>
   }
 }
 
@@ -41,21 +36,29 @@ const NO_MORE = '■NO_MORE_ELEMENT■'
 Zai.prototype.extract = async function (this: Zai, input, schema, _options) {
   const options = Options.parse(_options ?? {})
   const tokenizer = await this.getTokenizer()
+  await this.fetchModelDetails()
 
   const taskId = this.taskId
   const taskType = 'zai.extract'
 
-  const PROMPT_COMPONENT = Math.max(this.Model.input.maxTokens - PROMPT_INPUT_BUFFER, 100)
+  const PROMPT_COMPONENT = Math.max(this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER, 100)
 
   let isArrayOfObjects = false
   const originalSchema = schema
 
-  if (schema instanceof z.ZodObject) {
+  const baseType = (schema.naked ? schema.naked() : schema)?.constructor?.name ?? 'unknown'
+
+  if (baseType === 'ZodObject') {
     // Do nothing
-  } else if (schema instanceof z.ZodArray) {
-    if (schema._def.type instanceof z.ZodObject) {
+  } else if (baseType === 'ZodArray') {
+    let elementType = (schema as any).element
+    if (elementType.naked) {
+      elementType = elementType.naked()
+    }
+
+    if (elementType?.constructor?.name === 'ZodObject') {
       isArrayOfObjects = true
-      schema = schema._def.type
+      schema = elementType
     } else {
       throw new Error('Schema must be a ZodObject or a ZodArray<ZodObject>')
     }
@@ -66,9 +69,12 @@ Zai.prototype.extract = async function (this: Zai, input, schema, _options) {
   const schemaTypescript = schema.toTypescript({ declaration: false })
   const schemaLength = tokenizer.count(schemaTypescript)
 
-  options.chunkLength = Math.min(options.chunkLength, this.Model.input.maxTokens - PROMPT_INPUT_BUFFER - schemaLength)
+  options.chunkLength = Math.min(
+    options.chunkLength,
+    this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER - schemaLength
+  )
 
-  const keys = Object.keys(schema.shape)
+  const keys = Object.keys((schema as ZodObject).shape)
 
   let inputAsString = stringify(input)
 
@@ -229,7 +235,7 @@ ${END}`.trim()
     .map(formatExample)
     .flat()
 
-  const output = await this.callModel({
+  const { output, meta } = await this.callModel({
     systemPrompt: `
 Extract the following information from the input:
 ${schemaTypescript}
@@ -284,7 +290,18 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
       instructions: options.instructions ?? 'No specific instructions',
       input: inputAsString,
       output: final,
-      metadata: output.metadata,
+      metadata: {
+        cost: {
+          input: meta.cost.input,
+          output: meta.cost.output,
+        },
+        latency: meta.latency,
+        model: this.Model,
+        tokens: {
+          input: meta.tokens.input,
+          output: meta.tokens.output,
+        },
+      },
     })
   }
 

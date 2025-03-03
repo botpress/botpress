@@ -34,7 +34,7 @@
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "@bpinternal/depsynky": "^0.1.0",
+    "@bpinternal/depsynky": "0.2.0",
     "@bpinternal/readiness": "^0.0.16",
     "@stylistic/eslint-plugin": "^2.12.1",
     "@types/node": "^18.19.67",

@@ -1,15 +1,17 @@
-import { Client } from '@botpress/client'
 import { setupClient } from '@botpress/vai'
 import { beforeAll } from 'vitest'
+import { getClient } from './e2e/utils'
 
 globalThis.STUDIO = false
 
 beforeAll(async () => {
-  if (!process.env.CLOUD_PAT) {
+  const token = process.env.CLOUD_PAT
+  if (!token) {
     throw new Error('Missing CLOUD_PAT')
   }
 
-  if (!process.env.CLOUD_BOT_ID) {
+  const botId = process.env.CLOUD_BOT_ID
+  if (!botId) {
     throw new Error('Missing CLOUD_BOT_ID')
   }
 
@@ -17,17 +19,9 @@ beforeAll(async () => {
     throw new Error('This is an error')
   }
 
-  const apiUrl: string = process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.dev'
-  const botId: string = process.env.CLOUD_BOT_ID
-  const token: string = process.env.CLOUD_PAT
+  const client = getClient()
 
-  const client = new Client({
-    apiUrl,
-    botId,
-    token,
-  })
-
-  const { integration } = await client.getPublicIntegration({
+  const { integration: openai } = await client.getPublicIntegration({
     name: 'openai',
     version: 'latest',
   })
@@ -35,7 +29,7 @@ beforeAll(async () => {
   await client.updateBot({
     id: botId,
     integrations: {
-      [integration.id]: {
+      [openai.id]: {
         enabled: true,
       },
     },

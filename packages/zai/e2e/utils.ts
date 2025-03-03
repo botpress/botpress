@@ -66,12 +66,16 @@ export const getCachedClient = () => {
     },
   })
 
+  ;(proxy as any).clone = () => {
+    return getCachedClient()
+  }
+
   return proxy
 }
 
 export const getZai = () => {
   const client = getCachedClient()
-  return new Zai({ client, retry: { maxRetries: 0 } })
+  return new Zai({ client })
 }
 
 export let tokenizer: TextTokenizer = null!

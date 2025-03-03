@@ -37,12 +37,13 @@ const END = '■END■'
 Zai.prototype.filter = async function (this: Zai, input, condition, _options) {
   const options = Options.parse(_options ?? {})
   const tokenizer = await this.getTokenizer()
+  await this.fetchModelDetails()
 
   const taskId = this.taskId
   const taskType = 'zai.filter'
 
   const MAX_ITEMS_PER_CHUNK = 50
-  const TOKENS_TOTAL_MAX = this.Model.input.maxTokens - PROMPT_INPUT_BUFFER - PROMPT_OUTPUT_BUFFER
+  const TOKENS_TOTAL_MAX = this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER - PROMPT_OUTPUT_BUFFER
   const TOKENS_EXAMPLES_MAX = Math.floor(Math.max(250, TOKENS_TOTAL_MAX * 0.5))
   const TOKENS_CONDITION_MAX = clamp(TOKENS_TOTAL_MAX * 0.25, 250, tokenizer.count(condition))
   const TOKENS_INPUT_ARRAY_MAX = TOKENS_TOTAL_MAX - TOKENS_EXAMPLES_MAX - TOKENS_CONDITION_MAX
@@ -163,7 +164,7 @@ ${examples.map((x, idx) => `■${idx}:${!!x.filter ? 'true' : 'false'}:${x.reaso
       },
     ]
 
-    const output = await this.callModel({
+    const { output, meta } = await this.callModel({
       systemPrompt: `
 You are given a list of items. Your task is to filter out the items that meet the condition below.
 You need to return the full list of items with the format:
@@ -219,7 +220,18 @@ The condition is: "${condition}"
         input: JSON.stringify(chunk),
         output: partial,
         instructions: condition,
-        metadata: output.metadata,
+        metadata: {
+          cost: {
+            input: meta.cost.input,
+            output: meta.cost.output,
+          },
+          latency: meta.latency,
+          model: this.Model,
+          tokens: {
+            input: meta.tokens.input,
+            output: meta.tokens.output,
+          },
+        },
       })
     }
 

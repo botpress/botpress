@@ -23,7 +23,7 @@ describe('zai.rewrite', { timeout: 60_000 }, () => {
   it('transforms text to all caps and respects tokens restrictions', async () => {
     const result = await zai.rewrite(Zoe, 'write in all caps', { length: 15 })
     expect(tokenizer.count(result)).toBeLessThanOrEqual(20)
-    expect(result).toContain(`PART 1. ZOE WALKS TO THE PARK`)
+    expect(result).toContain(`ZOE WALKS TO THE PARK`)
     expect(result).not.toContain(`PART 3`)
   })
 

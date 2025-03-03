@@ -30,18 +30,19 @@ const END = '■END■'
 Zai.prototype.rewrite = async function (this: Zai, original, prompt, _options) {
   const options = Options.parse(_options ?? {})
   const tokenizer = await this.getTokenizer()
+  await this.fetchModelDetails()
 
   const taskId = this.taskId
   const taskType = 'zai.rewrite'
 
-  const INPUT_COMPONENT_SIZE = Math.max(100, (this.Model.input.maxTokens - PROMPT_INPUT_BUFFER) / 2)
+  const INPUT_COMPONENT_SIZE = Math.max(100, (this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER) / 2)
   prompt = tokenizer.truncate(prompt, INPUT_COMPONENT_SIZE)
 
   const inputSize = tokenizer.count(original) + tokenizer.count(prompt)
-  const maxInputSize = this.Model.input.maxTokens - tokenizer.count(prompt) - PROMPT_INPUT_BUFFER
+  const maxInputSize = this.ModelDetails.input.maxTokens - tokenizer.count(prompt) - PROMPT_INPUT_BUFFER
   if (inputSize > maxInputSize) {
     throw new Error(
-      `The input size is ${inputSize} tokens long, which is more than the maximum of ${maxInputSize} tokens for this model (${this.Model.name} = ${this.Model.input.maxTokens} tokens)`
+      `The input size is ${inputSize} tokens long, which is more than the maximum of ${maxInputSize} tokens for this model (${this.ModelDetails.name} = ${this.ModelDetails.input.maxTokens} tokens)`
     )
   }
 
@@ -104,7 +105,7 @@ ${END}
     ...options.examples,
   ]
 
-  const REMAINING_TOKENS = this.Model.input.maxTokens - tokenizer.count(prompt) - PROMPT_INPUT_BUFFER
+  const REMAINING_TOKENS = this.ModelDetails.input.maxTokens - tokenizer.count(prompt) - PROMPT_INPUT_BUFFER
   const examples = takeUntilTokens(
     savedExamples.length ? savedExamples : defaultExamples,
     REMAINING_TOKENS,
@@ -113,7 +114,7 @@ ${END}
     .map(formatExample)
     .flat()
 
-  const output = await this.callModel({
+  const { output, meta } = await this.callModel({
     systemPrompt: `
 Rewrite the text between the ${START} and ${END} tags to match the user prompt.
 ${instructions.map((x) => `• ${x}`).join('\n')}
@@ -136,7 +137,18 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
   if (taskId) {
     await this.adapter.saveExample({
       key: Key,
-      metadata: output.metadata,
+      metadata: {
+        cost: {
+          input: meta.cost.input,
+          output: meta.cost.output,
+        },
+        latency: meta.latency,
+        model: this.Model,
+        tokens: {
+          input: meta.tokens.input,
+          output: meta.tokens.output,
+        },
+      },
       instructions: prompt,
       input: original,
       output: result,
