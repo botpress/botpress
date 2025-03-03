@@ -31,7 +31,7 @@ jobs:
       - name: Run Vai Tests
         id: 'run-tests'
         run: |
-          bot_id=$(pnpm bp bots new --if-not-exists --json | jq -r ".id")
+          bot_id=$(pnpm bp bots new --json | jq -r ".id")
           echo "::set-output name=bot_id::$bot_id"
 
           export CLOUD_API_ENDPOINT='https://api.botpress.dev'
