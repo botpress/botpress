@@ -66,7 +66,7 @@ test('api allows adding and removing conversation participants', async () => {
       },
     })
   ).rejects.toThrow(chat.ForbiddenError)
-}, 20_000)
+})
 
 test('api forbids non-participants from listing participants', async () => {
   const client = new chat.Client({ apiUrl })
@@ -140,7 +140,7 @@ test('signal listener is disconnected when participant is removed', async () => 
 
   await listener2.disconnect()
   listener2.cleanup()
-}, 20_000)
+})
 
 test('api forbids removing owner from conversation participants', async () => {
   const client = new chat.Client({ apiUrl })
