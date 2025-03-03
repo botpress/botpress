@@ -5,13 +5,31 @@ import { getClient } from './e2e/utils'
 globalThis.STUDIO = false
 
 beforeAll(async () => {
-  if (!process.env.CLOUD_PAT) {
+  const token = process.env.CLOUD_PAT
+  if (!token) {
     throw new Error('Missing CLOUD_PAT')
   }
 
-  if (!process.env.CLOUD_BOT_ID) {
+  const botId = process.env.CLOUD_BOT_ID
+  if (!botId) {
     throw new Error('Missing CLOUD_BOT_ID')
   }
 
-  setupClient(getClient())
+  const client = getClient()
+
+  const { integration: openai } = await client.getPublicIntegration({
+    name: 'openai',
+    version: 'latest',
+  })
+
+  await client.updateBot({
+    id: botId,
+    integrations: {
+      [openai.id]: {
+        enabled: true,
+      },
+    },
+  })
+
+  setupClient(client)
 })

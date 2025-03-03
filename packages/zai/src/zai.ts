@@ -117,7 +117,7 @@ export class Zai {
     return Zai.tokenizer
   }
 
-  protected async fetchModelDetails() {
+  protected async fetchModelDetails(): Promise<void> {
     if (!this.ModelDetails) {
       this.ModelDetails = await this.client.getModelDetails(this.Model)
     }

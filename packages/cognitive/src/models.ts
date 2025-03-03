@@ -112,7 +112,7 @@ export class RemoteModelProvider extends ModelProvider {
 
   public async fetchInstalledModels() {
     const { bot } = await this._client.getBot({ id: this._client.botId })
-    const models: any[] = []
+    const models: Model[] = []
 
     const registered = Object.values(bot.integrations).filter((x) => x.status === 'registered')
 
@@ -138,7 +138,7 @@ export class RemoteModelProvider extends ModelProvider {
               input: model.input,
               output: model.output,
               tags: model.tags,
-            } satisfies Model)
+            })
           }
         }
       })
