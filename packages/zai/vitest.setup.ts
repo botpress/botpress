@@ -15,10 +15,6 @@ beforeAll(async () => {
     throw new Error('Missing CLOUD_BOT_ID')
   }
 
-  if (1 + 1 === 2) {
-    throw new Error('This is an error')
-  }
-
   const client = getClient()
 
   const { integration: openai } = await client.getPublicIntegration({

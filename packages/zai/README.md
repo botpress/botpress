@@ -1,5 +1,3 @@
-this is a test
-
 # Zui AI
 
 **Zai** (stands for _Zui + AI_) is a lightweight utility library that uses AI to manipulate and generate Zui schemas and objects.
