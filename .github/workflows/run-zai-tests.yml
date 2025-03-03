@@ -32,7 +32,7 @@ jobs:
         id: 'run-tests'
         run: |
           bot_id=$(pnpm bp bots new --if-not-exists --json | jq -r ".id")
-          echo "::set-output name=bot_id::$bot_id"
+          echo "bot_id=$bot_id" >> "$GITHUB_OUTPUT"
 
           export CLOUD_API_ENDPOINT='https://api.botpress.dev'
           export CLOUD_BOT_ID=$bot_id
