@@ -280,9 +280,8 @@ class WorkspaceResolver {
     }
 
     if (this._workspaceHandle && workspace.handle !== this._workspaceHandle) {
-      this._logger.warn(
-        `Handle "${workspace.handle}" for workspace ${workspaceId} doesn't match the provided handle "${this._workspaceHandle}". ` +
-          `Using workspace handle "${workspace.handle}" instead.`
+      throw new errors.BotpressCLIError(
+        `Handle "${workspace.handle}" for workspace ${workspaceId} doesn't match the provided handle "${this._workspaceHandle}".`
       )
     }
 
