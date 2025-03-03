@@ -37,13 +37,13 @@ export const prependWorkspaceHandle: Test = {
       retry: retry.config,
     })
 
-    await impl.login({ ...argv }).then(utils.handleExitCode)
     await impl
       .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })
       .then(utils.handleExitCode)
     await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
     await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)
     await impl.build({ ...argv, workDir: integrationDir }).then(utils.handleExitCode)
+    await impl.login({ ...argv }).then(utils.handleExitCode)
 
     await impl
       .deploy({ ...argv, createNewBot: undefined, botId: undefined, workDir: integrationDir })
@@ -90,12 +90,12 @@ export const enforceWorkspaceHandle: Test = {
       ...creds,
     }
 
-    await impl.login({ ...argv }).then(utils.handleExitCode)
     await impl
       .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })
       .then(utils.handleExitCode)
     await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
     await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)
+    await impl.login({ ...argv }).then(utils.handleExitCode)
 
     const { exitCode } = await impl.deploy({
       ...argv,

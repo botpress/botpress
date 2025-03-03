@@ -2,13 +2,13 @@ import type * as client from '@botpress/client'
 import chalk from 'chalk'
 import * as fs from 'fs'
 import * as pathlib from 'path'
+import { ApiClient } from 'src/api'
 import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
 import * as errors from '../errors'
+import { Logger } from '../logger'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
-import { ApiClient } from 'src/api'
-import { Logger } from '../logger'
 
 const projectTypes = ['bot', 'integration', 'plugin'] as const
 type ProjectType = (typeof projectTypes)[number]
