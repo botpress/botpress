@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'packages/vai/**'
+      - '.github/workflows/run-vai-tests.yml'
 
 permissions:
   id-token: write
@@ -39,8 +40,7 @@ jobs:
           export CLOUD_PAT=${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           pnpm -F vai run test:e2e
 
-          pnpm bp bots rm $bot_id
       - name: Cleanup
-        if: ${{ failure() }}
+        if: ${{ always() }}
         run: |
           pnpm bp bots rm ${{ steps.run-tests.outputs.bot_id }}
