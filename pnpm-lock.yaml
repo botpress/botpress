@@ -319,8 +319,8 @@ importers:
   integrations/anthropic:
     dependencies:
       '@anthropic-ai/sdk':
-        specifier: ^0.24.0
-        version: 0.24.0
+        specifier: ^0.38.0
+        version: 0.38.0
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
@@ -394,8 +394,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       openai:
-        specifier: ^4.53.0
-        version: 4.53.0
+        specifier: ^4.86.1
+        version: 4.86.1
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -550,8 +550,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       openai:
-        specifier: ^4.53.0
-        version: 4.53.0
+        specifier: ^4.86.1
+        version: 4.86.1
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -806,8 +806,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       openai:
-        specifier: ^4.53.0
-        version: 4.53.0
+        specifier: ^4.86.1
+        version: 4.86.1
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1083,8 +1083,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       openai:
-        specifier: ^4.53.0
-        version: 4.53.0
+        specifier: ^4.86.1
+        version: 4.86.1
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1547,6 +1547,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -1566,9 +1569,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../../packages/common
       '@botpresshub/hitl':
         specifier: workspace:*
         version: link:../../interfaces/hitl
@@ -2105,8 +2105,8 @@ importers:
         specifier: workspace:*
         version: link:../sdk
       openai:
-        specifier: ^4.53.0
-        version: 4.53.0
+        specifier: ^4.86.1
+        version: 4.86.1
 
   packages/sdk:
     dependencies:
@@ -2406,8 +2406,8 @@ packages:
       ts-deepmerge: 4.0.0
       zod: 3.22.4
 
-  /@anthropic-ai/sdk@0.24.0:
-    resolution: {integrity: sha512-iMb1bQimQrSw/Rq6duPiuCJ7uvlSciq5PWp17jVOfy5dK2EJY36ol10ttwb+Zf6yzkKHMdt+vNIpznj/HsPXOg==}
+  /@anthropic-ai/sdk@0.38.0:
+    resolution: {integrity: sha512-ZUYjadEEeb1wwKd9MEM+plSfl7zQjYixhjHRtyPsjO7MtzRmbZvBb1n1ofo2kHwb0aUiIdb3aAEbAwS9Bcbm/A==}
     dependencies:
       '@types/node': 18.19.67
       '@types/node-fetch': 2.6.4
@@ -2416,7 +2416,6 @@ packages:
       form-data-encoder: 1.7.2
       formdata-node: 4.4.1
       node-fetch: 2.7.0
-      web-streams-polyfill: 3.3.3
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -13446,9 +13445,17 @@ packages:
       is-wsl: 2.2.0
     dev: false
 
-  /openai@4.53.0:
-    resolution: {integrity: sha512-XoMaJsSLuedW5eoMEMmZbdNoXgML3ujcU5KfwRnC6rnbmZkHE2Q4J/SArwhqCxQRqJwHnQUj1LpiROmKPExZJA==}
+  /openai@4.86.1:
+    resolution: {integrity: sha512-x3iCLyaC3yegFVZaxOmrYJjitKxZ9hpVbLi+ZlT5UHuHTMlEQEbKXkGOM78z9qm2T5GF+XRUZCP2/aV4UPFPJQ==}
     hasBin: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.23.8
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
     dependencies:
       '@types/node': 18.19.67
       '@types/node-fetch': 2.6.4
@@ -13457,7 +13464,6 @@ packages:
       form-data-encoder: 1.7.2
       formdata-node: 4.4.1
       node-fetch: 2.7.0
-      web-streams-polyfill: 3.3.3
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -16204,6 +16210,7 @@ packages:
   /web-streams-polyfill@3.3.3:
     resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
     engines: {node: '>= 8'}
+    dev: true
 
   /web-streams-polyfill@4.0.0-beta.3:
     resolution: {integrity: sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug==}

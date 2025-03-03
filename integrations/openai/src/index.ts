@@ -219,6 +219,8 @@ export default new bp.Integration({
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
           overrideRequest: (request) => {
             if (input.model?.id.startsWith('o1-') || input.model?.id.startsWith('o3-')) {
+              request.reasoning_effort = input.reasoningEffort
+
               // The o1 models don't allow setting temperature
               delete request.temperature
             }
