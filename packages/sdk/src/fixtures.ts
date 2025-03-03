@@ -47,11 +47,39 @@ type _FooBarBazIntegration = {
           foo: string
         }
       }
+      message: {
+        tags: {
+          fooMessageTag1: ''
+          fooMessageTag2: ''
+          fooMessageTag3: ''
+        }
+      }
+      conversation: {
+        tags: {
+          fooConversationTag1: ''
+          fooConversationTag2: ''
+          fooConversationTag3: ''
+        }
+      }
     }>
     channelBar: DefaultChannel<{
       messages: {
         messageBar: {
           bar: number
+        }
+      }
+      message: {
+        tags: {
+          barMessageTag1: ''
+          barMessageTag2: ''
+          barMessageTag3: ''
+        }
+      }
+      conversation: {
+        tags: {
+          barConversationTag1: ''
+          barConversationTag2: ''
+          barConversationTag3: ''
         }
       }
     }>
@@ -61,7 +89,28 @@ type _FooBarBazIntegration = {
           baz: boolean
         }
       }
+      message: {
+        tags: {
+          bazMessageTag1: ''
+          bazMessageTag2: ''
+          bazMessageTag3: ''
+        }
+      }
+      conversation: {
+        tags: {
+          bazConversationTag1: ''
+          bazConversationTag2: ''
+          bazConversationTag3: ''
+        }
+      }
     }>
+  }
+  user: {
+    tags: {
+      fooUserTag1: ''
+      fooUserTag2: ''
+      fooUserTag3: ''
+    }
   }
 }
 
