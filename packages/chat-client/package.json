@@ -13,7 +13,7 @@
     "build:browser": "ts-node -T ./build.ts --browser",
     "build:node": "ts-node -T ./build.ts --node",
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser",
-    "test:e2e": "vitest run --dir ./e2e"
+    "test:e2e": "vitest run --config vitest.config.ts"
   },
   "dependencies": {
     "axios": "1.2.5",
