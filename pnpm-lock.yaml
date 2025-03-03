@@ -21,8 +21,8 @@ importers:
         specifier: workspace:*
         version: link:packages/sdk
       '@bpinternal/depsynky':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
       '@bpinternal/readiness':
         specifier: ^0.0.16
         version: 0.0.16
@@ -4092,8 +4092,8 @@ packages:
       - webdriverio
     dev: false
 
-  /@bpinternal/depsynky@0.1.0:
-    resolution: {integrity: sha512-NamRzF53WWICuxhwamQkw3esWjBPjEYlVqJES+4WdUlRjDqN5luOJsJ5KRvYsp3CWsBPvS6pbQz60qE/Z6kv7w==}
+  /@bpinternal/depsynky@0.2.0:
+    resolution: {integrity: sha512-RS9IdcgTLoYhyscACrE2BgqbKAy6Yx3y1ziVR1JMQVy09EXVnsXCbf3Fz35mmp/4W4V5vrk/1oQziADWTNgDqQ==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     hasBin: true
     dependencies:
@@ -10234,14 +10234,9 @@ packages:
       '@esbuild/win32-ia32': 0.21.5
       '@esbuild/win32-x64': 0.21.5
 
-  /escalade@3.1.1:
-    resolution: {integrity: sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==}
-    engines: {node: '>=6'}
-
   /escalade@3.2.0:
     resolution: {integrity: sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA==}
     engines: {node: '>=6'}
-    dev: false
 
   /escape-html@1.0.3:
     resolution: {integrity: sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow==}
@@ -16032,7 +16027,7 @@ packages:
       browserslist: '>= 4.21.0'
     dependencies:
       browserslist: 4.21.7
-      escalade: 3.1.1
+      escalade: 3.2.0
       picocolors: 1.1.1
     dev: true
 
@@ -16752,7 +16747,7 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       cliui: 8.0.1
-      escalade: 3.1.1
+      escalade: 3.2.0
       get-caller-file: 2.0.5
       require-directory: 2.1.1
       string-width: 4.2.3
