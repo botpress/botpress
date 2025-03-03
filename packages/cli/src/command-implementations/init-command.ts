@@ -43,13 +43,12 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
   }
 
   private async _promptWorkspaceHandle() {
-    const client = (await this.getAuthenticatedClient(this.argv)) ?? undefined
+    const client = (await this.getAuthenticatedClient({})) ?? undefined
 
     const [workspaceHandle] = this.argv.name?.split('/', 1) ?? []
 
     const resolver = await WorkspaceResolver.from({
       client,
-      workspaceId: this.argv.workspaceId,
       workspaceHandle,
       prompt: this.prompt,
       logger: this.logger,
@@ -101,10 +100,9 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
   private _initBot = async (args: { workDir: string }) => {
     const { workDir } = args
     const name = await this._getName('bot', consts.emptyBotDirName)
-    const { shortName } = this._getFullNameAndShortName({ name })
 
-    await this._copy({ srcDir: this.globalPaths.abs.emptyBotTemplate, destDir: workDir, name: shortName, pkgJson: {} })
-    this.logger.success(`Bot project initialized in ${chalk.bold(pathlib.join(workDir, shortName))}`)
+    await this._copy({ srcDir: this.globalPaths.abs.emptyBotTemplate, destDir: workDir, name: name, pkgJson: {} })
+    this.logger.success(`Bot project initialized in ${chalk.bold(pathlib.join(workDir, name))}`)
   }
 
   private _initIntegration = async (args: { workDir: string; workspaceHandle: string }) => {
@@ -197,7 +195,6 @@ class WorkspaceResolver {
 
   private constructor(
     private readonly _client: ApiClient | undefined,
-    private readonly _workspaceId: string | undefined,
     private readonly _workspaceHandle: string | undefined,
     private readonly _prompt: utils.prompt.CLIPrompt,
     private readonly _logger: Logger
@@ -205,18 +202,16 @@ class WorkspaceResolver {
 
   public static async from({
     client,
-    workspaceId,
     workspaceHandle: workspaceHandle,
     prompt,
     logger,
   }: {
     client?: ApiClient
-    workspaceId?: string
     workspaceHandle?: string
     prompt: utils.prompt.CLIPrompt
     logger: Logger
   }): Promise<WorkspaceResolver> {
-    const resolver = new WorkspaceResolver(client, workspaceId, workspaceHandle, prompt, logger)
+    const resolver = new WorkspaceResolver(client, workspaceHandle, prompt, logger)
     await resolver._fetchWorkspaces()
     return resolver
   }
@@ -226,7 +221,7 @@ class WorkspaceResolver {
       return this._promptForArbitraryWorkspaceHandle()
     }
 
-    const workspace = await this._findOrSelectWorkspace()
+    const workspace = await this._promptUserToSelectWorkspace()
     return workspace.handle ?? (await this._assignHandleToWorkspace(workspace))
   }
 
@@ -264,30 +259,6 @@ class WorkspaceResolver {
     return handle
   }
 
-  private async _findOrSelectWorkspace(): Promise<client.Workspace> {
-    if (this._workspaceId) {
-      return this._findWorkspaceById(this._workspaceId)
-    }
-
-    return this._promptUserToSelectWorkspace()
-  }
-
-  private _findWorkspaceById(workspaceId: string): client.Workspace {
-    const workspace = this._workspaces.find((ws) => ws.id === workspaceId)
-
-    if (!workspace) {
-      throw new errors.BotpressCLIError(`Workspace with id ${workspaceId} not found or not available to your account`)
-    }
-
-    if (this._workspaceHandle && workspace.handle !== this._workspaceHandle) {
-      throw new errors.BotpressCLIError(
-        `Handle "${workspace.handle}" for workspace ${workspaceId} doesn't match the provided handle "${this._workspaceHandle}".`
-      )
-    }
-
-    return workspace
-  }
-
   private async _promptUserToSelectWorkspace(): Promise<client.Workspace> {
     const workspaceChoices = this._workspaces.map((ws) => ({
       title: ws.name,
@@ -308,7 +279,7 @@ class WorkspaceResolver {
       throw new errors.ParamRequiredError('Workspace')
     }
 
-    return this._findWorkspaceById(workspaceId)
+    return this._workspaces.find((ws) => ws.id === workspaceId)!
   }
 
   private async _assignHandleToWorkspace(workspace: client.Workspace): Promise<string> {

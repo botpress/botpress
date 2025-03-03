@@ -58,8 +58,9 @@ export class ApiClient {
   }
 
   public async listWorkspaces(): Promise<Pick<client.ClientOutputs['listWorkspaces'], 'workspaces'>> {
-    const workspaces = await paging
-      .listAllPages(this.client.listWorkspaces, (r) => r.workspaces)
+    const workspaces = await this.client.list
+      .workspaces({})
+      .collect({})
       .catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, 'Could not list workspaces')
       })
