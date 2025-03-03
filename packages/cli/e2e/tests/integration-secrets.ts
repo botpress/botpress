@@ -41,8 +41,7 @@ export const requiredSecrets: Test = {
     const integrationSuffix = uuid.v4().replace(/-/g, '')
     const name = `myintegration${integrationSuffix}`
     const integrationName = `${workspaceHandle}/${name}`
-    const integrationDirName = `${workspaceHandle}-${name}`
-    const integrationDir = pathlib.join(baseDir, integrationDirName)
+    const integrationDir = pathlib.join(baseDir, name)
 
     const definitionPath = pathlib.join(integrationDir, 'integration.definition.ts')
 
