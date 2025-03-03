@@ -13,6 +13,10 @@ beforeAll(async () => {
     throw new Error('Missing CLOUD_BOT_ID')
   }
 
+  if (1 + 1 === 2) {
+    throw new Error('This is an error')
+  }
+
   const apiUrl: string = process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.dev'
   const botId: string = process.env.CLOUD_BOT_ID
   const token: string = process.env.CLOUD_PAT
