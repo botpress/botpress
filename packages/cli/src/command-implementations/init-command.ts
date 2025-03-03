@@ -45,7 +45,8 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
   private async _promptWorkspaceHandle() {
     const client = (await this.getAuthenticatedClient({})) ?? undefined
 
-    const [workspaceHandle] = this.argv.name?.split('/', 1) ?? []
+    const nameParts = this.argv.name?.split('/', 2) ?? []
+    const workspaceHandle = nameParts.length > 1 ? nameParts[0] : undefined
 
     const resolver = await WorkspaceResolver.from({
       client,
@@ -89,10 +90,10 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     this.logger.success(`Plugin project initialized in ${chalk.bold(pathlib.join(workDir, shortName))}`)
   }
 
-  private _getFullNameAndShortName(args: { workspaceHandle?: string; name: string }) {
+  private _getFullNameAndShortName(args: { workspaceHandle: string; name: string }) {
     const [workspaceOrName, projectName] = args.name.split('/', 2)
     const shortName = projectName ?? workspaceOrName!
-    const fullName = args.workspaceHandle ? `${args.workspaceHandle}/${shortName}` : shortName
+    const fullName = `${args.workspaceHandle}/${shortName}`
 
     return { shortName, fullName }
   }
@@ -202,7 +203,7 @@ class WorkspaceResolver {
 
   public static async from({
     client,
-    workspaceHandle: workspaceHandle,
+    workspaceHandle,
     prompt,
     logger,
   }: {
