@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'packages/vai/**'
+      - '.github/workflows/run-vai-tests.yml'
 
 permissions:
   id-token: write
@@ -29,11 +30,17 @@ jobs:
         run: |
           pnpm bp login
       - name: Run Vai Tests
+        id: 'run-tests'
         run: |
-          bot_id=$(pnpm bp bots new --name "vai-tests" --if-not-exists --json | jq -r ".id")
-          echo "bot_id=$bot_id"
+          bot_id=$(pnpm bp bots new --json | jq -r ".id")
+          echo "::set-output name=bot_id::$bot_id"
 
           export CLOUD_API_ENDPOINT='https://api.botpress.dev'
           export CLOUD_BOT_ID=$bot_id
           export CLOUD_PAT=${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           pnpm -F vai run test:e2e
+
+      - name: Cleanup
+        if: ${{ always() }}
+        run: |
+          pnpm bp bots rm ${{ steps.run-tests.outputs.bot_id }}
