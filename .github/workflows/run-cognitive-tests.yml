@@ -29,11 +29,18 @@ jobs:
         run: |
           pnpm bp login
       - name: Run Cognitive Tests
+        id: 'run-tests'
         run: |
-          bot_id=$(pnpm bp bots new --name "cognitive-tests" --if-not-exists --json | jq -r ".id")
-          echo "bot_id=$bot_id"
+          bot_id=$(pnpm bp bots new --json | jq -r ".id")
+          echo "::set-output name=bot_id::$bot_id"
 
           export CLOUD_API_ENDPOINT='https://api.botpress.dev'
           export CLOUD_BOT_ID=$bot_id
           export CLOUD_PAT=${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           pnpm -F cognitive run test:e2e
+
+          pnpm bp bots rm $bot_id
+      - name: Cleanup
+        if: ${{ failure() }}
+        run: |
+          pnpm bp bots rm ${{ steps.run-tests.outputs.bot_id }}

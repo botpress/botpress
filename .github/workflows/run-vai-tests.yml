@@ -29,11 +29,18 @@ jobs:
         run: |
           pnpm bp login
       - name: Run Vai Tests
+        id: 'run-tests'
         run: |
-          bot_id=$(pnpm bp bots new --name "vai-tests" --if-not-exists --json | jq -r ".id")
-          echo "bot_id=$bot_id"
+          bot_id=$(pnpm bp bots new --if-not-exists --json | jq -r ".id")
+          echo "::set-output name=bot_id::$bot_id"
 
           export CLOUD_API_ENDPOINT='https://api.botpress.dev'
           export CLOUD_BOT_ID=$bot_id
           export CLOUD_PAT=${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           pnpm -F vai run test:e2e
+
+          pnpm bp bots rm $bot_id
+      - name: Cleanup
+        if: ${{ failure() }}
+        run: |
+          pnpm bp bots rm ${{ steps.run-tests.outputs.bot_id }}
