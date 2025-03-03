@@ -1,7 +1,6 @@
 import * as client from '@botpress/client'
 import semver from 'semver'
 import yn from 'yn'
-import * as errors from '../errors'
 import type { Logger } from '../logger'
 import { formatPackageRef, ApiPackageRef, NamePackageRef, isLatest } from '../package-ref'
 import * as utils from '../utils'
@@ -55,17 +54,6 @@ export class ApiClient {
       '95de33eb-1551-4af9-9088-e5dcb02efd09',
       '11111111-1111-1111-aaaa-111111111111',
     ].includes(this.workspaceId)
-  }
-
-  public async listWorkspaces(): Promise<Pick<client.ClientOutputs['listWorkspaces'], 'workspaces'>> {
-    const workspaces = await this.client.list
-      .workspaces({})
-      .collect({})
-      .catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, 'Could not list workspaces')
-      })
-
-    return { workspaces }
   }
 
   public async getWorkspace(): Promise<client.ClientOutputs['getWorkspace']> {
@@ -241,12 +229,4 @@ export class ApiClient {
       }
       throw thrown
     }
-
-  public async checkHandleAvailability({
-    handle,
-  }: {
-    handle: string
-  }): Promise<client.ClientOutputs['checkHandleAvailability']> {
-    return await this.client.checkHandleAvailability({ handle })
-  }
 }

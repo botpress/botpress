@@ -231,7 +231,12 @@ class WorkspaceResolver {
       return
     }
 
-    const workspaces = (await this._getClient().listWorkspaces()).workspaces
+    const workspaces = await this._getClient()
+      .client.list.workspaces({})
+      .collect({})
+      .catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, 'Unable to list your workspaces')
+      })
     const currentWorkspace = workspaces.find((ws) => ws.id === this._getClient().workspaceId)
 
     this._workspaces = workspaces
@@ -313,7 +318,7 @@ class WorkspaceResolver {
   }
 
   private async _checkHandleAvailability(handle: string): Promise<boolean> {
-    const { available, suggestions } = await this._getClient().checkHandleAvailability({ handle })
+    const { available, suggestions } = await this._getClient().client.checkHandleAvailability({ handle })
 
     if (!available) {
       this._logger.warn(`Handle "${handle}" is not available. Suggestions: ${suggestions.join(', ')}`)
