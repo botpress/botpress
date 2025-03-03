@@ -1,3 +1,4 @@
+import { createOrUpdateUser } from '@botpress/common'
 import type { TriggerPayload } from 'src/triggers'
 import * as bp from '.botpress'
 
@@ -17,11 +18,16 @@ export const executeTicketAssigned = async ({
     },
   })
 
-  const { user } = await client.getOrCreateUser({
+  const { user } = await createOrUpdateUser({
+    client,
     name: agent.name,
+    pictureUrl: agent.remote_photo_url,
     tags: {
+      id: agent.id,
       email: agent.email,
+      role: agent.role,
     },
+    discriminateByTags: ['id'],
   })
 
   await client.createEvent({
