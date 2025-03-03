@@ -1,7 +1,7 @@
 import { type Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
 
-import { BotpressClient, GenerationMetadata } from '../utils'
+import { GenerationMetadata } from '../utils'
 import { Adapter, GetExamplesProps, SaveExampleProps } from './adapter'
 
 const CRITICAL_TAGS = {
@@ -21,7 +21,7 @@ const OPTIONAL_TAGS = {
 const FACTOR = 30
 
 const Props = z.object({
-  client: BotpressClient,
+  client: z.custom(() => true),
   tableName: z
     .string()
     .regex(

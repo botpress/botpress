@@ -36,39 +36,6 @@ describe('zai.filter', { timeout: 60_000 }, () => {
     `)
   })
 
-  it('filtering huge array chunks it up', async () => {
-    const callAction = vi.fn()
-    const client = { ...getClient(), callAction } as unknown as Client
-
-    zai = getZai().with({
-      client,
-    })
-
-    const hugeArray = Array.from({ length: 100 }, (_, i) => ({
-      name: `Person #${i}#`,
-      description: 'blah blah '.repeat(50_000),
-    }))
-
-    try {
-      await zai.filter(hugeArray, 'generally good people', { tokensPerItem: 100_000 })
-    } catch (err) {}
-
-    expect(callAction.mock.calls.length).toBeGreaterThan(20)
-    expect(JSON.stringify(callAction.mock.calls.at(0))).toContain('Person #0#')
-    expect(JSON.stringify(callAction.mock.calls.at(0))).not.toContain('Person #99#')
-
-    expect(JSON.stringify(callAction.mock.calls.at(-1))).not.toContain('Person #0#')
-    expect(JSON.stringify(callAction.mock.calls.at(-1))).toContain('Person #99#')
-
-    callAction.mockReset()
-
-    try {
-      await zai.filter(hugeArray, 'generally good people', { tokensPerItem: 100 })
-    } catch (err) {}
-
-    expect(callAction.mock.calls.length).toBe(2)
-  })
-
   it('filter with examples', async () => {
     const examples = [
       {

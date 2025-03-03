@@ -47,20 +47,21 @@ const END = '■END■'
 Zai.prototype.summarize = async function (this: Zai, original, _options) {
   const options = Options.parse(_options ?? {})
   const tokenizer = await this.getTokenizer()
+  await this.fetchModelDetails()
 
-  const INPUT_COMPONENT_SIZE = Math.max(100, (this.Model.input.maxTokens - PROMPT_INPUT_BUFFER) / 4)
+  const INPUT_COMPONENT_SIZE = Math.max(100, (this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER) / 4)
   options.prompt = tokenizer.truncate(options.prompt, INPUT_COMPONENT_SIZE)
   options.format = tokenizer.truncate(options.format, INPUT_COMPONENT_SIZE)
 
-  const maxOutputSize = this.Model.output.maxTokens - PROMPT_OUTPUT_BUFFER
+  const maxOutputSize = this.ModelDetails.output.maxTokens - PROMPT_OUTPUT_BUFFER
   if (options.length > maxOutputSize) {
     throw new Error(
-      `The desired output length is ${maxOutputSize} tokens long, which is more than the maximum of ${this.Model.output.maxTokens} tokens for this model (${this.Model.name})`
+      `The desired output length is ${maxOutputSize} tokens long, which is more than the maximum of ${this.ModelDetails.output.maxTokens} tokens for this model (${this.ModelDetails.name})`
     )
   }
 
   // Ensure the sliding window is not bigger than the model input size
-  options.sliding.window = Math.min(options.sliding.window, this.Model.input.maxTokens - PROMPT_INPUT_BUFFER)
+  options.sliding.window = Math.min(options.sliding.window, this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER)
 
   // Ensure the overlap is not bigger than the window
   // Most extreme case possible (all 3 same size)
@@ -158,7 +159,7 @@ ${newText}
       }
     }
 
-    const output = await this.callModel({
+    const { output } = await this.callModel({
       systemPrompt: `
 You are summarizing a text. The text is split into ${parts} parts, and you are currently working on part ${iteration}.
 At every step, you will receive the current summary and a new part of the text. You need to amend the summary to include the new information (if needed).

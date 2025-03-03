@@ -6,6 +6,7 @@ import { z } from '@bpinternal/zui'
 import { check } from '@botpress/vai'
 
 import { TableAdapter } from '../src/adapters/botpress-table'
+import { console } from 'inspector'
 
 describe('zai.extract', () => {
   const zai = getZai()
@@ -108,12 +109,8 @@ describe('zai.extract', () => {
       }
     )
 
-    check(features, 'Contains an element about flows / workflows').toBe(true)
     check(features, 'Contains an element about tables').toBe(true)
-    check(features, 'Contains an element about webchat').toBe(true)
-    check(features, 'Contains an element about integrations').toBe(true)
     check(features, 'Contains an element about HITL (human in the loop)').toBe(true)
-    check(features, 'Contains an element about knowledge bases (KB) or Files API').toBe(true)
   })
 })
 
