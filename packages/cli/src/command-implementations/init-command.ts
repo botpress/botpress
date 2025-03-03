@@ -222,7 +222,8 @@ class WorkspaceResolver {
       return this._promptForArbitraryWorkspaceHandle()
     }
 
-    return await this._promptUserToSelectWorkspace()
+    const workspace = await this._promptUserToSelectWorkspace()
+    return workspace.handle ?? (await this._assignHandleToWorkspace(workspace))
   }
 
   private async _fetchWorkspaces(): Promise<void> {
@@ -259,7 +260,7 @@ class WorkspaceResolver {
     return handle
   }
 
-  private async _promptUserToSelectWorkspace(): Promise<string> {
+  private async _promptUserToSelectWorkspace(): Promise<client.Workspace> {
     const workspaceChoices = this._workspaces.map((ws) => ({
       title: ws.name,
       value: ws.id,
@@ -275,14 +276,59 @@ class WorkspaceResolver {
       choices: workspaceChoices,
     })
 
-    const handle = this._workspaces.find((ws) => ws.id === workspaceId)?.handle
-
-    if (!handle) {
-      this._logger.warn("This workspace has no handle. You'll have to enter it manually.")
-      return this._promptForArbitraryWorkspaceHandle()
+    if (!workspaceId) {
+      throw new errors.ParamRequiredError('Workspace')
     }
 
-    return handle
+    return this._workspaces.find((ws) => ws.id === workspaceId)!
+  }
+
+  private async _assignHandleToWorkspace(workspace: client.Workspace): Promise<string> {
+    this._logger.warn("It seems you don't have a workspace handle yet.")
+
+    let claimedHandle: string | undefined
+
+    do {
+      const desiredHandle = await this._promptForDesiredHandle()
+      const isAvailable = await this._checkHandleAvailability(desiredHandle)
+
+      if (isAvailable) {
+        claimedHandle = desiredHandle
+        await this._updateWorkspaceWithHandle(workspace.id, claimedHandle)
+      }
+    } while (!claimedHandle)
+
+    this._logger.success(`Handle "${claimedHandle}" is yours!`)
+    return claimedHandle
+  }
+
+  private async _promptForDesiredHandle(): Promise<string> {
+    const desiredHandle = await this._prompt.text('Please enter a workspace handle')
+
+    if (!desiredHandle) {
+      throw new errors.BotpressCLIError('Workspace handle is required')
+    }
+
+    return desiredHandle
+  }
+
+  private async _checkHandleAvailability(handle: string): Promise<boolean> {
+    const { available, suggestions } = await this._getClient().checkHandleAvailability({ handle })
+
+    if (!available) {
+      this._logger.warn(`Handle "${handle}" is not available. Suggestions: ${suggestions.join(', ')}`)
+      return false
+    }
+
+    return true
+  }
+
+  private async _updateWorkspaceWithHandle(workspaceId: string, handle: string): Promise<void> {
+    try {
+      await this._getClient().switchWorkspace(workspaceId).updateWorkspace({ handle })
+    } catch (thrown) {
+      throw errors.BotpressCLIError.wrap(thrown, `Could not claim handle "${handle}"`)
+    }
   }
 
   private _getClient(): ApiClient {
