@@ -80,8 +80,7 @@ export const enforceWorkspaceHandle: Test = {
     const name = 'myintegration'
     const handle = `myhandle${randomSuffix}`
     const integrationName = `${handle}/${name}`
-    const integrationDirName = `${handle}-${name}`
-    const integrationDir = pathlib.join(baseDir, integrationDirName)
+    const integrationDir = pathlib.join(baseDir, name)
 
     const argv = {
       ...defaults,

@@ -87,13 +87,13 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
         pluginName: fullName,
       },
     })
-    this.logger.success(`Plugin project initialized in ${chalk.bold(workDir)}`)
+    this.logger.success(`Plugin project initialized in ${chalk.bold(pathlib.join(workDir, shortName))}`)
   }
 
-  private _getFullNameAndShortName(args: { workspaceHandle: string; name: string }) {
+  private _getFullNameAndShortName(args: { workspaceHandle?: string; name: string }) {
     const [workspaceOrName, projectName] = args.name.split('/', 2)
     const shortName = projectName ?? workspaceOrName!
-    const fullName = `${args.workspaceHandle}/${shortName}`
+    const fullName = args.workspaceHandle ? `${args.workspaceHandle}/${shortName}` : shortName
 
     return { shortName, fullName }
   }
@@ -101,8 +101,10 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
   private _initBot = async (args: { workDir: string }) => {
     const { workDir } = args
     const name = await this._getName('bot', consts.emptyBotDirName)
-    await this._copy({ srcDir: this.globalPaths.abs.emptyBotTemplate, destDir: workDir, name, pkgJson: {} })
-    this.logger.success(`Bot project initialized in ${chalk.bold(workDir)}`)
+    const { shortName } = this._getFullNameAndShortName({ name })
+
+    await this._copy({ srcDir: this.globalPaths.abs.emptyBotTemplate, destDir: workDir, name: shortName, pkgJson: {} })
+    this.logger.success(`Bot project initialized in ${chalk.bold(pathlib.join(workDir, shortName))}`)
   }
 
   private _initIntegration = async (args: { workDir: string; workspaceHandle: string }) => {
@@ -137,7 +139,7 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
         integrationName: fullName,
       },
     })
-    this.logger.success(`Integration project initialized in ${chalk.bold(this.argv.workDir)}`)
+    this.logger.success(`Integration project initialized in ${chalk.bold(pathlib.join(workDir, shortName))}`)
     return
   }
 
