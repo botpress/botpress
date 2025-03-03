@@ -45,9 +45,12 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
   private async _promptWorkspaceHandle() {
     const client = (await this.getAuthenticatedClient(this.argv)) ?? undefined
 
+    const [workspaceHandle] = this.argv.name?.split('/', 1) ?? []
+
     const resolver = await WorkspaceResolver.from({
       client,
       workspaceId: this.argv.workspaceId,
+      workspaceHandle,
       prompt: this.prompt,
       logger: this.logger,
     })
@@ -74,15 +77,25 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
   private _initPlugin = async (args: { workDir: string; workspaceHandle: string }) => {
     const { workDir, workspaceHandle } = args
     const name = await this._getName('plugin', consts.emptyPluginDirName)
+    const { fullName, shortName } = this._getFullNameAndShortName({ workspaceHandle, name })
+
     await this._copy({
       srcDir: this.globalPaths.abs.emptyPluginTemplate,
       destDir: workDir,
-      name,
+      name: shortName,
       pkgJson: {
-        pluginName: `${workspaceHandle}/${name}`,
+        pluginName: fullName,
       },
     })
     this.logger.success(`Plugin project initialized in ${chalk.bold(workDir)}`)
+  }
+
+  private _getFullNameAndShortName(args: { workspaceHandle: string; name: string }) {
+    const [workspaceOrName, projectName] = args.name.split('/', 2)
+    const shortName = projectName ?? workspaceOrName!
+    const fullName = `${args.workspaceHandle}/${shortName}`
+
+    return { shortName, fullName }
   }
 
   private _initBot = async (args: { workDir: string }) => {
@@ -114,13 +127,14 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     }
 
     const name = await this._getName('integration', template ?? consts.emptyIntegrationDirName)
+    const { fullName, shortName } = this._getFullNameAndShortName({ workspaceHandle, name })
 
     await this._copy({
       srcDir: srcDirPath,
       destDir: workDir,
-      name,
+      name: shortName,
       pkgJson: {
-        integrationName: `${workspaceHandle}/${name}`,
+        integrationName: fullName,
       },
     })
     this.logger.success(`Integration project initialized in ${chalk.bold(this.argv.workDir)}`)
@@ -182,6 +196,7 @@ class WorkspaceResolver {
   private constructor(
     private readonly _client: ApiClient | undefined,
     private readonly _workspaceId: string | undefined,
+    private readonly _workspaceHandle: string | undefined,
     private readonly _prompt: utils.prompt.CLIPrompt,
     private readonly _logger: Logger
   ) {}
@@ -189,15 +204,17 @@ class WorkspaceResolver {
   public static async from({
     client,
     workspaceId,
+    workspaceHandle: workspaceHandle,
     prompt,
     logger,
   }: {
     client?: ApiClient
     workspaceId?: string
+    workspaceHandle?: string
     prompt: utils.prompt.CLIPrompt
     logger: Logger
   }): Promise<WorkspaceResolver> {
-    const resolver = new WorkspaceResolver(client, workspaceId, prompt, logger)
+    const resolver = new WorkspaceResolver(client, workspaceId, workspaceHandle, prompt, logger)
     await resolver._fetchWorkspaces()
     return resolver
   }
@@ -232,6 +249,10 @@ class WorkspaceResolver {
   }
 
   private async _promptForArbitraryWorkspaceHandle(): Promise<string> {
+    if (this._workspaceHandle) {
+      return this._workspaceHandle
+    }
+
     const handle = await this._prompt.text('Enter your workspace handle')
 
     if (!handle) {
@@ -249,11 +270,18 @@ class WorkspaceResolver {
     return this._promptUserToSelectWorkspace()
   }
 
-  private _findWorkspaceById(id: string): client.Workspace {
-    const workspace = this._workspaces.find((ws) => ws.id === id)
+  private _findWorkspaceById(workspaceId: string): client.Workspace {
+    const workspace = this._workspaces.find((ws) => ws.id === workspaceId)
 
     if (!workspace) {
-      throw new errors.BotpressCLIError(`Workspace with id ${id} not found or not available to your account`)
+      throw new errors.BotpressCLIError(`Workspace with id ${workspaceId} not found or not available to your account`)
+    }
+
+    if (this._workspaceHandle && workspace.handle !== this._workspaceHandle) {
+      this._logger.warn(
+        `Handle "${workspace.handle}" for workspace ${workspaceId} doesn't match the provided handle "${this._workspaceHandle}". ` +
+          `Using workspace handle "${workspace.handle}" instead.`
+      )
     }
 
     return workspace
