@@ -102,7 +102,7 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     const { workDir } = args
     const name = await this._getName('bot', consts.emptyBotDirName)
 
-    await this._copy({ srcDir: this.globalPaths.abs.emptyBotTemplate, destDir: workDir, name: name, pkgJson: {} })
+    await this._copy({ srcDir: this.globalPaths.abs.emptyBotTemplate, destDir: workDir, name, pkgJson: {} })
     this.logger.success(`Bot project initialized in ${chalk.bold(pathlib.join(workDir, name))}`)
   }
 
