@@ -26,12 +26,17 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
     role: 'end-user',
     external_id: ctx.botUserId,
     name: 'Botpress',
+    // FIXME: use a PNG image hosted on the Botpress CDN
+    remote_photo_url: 'https://app.botpress.dev/favicon/bp.svg',
   })
 
   await client.updateUser({
     id: ctx.botUserId,
+    pictureUrl: 'https://app.botpress.dev/favicon/bp.svg',
+    name: 'Botpress',
     tags: {
       id: `${user.id}`,
+      role: 'bot-user',
     },
   })
 
