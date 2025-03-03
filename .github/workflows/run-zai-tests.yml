@@ -35,8 +35,6 @@ jobs:
           bot_id=$(pnpm bp bots new --json | jq -r ".id")
           echo "::set-output name=bot_id::$bot_id"
 
-          exit 1
-
           export CLOUD_API_ENDPOINT='https://api.botpress.dev'
           export CLOUD_BOT_ID=$bot_id
           export CLOUD_PAT=${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
