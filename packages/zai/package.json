@@ -23,10 +23,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@botpress/cognitive": "^0.1.6",
     "json5": "^2.2.3",
     "jsonrepair": "^3.10.0",
-    "lodash-es": "^4.17.21",
-    "@botpress/cognitive": "^0.1.6"
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "@botpress/client": "workspace:^",
