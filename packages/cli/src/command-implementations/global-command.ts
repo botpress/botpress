@@ -70,10 +70,10 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     this.logger.cleanup()
   }
 
-  protected async getAuthenticatedClient(credentials: YargsConfig<typeof config.schemas.credentials>) {
+  protected async getAuthenticatedClient(credentials: Partial<YargsConfig<typeof config.schemas.credentials>>) {
     const cache = this.globalCache
 
-    const token = await cache.get('token')
+    const token = credentials.token ?? (await cache.get('token'))
     const workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
     const apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
 

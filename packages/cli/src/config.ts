@@ -320,7 +320,7 @@ const deletePluginSchema = {
 
 const initSchema = {
   ...globalSchema,
-  ...credentialsSchema,
+  workspaceId: { ...workspaceId, description: 'The workspace to use as a prefix for the new project' },
   workDir,
   type: { type: 'string', choices: ['bot', 'integration', 'plugin'] as const },
   name: { type: 'string', description: 'The name of the project' },
