@@ -5,10 +5,10 @@ import {
   DEFAULT_USER_HITL_CLOSE_COMMAND,
   DEFAULT_USER_HITL_COMMAND_MESSAGE,
 } from 'plugin.definition'
-import * as conv from '../conv-manager'
+import * as conv from '../../conv-manager'
 import * as bp from '.botpress'
 
-export const handleMessage: NonNullable<bp.HookHandlers['before_incoming_message']['*']> = async (props) => {
+export const handleMessage: bp.HookHandlers['before_incoming_message']['*'] = async (props) => {
   const { conversation } = await props.client.getConversation({
     id: props.data.conversationId,
   })
