@@ -14,7 +14,7 @@ export const DEFAULT_USER_HITL_COMMAND_MESSAGE =
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.2.1',
+  version: '0.2.2',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
