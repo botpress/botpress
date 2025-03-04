@@ -1,9 +1,9 @@
-import { MessageHandlerProps } from '.botpress'
+import { MessageHandlerProps, EventHandlerProps } from '.botpress'
 
 export class Responder {
-  public constructor(private _props: MessageHandlerProps) {}
+  public constructor(private _props: MessageHandlerProps | EventHandlerProps) {}
 
-  public static from(props: MessageHandlerProps) {
+  public static from(props: MessageHandlerProps | EventHandlerProps) {
     return new Responder(props)
   }
 

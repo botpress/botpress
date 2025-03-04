@@ -2,6 +2,13 @@ import { Conversation } from '@botpress/client'
 import { Responder } from './api-utils'
 import * as bp from '.botpress'
 
+const BOT_MESSAGE = [
+  'Hi, I am a bot.',
+  'I cannot answer your questions.',
+  'Type `/start_hitl` to talk to a human agent.',
+  'Have fun :)',
+].join('\n')
+
 type MessageSource = 'from_patient' | 'from_agent'
 const getMessageSource = (conversation: Conversation): MessageSource => {
   if (conversation.integration === 'zendesk') {
@@ -67,12 +74,27 @@ bot.on.message('*', async (props) => {
 
   await Responder.from(props).respond({
     conversationId: upstreamConversation.id,
-    text: [
-      'Hi, I am a bot.',
-      'I cannot answer your questions.',
-      'Type `/start_hitl` to talk to a human agent.',
-      'Have fun :)',
-    ].join('\n'),
+    text: BOT_MESSAGE,
+  })
+})
+
+bot.on.event('*', async (props) => {
+  const payload = props.event.payload as Record<string, unknown>
+
+  let conversationId: string | undefined = undefined
+  if (props.event.conversationId) {
+    conversationId = props.event.conversationId
+  } else if ('conversationId' in payload && typeof payload.conversationId === 'string') {
+    conversationId = payload.conversationId
+  }
+
+  if (!conversationId) {
+    return
+  }
+
+  await Responder.from(props).respond({
+    conversationId,
+    text: BOT_MESSAGE,
   })
 })
 
