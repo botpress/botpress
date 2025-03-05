@@ -57,10 +57,10 @@ runs:
             base_command="bp deploy -v -y" # all plugins are public right now            
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying plugin: ### $plugin ###\n"
-                pnpm retry -n 2 -- pnpm -F $plugin -c exec -- "$base_command"
+                pnpm retry -n 2 -- pnpm -F "{plugins/$plugin}" -c exec -- "$base_command"
             elif [ $redeploy -eq 1 ]; then
                 echo -e "\nRe-deploying plugin: ### $plugin ###\n"
-                pnpm retry -n 2 -- pnpm -F $plugin -c exec -- "$base_command"
+                pnpm retry -n 2 -- pnpm -F "{plugins/$plugin}" -c exec -- "$base_command"
             else
                 echo -e "\nSkipping plugin: ### $plugin ###\n"
             fi
