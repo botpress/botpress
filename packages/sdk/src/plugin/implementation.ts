@@ -168,18 +168,25 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return new Proxy(
       {},
       {
-        get: (_, prop1: string) => {
-          const hooks = this._hookHandlers[prop1 as keyof HookHandlersMap<TPlugin>]
+        get: (_, prop1: keyof HookHandlersMap<TPlugin>) => {
+          const hooks = this._hookHandlers[prop1]
           if (!hooks) {
             return undefined
           }
           return new Proxy(
             {},
             {
-              get: (_, prop2) => {
+              get: (_, prop2: string) => {
                 const specificHandlers = hooks[prop2 as string] ?? []
+
+                // for "before_incoming_event", "after_incoming_event" and other event related hooks
+                const interfaceHandlers = Object.entries(hooks as Record<string, Function[]>) // TODO: fix typing here
+                  .filter(([e]) => this._eventResolvesTo(e, prop2))
+                  .flatMap(([, handlers]) => handlers ?? [])
+
                 const globalHandlers = hooks['*'] ?? []
-                const handlers = utils.arrays.unique([...specificHandlers, ...globalHandlers])
+                const handlers = utils.arrays.unique([...specificHandlers, ...interfaceHandlers, ...globalHandlers])
+
                 return handlers.map((handler) =>
                   utils.functions.setName(
                     (input: any) => handler({ ...input, ...this._getTools(input.client) }),

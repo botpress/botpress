@@ -1,14 +1,15 @@
-import { DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE } from '../../plugin.definition'
-import * as conv from '../conv-manager'
+import { DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE } from '../../../plugin.definition'
+import * as conv from '../../conv-manager'
+import * as consts from '../consts'
 import * as bp from '.botpress'
 
-export const handleEvent: bp.EventHandlers['hitl:hitlAssigned'] = async (props) => {
-  const { conversationId: downstreamConversationId, userId: humanAgentUserId } = props.event.payload
+export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAssigned'] = async (props) => {
+  const { conversationId: downstreamConversationId, userId: humanAgentUserId } = props.data.payload
 
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
-    return
+    return consts.STOP_EVENT_HANDLING
   }
 
   const downstreamConversation = await props.client.getConversation({ id: downstreamConversationId })
@@ -17,7 +18,7 @@ export const handleEvent: bp.EventHandlers['hitl:hitlAssigned'] = async (props) 
     props.logger
       .withConversationId(downstreamConversationId)
       .error('Downstream conversation was not binded to upstream conversation')
-    return
+    return consts.STOP_EVENT_HANDLING
   }
 
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
@@ -32,5 +33,5 @@ export const handleEvent: bp.EventHandlers['hitl:hitlAssigned'] = async (props) 
     downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
   ])
-  return
+  return consts.STOP_EVENT_HANDLING
 }
