@@ -6,6 +6,7 @@ import {
   DEFAULT_USER_HITL_COMMAND_MESSAGE,
 } from 'plugin.definition'
 import * as conv from '../../conv-manager'
+import * as consts from '../consts'
 import * as bp from '.botpress'
 
 export const handleMessage: bp.HookHandlers['before_incoming_message']['*'] = async (props) => {
@@ -19,9 +20,6 @@ export const handleMessage: bp.HookHandlers['before_incoming_message']['*'] = as
   return await _handleUpstreamMessage(props, conversation)
 }
 
-const LET_BOT_HANDLE_MESSAGE = { stop: false } as const // let the message propagate to the bot
-const STOP_MESSAGE_HANDLING = { stop: true } as const // prevent the message from propagating to the bot
-
 const _handleDownstreamMessage = async (
   props: bp.HookHandlerProps['before_incoming_message'],
   downstreamConversation: client.Conversation
@@ -29,7 +27,7 @@ const _handleDownstreamMessage = async (
   const downstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
-    return STOP_MESSAGE_HANDLING // we don't want the bot to chat with the human agent in a closed ticket
+    return consts.STOP_EVENT_HANDLING // we don't want the bot to chat with the human agent in a closed ticket
   }
 
   if (props.data.type !== 'text') {
@@ -37,7 +35,7 @@ const _handleDownstreamMessage = async (
     await downstreamCm.respond({
       text: props.configuration.onIncompatibleMsgTypeMessage ?? DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
     })
-    return STOP_MESSAGE_HANDLING
+    return consts.STOP_EVENT_HANDLING
   }
 
   const upstreamConversationId = downstreamConversation.tags['upstream']
@@ -56,7 +54,7 @@ const _handleDownstreamMessage = async (
   props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
   const text: string = props.data.payload.text
   await upstreamCm.respond({ text })
-  return STOP_MESSAGE_HANDLING
+  return consts.STOP_EVENT_HANDLING
 }
 
 const _handleUpstreamMessage = async (
@@ -66,13 +64,13 @@ const _handleUpstreamMessage = async (
   const upstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
   const isHitlActive = await upstreamCm.isHitlActive()
   if (!isHitlActive) {
-    return LET_BOT_HANDLE_MESSAGE
+    return consts.LET_BOT_HANDLE_EVENT
   }
 
   if (props.data.type !== 'text') {
     props.logger.with(props.data).error('Upstream conversation received a non-text message')
     await upstreamCm.respond({ text: 'Sorry, I can only handle text messages for now. Please try again.' })
-    return STOP_MESSAGE_HANDLING
+    return consts.STOP_EVENT_HANDLING
   }
 
   const { user: upstreamUser } = await props.client.getUser({ id: props.data.userId })
@@ -101,7 +99,7 @@ const _handleUpstreamMessage = async (
 
   if (_isHitlCloseCommand(props)) {
     await _handleHitlCloseCommand(props, { downstreamCm, upstreamCm })
-    return STOP_MESSAGE_HANDLING
+    return consts.STOP_EVENT_HANDLING
   }
 
   props.logger.withConversationId(upstreamConversation.id).info('Sending message to downstream')
@@ -110,7 +108,7 @@ const _handleUpstreamMessage = async (
     text: props.data.payload.text,
   })
 
-  return STOP_MESSAGE_HANDLING
+  return consts.STOP_EVENT_HANDLING
 }
 
 const _abortHitlSession = async ({
@@ -128,7 +126,7 @@ const _abortHitlSession = async ({
 
   await cm.abortHitlSession(reasonShownToUser)
 
-  return STOP_MESSAGE_HANDLING
+  return consts.STOP_EVENT_HANDLING
 }
 
 const _isHitlCloseCommand = (props: bp.HookHandlerProps['before_incoming_message']) =>

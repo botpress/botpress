@@ -1,15 +1,14 @@
 import { DEFAULT_HITL_STOPPED_MESSAGE } from '../../../plugin.definition'
 import * as conv from '../../conv-manager'
+import * as consts from '../consts'
 import * as bp from '.botpress'
-
-const STOP_EVENT_HANDLING = { stop: true } as const // we don't want the bot to answer to the human agent in the ticket
 
 export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlStopped'] = async (props) => {
   const { conversationId: downstreamConversationId } = props.data.payload
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
-    return STOP_EVENT_HANDLING
+    return consts.STOP_EVENT_HANDLING
   }
 
   const downstreamConversation = await props.client.getConversation({ id: downstreamConversationId })
@@ -18,7 +17,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
     props.logger
       .withConversationId(downstreamConversationId)
       .error('Downstream conversation was not binded to upstream conversation')
-    return STOP_EVENT_HANDLING
+    return consts.STOP_EVENT_HANDLING
   }
 
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
@@ -30,5 +29,5 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
     downstreamCm.setHitlInactive(),
     upstreamCm.setHitlInactive(),
   ])
-  return STOP_EVENT_HANDLING
+  return consts.STOP_EVENT_HANDLING
 }
