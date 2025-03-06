@@ -4,7 +4,7 @@ import type { Implementation } from '../misc/types'
 
 export const makeApiCall: Implementation['actions']['makeApiCall'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = makeApiCallInputSchema.parse(input)
-  const params = validatedInput.params ?? "{}"; // Default to empty JSON if no params provided
+  const params = validatedInput.params ?? '{}' // Default to empty JSON if no params provided
   const zohoClient = getClient(
     ctx.configuration.accessToken,
     ctx.configuration.refreshToken,
@@ -13,21 +13,26 @@ export const makeApiCall: Implementation['actions']['makeApiCall'] = async ({ ct
     ctx.configuration.dataCenter,
     ctx,
     client
-  );
+  )
 
   try {
-    const result = await zohoClient.makeApiCall(validatedInput.endpoint, validatedInput.method, validatedInput.data, params)
-    
+    const result = await zohoClient.makeApiCall(
+      validatedInput.endpoint,
+      validatedInput.method,
+      validatedInput.data,
+      params
+    )
+
     logger.forBot().debug(`Successful - Make API Call - ${JSON.stringify(validatedInput)}`)
     logger.forBot().debug(`Result - ${JSON.stringify(result.data)}`)
-    
-    return { 
-      success: result.success, 
-      message: result.message, 
-      data: result.data
+
+    return {
+      success: result.success,
+      message: result.message,
+      data: result.data,
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
 
     logger.forBot().error(`'Make API Call' exception ${JSON.stringify(error)}`)
 
@@ -35,6 +40,6 @@ export const makeApiCall: Implementation['actions']['makeApiCall'] = async ({ ct
       success: false,
       message: errorMessage,
       data: null,
-    };
+    }
   }
 }

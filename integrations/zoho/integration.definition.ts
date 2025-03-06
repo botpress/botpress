@@ -1,26 +1,42 @@
-import { IntegrationDefinition, z } from '@botpress/sdk';
-import { integrationName } from './package.json';
+import { IntegrationDefinition, z } from '@botpress/sdk'
+import { integrationName } from './package.json'
 
 import {
-  makeApiCallInputSchema, makeApiCallOutputSchema,
-  getRecordByIdInputSchema, getRecordByIdOutputSchema,
-  insertRecordInputSchema, insertRecordOutputSchema,
-  updateRecordInputSchema, updateRecordOutputSchema,
-  deleteRecordInputSchema, deleteRecordOutputSchema,
-  searchRecordsInputSchema, searchRecordsOutputSchema,
-  getRecordsInputSchema, getRecordsOutputSchema,
+  makeApiCallInputSchema,
+  makeApiCallOutputSchema,
+  getRecordByIdInputSchema,
+  getRecordByIdOutputSchema,
+  insertRecordInputSchema,
+  insertRecordOutputSchema,
+  updateRecordInputSchema,
+  updateRecordOutputSchema,
+  deleteRecordInputSchema,
+  deleteRecordOutputSchema,
+  searchRecordsInputSchema,
+  searchRecordsOutputSchema,
+  getRecordsInputSchema,
+  getRecordsOutputSchema,
   getOrganizationDetailsOutputSchema,
-  getUsersInputSchema, getUsersOutputSchema,
+  getUsersInputSchema,
+  getUsersOutputSchema,
   emptyInputSchema,
-  getAppointmentsInputSchema, getAppointmentsOutputSchema,
-  getAppointmentByIdInputSchema, getAppointmentByIdOutputSchema,
-  createAppointmentInputSchema, createAppointmentOutputSchema,
-  updateAppointmentInputSchema, updateAppointmentOutputSchema,
-  deleteAppointmentInputSchema, deleteAppointmentOutputSchema,
-  sendMailInputSchema, sendMailOutputSchema,
-  uploadFileInputSchema, uploadFileOutputSchema,
-  getFileInputSchema, getFileOutputSchema,
-} from './src/misc/custom-schemas';
+  getAppointmentsInputSchema,
+  getAppointmentsOutputSchema,
+  getAppointmentByIdInputSchema,
+  getAppointmentByIdOutputSchema,
+  createAppointmentInputSchema,
+  createAppointmentOutputSchema,
+  updateAppointmentInputSchema,
+  updateAppointmentOutputSchema,
+  deleteAppointmentInputSchema,
+  deleteAppointmentOutputSchema,
+  sendMailInputSchema,
+  sendMailOutputSchema,
+  uploadFileInputSchema,
+  uploadFileOutputSchema,
+  getFileInputSchema,
+  getFileOutputSchema,
+} from './src/misc/custom-schemas'
 
 export default new IntegrationDefinition({
   name: integrationName ?? 'zoho',
@@ -50,7 +66,7 @@ export default new IntegrationDefinition({
   channels: {},
   states: {
     credentials: {
-      type: "integration",
+      type: 'integration',
       schema: z.object({
         accessToken: z.string(),
       }),
@@ -87,7 +103,7 @@ export default new IntegrationDefinition({
       input: { schema: getRecordByIdInputSchema },
       output: { schema: getRecordByIdOutputSchema },
     },
-    getRecords: { 
+    getRecords: {
       title: 'Get Records',
       input: { schema: getRecordsInputSchema },
       output: { schema: getRecordsOutputSchema },
@@ -143,4 +159,4 @@ export default new IntegrationDefinition({
       output: { schema: getFileOutputSchema },
     },
   },
-});
+})

@@ -34,5 +34,5 @@ export default {
   deleteAppointment,
   sendMail,
   getFile,
-  uploadFile
+  uploadFile,
 } satisfies bp.IntegrationProps['actions']

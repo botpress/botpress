@@ -5,9 +5,11 @@
 For further details, refer to the [**Zoho CRM API documentation**](https://www.zoho.com/crm/developer/docs/api/v7/).
 
 ## **Overview**
+
 This Botpress integration allows seamless interaction with **Zoho CRM**. It enables users to manage contacts, deals, appointments, and files directly through their chatbot.
 
 ## **Features**
+
 - **Record Management:** Create, retrieve, update, delete, and search records.
 - **Appointments Management:** Create, update, retrieve, and delete appointments.
 - **File Management:** Upload and retrieve files.
@@ -18,8 +20,7 @@ This Botpress integration allows seamless interaction with **Zoho CRM**. It enab
 
 Before making any API calls using the Zoho Botpress Integration, you must register your application with **Zoho CRM**.
 
-### **[Loom video walk through setting up the OAuth configuration.](https://www.loom.com/share/41c2811c047a48cbb08a2d1b0dc98f69?sid=8cb4d496-2cca-415d-be1d-536a87c73a3a)** ###
-
+### **[Loom video walk through setting up the OAuth configuration.](https://www.loom.com/share/41c2811c047a48cbb08a2d1b0dc98f69?sid=8cb4d496-2cca-415d-be1d-536a87c73a3a)**
 
 ### Steps to Register
 
@@ -42,18 +43,20 @@ Before making any API calls using the Zoho Botpress Integration, you must regist
 Now, execute the following **cURL** command to obtain an access token. Ensure you use the **correct region URL** for OAuth authentication.
 
 #### **Zoho Accounts Domains:**
-| Region         | Accounts URL                       |
-|---------------|----------------------------------|
-| US           | `https://accounts.zoho.com`     |
-| AU           | `https://accounts.zoho.com.au`  |
-| EU           | `https://accounts.zoho.eu`      |
-| IN           | `https://accounts.zoho.in`      |
-| CN           | `https://accounts.zoho.com.cn`  |
-| JP           | `https://accounts.zoho.jp`      |
-| SA (Saudi Arabia) | `https://accounts.zoho.sa` |
-| CA (Canada)  | `https://accounts.zohocloud.ca` |
+
+| Region            | Accounts URL                    |
+| ----------------- | ------------------------------- |
+| US                | `https://accounts.zoho.com`     |
+| AU                | `https://accounts.zoho.com.au`  |
+| EU                | `https://accounts.zoho.eu`      |
+| IN                | `https://accounts.zoho.in`      |
+| CN                | `https://accounts.zoho.com.cn`  |
+| JP                | `https://accounts.zoho.jp`      |
+| SA (Saudi Arabia) | `https://accounts.zoho.sa`      |
+| CA (Canada)       | `https://accounts.zohocloud.ca` |
 
 ### Execute cURL Request
+
 Replace the placeholders (`CLIENT_ID`, `CLIENT_SECRET`, and `AUTHORIZATION_CODE`) with your actual values before executing the request.
 
 ```sh
@@ -68,19 +71,21 @@ curl --request POST \
 ```
 
 ### Expected Response
+
 If the request is successful, you should receive a response similar to the following:
 
 ```json
 {
-    "access_token": "{access_token}",
-    "refresh_token": "{refresh_token}",
-    "api_domain": "https://www.zohoapis.com",
-    "token_type": "Bearer",
-    "expires_in": 3600
+  "access_token": "{access_token}",
+  "refresh_token": "{refresh_token}",
+  "api_domain": "https://www.zohoapis.com",
+  "token_type": "Bearer",
+  "expires_in": 3600
 }
 ```
 
 ## Configure Zoho Botpress Integration
+
 Once you have the necessary credentials, navigate to the **Zoho Botpress Integration** configuration page and enter the following details:
 
 - **Client ID**
@@ -96,85 +101,91 @@ This completes the registration and integration process for **Zoho Botpress**. Y
 For more details, refer to the [Zoho API Documentation](https://www.zoho.com/crm/developer/docs/).
 
 ---
+
 ## API Functions & Usage
+
 Below are the available actions in this integration:
 
 ### 1️⃣ **Record Management**
+
 #### **Insert Record**
+
 - **Method:** `POST /crm/v7/{module}`
 - **Input:**
   ```json
   {
     "module": "Leads",
-    "data": [{"Last_Name":"Daly","First_name":"Paul","Email": "p.daly@zylker.com"}]
+    "data": [{ "Last_Name": "Daly", "First_name": "Paul", "Email": "p.daly@zylker.com" }]
   }
   ```
 - **Output:**
   ```json
-    {
+  {
     "success": true,
     "message": "Request successful",
     "data": {
-        "code": "SUCCESS",
-        "message": "Record added",
-        "status": "success",
-        "details": {
+      "code": "SUCCESS",
+      "message": "Record added",
+      "status": "success",
+      "details": {
         "id": "27234000000176001",
         "Created_By": "Matea Vasileski",
         "Modified_By": "Matea Vasileski",
         "Created_Time": "2025-02-26T18:39:39-05:00",
         "Modified_Time": "2025-02-26T18:39:39-05:00"
-        }
+      }
     }
-    }
+  }
   ```
 
 #### **Get Records**
+
 - **Method:** `GET /crm/v7/{module}`
 - **Input:**
   ```json
   {
     "module": "Leads",
-    "params": {"fields": "Email"}
+    "params": { "fields": "Email" }
   }
   ```
 - **Output:**
   ```json
-    {
+  {
     "success": true,
     "message": "Request successful",
     "data": {
-        "id": "27234000000157008",
-        "Full_Name": "Jim Mulani",
-        "First_Name": "Jim",
-        "Last_Name": "Mulani",
-        "Email": "updated@email.com",
-        "Company": "envy",
-        "Owner": {
+      "id": "27234000000157008",
+      "Full_Name": "Jim Mulani",
+      "First_Name": "Jim",
+      "Last_Name": "Mulani",
+      "Email": "updated@email.com",
+      "Company": "envy",
+      "Owner": {
         "name": "Matea Vasileski",
         "id": "27234000000095001",
         "email": "matea@envyro.io"
-        },
-        "Created_By": {
+      },
+      "Created_By": {
         "name": "Matea Vasileski",
         "id": "27234000000095001",
         "email": "matea@envyro.io"
-        },
-        "Modified_By": {
+      },
+      "Modified_By": {
         "name": "Matea Vasileski",
         "id": "27234000000095001",
         "email": "matea@envyro.io"
-        },
-        "Created_Time": "2025-02-23T21:51:21-05:00",
-        "Modified_Time": "2025-02-26T18:19:10-05:00",
-        "Lead_Status": null,
-        "Lead_Source": null,
-        "Record_Status": "Available"
+      },
+      "Created_Time": "2025-02-23T21:51:21-05:00",
+      "Modified_Time": "2025-02-26T18:19:10-05:00",
+      "Lead_Status": null,
+      "Lead_Source": null,
+      "Record_Status": "Available"
     }
-    }
+  }
   ```
 
 #### **Get Record By ID**
+
 - **Method:** `GET /crm/v7/{module}/{recordId}`
 - **Input:**
   ```json
@@ -185,71 +196,74 @@ Below are the available actions in this integration:
   ```
 - **Output:**
   ```json
-    {
+  {
     "success": true,
     "message": "Request successful",
     "data": {
-        "id": "27234000000157008",
-        "Full_Name": "Jim Mulani",
-        "First_Name": "Jim",
-        "Last_Name": "Mulani",
-        "Email": "updated@email.com",
-        "Company": "envy",
-        "Owner": {
+      "id": "27234000000157008",
+      "Full_Name": "Jim Mulani",
+      "First_Name": "Jim",
+      "Last_Name": "Mulani",
+      "Email": "updated@email.com",
+      "Company": "envy",
+      "Owner": {
         "name": "Matea Vasileski",
         "id": "27234000000095001",
         "email": "matea@envyro.io"
-        },
-        "Created_By": {
+      },
+      "Created_By": {
         "name": "Matea Vasileski",
         "id": "27234000000095001",
         "email": "matea@envyro.io"
-        },
-        "Modified_By": {
+      },
+      "Modified_By": {
         "name": "Matea Vasileski",
         "id": "27234000000095001",
         "email": "matea@envyro.io"
-        },
-        "Created_Time": "2025-02-23T21:51:21-05:00",
-        "Modified_Time": "2025-02-26T18:19:10-05:00",
-        "Lead_Status": null,
-        "Lead_Source": null,
-        "Record_Status": "Available"
+      },
+      "Created_Time": "2025-02-23T21:51:21-05:00",
+      "Modified_Time": "2025-02-26T18:19:10-05:00",
+      "Lead_Status": null,
+      "Lead_Source": null,
+      "Record_Status": "Available"
     }
-    }
+  }
   ```
 
 #### **Update Record**
+
 - **Method:** `PUT /crm/v7/{module}/{recordId}`
 - **Input:**
   ```json
   {
     "module": "Leads",
     "recordId": "27234000000162001",
-    "data": [{"Email":"updated@email.com"}]
+    "data": [{ "Email": "updated@email.com" }]
   }
   ```
-- **Output:** 
+- **Output:**
+
 ```json
-    {
-    "success": true,
-    "message": "Request successful",
-    "data": {
-        "code": "SUCCESS",
-        "message": "Record updated",
-        "status": "success",
-        "details": {
-        "id": "27234000000157008",
-        "Created_By": "Matea Vasileski",
-        "Modified_By": "Matea Vasileski",
-        "Created_Time": "2025-02-23T21:51:21-05:00",
-        "Modified_Time": "2025-02-26T18:55:37-05:00"
-        }
+{
+  "success": true,
+  "message": "Request successful",
+  "data": {
+    "code": "SUCCESS",
+    "message": "Record updated",
+    "status": "success",
+    "details": {
+      "id": "27234000000157008",
+      "Created_By": "Matea Vasileski",
+      "Modified_By": "Matea Vasileski",
+      "Created_Time": "2025-02-23T21:51:21-05:00",
+      "Modified_Time": "2025-02-26T18:55:37-05:00"
     }
-    }
+  }
+}
 ```
 
 #### **Delete Record**
+
 - **Method:** `DELETE /crm/v7/{module}/{recordId}`
 - **Input:**
   ```json
@@ -260,21 +274,22 @@ Below are the available actions in this integration:
   ```
 - **Output:**
   ```json
-    {
+  {
     "success": true,
     "message": "Request successful",
     "data": {
-        "code": "SUCCESS",
-        "message": "Record deleted",
-        "status": "success",
-        "details": {
+      "code": "SUCCESS",
+      "message": "Record deleted",
+      "status": "success",
+      "details": {
         "id": "27234000000157008"
-        }
+      }
     }
-    }
+  }
   ```
 
 #### **Search Records**
+
 - **Method:** `GET /crm/v7/{module}/search`
 - **Input:**
   ```json
@@ -283,7 +298,8 @@ Below are the available actions in this integration:
     "criteria": "(First_Name:equals:John)"
   }
   ```
-- **Output:** 
+- **Output:**
+
 ```json
 {
   "success": true,
@@ -325,45 +341,48 @@ Below are the available actions in this integration:
     }
   }
 }
-
 ```
 
 ---
+
 ### 2️⃣ **Appointments Management**
+
 #### **Create Appointment**
+
 - **Method:** `POST /crm/v7/Appointments__s`
 - **Input:**
   ```json
-    [
+  [
+    {
+      "Appointment_Name": "Matea - Mowing Service",
+      "Appointment_For": {
+        "module": {
+          "api_name": "Contacts"
+        },
+        "name": "k m",
+        "id": "27234000000163029"
+      },
+      "Service_Name": {
+        "name": "mow",
+        "id": "27234000000168178"
+      },
+      "Appointment_Start_Time": "2025-02-24T19:33:00Z",
+      "Owner": "27234000000095001",
+      "Location": "Business Address",
+      "Address": "Business Address",
+      "Additional_Information": "",
+      "Remind_At": [
         {
-            Appointment_Name: 'Matea - Mowing Service',
-            Appointment_For: {
-            module: {
-                api_name: 'Contacts'
-            },
-            name: 'k m',
-            id: '27234000000163029'
-            },
-            Service_Name: {
-            name: 'mow',
-            id: '27234000000168178'
-            },
-            Appointment_Start_Time: '2025-02-24T19:33:00Z',
-            Owner: '27234000000095001',
-            Location: 'Business Address',
-            Address: 'Business Address',
-            Additional_Information: '',
-            Remind_At: [
-            {
-                unit: 30,
-                period: 'minutes'
-            }
-            ],
-            Price: '$1.00'
+          "unit": 30,
+          "period": "minutes"
         }
-    ]
+      ],
+      "Price": "$1.00"
+    }
+  ]
   ```
-- **Output:** 
+- **Output:**
+
 ```json
 {
   "success": true,
@@ -384,14 +403,16 @@ Below are the available actions in this integration:
 ```
 
 #### **Get Appointments**
+
 - **Method:** `GET /crm/v7/Appointments__s`
 - **Input:**
   ```json
   {
-    "params": {"fields":"Service_Name"}
+    "params": { "fields": "Service_Name" }
   }
   ```
-- **Output:** 
+- **Output:**
+
 ```json
 {
   "success": true,
@@ -419,6 +440,7 @@ Below are the available actions in this integration:
 ```
 
 #### **Get Appointment By ID**
+
 - **Method:** `GET /crm/v7/Appointments__s/{appointmentId}`
 - **Input:**
   ```json
@@ -426,7 +448,8 @@ Below are the available actions in this integration:
     "appointmentId": "123456"
   }
   ```
-- **Output:** 
+- **Output:**
+
 ```json
 {
   "success": true,
@@ -476,42 +499,44 @@ Below are the available actions in this integration:
 ```
 
 #### **Update Appointment**
+
 - **Method:** `PUT /crm/v7/Appointments__s/{appointmentId}`
 - **Input:**
   ```json
   {
     "appointmentId": "27234000000159008",
     "data": {
-        "appointments": [
+      "appointments": [
+        {
+          "Appointment_Name": "Update appt",
+          "Appointment_For": {
+            "module": "Contacts",
+            "name": "k m",
+            "id": "27234000000163029"
+          },
+          "Service_Name": {
+            "name": "mow",
+            "id": "27234000000168178"
+          },
+          "Appointment_Start_Time": "2025-02-24T19:33:00Z",
+          "Owner": "27234000000095001",
+          "Location": "Business Address",
+          "Address": "Business Address",
+          "Additional_Information": "",
+          "Remind_At": [
             {
-            "Appointment_Name": "Update appt",
-            "Appointment_For": {
-                "module": "Contacts",
-                "name": "k m",
-                "id": "27234000000163029"
-            },
-            "Service_Name": {
-                "name": "mow",
-                "id": "27234000000168178"
-            },
-            "Appointment_Start_Time": "2025-02-24T19:33:00Z",
-            "Owner": "27234000000095001",
-            "Location": "Business Address",
-            "Address": "Business Address",
-            "Additional_Information": "",
-            "Remind_At": [
-                {
-                "unit": 30,
-                "period": "minutes"
-                }
-            ],
-            "Price": "$1.00"
+              "unit": 30,
+              "period": "minutes"
             }
-        ]
+          ],
+          "Price": "$1.00"
+        }
+      ]
     }
   }
   ```
-- **Output:** 
+- **Output:**
+
 ```json
 {
   "success": true,
@@ -532,6 +557,7 @@ Below are the available actions in this integration:
 ```
 
 #### **Delete Appointment**
+
 - **Method:** `DELETE /crm/v7/Appointments__s/{appointmentId}`
 - **Input:**
   ```json
@@ -539,7 +565,8 @@ Below are the available actions in this integration:
     "appointmentId": "123456"
   }
   ```
-- **Output:** 
+- **Output:**
+
 ```json
 {
   "success": true,
@@ -556,41 +583,51 @@ Below are the available actions in this integration:
 ```
 
 ---
+
 ### 3️⃣ **File Management**
+
 #### **Upload File**
+
 - **Method:** `POST /crm/v7/files`
 - **Input:**
+
 ```json
 {
-"fileUrl": "https://example.com/file.pdf"
+  "fileUrl": "https://example.com/file.pdf"
 }
 ```
+
 - **Output:**
+
 ```json
 {
-"success": true,
-"message": "File uploaded successfully",
-"data": {
+  "success": true,
+  "message": "File uploaded successfully",
+  "data": {
     "code": "SUCCESS",
     "message": "File uploaded successfully",
     "status": "success",
     "details": {
-    "name": "20250226050635-LO9N1PT0.webp",
-    "id": "36c38a1979b316686084c58303b1b6cb654eb04f0f1038ed0a8fdf8a6ff28598dceae7f8711509bfd80b56bf8cd4dbba"
+      "name": "20250226050635-LO9N1PT0.webp",
+      "id": "36c38a1979b316686084c58303b1b6cb654eb04f0f1038ed0a8fdf8a6ff28598dceae7f8711509bfd80b56bf8cd4dbba"
     }
-}
+  }
 }
 ```
 
 #### **Get File**
+
 - **Method:** `GET /crm/v7/files/{fileId}`
 - **Input:**
+
 ```json
 {
-"fileId": "dcc53e79cfef0810414e8335b0e11d8882a51116f390194f400828673ca4a59492a22be84db32aa8425d0859862491f9"
+  "fileId": "dcc53e79cfef0810414e8335b0e11d8882a51116f390194f400828673ca4a59492a22be84db32aa8425d0859862491f9"
 }
 ```
+
 - **Output:**
+
 ```json
 {
     "success":true,
@@ -600,13 +637,17 @@ Below are the available actions in this integration:
 ```
 
 ---
+
 ### 4️⃣ **Organization & User Management**
+
 #### **Get Organization Details**
+
 - **Method:** `GET /crm/v7/org`
 - **Input:**
-No input is required.
+  No input is required.
 
-- **Output:** 
+- **Output:**
+
 ```json
 {
   "success": true,
@@ -631,18 +672,19 @@ No input is required.
     }
   }
 }
-
 ```
 
 #### **Get Users**
+
 - **Method:** `GET /crm/v7/users`
 - **Input:**
   ```json
   {
-    "params": {"status":"active"}
+    "params": { "status": "active" }
   }
   ```
-- **Output:** 
+- **Output:**
+
 ```json
 {
   "success": true,
@@ -685,8 +727,11 @@ No input is required.
 ```
 
 ---
+
 ### 5️⃣ **Emails**
+
 #### **Send Email**
+
 - **Method:** `POST /crm/v7/emails`
 - **Input:**
   ```json
@@ -694,27 +739,28 @@ No input is required.
     "module": "Leads",
     "recordId": "123456",
     "data": [
-        {
-            from: {
-            user_name: 'Matea Vasileski',
-            email: 'matea@envyro.io'
-            },
-            to: [
-            {
-                user_name: 'user1',
-                email: 'milos@envyro.io'
-            }
-            ],
-            cc: [],
-            bcc: [],
-            subject: 'Important Update',
-            content: 'Here is an important update for you.',
-            mail_format: 'html'
-        }
-        ]
+      {
+        "from": {
+          "user_name": "Matea Vasileski",
+          "email": "matea@envyro.io"
+        },
+        "to": [
+          {
+            "user_name": "user1",
+            "email": "milos@envyro.io"
+          }
+        ],
+        "cc": [],
+        "bcc": [],
+        "subject": "Important Update",
+        "content": "Here is an important update for you.",
+        "mail_format": "html"
+      }
+    ]
   }
   ```
 - **Output:**
+
 ```json
 {
   "success": true,
