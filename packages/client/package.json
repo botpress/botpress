@@ -25,8 +25,7 @@
     "axios": "^1.6.1",
     "axios-retry": "^4.5.0",
     "browser-or-node": "^2.1.1",
-    "qs": "^6.11.0",
-    "type-fest": "^3.4.0"
+    "qs": "^6.11.0"
   },
   "devDependencies": {
     "@botpress/api": "0.78.0",

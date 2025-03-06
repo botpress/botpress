@@ -10,8 +10,7 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*",
-    "lodash": "^4.17.21"
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

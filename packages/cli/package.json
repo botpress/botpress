@@ -36,7 +36,6 @@
     "bluebird": "^3.7.2",
     "boxen": "5.1.2",
     "chalk": "^4.1.2",
-    "chokidar": "^3.5.3",
     "dotenv": "^16.4.4",
     "esbuild": "^0.16.12",
     "handlebars": "^4.7.8",
@@ -44,11 +43,9 @@
     "lodash": "^4.17.21",
     "prettier": "^3.4.2",
     "prompts": "^2.4.2",
-    "radash": "^9.5.0",
     "semver": "^7.3.8",
     "uuid": "^9.0.0",
     "verror": "^1.10.1",
-    "winston": "^3.8.2",
     "yn": "^4.0.0"
   },
   "devDependencies": {
