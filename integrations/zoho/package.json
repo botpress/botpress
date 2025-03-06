@@ -1,0 +1,27 @@
+{
+  "name": "zoho",
+  "integrationName": "Zoho integration for Botpress",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build",
+    "version": "bp --version",
+    "login": "bp login",
+    "gen": "bp gen",
+    "deploy": "bp deploy"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "axios": "^1.7.9",
+    "form-data": "^4.0.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@types/node": "^18.19.76",
+    "typescript": "^5.7.3",
+    "ts-node": "^10.9.2"
+  }
+}
