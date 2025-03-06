@@ -30,6 +30,4 @@ export const handleOAuthCallback = async ({ req, client, ctx }: bp.HandlerProps)
   await client.configureIntegration({
     identifier: userEmail,
   })
-
-  await googleClient.watchIncomingMail()
 }
