@@ -1,5 +1,4 @@
 import { getClient } from '../client'
-import { emptyInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const getOrganizationDetails: Implementation['actions']['getOrganizationDetails'] = async ({
@@ -7,8 +6,6 @@ export const getOrganizationDetails: Implementation['actions']['getOrganizationD
   client,
   logger,
 }) => {
-  const validatedInput = emptyInputSchema.parse({})
-
   const zohoClient = getClient(
     ctx.configuration.accessToken,
     ctx.configuration.refreshToken,
