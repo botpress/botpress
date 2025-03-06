@@ -1,14 +1,9 @@
 {
-  "name": "zoho",
-  "integrationName": "Zoho integration for Botpress",
+  "name": "@botpresshub/zoho",
   "scripts": {
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
-    "build": "bp add -y && bp build",
-    "version": "bp --version",
-    "login": "bp login",
-    "gen": "bp gen",
-    "deploy": "bp deploy"
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {

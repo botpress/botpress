@@ -1,7 +1,7 @@
 import { getClient } from '../client'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const getOrganizationDetails: Implementation['actions']['getOrganizationDetails'] = async ({
+export const getOrganizationDetails: IntegrationProps['actions']['getOrganizationDetails'] = async ({
   ctx,
   client,
   logger,

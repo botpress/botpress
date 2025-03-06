@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { getFileInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const getFile: Implementation['actions']['getFile'] = async ({ ctx, client, logger, input }) => {
+export const getFile: IntegrationProps['actions']['getFile'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = getFileInputSchema.parse(input)
 
   const zohoClient = getClient(

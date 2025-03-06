@@ -1,8 +1,13 @@
 import { getClient } from '../client'
 import { getAppointmentsInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const getAppointments: Implementation['actions']['getAppointments'] = async ({ ctx, client, logger, input }) => {
+export const getAppointments: IntegrationProps['actions']['getAppointments'] = async ({
+  ctx,
+  client,
+  logger,
+  input,
+}) => {
   const validatedInput = getAppointmentsInputSchema.parse(input)
   const params = validatedInput.params ?? '{}'
 

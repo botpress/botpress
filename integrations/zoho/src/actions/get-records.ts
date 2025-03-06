@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { getRecordsInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const getRecords: Implementation['actions']['getRecords'] = async ({ ctx, client, logger, input }) => {
+export const getRecords: IntegrationProps['actions']['getRecords'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = getRecordsInputSchema.parse(input)
   const params = validatedInput.params ?? '{}' // Default to empty JSON if no params provided
 

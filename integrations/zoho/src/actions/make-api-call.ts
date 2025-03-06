@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { makeApiCallInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const makeApiCall: Implementation['actions']['makeApiCall'] = async ({ ctx, client, logger, input }) => {
+export const makeApiCall: IntegrationProps['actions']['makeApiCall'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = makeApiCallInputSchema.parse(input)
   const params = validatedInput.params ?? '{}' // Default to empty JSON if no params provided
   const zohoClient = getClient(

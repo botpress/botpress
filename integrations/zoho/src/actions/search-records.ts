@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { searchRecordsInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const searchRecords: Implementation['actions']['searchRecords'] = async ({ ctx, client, logger, input }) => {
+export const searchRecords: IntegrationProps['actions']['searchRecords'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = searchRecordsInputSchema.parse(input)
 
   const zohoClient = getClient(
