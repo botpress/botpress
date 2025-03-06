@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { updateRecordInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const updateRecord: Implementation['actions']['updateRecord'] = async ({ ctx, client, logger, input }) => {
+export const updateRecord: IntegrationProps['actions']['updateRecord'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = updateRecordInputSchema.parse(input)
   const zohoClient = getClient(
     ctx.configuration.accessToken,

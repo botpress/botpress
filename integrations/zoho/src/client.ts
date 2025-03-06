@@ -23,16 +23,16 @@ const zohosalesiq_server_uri = 'https://salesiq.zohocloud.ca'
 const screen_name = 'envyroinc'
 
 export class ZohoApi {
-  private accessToken: string
-  private refreshToken: string
-  private clientId: string
-  private clientSecret: string
-  private dataCenter: string
-  private baseUrl: string
-  private ctx: bp.Context
-  private bpClient: bp.Client
+  private _accessToken: string
+  private _refreshToken: string
+  private _clientId: string
+  private _clientSecret: string
+  private _dataCenter: string
+  private _baseUrl: string
+  private _ctx: bp.Context
+  private _bpClient: bp.Client
 
-  constructor(
+  public constructor(
     accessToken: string,
     refreshToken: string,
     clientId: string,
@@ -41,21 +41,21 @@ export class ZohoApi {
     ctx: bp.Context,
     bpClient: bp.Client
   ) {
-    this.accessToken = accessToken
-    this.refreshToken = refreshToken
-    this.clientId = clientId
-    this.clientSecret = clientSecret
-    this.dataCenter = dataCenter
-    this.ctx = ctx
-    this.bpClient = bpClient
-    this.baseUrl = `https://www.zohoapis.${dataCenter}`
+    this._accessToken = accessToken
+    this._refreshToken = refreshToken
+    this._clientId = clientId
+    this._clientSecret = clientSecret
+    this._dataCenter = dataCenter
+    this._ctx = ctx
+    this._bpClient = bpClient
+    this._baseUrl = `https://www.zohoapis.${dataCenter}`
   }
 
   /** Retrieves stored credentials from Botpress state */
-  private async getStoredCredentials(): Promise<{ accessToken: string } | null> {
+  private async _getStoredCredentials(): Promise<{ accessToken: string } | null> {
     try {
-      const { state } = await this.bpClient.getState({
-        id: this.ctx.integrationId,
+      const { state } = await this._bpClient.getState({
+        id: this._ctx.integrationId,
         name: 'credentials',
         type: 'integration',
       })
@@ -74,14 +74,14 @@ export class ZohoApi {
     }
   }
 
-  private async makeRequest(
+  private async _makeRequest(
     endpoint: string,
     method: string = 'GET',
     data: any = null,
     params: any = {}
   ): Promise<any> {
     try {
-      const creds = await this.getStoredCredentials()
+      const creds = await this._getStoredCredentials()
       if (!creds) {
         logger.forBot().error('Error retrieving credentials.')
         throw new Error('Error grabbing credentials.')
@@ -95,12 +95,12 @@ export class ZohoApi {
       if (method !== 'GET' && method !== 'DELETE') {
         headers['Content-Type'] = 'application/json'
       }
-      logger.forBot().info(`Making request to ${method} ${this.baseUrl}${endpoint}`)
+      logger.forBot().info(`Making request to ${method} ${this._baseUrl}${endpoint}`)
       logger.forBot().info('Params:', params)
 
       const response = await axios({
         method,
-        url: `${this.baseUrl}${endpoint}`,
+        url: `${this._baseUrl}${endpoint}`,
         headers,
         data,
         params,
@@ -110,17 +110,17 @@ export class ZohoApi {
     } catch (error: any) {
       if (error.response?.status === 401) {
         logger.forBot().warn('Access token expired. Refreshing...', error)
-        await this.refreshAccessToken()
-        return this.makeRequest(endpoint, method, data, params)
+        await this._refreshAccessToken()
+        return this._makeRequest(endpoint, method, data, params)
       }
       logger.forBot().error(`Error in ${method} ${endpoint}:`, error.response?.data || error.message)
       return { success: false, message: error.response?.data?.message || error.message, data: null }
     }
   }
 
-  private async makeFileUploadRequest(endpoint: string, formData: FormData): Promise<any> {
+  private async _makeFileUploadRequest(endpoint: string, formData: FormData): Promise<any> {
     try {
-      const creds = await this.getStoredCredentials()
+      const creds = await this._getStoredCredentials()
       if (!creds) {
         logger.forBot().error('Error retrieving credentials.')
         throw new Error('Error grabbing credentials.')
@@ -131,30 +131,30 @@ export class ZohoApi {
         ...formData.getHeaders(),
       }
 
-      logger.forBot().info(`Uploading file to ${this.baseUrl}${endpoint}`)
+      logger.forBot().info(`Uploading file to ${this._baseUrl}${endpoint}`)
 
-      const response = await axios.post(`${this.baseUrl}${endpoint}`, formData, { headers })
+      const response = await axios.post(`${this._baseUrl}${endpoint}`, formData, { headers })
 
       return { success: true, message: 'File uploaded successfully', data: response.data }
     } catch (error: any) {
       if (error.response?.status === 401) {
         logger.forBot().warn('Access token expired. Refreshing...', error)
-        await this.refreshAccessToken()
-        return this.makeFileUploadRequest(endpoint, formData)
+        await this._refreshAccessToken()
+        return this._makeFileUploadRequest(endpoint, formData)
       }
       logger.forBot().error(`Error in file upload ${endpoint}:`, error.response?.data || error.message)
       return { success: false, message: error.response?.data?.message || error.message, data: null }
     }
   }
 
-  private async makeHitlRequest(
+  private async _makeHitlRequest(
     endpoint: string,
     method: string = 'GET',
     data: any = null,
     params: any = {}
   ): Promise<any> {
     try {
-      const creds = await this.getStoredCredentials()
+      const creds = await this._getStoredCredentials()
       if (!creds) {
         logger.forBot().error('Error retrieving credentials.')
         throw new Error('Error grabbing credentials.')
@@ -183,30 +183,30 @@ export class ZohoApi {
     } catch (error: any) {
       if (error.response?.status === 401) {
         logger.forBot().warn('Access token expired. Refreshing...', error)
-        await this.refreshAccessToken()
-        return this.makeRequest(endpoint, method, data, params)
+        await this._refreshAccessToken()
+        return this._makeRequest(endpoint, method, data, params)
       }
       logger.forBot().error(`Error in ${method} ${endpoint}:`, error.response?.data || error.message)
       return { success: false, message: error.response?.data?.message || error.message, data: null }
     }
   }
 
-  private async refreshAccessToken() {
+  private async _refreshAccessToken() {
     try {
-      const creds = await this.getStoredCredentials()
+      const creds = await this._getStoredCredentials()
       if (!creds) {
         logger.forBot().error('Error refreshing access token')
         throw new Error('Error grabbing credentials.')
       }
 
       const requestData = new URLSearchParams()
-      requestData.append('client_id', this.clientId)
-      requestData.append('client_secret', this.clientSecret)
-      requestData.append('refresh_token', this.refreshToken)
+      requestData.append('client_id', this._clientId)
+      requestData.append('client_secret', this._clientSecret)
+      requestData.append('refresh_token', this._refreshToken)
       requestData.append('grant_type', 'refresh_token')
 
       const response = await axios.post(
-        `${getZohoAuthUrl(this.ctx.configuration.dataCenter)}/oauth/v2/token`,
+        `${getZohoAuthUrl(this._ctx.configuration.dataCenter)}/oauth/v2/token`,
         requestData.toString(),
         {
           headers: {
@@ -215,8 +215,8 @@ export class ZohoApi {
         }
       )
 
-      await this.bpClient.setState({
-        id: this.ctx.integrationId,
+      await this._bpClient.setState({
+        id: this._ctx.integrationId,
         type: 'integration',
         name: 'credentials',
         payload: {
@@ -233,7 +233,7 @@ export class ZohoApi {
   }
 
   public async createConversation(): Promise<{ conversation_id: string }> {
-    const { data } = await this.makeHitlRequest(
+    const { data } = await this._makeHitlRequest(
       `${zohosalesiq_server_uri}/api/visitor/v1/${screen_name}/conversations`,
       'POST',
       {
@@ -249,48 +249,48 @@ export class ZohoApi {
     return data
   }
 
-  async makeApiCall(endpoint: string, method: string = 'GET', data: any = null, rawParams: any = {}) {
+  public async makeApiCall(endpoint: string, method: string = 'GET', data: any = null, rawParams: any = {}) {
     const params = JSON.parse(rawParams)
-    return this.makeRequest(endpoint, method, data, params)
+    return this._makeRequest(endpoint, method, data, params)
   }
 
-  async insertRecord(module: string, rawData: string) {
+  public async insertRecord(module: string, rawData: string) {
     const data = JSON.parse(rawData)
-    return this.makeRequest(`/crm/v7/${module}`, 'POST', { data })
+    return this._makeRequest(`/crm/v7/${module}`, 'POST', { data })
   }
 
-  async getRecords(module: string, rawParams: string = '{}') {
+  public async getRecords(module: string, rawParams: string = '{}') {
     const params = JSON.parse(rawParams)
-    return this.makeRequest(`/crm/v7/${module}`, 'GET', null, params)
+    return this._makeRequest(`/crm/v7/${module}`, 'GET', null, params)
   }
 
-  async getRecordById(module: string, recordId: string, params: any = {}) {
-    return this.makeRequest(`/crm/v7/${module}/${recordId}`, 'GET', null, params)
+  public async getRecordById(module: string, recordId: string, params: any = {}) {
+    return this._makeRequest(`/crm/v7/${module}/${recordId}`, 'GET', null, params)
   }
 
-  async updateRecord(module: string, recordId: string, rawData: string) {
+  public async updateRecord(module: string, recordId: string, rawData: string) {
     const data = JSON.parse(rawData)
-    return this.makeRequest(`/crm/v7/${module}/${recordId}`, 'PUT', { data })
+    return this._makeRequest(`/crm/v7/${module}/${recordId}`, 'PUT', { data })
   }
 
-  async deleteRecord(module: string, recordId: string) {
-    return this.makeRequest(`/crm/v7/${module}/${recordId}`, 'DELETE')
+  public async deleteRecord(module: string, recordId: string) {
+    return this._makeRequest(`/crm/v7/${module}/${recordId}`, 'DELETE')
   }
 
-  async searchRecords(module: string, criteria: string) {
-    return this.makeRequest(`/crm/v7/${module}/search`, 'GET', null, { criteria })
+  public async searchRecords(module: string, criteria: string) {
+    return this._makeRequest(`/crm/v7/${module}/search`, 'GET', null, { criteria })
   }
 
-  async getOrganizationDetails() {
-    return this.makeRequest('/crm/v7/org', 'GET')
+  public async getOrganizationDetails() {
+    return this._makeRequest('/crm/v7/org', 'GET')
   }
 
-  async getUsers(rawParams?: string) {
+  public async getUsers(rawParams?: string) {
     const params = rawParams ? JSON.parse(rawParams) : {}
-    return this.makeRequest('/crm/v7/users', 'GET', null, params)
+    return this._makeRequest('/crm/v7/users', 'GET', null, params)
   }
 
-  async downloadFileBuffer(fileUrl: string): Promise<Blob> {
+  public async downloadFileBuffer(fileUrl: string): Promise<Blob> {
     try {
       const response = await axios.get(fileUrl, {
         responseType: 'arraybuffer',
@@ -305,7 +305,7 @@ export class ZohoApi {
     }
   }
 
-  async uploadFile(fileUrl: string) {
+  public async uploadFile(fileUrl: string) {
     logger.forBot().error('FILE URL SHARK: ', fileUrl)
 
     try {
@@ -318,43 +318,43 @@ export class ZohoApi {
       const formData = new FormData()
       formData.append('file', buffer, fileName)
 
-      return this.makeFileUploadRequest('/crm/v7/files', formData)
+      return this._makeFileUploadRequest('/crm/v7/files', formData)
     } catch (error) {
       logger.forBot().error('Error uploading file:', error)
       throw error
     }
   }
 
-  async getFile(fileId: string) {
-    return this.makeRequest('/crm/v7/files', 'GET', null, { id: fileId })
+  public async getFile(fileId: string) {
+    return this._makeRequest('/crm/v7/files', 'GET', null, { id: fileId })
   }
 
-  async getAppointments(rawParams: string = '{}') {
+  public async getAppointments(rawParams: string = '{}') {
     const params = JSON.parse(rawParams)
-    return this.makeRequest('/crm/v7/Appointments__s', 'GET', null, params)
+    return this._makeRequest('/crm/v7/Appointments__s', 'GET', null, params)
   }
 
-  async getAppointmentById(appointmentId: string) {
-    return this.makeRequest(`/crm/v7/Appointments__s/${appointmentId}`)
+  public async getAppointmentById(appointmentId: string) {
+    return this._makeRequest(`/crm/v7/Appointments__s/${appointmentId}`)
   }
 
-  async createAppointment(rawData: string) {
+  public async createAppointment(rawData: string) {
     const data = JSON.parse(rawData)
-    return this.makeRequest('/crm/v7/Appointments__s', 'POST', { data })
+    return this._makeRequest('/crm/v7/Appointments__s', 'POST', { data })
   }
 
-  async updateAppointment(appointmentId: string, rawData: string) {
+  public async updateAppointment(appointmentId: string, rawData: string) {
     const data = JSON.parse(rawData)
-    return this.makeRequest(`/crm/v7/Appointments__s/${appointmentId}`, 'PUT', { data })
+    return this._makeRequest(`/crm/v7/Appointments__s/${appointmentId}`, 'PUT', { data })
   }
 
-  async deleteAppointment(appointmentId: string) {
-    return this.makeRequest(`/crm/v7/Appointments__s/${appointmentId}`, 'DELETE')
+  public async deleteAppointment(appointmentId: string) {
+    return this._makeRequest(`/crm/v7/Appointments__s/${appointmentId}`, 'DELETE')
   }
 
-  async sendMail(module: string, recordId: string, rawData: string) {
+  public async sendMail(module: string, recordId: string, rawData: string) {
     const data = JSON.parse(rawData)
-    return this.makeRequest(`/crm/v7/${module}/${recordId}/actions/send_mail`, 'POST', { data })
+    return this._makeRequest(`/crm/v7/${module}/${recordId}/actions/send_mail`, 'POST', { data })
   }
 }
 

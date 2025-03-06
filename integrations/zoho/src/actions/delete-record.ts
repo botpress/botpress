@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { deleteRecordInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const deleteRecord: Implementation['actions']['deleteRecord'] = async ({ ctx, client, logger, input }) => {
+export const deleteRecord: IntegrationProps['actions']['deleteRecord'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = deleteRecordInputSchema.parse(input)
 
   const zohoClient = getClient(

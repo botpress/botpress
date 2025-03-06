@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { deleteAppointmentInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const deleteAppointment: Implementation['actions']['deleteAppointment'] = async ({
+export const deleteAppointment: IntegrationProps['actions']['deleteAppointment'] = async ({
   ctx,
   client,
   logger,

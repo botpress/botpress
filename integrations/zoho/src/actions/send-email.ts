@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { sendMailInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const sendMail: Implementation['actions']['sendMail'] = async ({ ctx, client, logger, input }) => {
+export const sendMail: IntegrationProps['actions']['sendMail'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = sendMailInputSchema.parse(input)
 
   const zohoClient = getClient(

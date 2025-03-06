@@ -5,4 +5,5 @@ export const handler: Handler = async ({ req }) => {
     console.warn('Handler received an empty body')
     return {}
   }
+  return {}
 }

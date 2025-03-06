@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { getAppointmentByIdInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const getAppointmentById: Implementation['actions']['getAppointmentById'] = async ({
+export const getAppointmentById: IntegrationProps['actions']['getAppointmentById'] = async ({
   ctx,
   client,
   logger,

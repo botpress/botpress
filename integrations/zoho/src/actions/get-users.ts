@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { getUsersInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const getUsers: Implementation['actions']['getUsers'] = async ({ ctx, client, logger, input }) => {
+export const getUsers: IntegrationProps['actions']['getUsers'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = getUsersInputSchema.parse(input)
   const params = validatedInput.params ?? '{}' // Ensure params is always a valid JSON string
 

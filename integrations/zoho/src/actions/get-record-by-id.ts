@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { getRecordByIdInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const getRecordById: Implementation['actions']['getRecordById'] = async ({ ctx, client, logger, input }) => {
+export const getRecordById: IntegrationProps['actions']['getRecordById'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = getRecordByIdInputSchema.parse(input)
 
   const zohoClient = getClient(
