@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { emptyInputSchema, getOrganizationDetailsOutputSchema } from '../misc/custom-schemas'
+import { emptyInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const getOrganizationDetails: Implementation['actions']['getOrganizationDetails'] = async ({

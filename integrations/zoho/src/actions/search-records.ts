@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { searchRecordsInputSchema, searchRecordsOutputSchema } from '../misc/custom-schemas'
+import { searchRecordsInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const searchRecords: Implementation['actions']['searchRecords'] = async ({ ctx, client, logger, input }) => {
@@ -20,7 +20,7 @@ export const searchRecords: Implementation['actions']['searchRecords'] = async (
   try {
     const result = await zohoClient.searchRecords(validatedInput.module, validatedInput.criteria)
 
-    logger.forBot().info(`Successful - Search Records`)
+    logger.forBot().info('Successful - Search Records')
     logger.forBot().debug(`Result Data - ${JSON.stringify(result.data)}`)
 
     return {

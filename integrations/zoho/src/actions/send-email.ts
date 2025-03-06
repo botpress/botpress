@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { sendMailInputSchema, sendMailOutputSchema } from '../misc/custom-schemas'
+import { sendMailInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const sendMail: Implementation['actions']['sendMail'] = async ({ ctx, client, logger, input }) => {
@@ -19,7 +19,7 @@ export const sendMail: Implementation['actions']['sendMail'] = async ({ ctx, cli
 
   try {
     const result = await zohoClient.sendMail(validatedInput.module, validatedInput.recordId, validatedInput.data)
-    logger.forBot().info(`Successful - Send Mail`)
+    logger.forBot().info('Successful - Send Mail')
     logger.forBot().debug(`Result Data - ${JSON.stringify(result.data)}`)
 
     return {

@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { getFileInputSchema, getFileOutputSchema } from '../misc/custom-schemas'
+import { getFileInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const getFile: Implementation['actions']['getFile'] = async ({ ctx, client, logger, input }) => {

@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { deleteAppointmentInputSchema, deleteAppointmentOutputSchema } from '../misc/custom-schemas'
+import { deleteAppointmentInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const deleteAppointment: Implementation['actions']['deleteAppointment'] = async ({

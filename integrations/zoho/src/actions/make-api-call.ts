@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { makeApiCallInputSchema, makeApiCallOutputSchema } from '../misc/custom-schemas'
+import { makeApiCallInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const makeApiCall: Implementation['actions']['makeApiCall'] = async ({ ctx, client, logger, input }) => {

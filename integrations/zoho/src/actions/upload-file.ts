@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { uploadFileInputSchema, uploadFileOutputSchema } from '../misc/custom-schemas'
+import { uploadFileInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const uploadFile: Implementation['actions']['uploadFile'] = async ({ ctx, client, logger, input }) => {
@@ -20,7 +20,7 @@ export const uploadFile: Implementation['actions']['uploadFile'] = async ({ ctx,
     // Call Zoho API to upload file
     const result = await zohoClient.uploadFile(validatedInput.fileUrl)
 
-    logger.forBot().info(`Successful - Upload File`)
+    logger.forBot().info('Successful - Upload File')
     logger.forBot().debug(`Upload File Result - ${JSON.stringify(result.data)}`)
 
     return {

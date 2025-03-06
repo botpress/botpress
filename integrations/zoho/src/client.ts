@@ -1,8 +1,7 @@
+import { IntegrationLogger } from '@botpress/sdk'
 import axios, { AxiosError } from 'axios'
-import * as bp from '.botpress'
-import fs from 'fs'
 import FormData from 'form-data'
-import sdk, { z, IntegrationLogger } from '@botpress/sdk'
+import * as bp from '.botpress'
 
 const logger = new IntegrationLogger()
 
@@ -283,12 +282,12 @@ export class ZohoApi {
   }
 
   async getOrganizationDetails() {
-    return this.makeRequest(`/crm/v7/org`, 'GET')
+    return this.makeRequest('/crm/v7/org', 'GET')
   }
 
   async getUsers(rawParams?: string) {
     const params = rawParams ? JSON.parse(rawParams) : {}
-    return this.makeRequest(`/crm/v7/users`, 'GET', null, params)
+    return this.makeRequest('/crm/v7/users', 'GET', null, params)
   }
 
   async downloadFileBuffer(fileUrl: string): Promise<Blob> {
@@ -319,7 +318,7 @@ export class ZohoApi {
       const formData = new FormData()
       formData.append('file', buffer, fileName)
 
-      return this.makeFileUploadRequest(`/crm/v7/files`, formData)
+      return this.makeFileUploadRequest('/crm/v7/files', formData)
     } catch (error) {
       logger.forBot().error('Error uploading file:', error)
       throw error
@@ -327,12 +326,12 @@ export class ZohoApi {
   }
 
   async getFile(fileId: string) {
-    return this.makeRequest(`/crm/v7/files`, 'GET', null, { id: fileId })
+    return this.makeRequest('/crm/v7/files', 'GET', null, { id: fileId })
   }
 
   async getAppointments(rawParams: string = '{}') {
     const params = JSON.parse(rawParams)
-    return this.makeRequest(`/crm/v7/Appointments__s`, 'GET', null, params)
+    return this.makeRequest('/crm/v7/Appointments__s', 'GET', null, params)
   }
 
   async getAppointmentById(appointmentId: string) {
@@ -341,7 +340,7 @@ export class ZohoApi {
 
   async createAppointment(rawData: string) {
     const data = JSON.parse(rawData)
-    return this.makeRequest(`/crm/v7/Appointments__s`, 'POST', { data })
+    return this.makeRequest('/crm/v7/Appointments__s', 'POST', { data })
   }
 
   async updateAppointment(appointmentId: string, rawData: string) {

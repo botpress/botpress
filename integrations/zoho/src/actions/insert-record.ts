@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { insertRecordInputSchema, insertRecordOutputSchema } from '../misc/custom-schemas'
+import { insertRecordInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const insertRecord: Implementation['actions']['insertRecord'] = async ({ ctx, client, logger, input }) => {
@@ -19,7 +19,7 @@ export const insertRecord: Implementation['actions']['insertRecord'] = async ({ 
   try {
     const result = await zohoClient.insertRecord(validatedInput.module, validatedInput.data)
 
-    logger.forBot().info(`Successful - Insert Record`)
+    logger.forBot().info('Successful - Insert Record')
     logger.forBot().debug(`Result Data - ${JSON.stringify(result.data)}`)
 
     return {

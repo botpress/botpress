@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { createAppointmentInputSchema, createAppointmentOutputSchema } from '../misc/custom-schemas'
+import { createAppointmentInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const createAppointment: Implementation['actions']['createAppointment'] = async ({

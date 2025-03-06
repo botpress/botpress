@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { updateAppointmentInputSchema, updateAppointmentOutputSchema } from '../misc/custom-schemas'
+import { updateAppointmentInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const updateAppointment: Implementation['actions']['updateAppointment'] = async ({
@@ -26,7 +26,7 @@ export const updateAppointment: Implementation['actions']['updateAppointment'] =
     // Call Zoho API to update the appointment
     const result = await zohoClient.updateAppointment(validatedInput.appointmentId, validatedInput.data)
 
-    logger.forBot().info(`Successful - Update Appointment`)
+    logger.forBot().info('Successful - Update Appointment')
     logger.forBot().debug(`Result Data - ${JSON.stringify(result.data)}`)
 
     return {

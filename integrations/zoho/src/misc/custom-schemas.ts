@@ -1,4 +1,4 @@
-import { conversation, z } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 
 export const emptyInputSchema = z.object({})
 

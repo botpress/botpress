@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { deleteRecordInputSchema, deleteRecordOutputSchema } from '../misc/custom-schemas'
+import { deleteRecordInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const deleteRecord: Implementation['actions']['deleteRecord'] = async ({ ctx, client, logger, input }) => {

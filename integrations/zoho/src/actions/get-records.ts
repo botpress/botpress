@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { getRecordsInputSchema, getRecordsOutputSchema } from '../misc/custom-schemas'
+import { getRecordsInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const getRecords: Implementation['actions']['getRecords'] = async ({ ctx, client, logger, input }) => {

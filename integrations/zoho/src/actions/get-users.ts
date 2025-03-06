@@ -1,5 +1,5 @@
 import { getClient } from '../client'
-import { getUsersInputSchema, getUsersOutputSchema } from '../misc/custom-schemas'
+import { getUsersInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
 export const getUsers: Implementation['actions']['getUsers'] = async ({ ctx, client, logger, input }) => {
@@ -21,7 +21,7 @@ export const getUsers: Implementation['actions']['getUsers'] = async ({ ctx, cli
   try {
     const result = await zohoClient.getUsers(params)
 
-    logger.forBot().info(`Successful - Get Users`)
+    logger.forBot().info('Successful - Get Users')
     logger.forBot().debug(`Result Data - ${JSON.stringify(result.data)}`)
 
     return {
