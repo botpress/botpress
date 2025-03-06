@@ -1,6 +1,6 @@
 {
   "name": "zoho",
-  "integrationName": "zoho",
+  "integrationName": "Zoho integration for Botpress",
   "scripts": {
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
