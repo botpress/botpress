@@ -5,7 +5,10 @@ import { GmailClient, GoogleOAuth2Client } from './types'
 import * as bp from '.botpress'
 
 export class GoogleClient {
-  private constructor(private readonly _gmail: GmailClient, private readonly _topicName: string) {}
+  private constructor(
+    private readonly _gmail: GmailClient,
+    private readonly _topicName: string
+  ) {}
 
   public static async create({
     client,
