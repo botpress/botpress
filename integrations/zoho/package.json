@@ -14,14 +14,10 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "axios": "^1.7.9",
-    "form-data": "^4.0.0",
-    "zod": "^3.24.2"
+    "axios": "^1.4.0",
+    "form-data": "^4.0.0"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*",
-    "@types/node": "^18.19.76",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
+    "@botpress/cli": "workspace:*"
   }
 }
