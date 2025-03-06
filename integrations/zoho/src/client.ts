@@ -2,9 +2,7 @@ import axios, { AxiosError } from "axios";
 import * as bp from '.botpress'
 import fs from 'fs'
 import FormData from 'form-data'
-import sdk, { z } from '@botpress/sdk'
-
-import { IntegrationLogger } from '@botpress/sdk';
+import sdk, { z, IntegrationLogger } from '@botpress/sdk'
 
 const logger = new IntegrationLogger();
 
