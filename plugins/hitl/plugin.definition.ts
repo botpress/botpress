@@ -14,7 +14,7 @@ export const DEFAULT_USER_HITL_COMMAND_MESSAGE =
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.2.2',
+  version: '0.3.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -151,6 +151,10 @@ export default new sdk.PluginDefinition({
       humanAgentName: {
         title: 'Human Agent Name',
         description: 'Name of the human agent assigned to the ticket',
+      },
+      hitlEndReason: {
+        title: 'HITL End Reason',
+        description: 'Reason why the HITL session ended',
       },
     },
   },

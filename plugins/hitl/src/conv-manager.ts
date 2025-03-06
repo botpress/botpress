@@ -10,6 +10,17 @@ export type RespondProps = {
   userId?: string
 }
 
+export const HITL_END_REASON = {
+  // PATIENT_LEFT: 'patient-left',
+  PATIENT_USED_TERMINATION_COMMAND: 'patient-used-termination-command',
+  // AGENT_ASSIGNMENT_TIMEOUT: 'agent-assignment-timeout',
+  // AGENT_RESPONSE_TIMEOUT: 'agent-response-timeout',
+  AGENT_CLOSED_TICKET: 'agent-closed-ticket',
+  CLOSE_ACTION_CALLED: 'close-action-called',
+  INTERNAL_ERROR: 'internal-error',
+} as const
+type HitlEndReason = (typeof HITL_END_REASON)[keyof typeof HITL_END_REASON]
+
 export class ConversationManager {
   public static from(props: types.AnyHandlerProps, convId: string): ConversationManager {
     return new ConversationManager(props, convId)
@@ -25,7 +36,7 @@ export class ConversationManager {
   }
 
   public async setHumanAgent(humanAgentId: string, humanAgentName: string) {
-    await this._props.client.updateConversation({ id: this._convId, tags: { humanAgentId, humanAgentName } })
+    await this._patchConversationTags({ humanAgentId, humanAgentName })
   }
 
   public async isHitlActive(): Promise<boolean> {
@@ -37,8 +48,11 @@ export class ConversationManager {
     await this._setHitlState({ hitlActive: true })
   }
 
-  public async setHitlInactive(): Promise<void> {
-    await this._setHitlState({ hitlActive: false })
+  public async setHitlInactive(reason: HitlEndReason): Promise<void> {
+    await Promise.all([
+      this._setHitlState({ hitlActive: false }),
+      this._patchConversationTags({ hitlEndReason: reason }),
+    ])
   }
 
   public async respond({ text, userId }: RespondProps): Promise<void> {
@@ -52,7 +66,7 @@ export class ConversationManager {
   }
 
   public async abortHitlSession(errorMessage: string): Promise<void> {
-    await this.setHitlInactive()
+    await this.setHitlInactive(HITL_END_REASON.INTERNAL_ERROR)
     await this.respond({ text: errorMessage })
   }
 
@@ -73,5 +87,9 @@ export class ConversationManager {
       name: 'hitl',
       payload: state,
     })
+  }
+
+  private async _patchConversationTags(tags: Record<string, string>): Promise<void> {
+    await this._props.client.updateConversation({ id: this._convId, tags })
   }
 }

@@ -2290,9 +2290,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../../packages/common
       '@botpresshub/hitl':
         specifier: workspace:*
         version: link:../../interfaces/hitl
