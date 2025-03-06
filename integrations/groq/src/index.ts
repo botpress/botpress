@@ -179,7 +179,7 @@ export default new bp.Integration({
       const output = await llm.openai.generateContent<ModelId>(<llm.GenerateContentInput>input, groqClient, logger, {
         provider,
         models: languageModels,
-        defaultModel: 'mixtral-8x7b-32768',
+        defaultModel: 'llama-3.3-70b-versatile',
         overrideResponse: (response) => {
           if (input.model?.id === 'deepseek-r1-distill-llama-70b') {
             for (const choice of response.choices) {
