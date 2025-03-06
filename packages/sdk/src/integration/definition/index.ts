@@ -343,10 +343,33 @@ export class IntegrationDefinition<
 
   private _mergeChannels = (a: ChannelDefinition, b: ChannelDefinition): ChannelDefinition => {
     const messages = utils.records.mergeRecords(a.messages, b.messages, this._mergeMessage)
+
+    let conversation: ChannelDefinition['conversation'] = undefined
+    if (a.conversation || b.conversation) {
+      conversation = {
+        tags: {
+          ...a.conversation?.tags,
+          ...b.conversation?.tags,
+        },
+      }
+    }
+
+    let message: ChannelDefinition['message'] = undefined
+    if (a.message || b.message) {
+      message = {
+        tags: {
+          ...a.message?.tags,
+          ...b.message?.tags,
+        },
+      }
+    }
+
     return {
       ...a,
       ...b,
       messages,
+      conversation,
+      message,
     }
   }
 
