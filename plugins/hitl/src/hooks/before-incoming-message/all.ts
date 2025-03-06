@@ -156,6 +156,9 @@ const _handleHitlCloseCommand = async (
     // Call stopHitl in the hitl integration (zendesk, etc.):
     await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
   } finally {
-    await Promise.all([upstreamCm.setHitlInactive(), downstreamCm.setHitlInactive()])
+    await Promise.all([
+      upstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
+      downstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
+    ])
   }
 }
