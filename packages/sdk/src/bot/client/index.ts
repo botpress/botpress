@@ -29,6 +29,7 @@ export class BotSpecificClient<TBot extends common.BaseBot> implements types.Cli
     this._run('getParticipant', x)) as types.GetParticipant<TBot>
   public removeParticipant: types.RemoveParticipant<TBot> = ((x) =>
     this._run('removeParticipant', x)) as types.RemoveParticipant<TBot>
+  public createEvent: types.CreateEvent<TBot> = ((x) => this._run('createEvent', x)) as types.CreateEvent<TBot>
   public getEvent: types.GetEvent<TBot> = ((x) => this._run('getEvent', x)) as types.GetEvent<TBot>
   public listEvents: types.ListEvents<TBot> = ((x) => this._run('listEvents', x)) as types.ListEvents<TBot>
   public createMessage: types.CreateMessage<TBot> = ((x) => this._run('createMessage', x)) as types.CreateMessage<TBot>
