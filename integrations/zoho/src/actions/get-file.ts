@@ -6,7 +6,6 @@ export const getFile: IntegrationProps['actions']['getFile'] = async ({ ctx, cli
   const validatedInput = getFileInputSchema.parse(input)
 
   const zohoClient = getClient(
-    ctx.configuration.accessToken,
     ctx.configuration.refreshToken,
     ctx.configuration.clientId,
     ctx.configuration.clientSecret,

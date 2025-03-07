@@ -5,7 +5,6 @@ import type { IntegrationProps } from '../misc/types'
 export const updateRecord: IntegrationProps['actions']['updateRecord'] = async ({ ctx, client, logger, input }) => {
   const validatedInput = updateRecordInputSchema.parse(input)
   const zohoClient = getClient(
-    ctx.configuration.accessToken,
     ctx.configuration.refreshToken,
     ctx.configuration.clientId,
     ctx.configuration.clientSecret,
