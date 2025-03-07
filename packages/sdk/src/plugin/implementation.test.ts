@@ -2,21 +2,35 @@ import { test, expect } from 'vitest'
 import { PluginImplementation } from './implementation'
 
 const createPlugin = () =>
-  new PluginImplementation({ actions: {} }).initialize({
+  new PluginImplementation({
+    actions: {
+      sayHello: async () => {
+        return 'Hello'
+      },
+    },
+  }).initialize({
+    alias: 'pluggy',
     configuration: {},
     interfaces: {
       creatable: {
-        name: 'foo',
+        name: 'github',
         version: '0.0.0',
         actions: {},
         events: {
-          itemCreated: { name: 'fooCreated' },
+          itemCreated: { name: 'prOpened' },
         },
         channels: {},
         entities: {},
       },
     },
   })
+
+test('getting action handler returns action handler', () => {
+  const plugin = createPlugin()
+
+  const actionHandler = plugin.actionHandlers.sayHello!
+  expect(actionHandler.name).toEqual('sayHello')
+})
 
 test('getting text message handlers also returns global handlers', () => {
   const plugin = createPlugin()
@@ -61,10 +75,10 @@ test('getting global event handlers only returns global handlers once', () => {
 test('getting creatable:itemCreated event handlers also returns interface handlers', () => {
   const plugin = createPlugin()
 
-  plugin.on.event('foo:fooCreated', async function handler1() {})
+  plugin.on.event('github:prOpened', async function handler1() {})
   plugin.on.event('creatable:itemCreated', async function handler2() {})
 
-  const fooCreatedHandlers = plugin.eventHandlers['foo:fooCreated']
+  const fooCreatedHandlers = plugin.eventHandlers['github:prOpened']
   expect(fooCreatedHandlers?.map((handler) => handler.name)).toEqual(['handler1', 'handler2'])
 
   const itemCreatedHandlers = plugin.eventHandlers['creatable:itemCreated']
@@ -122,14 +136,14 @@ test('getting global before_incoming_event hook handlers only returns global han
 test('getting creatable:itemCreated before_incoming_event hook handlers also returns interface handlers', () => {
   const plugin = createPlugin()
 
-  plugin.on.beforeIncomingEvent('foo:fooCreated', async function handler1() {
+  plugin.on.beforeIncomingEvent('github:prOpened', async function handler1() {
     return undefined
   })
   plugin.on.beforeIncomingEvent('creatable:itemCreated', async function handler2() {
     return undefined
   })
 
-  const fooCreatedHandlers = plugin.hookHandlers.before_incoming_event['foo:fooCreated']
+  const fooCreatedHandlers = plugin.hookHandlers.before_incoming_event['github:prOpened']
   expect(fooCreatedHandlers?.map((handler) => handler.name)).toEqual(['handler1', 'handler2'])
 
   const itemCreatedHandlers = plugin.hookHandlers.before_incoming_event['creatable:itemCreated']
@@ -167,14 +181,14 @@ test('getting global after_incoming_event hook handlers only returns global hand
 test('getting creatable:itemCreated after_incoming_event hook handlers also returns interface handlers', () => {
   const plugin = createPlugin()
 
-  plugin.on.afterIncomingEvent('foo:fooCreated', async function handler1() {
+  plugin.on.afterIncomingEvent('github:prOpened', async function handler1() {
     return undefined
   })
   plugin.on.afterIncomingEvent('creatable:itemCreated', async function handler2() {
     return undefined
   })
 
-  const fooCreatedHandlers = plugin.hookHandlers.after_incoming_event['foo:fooCreated']
+  const fooCreatedHandlers = plugin.hookHandlers.after_incoming_event['github:prOpened']
   expect(fooCreatedHandlers?.map((handler) => handler.name)).toEqual(['handler1', 'handler2'])
 
   const itemCreatedHandlers = plugin.hookHandlers.after_incoming_event['creatable:itemCreated']
