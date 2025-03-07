@@ -153,7 +153,7 @@ export class ZohoApi {
     }
   }
 
-   async _refreshAccessToken() {
+  async _refreshAccessToken() {
     try {
       const requestData = new URLSearchParams()
       requestData.append('client_id', this._clientId)
