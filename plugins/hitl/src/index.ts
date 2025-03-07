@@ -24,4 +24,9 @@ plugin.on.beforeIncomingEvent('hitl:hitlStopped', async (props) => {
   return await hooks.beforeIncomingEvent.hitlStopped.handleEvent(props)
 })
 
+plugin.on.event('humanAgentAssignedTimeout', async (props) => {
+  console.info('HITL agent assigned timeout', props.event.payload)
+  return await hooks.onEvent.humanAgentAssignedTimeout.handleEvent(props)
+})
+
 export default plugin

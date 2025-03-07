@@ -26,6 +26,14 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
     return {}
   }
 
+  const lastMessageByUser = await _getLastUserMessageId(props)
+
+  if (upstreamConversation.tags.startMessageId && upstreamConversation.tags.startMessageId === lastMessageByUser) {
+    // This is a hack because of a bug in the studio or webchat that causes it
+    // to call startHitl by replaying the same message.
+    return {}
+  }
+
   await _sendHandoffMessage(props, upstreamCm)
 
   const users = new user.UserLinker(props)
@@ -42,7 +50,9 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
 
   await _linkConversations(props, upstreamConversationId, downstreamConversationId)
+  await _saveStartMessageId(props, lastMessageByUser)
   await _activateHitl(upstreamCm, downstreamCm)
+  await _startHitlTimeout(props, upstreamCm, downstreamCm, upstreamUserId)
 
   return {}
 }
@@ -117,3 +127,64 @@ const _linkConversations = (props: Props, upstreamConversationId: string, downst
 
 const _activateHitl = (upstreamCm: conv.ConversationManager, downstreamCm: conv.ConversationManager) =>
   Promise.all([upstreamCm.setHitlActive(), downstreamCm.setHitlActive()])
+
+const _startHitlTimeout = async (
+  props: Props,
+  upstreamCm: conv.ConversationManager,
+  downstreamCm: conv.ConversationManager,
+  upstreamUserId: string
+) => {
+  const { agentAssignedTimeoutSeconds } = props.configuration
+
+  if (!agentAssignedTimeoutSeconds) {
+    return
+  }
+
+  await props.client.createEvent({
+    type: 'humanAgentAssignedTimeout',
+    payload: {
+      sessionStartedAt: new Date().toISOString(),
+      downstreamConversationId: downstreamCm.conversationId,
+    },
+    conversationId: upstreamCm.conversationId,
+    userId: upstreamUserId,
+    schedule: { delay: agentAssignedTimeoutSeconds * 1000 },
+  })
+}
+
+/**
+ * Gets the id of the last message sent by the user in the conversation.
+ *
+ * This is effectively a hack to ensure that the studio/webchat does not call
+ * startHitl twice for the same user message.
+ */
+const _getLastUserMessageId = async (props: Props): Promise<string | undefined> => {
+  let nextToken: string | undefined
+
+  do {
+    const { messages, meta } = await props.client.listMessages({ conversationId: props.input.conversationId })
+
+    for (const message of messages) {
+      if (message.direction === 'incoming') {
+        return message.id
+      }
+    }
+
+    nextToken = meta.nextToken
+  } while (nextToken)
+
+  return
+}
+
+const _saveStartMessageId = async (props: Props, startMessageId: string | undefined) => {
+  if (!startMessageId) {
+    return
+  }
+
+  await props.client.updateConversation({
+    id: props.input.conversationId,
+    tags: {
+      startMessageId,
+    },
+  })
+}
