@@ -2,6 +2,7 @@ import { Table } from '@botpress/client'
 import { IntegrationPackage, PluginPackage } from '../package'
 import { PluginInterfaceExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
+import * as utils from '../utils'
 import { ValueOf, Writable, Merge } from '../utils/type-utils'
 import z, { ZuiObjectSchema } from '../zui'
 
@@ -77,6 +78,7 @@ export type IntegrationConfigInstance<I extends IntegrationPackage = Integration
 )
 
 export type PluginConfigInstance<P extends PluginPackage = PluginPackage> = {
+  alias?: string
   configuration: z.infer<NonNullable<P['definition']['configuration']>['schema']>
   interfaces: {
     [I in keyof NonNullable<P['definition']['interfaces']>]: PluginInterfaceExtension
@@ -169,20 +171,24 @@ export class BotDefinition<
       self.plugins = {}
     }
 
+    // TODO: ensure that plugin alias does not conflict an interface or integration
+
     self.plugins[pluginPkg.name] = {
       ...pluginPkg,
+      alias: config.alias,
       configuration: config.configuration,
       interfaces: config.interfaces,
     }
 
-    self.user = this._mergeUser(self.user, pluginPkg.definition.user)
-    self.conversation = this._mergeConversation(self.conversation, pluginPkg.definition.conversation)
-    self.message = this._mergeMessage(self.message, pluginPkg.definition.message)
-    self.states = this._mergeStates(self.states, pluginPkg.definition.states)
-    self.events = this._mergeEvents(self.events, pluginPkg.definition.events)
-    self.recurringEvents = this._mergeRecurringEvents(self.recurringEvents, pluginPkg.definition.recurringEvents)
-    self.actions = this._mergeActions(self.actions, pluginPkg.definition.actions)
-    self.tables = this._mergeTables(self.tables, pluginPkg.definition.tables)
+    self.user = this._mergeUser(self.user, pluginPkg.definition.user) // TODO: adress user tags collision between plugins
+    self.conversation = this._mergeConversation(self.conversation, pluginPkg.definition.conversation) // TODO: adress conversation tags collision between plugins
+    self.message = this._mergeMessage(self.message, pluginPkg.definition.message) // TODO: adress message tags collision between plugins
+    self.recurringEvents = this._mergeRecurringEvents(self.recurringEvents, pluginPkg.definition.recurringEvents) // TODO: adress recurring events collision between plugins
+    self.tables = this._mergeTables(self.tables, pluginPkg.definition.tables) // TODO: adress tables collision between plugins
+
+    self.states = this._mergeStates(self.states, this._prefixKeys(pluginPkg.definition.states, config.alias))
+    self.events = this._mergeEvents(self.events, this._prefixKeys(pluginPkg.definition.events, config.alias))
+    self.actions = this._mergeActions(self.actions, this._prefixKeys(pluginPkg.definition.actions, config.alias))
 
     return this
   }
@@ -271,5 +277,12 @@ export class BotDefinition<
       ...tables1,
       ...tables2,
     }
+  }
+
+  private _prefixKeys = <T extends Record<string, any> | undefined>(obj: T, alias: string | undefined): T => {
+    if (!obj || !alias) {
+      return obj
+    }
+    return utils.records.mapKeys(obj, (key) => `${alias}:${key}`) as T
   }
 }

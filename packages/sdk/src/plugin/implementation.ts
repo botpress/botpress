@@ -25,6 +25,8 @@ import {
   MessagePayloads,
   PluginConfiguration,
   StateExpiredPayloads,
+  ActionHandlerPayloads,
+  EventPayloads,
 } from './server/types'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
@@ -32,6 +34,7 @@ export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> =
 }
 
 export type PluginRuntimeProps<TPlugin extends BasePlugin = BasePlugin> = {
+  alias?: string
   configuration: PluginConfiguration<TPlugin>
   interfaces: PluginInterfaceExtensions<TPlugin>
 }
@@ -40,6 +43,7 @@ type Tools<TPlugin extends BasePlugin = BasePlugin> = {
   configuration: PluginConfiguration<TPlugin>
   interfaces: PluginInterfaceExtensions<TPlugin>
   actions: ActionProxy<TPlugin>
+  alias?: string
 }
 
 export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotHandlers<TPlugin> {
@@ -64,8 +68,9 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     this._actionHandlers = props.actions
   }
 
-  public initialize(config: PluginRuntimeProps<TPlugin>): this {
-    this._runtimeProps = config
+  public initialize(props: PluginRuntimeProps<TPlugin>): this {
+    this._runtimeProps = props
+    // TODO: ensure there is no collision between plugin alias and any interface name
     return this
   }
 
@@ -79,32 +84,42 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
   }
 
   private _getTools(client: BotSpecificClient<any>): Tools {
-    const { configuration, interfaces } = this._runtime
+    const { configuration, interfaces, alias } = this._runtime
     const actions = proxyActions(client, interfaces) as ActionProxy<BasePlugin>
     return {
       configuration,
       interfaces,
       actions,
+      alias,
     }
   }
 
   public get actionHandlers(): BotActionHandlers<TPlugin> {
-    const pluginHandlers = this._actionHandlers
-    const botHandlers: BotActionHandlers<any> = {}
-    for (const [name, handler] of utils.records.pairs(pluginHandlers)) {
-      botHandlers[name] = async (input) => {
-        return handler({ ...input, ...this._getTools(input.client) })
+    return new Proxy(
+      {},
+      {
+        get: (_, prop: string) => {
+          prop = this._stripAliasPrefix(prop)
+          const handler = this._actionHandlers[prop]
+          if (!handler) {
+            return undefined
+          }
+          return utils.functions.setName(
+            (input: ActionHandlerPayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+            handler.name
+          )
+        },
       }
-    }
-    return botHandlers
+    ) as BotActionHandlers<TPlugin>
   }
 
   public get messageHandlers(): BotMessageHandlersMap<TPlugin> {
     return new Proxy(
       {},
       {
-        get: (_, prop) => {
-          const specificHandlers = this._messageHandlers[prop as string] ?? []
+        get: (_, prop: string) => {
+          prop = this._stripAliasPrefix(prop)
+          const specificHandlers = this._messageHandlers[prop] ?? []
           const globalHandlers = this._messageHandlers['*'] ?? []
           const allHandlers = utils.arrays.unique([...specificHandlers, ...globalHandlers])
           return allHandlers.map((handler) =>
@@ -115,7 +130,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
           )
         },
       }
-    )
+    ) as BotMessageHandlersMap<TPlugin>
   }
 
   public get eventHandlers(): BotEventHandlersMap<TPlugin> {
@@ -123,7 +138,9 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       {},
       {
         get: (_, prop: string) => {
-          // if prop is "github:prOpened", included both "github:prOpened" and "creatable:itemCreated"
+          prop = this._stripAliasPrefix(prop)
+
+          // if prop is "github:prOpened", include both "github:prOpened" and "creatable:itemCreated"
 
           const specificHandlers = this._eventHandlers[prop] ?? []
 
@@ -136,21 +153,23 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
           return allHandlers.map((handler) =>
             utils.functions.setName(
-              (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+              (input: EventPayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
               handler.name
             )
           )
         },
       }
-    )
+    ) as BotEventHandlersMap<TPlugin>
   }
 
   public get stateExpiredHandlers(): BotStateExpiredHandlersMap<TPlugin> {
     return new Proxy(
       {},
       {
-        get: (_, prop) => {
-          const specificHandlers = this._stateExpiredHandlers[prop as string] ?? []
+        get: (_, prop: string) => {
+          prop = this._stripAliasPrefix(prop)
+
+          const specificHandlers = this._stateExpiredHandlers[prop] ?? []
           const globalHandlers = this._stateExpiredHandlers['*'] ?? []
           const allHandlers = utils.arrays.unique([...specificHandlers, ...globalHandlers])
           return allHandlers.map((handler) =>
@@ -161,27 +180,29 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
           )
         },
       }
-    )
+    ) as BotStateExpiredHandlersMap<TPlugin>
   }
 
   public get hookHandlers(): BotHookHandlersMap<TPlugin> {
     return new Proxy(
       {},
       {
-        get: (_, prop1: keyof HookHandlersMap<TPlugin>) => {
-          const hooks = this._hookHandlers[prop1]
+        get: (_, hookType: keyof HookHandlersMap<TPlugin>) => {
+          const hooks = this._hookHandlers[hookType]
           if (!hooks) {
             return undefined
           }
           return new Proxy(
             {},
             {
-              get: (_, prop2: string) => {
-                const specificHandlers = hooks[prop2 as string] ?? []
+              get: (_, prop: string) => {
+                prop = this._stripAliasPrefix(prop)
+
+                const specificHandlers = hooks[prop] ?? []
 
                 // for "before_incoming_event", "after_incoming_event" and other event related hooks
                 const interfaceHandlers = Object.entries(hooks as Record<string, Function[]>) // TODO: fix typing here
-                  .filter(([e]) => this._eventResolvesTo(e, prop2))
+                  .filter(([e]) => this._eventResolvesTo(e, prop))
                   .flatMap(([, handlers]) => handlers ?? [])
 
                 const globalHandlers = hooks['*'] ?? []
@@ -308,5 +329,14 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     const resolvedRef = resolveEvent(parsedRef, this._runtime.interfaces)
     const formattedRef = formatEventRef(resolvedRef)
     return formattedRef === targetEventRef
+  }
+
+  private _stripAliasPrefix = (prop: string) => {
+    const { alias } = this._runtime
+    if (!alias) {
+      return prop
+    }
+    const prefix = `${alias}:`
+    return prop.startsWith(prefix) ? prop.slice(prefix.length) : prop
   }
 }

@@ -101,6 +101,8 @@ export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
   configuration: PluginConfiguration<TPlugin>
   interfaces: common.PluginInterfaceExtensions<TPlugin>
   actions: proxy.ActionProxy<TPlugin>
+  // states: proxy.StateProxy<TPlugin> // TODO: add state proxy to automatically append plugin alias
+  alias: string
 }
 
 export type MessagePayloads<TPlugin extends common.BasePlugin> = {
