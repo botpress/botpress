@@ -39,7 +39,7 @@ import {
 
 export default new IntegrationDefinition({
   name: 'zoho',
-  version: '3.0.0',
+  version: '3.1.0',
   title: 'Zoho',
   readme: 'hub.md',
   icon: 'icon.svg',
