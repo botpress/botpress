@@ -6,7 +6,6 @@ export const makeApiCall: IntegrationProps['actions']['makeApiCall'] = async ({ 
   const validatedInput = makeApiCallInputSchema.parse(input)
   const params = validatedInput.params ?? '{}' // Default to empty JSON if no params provided
   const zohoClient = getClient(
-    ctx.configuration.accessToken,
     ctx.configuration.refreshToken,
     ctx.configuration.clientId,
     ctx.configuration.clientSecret,

@@ -39,7 +39,7 @@ import {
 
 export default new IntegrationDefinition({
   name: 'zoho',
-  version: '3.0.0',
+  version: '3.1.0',
   title: 'Zoho',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -49,7 +49,6 @@ export default new IntegrationDefinition({
     schema: z.object({
       clientId: z.string().title('Client ID').describe('Your Zoho Client ID'),
       clientSecret: z.string().title('Client Secret').describe('Your Zoho Client Secret'),
-      accessToken: z.string().title('Access Token').describe('Your Zoho Access Token'),
       refreshToken: z.string().title('Refresh Token').describe('Your Zoho Refresh Token'),
       dataCenter: z
         .enum(['us', 'eu', 'in', 'au', 'cn', 'jp', 'ca'])

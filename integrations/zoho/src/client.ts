@@ -16,14 +16,22 @@ const zohoAuthUrls = new Map<string, string>([
   ['ca', 'https://accounts.zohocloud.ca'],
 ])
 
-// Function to get the Zoho Auth URL
-const getZohoAuthUrl = (region: string): string => zohoAuthUrls.get(region) ?? 'https://accounts.zoho.ca'
+const zohoDataCenterTLDs = new Map<string, string>([
+  ['us', 'com'],
+  ['eu', 'eu'],
+  ['in', 'in'],
+  ['au', 'com.au'],
+  ['cn', 'com.cn'],
+  ['jp', 'jp'],
+  ['ca', 'ca'],
+])
 
-const zohosalesiq_server_uri = 'https://salesiq.zohocloud.ca'
-const screen_name = 'envyroinc'
+// Function to get the Zoho Auth URL
+const getZohoAuthUrl = (region: string): string => zohoAuthUrls.get(region) ?? 'https://accounts.zoho.com'
+
+const getZohoDataCenterTLD = (region: string): string => zohoDataCenterTLDs.get(region) ?? 'com'
 
 export class ZohoApi {
-  private _accessToken: string
   private _refreshToken: string
   private _clientId: string
   private _clientSecret: string
@@ -33,7 +41,6 @@ export class ZohoApi {
   private _bpClient: bp.Client
 
   public constructor(
-    accessToken: string,
     refreshToken: string,
     clientId: string,
     clientSecret: string,
@@ -41,14 +48,13 @@ export class ZohoApi {
     ctx: bp.Context,
     bpClient: bp.Client
   ) {
-    this._accessToken = accessToken
     this._refreshToken = refreshToken
     this._clientId = clientId
     this._clientSecret = clientSecret
     this._dataCenter = dataCenter
     this._ctx = ctx
     this._bpClient = bpClient
-    this._baseUrl = `https://www.zohoapis.${dataCenter}`
+    this._baseUrl = `https://www.zohoapis.${getZohoDataCenterTLD(dataCenter)}`
   }
 
   /** Retrieves stored credentials from Botpress state */
@@ -147,58 +153,8 @@ export class ZohoApi {
     }
   }
 
-  private async _makeHitlRequest(
-    endpoint: string,
-    method: string = 'GET',
-    data: any = null,
-    params: any = {}
-  ): Promise<any> {
+  async _refreshAccessToken() {
     try {
-      const creds = await this._getStoredCredentials()
-      if (!creds) {
-        logger.forBot().error('Error retrieving credentials.')
-        throw new Error('Error grabbing credentials.')
-      }
-
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${creds.accessToken}`,
-        Accept: 'application/json',
-      }
-      logger.forBot().info('accessToken', creds.accessToken)
-      if (method !== 'GET' && method !== 'DELETE') {
-        headers['Content-Type'] = 'application/json'
-      }
-      logger.forBot().info(`Making request to ${method} ${endpoint}`)
-      logger.forBot().info('Params:', params)
-
-      const response = await axios({
-        method,
-        url: `${endpoint}`,
-        headers,
-        data,
-        params,
-      })
-
-      return { success: true, message: 'Request successful', data: response.data }
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        logger.forBot().warn('Access token expired. Refreshing...', error)
-        await this._refreshAccessToken()
-        return this._makeRequest(endpoint, method, data, params)
-      }
-      logger.forBot().error(`Error in ${method} ${endpoint}:`, error.response?.data || error.message)
-      return { success: false, message: error.response?.data?.message || error.message, data: null }
-    }
-  }
-
-  private async _refreshAccessToken() {
-    try {
-      const creds = await this._getStoredCredentials()
-      if (!creds) {
-        logger.forBot().error('Error refreshing access token')
-        throw new Error('Error grabbing credentials.')
-      }
-
       const requestData = new URLSearchParams()
       requestData.append('client_id', this._clientId)
       requestData.append('client_secret', this._clientSecret)
@@ -227,26 +183,10 @@ export class ZohoApi {
       logger.forBot().info('Access token refreshed successfully.')
     } catch (error: unknown) {
       const err = error as AxiosError
+      logger.forBot().error(err.response?.data)
       logger.forBot().error('Error refreshing access token:', err.response?.data || err.message)
       throw new Error('Authentication error. Please reauthorize the integration.')
     }
-  }
-
-  public async createConversation(): Promise<{ conversation_id: string }> {
-    const { data } = await this._makeHitlRequest(
-      `${zohosalesiq_server_uri}/api/visitor/v1/${screen_name}/conversations`,
-      'POST',
-      {
-        visitor: {
-          user_id: 'milos@envyro.io',
-        },
-        app_id: '6338000000002238',
-        department_id: '6338000000002024',
-        question: 'Hello, my name is Milos',
-        custom_wait_time: 10000,
-      }
-    )
-    return data
   }
 
   public async makeApiCall(endpoint: string, method: string = 'GET', data: any = null, rawParams: any = {}) {
@@ -359,7 +299,6 @@ export class ZohoApi {
 }
 
 export const getClient = (
-  accessToken: string,
   refreshToken: string,
   clientId: string,
   clientSecret: string,
@@ -367,5 +306,5 @@ export const getClient = (
   ctx: bp.Context,
   bpClient: bp.Client
 ) => {
-  return new ZohoApi(accessToken, refreshToken, clientId, clientSecret, dataCenter, ctx, bpClient)
+  return new ZohoApi(refreshToken, clientId, clientSecret, dataCenter, ctx, bpClient)
 }

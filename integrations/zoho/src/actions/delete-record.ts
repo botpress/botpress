@@ -6,7 +6,6 @@ export const deleteRecord: IntegrationProps['actions']['deleteRecord'] = async (
   const validatedInput = deleteRecordInputSchema.parse(input)
 
   const zohoClient = getClient(
-    ctx.configuration.accessToken,
     ctx.configuration.refreshToken,
     ctx.configuration.clientId,
     ctx.configuration.clientSecret,

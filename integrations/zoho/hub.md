@@ -38,9 +38,9 @@ Before making any API calls using the Zoho Botpress Integration, you must regist
 7. Click **Create**, select your CRM, and click **Create** again.
 8. Download your **credentials file**.
 
-### Generate Access Token
+### Generate Refresh Token
 
-Now, execute the following **cURL** command to obtain an access token. Ensure you use the **correct region URL** for OAuth authentication.
+Now, execute the following **cURL** command to obtain a refresh token. Ensure you use the **correct region URL** for OAuth authentication.
 
 #### **Zoho Accounts Domains:**
 
@@ -84,13 +84,62 @@ If the request is successful, you should receive a response similar to the follo
 }
 ```
 
+# Define the Zoho OAuth token endpoint based on your region
+
+$uri = "https://YOUR_REGION_ACCOUNT_URL/oauth/v2/token"
+
+# Define the request body with required parameters
+
+$body = @{
+grant_type = "authorization_code"
+client_id = "YOUR_CLIENT_ID"
+client_secret = "YOUR_CLIENT_SECRET"
+redirect_uri = "YOUR_REDIRECT_URI"
+code = "AUTHORIZATION_CODE"
+}
+
+### Generate Refresh Token using PowerShell (Windows Users)
+
+⚠️ Use this PowerShell command if you're on Windows. Do NOT use cURL—this is for PowerShell only! ⚠️
+
+#### Define the Zoho OAuth token endpoint based on your region
+
+$uri = "https://YOUR_REGION_ACCOUNT_URL/oauth/v2/token"
+
+# Define the request body with required parameters
+
+$body = @{
+grant_type = "authorization_code"
+client_id = "YOUR_CLIENT_ID"
+client_secret = "YOUR_CLIENT_SECRET"
+redirect_uri = "YOUR_REDIRECT_URI"
+code = "AUTHORIZATION_CODE"
+}
+
+##### Convert body to URL-encoded form data
+
+```
+$body = $body | ForEach-Object { "$( $_.Key )=$( $_.Value )" } -join "&"
+```
+
+#### Send the POST request using Invoke-RestMethod
+
+```
+$response = Invoke-RestMethod -Uri $uri -Method Post -ContentType "application/x-www-form-urlencoded" -Body $body
+```
+
+#### Output the response
+
+```
+$response
+```
+
 ## Configure Zoho Botpress Integration
 
 Once you have the necessary credentials, navigate to the **Zoho Botpress Integration** configuration page and enter the following details:
 
 - **Client ID**
 - **Client Secret**
-- **Access Token**
 - **Refresh Token**
 - **Region**
 
