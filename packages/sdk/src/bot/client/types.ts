@@ -277,11 +277,13 @@ export type FindTableRows<TBot extends common.BaseBot> = <
     Arg<client.Client['findTableRows']>,
     {
       table: utils.Cast<TableName, string>
-      filter?: TableRowFilter<TBot, TableName, Columns>
-      group?: utils.AtLeastOneProperty<{
-        [K in Extract<keyof Columns, string>]: TableRowQueryGroup | TableRowQueryGroup[]
-      }>
-      orderBy?: Extract<keyof Columns, string>
+      filter?: TableRowFilter<TBot, NoInfer<TableName>, NoInfer<Columns>>
+      group?: NoInfer<
+        utils.AtLeastOneProperty<{
+          [K in Extract<keyof Columns, string>]: TableRowQueryGroup | TableRowQueryGroup[]
+        }>
+      >
+      orderBy?: NoInfer<Extract<keyof Columns, string>>
     }
   >
 ) => Promise<
@@ -335,8 +337,8 @@ export type UpsertTableRows<TBot extends common.BaseBot> = <
     Arg<client.Client['upsertTableRows']>,
     {
       table: utils.Cast<TableName, string>
-      rows: utils.AtLeastOne<utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>> & { id: number }>
-      keyColumn?: Extract<keyof common.EnumerateTables<TBot>[TableName], string> | 'id'
+      rows: utils.AtLeastOne<utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>> & { id?: number }>
+      keyColumn?: NoInfer<Extract<keyof common.EnumerateTables<TBot>[TableName], string>> | 'id'
     }
   >
 ) => Promise<
