@@ -12,7 +12,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "@segment/analytics-node": "^2.2.0",
-    "axios": "^1.6.2",
+    "axios": "^1.8.2",
     "marked": "^13.0.2",
     "preact": "^10.23.1",
     "preact-render-to-string": "^6.5.7",

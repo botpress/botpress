@@ -11,7 +11,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "@doist/todoist-api-typescript": "^3.0.3",
-    "axios": "^1.7.4"
+    "axios": "^1.8.2"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

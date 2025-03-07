@@ -10,7 +10,7 @@
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "axios": "^1.7.7",
+    "axios": "^1.8.2",
     "google-auth-library": "^9.0.0",
     "googleapis": "^144.0.0",
     "jsonwebtoken": "^9.0.2",

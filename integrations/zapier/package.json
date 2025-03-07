@@ -12,7 +12,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "axios": "^1.6.3",
+    "axios": "^1.8.2",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

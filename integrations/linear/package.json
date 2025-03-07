@@ -11,7 +11,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "@linear/sdk": "^2.6.0",
-    "axios": "^1.4.0",
+    "axios": "^1.8.2",
     "query-string": "^6.14.1",
     "tsafe": "^1.6.4"
   },

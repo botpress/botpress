@@ -32,7 +32,7 @@
     "@stoplight/spectral-parsers": "^1.0.4",
     "@types/lodash": "^4.14.191",
     "@types/verror": "^1.10.6",
-    "axios": "^1.4.0",
+    "axios": "^1.8.2",
     "bluebird": "^3.7.2",
     "boxen": "5.1.2",
     "chalk": "^4.1.2",

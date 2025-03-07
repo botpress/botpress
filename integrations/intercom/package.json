@@ -12,7 +12,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "axios": "^1.7.8",
+    "axios": "^1.8.2",
     "intercom-client": "^4.0.0"
   },
   "devDependencies": {

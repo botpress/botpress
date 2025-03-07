@@ -11,7 +11,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "axios": "^1.5.1",
+    "axios": "^1.8.2",
     "botbuilder": "^4.18.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0"

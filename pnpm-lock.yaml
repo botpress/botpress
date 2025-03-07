@@ -213,8 +213,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       axios:
-        specifier: ^1.7.8
-        version: 1.7.8
+        specifier: ^1.8.2
+        version: 1.8.2
       qs:
         specifier: ^6.11.0
         version: 6.11.0
@@ -312,8 +312,8 @@ importers:
         specifier: ^0.12.2
         version: 0.12.2
       axios:
-        specifier: ^1.5.0
-        version: 1.6.7
+        specifier: ^1.8.2
+        version: 1.8.2
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -378,8 +378,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       axios:
-        specifier: ^1.7.2
-        version: 1.7.2
+        specifier: ^1.8.2
+        version: 1.8.2
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -416,8 +416,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       axios:
-        specifier: ^1.7.2
-        version: 1.7.2
+        specifier: ^1.8.2
+        version: 1.8.2
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -441,8 +441,8 @@ importers:
         specifier: ^8.12.0
         version: 8.17.1
       axios:
-        specifier: 1.2.5
-        version: 1.2.5
+        specifier: 1.8.2
+        version: 1.8.2
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
@@ -496,8 +496,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       axios:
-        specifier: ^1.7.7
-        version: 1.7.7
+        specifier: ^1.8.2
+        version: 1.8.2
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -512,8 +512,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       axios:
-        specifier: ^1.6.7
-        version: 1.6.7
+        specifier: ^1.8.2
+        version: 1.8.2
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -581,8 +581,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       axios:
-        specifier: ^1.4.0
-        version: 1.7.7
+        specifier: ^1.8.2
+        version: 1.8.2
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -772,8 +772,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       axios:
-        specifier: ^1.7.7
-        version: 1.7.7
+        specifier: ^1.8.2
+        version: 1.8.2
       google-auth-library:
         specifier: ^9.0.0
         version: 9.0.0
@@ -865,8 +865,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       axios:
-        specifier: ^1.6.2
-        version: 1.7.4
+        specifier: ^1.8.2
+        version: 1.8.2
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
@@ -890,8 +890,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       axios:
-        specifier: ^1.7.8
-        version: 1.7.8
+        specifier: ^1.8.2
+        version: 1.8.2
       intercom-client:
         specifier: ^4.0.0
         version: 4.0.0
@@ -946,8 +946,8 @@ importers:
         specifier: ^2.6.0
         version: 2.6.0
       axios:
-        specifier: ^1.4.0
-        version: 1.6.3
+        specifier: ^1.8.2
+        version: 1.8.2
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
@@ -1002,8 +1002,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       axios:
-        specifier: ^1.6.7
-        version: 1.6.7
+        specifier: ^1.8.2
+        version: 1.8.2
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1030,8 +1030,8 @@ importers:
         specifier: ^6.8.0
         version: 6.8.1
       axios:
-        specifier: ^1.6.2
-        version: 1.6.2
+        specifier: ^1.8.2
+        version: 1.8.2
       marked:
         specifier: ^13.0.2
         version: 13.0.2
@@ -1111,8 +1111,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       axios:
-        specifier: ^1.7.2
-        version: 1.7.2
+        specifier: ^1.8.2
+        version: 1.8.2
       marked:
         specifier: ^13.0.2
         version: 13.0.2
@@ -1139,8 +1139,8 @@ importers:
         specifier: ^6.8.0
         version: 6.8.1
       axios:
-        specifier: ^1.3.4
-        version: 1.4.0
+        specifier: ^1.8.2
+        version: 1.8.2
       fuse.js:
         specifier: ^6.6.2
         version: 6.6.2
@@ -1229,8 +1229,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.8.2
+        version: 1.8.2
       botbuilder:
         specifier: ^4.18.0
         version: 4.20.0
@@ -1301,10 +1301,10 @@ importers:
         version: link:../../packages/sdk-addons
       '@doist/todoist-api-typescript':
         specifier: ^3.0.3
-        version: 3.0.3(type-fest@4.35.0)
+        version: 3.0.3(type-fest@4.37.0)
       axios:
-        specifier: ^1.7.4
-        version: 1.7.4
+        specifier: ^1.8.2
+        version: 1.8.2
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1396,8 +1396,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       axios:
-        specifier: ^1.2.1
-        version: 1.4.0
+        specifier: ^1.8.2
+        version: 1.8.2
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1421,8 +1421,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       axios:
-        specifier: ^0.27.2
-        version: 0.27.2
+        specifier: ^1.8.2
+        version: 1.8.2
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1449,8 +1449,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       axios:
-        specifier: ^1.3.4
-        version: 1.4.0
+        specifier: ^1.8.2
+        version: 1.8.2
       qs:
         specifier: ^6.11.0
         version: 6.11.0
@@ -1480,8 +1480,8 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0
       axios:
-        specifier: ^1.6.2
-        version: 1.6.8
+        specifier: ^1.8.2
+        version: 1.8.2
       marked:
         specifier: ^13.0.2
         version: 13.0.2
@@ -1520,8 +1520,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       axios:
-        specifier: ^1.6.3
-        version: 1.6.3
+        specifier: ^1.8.2
+        version: 1.8.2
       uuid:
         specifier: ^9.0.0
         version: 9.0.0
@@ -1546,7 +1546,7 @@ importers:
         version: 29.5.0(@types/node@18.19.67)(ts-node@10.9.2)
       ts-jest:
         specifier: ^29.1.0
-        version: 29.1.0(@babel/core@7.22.5)(jest@29.5.0)(typescript@5.7.3)
+        version: 29.1.0(@babel/core@7.22.5)(jest@29.5.0)(typescript@5.8.2)
 
   integrations/zendesk:
     dependencies:
@@ -1563,11 +1563,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       axios:
-        specifier: ^1.4.0
-        version: 1.4.0
+        specifier: ^1.8.2
+        version: 1.8.2
       axios-retry:
         specifier: ^4.5.0
-        version: 4.5.0(axios@1.4.0)
+        version: 4.5.0(axios@1.8.2)
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -1594,8 +1594,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       axios:
-        specifier: ^1.4.0
-        version: 1.7.9
+        specifier: ^1.8.2
+        version: 1.8.2
       form-data:
         specifier: ^4.0.0
         version: 4.0.0
@@ -1767,8 +1767,8 @@ importers:
   packages/chat-client:
     dependencies:
       axios:
-        specifier: 1.2.5
-        version: 1.2.5
+        specifier: 1.8.2
+        version: 1.8.2
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1879,8 +1879,8 @@ importers:
         specifier: ^1.10.6
         version: 1.10.6
       axios:
-        specifier: ^1.4.0
-        version: 1.4.0
+        specifier: ^1.8.2
+        version: 1.8.2
       bluebird:
         specifier: ^3.7.2
         version: 3.7.2
@@ -2034,8 +2034,8 @@ importers:
         specifier: 3.3.2
         version: link:../../../sdk
       axios:
-        specifier: ^1.6.8
-        version: 1.6.8
+        specifier: ^1.8.2
+        version: 1.8.2
     devDependencies:
       '@types/node':
         specifier: ^18.19.67
@@ -2047,11 +2047,11 @@ importers:
   packages/client:
     dependencies:
       axios:
-        specifier: ^1.6.1
-        version: 1.6.1
+        specifier: ^1.8.2
+        version: 1.8.2
       axios-retry:
         specifier: ^4.5.0
-        version: 4.5.0(axios@1.6.1)
+        version: 4.5.0(axios@1.8.2)
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2106,8 +2106,8 @@ importers:
         specifier: ^4.1.12
         version: 4.1.12
       axios:
-        specifier: ^1.7.9
-        version: 1.7.9
+        specifier: ^1.8.2
+        version: 1.8.2
       dotenv:
         specifier: ^16.4.4
         version: 16.4.4
@@ -3554,7 +3554,7 @@ packages:
     dependencies:
       '@azure/core-auth': 1.4.0
       abort-controller: 3.0.0
-      form-data: 2.5.1
+      form-data: 2.5.3
       node-fetch: 2.7.0
       tough-cookie: 3.0.1
       tslib: 1.14.1
@@ -4277,17 +4277,17 @@ packages:
       enabled: 2.0.0
       kuler: 2.0.0
 
-  /@doist/todoist-api-typescript@3.0.3(type-fest@4.35.0):
+  /@doist/todoist-api-typescript@3.0.3(type-fest@4.37.0):
     resolution: {integrity: sha512-rDYE6X/xSF+b+fvRYoVyBa7EaUOSIKhTrn7/XxV3Fm2rQrK61SoImor5pyWZlMiABH44WMf+FBIh+IjGAGaX3Q==}
     peerDependencies:
       type-fest: ^4.12.0
     dependencies:
-      axios: 1.7.9
-      axios-case-converter: 1.1.1(axios@1.7.9)
+      axios: 1.8.2
+      axios-case-converter: 1.1.1(axios@1.8.2)
       axios-retry: 3.9.1
       runtypes: 6.7.0
       ts-custom-error: 3.3.1
-      type-fest: 4.35.0
+      type-fest: 4.37.0
       uuid: 9.0.1
     transitivePeerDependencies:
       - debug
@@ -5308,7 +5308,7 @@ packages:
     dependencies:
       '@types/node': 22.10.2
     optionalDependencies:
-      axios: 1.7.9
+      axios: 1.8.2
     transitivePeerDependencies:
       - debug
     dev: false
@@ -7410,7 +7410,7 @@ packages:
     resolution: {integrity: sha512-9JgOaunvQdsQ/qW2OPmE5+hCeUB52lQSolecrFrthct55QekhmXEwT203s20RL+UHtCQc15y3VXpby9E7Kkh/g==}
     deprecated: This is a stub types definition. axios provides its own type definitions, so you do not need this installed.
     dependencies:
-      axios: 1.7.9
+      axios: 1.8.2
     transitivePeerDependencies:
       - debug
     dev: true
@@ -7609,7 +7609,7 @@ packages:
     resolution: {integrity: sha512-1ZX9fcN4Rvkvgv4E6PAY5WXUFWFcRWxZa3EW83UjycOB9ljJCedb2CupIP4RZMEwF/M3eTcCihbBRgwtGbg5Rg==}
     dependencies:
       '@types/node': 18.19.76
-      form-data: 3.0.1
+      form-data: 3.0.3
     dev: false
 
   /@types/node@10.17.60:
@@ -8276,8 +8276,8 @@ packages:
       call-bind: 1.0.7
       define-properties: 1.2.1
       es-abstract: 1.23.3
-      es-object-atoms: 1.0.0
-      get-intrinsic: 1.2.4
+      es-object-atoms: 1.1.1
+      get-intrinsic: 1.3.0
       is-string: 1.0.7
     dev: true
 
@@ -8294,7 +8294,7 @@ packages:
       define-properties: 1.2.1
       es-abstract: 1.23.3
       es-errors: 1.3.0
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
       es-shim-unscopables: 1.0.2
     dev: true
 
@@ -8327,7 +8327,7 @@ packages:
       define-properties: 1.2.1
       es-abstract: 1.23.9
       es-errors: 1.3.0
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       is-array-buffer: 3.0.5
       is-shared-array-buffer: 1.0.4
     dev: true
@@ -8341,7 +8341,7 @@ packages:
       define-properties: 1.2.1
       es-abstract: 1.23.9
       es-errors: 1.3.0
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       is-array-buffer: 3.0.5
 
   /arrify@2.0.1:
@@ -8407,12 +8407,12 @@ packages:
     resolution: {integrity: sha512-NmWvPnx0F1SfrQbYwOi7OeaNGokp9XhzNioJ/CSBs8Qa4vxug81mhJEAVZwxXuBmYB5KDRfMq/F3RR0BIU7sWg==}
     dev: false
 
-  /axios-case-converter@1.1.1(axios@1.7.9):
+  /axios-case-converter@1.1.1(axios@1.8.2):
     resolution: {integrity: sha512-v13pB7cYryh/7f4TKxN/gniD2hwqPQcjip29Hk3J9iwsnA37Rht2Hkn5VyrxynxlKdMNSIfGk6I9D6G28oTRyQ==}
     peerDependencies:
       axios: '>=1.0.0 <2.0.0'
     dependencies:
-      axios: 1.7.9
+      axios: 1.8.2
       camel-case: 4.1.2
       header-case: 2.0.4
       snake-case: 3.0.4
@@ -8436,28 +8436,19 @@ packages:
       is-retry-allowed: 2.2.0
     dev: false
 
-  /axios-retry@4.5.0(axios@1.4.0):
+  /axios-retry@4.5.0(axios@1.8.2):
     resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
     peerDependencies:
       axios: 0.x || 1.x
     dependencies:
-      axios: 1.4.0
-      is-retry-allowed: 2.2.0
-    dev: false
-
-  /axios-retry@4.5.0(axios@1.6.1):
-    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
-    peerDependencies:
-      axios: 0.x || 1.x
-    dependencies:
-      axios: 1.6.1
+      axios: 1.8.2
       is-retry-allowed: 2.2.0
     dev: false
 
   /axios@0.21.4(debug@4.4.0):
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
-      follow-redirects: 1.15.6(debug@4.4.0)
+      follow-redirects: 1.15.9(debug@4.4.0)
     transitivePeerDependencies:
       - debug
     dev: false
@@ -8465,7 +8456,7 @@ packages:
   /axios@0.24.0:
     resolution: {integrity: sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==}
     dependencies:
-      follow-redirects: 1.15.6(debug@4.4.0)
+      follow-redirects: 1.15.9(debug@4.4.0)
     transitivePeerDependencies:
       - debug
     dev: false
@@ -8473,7 +8464,7 @@ packages:
   /axios@0.25.0:
     resolution: {integrity: sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g==}
     dependencies:
-      follow-redirects: 1.15.6(debug@4.4.0)
+      follow-redirects: 1.15.9(debug@4.4.0)
     transitivePeerDependencies:
       - debug
     dev: false
@@ -8481,7 +8472,7 @@ packages:
   /axios@0.26.1:
     resolution: {integrity: sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==}
     dependencies:
-      follow-redirects: 1.15.6(debug@4.4.0)
+      follow-redirects: 1.15.9(debug@4.4.0)
     transitivePeerDependencies:
       - debug
     dev: false
@@ -8489,118 +8480,8 @@ packages:
   /axios@0.27.2:
     resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
     dependencies:
-      follow-redirects: 1.15.2
-      form-data: 4.0.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios@1.2.5:
-    resolution: {integrity: sha512-9pU/8mmjSSOb4CXVsvGIevN+MlO/t9OWtKadTaLuN85Gge3HGorUckgp8A/2FH4V4hJ7JuQ3LIeI7KAV9ITZrQ==}
-    dependencies:
-      follow-redirects: 1.15.6(debug@4.4.0)
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios@1.4.0:
-    resolution: {integrity: sha512-S4XCWMEmzvo64T9GfvQDOXgYRDJ/wsSZc7Jvdgx5u1sd0JwsuPLqb3SYmusag+edF6ziyMensPVqLTSc1PiSEA==}
-    dependencies:
-      follow-redirects: 1.15.2
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios@1.5.1:
-    resolution: {integrity: sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==}
-    dependencies:
-      follow-redirects: 1.15.2
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios@1.6.1:
-    resolution: {integrity: sha512-vfBmhDpKafglh0EldBEbVuoe7DyAavGSLWhuSm5ZSEKQnHhBf0xAAwybbNH1IkrJNGnS/VG4I5yxig1pCEXE4g==}
-    dependencies:
-      follow-redirects: 1.15.2
+      follow-redirects: 1.15.9(debug@4.4.0)
       form-data: 4.0.2
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios@1.6.2:
-    resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
-    dependencies:
-      follow-redirects: 1.15.6(debug@4.4.0)
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios@1.6.3:
-    resolution: {integrity: sha512-fWyNdeawGam70jXSVlKl+SUNVcL6j6W79CuSIPfi6HnDUmSCH6gyUys/HrqHeA/wU0Az41rRgean494d0Jb+ww==}
-    dependencies:
-      follow-redirects: 1.15.2
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios@1.6.7:
-    resolution: {integrity: sha512-/hDJGff6/c7u0hDkvkGxR/oy6CbCs8ziCsC7SqmhjfozqiJGc8Z11wrv9z9lYfY4K8l+H9TpjcMDX0xOZmx+RA==}
-    dependencies:
-      follow-redirects: 1.15.5
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios@1.6.8:
-    resolution: {integrity: sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==}
-    dependencies:
-      follow-redirects: 1.15.6(debug@4.4.0)
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios@1.7.2:
-    resolution: {integrity: sha512-2A8QhOMrbomlDuiLeK9XibIBzuHeRcqqNOHp0Cyp5EoJ1IFDh+XZH3A6BkXtv0K4gFGCI0Y4BM7B1wOEi0Rmgw==}
-    dependencies:
-      follow-redirects: 1.15.6(debug@4.4.0)
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios@1.7.4:
-    resolution: {integrity: sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw==}
-    dependencies:
-      follow-redirects: 1.15.6(debug@4.4.0)
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios@1.7.7:
-    resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
-    dependencies:
-      follow-redirects: 1.15.6(debug@4.4.0)
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
     dev: false
@@ -8608,16 +8489,16 @@ packages:
   /axios@1.7.8:
     resolution: {integrity: sha512-Uu0wb7KNqK2t5K+YQyVCLM76prD5sRFjKHbJYCP1J7JFGEQ6nN7HWn9+04LAeiJ3ji54lgS/gZCH1oxyrf1SPw==}
     dependencies:
-      follow-redirects: 1.15.6(debug@4.4.0)
-      form-data: 4.0.0
+      follow-redirects: 1.15.9(debug@4.4.0)
+      form-data: 4.0.2
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
 
-  /axios@1.7.9:
-    resolution: {integrity: sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==}
+  /axios@1.8.2:
+    resolution: {integrity: sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==}
     dependencies:
-      follow-redirects: 1.15.6(debug@4.4.0)
+      follow-redirects: 1.15.9(debug@4.4.0)
       form-data: 4.0.2
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -8919,10 +8800,10 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001700
-      electron-to-chromium: 1.5.104
+      caniuse-lite: 1.0.30001702
+      electron-to-chromium: 1.5.113
       node-releases: 2.0.19
-      update-browserslist-db: 1.1.2(browserslist@4.24.4)
+      update-browserslist-db: 1.1.3(browserslist@4.24.4)
     dev: false
 
   /bs-logger@0.2.6:
@@ -9015,8 +8896,8 @@ packages:
       responselike: 1.0.2
     dev: false
 
-  /call-bind-apply-helpers@1.0.1:
-    resolution: {integrity: sha512-BhYE+WDaywFg2TBWYNXAE+8B1ATnThNBqXHP5nQu0jWJdVvY2hvkpyB3qOmtmDePiS5/BDQ8wASEWGMWRG148g==}
+  /call-bind-apply-helpers@1.0.2:
+    resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
     engines: {node: '>= 0.4'}
     dependencies:
       es-errors: 1.3.0
@@ -9029,24 +8910,24 @@ packages:
       es-define-property: 1.0.1
       es-errors: 1.3.0
       function-bind: 1.1.2
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       set-function-length: 1.2.2
 
   /call-bind@1.0.8:
     resolution: {integrity: sha512-oKlSFMcMwpUg2ednkhQ454wfWiU/ul3CkJe/PEHcTKuiX6RpbehUiFMXu13HalGZxfUwCQzZG747YXBn1im9ww==}
     engines: {node: '>= 0.4'}
     dependencies:
-      call-bind-apply-helpers: 1.0.1
+      call-bind-apply-helpers: 1.0.2
       es-define-property: 1.0.1
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       set-function-length: 1.2.2
 
   /call-bound@1.0.3:
     resolution: {integrity: sha512-YTd+6wGlNlPxSuri7Y6X8tY2dmm12UMH66RpKMhiX6rsk5wXXnYgbUcOt8kiS31/AjfoTOvCsE+w8nZQLQnzHA==}
     engines: {node: '>= 0.4'}
     dependencies:
-      call-bind-apply-helpers: 1.0.1
-      get-intrinsic: 1.2.7
+      call-bind-apply-helpers: 1.0.2
+      get-intrinsic: 1.3.0
 
   /call-me-maybe@1.0.2:
     resolution: {integrity: sha512-HpX65o1Hnr9HH25ojC1YGs7HCQLq0GCOibSaWER0eNpgJ/Z1MZv2mTc7+xh6WOPxbRVcmgbv4hGU+uSQ/2xFZQ==}
@@ -9076,8 +8957,8 @@ packages:
     resolution: {integrity: sha512-F6x5IEuigtUfU5ZMQK2jsy5JqUUlEFRVZq8bO2a+ysq5K7jD6PPc9YXZj78xDNS3uNchesp1Jw47YXEqr+Viyg==}
     dev: true
 
-  /caniuse-lite@1.0.30001700:
-    resolution: {integrity: sha512-2S6XIXwaE7K7erT8dY+kLQcpa5ms63XlRkMkReXjle+kf6c5g38vyMl+Z5y8dSxOFDhcFe+nxnn261PLxBSQsQ==}
+  /caniuse-lite@1.0.30001702:
+    resolution: {integrity: sha512-LoPe/D7zioC0REI5W73PeR1e1MLCipRGq/VkovJnd6Df+QVqT+vT33OXCp8QUd7kA7RZrHWxb1B36OQKI/0gOA==}
     dev: false
 
   /capital-case@1.0.4:
@@ -9801,7 +9682,7 @@ packages:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
     dependencies:
-      call-bind-apply-helpers: 1.0.1
+      call-bind-apply-helpers: 1.0.2
       es-errors: 1.3.0
       gopd: 1.2.0
 
@@ -9844,8 +9725,8 @@ packages:
     resolution: {integrity: sha512-wv1NufHxu11zfDbY4fglYQApMswleE9FL/DSeyOyauVXDZ+Kco96JK/tPfBUaDqfRarYp2WH2hJ/5UnVywp9Jg==}
     dev: true
 
-  /electron-to-chromium@1.5.104:
-    resolution: {integrity: sha512-Us9M2L4cO/zMBqVkJtnj353nQhMju9slHm62NprKTmdF3HH8wYOtNvDFq/JB2+ZRoGLzdvYDiATlMHs98XBM1g==}
+  /electron-to-chromium@1.5.113:
+    resolution: {integrity: sha512-wjT2O4hX+wdWPJ76gWSkMhcHAV2PTMX+QetUCPYEdCIe+cxmgzzSSiGRCKW8nuh4mwKZlpv0xvoW7OF2X+wmHg==}
     dev: false
 
   /emittery@0.13.1:
@@ -9914,11 +9795,11 @@ packages:
       data-view-byte-offset: 1.0.0
       es-define-property: 1.0.1
       es-errors: 1.3.0
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
       es-set-tostringtag: 2.1.0
       es-to-primitive: 1.2.1
       function.prototype.name: 1.1.6
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       get-symbol-description: 1.0.2
       globalthis: 1.0.3
       gopd: 1.2.0
@@ -9967,11 +9848,11 @@ packages:
       data-view-byte-offset: 1.0.1
       es-define-property: 1.0.1
       es-errors: 1.3.0
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
       es-set-tostringtag: 2.1.0
       es-to-primitive: 1.3.0
       function.prototype.name: 1.1.8
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       get-proto: 1.0.1
       get-symbol-description: 1.1.0
       globalthis: 1.0.4
@@ -10034,8 +9915,8 @@ packages:
   /es-module-lexer@1.6.0:
     resolution: {integrity: sha512-qqnD1yMU6tk/jnaMosogGySTZP8YtUgAffA9nMN+E/rjxcfRQ6IEk7IiozUjgxKoFHBGjTLnrHB/YC45r/59EQ==}
 
-  /es-object-atoms@1.0.0:
-    resolution: {integrity: sha512-MZ4iQ6JwHOBQjahnjwaC1ZtIBH+2ohjamzAO3oaHcXYup7qxjF2fixyH+Q71voWHeOkI2q/TnJao/KfXYIZWbw==}
+  /es-object-atoms@1.1.1:
+    resolution: {integrity: sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==}
     engines: {node: '>= 0.4'}
     dependencies:
       es-errors: 1.3.0
@@ -10045,7 +9926,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       es-errors: 1.3.0
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       has-tostringtag: 1.0.2
       hasown: 2.0.2
 
@@ -10835,28 +10716,8 @@ packages:
   /fn.name@1.1.0:
     resolution: {integrity: sha512-GRnmB5gPyJpAhTQdSZTSp9uaPSvl09KoYcMQtsB9rQoOmzs9dH6ffeccH+Z+cv6P68Hu5bC6JjRh4Ah/mHSNRw==}
 
-  /follow-redirects@1.15.2:
-    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    dev: false
-
-  /follow-redirects@1.15.5:
-    resolution: {integrity: sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    dev: false
-
-  /follow-redirects@1.15.6(debug@4.4.0):
-    resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
+  /follow-redirects@1.15.9(debug@4.4.0):
+    resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -10904,12 +10765,33 @@ packages:
       mime-types: 2.1.35
     dev: false
 
+  /form-data@2.5.3:
+    resolution: {integrity: sha512-XHIrMD0NpDrNM/Ckf7XJiBbLl57KEhT3+i3yY+eWm+cqYZJQTZrKo8Y8AWKnuV5GT4scfuUGt9LzNoIx3dU1nQ==}
+    engines: {node: '>= 0.12'}
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      es-set-tostringtag: 2.1.0
+      mime-types: 2.1.35
+      safe-buffer: 5.2.1
+    dev: false
+
   /form-data@3.0.1:
     resolution: {integrity: sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==}
     engines: {node: '>= 6'}
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
+      mime-types: 2.1.35
+    dev: false
+
+  /form-data@3.0.3:
+    resolution: {integrity: sha512-q5YBMeWy6E2Un0nMGWMgI65MAKtaylxfNJGJxpGh45YDciZB4epbWpaAfImil6CPAPTYB4sh0URQNDRIZG5F2w==}
+    engines: {node: '>= 6'}
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      es-set-tostringtag: 2.1.0
       mime-types: 2.1.35
     dev: false
 
@@ -10920,6 +10802,7 @@ packages:
       asynckit: 0.4.0
       combined-stream: 1.0.8
       mime-types: 2.1.35
+    dev: false
 
   /form-data@4.0.2:
     resolution: {integrity: sha512-hGfm/slu0ZabnNt4oaRZ6uREyfCj6P4fT/n6A1rGV+Z0VdGXjfOhVUpkn6qVQONHGIFwmveGXyDs75+nr6FM8w==}
@@ -11105,15 +10988,16 @@ packages:
       has-proto: 1.0.3
       has-symbols: 1.1.0
       hasown: 2.0.2
+    dev: false
 
-  /get-intrinsic@1.2.7:
-    resolution: {integrity: sha512-VW6Pxhsrk0KAOqs3WEd0klDiF/+V7gQOpAvY1jVU/LHmaD/kQO4523aiJuikX/QAKYiW6x8Jh+RJej1almdtCA==}
+  /get-intrinsic@1.3.0:
+    resolution: {integrity: sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==}
     engines: {node: '>= 0.4'}
     dependencies:
-      call-bind-apply-helpers: 1.0.1
+      call-bind-apply-helpers: 1.0.2
       es-define-property: 1.0.1
       es-errors: 1.3.0
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
       function-bind: 1.1.2
       get-proto: 1.0.1
       gopd: 1.2.0
@@ -11131,7 +11015,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       dunder-proto: 1.0.1
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
 
   /get-stdin@8.0.0:
     resolution: {integrity: sha512-sY22aA6xchAzprjyqmSEQv4UbAAzRN0L2dQB0NlN5acTTK9Don6nhoc3eAbUnpZiCANAMfd/+40kVdKfFygohg==}
@@ -11173,7 +11057,7 @@ packages:
     dependencies:
       call-bind: 1.0.8
       es-errors: 1.3.0
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
     dev: true
 
   /get-symbol-description@1.1.0:
@@ -11182,7 +11066,7 @@ packages:
     dependencies:
       call-bound: 1.0.3
       es-errors: 1.3.0
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
 
   /getpass@0.1.7:
     resolution: {integrity: sha512-0fzj9JxOLfJ+XGLhR8ze3unN0KZCgZwiSSDz168VERjK8Wl8kVSdcu2kspd4s4wtAa1y/qrVRiAA0WclVsu0ng==}
@@ -11772,7 +11656,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind: 1.0.8
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
     dev: true
 
   /is-array-buffer@3.0.5:
@@ -11781,7 +11665,7 @@ packages:
     dependencies:
       call-bind: 1.0.8
       call-bound: 1.0.3
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
 
   /is-arrayish@0.2.1:
     resolution: {integrity: sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg==}
@@ -11855,7 +11739,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bound: 1.0.3
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       is-typed-array: 1.1.15
 
   /is-date-object@1.0.5:
@@ -12082,7 +11966,7 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bound: 1.0.3
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
 
   /is-wsl@2.2.0:
     resolution: {integrity: sha512-fKzAra0rGJUUBwGBgNkHZuToZcn+TtXHpeCgmkMJMMYx1sQDYaCSyjJBSCa2nH1DGm7s3n1oBnohoVTBaN7Lww==}
@@ -13654,7 +13538,7 @@ packages:
       call-bind: 1.0.8
       call-bound: 1.0.3
       define-properties: 1.2.1
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
       has-symbols: 1.1.0
       object-keys: 1.1.1
 
@@ -13665,7 +13549,7 @@ packages:
       call-bind: 1.0.8
       define-properties: 1.2.1
       es-abstract: 1.23.9
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
     dev: true
 
   /object.groupby@1.0.3:
@@ -13684,7 +13568,7 @@ packages:
       call-bind: 1.0.8
       call-bound: 1.0.3
       define-properties: 1.2.1
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
     dev: true
 
   /obliterator@1.6.1:
@@ -13810,7 +13694,7 @@ packages:
     resolution: {integrity: sha512-qFOyK5PjiWZd+QQIh+1jhdb9LpxTF0qs7Pm8o5QHYZ0M3vKqSqzsZaEB6oWlxZ+q2sJBMI/Ktgd2N5ZwQoRHfg==}
     engines: {node: '>= 0.4'}
     dependencies:
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       object-keys: 1.1.1
       safe-push-apply: 1.0.0
 
@@ -14474,8 +14358,8 @@ packages:
       define-properties: 1.2.1
       es-abstract: 1.23.9
       es-errors: 1.3.0
-      es-object-atoms: 1.0.0
-      get-intrinsic: 1.2.7
+      es-object-atoms: 1.1.1
+      get-intrinsic: 1.3.0
       get-proto: 1.0.1
       which-builtin-type: 1.2.1
 
@@ -14687,7 +14571,7 @@ packages:
     engines: {node: '>=0.4'}
     dependencies:
       call-bind: 1.0.8
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       has-symbols: 1.1.0
       isarray: 2.0.5
     dev: true
@@ -14698,7 +14582,7 @@ packages:
     dependencies:
       call-bind: 1.0.8
       call-bound: 1.0.3
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       has-symbols: 1.1.0
       isarray: 2.0.5
 
@@ -14842,7 +14726,7 @@ packages:
       define-data-property: 1.1.4
       es-errors: 1.3.0
       function-bind: 1.1.2
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       gopd: 1.2.0
       has-property-descriptors: 1.0.2
 
@@ -14861,7 +14745,7 @@ packages:
     dependencies:
       dunder-proto: 1.0.1
       es-errors: 1.3.0
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
 
   /setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
@@ -14950,7 +14834,7 @@ packages:
     dependencies:
       call-bound: 1.0.3
       es-errors: 1.3.0
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       object-inspect: 1.13.3
 
   /side-channel-weakmap@1.0.2:
@@ -14959,7 +14843,7 @@ packages:
     dependencies:
       call-bound: 1.0.3
       es-errors: 1.3.0
-      get-intrinsic: 1.2.7
+      get-intrinsic: 1.3.0
       object-inspect: 1.13.3
       side-channel-map: 1.0.1
 
@@ -15211,7 +15095,7 @@ packages:
       define-data-property: 1.1.4
       define-properties: 1.2.1
       es-abstract: 1.23.9
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
       has-property-descriptors: 1.0.2
 
   /string.prototype.trim@1.2.9:
@@ -15221,7 +15105,7 @@ packages:
       call-bind: 1.0.8
       define-properties: 1.2.1
       es-abstract: 1.23.9
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
     dev: true
 
   /string.prototype.trimend@1.0.8:
@@ -15229,7 +15113,7 @@ packages:
     dependencies:
       call-bind: 1.0.8
       define-properties: 1.2.1
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
     dev: true
 
   /string.prototype.trimend@1.0.9:
@@ -15239,7 +15123,7 @@ packages:
       call-bind: 1.0.8
       call-bound: 1.0.3
       define-properties: 1.2.1
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
 
   /string.prototype.trimstart@1.0.8:
     resolution: {integrity: sha512-UXSH262CSZY1tfu3G3Secr6uGLCFVPMhIqHjlgCUtCCcgihYc/xKs9djMTMUOb2j1mVSeU8EU6NWc/iQKU6Gfg==}
@@ -15247,7 +15131,7 @@ packages:
     dependencies:
       call-bind: 1.0.8
       define-properties: 1.2.1
-      es-object-atoms: 1.0.0
+      es-object-atoms: 1.1.1
 
   /string_decoder@1.1.1:
     resolution: {integrity: sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==}
@@ -15355,7 +15239,7 @@ packages:
       cookiejar: 2.1.4
       debug: 3.2.7
       extend: 3.0.2
-      form-data: 2.5.1
+      form-data: 2.5.3
       formidable: 1.2.6
       methods: 1.1.2
       mime: 1.6.0
@@ -15374,7 +15258,7 @@ packages:
       cookiejar: 2.1.4
       debug: 4.4.0
       fast-safe-stringify: 2.1.1
-      form-data: 3.0.1
+      form-data: 3.0.3
       formidable: 1.2.6
       methods: 1.1.2
       mime: 2.6.0
@@ -15595,7 +15479,7 @@ packages:
   /trello.js@1.2.7:
     resolution: {integrity: sha512-fFk5pQ8UvnTkGgLfSHKDpmejIx460yiSjG99hjvnj4XLdGsrmSNTKTTiD8or+2uAQ6+mJgq8q4Ztj34r7z0qFQ==}
     dependencies:
-      axios: 1.7.9
+      axios: 1.8.2
       form-data: 4.0.0
       tslib: 2.6.2
     transitivePeerDependencies:
@@ -15640,7 +15524,7 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /ts-jest@29.1.0(@babel/core@7.22.5)(jest@29.5.0)(typescript@5.7.3):
+  /ts-jest@29.1.0(@babel/core@7.22.5)(jest@29.5.0)(typescript@5.8.2):
     resolution: {integrity: sha512-ZhNr7Z4PcYa+JjMl62ir+zPiNJfXJN6E8hSLnaUKhOgqcn8vb3e537cpkd0FuAfRK3sR1LSqM1MOhliXNgOFPA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     hasBin: true
@@ -15670,7 +15554,7 @@ packages:
       lodash.memoize: 4.1.2
       make-error: 1.3.6
       semver: 7.6.3
-      typescript: 5.7.3
+      typescript: 5.8.2
       yargs-parser: 21.1.1
     dev: true
 
@@ -15899,8 +15783,8 @@ packages:
     engines: {node: '>=14.16'}
     dev: false
 
-  /type-fest@4.35.0:
-    resolution: {integrity: sha512-2/AwEFQDFEy30iOLjrvHDIH7e4HEWH+f1Yl1bI5XMqzuoCUqwYCdxachgsgv0og/JdVZUhbfjcJAoHj5L1753A==}
+  /type-fest@4.37.0:
+    resolution: {integrity: sha512-S/5/0kFftkq27FPNye0XM1e2NsnoD/3FS+pBmbjmmtLT6I+i344KoOf7pvXreaFsDamWeaJX55nczA1m5PsBDg==}
     engines: {node: '>=16'}
     dev: false
 
@@ -16025,8 +15909,8 @@ packages:
     hasBin: true
     dev: true
 
-  /typescript@5.7.3:
-    resolution: {integrity: sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==}
+  /typescript@5.8.2:
+    resolution: {integrity: sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==}
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true
@@ -16116,8 +16000,8 @@ packages:
       picocolors: 1.1.1
     dev: true
 
-  /update-browserslist-db@1.1.2(browserslist@4.24.4):
-    resolution: {integrity: sha512-PPypAm5qvlD7XMZC3BujecnaOxwhrtoFR+Dqkk5Aa/6DssiH0ibKoketaj9w8LP7Bont1rYeoV5plxD7RTEPRg==}
+  /update-browserslist-db@1.1.3(browserslist@4.24.4):
+    resolution: {integrity: sha512-UxhIZQ+QInVdunkDAaiazvvT/+fXL5Osr0JZlJulepYu6Jd7qJtDZjlur0emRlT71EN3ScPoE7gvsuIKKNavKw==}
     hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'

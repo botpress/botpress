@@ -13,7 +13,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "axios": "^1.4.0",
+    "axios": "^1.8.2",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

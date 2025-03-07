@@ -34,7 +34,7 @@
     "@size-limit/file": "^11.1.6",
     "@types/axios": "^0.14.4",
     "@types/debug": "^4.1.12",
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "dotenv": "^16.4.4",
     "esbuild": "^0.16.12",
     "size-limit": "^11.1.6",
