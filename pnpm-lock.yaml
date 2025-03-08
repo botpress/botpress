@@ -212,12 +212,6 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      axios:
-        specifier: ^1.7.8
-        version: 1.7.8
-      qs:
-        specifier: ^6.11.0
-        version: 6.11.0
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
@@ -277,9 +271,6 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -458,9 +449,6 @@ importers:
       uuid:
         specifier: ^9.0.0
         version: 9.0.0
-      zod:
-        specifier: npm:@botpress/sdk
-        version: link:../../packages/sdk
     devDependencies:
       '@botpress/chat-api':
         specifier: workspace:*
@@ -583,9 +571,6 @@ importers:
       axios:
         specifier: ^1.4.0
         version: 1.7.7
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -663,18 +648,12 @@ importers:
       googleapis:
         specifier: ^112.0.0
         version: 112.0.0
-      js-base64:
-        specifier: ^3.7.5
-        version: 3.7.5
       node-html-parser:
         specifier: ^6
         version: 6.1.13
       nodemailer:
         specifier: ^6.7.2
         version: 6.9.3
-      query-string:
-        specifier: ^6.14.1
-        version: 6.14.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -774,9 +753,6 @@ importers:
       axios:
         specifier: ^1.7.7
         version: 1.7.7
-      google-auth-library:
-        specifier: ^9.0.0
-        version: 9.0.0
       googleapis:
         specifier: ^144.0.0
         version: 144.0.0
@@ -920,9 +896,6 @@ importers:
       '@line/bot-sdk':
         specifier: ^9.5.0
         version: 9.5.0
-      crypto:
-        specifier: ^1.0.1
-        version: 1.0.1
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
@@ -1026,9 +999,6 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
-      '@slack/web-api':
-        specifier: ^6.8.0
-        version: 6.8.1
       axios:
         specifier: ^1.6.2
         version: 1.6.2
@@ -1302,9 +1272,6 @@ importers:
       '@doist/todoist-api-typescript':
         specifier: ^3.0.3
         version: 3.0.3(type-fest@4.35.0)
-      axios:
-        specifier: ^1.7.4
-        version: 1.7.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1448,9 +1415,6 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
-      axios:
-        specifier: ^1.3.4
-        version: 1.4.0
       qs:
         specifier: ^6.11.0
         version: 6.11.0
@@ -1522,9 +1486,6 @@ importers:
       axios:
         specifier: ^1.6.3
         version: 1.6.3
-      uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1747,9 +1708,6 @@ importers:
       zod:
         specifier: ^3.20.6
         version: 3.22.4
-      zod-to-json-schema:
-        specifier: ^3.21.4
-        version: 3.21.4(zod@3.22.4)
     devDependencies:
       '@types/json-schema':
         specifier: ^7.0.12
@@ -1784,9 +1742,6 @@ importers:
       qs:
         specifier: ^6.11.0
         version: 6.11.0
-      type-fest:
-        specifier: ^3.4.0
-        version: 3.11.1
       verror:
         specifier: ^1.10.1
         version: 1.10.1
@@ -1824,6 +1779,9 @@ importers:
       '@types/web':
         specifier: ^0.0.115
         version: 0.0.115
+      dotenv:
+        specifier: ^16.4.4
+        version: 16.4.4
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1890,9 +1848,6 @@ importers:
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
-      chokidar:
-        specifier: ^3.5.3
-        version: 3.5.3
       dotenv:
         specifier: ^16.4.4
         version: 16.4.4
@@ -1914,9 +1869,6 @@ importers:
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
-      radash:
-        specifier: ^9.5.0
-        version: 9.5.0
       semver:
         specifier: ^7.3.8
         version: 7.5.1
@@ -1926,9 +1878,6 @@ importers:
       verror:
         specifier: ^1.10.1
         version: 1.10.1
-      winston:
-        specifier: ^3.8.2
-        version: 3.9.0
       yn:
         specifier: ^4.0.0
         version: 4.0.0
@@ -2058,9 +2007,6 @@ importers:
       qs:
         specifier: ^6.11.0
         version: 6.11.0
-      type-fest:
-        specifier: ^3.4.0
-        version: 3.11.1
     devDependencies:
       '@botpress/api':
         specifier: 0.78.0
@@ -2283,9 +2229,6 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -2305,9 +2248,6 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      dedent:
-        specifier: ^1.5.3
-        version: 1.5.3
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -4252,11 +4192,6 @@ packages:
     peerDependenciesMeta:
       react:
         optional: true
-    dev: false
-
-  /@colors/colors@1.5.0:
-    resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
-    engines: {node: '>=0.1.90'}
     dev: false
 
   /@colors/colors@1.6.0:
@@ -9140,6 +9075,7 @@ packages:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.3
+    dev: true
 
   /chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
@@ -9392,11 +9328,6 @@ packages:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
-
-  /crypto@1.0.1:
-    resolution: {integrity: sha512-VxBKmeNcqQdiUQUW2Tzq0t377b54N2bMtXO/qiLa+6eRRmmC4qT3D4OnTGoT/U6O9aklQ/jTwbOtRMTTY8G0Ig==}
-    deprecated: This package is no longer supported. It's now a built-in Node module. If you've depended on crypto, you should switch to the one that's built-in.
-    dev: false
 
   /css-select@5.1.0:
     resolution: {integrity: sha512-nwoRF1rvRRnnCqqY7updORDsuqKzqYJ28+oSMaJMMgOauh3fvwHqMS7EZpIPqK8GL+g9mKxF1vP/ZjSeNjEVHg==}
@@ -11105,6 +11036,7 @@ packages:
       has-proto: 1.0.3
       has-symbols: 1.1.0
       hasown: 2.0.2
+    dev: true
 
   /get-intrinsic@1.2.7:
     resolution: {integrity: sha512-VW6Pxhsrk0KAOqs3WEd0klDiF/+V7gQOpAvY1jVU/LHmaD/kQO4523aiJuikX/QAKYiW6x8Jh+RJej1almdtCA==}
@@ -11492,6 +11424,7 @@ packages:
   /has-proto@1.0.3:
     resolution: {integrity: sha512-SJ1amZAJUiZS+PhsVLf5tGydlaVB8EdFpaSO4gmiUKUOxk8qzn5AIy4ZeJUmh22znIdk/uMAUT2pl3FxzVUH+Q==}
     engines: {node: '>= 0.4'}
+    dev: true
 
   /has-proto@1.2.0:
     resolution: {integrity: sha512-KIL7eQPfHQRC8+XluaIw7BHUwwqL19bQn4hzNgdr+1wXoU0KKj6rufu47lhY7KbJR2C6T6+PfyN0Ea7wkSS+qQ==}
@@ -12643,10 +12576,6 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /js-base64@3.7.5:
-    resolution: {integrity: sha512-3MEt5DTINKqfScXKfJFrRbxkrnk2AxPWGBL/ycjz4dK8iqiSJ06UxD8jh8xuh6p10TX4t2+7FsBYVxxQbMg+qA==}
-    dev: false
-
   /js-beautify@1.15.1:
     resolution: {integrity: sha512-ESjNzSlt/sWE8sciZH8kBF8BPlwXPwhR6pWKAw8bw4Bwj+iZcnKW6ONWUutJ7eObuBZQpiIb8S7OYspWrKt7rA==}
     engines: {node: '>=14'}
@@ -13105,17 +13034,6 @@ packages:
       strip-ansi: 7.1.0
       wrap-ansi: 9.0.0
     dev: true
-
-  /logform@2.5.1:
-    resolution: {integrity: sha512-9FyqAm9o9NKKfiAKfZoYo9bGXXuwMkxQiQttkT4YjjVtQVIQtK6LmVtlxmCaFswo6N4AfEkHqZTV0taDtPotNg==}
-    dependencies:
-      '@colors/colors': 1.5.0
-      '@types/triple-beam': 1.3.2
-      fecha: 4.2.3
-      ms: 2.1.3
-      safe-stable-stringify: 2.4.3
-      triple-beam: 1.3.0
-    dev: false
 
   /logform@2.7.0:
     resolution: {integrity: sha512-TFYA4jnP7PVbmlBIfhlSe+WKxs9dklXMTEGcBCIvLhE/Tn3H6Gk1norupVW7m5Cnd4bLcr08AytbyV/xj7f/kQ==}
@@ -14313,13 +14231,6 @@ packages:
       side-channel: 1.0.4
     dev: false
 
-  /qs@6.11.2:
-    resolution: {integrity: sha512-tDNIz22aBzCDxLtVH++VnTfzxlfeK5CbqohpSqpJgj1Wg/cQbStNAz3NuqCs5vV+pjBsK4x4pN9HlVh7rcYRiA==}
-    engines: {node: '>=0.6'}
-    dependencies:
-      side-channel: 1.1.0
-    dev: false
-
   /qs@6.13.0:
     resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
     engines: {node: '>=0.6'}
@@ -14351,11 +14262,6 @@ packages:
   /radash@12.1.0:
     resolution: {integrity: sha512-b0Zcf09AhqKS83btmUeYBS8tFK7XL2e3RvLmZcm0sTdF1/UUlHSsjXdCcWNxe7yfmAlPve5ym0DmKGtTzP6kVQ==}
     engines: {node: '>=14.18.0'}
-
-  /radash@9.5.0:
-    resolution: {integrity: sha512-t0s8BJlvrk8YPaOS8X0J2xzqAsBlXAUkDEjoBXwlzaXsXNCpBILjT9OvWlabLa2KB/r4XrhThdXjxMs7SiCyIw==}
-    engines: {node: '>=14.18.0'}
-    dev: false
 
   /range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
@@ -14967,7 +14873,7 @@ packages:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
     dependencies:
       call-bind: 1.0.7
-      get-intrinsic: 1.2.4
+      get-intrinsic: 1.2.7
       object-inspect: 1.13.3
     dev: false
 
@@ -15316,7 +15222,7 @@ packages:
     engines: {node: '>=12.*'}
     dependencies:
       '@types/node': 18.19.67
-      qs: 6.11.2
+      qs: 6.13.0
     dev: false
 
   /strnum@1.0.5:
@@ -15857,7 +15763,7 @@ packages:
       jsonwebtoken: 8.5.1
       lodash: 4.17.21
       q: 2.0.3
-      qs: 6.11.2
+      qs: 6.13.0
       rootpath: 0.1.2
       scmp: 2.1.0
       url-parse: 1.5.10
@@ -15893,11 +15799,6 @@ packages:
     resolution: {integrity: sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w==}
     engines: {node: '>=10'}
     dev: true
-
-  /type-fest@3.11.1:
-    resolution: {integrity: sha512-aCuRNRERRVh33lgQaJRlUxZqzfhzwTrsE98Mc3o3VXqmiaQdHacgUtJ0esp+7MvZ92qhtzKPeusaX6vIEcoreA==}
-    engines: {node: '>=14.16'}
-    dev: false
 
   /type-fest@4.35.0:
     resolution: {integrity: sha512-2/AwEFQDFEy30iOLjrvHDIH7e4HEWH+f1Yl1bI5XMqzuoCUqwYCdxachgsgv0og/JdVZUhbfjcJAoHj5L1753A==}
@@ -16571,15 +16472,6 @@ packages:
       string-width: 4.2.3
     dev: false
 
-  /winston-transport@4.5.0:
-    resolution: {integrity: sha512-YpZzcUzBedhlTAfJg6vJDlyEai/IFMIVcaEZZyl3UXIl4gmqRpU7AE89AHLkbzLUsv0NVmw7ts+iztqKxxPW1Q==}
-    engines: {node: '>= 6.4.0'}
-    dependencies:
-      logform: 2.7.0
-      readable-stream: 3.6.2
-      triple-beam: 1.3.0
-    dev: false
-
   /winston-transport@4.9.0:
     resolution: {integrity: sha512-8drMJ4rkgaPo1Me4zD/3WLfI/zPdA9o2IipKODunnGDcuqbHwjsbB79ylv04LCGGzU0xQ6vTznOMpQGaLhhm6A==}
     engines: {node: '>= 12.0.0'}
@@ -16603,23 +16495,6 @@ packages:
       stack-trace: 0.0.10
       triple-beam: 1.3.0
       winston-transport: 4.9.0
-
-  /winston@3.9.0:
-    resolution: {integrity: sha512-jW51iW/X95BCW6MMtZWr2jKQBP4hV5bIDq9QrIjfDk6Q9QuxvTKEAlpUNAzP+HYHFFCeENhph16s0zEunu4uuQ==}
-    engines: {node: '>= 12.0.0'}
-    dependencies:
-      '@colors/colors': 1.5.0
-      '@dabh/diagnostics': 2.0.3
-      async: 3.2.4
-      is-stream: 2.0.1
-      logform: 2.5.1
-      one-time: 1.0.0
-      readable-stream: 3.6.2
-      safe-stable-stringify: 2.4.3
-      stack-trace: 0.0.10
-      triple-beam: 1.3.0
-      winston-transport: 4.5.0
-    dev: false
 
   /word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
@@ -16784,14 +16659,6 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
-
-  /zod-to-json-schema@3.21.4(zod@3.22.4):
-    resolution: {integrity: sha512-fjUZh4nQ1s6HMccgIeE0VP4QG/YRGPmyjO9sAh890aQKPEk3nqbfUXhMFaC+Dr5KvYBm8BCyvfpZf2jY9aGSsw==}
-    peerDependencies:
-      zod: ^3.21.4
-    dependencies:
-      zod: 3.22.4
-    dev: false
 
   /zod@1.11.17:
     resolution: {integrity: sha512-UzIwO92D0dSFwIRyyqAfRXICITLjF0IP8tRbEK/un7adirMssWZx8xF/1hZNE7t61knWZ+lhEuUvxlu2MO8qqA==}

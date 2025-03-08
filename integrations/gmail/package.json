@@ -20,10 +20,8 @@
     "@react-email/components": "0.0.25",
     "gmail-api-parse-message": "^2.1.2",
     "googleapis": "^112.0.0",
-    "js-base64": "^3.7.5",
     "node-html-parser": "^6",
     "nodemailer": "^6.7.2",
-    "query-string": "^6.14.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

@@ -11,7 +11,6 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.7.7",
-    "google-auth-library": "^9.0.0",
     "googleapis": "^144.0.0",
     "jsonwebtoken": "^9.0.2",
     "uuid": "^9.0.0"

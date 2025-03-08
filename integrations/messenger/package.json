@@ -12,7 +12,6 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@slack/web-api": "^6.8.0",
     "axios": "^1.6.2",
     "marked": "^13.0.2",
     "messaging-api-messenger": "^1.1.0",

@@ -16,7 +16,6 @@
     "@botpress/api": "0.78.0",
     "@bpinternal/opapi": "0.12.1",
     "lodash": "^4.17.21",
-    "zod": "^3.20.6",
-    "zod-to-json-schema": "^3.21.4"
+    "zod": "^3.20.6"
   }
 }
