@@ -52,11 +52,26 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
   }
 
   public get actionHandlers(): ActionHandlers<TBot> {
-    const selfActionHandlers = this._actionHandlers as ActionHandlers<TBot>
-    const pluginActionHandlers = Object.values(this._plugins).reduce((acc, plugin) => {
-      return { ...acc, ...plugin.actionHandlers }
-    }, {} as ActionHandlers<TBot>)
-    return { ...selfActionHandlers, ...pluginActionHandlers }
+    return new Proxy(
+      {},
+      {
+        get: (_, prop: string) => {
+          let action = this._actionHandlers[prop]
+          if (action) {
+            return action
+          }
+
+          for (const plugin of Object.values(this._plugins)) {
+            action = plugin.actionHandlers[prop]
+            if (action) {
+              return action
+            }
+          }
+
+          return undefined
+        },
+      }
+    ) as ActionHandlers<TBot>
   }
 
   public get messageHandlers(): MessageHandlersMap<TBot> {
