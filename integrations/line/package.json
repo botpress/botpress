@@ -12,8 +12,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@line/bot-sdk": "^9.5.0",
-    "crypto": "^1.0.1"
+    "@line/bot-sdk": "^9.5.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
