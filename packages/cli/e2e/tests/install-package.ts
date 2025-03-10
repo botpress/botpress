@@ -80,7 +80,9 @@ const initBot = async (props: TestProps, definitionFile: string) => {
   }
   const botName = uuid.v4().replace(/-/g, '')
   const botDir = pathlib.join(tmpDir, botName)
-  await impl.init({ ...argv, workDir: tmpDir, name: botName, type: 'bot' }).then(utils.handleExitCode)
+  await impl
+    .init({ ...argv, workDir: tmpDir, name: botName, type: 'bot', template: 'empty' })
+    .then(utils.handleExitCode)
   await utils.fixBotpressDependencies({ workDir: botDir, target: dependencies })
   await utils.npmInstall({ workDir: botDir }).then(utils.handleExitCode)
   await fslib.promises.writeFile(pathlib.join(botDir, 'bot.definition.ts'), definitionFile)

@@ -1,4 +1,5 @@
 import * as consts from './consts'
+import { ProjectTemplates } from './project-templates'
 import type { CommandOption, CommandSchema } from './typings'
 
 // command options
@@ -322,6 +323,11 @@ const initSchema = {
   ...globalSchema,
   workDir,
   type: { type: 'string', choices: ['bot', 'integration', 'plugin'] as const },
+  template: {
+    type: 'string',
+    choices: ProjectTemplates.getAllChoices(),
+    description: 'The template to use',
+  },
   name: { type: 'string', description: 'The name of the project' },
 } satisfies CommandSchema
 
