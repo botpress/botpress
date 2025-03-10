@@ -13,7 +13,7 @@ export type RespondProps = {
 export const HITL_END_REASON = {
   // PATIENT_LEFT: 'patient-left',
   PATIENT_USED_TERMINATION_COMMAND: 'patient-used-termination-command',
-  // AGENT_ASSIGNMENT_TIMEOUT: 'agent-assignment-timeout',
+  AGENT_ASSIGNMENT_TIMEOUT: 'agent-assignment-timeout',
   // AGENT_RESPONSE_TIMEOUT: 'agent-response-timeout',
   AGENT_CLOSED_TICKET: 'agent-closed-ticket',
   CLOSE_ACTION_CALLED: 'close-action-called',
@@ -37,6 +37,12 @@ export class ConversationManager {
 
   public async setHumanAgent(humanAgentId: string, humanAgentName: string) {
     await this._patchConversationTags({ humanAgentId, humanAgentName })
+  }
+
+  public async isHumanAgentAssigned(): Promise<boolean> {
+    const { humanAgentId } = await this._getConversationTags()
+
+    return !!humanAgentId?.length
   }
 
   public async isHitlActive(): Promise<boolean> {
@@ -91,5 +97,12 @@ export class ConversationManager {
 
   private async _patchConversationTags(tags: Record<string, string>): Promise<void> {
     await this._props.client.updateConversation({ id: this._convId, tags })
+  }
+
+  private async _getConversationTags(): Promise<Record<string, string>> {
+    const {
+      conversation: { tags },
+    } = await this._props.client.getConversation({ id: this._convId })
+    return tags
   }
 }
