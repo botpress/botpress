@@ -14,6 +14,7 @@ const captureScreenshot = {
     }),
   },
   cacheable: true,
+  billable: true,
 }
 
 const fullPage = z.object({
@@ -42,6 +43,7 @@ const browsePages = {
     }),
   },
   cacheable: true,
+  billable: true,
 }
 
 const domainNameRegex = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i
