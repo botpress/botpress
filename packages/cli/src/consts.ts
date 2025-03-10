@@ -15,22 +15,11 @@ export const defaultChatApiUrl = 'https://chat.botpress.cloud'
 // not configurable
 
 export const cliRootDir = CLI_ROOT_DIR
-export const emptyBotDirName = 'empty-bot'
-export const emptyPluginDirName = 'empty-plugin'
-export const emptyIntegrationDirName = 'empty-integration'
-export const helloWorldIntegrationDirName = 'hello-world'
-export const webhookMessageIntegrationDirName = 'webhook-message'
 export const installDirName = 'bp_modules'
 export const outDirName = '.botpress'
 export const distDirName = 'dist'
 
-export const fromCliRootDir = {
-  emptyBotTemplate: pathlib.join('templates', emptyBotDirName),
-  emptyPluginTemplate: pathlib.join('templates', emptyPluginDirName),
-  emptyIntegrationTemplate: pathlib.join('templates', emptyIntegrationDirName),
-  helloWorldIntegrationTemplate: pathlib.join('templates', helloWorldIntegrationDirName),
-  webhookMessageIntegrationTemplate: pathlib.join('templates', webhookMessageIntegrationDirName),
-}
+export const fromCliRootDir = {}
 
 export const fromHomeDir = {
   globalCacheFile: 'global.cache.json',
