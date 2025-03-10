@@ -3,6 +3,8 @@ import * as errors from '../common/errors'
 import * as guards from './guards'
 import z from '../../z'
 import { toZuiPrimitive } from './primitives'
+import { arrayJSONSchemaToZuiArray } from './iterables/array'
+import { ArraySchema, SetSchema, TupleSchema } from '../common/json-schema'
 
 const DEFAULT_TYPE = z.any()
 
@@ -119,23 +121,7 @@ function _fromJsonSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
   }
 
   if (schema.type === 'array') {
-    if (Array.isArray(schema.items)) {
-      const itemSchemas = schema.items.map(_fromJsonSchema) as [] | [z.ZodType, ...z.ZodType[]]
-      if (schema.additionalItems !== undefined) {
-        return z.tuple(itemSchemas).rest(_fromJsonSchema(schema.additionalItems))
-      }
-      return z.tuple(itemSchemas)
-    }
-
-    if (schema.items !== undefined) {
-      if (schema.uniqueItems) {
-        return z.set(_fromJsonSchema(schema.items))
-      }
-
-      return z.array(_fromJsonSchema(schema.items))
-    }
-
-    return z.array(DEFAULT_TYPE)
+    return arrayJSONSchemaToZuiArray(schema as ArraySchema | TupleSchema | SetSchema, _fromJsonSchema)
   }
 
   if (schema.type === 'object') {

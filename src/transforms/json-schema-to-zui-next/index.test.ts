@@ -81,11 +81,34 @@ describe.concurrent('zuifromJsonSchemaNext', () => {
     assert(zSchema).toEqual(expected)
   })
 
-  test('should map ArraySchema to ZodArray', () => {
-    const jSchema = buildSchema({ type: 'array', items: { type: 'string' } })
-    const zSchema = fromJsonSchema(jSchema)
-    const expected = z.array(z.string())
-    assert(zSchema).toEqual(expected)
+  describe.concurrent('ArraySchema', () => {
+    test('should map ArraySchema to ZodArray', () => {
+      const jSchema = buildSchema({ type: 'array', items: { type: 'string' } })
+      const zSchema = fromJsonSchema(jSchema)
+      const expected = z.array(z.string())
+      assert(zSchema).toEqual(expected)
+    })
+
+    test('should map ArraySchema with min to ZodArray', () => {
+      const jSchema = buildSchema({ type: 'array', items: { type: 'string' }, minItems: 4 })
+      const zSchema = fromJsonSchema(jSchema)
+      const expected = z.array(z.string()).min(4)
+      assert(zSchema).toEqual(expected)
+    })
+
+    test('should map ArraySchema with min and max to ZodArray', () => {
+      const jSchema = buildSchema({ type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 8 })
+      const zSchema = fromJsonSchema(jSchema)
+      const expected = z.array(z.string()).min(4).max(8)
+      assert(zSchema).toEqual(expected)
+    })
+
+    test('should map ArraySchema with exact size to ZodArray', () => {
+      const jSchema = buildSchema({ type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 4 })
+      const zSchema = fromJsonSchema(jSchema)
+      const expected = z.array(z.string()).length(4)
+      assert(zSchema).toEqual(expected)
+    })
   })
 
   test('should map ObjectSchema to ZodObject', () => {
@@ -175,11 +198,33 @@ describe.concurrent('zuifromJsonSchemaNext', () => {
     assert(zSchema).toEqual(expected)
   })
 
-  test('should map SetSchema to ZodSet', () => {
-    const jSchema = buildSchema({ type: 'array', items: { type: 'string' }, uniqueItems: true })
-    const zSchema = fromJsonSchema(jSchema)
-    const expected = z.set(z.string())
-    assert(zSchema).toEqual(expected)
+  describe.concurrent('SetSchema', () => {
+    test('should map SetSchema to ZodSet', () => {
+      const jSchema = buildSchema({ type: 'array', items: { type: 'string' }, uniqueItems: true })
+      const zSchema = fromJsonSchema(jSchema)
+      const expected = z.set(z.string())
+      assert(zSchema).toEqual(expected)
+    })
+
+    test('should map SetSchema with min to ZodSet', () => {
+      const jSchema = buildSchema({ type: 'array', items: { type: 'string' }, uniqueItems: true, minItems: 4 })
+      const zSchema = fromJsonSchema(jSchema)
+      const expected = z.set(z.string()).min(4)
+      assert(zSchema).toEqual(expected)
+    })
+
+    test('should map SetSchema with min and max to ZodSet', () => {
+      const jSchema = buildSchema({
+        type: 'array',
+        items: { type: 'string' },
+        uniqueItems: true,
+        minItems: 4,
+        maxItems: 8,
+      })
+      const zSchema = fromJsonSchema(jSchema)
+      const expected = z.set(z.string()).min(4).max(8)
+      assert(zSchema).toEqual(expected)
+    })
   })
 
   test('should map LiteralStringSchema to ZodLiteral', () => {

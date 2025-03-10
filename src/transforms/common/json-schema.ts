@@ -61,17 +61,21 @@ type _NumberSchema = util.Satisfies<
   },
   JSONSchema7
 >
-type _BigIntSchema = util.Satisfies<{ type: 'integer' }, JSONSchema7> // TODO: support all bigint checks
 type _BooleanSchema = util.Satisfies<{ type: 'boolean' }, JSONSchema7>
-type _DateSchema = util.Satisfies<{ type: 'string'; format: 'date-time' }, JSONSchema7> // TODO: support all date checks
 type _NullSchema = util.Satisfies<{ type: 'null' }, JSONSchema7>
 type _UndefinedSchema = util.Satisfies<{ not: true }, JSONSchema7>
 type _NeverSchema = util.Satisfies<{ not: true }, JSONSchema7>
-type _ArraySchema = util.Satisfies<{ type: 'array'; items?: ZuiJsonSchema }, JSONSchema7> // TODO: support all array checks
+type _ArraySchema = util.Satisfies<
+  { type: 'array'; items: ZuiJsonSchema; minItems?: number; maxItems?: number },
+  JSONSchema7
+>
 type _UnionSchema = util.Satisfies<{ anyOf: ZuiJsonSchema[] }, JSONSchema7>
 type _DiscriminatedUnionSchema = util.Satisfies<{ anyOf: ZuiJsonSchema[] }, JSONSchema7>
 type _IntersectionSchema = util.Satisfies<{ allOf: ZuiJsonSchema[] }, JSONSchema7>
-type _SetSchema = util.Satisfies<{ type: 'array'; items: ZuiJsonSchema; uniqueItems: true }, JSONSchema7> // TODO: support all set checks
+type _SetSchema = util.Satisfies<
+  { type: 'array'; items: ZuiJsonSchema; uniqueItems: true; minItems?: number; maxItems?: number },
+  JSONSchema7
+>
 type _EnumSchema = util.Satisfies<{ type: 'string'; enum: string[] }, JSONSchema7>
 type _RefSchema = util.Satisfies<{ $ref: string }, JSONSchema7>
 type _ObjectSchema = util.Satisfies<

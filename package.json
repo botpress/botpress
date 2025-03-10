@@ -1,6 +1,6 @@
 {
   "name": "@bpinternal/zui",
-  "version": "0.19.1",
+  "version": "0.20.0",
   "description": "A fork of Zod with additional features",
   "type": "module",
   "source": "./src/index.ts",

@@ -4,6 +4,9 @@ import * as json from '../common/json-schema'
 import * as err from '../common/errors'
 import { zodNumberToJsonNumber } from './type-processors/number'
 import { zodStringToJsonString } from './type-processors/string'
+import { zodArrayToJsonArray } from './type-processors/array'
+import { zodSetToJsonSet } from './type-processors/set'
+import { zodTupleToJsonTuple } from './type-processors/tuple'
 
 /**
  * # \#\#\# Experimental \#\#\#
@@ -63,11 +66,7 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
       throw new err.UnsupportedZuiToJsonSchemaError(z.ZodFirstPartyTypeKind.ZodVoid)
 
     case z.ZodFirstPartyTypeKind.ZodArray:
-      return {
-        type: 'array',
-        items: toJsonSchema(def.type),
-        'x-zui': def['x-zui'],
-      } satisfies json.ArraySchema
+      return zodArrayToJsonArray(schemaTyped as z.ZodArray, toJsonSchema) satisfies json.ArraySchema
 
     case z.ZodFirstPartyTypeKind.ZodObject:
       const shape = Object.entries(def.shape())
@@ -107,12 +106,7 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
       } satisfies json.IntersectionSchema
 
     case z.ZodFirstPartyTypeKind.ZodTuple:
-      return {
-        type: 'array',
-        items: def.items.map((item) => toJsonSchema(item)),
-        additionalItems: def.rest ? toJsonSchema(def.rest) : undefined,
-        'x-zui': def['x-zui'],
-      } satisfies json.TupleSchema
+      return zodTupleToJsonTuple(schemaTyped as z.ZodTuple, toJsonSchema) satisfies json.TupleSchema
 
     case z.ZodFirstPartyTypeKind.ZodRecord:
       return {
@@ -125,12 +119,7 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
       throw new err.UnsupportedZuiToJsonSchemaError(z.ZodFirstPartyTypeKind.ZodMap)
 
     case z.ZodFirstPartyTypeKind.ZodSet:
-      return {
-        type: 'array',
-        items: toJsonSchema(def.valueType),
-        uniqueItems: true,
-        'x-zui': def['x-zui'],
-      } satisfies json.SetSchema
+      return zodSetToJsonSet(schemaTyped as z.ZodSet, toJsonSchema) satisfies json.SetSchema
 
     case z.ZodFirstPartyTypeKind.ZodFunction:
       throw new err.UnsupportedZuiToJsonSchemaError(z.ZodFirstPartyTypeKind.ZodFunction)
