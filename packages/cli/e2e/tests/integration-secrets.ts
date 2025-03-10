@@ -60,7 +60,7 @@ export const requiredSecrets: Test = {
     })
 
     await impl
-      .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })
+      .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration', template: 'empty' })
       .then(utils.handleExitCode)
 
     const originalDefinition: string = fs.readFileSync(definitionPath, 'utf-8')
