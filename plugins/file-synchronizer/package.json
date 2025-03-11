@@ -1,0 +1,20 @@
+{
+  "name": "@botpresshub/file-synchronizer-plugin",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpresshub/hitl": "workspace:*",
+    "@types/lodash": "^4.14.191"
+  },
+  "bpDependencies": {
+    "files-readonly": "../../interfaces/files-readonly"
+  }
+}

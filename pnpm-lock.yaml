@@ -1585,6 +1585,16 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  interfaces/files-readonly:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   interfaces/hitl:
     dependencies:
       '@botpress/sdk':
@@ -2156,7 +2166,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: ^0.1.6
+        specifier: 0.1.6
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -2220,6 +2230,25 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
+
+  plugins/file-synchronizer:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpresshub/hitl':
+        specifier: workspace:*
+        version: link:../../interfaces/hitl
+      '@types/lodash':
+        specifier: ^4.14.191
+        version: 4.14.195
 
   plugins/hitl:
     dependencies:
