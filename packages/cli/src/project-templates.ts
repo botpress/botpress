@@ -1,4 +1,4 @@
-import { CLI_ROOT_DIR } from './root'
+import * as consts from './consts'
 import * as utils from './utils'
 
 export namespace ProjectTemplates {
@@ -11,7 +11,7 @@ export namespace ProjectTemplates {
   export type TemplateArray = Readonly<[Template, ...Template[]]>
   export type ProjectType = 'bot' | 'plugin' | 'integration'
 
-  const _dirNameToAbsPath = (directoryName: string) => utils.path.join(CLI_ROOT_DIR, 'templates', directoryName)
+  const _dirNameToAbsPath = (directoryName: string) => utils.path.join(consts.cliRootDir, 'templates', directoryName)
 
   export const templates = {
     bot: [
