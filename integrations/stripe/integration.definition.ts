@@ -29,6 +29,8 @@ import {
   subscriptionDeletedSchema,
   subscriptionUpdatedSchema,
   subscriptionCreatedSchema,
+  subscriptionScheduleCreatedSchema,
+  subscriptionScheduleUpdatedSchema,
 } from './src/misc/custom-schemas'
 
 export default new IntegrationDefinition({
@@ -77,6 +79,16 @@ export default new IntegrationDefinition({
       schema: paymentIntentFailedSchema,
       title: 'Payment Intent Failed',
       description: 'This event occurs when a payment intent fails in Stripe.',
+    },
+    subscriptionScheduleCreated: {
+      schema: subscriptionScheduleCreatedSchema,
+      title: 'Subscription Schedule Created',
+      description: 'This event occurs when a subscription schedule is created in Stripe.',
+    },
+    subscriptionScheduleUpdated: {
+      schema: subscriptionScheduleUpdatedSchema,
+      title: 'Subscription Schedule Updated',
+      description: 'This event occurs when a subscription schedule is updated in Stripe.',
     },
   },
   user: {
