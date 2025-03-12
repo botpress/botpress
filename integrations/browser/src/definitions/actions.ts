@@ -20,7 +20,12 @@ const captureScreenshot = {
 const fullPage = z.object({
   url: z.string(),
   content: z.string(),
+  favicon: z.string().optional(),
+  title: z.string().optional(),
+  description: z.string().optional(),
 })
+
+export type FullPage = z.infer<typeof fullPage>
 
 const browsePages = {
   title: 'Browse Pages',

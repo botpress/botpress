@@ -1,12 +1,17 @@
+import { IntegrationLogger } from '@botpress/sdk'
 import axios from 'axios'
+import { FullPage } from 'src/definitions/actions'
 import * as bp from '.botpress'
 
 type FireCrawlResponse = {
   success: boolean
   data: {
-    content: string
+    markdown: string
     metadata: {
       ogLocaleAlternate: string[]
+      favicon?: string
+      title?: string
+      description?: string
       sourceURL: string
       pageStatusCode: number
     }
@@ -18,18 +23,16 @@ const COST_PER_PAGE = 0.0015
 
 const getPageContent = async (props: {
   url: string
-  logger: any
+  logger: IntegrationLogger
   waitFor?: number
-}): Promise<{ content: string; url: string }> => {
+}): Promise<FullPage> => {
   const startTime = Date.now()
-  const { data } = await axios.post<FireCrawlResponse>(
-    'https://api.firecrawl.dev/v0/scrape',
+  const { data: result } = await axios.post<FireCrawlResponse>(
+    'https://api.firecrawl.dev/v1/scrape',
     {
       url: props.url,
-      pageOptions: {
-        onlyMainContent: true,
-        waitFor: props.waitFor,
-      },
+      onlyMainContent: true,
+      waitFor: props.waitFor,
     },
     {
       headers: {
@@ -40,7 +43,15 @@ const getPageContent = async (props: {
 
   props.logger.forBot().info(`Browsing ${props.url} took ${Date.now() - startTime}ms`)
 
-  return { content: data.data.content, url: props.url }
+  const { metadata, markdown } = result.data
+
+  return {
+    url: props.url,
+    content: markdown,
+    favicon: metadata.favicon,
+    title: metadata.title,
+    description: metadata.description,
+  }
 }
 
 export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async ({ input, logger, metadata }) => {
