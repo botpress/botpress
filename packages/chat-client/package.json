@@ -40,7 +40,7 @@
     "esbuild": "^0.16.12",
     "esbuild-plugin-polyfill-node": "^0.3.0",
     "lodash": "^4.17.21",
-    "uuid": "^9.0.0"
+    "uuid": "^11.1.0"
   },
   "engines": {
     "node": ">=18.0.0"
