@@ -8,12 +8,14 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "picomatch": "^1.0.1"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpresshub/hitl": "workspace:*",
-    "@types/lodash": "^4.14.191"
+    "@types/lodash": "^4.14.191",
+    "@types/picomatch": "^3.0.2"
   },
   "bpDependencies": {
     "files-readonly": "../../interfaces/files-readonly"

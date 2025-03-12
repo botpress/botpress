@@ -39,7 +39,6 @@ export default new sdk.PluginDefinition({
           sdk.z.object({
             pathGlobPattern: sdk.z
               .string()
-              .optional()
               .describe(
                 'A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported.'
               ),
@@ -67,7 +66,6 @@ export default new sdk.PluginDefinition({
         sdk.z.object({
           pathGlobPattern: sdk.z
             .string()
-            .optional()
             .describe(
               'A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration.'
             ),

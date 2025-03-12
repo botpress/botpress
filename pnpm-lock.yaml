@@ -2166,7 +2166,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: ^0.1.6
+        specifier: 0.1.6
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -2239,6 +2239,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      picomatch:
+        specifier: ^1.0.1
+        version: 1.2.0
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
@@ -2252,6 +2255,9 @@ importers:
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
+      '@types/picomatch':
+        specifier: ^3.0.2
+        version: 3.0.2
 
   plugins/hitl:
     dependencies:
@@ -7603,6 +7609,10 @@ packages:
     resolution: {integrity: sha512-oVsJSCkqViCn8/pEu2hfjwVO+Gb3e+eTWjg3PcjeFKRItfKpKwHphQqbYmPQrlMk+op7pNNWPbsJIEthpFN/OQ==}
     dependencies:
       '@types/node': 18.19.67
+    dev: true
+
+  /@types/picomatch@3.0.2:
+    resolution: {integrity: sha512-n0i8TD3UDB7paoMMxA3Y65vUncFJXjcUf7lQY7YyKGl6031FNjfsLs6pdLFCy2GNFxItPJG8GvvpbZc2skH7WA==}
     dev: true
 
   /@types/prettier@2.7.3:
@@ -14031,6 +14041,11 @@ packages:
 
   /picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
+
+  /picomatch@1.2.0:
+    resolution: {integrity: sha512-cMSUWLsIT8VCmIPlM87m5OASGmDnYJR2fEUIpOnuArPQY5p7kWfJ47wZtIOYHT8GJHo9B/QRr4m5mbsIXxZkMg==}
+    engines: {node: '>=8'}
+    dev: false
 
   /picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
