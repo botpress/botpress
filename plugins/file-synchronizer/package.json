@@ -7,7 +7,8 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*"
+    "@botpress/sdk": "workspace:*",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

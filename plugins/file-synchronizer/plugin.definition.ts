@@ -30,9 +30,9 @@ export default new sdk.PluginDefinition({
         ),
       enableRealTimeSync: sdk.z
         .boolean()
-        .optional()
+        .default(true)
         .describe(
-          'Enable real-time synchronization. Whever a file is created, updated, or deleted, synchronize it to the Files API immediately. This does not work with every integration.'
+          'Enable real-time synchronization. Whever a file is created, updated, or deleted, synchronize it to Botpress immediately. This does not work with every integration.'
         ),
       includeFiles: sdk.z
         .array(
@@ -41,7 +41,7 @@ export default new sdk.PluginDefinition({
               .string()
               .optional()
               .describe(
-                'A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by micromatch is supported.'
+                'A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported.'
               ),
             fileType: sdk.z
               .enum(['document', 'image', 'audio', 'video'])
@@ -75,10 +75,53 @@ export default new sdk.PluginDefinition({
       ),
     }),
   },
-  actions: {},
-  states: {},
+  actions: {
+    syncFilesToBotpess: {
+      title: 'Sync files to Botpress',
+      description: 'Start synchronization of all files from the external service to Botpress',
+      input: { schema: sdk.z.object({}) },
+      output: { schema: sdk.z.object({}) },
+    },
+  },
+  events: {
+    scheduledSync: {
+      schema: sdk.z.object({
+        syncId: sdk.z.string().uuid().describe('Unique ID of the sync operation'),
+        syncType: sdk.z.enum(['real-time', 'periodic', 'manual']).describe('The type of synchronization'),
+        syncInitiatedAt: sdk.z.string().datetime().describe('The date and time the synchronization was initiated'),
+        itemToSync: sdk.z
+          .union([
+            filesReadonly.definition.entities.file.schema.extend({
+              path: sdk.z.string().describe('The full path of the file. This is only used for glob pattern matching.'),
+            }),
+            filesReadonly.definition.entities.folder.schema.extend({
+              path: sdk.z
+                .string()
+                .describe('The full path of the folder. This is only used for glob pattern matching.'),
+            }),
+          ])
+          .optional()
+          .describe('If omitted, all files and folders will be synchronized'),
+        syncRecursively: sdk.z.boolean().describe('Whether to synchronize the folder recursively'),
+        nextToken: sdk.z.string().optional().describe('The token to get the next page of items'),
+      }),
+    },
+  },
+  states: {
+    fileSync: {
+      type: 'bot',
+      schema: sdk.z.object({
+        lock: sdk.z
+          .object({
+            syncId: sdk.z.string().uuid().describe('Unique ID of the sync operation'),
+            syncInitiatedAt: sdk.z.string().datetime(),
+            syncType: sdk.z.enum(['real-time', 'periodic', 'manual']),
+          })
+          .optional(),
+      }),
+    },
+  },
   interfaces: {
     'files-readonly': filesReadonly,
   },
-  events: {},
 })

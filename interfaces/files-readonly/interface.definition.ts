@@ -9,11 +9,7 @@ const BASE_ITEM = (itemType: 'file' | 'folder' | 'item' = 'item') =>
         `The ${itemType}'s ID. This could be a unique identifier from the external service, or a relative or absolute path.`
       ),
     type: z.union([z.literal('file'), z.literal('folder')]).describe('The entity type'),
-    name: z
-      .string()
-      .describe(
-        `The ${itemType}'s name. This will be displayed in the Botpress UI and be used as the ${itemType}'s name on Files API.`
-      ),
+    name: z.string().describe(`The ${itemType}'s name. This will be displayed in the Botpress UI.`),
     parentId: z
       .string()
       .optional()
@@ -78,16 +74,16 @@ export default new InterfaceDefinition({
       output: {
         schema: () =>
           z.object({
-            items: z.union([FILE, FOLDER]).describe('The files and folders in the folder'),
+            items: z.array(z.union([FILE, FOLDER])).describe('The files and folders in the folder'),
             meta: z.object({
               nextToken: NEXT_TOKEN,
             }),
           }),
       },
     },
-    transferFileToFilesApi: {
-      title: 'Transfer file to Files API',
-      description: 'Transfer a file from an external service to Botpress Files API',
+    transferFileToBotpress: {
+      title: 'Transfer file to Botpress',
+      description: 'Transfer a file from an external service to Botpress',
       input: {
         schema: () =>
           z.object({
@@ -98,7 +94,7 @@ export default new InterfaceDefinition({
         schema: () =>
           z.object({
             file: FILE.describe('The transfered file'),
-            filesApiFileId: z.string().describe('The file ID of the uploaded file in the Files API'),
+            botpressFileId: z.string().describe('The file ID of the uploaded file on Botpress'),
           }),
       },
     },
@@ -107,25 +103,33 @@ export default new InterfaceDefinition({
     fileCreated: {
       schema: () =>
         z.object({
-          file: FILE.describe('The created file'),
+          file: FILE.extend({
+            path: z.string().describe('The full path of the file'),
+          }).describe('The created file'),
         }),
     },
     fileUpdated: {
       schema: () =>
         z.object({
-          file: FILE.describe('The updated file'),
+          file: FILE.extend({
+            path: z.string().describe('The full path of the file'),
+          }).describe('The updated file'),
         }),
     },
     fileDeleted: {
       schema: () =>
         z.object({
-          file: FILE.describe('The deleted file'),
+          file: FILE.extend({
+            path: z.string().describe('The full path of the file'),
+          }).describe('The deleted file'),
         }),
     },
     folderDeletedRecursive: {
       schema: () =>
         z.object({
-          folder: FOLDER.describe('The deleted folder'),
+          folder: FOLDER.extend({
+            path: z.string().describe('The full path of the folder'),
+          }).describe('The deleted folder'),
         }),
     },
   },

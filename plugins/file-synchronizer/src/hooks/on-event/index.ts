@@ -1,1 +1,1 @@
-export * as humanAgentAssignedTimeout from './human-agent-assigned-timeout'
+export * as scheduledSync from './scheduled-sync'

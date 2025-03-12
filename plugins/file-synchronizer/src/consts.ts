@@ -1,0 +1,2 @@
+export const SYNC_REQUEUE_DELAY_MS = 2_000
+export const SYNC_IMMEDIATE_DELAY_MS = 1
