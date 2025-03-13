@@ -6,6 +6,8 @@ import * as utils from '../utils'
 import { ValueOf, Writable, Merge } from '../utils/type-utils'
 import z, { ZuiObjectSchema } from '../zui'
 
+const PLUGIN_PREFIX_SEPARATOR = '#'
+
 type BaseConfig = ZuiObjectSchema
 type BaseStates = Record<string, ZuiObjectSchema>
 type BaseEvents = Record<string, ZuiObjectSchema>
@@ -173,7 +175,8 @@ export class BotDefinition<
 
     // TODO: ensure that plugin alias does not conflict an interface or integration
 
-    self.plugins[pluginPkg.name] = {
+    const key = config.alias ?? pluginPkg.name
+    self.plugins[key] = {
       ...pluginPkg,
       alias: config.alias,
       configuration: config.configuration,
@@ -283,6 +286,6 @@ export class BotDefinition<
     if (!obj || !alias) {
       return obj
     }
-    return utils.records.mapKeys(obj, (key) => `${alias}:${key}`) as T
+    return utils.records.mapKeys(obj, (key) => `${alias}${PLUGIN_PREFIX_SEPARATOR}${key}`) as T
   }
 }

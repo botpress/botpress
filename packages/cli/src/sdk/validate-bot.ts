@@ -4,6 +4,8 @@ import * as utils from '../utils'
 
 type PackageRef = { name: string; version: string }
 
+const PLUGIN_PREFIX_SEP = '#'
+
 export const validateBotDefinition = (b: sdk.BotDefinition): void => {
   const { actions, events, states } = b
 
@@ -52,8 +54,19 @@ export const validateBotDefinition = (b: sdk.BotDefinition): void => {
   }
 }
 
+const rmPrefix = (name: string) => {
+  const sepIdx = name.indexOf(PLUGIN_PREFIX_SEP)
+  if (sepIdx === -1) {
+    return name
+  }
+  const nameWithoutPrefix = name.slice(sepIdx + 1)
+  return nameWithoutPrefix
+}
+
 const _nonCamelCaseKeys = (obj: Record<string, any>): string[] =>
-  Object.keys(obj).filter((k) => !utils.casing.is.camelCase(k))
+  Object.keys(obj)
+    .map(rmPrefix)
+    .filter((k) => !utils.casing.is.camelCase(k))
 
 const _hasIntegrationDependency = (b: sdk.BotDefinition, dep: PackageRef): boolean => {
   const integrationInstances = Object.entries(b.integrations ?? {}).map(([_k, v]) => v)

@@ -62,7 +62,7 @@ export class BotPluginModule extends Module {
   private _bundleDtsModule: BundleDtsModule
   private _configModule: PluginConfigModule
 
-  public readonly pluginName: string
+  public readonly pluginKey: string
 
   public constructor(plugin: PluginInstance) {
     super({
@@ -70,7 +70,7 @@ export class BotPluginModule extends Module {
       path: consts.INDEX_FILE,
     })
 
-    this.pluginName = plugin.name
+    this.pluginKey = plugin.alias ?? plugin.name
 
     this._typingsModule = new PluginTypingsModule(plugin.definition)
     this._typingsModule.unshift('typings')

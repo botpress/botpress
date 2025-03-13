@@ -1,7 +1,7 @@
 import { Client } from '@botpress/client'
 import * as bp from '.botpress'
 
-const { tableName } = bp.synchronizer.configuration
+const { tableName } = bp.linearSync.configuration
 
 const getBlankClient = (props: bp.EventHandlerProps | bp.MessageHandlerProps): Client =>
   (props.client as any)._client as Client
@@ -31,7 +31,7 @@ const commands: Record<string, Command> = {
   '/sync': {
     description: 'Sync issues',
     handler: async (props: bp.MessageHandlerProps) => {
-      await bot.actionHandlers.synchronize({ ...props, input: {} })
+      await bot.actionHandlers['linearSync#clear']({ ...props, input: {} })
       await reply(props, 'Issues synced')
     },
   },
@@ -39,7 +39,7 @@ const commands: Record<string, Command> = {
     description: 'List issues',
     handler: async (props: bp.MessageHandlerProps) => {
       const tableState = await props.client
-        .getOrSetState({ type: 'bot', id: props.ctx.botId, name: 'table', payload: { tableCreated: false } })
+        .getOrSetState({ type: 'bot', id: props.ctx.botId, name: 'linearSync#table', payload: { tableCreated: false } })
         .then((r) => r.state.payload)
 
       if (!tableState.tableCreated) {
@@ -68,7 +68,7 @@ const commands: Record<string, Command> = {
   '/clear': {
     description: 'Clear issues',
     handler: async (props: bp.MessageHandlerProps) => {
-      await bot.actionHandlers.clear({ ...props, input: {} })
+      await bot.actionHandlers['linearSync#clear']({ ...props, input: {} })
       await reply(props, 'Table cleared')
     },
   },
