@@ -35,6 +35,36 @@ export default new IntegrationDefinition({
     },
   },
   actions: {
+    /**
+     * @deprecated. Will be removed in the next version.
+     */
+    getDb: {
+      input: { schema: z.object({ databaseId: z.string().min(1) }) },
+      output: {
+        schema: z.object({
+          object: z.string(),
+          properties: z.record(z.string(), z.object({}).passthrough()),
+          /**
+           * Refer to [getDbStructure](./src/notion/notion.ts) for more details
+           */
+          structure: z.string(),
+        }),
+      },
+    },
+    /**
+     * @deprecated. Will be removed in the next version.
+     */
+    addPageToDb: {
+      input: {
+        schema: z.object({
+          databaseId: z.string().min(1),
+          pageProperties: z.record(z.string(), z.object({}).passthrough()),
+        }),
+      },
+      output: {
+        schema: z.object({}).passthrough(),
+      },
+    },
     addCommentToPage: {
       input: {
         schema: z.object({
@@ -43,7 +73,13 @@ export default new IntegrationDefinition({
         }),
       },
       output: {
-        schema: z.object({}),
+        schema: z.object({}).passthrough(),
+      },
+    },
+    deleteBlock: {
+      input: { schema: z.object({ blockId: z.string().min(1) }), ui: { blockId: {} } },
+      output: {
+        schema: z.object({}).passthrough(),
       },
     },
     addCommentToDiscussion: {

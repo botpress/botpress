@@ -18,6 +18,34 @@ export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
+    getDb: async ({ input, ctx, client, logger }) => {
+      const auth = await getOAuthToken({ ctx, client })
+      const notion = new NotionClient({
+        auth,
+      })
+      const response = await notion.databases.retrieve({
+        database_id: input.databaseId,
+      })
+
+      logger.forBot().warn(getDeprecatedWarning('getDb'))
+      return {
+        ...response,
+        structure: '!Deprecation Warning! - Property deprecated. Will be removed in the next version.',
+      }
+    },
+    addPageToDb: async ({ logger }) => {
+      logger.forBot().warn(getDeprecatedWarning('addPageToDb'))
+      return {}
+    },
+    deleteBlock: async ({ client, ctx, input }) => {
+      const auth = await getOAuthToken({ ctx, client })
+      const notion = new NotionClient({
+        auth,
+      })
+      return notion.blocks.delete({
+        block_id: input.blockId,
+      })
+    },
     addCommentToDiscussion: async ({ client, ctx, input }) => {
       const auth = await getOAuthToken({ ctx, client })
       const notion = new NotionClient({
@@ -121,3 +149,7 @@ export default new bp.Integration({
     return
   },
 })
+
+function getDeprecatedWarning(title: string): string {
+  return `!Deprecation Warning! - The action ${title} is deprecated. Will be removed in the next major version.`
+}
