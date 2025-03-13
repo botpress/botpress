@@ -267,3 +267,21 @@ export const paymentIntentFailedSchema = baseSchema.extend({
     })
     .describe('The data to send with the event'),
 })
+
+export const subscriptionScheduleCreatedSchema = baseSchema.extend({
+  data: z
+    .object({
+      type: z.string().default('subscription_schedule.created'),
+      object: z.object({}).passthrough().describe('The object of the created subscription schedule'),
+    })
+    .describe('The data to send with the event'),
+})
+
+export const subscriptionScheduleUpdatedSchema = baseSchema.extend({
+  data: z
+    .object({
+      type: z.string().default('subscription_schedule.updated'),
+      object: z.object({}).passthrough().describe('The object of the updated subscription schedule'),
+    })
+    .describe('The data to send with the event'),
+})
