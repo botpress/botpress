@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto'
+import { ForbiddenError } from '../../../packages/client/dist'
 import { NotionClient } from './notion'
 import * as bp from '.botpress'
 
@@ -10,10 +11,8 @@ export const getOAuthToken = async ({ client, ctx }: { client: bp.Client; ctx: b
   })
 
   if (!state?.payload?.access_token) {
-    throw new Error('Not connected to Notion')
+    throw new ForbiddenError('Not connected to Notion')
   }
-
-  return state.payload.access_token
 }
 
 export const handleOAuthCallback: bp.IntegrationProps['handler'] = async ({ req, client, ctx }) => {
