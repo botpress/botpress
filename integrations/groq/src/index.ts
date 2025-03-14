@@ -137,20 +137,6 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
       maxTokens: 8192,
     },
   },
-  'mixtral-8x7b-32768': {
-    name: 'Mixtral 8x7B',
-    tags: ['low-cost', 'general-purpose', 'deprecated'],
-    description:
-      'Mistral MoE 8x7B Instruct v0.1 model with Sparse Mixture of Experts. Fine tuned for instruction following',
-    input: {
-      costPer1MTokens: 0.24,
-      maxTokens: 32768,
-    },
-    output: {
-      costPer1MTokens: 0.24,
-      maxTokens: 32768,
-    },
-  },
   'gemma2-9b-it': {
     name: 'Gemma2 9B',
     description:
@@ -193,7 +179,7 @@ export default new bp.Integration({
       const output = await llm.openai.generateContent<ModelId>(<llm.GenerateContentInput>input, groqClient, logger, {
         provider,
         models: languageModels,
-        defaultModel: 'mixtral-8x7b-32768',
+        defaultModel: 'llama-3.3-70b-versatile',
         overrideResponse: (response) => {
           if (input.model?.id === 'deepseek-r1-distill-llama-70b') {
             for (const choice of response.choices) {
