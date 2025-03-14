@@ -68,6 +68,14 @@ export class BotSpecificClient<TBot extends common.BaseBot> implements types.Cli
     this._run('updateTableRows', x)) as types.UpdateTableRows<TBot>
   public upsertTableRows: types.UpsertTableRows<TBot> = ((x) =>
     this._run('upsertTableRows', x)) as types.UpsertTableRows<TBot>
+  public createWorkflow: types.CreateWorkflow<TBot> = ((x) =>
+    this._run('createWorkflow', x)) as types.CreateWorkflow<TBot>
+  public getWorkflow: types.GetWorkflow<TBot> = ((x) => this._run('getWorkflow', x)) as types.GetWorkflow<TBot>
+  public updateWorkflow: types.UpdateWorkflow<TBot> = ((x) =>
+    this._run('updateWorkflow', x)) as types.UpdateWorkflow<TBot>
+  public deleteWorkflow: types.DeleteWorkflow<TBot> = ((x) =>
+    this._run('deleteWorkflow', x)) as types.DeleteWorkflow<TBot>
+  public listWorkflows: types.ListWorkflows<TBot> = ((x) => this._run('listWorkflows', x)) as types.ListWorkflows<TBot>
 
   /**
    * @deprecated Use `callAction` to delegate the conversation creation to an integration.

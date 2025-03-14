@@ -179,6 +179,48 @@ export type GetFile<_TBot extends common.BaseBot> = client.Client['getFile']
 export type UpdateFileMetadata<_TBot extends common.BaseBot> = client.Client['updateFileMetadata']
 export type SearchFiles<_TBot extends common.BaseBot> = client.Client['searchFiles']
 
+export type CreateWorkflow<TBot extends common.BaseBot> = <WorkflowName extends keyof common.EnumerateWorkflows<TBot>>(
+  x: utils.Merge<
+    Arg<client.Client['createWorkflow']>,
+    {
+      name: utils.Cast<WorkflowName, string>
+      input: utils.Cast<
+        common.EnumerateWorkflows<TBot>[WorkflowName],
+        common.IntegrationInstanceActionDefinition
+      >['input']
+      tags?: utils.AtLeastOneProperty<common.EnumerateWorkflows<TBot>[WorkflowName]['tags']>
+    }
+  >
+) => Promise<
+  Readonly<{
+    workflow: utils.Merge<
+      Awaited<Res<client.Client['createWorkflow']>>['workflow'],
+      {
+        name: NoInfer<WorkflowName>
+      }
+    >
+  }>
+>
+
+// FIXME: there's no way to infer types for getWorkflow, since all we have is its id
+export type GetWorkflow<_TBot extends common.BaseBot> = client.Client['getWorkflow']
+
+// FIXME: there's no way to infer types for updateWorkflow, since all we have is its id
+export type UpdateWorkflow<_TBot extends common.BaseBot> = client.Client['updateWorkflow']
+
+// FIXME: there's no way to infer types for deleteWorkflow, since all we have is its id
+export type DeleteWorkflow<_TBot extends common.BaseBot> = client.Client['deleteWorkflow']
+
+export type ListWorkflows<TBot extends common.BaseBot> = <WorkflowName extends keyof common.EnumerateWorkflows<TBot>>(
+  x: utils.Merge<
+    Arg<client.Client['listWorkflows']>,
+    {
+      name?: utils.Cast<WorkflowName, string>
+      tags?: utils.AtLeastOneProperty<common.EnumerateWorkflows<TBot>[WorkflowName]['tags']>
+    }
+  >
+) => Promise<Readonly<Awaited<Res<client.Client['listWorkflows']>>>>
+
 export type GetTableRow<TBot extends common.BaseBot> = <
   TableName extends keyof common.EnumerateTables<TBot>,
   Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>>,
