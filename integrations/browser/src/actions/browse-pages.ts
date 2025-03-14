@@ -10,8 +10,8 @@ type FireCrawlResponse = {
     metadata: {
       ogLocaleAlternate: string[]
       favicon?: string
-      title?: string
-      description?: string
+      title?: string | string[] | null
+      description?: string | string[] | null
       sourceURL: string
       pageStatusCode: number
     }
@@ -20,6 +20,15 @@ type FireCrawlResponse = {
 }
 
 const COST_PER_PAGE = 0.0015
+
+const fixOutput = (val: unknown): string => {
+  if (typeof val === 'string') {
+    return val
+  } else if (Array.isArray(val)) {
+    return val.join(' ')
+  }
+  return ''
+}
 
 const getPageContent = async (props: {
   url: string
@@ -48,9 +57,9 @@ const getPageContent = async (props: {
   return {
     url: props.url,
     content: markdown,
-    favicon: metadata.favicon,
-    title: metadata.title,
-    description: metadata.description,
+    favicon: fixOutput(metadata.favicon),
+    title: fixOutput(metadata.title),
+    description: fixOutput(metadata.description),
   }
 }
 
