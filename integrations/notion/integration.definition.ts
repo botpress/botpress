@@ -7,7 +7,7 @@ export default new IntegrationDefinition({
   name: 'notion',
   description: 'Import files from Notion to Botpress',
   title: 'Notion',
-  version: '1.0.0',
+  version: '2.0.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
