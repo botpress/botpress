@@ -13,6 +13,7 @@ type BaseStates = Record<string, ZuiObjectSchema>
 type BaseEvents = Record<string, ZuiObjectSchema>
 type BaseActions = Record<string, ZuiObjectSchema>
 type BaseTables = Record<string, ZuiObjectSchema>
+type BaseWorkflows = Record<string, ZuiObjectSchema>
 
 export type TagDefinition = {
   title?: string
@@ -57,6 +58,14 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
 }
 
+export type WorkflowDefinition<TWorkflow extends BaseWorkflows[string] = BaseWorkflows[string]> = {
+  title?: string
+  description?: string
+  input: SchemaDefinition<TWorkflow>
+  output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
+  tags?: Record<string, TagDefinition>
+}
+
 export type TableDefinition<TTable extends BaseTables[string] = BaseTables[string]> = Merge<
   Omit<Table, 'id' | 'createdAt' | 'updatedAt' | 'name'>,
   {
@@ -95,6 +104,7 @@ export type BotDefinitionProps<
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
   TTables extends BaseTables = BaseTables,
+  TWorkflows extends BaseWorkflows = BaseWorkflows,
 > = {
   integrations?: {
     [K: string]: IntegrationInstance
@@ -119,6 +129,9 @@ export type BotDefinitionProps<
   tables?: {
     [K in keyof TTables]: TableDefinition<TTables[K]>
   }
+  workflows?: {
+    [K in keyof TWorkflows]: WorkflowDefinition<TWorkflows[K]>
+  }
 }
 
 export class BotDefinition<
@@ -126,6 +139,7 @@ export class BotDefinition<
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
   TTables extends BaseTables = BaseTables,
+  TWorkflows extends BaseWorkflows = BaseWorkflows,
 > {
   public readonly integrations: this['props']['integrations']
   public readonly plugins: this['props']['plugins']
@@ -138,7 +152,8 @@ export class BotDefinition<
   public readonly recurringEvents: this['props']['recurringEvents']
   public readonly actions: this['props']['actions']
   public readonly tables: this['props']['tables']
-  public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables>) {
+  public readonly workflows: this['props']['workflows']
+  public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables, TWorkflows>) {
     this.integrations = props.integrations
     this.plugins = props.plugins
     this.user = props.user
@@ -150,6 +165,7 @@ export class BotDefinition<
     this.recurringEvents = props.recurringEvents
     this.actions = props.actions
     this.tables = props.tables
+    this.workflows = props.workflows
   }
 
   public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
@@ -186,6 +202,7 @@ export class BotDefinition<
     self.message = this._mergeMessage(self.message, pluginPkg.definition.message)
     self.recurringEvents = this._mergeRecurringEvents(self.recurringEvents, pluginPkg.definition.recurringEvents)
     self.tables = this._mergeTables(self.tables, pluginPkg.definition.tables)
+    self.workflows = this._mergeWorkflows(self.workflows, pluginPkg.definition.workflows)
 
     self.states = this._mergeStates(self.states, this._prefixKeys(pluginPkg.definition.states, config.alias))
     self.events = this._mergeEvents(self.events, this._prefixKeys(pluginPkg.definition.events, config.alias))
@@ -277,6 +294,16 @@ export class BotDefinition<
     return {
       ...tables1,
       ...tables2,
+    }
+  }
+
+  private _mergeWorkflows = (
+    workflows1: BotDefinitionProps['workflows'],
+    workflows2: BotDefinitionProps['workflows']
+  ): BotDefinitionProps['workflows'] => {
+    return {
+      ...workflows1,
+      ...workflows2,
     }
   }
 

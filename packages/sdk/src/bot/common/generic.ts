@@ -12,12 +12,21 @@ export type BaseTable = {
   [k: string]: any
 }
 
+export type BaseWorkflow = {
+  input: any
+  output: any
+  tags?: {
+    [k: string]: any
+  }
+}
+
 export type BaseBot = {
   integrations: Record<string, BaseIntegration>
   events: Record<string, any>
   states: Record<string, any>
   actions: Record<string, BaseAction>
   tables: Record<string, BaseTable>
+  workflows: Record<string, BaseWorkflow>
 }
 
 export type InputBaseBot = utils.DeepPartial<BaseBot>
@@ -31,4 +40,5 @@ export type DefaultBot<B extends InputBaseBot> = {
         [K in keyof B['integrations']]: DefaultIntegration<utils.Cast<B['integrations'][K], InputBaseIntegration>>
       }
   tables: utils.Default<B['tables'], BaseBot['tables']>
+  workflows: utils.Default<B['workflows'], BaseBot['workflows']>
 }
