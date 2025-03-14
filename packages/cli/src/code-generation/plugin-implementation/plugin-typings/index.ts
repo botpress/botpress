@@ -58,14 +58,14 @@ const _isLocalPluginDefinition = (
 export class PluginTypingsModule extends Module {
   private _dependencies: PluginTypingsIndexDependencies
 
-  public constructor(plugin: sdk.PluginDefinition | sdk.PluginPackage['definition']) {
+  public constructor(private _plugin: sdk.PluginDefinition | sdk.PluginPackage['definition']) {
     super({
       exportName: 'TPlugin',
       path: consts.INDEX_FILE,
     })
 
-    const integrationsModule = _isLocalPluginDefinition(plugin)
-      ? new PluginIntegrationsModule(plugin)
+    const integrationsModule = _isLocalPluginDefinition(_plugin)
+      ? new PluginIntegrationsModule(_plugin)
       : new SingleFileModule({
           path: consts.INDEX_FILE,
           exportName: 'Integrations',
@@ -74,8 +74,8 @@ export class PluginTypingsModule extends Module {
     integrationsModule.unshift('integrations')
     this.pushDep(integrationsModule)
 
-    const interfacesModule = _isLocalPluginDefinition(plugin)
-      ? new PluginInterfacesModule(plugin)
+    const interfacesModule = _isLocalPluginDefinition(_plugin)
+      ? new PluginInterfacesModule(_plugin)
       : new SingleFileModule({
           path: consts.INDEX_FILE,
           exportName: 'Interfaces',
@@ -84,23 +84,23 @@ export class PluginTypingsModule extends Module {
     interfacesModule.unshift('interfaces')
     this.pushDep(interfacesModule)
 
-    const defaultConfigModule = new DefaultConfigurationModule(plugin.configuration)
+    const defaultConfigModule = new DefaultConfigurationModule(_plugin.configuration)
     defaultConfigModule.unshift('configuration')
     this.pushDep(defaultConfigModule)
 
-    const eventsModule = new EventsModule(plugin.events ?? {})
+    const eventsModule = new EventsModule(_plugin.events ?? {})
     eventsModule.unshift('events')
     this.pushDep(eventsModule)
 
-    const statesModule = new StatesModule(plugin.states ?? {})
+    const statesModule = new StatesModule(_plugin.states ?? {})
     statesModule.unshift('states')
     this.pushDep(statesModule)
 
-    const actionsModule = new ActionsModule(plugin.actions ?? {})
+    const actionsModule = new ActionsModule(_plugin.actions ?? {})
     actionsModule.unshift('actions')
     this.pushDep(actionsModule)
 
-    const tablesModule = new TablesModule(plugin.tables ?? {})
+    const tablesModule = new TablesModule(_plugin.tables ?? {})
     tablesModule.unshift('tables')
     this.pushDep(tablesModule)
 
@@ -153,6 +153,8 @@ export class PluginTypingsModule extends Module {
       `export * as ${tablesModule.name} from './${tablesImport}'`,
       '',
       'export type TPlugin = {',
+      `  name: "${this._plugin.name}"`,
+      `  version: "${this._plugin.version}"`,
       `  integrations: ${integrationsModule.name}.${integrationsModule.exportName}`,
       `  interfaces: ${interfacesModule.name}.${interfacesModule.exportName}`,
       `  configuration: ${defaultConfigModule.name}.${defaultConfigModule.exportName}`,

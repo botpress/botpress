@@ -16,7 +16,7 @@ export class BotPluginsIndexModule extends mod.Module {
     const pluginsModules: BotPluginModule[] = []
     for (const plugin of Object.values(sdkBotDefinition.plugins ?? {})) {
       const pluginModule = new BotPluginModule(plugin)
-      pluginModule.unshift(plugin.name)
+      pluginModule.unshift(pluginModule.pluginKey)
       this.pushDep(pluginModule)
       pluginsModules.push(pluginModule)
     }
@@ -38,11 +38,11 @@ export class BotPluginsIndexModule extends mod.Module {
       ...modules.map(({ importAlias, importFrom }) => `export * as ${importAlias} from "./${importFrom}";`),
       '',
       `export const ${this.exportName} = {`,
-      ...modules.map(({ module, importAlias }) => `  "${module.pluginName}": ${importAlias}.${module.exportName},`),
+      ...modules.map(({ module, importAlias }) => `  "${module.pluginKey}": ${importAlias}.${module.exportName},`),
       '}',
       '',
       'export type TPlugins = {',
-      ...modules.map(({ module, importAlias }) => `  "${module.pluginName}": ${importAlias}.TPlugin;`),
+      ...modules.map(({ module, importAlias }) => `  "${module.pluginKey}": ${importAlias}.TPlugin;`),
       '}',
     ].join('\n')
   }

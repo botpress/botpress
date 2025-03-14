@@ -258,12 +258,18 @@ export type BotHandlers<TBot extends common.BaseBot> = {
 
 // plugins
 
+type _GetPluginPrefix<TKey extends string, TPlugin extends plugin.BasePlugin> = TKey extends TPlugin['name']
+  ? ''
+  : `${TKey}#`
+
 type ImplementedActions<
   _TBot extends common.BaseBot,
   TPlugins extends Record<string, plugin.BasePlugin>,
 > = utils.UnionToIntersection<
   utils.ValueOf<{
-    [K in keyof TPlugins]: TPlugins[K]['actions']
+    [TPlugin in keyof TPlugins]: {
+      [TAction in keyof TPlugins[TPlugin]['actions'] as `${_GetPluginPrefix<utils.Cast<TPlugin, string>, TPlugins[TPlugin]>}${utils.Cast<TAction, string>}`]: TPlugins[TPlugin]['actions'][TAction]
+    }
   }>
 >
 

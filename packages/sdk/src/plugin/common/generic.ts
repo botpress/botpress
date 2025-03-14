@@ -119,6 +119,8 @@ export type BaseTable = {
 }
 
 export type BasePlugin = {
+  name: string
+  version: string
   configuration: any
   integrations: Record<string, BaseIntegration>
   interfaces: Record<string, BaseInterface>
@@ -130,6 +132,8 @@ export type BasePlugin = {
 
 export type InputBasePlugin = utils.DeepPartial<BasePlugin>
 export type DefaultPlugin<B extends utils.DeepPartial<BasePlugin>> = {
+  name: utils.Default<B['name'], BasePlugin['name']>
+  version: utils.Default<B['version'], BasePlugin['version']>
   configuration: utils.Default<B['configuration'], BasePlugin['configuration']>
   events: utils.Default<B['events'], BasePlugin['events']>
   states: utils.Default<B['states'], BasePlugin['states']>
