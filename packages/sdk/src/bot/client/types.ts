@@ -179,7 +179,9 @@ export type GetFile<_TBot extends common.BaseBot> = client.Client['getFile']
 export type UpdateFileMetadata<_TBot extends common.BaseBot> = client.Client['updateFileMetadata']
 export type SearchFiles<_TBot extends common.BaseBot> = client.Client['searchFiles']
 
-export type CreateWorkflow<TBot extends common.BaseBot> = <WorkflowName extends keyof common.EnumerateWorkflows<TBot>>(
+export type CreateWorkflow<TBot extends common.BaseBot> = <
+  WorkflowName extends Extract<keyof common.EnumerateWorkflows<TBot>, string>,
+>(
   x: utils.Merge<
     Arg<client.Client['createWorkflow']>,
     {
@@ -211,7 +213,9 @@ export type UpdateWorkflow<_TBot extends common.BaseBot> = client.Client['update
 // FIXME: there's no way to infer types for deleteWorkflow, since all we have is its id
 export type DeleteWorkflow<_TBot extends common.BaseBot> = client.Client['deleteWorkflow']
 
-export type ListWorkflows<TBot extends common.BaseBot> = <WorkflowName extends keyof common.EnumerateWorkflows<TBot>>(
+export type ListWorkflows<TBot extends common.BaseBot> = <
+  WorkflowName extends Extract<keyof common.EnumerateWorkflows<TBot>, string>,
+>(
   x: utils.Merge<
     Arg<client.Client['listWorkflows']>,
     {

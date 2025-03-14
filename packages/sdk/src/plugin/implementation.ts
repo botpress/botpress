@@ -1,4 +1,4 @@
-import {
+import type {
   MessageHandlersMap as BotMessageHandlersMap,
   EventHandlersMap as BotEventHandlersMap,
   StateExpiredHandlersMap as BotStateExpiredHandlersMap,
@@ -6,7 +6,12 @@ import {
   ActionHandlers as BotActionHandlers,
   BotHandlers,
   BotSpecificClient,
+  WorkflowHandlersMap as BotWorkflowHandlersMap,
+  WorkflowHandlers as BotWorkflowHandlers,
+  WorkflowHandlersFnMap as BotWorkflowHandlersFnMap,
+  WorkflowUpdateTypeCamelCase as BotWorkflowUpdateTypeCamelCase,
 } from '../bot'
+import { WorkflowProxy, proxyWorkflows } from '../bot/workflow-proxy'
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginInterfaceExtensions } from './common'
@@ -43,6 +48,7 @@ type Tools<TPlugin extends BasePlugin = BasePlugin> = {
   configuration: PluginConfiguration<TPlugin>
   interfaces: PluginInterfaceExtensions<TPlugin>
   actions: ActionProxy<TPlugin>
+  workflows: WorkflowProxy<TPlugin>
   alias?: string
 }
 
@@ -63,6 +69,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     after_outgoing_message: {},
     after_outgoing_call_action: {},
   }
+  private _workflowHandlers: BotWorkflowHandlersMap<TPlugin, Tools<TPlugin>> = {}
 
   public constructor(public readonly props: PluginImplementationProps<TPlugin>) {
     this._actionHandlers = props.actions
@@ -85,11 +92,14 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
   private _getTools(client: BotSpecificClient<any>): Tools {
     const { configuration, interfaces, alias } = this._runtime
     const actions = proxyActions(client, interfaces) as ActionProxy<BasePlugin>
+    const workflows = proxyWorkflows(client) as WorkflowProxy<BasePlugin>
+
     return {
       configuration,
       interfaces,
       actions,
       alias,
+      workflows,
     }
   }
 
@@ -221,6 +231,32 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) as BotHookHandlersMap<TPlugin>
   }
 
+  public get workflowHandlers(): BotWorkflowHandlersMap<TPlugin> {
+    return new Proxy(
+      {},
+      {
+        get: (_, updateType: BotWorkflowUpdateTypeCamelCase) => {
+          return new Proxy(
+            {},
+            {
+              get: (_, workflowName: Extract<keyof TPlugin['workflows'], string>) => {
+                const handlersOfType = this._workflowHandlers[updateType]
+                const selfHandlers = handlersOfType?.[workflowName]
+
+                return (selfHandlers ?? []).map((handler) =>
+                  utils.functions.setName(
+                    (input: any) => handler({ ...input, ...this._getTools(input.client) }),
+                    handler.name
+                  )
+                )
+              },
+            }
+          )
+        },
+      }
+    )
+  }
+
   public readonly on = {
     message: <T extends keyof MessageHandlersMap<TPlugin>>(type: T, handler: MessageHandlers<TPlugin>[T]): void => {
       this._messageHandlers[type as string] = utils.arrays.safePush(
@@ -228,12 +264,39 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler as MessageHandlers<any>[string]
       )
     },
+
+    workflows: new Proxy(
+      {},
+      {
+        get: (_, workflowName: Extract<keyof TPlugin['workflows'], string>) =>
+          new Proxy(
+            {},
+            {
+              get: (_, updateType: BotWorkflowUpdateTypeCamelCase) => {
+                if (updateType !== 'started' && updateType !== 'continued' && updateType !== 'timedOut') {
+                  updateType satisfies never
+                }
+
+                return (handler: BotWorkflowHandlers<TPlugin>[string]): void => {
+                  this._workflowHandlers[updateType] ??= {}
+                  this._workflowHandlers[updateType][workflowName] = utils.arrays.safePush(
+                    this._workflowHandlers[updateType][workflowName],
+                    handler as BotWorkflowHandlers<TPlugin>[string]
+                  )
+                }
+              },
+            }
+          ),
+      }
+    ) as BotWorkflowHandlersFnMap<TPlugin, Tools<TPlugin>>,
+
     event: <T extends keyof EventHandlersMap<TPlugin>>(type: T, handler: EventHandlers<TPlugin>[T]): void => {
       this._eventHandlers[type as string] = utils.arrays.safePush(
         this._eventHandlers[type as string],
         handler as EventHandlers<any>[string]
       )
     },
+
     stateExpired: <T extends keyof StateExpiredHandlersMap<TPlugin>>(
       type: T,
       handler: StateExpiredHandlers<TPlugin>[T]
@@ -243,6 +306,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler as StateExpiredHandlers<any>[string]
       )
     },
+
     beforeIncomingEvent: <T extends keyof HookData<TPlugin>['before_incoming_event']>(
       type: T,
       handler: HookHandlers<TPlugin>['before_incoming_event'][T]
@@ -252,6 +316,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler as HookHandlers<any>['before_incoming_event'][string]
       )
     },
+
     beforeIncomingMessage: <T extends keyof HookData<TPlugin>['before_incoming_message']>(
       type: T,
       handler: HookHandlers<TPlugin>['before_incoming_message'][T]
@@ -261,6 +326,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler as HookHandlers<any>['before_incoming_message'][string]
       )
     },
+
     beforeOutgoingMessage: <T extends keyof HookData<TPlugin>['before_outgoing_message']>(
       type: T,
       handler: HookHandlers<TPlugin>['before_outgoing_message'][T]
@@ -270,6 +336,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler as HookHandlers<any>['before_outgoing_message'][string]
       )
     },
+
     beforeOutgoingCallAction: <T extends keyof HookData<TPlugin>['before_outgoing_call_action']>(
       type: T,
       handler: HookHandlers<TPlugin>['before_outgoing_call_action'][T]
@@ -279,6 +346,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler as HookHandlers<any>['before_outgoing_call_action'][string]
       )
     },
+
     afterIncomingEvent: <T extends keyof HookData<TPlugin>['after_incoming_event']>(
       type: T,
       handler: HookHandlers<TPlugin>['after_incoming_event'][T]
@@ -288,6 +356,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler as HookHandlers<any>['after_incoming_event'][string]
       )
     },
+
     afterIncomingMessage: <T extends keyof HookData<TPlugin>['after_incoming_message']>(
       type: T,
       handler: HookHandlers<TPlugin>['after_incoming_message'][T]
@@ -297,6 +366,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler as HookHandlers<any>['after_incoming_message'][string]
       )
     },
+
     afterOutgoingMessage: <T extends keyof HookData<TPlugin>['after_outgoing_message']>(
       type: T,
       handler: HookHandlers<TPlugin>['after_outgoing_message'][T]
@@ -306,6 +376,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler as HookHandlers<any>['after_outgoing_message'][string]
       )
     },
+
     afterOutgoingCallAction: <T extends keyof HookData<TPlugin>['after_outgoing_call_action']>(
       type: T,
       handler: HookHandlers<TPlugin>['after_outgoing_call_action'][T]

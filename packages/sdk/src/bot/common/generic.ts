@@ -16,7 +16,7 @@ export type BaseWorkflow = {
   input: any
   output: any
   tags?: {
-    [k: string]: any
+    [k: string]: string
   }
 }
 

@@ -6,14 +6,18 @@ export type Writable<T> = { -readonly [K in keyof T]: T[K] }
 export type Default<T, U> = undefined extends T ? U : T
 
 export type AtLeastOne<T> = [T, ...T[]]
-export type AtLeastOneProperty<T> = {
-  [K in keyof T]?: T[K]
-} & {
-  [K in keyof T]: Pick<T, K>
-}[keyof T]
-export type ExactlyOneProperty<T> = {
-  [K in keyof T]: { [P in K]: T[P] } & { [P in Exclude<keyof T, K>]?: never }
-}[keyof T]
+export type AtLeastOneProperty<T> = T extends undefined
+  ? {}
+  : {
+      [K in keyof T]?: T[K]
+    } & {
+      [K in keyof T]: Pick<T, K>
+    }[keyof T]
+export type ExactlyOneProperty<T> = T extends undefined
+  ? {}
+  : {
+      [K in keyof T]: { [P in K]: T[P] } & { [P in Exclude<keyof T, K>]?: never }
+    }[keyof T]
 
 export type IsExtend<X, Y> = X extends Y ? true : false
 export type IsEquivalent<X, Y> = IsExtend<X, Y> extends true ? IsExtend<Y, X> : false

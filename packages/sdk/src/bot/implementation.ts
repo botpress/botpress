@@ -5,18 +5,22 @@ import * as utils from '../utils'
 import { BaseBot } from './common'
 import {
   botHandler,
-  MessageHandlersMap,
-  MessageHandlers,
-  EventHandlersMap,
-  EventHandlers,
-  StateExpiredHandlersMap,
-  StateExpiredHandlers,
-  HookHandlersMap,
-  HookData,
-  HookHandlers,
-  ActionHandlers,
-  BotHandlers,
-  UnimplementedActionHandlers,
+  type MessageHandlersMap,
+  type MessageHandlers,
+  type EventHandlersMap,
+  type EventHandlers,
+  type StateExpiredHandlersMap,
+  type StateExpiredHandlers,
+  type HookHandlersMap,
+  type HookData,
+  type HookHandlers,
+  type ActionHandlers,
+  type BotHandlers,
+  type UnimplementedActionHandlers,
+  type WorkflowHandlersMap,
+  type WorkflowHandlers,
+  type WorkflowHandlersFnMap,
+  type WorkflowUpdateTypeCamelCase,
 } from './server'
 
 export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}> = {
@@ -43,6 +47,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     after_outgoing_message: {},
     after_outgoing_call_action: {},
   }
+  private _workflowHandlers: WorkflowHandlersMap<TBot> = {}
 
   private _plugins: Record<string, PluginImplementation<any>> = {}
 
@@ -153,6 +158,31 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     ) as HookHandlersMap<TBot>
   }
 
+  public get workflowHandlers(): WorkflowHandlersMap<TBot> {
+    return new Proxy(
+      {},
+      {
+        get: (_, updateType: WorkflowUpdateTypeCamelCase) => {
+          return new Proxy(
+            {},
+            {
+              get: (_, workflowName: Extract<keyof TBot['workflows'], string>) => {
+                const handlersOfType = this._workflowHandlers[updateType]
+                const selfHandlers = handlersOfType?.[workflowName]
+
+                const pluginHandlers = Object.values(this._plugins).flatMap(
+                  (plugin) => plugin.workflowHandlers[updateType]?.[workflowName] ?? []
+                )
+
+                return utils.arrays.unique([...(selfHandlers ?? []), ...pluginHandlers])
+              },
+            }
+          )
+        },
+      }
+    )
+  }
+
   public readonly on = {
     message: <T extends keyof MessageHandlersMap<TBot>>(type: T, handler: MessageHandlers<TBot>[T]): void => {
       this._messageHandlers[type as string] = utils.arrays.safePush(
@@ -160,6 +190,32 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
         handler as MessageHandlers<any>[string]
       )
     },
+
+    workflows: new Proxy(
+      {},
+      {
+        get: (_, workflowName: Extract<keyof TBot['workflows'], string>) =>
+          new Proxy(
+            {},
+            {
+              get: (_, updateType: WorkflowUpdateTypeCamelCase) => {
+                if (updateType !== 'started' && updateType !== 'continued' && updateType !== 'timedOut') {
+                  updateType satisfies never
+                }
+
+                return (handler: WorkflowHandlers<TBot>[string]): void => {
+                  this._workflowHandlers[updateType] ??= {}
+                  this._workflowHandlers[updateType][workflowName] = utils.arrays.safePush(
+                    this._workflowHandlers[updateType][workflowName],
+                    handler as WorkflowHandlers<TBot>[string]
+                  )
+                }
+              },
+            }
+          ),
+      }
+    ) as WorkflowHandlersFnMap<TBot>,
+
     event: <T extends keyof EventHandlersMap<TBot>>(type: T, handler: EventHandlers<TBot>[T]): void => {
       this._eventHandlers[type as string] = utils.arrays.safePush(
         this._eventHandlers[type as string],
