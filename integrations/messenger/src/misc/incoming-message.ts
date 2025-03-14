@@ -47,7 +47,7 @@ export async function handleMessage(
       const profile = await messengerClient.getUserProfile(message.sender.id, { fields: ['id', 'name'] })
       logger.forBot().debug('Fetched latest Messenger user profile: ', profile)
 
-      await client.updateUser({ ...user, name: profile.name })
+      await client.updateUser({ ...user, name: profile.name, tags: {} })
     } catch (error) {
       logger.forBot().error('Error while fetching user profile from Messenger:', error)
     }
