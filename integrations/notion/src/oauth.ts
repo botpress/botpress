@@ -1,7 +1,12 @@
 import { randomUUID } from 'crypto'
-import { ForbiddenError } from '../../../packages/client/dist'
 import { NotionClient } from './notion'
 import * as bp from '.botpress'
+
+class ForbiddenError extends Error {
+  public constructor() {
+    super('Not connected to Notion')
+  }
+}
 
 export const getOAuthToken = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
   const { state } = await client.getState({
@@ -11,7 +16,7 @@ export const getOAuthToken = async ({ client, ctx }: { client: bp.Client; ctx: b
   })
 
   if (!state?.payload?.access_token) {
-    throw new ForbiddenError('Not connected to Notion')
+    throw new ForbiddenError()
   }
 }
 
