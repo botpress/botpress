@@ -1,129 +1,69 @@
 import { getCredentials, InstagramClient } from 'src/misc/client'
-import {
-  InstagramMessagingEntry,
-  InstagramMessagingEntryMessage,
-  InstagramMessagingEntryPostback,
-  InstagramPayloadSchema,
-} from 'src/misc/types'
+import { InstagramMessage, InstagramPayload } from 'src/misc/types'
 import * as bp from '.botpress'
 
-export const messagingHandler = async (props: bp.HandlerProps) => {
+export const messagesHandler = async (props: bp.HandlerProps) => {
   const { logger, req } = props
   if (!req.body) {
     logger.debug('Handler received an empty body, so the message was ignored')
     return
   }
 
-  const parseResult = InstagramPayloadSchema.safeParse(JSON.parse(req.body))
-  if (!parseResult.success) {
-    logger.error('Received invalid or unsupported Instagram payload', parseResult.error.message)
-    return { status: 400, body: 'Invalid payload' }
-  }
+  const data = JSON.parse(req.body) as InstagramPayload
 
-  for (const { messaging } of parseResult.data.entry) {
-    for (const messagingEntry of messaging) {
-      if ('message' in messagingEntry) {
-        await _messageHandler(messagingEntry, props)
+  for (const { messaging } of data.entry) {
+    for (const message of messaging) {
+      if (message.message?.is_echo) {
+        continue
       }
-      if ('postback' in messagingEntry) {
-        await _postbackHandler(messagingEntry, props)
-      }
+      await _handleMessage(message, props)
     }
   }
-  return { status: 200 }
 }
 
-const _decodePostbackPayload = (payload: string): string => {
-  const VALID_PREFIXES = ['postback', 'say']
-  const prefix = payload.split(':')[0]
-  if (!prefix || !VALID_PREFIXES.includes(prefix)) {
-    return payload
-  }
-  return payload.slice(prefix.length + 1).trim()
-}
+async function _handleMessage(message: InstagramMessage, { client, ctx, logger }: bp.HandlerProps) {
+  if (message?.message?.text) {
+    logger.forBot().debug('Received text message from Instagram:', message.message.text)
 
-const _postbackHandler = async (messagingEntry: InstagramMessagingEntryPostback, handlerProps: bp.HandlerProps) => {
-  const { postback } = messagingEntry
-  handlerProps.logger.forBot().debug('Received postback from Instagram:', postback.payload)
-  const decodedPayload = _decodePostbackPayload(postback.payload)
-  await _commonMessagingHandler({
-    payload: { text: decodedPayload },
-    type: 'text',
-    mid: postback.mid,
-    messagingEntry,
-    handlerProps,
-  })
-}
+    const { conversation } = await client.getOrCreateConversation({
+      channel: 'channel',
+      tags: {
+        id: message.sender.id,
+      },
+    })
 
-const _messageHandler = async (messagingEntry: InstagramMessagingEntryMessage, handlerProps: bp.HandlerProps) => {
-  const { message } = messagingEntry
-  handlerProps.logger.forBot().debug('Received text message from Instagram:', message.text)
-  if (!message.text || message.is_echo) {
-    return
-  }
-  await _commonMessagingHandler({
-    type: 'text',
-    payload: { text: message.text },
-    mid: message.mid,
-    messagingEntry,
-    handlerProps,
-  })
-}
+    const { user } = await client.getOrCreateUser({
+      tags: {
+        id: message.sender.id,
+      },
+    })
 
-const _commonMessagingHandler = async <TMessage extends keyof bp.channels.channel.Messages>({
-  type,
-  payload,
-  mid,
-  messagingEntry,
-  handlerProps,
-}: {
-  type: TMessage extends string ? TMessage : never
-  payload: bp.channels.channel.Messages[TMessage]
-  mid: string
-  messagingEntry: InstagramMessagingEntry
-  handlerProps: bp.HandlerProps
-}) => {
-  const { client, ctx, logger } = handlerProps
+    if (!user.name || !user.pictureUrl) {
+      try {
+        const { accessToken } = await getCredentials(client, ctx)
+        const metaClient = new InstagramClient(logger, { accessToken })
+        const userProfile = await metaClient.getUserProfile(message.sender.id, ['profile_pic'])
 
-  const { sender, recipient } = messagingEntry
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'channel',
-    tags: {
-      id: sender.id,
-    },
-  })
+        logger.forBot().debug('Fetched latest Instagram user profile: ', userProfile)
 
-  const { user } = await client.getOrCreateUser({
-    tags: {
-      id: sender.id,
-    },
-  })
-
-  if (!user.name || !user.pictureUrl) {
-    try {
-      const { accessToken } = await getCredentials(client, ctx)
-      const metaClient = new InstagramClient(logger, { accessToken })
-      const userProfile = await metaClient.getUserProfile(sender.id, ['profile_pic'])
-
-      logger.forBot().debug('Fetched latest Instagram user profile: ', userProfile)
-
-      if (userProfile?.name) {
-        await client.updateUser({ ...user, name: userProfile?.name, pictureUrl: userProfile?.profile_pic })
+        if (userProfile?.name) {
+          await client.updateUser({ ...user, name: userProfile?.name, pictureUrl: userProfile?.profile_pic })
+        }
+      } catch (error) {
+        logger.forBot().error('Error while fetching user profile from Instagram', error)
       }
-    } catch (error) {
-      logger.forBot().error('Error while fetching user profile from Instagram', error)
     }
-  }
 
-  await client.getOrCreateMessage({
-    type,
-    tags: {
-      id: mid,
-      senderId: sender.id,
-      recipientId: recipient.id,
-    },
-    userId: user.id,
-    conversationId: conversation.id,
-    payload,
-  })
+    await client.getOrCreateMessage({
+      type: 'text',
+      tags: {
+        id: message.message.mid,
+        senderId: message.sender.id,
+        recipientId: message.recipient.id,
+      },
+      userId: user.id,
+      conversationId: conversation.id,
+      payload: { text: message.message.text },
+    })
+  }
 }
