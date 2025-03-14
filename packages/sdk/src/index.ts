@@ -56,6 +56,7 @@ export {
   MessageDefinition as BotMessageDefinition,
   ActionDefinition as BotActionDefinition,
   TableDefinition as BotTableDefinition,
+  WorkflowDefinition as BotWorkflowDefinition,
   BotLogger,
 } from './bot'
 
