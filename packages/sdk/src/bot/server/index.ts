@@ -8,15 +8,10 @@ import { BotSpecificClient } from '../client'
 import * as common from '../common'
 import { extractContext } from './context'
 import * as types from './types'
+import { SUCCESS_RESPONSE } from './responses'
+import { handleWorkflowUpdateEvent } from './workflows/update-handler'
 
 export * from './types'
-
-type ServerProps = types.CommonHandlerProps<common.BaseBot> & {
-  req: Request
-  self: types.BotHandlers<common.BaseBot>
-}
-
-const SUCCESS_RESPONSE = { status: 200 }
 
 export const botHandler =
   (bot: types.BotHandlers<common.BaseBot>) =>
@@ -87,7 +82,7 @@ export const botHandler =
       },
     })
 
-    const props: ServerProps = {
+    const props: types.ServerProps = {
       req,
       ctx,
       logger,
@@ -111,22 +106,27 @@ export const botHandler =
     }
   }
 
-const onPing = async ({ ctx }: ServerProps): Promise<Response> => {
+const onPing = async ({ ctx }: types.ServerProps): Promise<Response> => {
   log.info(`Received ${ctx.operation} operation for bot ${ctx.botId} of type ${ctx.type}`)
   return SUCCESS_RESPONSE
 }
 
-const onRegister = async (_: ServerProps): Promise<Response> => SUCCESS_RESPONSE
+const onRegister = async (_: types.ServerProps): Promise<Response> => SUCCESS_RESPONSE
 
-const onUnregister = async (_: ServerProps): Promise<Response> => SUCCESS_RESPONSE
+const onUnregister = async (_: types.ServerProps): Promise<Response> => SUCCESS_RESPONSE
 
-const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps): Promise<Response> => {
+const onEventReceived = async (serverProps: types.ServerProps): Promise<Response> => {
+  const { ctx, logger, req, client, self } = serverProps
   const common: types.CommonHandlerProps<common.BaseBot> = { client, ctx, logger }
 
   log.debug(`Received event ${ctx.type}`)
 
   type AnyEventPayload = utils.ValueOf<types.EventPayloads<common.BaseBot>>
   const body = parseBody<AnyEventPayload>(req)
+
+  if (ctx.type === 'workflow_update') {
+    return await handleWorkflowUpdateEvent(serverProps, body.event.payload)
+  }
 
   if (ctx.type === 'message_created') {
     const event = body.event
@@ -218,7 +218,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
   return SUCCESS_RESPONSE
 }
 
-const onActionTriggered = async ({ ctx, logger, req, client, self }: ServerProps): Promise<Response> => {
+const onActionTriggered = async ({ ctx, logger, req, client, self }: types.ServerProps): Promise<Response> => {
   type AnyActionPayload = utils.ValueOf<types.ActionHandlerPayloads<common.BaseBot>>
   const { input, type } = parseBody<AnyActionPayload>(req)
 

@@ -3,6 +3,7 @@ import * as plugin from '../../plugin'
 import * as utils from '../../utils/type-utils'
 import { type BotLogger } from '../bot-logger'
 import { BotSpecificClient } from '../client'
+import type { Request } from '../../serve'
 import * as common from '../common'
 
 export type BotOperation = 'event_received' | 'register' | 'unregister' | 'ping' | 'action_triggered'
@@ -150,6 +151,30 @@ export type ActionHandlers<TBot extends common.BaseBot> = {
   [K in keyof TBot['actions']]: (props: ActionHandlerPayloads<TBot>[K]) => Promise<TBot['actions'][K]['output']>
 }
 
+export type WorkflowUpdateType =
+  | 'child_workflow_deleted'
+  | 'child_workflow_finished'
+  | 'workflow_timedout'
+  | 'workflow_started'
+  | 'workflow_continued'
+export type WorkflowUpdateEventPayload = {
+  type: WorkflowUpdateType
+  childWorkflow?: client.Workflow
+  workflow: client.Workflow
+  conversation?: client.Conversation
+  user?: client.User
+}
+
+export type WorkflowPayloads<TBot extends common.BaseBot> = {
+  [K in keyof common.EnumerateWorkflows<TBot>]: CommonHandlerProps<TBot> & {
+    rawEventPayload: WorkflowUpdateEventPayload
+  }
+}
+
+export type WorkflowHandlers<TBot extends common.BaseBot> = {
+  [K in keyof common.EnumerateWorkflows<TBot>]: (args: WorkflowPayloads<TBot>[K]) => Promise<void>
+}
+
 type BaseHookDefinition = { stoppable?: boolean; data: any }
 type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = THookDef
 
@@ -243,6 +268,12 @@ export type HookHandlersMap<TBot extends common.BaseBot> = {
   }
 }
 
+export type WorkflowHandlersMap<TBot extends common.BaseBot> = {
+  [UpdateType in WorkflowUpdateType]?: {
+    [WorkflowName in keyof common.EnumerateWorkflows<TBot>]?: WorkflowHandlers<TBot>[WorkflowName][]
+  }
+}
+
 /**
  * TODO:
  * the consumer of this type shouldnt be able to access "*" directly;
@@ -254,6 +285,7 @@ export type BotHandlers<TBot extends common.BaseBot> = {
   eventHandlers: EventHandlersMap<TBot>
   stateExpiredHandlers: StateExpiredHandlersMap<TBot>
   hookHandlers: HookHandlersMap<TBot>
+  workflowHandlers: WorkflowHandlersMap<TBot>
 }
 
 // plugins
@@ -284,4 +316,9 @@ export type UnimplementedActionHandlers<
   TPlugins extends Record<string, plugin.BasePlugin>,
 > = {
   [K in keyof UnimplementedActions<TBot, TPlugins>]: ActionHandlers<TBot>[utils.Cast<K, keyof ActionHandlers<TBot>>]
+}
+
+export type ServerProps = CommonHandlerProps<common.BaseBot> & {
+  req: Request
+  self: BotHandlers<common.BaseBot>
 }

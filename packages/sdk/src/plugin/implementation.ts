@@ -6,6 +6,7 @@ import {
   ActionHandlers as BotActionHandlers,
   BotHandlers,
   BotSpecificClient,
+  WorkflowHandlersMap,
 } from '../bot'
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
@@ -63,6 +64,9 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
   public constructor(public readonly props: PluginImplementationProps<TPlugin>) {
     this._actionHandlers = props.actions
   }
+
+  // TODO: implement workflow handlers
+  public workflowHandlers: WorkflowHandlersMap<TPlugin> = {}
 
   public initialize(config: PluginRuntimeProps<TPlugin>): this {
     this._runtimeProps = config

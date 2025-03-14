@@ -17,6 +17,9 @@ import {
   ActionHandlers,
   BotHandlers,
   UnimplementedActionHandlers,
+  WorkflowHandlersMap,
+  WorkflowUpdateType,
+  WorkflowHandlers,
 } from './server'
 
 export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}> = {
@@ -42,6 +45,11 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     after_incoming_message: {},
     after_outgoing_message: {},
     after_outgoing_call_action: {},
+  }
+  private _workflowHandlers: WorkflowHandlersMap<TBot> = {
+    workflow_continued: {},
+    workflow_started: {},
+    workflow_timedout: {},
   }
 
   private _plugins: Record<string, PluginImplementation<any>> = {}
@@ -138,12 +146,80 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     ) as HookHandlersMap<TBot>
   }
 
+  public get workflowHandlers(): WorkflowHandlersMap<TBot> {
+    return new Proxy(
+      {},
+      {
+        get: (_, updateType: WorkflowUpdateType) => {
+          return new Proxy(
+            {},
+            {
+              get: (_, workflowName: Extract<keyof TBot['workflows'], string>) => {
+                const handlersOfType = this._workflowHandlers[updateType]
+                const handlers = handlersOfType?.[workflowName]
+
+                // TODO: handle plugin workflow handlers
+
+                return handlers ?? []
+              },
+            }
+          )
+        },
+      }
+    ) as WorkflowHandlersMap<TBot>
+  }
+
   public readonly on = {
     message: <T extends keyof MessageHandlersMap<TBot>>(type: T, handler: MessageHandlers<TBot>[T]): void => {
       this._messageHandlers[type as string] = utils.arrays.safePush(
         this._messageHandlers[type as string],
         handler as MessageHandlers<any>[string]
       )
+    },
+    workflows: new Proxy(
+      {},
+      {
+        get: (_, workflowName: Extract<keyof TBot['workflows'], string>) =>
+          new Proxy(
+            {},
+            {
+              get: (_, updateType: 'started' | 'continued' | 'timedOut') => {
+                switch (updateType) {
+                  case 'started':
+                    return (handler: WorkflowHandlers<TBot>[string]): void => {
+                      this._workflowHandlers.workflow_started ??= {}
+                      this._workflowHandlers.workflow_started[workflowName] = utils.arrays.safePush(
+                        this._workflowHandlers.workflow_started[workflowName],
+                        handler as WorkflowHandlers<TBot>[string]
+                      )
+                    }
+                  case 'continued':
+                    return (handler: WorkflowHandlers<TBot>[string]): void => {
+                      this._workflowHandlers.workflow_continued ??= {}
+                      this._workflowHandlers.workflow_continued[workflowName] = utils.arrays.safePush(
+                        this._workflowHandlers.workflow_continued[workflowName],
+                        handler as WorkflowHandlers<TBot>[string]
+                      )
+                    }
+                  default:
+                    return (handler: WorkflowHandlers<TBot>[string]): void => {
+                      this._workflowHandlers.workflow_timedout ??= {}
+                      this._workflowHandlers.workflow_timedout[workflowName] = utils.arrays.safePush(
+                        this._workflowHandlers.workflow_timedout[workflowName],
+                        handler as WorkflowHandlers<TBot>[string]
+                      )
+                    }
+                }
+              },
+            }
+          ),
+      }
+    ) as {
+      [WorkflowName in Extract<keyof TBot['workflows'], string>]: {
+        started: (handler: WorkflowHandlers<TBot>[WorkflowName]) => void
+        continued: (handler: WorkflowHandlers<TBot>[WorkflowName]) => void
+        timedOut: (handler: WorkflowHandlers<TBot>[WorkflowName]) => void
+      }
     },
     event: <T extends keyof EventHandlersMap<TBot>>(type: T, handler: EventHandlers<TBot>[T]): void => {
       this._eventHandlers[type as string] = utils.arrays.safePush(
