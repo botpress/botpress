@@ -447,8 +447,8 @@ importers:
         specifier: ^6.11.0
         version: 6.11.0
       uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: ^11.1.0
+        version: 11.1.0
     devDependencies:
       '@botpress/chat-api':
         specifier: workspace:*
@@ -760,8 +760,8 @@ importers:
         specifier: ^9.0.2
         version: 9.0.2
       uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: ^11.1.0
+        version: 11.1.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1585,6 +1585,16 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  interfaces/files-readonly:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   interfaces/hitl:
     dependencies:
       '@botpress/sdk':
@@ -1792,8 +1802,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: ^11.1.0
+        version: 11.1.0
 
   packages/cli:
     dependencies:
@@ -1873,8 +1883,8 @@ importers:
         specifier: ^7.3.8
         version: 7.5.1
       uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: ^11.1.0
+        version: 11.1.0
       verror:
         specifier: ^1.10.1
         version: 1.10.1
@@ -2156,7 +2166,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: ^0.1.6
+        specifier: 0.1.6
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -2220,6 +2230,34 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
+
+  plugins/file-synchronizer:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      picomatch:
+        specifier: ^1.0.1
+        version: 1.2.0
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpresshub/hitl':
+        specifier: workspace:*
+        version: link:../../interfaces/hitl
+      '@types/lodash':
+        specifier: ^4.14.191
+        version: 4.14.195
+      '@types/picomatch':
+        specifier: ^3.0.2
+        version: 3.0.2
 
   plugins/hitl:
     dependencies:
@@ -7571,6 +7609,10 @@ packages:
     resolution: {integrity: sha512-oVsJSCkqViCn8/pEu2hfjwVO+Gb3e+eTWjg3PcjeFKRItfKpKwHphQqbYmPQrlMk+op7pNNWPbsJIEthpFN/OQ==}
     dependencies:
       '@types/node': 18.19.67
+    dev: true
+
+  /@types/picomatch@3.0.2:
+    resolution: {integrity: sha512-n0i8TD3UDB7paoMMxA3Y65vUncFJXjcUf7lQY7YyKGl6031FNjfsLs6pdLFCy2GNFxItPJG8GvvpbZc2skH7WA==}
     dev: true
 
   /@types/prettier@2.7.3:
@@ -14000,6 +14042,11 @@ packages:
   /picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
+  /picomatch@1.2.0:
+    resolution: {integrity: sha512-cMSUWLsIT8VCmIPlM87m5OASGmDnYJR2fEUIpOnuArPQY5p7kWfJ47wZtIOYHT8GJHo9B/QRr4m5mbsIXxZkMg==}
+    engines: {node: '>=8'}
+    dev: false
+
   /picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
@@ -16078,6 +16125,10 @@ packages:
     engines: {node: '>= 0.4.0'}
     dev: true
 
+  /uuid@11.1.0:
+    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
+
   /uuid@3.4.0:
     resolution: {integrity: sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==}
     deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
@@ -16088,10 +16139,6 @@ packages:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
     dev: false
-
-  /uuid@9.0.0:
-    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
-    hasBin: true
 
   /uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
