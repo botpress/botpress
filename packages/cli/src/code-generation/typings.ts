@@ -7,6 +7,8 @@ type Schema = Record<string, any>
 type Aliases = Record<string, { name: string }>
 
 type TitleDescription = { title?: string; description?: string }
+type Tags = { tags: Record<string, {}> }
+type InputOutput = { input: { schema: Schema }; output: { schema: Schema } }
 
 export type File = { path: string; content: string }
 
@@ -95,10 +97,11 @@ export type InterfaceDefinition = PackageRef & {
 export type PluginDefinition = PackageRef & {
   configuration?: TitleDescription & { schema?: Schema }
   user?: { tags: Record<string, {}> }
-  conversation?: { tags: Record<string, {}> }
+  conversation?: Tags
   states?: Record<string, TitleDescription & { type: client.State['type']; schema: Schema }>
   events?: Record<string, TitleDescription & { schema: Schema }>
-  actions?: Record<string, TitleDescription & { input: { schema: Schema }; output: { schema: Schema } }>
+  actions?: Record<string, TitleDescription & InputOutput>
+  workflows?: Record<string, TitleDescription & Tags & InputOutput>
   dependencies?: {
     interfaces?: Record<string, PackageRef>
     integrations?: Record<string, PackageRef>
