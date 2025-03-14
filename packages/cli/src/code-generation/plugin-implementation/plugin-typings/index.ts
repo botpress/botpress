@@ -9,6 +9,7 @@ import { DefaultConfigurationModule } from './configuration-module'
 import { EventsModule } from './events-module'
 import { StatesModule } from './states-module'
 import { TablesModule } from './tables-module'
+import { WorkflowsModule } from './workflows-module'
 
 class PluginIntegrationsModule extends ReExportTypeModule {
   public constructor(plugin: sdk.PluginDefinition) {
@@ -46,6 +47,7 @@ type PluginTypingsIndexDependencies = {
   statesModule: StatesModule
   actionsModule: ActionsModule
   tablesModule: TablesModule
+  workflowsModule: WorkflowsModule
 }
 
 type _assertPropsInPluginDefinition = utils.types.AssertKeyOf<'props', sdk.PluginDefinition>
@@ -104,6 +106,10 @@ export class PluginTypingsModule extends Module {
     tablesModule.unshift('tables')
     this.pushDep(tablesModule)
 
+    const workflowsModule = new WorkflowsModule(plugin.workflows ?? {})
+    workflowsModule.unshift('workflows')
+    this.pushDep(workflowsModule)
+
     this._dependencies = {
       integrationsModule,
       interfacesModule,
@@ -112,6 +118,7 @@ export class PluginTypingsModule extends Module {
       statesModule,
       actionsModule,
       tablesModule,
+      workflowsModule,
     }
   }
 
@@ -124,6 +131,7 @@ export class PluginTypingsModule extends Module {
       statesModule,
       actionsModule,
       tablesModule,
+      workflowsModule,
     } = this._dependencies
 
     const integrationsImport = integrationsModule.import(this)
@@ -133,6 +141,7 @@ export class PluginTypingsModule extends Module {
     const statesImport = statesModule.import(this)
     const actionsImport = actionsModule
     const tablesImport = tablesModule.import(this)
+    const workflowsImport = workflowsModule
 
     return [
       consts.GENERATED_HEADER,
@@ -143,6 +152,7 @@ export class PluginTypingsModule extends Module {
       `import * as ${statesModule.name} from './${statesModule.name}'`,
       `import * as ${actionsModule.name} from './${actionsImport.name}'`,
       `import * as ${tablesModule.name} from './${tablesImport}'`,
+      `import * as ${workflowsModule.name} from './${workflowsImport.name}'`,
       '',
       `export * as ${integrationsModule.name} from './${integrationsImport}'`,
       `export * as ${interfacesModule.name} from './${interfacesImport}'`,
@@ -151,6 +161,7 @@ export class PluginTypingsModule extends Module {
       `export * as ${statesModule.name} from './${statesImport}'`,
       `export * as ${actionsModule.name} from './${actionsImport.name}'`,
       `export * as ${tablesModule.name} from './${tablesImport}'`,
+      `export * as ${workflowsModule.name} from './${workflowsImport.name}'`,
       '',
       'export type TPlugin = {',
       `  name: "${this._plugin.name}"`,
@@ -162,6 +173,7 @@ export class PluginTypingsModule extends Module {
       `  states: ${statesModule.name}.${statesModule.exportName}`,
       `  actions: ${actionsModule.name}.${actionsModule.exportName}`,
       `  tables: ${tablesModule.name}.${tablesModule.exportName}`,
+      `  workflows: ${workflowsModule.name}.${workflowsModule.exportName}`,
       '}',
     ].join('\n')
   }
