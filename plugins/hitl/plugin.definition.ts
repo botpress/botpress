@@ -11,10 +11,12 @@ export const DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE =
 export const DEFAULT_USER_HITL_CLOSE_COMMAND = '/end'
 export const DEFAULT_USER_HITL_COMMAND_MESSAGE =
   'You have ended the session with the human agent. I will continue assisting you.'
+export const DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE =
+  'No human agent is available at the moment. Please try again later. I will continue assisting you for the time being.'
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.3.0',
+  version: '0.4.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -65,6 +67,21 @@ export default new sdk.PluginDefinition({
         .describe('The message to send to the user when they end the hitl session using the termination command')
         .optional()
         .placeholder(DEFAULT_USER_HITL_COMMAND_MESSAGE),
+      onAgentAssignedTimeoutMessage: sdk.z
+        .string()
+        .title('Agent Assigned Timeout Message')
+        .describe('The message to send to the user when no human agent is assigned within the timeout period')
+        .optional()
+        .placeholder(DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE),
+      agentAssignedTimeoutSeconds: sdk.z
+        .number()
+        .title('Agent Assigned Timeout')
+        .describe(
+          'The time in seconds to wait before giving up and telling the user that no human agent is available. Set to 0 to disable'
+        )
+        .nonnegative()
+        .optional()
+        .placeholder('0'),
     }),
   },
   actions: {
@@ -156,9 +173,27 @@ export default new sdk.PluginDefinition({
         title: 'HITL End Reason',
         description: 'Reason why the HITL session ended',
       },
+      startMessageId: {
+        title: 'Start Message ID',
+        description: 'ID of the user message that initiated the HITL session',
+      },
     },
   },
   interfaces: {
     hitl,
+  },
+  events: {
+    humanAgentAssignedTimeout: {
+      schema: sdk.z.object({
+        sessionStartedAt: sdk.z
+          .string()
+          .title('Session Started At')
+          .describe('Timestamp of when the HITL session started'),
+        downstreamConversationId: sdk.z
+          .string()
+          .title('Downstream Conversation ID')
+          .describe('ID of the downstream conversation'),
+      }),
+    },
   },
 })

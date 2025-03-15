@@ -3,6 +3,8 @@ import { fireInvoicePaymentFailed } from 'src/events/invoice-payment-failed'
 import { firePaymentIntentFailed } from 'src/events/payment-intent-failed'
 import { fireSubscriptionCreated } from 'src/events/subscription-created'
 import { fireSubscriptionDeleted } from 'src/events/subscription-deleted'
+import { fireSubscriptionScheduleCreated } from 'src/events/subscription-schedule-created'
+import { fireSubscriptionScheduleUpdated } from 'src/events/subscription-schedule-updated'
 import { fireSubscriptionUpdated } from 'src/events/subscription-updated'
 import Stripe from 'stripe'
 import type { Handler } from '../misc/types'
@@ -32,6 +34,12 @@ export const handler: Handler = async ({ req, client, logger }) => {
       break
     case 'customer.subscription.updated':
       await fireSubscriptionUpdated({ stripeEvent, client, logger })
+      break
+    case 'subscription_schedule.created':
+      await fireSubscriptionScheduleCreated({ stripeEvent, client, logger })
+      break
+    case 'subscription_schedule.updated':
+      await fireSubscriptionScheduleUpdated({ stripeEvent, client, logger })
       break
     default:
       console.warn(`Unhandled event type ${stripeEvent.type}`)
