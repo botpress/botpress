@@ -2,7 +2,8 @@
   "name": "@botpresshub/bigcommerce",
   "integrationName": "bigcommerce",
   "scripts": {
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {
