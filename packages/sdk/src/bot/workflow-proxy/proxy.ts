@@ -3,14 +3,13 @@ import type { BotSpecificClient } from '../../bot'
 import type * as typeUtils from '../../utils/type-utils'
 import type * as botClient from '../client/types'
 import type { BaseBot } from '../common'
-import type * as commonTypes from '../common'
 import type { WorkflowProxy, WorkflowWithUtilities } from './types'
 
 export const proxyWorkflows = <TBot extends BaseBot>(
   client: BotSpecificClient<TBot> | client.Client
 ): WorkflowProxy<TBot> =>
   new Proxy({} as WorkflowProxy<TBot>, {
-    get: <TWorkflowName extends Extract<keyof TBot['workflows'], string>>(_: unknown, workflowName: TWorkflowName) =>
+    get: <TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>>(_: unknown, workflowName: TWorkflowName) =>
       ({
         listInstances: {
           all: (input) => _listWorkflows({ workflowName, client, input }),
@@ -40,7 +39,10 @@ export const proxyWorkflows = <TBot extends BaseBot>(
       }) satisfies WorkflowProxy<TBot>[TWorkflowName],
   })
 
-const _listWorkflows = async <TBot extends BaseBot, TWorkflowName extends string>(props: {
+const _listWorkflows = async <
+  TBot extends BaseBot,
+  TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>,
+>(props: {
   workflowName: TWorkflowName
   client: BotSpecificClient<TBot> | client.Client
   statuses?: client.ClientInputs['listWorkflows']['statuses']
@@ -61,7 +63,10 @@ const _listWorkflows = async <TBot extends BaseBot, TWorkflowName extends string
   }
 }
 
-const _startNewWorkflowInstance = async <TBot extends BaseBot, TWorkflowName extends string>(props: {
+const _startNewWorkflowInstance = async <
+  TBot extends BaseBot,
+  TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>,
+>(props: {
   client: BotSpecificClient<TBot> | client.Client
   input: Parameters<botClient.CreateWorkflow<TBot>>[0]
 }) => {
@@ -71,7 +76,7 @@ const _startNewWorkflowInstance = async <TBot extends BaseBot, TWorkflowName ext
 
 export const wrapWorkflowInstance = <
   TBot extends BaseBot,
-  TWorkflowName extends keyof commonTypes.EnumerateWorkflows<TBot>,
+  TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>,
 >(props: {
   client: BotSpecificClient<TBot> | client.Client
   workflow: client.Workflow

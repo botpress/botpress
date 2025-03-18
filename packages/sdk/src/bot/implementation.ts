@@ -22,6 +22,7 @@ import {
   type WorkflowHandlersFnMap,
   type WorkflowUpdateTypeCamelCase,
 } from './server'
+import type * as typeUtils from '../utils/type-utils'
 
 export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}> = {
   actions: UnimplementedActionHandlers<TBot, TPlugins>
@@ -166,7 +167,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
           return new Proxy(
             {},
             {
-              get: (_, workflowName: Extract<keyof TBot['workflows'], string>) => {
+              get: (_, workflowName: typeUtils.StringKeys<TBot['workflows']>) => {
                 const handlersOfType = this._workflowHandlers[updateType]
                 const selfHandlers = handlersOfType?.[workflowName]
 
@@ -194,7 +195,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     workflows: new Proxy(
       {},
       {
-        get: (_, workflowName: Extract<keyof TBot['workflows'], string>) =>
+        get: <TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>>(_: unknown, workflowName: TWorkflowName) =>
           new Proxy(
             {},
             {
@@ -203,11 +204,11 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
                   updateType satisfies never
                 }
 
-                return (handler: WorkflowHandlers<TBot>[string]): void => {
+                return (handler: WorkflowHandlers<TBot>[TWorkflowName]): void => {
                   this._workflowHandlers[updateType] ??= {}
                   this._workflowHandlers[updateType][workflowName] = utils.arrays.safePush(
                     this._workflowHandlers[updateType][workflowName],
-                    handler as WorkflowHandlers<TBot>[string]
+                    handler as WorkflowHandlers<TBot>[TWorkflowName]
                   )
                 }
               },

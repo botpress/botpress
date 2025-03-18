@@ -3,7 +3,7 @@ import type * as typeUtils from '../../utils/type-utils'
 import type * as commonTypes from '../common'
 
 export type WorkflowProxy<TBot extends commonTypes.BaseBot = commonTypes.BaseBot> = Readonly<{
-  [TWorkflowName in keyof TBot['workflows']]: Readonly<{
+  [TWorkflowName in typeUtils.StringKeys<TBot['workflows']>]: Readonly<{
     startNewInstance: (
       x: Pick<client.ClientInputs['createWorkflow'], 'conversationId' | 'userId' | 'timeoutAt'> & {
         tags?: typeUtils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
@@ -30,7 +30,7 @@ export type WorkflowProxy<TBot extends commonTypes.BaseBot = commonTypes.BaseBot
   }>
 }>
 
-type _ListInstances<TBot extends commonTypes.BaseBot, TWorkflowName extends keyof TBot['workflows']> = (
+type _ListInstances<TBot extends commonTypes.BaseBot, TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>> = (
   x?: Pick<client.ClientInputs['listWorkflows'], 'nextToken' | 'conversationId' | 'userId'> & {
     tags?: typeUtils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
   }
@@ -44,21 +44,15 @@ type _ListInstances<TBot extends commonTypes.BaseBot, TWorkflowName extends keyo
 
 export type WorkflowWithUtilities<
   TBot extends commonTypes.BaseBot,
-  TWorkflowName extends keyof commonTypes.EnumerateWorkflows<TBot>,
+  TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>,
 > = Readonly<
   client.Workflow & {
     name: TWorkflowName
-    input: typeUtils.Cast<
-      commonTypes.EnumerateWorkflows<TBot>[TWorkflowName],
-      commonTypes.IntegrationInstanceActionDefinition
-    >['input']
+    input: typeUtils.Cast<TBot['workflows'][TWorkflowName], commonTypes.IntegrationInstanceActionDefinition>['input']
     output: Partial<
-      typeUtils.Cast<
-        commonTypes.EnumerateWorkflows<TBot>[TWorkflowName],
-        commonTypes.IntegrationInstanceActionDefinition
-      >['output']
+      typeUtils.Cast<TBot['workflows'][TWorkflowName], commonTypes.IntegrationInstanceActionDefinition>['output']
     >
-    tags: Partial<commonTypes.EnumerateWorkflows<TBot>[TWorkflowName]['tags']>
+    tags: Partial<TBot['workflows'][TWorkflowName]['tags']>
 
     /**
      * Updates the current workflow instance
@@ -66,9 +60,9 @@ export type WorkflowWithUtilities<
     update(
       x: typeUtils.AtLeastOneProperty<
         Pick<client.ClientInputs['updateWorkflow'], 'userId' | 'timeoutAt'> & {
-          tags?: typeUtils.AtLeastOneProperty<commonTypes.EnumerateWorkflows<TBot>[TWorkflowName]['tags']>
+          tags?: typeUtils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
           output?: typeUtils.Cast<
-            commonTypes.EnumerateWorkflows<TBot>[TWorkflowName],
+            TBot['workflows'][TWorkflowName],
             commonTypes.IntegrationInstanceActionDefinition
           >['output']
         }
@@ -87,7 +81,7 @@ export type WorkflowWithUtilities<
      */
     setCompleted(x?: {
       output?: typeUtils.Cast<
-        commonTypes.EnumerateWorkflows<TBot>[TWorkflowName],
+        TBot['workflows'][TWorkflowName],
         commonTypes.IntegrationInstanceActionDefinition
       >['output']
     }): Promise<{ workflow: WorkflowWithUtilities<TBot, TWorkflowName> }>

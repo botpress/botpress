@@ -13,6 +13,7 @@ import type {
 } from '../bot'
 import { WorkflowProxy, proxyWorkflows } from '../bot/workflow-proxy'
 import * as utils from '../utils'
+import type * as typeUtils from '../utils/type-utils'
 import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginInterfaceExtensions } from './common'
 import { formatEventRef, parseEventRef, resolveEvent } from './interface-resolution'
@@ -239,7 +240,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
           return new Proxy(
             {},
             {
-              get: (_, workflowName: Extract<keyof TPlugin['workflows'], string>) => {
+              get: (_, workflowName: typeUtils.StringKeys<TPlugin['workflows']>) => {
                 const handlersOfType = this._workflowHandlers[updateType]
                 const selfHandlers = handlersOfType?.[workflowName]
 
@@ -268,7 +269,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     workflows: new Proxy(
       {},
       {
-        get: (_, workflowName: Extract<keyof TPlugin['workflows'], string>) =>
+        get: <TWorkflowName extends typeUtils.StringKeys<TPlugin['workflows']>>(
+          _: unknown,
+          workflowName: TWorkflowName
+        ) =>
           new Proxy(
             {},
             {
@@ -277,11 +281,11 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                   updateType satisfies never
                 }
 
-                return (handler: BotWorkflowHandlers<TPlugin>[string]): void => {
+                return (handler: BotWorkflowHandlers<TPlugin>[TWorkflowName]): void => {
                   this._workflowHandlers[updateType] ??= {}
                   this._workflowHandlers[updateType][workflowName] = utils.arrays.safePush(
                     this._workflowHandlers[updateType][workflowName],
-                    handler as BotWorkflowHandlers<TPlugin>[string]
+                    handler as BotWorkflowHandlers<TPlugin>[TWorkflowName]
                   )
                 }
               },

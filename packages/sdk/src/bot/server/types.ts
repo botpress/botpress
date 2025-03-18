@@ -268,7 +268,7 @@ export type HookHandlersMap<TBot extends common.BaseBot> = {
 }
 
 export type WorkflowPayloads<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
-  [WorkflowName in keyof common.EnumerateWorkflows<TBot>]: CommonHandlerProps<TBot> & {
+  [WorkflowName in utils.StringKeys<TBot['workflows']>]: CommonHandlerProps<TBot> & {
     conversation?: client.Conversation
     user?: client.User
     workflow: workflowProxy.WorkflowWithUtilities<TBot, WorkflowName>
@@ -276,19 +276,19 @@ export type WorkflowPayloads<TBot extends common.BaseBot, TExtraTools extends ob
 }
 
 export type WorkflowHandlers<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
-  [K in keyof common.EnumerateWorkflows<TBot>]: (props: WorkflowPayloads<TBot, TExtraTools>[K]) => Promise<void>
+  [K in utils.StringKeys<TBot['workflows']>]: (props: WorkflowPayloads<TBot, TExtraTools>[K]) => Promise<void>
 }
 
 export type WorkflowUpdateTypeCamelCase = 'started' | 'continued' | 'timedOut'
 
 export type WorkflowHandlersMap<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
   [UpdateType in WorkflowUpdateTypeCamelCase]?: {
-    [WorkflowName in keyof common.EnumerateWorkflows<TBot>]?: WorkflowHandlers<TBot, TExtraTools>[WorkflowName][]
+    [WorkflowName in utils.StringKeys<TBot['workflows']>]?: WorkflowHandlers<TBot, TExtraTools>[WorkflowName][]
   }
 }
 
 export type WorkflowHandlersFnMap<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
-  [WorkflowName in Extract<keyof TBot['workflows'], string>]: {
+  [WorkflowName in utils.StringKeys<TBot['workflows']>]: {
     [UType in WorkflowUpdateTypeCamelCase]: (handler: WorkflowHandlers<TBot, TExtraTools>[WorkflowName]) => void
   }
 }

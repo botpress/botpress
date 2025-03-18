@@ -179,18 +179,13 @@ export type GetFile<_TBot extends common.BaseBot> = client.Client['getFile']
 export type UpdateFileMetadata<_TBot extends common.BaseBot> = client.Client['updateFileMetadata']
 export type SearchFiles<_TBot extends common.BaseBot> = client.Client['searchFiles']
 
-export type CreateWorkflow<TBot extends common.BaseBot> = <
-  WorkflowName extends Extract<keyof common.EnumerateWorkflows<TBot>, string>,
->(
+export type CreateWorkflow<TBot extends common.BaseBot> = <TWorkflowName extends utils.StringKeys<TBot['workflows']>>(
   x: utils.Merge<
     Arg<client.Client['createWorkflow']>,
     {
-      name: utils.Cast<WorkflowName, string>
-      input: utils.Cast<
-        common.EnumerateWorkflows<TBot>[WorkflowName],
-        common.IntegrationInstanceActionDefinition
-      >['input']
-      tags?: utils.AtLeastOneProperty<common.EnumerateWorkflows<TBot>[WorkflowName]['tags']>
+      name: utils.Cast<TWorkflowName, string>
+      input: utils.Cast<TBot['workflows'][TWorkflowName], common.IntegrationInstanceActionDefinition>['input']
+      tags?: utils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
     }
   >
 ) => Promise<
@@ -198,7 +193,7 @@ export type CreateWorkflow<TBot extends common.BaseBot> = <
     workflow: utils.Merge<
       Awaited<Res<client.Client['createWorkflow']>>['workflow'],
       {
-        name: NoInfer<WorkflowName>
+        name: NoInfer<TWorkflowName>
       }
     >
   }>
@@ -213,14 +208,12 @@ export type UpdateWorkflow<_TBot extends common.BaseBot> = client.Client['update
 // FIXME: there's no way to infer types for deleteWorkflow, since all we have is its id
 export type DeleteWorkflow<_TBot extends common.BaseBot> = client.Client['deleteWorkflow']
 
-export type ListWorkflows<TBot extends common.BaseBot> = <
-  WorkflowName extends Extract<keyof common.EnumerateWorkflows<TBot>, string>,
->(
+export type ListWorkflows<TBot extends common.BaseBot> = <TWorkflowName extends utils.StringKeys<TBot['workflows']>>(
   x: utils.Merge<
     Arg<client.Client['listWorkflows']>,
     {
-      name?: utils.Cast<WorkflowName, string>
-      tags?: utils.AtLeastOneProperty<common.EnumerateWorkflows<TBot>[WorkflowName]['tags']>
+      name?: utils.Cast<TWorkflowName, string>
+      tags?: utils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
     }
   >
 ) => Promise<Readonly<Awaited<Res<client.Client['listWorkflows']>>>>

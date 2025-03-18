@@ -108,7 +108,3 @@ export type EnumerateStates<TBot extends BaseBot> = {
 export type EnumerateTables<TBot extends BaseBot> = {
   [K in keyof TBot['tables']]: TBot['tables'][K]
 }
-
-export type EnumerateWorkflows<TBot extends BaseBot> = {
-  [K in keyof TBot['workflows']]: TBot['workflows'][K]
-}
