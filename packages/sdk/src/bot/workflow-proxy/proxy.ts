@@ -27,15 +27,14 @@ export const proxyWorkflows = <TBot extends BaseBot>(
           succeeded: (input) => _listWorkflows({ workflowName, client, input, statuses: ['completed'] }),
           timedOut: (input) => _listWorkflows({ workflowName, client, input, statuses: ['timedout'] }),
         },
-        startNewInstance: (input) =>
-          _startNewWorkflowInstance({
-            client,
-            input: {
-              name: workflowName as typeUtils.Cast<TWorkflowName, string>,
-              status: 'pending',
-              ...input,
-            },
-          }),
+        startNewInstance: async (input) => {
+          const { workflow } = await client.createWorkflow({
+            name: workflowName as typeUtils.Cast<TWorkflowName, string>,
+            status: 'pending',
+            ...input,
+          })
+          return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ client, workflow }) }
+        },
       }) satisfies WorkflowProxy<TBot>[TWorkflowName],
   })
 
@@ -61,17 +60,6 @@ const _listWorkflows = async <
       wrapWorkflowInstance<TBot, TWorkflowName>({ client: props.client, workflow })
     ),
   }
-}
-
-const _startNewWorkflowInstance = async <
-  TBot extends BaseBot,
-  TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>,
->(props: {
-  client: BotSpecificClient<TBot> | client.Client
-  input: Parameters<botClient.CreateWorkflow<TBot>>[0]
-}) => {
-  const { workflow } = await props.client.createWorkflow(props.input)
-  return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ client: props.client, workflow }) }
 }
 
 export const wrapWorkflowInstance = <
