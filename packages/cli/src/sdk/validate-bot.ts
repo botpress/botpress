@@ -54,15 +54,11 @@ export const validateBotDefinition = (b: sdk.BotDefinition): void => {
   }
 }
 
-const rmPrefix = (name: string): string => {
-  const [, last] = name.split(PLUGIN_PREFIX_SEP, 2)
-  return last ?? name
-}
-
 const _nonCamelCaseKeys = (obj: Record<string, any>): string[] =>
-  Object.keys(obj)
-    .map(rmPrefix)
-    .filter((k) => !utils.casing.is.camelCase(k))
+  Object.keys(obj).filter((key) => {
+    const tokens: string[] = key.split(PLUGIN_PREFIX_SEP, 2)
+    return tokens.some((t) => !utils.casing.is.camelCase(t))
+  })
 
 const _hasIntegrationDependency = (b: sdk.BotDefinition, dep: PackageRef): boolean => {
   const integrationInstances = Object.entries(b.integrations ?? {}).map(([_k, v]) => v)
