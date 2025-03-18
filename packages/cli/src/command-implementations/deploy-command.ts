@@ -136,9 +136,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
       const knownSecrets = previousVersion?.secrets
 
-      const createSecrets = await this.promptSecrets(integrationDef, this.argv, { knownSecrets })
-      createBody.secrets = utils.records.filterValues(createSecrets, utils.guards.is.notNull)
-
+      createBody.secrets = await this.promptSecrets(integrationDef, this.argv, { knownSecrets })
       this._detectDeprecatedFeatures(integrationDef, {
         allowDeprecated: this._allowDeprecatedFeatures(integrationDef, previousVersion),
       })
