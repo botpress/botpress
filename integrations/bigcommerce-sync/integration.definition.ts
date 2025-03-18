@@ -5,7 +5,7 @@ import { configuration, states, actions } from './src/definitions/index'
 export default new IntegrationDefinition({
   name: integrationName,
   title: 'BigCommerce',
-  version: '1.0.0',
+  version: '3.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Sync products from BigCommerce to Botpress',
