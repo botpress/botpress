@@ -70,7 +70,6 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
   public initialize(props: PluginRuntimeProps<TPlugin>): this {
     this._runtimeProps = props
-    // TODO: ensure there is no collision between plugin alias and any interface name
     return this
   }
 

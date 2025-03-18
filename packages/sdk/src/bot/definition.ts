@@ -173,8 +173,6 @@ export class BotDefinition<
       self.plugins = {}
     }
 
-    // TODO: ensure that plugin alias does not conflict an interface or integration
-
     const key = config.alias ?? pluginPkg.name
     self.plugins[key] = {
       ...pluginPkg,
