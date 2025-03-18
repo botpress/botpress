@@ -107,6 +107,11 @@ export type CommonHandlerProps<TBot extends common.BaseBot> = {
   ctx: BotContext
   logger: BotLogger
   client: BotClient<TBot>
+
+  /**
+   * # EXPERIMENTAL
+   * This API is experimental and may change in the future.
+   */
   workflows: workflowProxy.WorkflowProxy<TBot>
 }
 
@@ -271,6 +276,11 @@ export type WorkflowPayloads<TBot extends common.BaseBot, TExtraTools extends ob
   [WorkflowName in utils.StringKeys<TBot['workflows']>]: CommonHandlerProps<TBot> & {
     conversation?: client.Conversation
     user?: client.User
+
+    /**
+     * # EXPERIMENTAL
+     * This API is experimental and may change in the future.
+     */
     workflow: workflowProxy.WorkflowWithUtilities<TBot, WorkflowName>
   } & TExtraTools
 }

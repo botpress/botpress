@@ -129,6 +129,11 @@ export type BotDefinitionProps<
   tables?: {
     [K in keyof TTables]: TableDefinition<TTables[K]>
   }
+
+  /**
+   * # EXPERIMENTAL
+   * This API is experimental and may change in the future.
+   */
   workflows?: {
     [K in keyof TWorkflows]: WorkflowDefinition<TWorkflows[K]>
   }

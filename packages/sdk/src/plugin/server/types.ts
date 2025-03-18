@@ -102,6 +102,11 @@ export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
   configuration: PluginConfiguration<TPlugin>
   interfaces: common.PluginInterfaceExtensions<TPlugin>
   actions: actionProxy.ActionProxy<TPlugin>
+
+  /**
+   * # EXPERIMENTAL
+   * This API is experimental and may change in the future.
+   */
   workflows: workflowProxy.WorkflowProxy<TPlugin>
   // states: proxy.StateProxy<TPlugin> // TODO: add state proxy to automatically append plugin alias
   alias: string

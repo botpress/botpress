@@ -266,6 +266,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       )
     },
 
+    /**
+     * # EXPERIMENTAL
+     * This API is experimental and may change in the future.
+     */
     workflows: new Proxy(
       {},
       {
