@@ -181,11 +181,11 @@ export class BotDefinition<
       interfaces: config.interfaces,
     }
 
-    self.user = this._mergeUser(self.user, pluginPkg.definition.user) // TODO: adress user tags collision between plugins
-    self.conversation = this._mergeConversation(self.conversation, pluginPkg.definition.conversation) // TODO: adress conversation tags collision between plugins
-    self.message = this._mergeMessage(self.message, pluginPkg.definition.message) // TODO: adress message tags collision between plugins
-    self.recurringEvents = this._mergeRecurringEvents(self.recurringEvents, pluginPkg.definition.recurringEvents) // TODO: adress recurring events collision between plugins
-    self.tables = this._mergeTables(self.tables, pluginPkg.definition.tables) // TODO: adress tables collision between plugins
+    self.user = this._mergeUser(self.user, pluginPkg.definition.user)
+    self.conversation = this._mergeConversation(self.conversation, pluginPkg.definition.conversation)
+    self.message = this._mergeMessage(self.message, pluginPkg.definition.message)
+    self.recurringEvents = this._mergeRecurringEvents(self.recurringEvents, pluginPkg.definition.recurringEvents)
+    self.tables = this._mergeTables(self.tables, pluginPkg.definition.tables)
 
     self.states = this._mergeStates(self.states, this._prefixKeys(pluginPkg.definition.states, config.alias))
     self.events = this._mergeEvents(self.events, this._prefixKeys(pluginPkg.definition.events, config.alias))

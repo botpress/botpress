@@ -54,13 +54,9 @@ export const validateBotDefinition = (b: sdk.BotDefinition): void => {
   }
 }
 
-const rmPrefix = (name: string) => {
-  const sepIdx = name.indexOf(PLUGIN_PREFIX_SEP)
-  if (sepIdx === -1) {
-    return name
-  }
-  const nameWithoutPrefix = name.slice(sepIdx + 1)
-  return nameWithoutPrefix
+const rmPrefix = (name: string): string => {
+  const [, last] = name.split(PLUGIN_PREFIX_SEP, 2)
+  return last ?? name
 }
 
 const _nonCamelCaseKeys = (obj: Record<string, any>): string[] =>
