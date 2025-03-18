@@ -7,7 +7,6 @@ import { ValueOf, Writable, Merge } from '../utils/type-utils'
 import z, { ZuiObjectSchema } from '../zui'
 
 const PLUGIN_PREFIX_SEPARATOR = '#'
-const PLUGIN_PREFIX_FORMAT = /[^a-zA-Z0-9]/g
 
 type BaseConfig = ZuiObjectSchema
 type BaseStates = Record<string, ZuiObjectSchema>
@@ -172,10 +171,6 @@ export class BotDefinition<
     const self = this as Writable<BotDefinition>
     if (!self.plugins) {
       self.plugins = {}
-    }
-
-    if (config.alias && !config.alias.match(PLUGIN_PREFIX_FORMAT)) {
-      throw new Error(`Invalid plugin alias: "${config.alias}". Plugin alias must be alphanumeric.`)
     }
 
     const key = config.alias ?? pluginPkg.name
