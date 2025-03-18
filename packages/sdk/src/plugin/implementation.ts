@@ -72,7 +72,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     after_outgoing_message: {},
     after_outgoing_call_action: {},
   }
-  private _workflowHandlers: BotWorkflowHandlersMap<TPlugin, Tools<TPlugin>> = {}
+  private _workflowHandlers: BotWorkflowHandlersMap<TPlugin> = {}
 
   public constructor(public readonly props: PluginImplementationProps<TPlugin>) {
     this._actionHandlers = props.actions
