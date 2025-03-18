@@ -106,7 +106,7 @@ export class PluginTypingsModule extends Module {
     tablesModule.unshift('tables')
     this.pushDep(tablesModule)
 
-    const workflowsModule = new WorkflowsModule(plugin.workflows ?? {})
+    const workflowsModule = new WorkflowsModule(_plugin.workflows ?? {})
     workflowsModule.unshift('workflows')
     this.pushDep(workflowsModule)
 
