@@ -175,6 +175,13 @@ export type FooBarBazBot = DefaultBot<{
   states: {
     currentUser: { name: string; age: number }
   }
+  workflows: {
+    fooWorkflow: {
+      tags: { foo: string }
+      input: { string: string; optionalNumber?: number }
+      output: { optionalString?: string; number: number }
+    }
+  }
 }>
 
 export type FooBarBazPlugin = DefaultPlugin<{
@@ -192,6 +199,13 @@ export type FooBarBazPlugin = DefaultPlugin<{
       output: {
         result: unknown
       }
+    }
+  }
+  workflows: {
+    fooWorkflow: {
+      tags: { foo: string }
+      input: { string: string; optionalNumber?: number }
+      output: { optionalString?: string; number: number }
     }
   }
 }>

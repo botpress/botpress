@@ -179,6 +179,45 @@ export type GetFile<_TBot extends common.BaseBot> = client.Client['getFile']
 export type UpdateFileMetadata<_TBot extends common.BaseBot> = client.Client['updateFileMetadata']
 export type SearchFiles<_TBot extends common.BaseBot> = client.Client['searchFiles']
 
+export type CreateWorkflow<TBot extends common.BaseBot> = <TWorkflowName extends utils.StringKeys<TBot['workflows']>>(
+  x: utils.Merge<
+    Arg<client.Client['createWorkflow']>,
+    {
+      name: utils.Cast<TWorkflowName, string>
+      input: utils.Cast<TBot['workflows'][TWorkflowName], common.IntegrationInstanceActionDefinition>['input']
+      tags?: utils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
+    }
+  >
+) => Promise<
+  Readonly<{
+    workflow: utils.Merge<
+      Awaited<Res<client.Client['createWorkflow']>>['workflow'],
+      {
+        name: NoInfer<TWorkflowName>
+      }
+    >
+  }>
+>
+
+// FIXME: there's no way to infer types for getWorkflow, since all we have is its id
+export type GetWorkflow<_TBot extends common.BaseBot> = client.Client['getWorkflow']
+
+// FIXME: there's no way to infer types for updateWorkflow, since all we have is its id
+export type UpdateWorkflow<_TBot extends common.BaseBot> = client.Client['updateWorkflow']
+
+// FIXME: there's no way to infer types for deleteWorkflow, since all we have is its id
+export type DeleteWorkflow<_TBot extends common.BaseBot> = client.Client['deleteWorkflow']
+
+export type ListWorkflows<TBot extends common.BaseBot> = <TWorkflowName extends utils.StringKeys<TBot['workflows']>>(
+  x: utils.Merge<
+    Arg<client.Client['listWorkflows']>,
+    {
+      name?: utils.Cast<TWorkflowName, string>
+      tags?: utils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
+    }
+  >
+) => Promise<Readonly<Awaited<Res<client.Client['listWorkflows']>>>>
+
 export type GetTableRow<TBot extends common.BaseBot> = <
   TableName extends keyof common.EnumerateTables<TBot>,
   Columns = utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>>,

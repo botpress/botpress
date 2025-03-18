@@ -1,9 +1,11 @@
 import * as client from '@botpress/client'
 import * as plugin from '../../plugin'
+import type { Request } from '../../serve'
 import * as utils from '../../utils/type-utils'
 import { type BotLogger } from '../bot-logger'
 import { BotSpecificClient } from '../client'
 import * as common from '../common'
+import type * as workflowProxy from '../workflow-proxy/types'
 
 export type BotOperation = 'event_received' | 'register' | 'unregister' | 'ping' | 'action_triggered'
 export type BotContext = {
@@ -105,6 +107,12 @@ export type CommonHandlerProps<TBot extends common.BaseBot> = {
   ctx: BotContext
   logger: BotLogger
   client: BotClient<TBot>
+
+  /**
+   * # EXPERIMENTAL
+   * This API is experimental and may change in the future.
+   */
+  workflows: workflowProxy.WorkflowProxy<TBot>
 }
 
 export type MessagePayloads<TBot extends common.BaseBot> = {
@@ -149,6 +157,27 @@ export type ActionHandlerPayloads<TBot extends common.BaseBot> = {
 export type ActionHandlers<TBot extends common.BaseBot> = {
   [K in keyof TBot['actions']]: (props: ActionHandlerPayloads<TBot>[K]) => Promise<TBot['actions'][K]['output']>
 }
+
+export type BridgeWorkflowUpdateType =
+  | 'child_workflow_deleted'
+  | 'child_workflow_finished'
+  | 'workflow_timedout'
+  | 'workflow_started'
+  | 'workflow_continued'
+export type WorkflowUpdateEventPayload = {
+  type: BridgeWorkflowUpdateType
+  childWorkflow?: client.Workflow
+  workflow: client.Workflow
+  conversation?: client.Conversation
+  user?: client.User
+}
+export type WorkflowUpdateEvent = utils.Merge<
+  client.Event,
+  {
+    type: 'workflow_update'
+    payload: WorkflowUpdateEventPayload
+  }
+>
 
 type BaseHookDefinition = { stoppable?: boolean; data: any }
 type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = THookDef
@@ -243,6 +272,38 @@ export type HookHandlersMap<TBot extends common.BaseBot> = {
   }
 }
 
+export type WorkflowPayloads<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
+  [WorkflowName in utils.StringKeys<TBot['workflows']>]: CommonHandlerProps<TBot> & {
+    conversation?: client.Conversation
+    user?: client.User
+
+    /**
+     * # EXPERIMENTAL
+     * This API is experimental and may change in the future.
+     */
+    workflow: workflowProxy.WorkflowWithUtilities<TBot, WorkflowName>
+  } & TExtraTools
+}
+
+export type WorkflowHandlers<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
+  [K in utils.StringKeys<TBot['workflows']>]: (props: WorkflowPayloads<TBot, TExtraTools>[K]) => Promise<void>
+}
+
+export type WorkflowUpdateTypeSnakeCase = 'started' | 'continued' | 'timed_out'
+export type WorkflowUpdateTypeCamelCase = 'started' | 'continued' | 'timedOut'
+
+export type WorkflowHandlersMap<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
+  [UpdateType in WorkflowUpdateTypeSnakeCase]?: {
+    [WorkflowName in utils.StringKeys<TBot['workflows']>]?: WorkflowHandlers<TBot, TExtraTools>[WorkflowName][]
+  }
+}
+
+export type WorkflowHandlersFnMap<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
+  [WorkflowName in utils.StringKeys<TBot['workflows']>]: {
+    [UType in WorkflowUpdateTypeCamelCase]: (handler: WorkflowHandlers<TBot, TExtraTools>[WorkflowName]) => void
+  }
+}
+
 /**
  * TODO:
  * the consumer of this type shouldnt be able to access "*" directly;
@@ -254,6 +315,7 @@ export type BotHandlers<TBot extends common.BaseBot> = {
   eventHandlers: EventHandlersMap<TBot>
   stateExpiredHandlers: StateExpiredHandlersMap<TBot>
   hookHandlers: HookHandlersMap<TBot>
+  workflowHandlers: WorkflowHandlersMap<TBot>
 }
 
 // plugins
@@ -290,4 +352,9 @@ export type UnimplementedActionHandlers<
   TPlugins extends Record<string, plugin.BasePlugin>,
 > = {
   [K in keyof UnimplementedActions<TBot, TPlugins>]: ActionHandlers<TBot>[utils.Cast<K, keyof ActionHandlers<TBot>>]
+}
+
+export type ServerProps = Omit<CommonHandlerProps<common.BaseBot>, 'workflows'> & {
+  req: Request
+  self: BotHandlers<common.BaseBot>
 }

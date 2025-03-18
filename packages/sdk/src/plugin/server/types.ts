@@ -1,7 +1,8 @@
 import * as client from '@botpress/client'
 import * as bot from '../../bot'
+import * as workflowProxy from '../../bot/workflow-proxy'
 import * as utils from '../../utils/type-utils'
-import * as proxy from '../action-proxy'
+import * as actionProxy from '../action-proxy'
 import * as common from '../common'
 
 type EnumeratePluginEvents<TPlugin extends common.BasePlugin> = bot.EnumerateEvents<TPlugin> &
@@ -100,7 +101,13 @@ export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
   client: PluginClient<TPlugin>
   configuration: PluginConfiguration<TPlugin>
   interfaces: common.PluginInterfaceExtensions<TPlugin>
-  actions: proxy.ActionProxy<TPlugin>
+  actions: actionProxy.ActionProxy<TPlugin>
+
+  /**
+   * # EXPERIMENTAL
+   * This API is experimental and may change in the future.
+   */
+  workflows: workflowProxy.WorkflowProxy<TPlugin>
   // states: proxy.StateProxy<TPlugin> // TODO: add state proxy to automatically append plugin alias
   alias: string
 }

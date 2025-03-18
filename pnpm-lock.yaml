@@ -1807,7 +1807,7 @@ importers:
         specifier: 0.48.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 3.4.0
+        specifier: 3.5.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -1919,7 +1919,7 @@ importers:
         specifier: 0.48.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 3.4.0
+        specifier: 3.5.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1935,7 +1935,7 @@ importers:
         specifier: 0.48.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 3.4.0
+        specifier: 3.5.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1948,7 +1948,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 3.4.0
+        specifier: 3.5.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1964,7 +1964,7 @@ importers:
         specifier: 0.48.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 3.4.0
+        specifier: 3.5.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1980,7 +1980,7 @@ importers:
         specifier: 0.48.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 3.4.0
+        specifier: 3.5.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
