@@ -11,8 +11,8 @@ export class BigCommerceClient {
       headers: {
         'X-Auth-Token': config.accessToken,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+        Accept: 'application/json',
+      },
     })
   }
 
@@ -54,18 +54,16 @@ export class BigCommerceClient {
 
   async makeRequest(config: AxiosRequestConfig) {
     try {
-      const url = config.url?.startsWith('http') 
-        ? config.url 
-        : `${this.baseUrl}${config.url}`
-      
+      const url = config.url?.startsWith('http') ? config.url : `${this.baseUrl}${config.url}`
+
       const response = await this.client.request({
         ...config,
-        url
+        url,
       })
-      
+
       return {
         status: response.status,
-        data: response.data
+        data: response.data,
       }
     } catch (error) {
       throw this.handleError(error)
@@ -78,7 +76,7 @@ export class BigCommerceClient {
         scope,
         destination,
         is_active: true,
-        headers: {}
+        headers: {},
       })
       return response.data
     } catch (error) {
@@ -90,15 +88,11 @@ export class BigCommerceClient {
     if (!destination) {
       throw new Error('Webhook destination URL is required')
     }
-    
-    const webhookEvents = [
-      'store/product/updated',
-      'store/product/created',
-      'store/product/deleted'
-    ]
-    
+
+    const webhookEvents = ['store/product/updated', 'store/product/created', 'store/product/deleted']
+
     const results = []
-    
+
     for (const event of webhookEvents) {
       try {
         const result = await this.createWebhook(event, destination)
@@ -107,7 +101,7 @@ export class BigCommerceClient {
         results.push({ event, success: false, error: error instanceof Error ? error.message : String(error) })
       }
     }
-    
+
     return results
   }
 

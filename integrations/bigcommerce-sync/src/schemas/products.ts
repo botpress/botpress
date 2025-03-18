@@ -27,4 +27,4 @@ export const productsTableSchema = {
 }
 
 // Export the table name as well to ensure consistency
-export const productsTableName = 'bigcommerce_products_Table' 
+export const productsTableName = 'bigcommerce_products_Table'

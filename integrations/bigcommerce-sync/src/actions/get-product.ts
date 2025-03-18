@@ -1,13 +1,10 @@
 import * as bp from '.botpress'
 import { getBigCommerceClient } from '../client'
 
-const getProduct = async ({ 
-  ctx, 
-  input 
-}: any) => {
+const getProduct = async ({ ctx, input }: any) => {
   const bigCommerceClient = getBigCommerceClient(ctx.configuration)
   const { productId } = input
-  
+
   try {
     const response = await bigCommerceClient.getProduct(productId)
     return {
@@ -20,4 +17,4 @@ const getProduct = async ({
   }
 }
 
-export default getProduct 
+export default getProduct

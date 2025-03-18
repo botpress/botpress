@@ -7,4 +7,4 @@ export default {
   getProduct,
   callApi,
   syncProducts,
-} satisfies bp.IntegrationProps['actions'] 
+} satisfies bp.IntegrationProps['actions']

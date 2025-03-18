@@ -4,8 +4,7 @@ Connect your BigCommerce store to Botpress to sync products from BigCommerce to 
 
 ## Installation and Configuration
 
-### **[Walkthrough video for setting up the BigCommerce Integration](https://youtu.be/3Y_WlvMT8AA)** ###
-
+### **[Walkthrough video for setting up the BigCommerce Integration](https://youtu.be/3Y_WlvMT8AA)**
 
 ### Prerequisites
 
@@ -22,7 +21,7 @@ Connect your BigCommerce store to Botpress to sync products from BigCommerce to 
    - Information & Settings: Read-only
 5. Save your credentials:
    - Access Token
-   - Store Hash (Note: the store hash is within the URL of your BigCommerce store. 
+   - Store Hash (Note: the store hash is within the URL of your BigCommerce store.
      EX: https://store-{Store Hash}.mybigcommerce.com)
 
 ### Setting Up the Integration
@@ -35,9 +34,10 @@ Connect your BigCommerce store to Botpress to sync products from BigCommerce to 
 
 1. Go back to your Botpress studio and refresh the page.
 2. You should see a new table in your Tables section labeled **bigcommerce_products_Table**.
-Note: This table is automatically created when the integration is saved.
-Note #2: The table will automatically update when you make changes to your BigCommerce store (product creation, updates, deletion).
+   Note: This table is automatically created when the integration is saved.
+   Note #2: The table will automatically update when you make changes to your BigCommerce store (product creation, updates, deletion).
 
 ### Actions
+
 You can manually trigger the syncProducts action to sync products from BigCommerce to your Botpress table.
 For example, you can connect this to a cron job to sync products every X amount of time.

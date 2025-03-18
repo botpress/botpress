@@ -15,8 +15,7 @@ export const configuration = {
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 
-export const states = {
-} satisfies IntegrationDefinitionProps['states']
+export const states = {} satisfies IntegrationDefinitionProps['states']
 
 export const actions = {
   getProduct: {

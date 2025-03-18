@@ -12,7 +12,7 @@ export default new IntegrationDefinition({
   configuration,
   // Only exposing the syncProducts action in the UI for manual triggers
   actions: {
-    syncProducts: actions.syncProducts
+    syncProducts: actions.syncProducts,
   },
   states,
 })
