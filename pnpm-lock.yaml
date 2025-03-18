@@ -371,6 +371,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      axios:
+        specifier: ^1.7.2
+        version: 1.7.9
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
