@@ -1,7 +1,13 @@
 import axios, { isAxiosError } from 'axios'
 import * as bp from '.botpress'
 
-export const captureScreenshot: bp.IntegrationProps['actions']['captureScreenshot'] = async ({ input, logger }) => {
+const COST_PER_PAGE = 0.0015
+
+export const captureScreenshot: bp.IntegrationProps['actions']['captureScreenshot'] = async ({
+  input,
+  logger,
+  metadata,
+}) => {
   logger.forBot().debug('Capturing Screenshot', { input })
 
   const apiUrl = `https://shot.screenshotapi.net/screenshot?token=${
@@ -14,6 +20,7 @@ export const captureScreenshot: bp.IntegrationProps['actions']['captureScreensho
     const { data } = await axios.get(apiUrl)
 
     if (data.screenshot) {
+      metadata.setCost(COST_PER_PAGE)
       return { imageUrl: data.screenshot }
     } else {
       throw new Error('Screenshot not available')

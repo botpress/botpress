@@ -16,8 +16,7 @@
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "qs": "^6.11.0",
-    "uuid": "^9.0.0",
-    "zod": "npm:@botpress/sdk"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@botpress/chat-api": "workspace:*",

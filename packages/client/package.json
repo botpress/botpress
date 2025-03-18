@@ -1,6 +1,6 @@
 {
   "name": "@botpress/client",
-  "version": "0.47.0",
+  "version": "0.48.0",
   "description": "Botpress Client",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -25,11 +25,10 @@
     "axios": "^1.6.1",
     "axios-retry": "^4.5.0",
     "browser-or-node": "^2.1.1",
-    "qs": "^6.11.0",
-    "type-fest": "^3.4.0"
+    "qs": "^6.11.0"
   },
   "devDependencies": {
-    "@botpress/api": "0.78.0",
+    "@botpress/api": "0.79.0",
     "@types/qs": "^6.9.7",
     "esbuild": "^0.16.12",
     "lodash": "^4.17.21",

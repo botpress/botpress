@@ -29,7 +29,7 @@ export const devBot: Test = {
       ...creds,
     }
 
-    await impl.init({ ...argv, workDir: baseDir, name: botName, type: 'bot' }).then(handleExitCode)
+    await impl.init({ ...argv, workDir: baseDir, name: botName, type: 'bot', template: 'empty' }).then(handleExitCode)
     await utils.fixBotpressDependencies({ workDir: botDir, target: dependencies })
     await utils.npmInstall({ workDir: botDir }).then(handleExitCode)
     await impl.login({ ...argv }).then(handleExitCode)

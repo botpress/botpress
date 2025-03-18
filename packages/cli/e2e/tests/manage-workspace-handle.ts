@@ -40,7 +40,7 @@ export const prependWorkspaceHandle: Test = {
     })
 
     await impl
-      .init({ ...argv, workDir: baseDir, name: integrationNameWithHandle, type: 'integration' })
+      .init({ ...argv, workDir: baseDir, name: integrationNameWithHandle, type: 'integration', template: 'empty' })
       .then(utils.handleExitCode)
 
     // Remove handle from package.json:
@@ -99,7 +99,7 @@ export const enforceWorkspaceHandle: Test = {
     }
 
     await impl
-      .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })
+      .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration', template: 'empty' })
       .then(utils.handleExitCode)
     await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
     await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)

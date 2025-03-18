@@ -24,17 +24,17 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
       maxTokens: 8192,
     },
   },
-  'llama3.1-70b': {
-    name: 'Llama 3.1 70B',
+  'llama3.3-70b': {
+    name: 'Llama 3.3 70B',
     tags: ['general-purpose'],
     description:
       'Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8B and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks.',
     input: {
-      costPer1MTokens: 0.6,
+      costPer1MTokens: 0.85,
       maxTokens: 8192,
     },
     output: {
-      costPer1MTokens: 0.6,
+      costPer1MTokens: 1.2,
       maxTokens: 8192,
     },
   },
@@ -54,7 +54,7 @@ export default new bp.Integration({
         {
           provider,
           models: languageModels,
-          defaultModel: 'llama3.1-70b',
+          defaultModel: 'llama3.3-70b',
         }
       )
       metadata.setCost(output.botpress.cost)

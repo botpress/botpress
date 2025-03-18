@@ -54,6 +54,16 @@ export type AddParticipant<_TBot extends common.BaseBot> = client.Client['addPar
 export type GetParticipant<_TBot extends common.BaseBot> = client.Client['getParticipant']
 export type RemoveParticipant<_TBot extends common.BaseBot> = client.Client['removeParticipant']
 
+export type CreateEvent<TBot extends common.BaseBot> = <TEvent extends keyof TBot['events']>(
+  x: utils.Merge<
+    Arg<client.Client['createEvent']>,
+    {
+      type: utils.Cast<TEvent, string>
+      payload: TBot['events'][TEvent]
+    }
+  >
+) => Promise<EventResponse<TBot>>
+
 export type GetEvent<TBot extends common.BaseBot> = (x: Arg<client.Client['getEvent']>) => Promise<EventResponse<TBot>>
 export type ListEvents<_TBot extends common.BaseBot> = client.Client['listEvents'] // TODO: type properly
 
@@ -365,6 +375,7 @@ export type ClientOperations<TBot extends common.BaseBot> = {
   getParticipant: GetParticipant<TBot>
   removeParticipant: RemoveParticipant<TBot>
   getEvent: GetEvent<TBot>
+  createEvent: CreateEvent<TBot>
   listEvents: ListEvents<TBot>
   createMessage: CreateMessage<TBot>
   getOrCreateMessage: GetOrCreateMessage<TBot>
