@@ -9,8 +9,10 @@ import type {
   WorkflowHandlersMap as BotWorkflowHandlersMap,
   WorkflowHandlers as BotWorkflowHandlers,
   WorkflowHandlersFnMap as BotWorkflowHandlersFnMap,
+  WorkflowUpdateTypeSnakeCase as BotWorkflowUpdateTypeSnakeCase,
   WorkflowUpdateTypeCamelCase as BotWorkflowUpdateTypeCamelCase,
 } from '../bot'
+import { camelCaseUpdateTypeToSnakeCase } from '../bot/server/workflows/update-type-conv'
 import { WorkflowProxy, proxyWorkflows } from '../bot/workflow-proxy'
 import * as utils from '../utils'
 import type * as typeUtils from '../utils/type-utils'
@@ -236,7 +238,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return new Proxy(
       {},
       {
-        get: (_, updateType: BotWorkflowUpdateTypeCamelCase) => {
+        get: (_, updateType: BotWorkflowUpdateTypeSnakeCase) => {
           return new Proxy(
             {},
             {
@@ -286,10 +288,11 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                 }
 
                 return (handler: BotWorkflowHandlers<TPlugin>[TWorkflowName]): void => {
-                  this._workflowHandlers[updateType] ??= {}
-                  this._workflowHandlers[updateType][workflowName] = utils.arrays.safePush(
-                    this._workflowHandlers[updateType][workflowName],
-                    handler as BotWorkflowHandlers<TPlugin>[TWorkflowName]
+                  const updateTypeSnakeCase = camelCaseUpdateTypeToSnakeCase(updateType)
+                  this._workflowHandlers[updateTypeSnakeCase] ??= {}
+                  this._workflowHandlers[updateTypeSnakeCase][workflowName] = utils.arrays.safePush(
+                    this._workflowHandlers[updateTypeSnakeCase][workflowName],
+                    handler
                   )
                 }
               },

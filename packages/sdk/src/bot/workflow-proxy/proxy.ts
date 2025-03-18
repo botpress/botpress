@@ -1,7 +1,6 @@
 import type * as client from '@botpress/client'
 import type { BotSpecificClient } from '../../bot'
 import type * as typeUtils from '../../utils/type-utils'
-import type * as botClient from '../client/types'
 import type { BaseBot } from '../common'
 import type { WorkflowProxy, WorkflowWithUtilities } from './types'
 

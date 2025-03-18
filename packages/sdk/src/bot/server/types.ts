@@ -158,14 +158,14 @@ export type ActionHandlers<TBot extends common.BaseBot> = {
   [K in keyof TBot['actions']]: (props: ActionHandlerPayloads<TBot>[K]) => Promise<TBot['actions'][K]['output']>
 }
 
-export type WorkflowUpdateType =
+export type BridgeWorkflowUpdateType =
   | 'child_workflow_deleted'
   | 'child_workflow_finished'
   | 'workflow_timedout'
   | 'workflow_started'
   | 'workflow_continued'
 export type WorkflowUpdateEventPayload = {
-  type: WorkflowUpdateType
+  type: BridgeWorkflowUpdateType
   childWorkflow?: client.Workflow
   workflow: client.Workflow
   conversation?: client.Conversation
@@ -289,10 +289,11 @@ export type WorkflowHandlers<TBot extends common.BaseBot, TExtraTools extends ob
   [K in utils.StringKeys<TBot['workflows']>]: (props: WorkflowPayloads<TBot, TExtraTools>[K]) => Promise<void>
 }
 
+export type WorkflowUpdateTypeSnakeCase = 'started' | 'continued' | 'timed_out'
 export type WorkflowUpdateTypeCamelCase = 'started' | 'continued' | 'timedOut'
 
 export type WorkflowHandlersMap<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
-  [UpdateType in WorkflowUpdateTypeCamelCase]?: {
+  [UpdateType in WorkflowUpdateTypeSnakeCase]?: {
     [WorkflowName in utils.StringKeys<TBot['workflows']>]?: WorkflowHandlers<TBot, TExtraTools>[WorkflowName][]
   }
 }

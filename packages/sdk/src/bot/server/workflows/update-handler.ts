@@ -2,6 +2,7 @@ import { Response } from '../../../serve'
 import { proxyWorkflows, wrapWorkflowInstance } from '../../workflow-proxy'
 import { SUCCESS_RESPONSE } from '../responses'
 import * as types from '../types'
+import { bridgeUpdateTypeToSnakeCase } from './update-type-conv'
 
 const WORKFLOW_UPDATE_TYPES = [
   'child_workflow_deleted',
@@ -48,7 +49,7 @@ export const handleWorkflowUpdateEvent = async (
 }
 
 const _handleWorkflowUpdate = async (props: types.ServerProps, event: types.WorkflowUpdateEvent): Promise<Response> => {
-  const updateType = _updateTypeToCamelCase(event.payload.type)
+  const updateType = bridgeUpdateTypeToSnakeCase(event.payload.type)
   const handlers = props.self.workflowHandlers[updateType]?.[event.payload.workflow.name]
 
   if (!handlers || handlers.length === 0) {
@@ -64,19 +65,6 @@ const _handleWorkflowUpdate = async (props: types.ServerProps, event: types.Work
   return SUCCESS_RESPONSE
 }
 
-const _updateTypeToCamelCase = (updateType: types.WorkflowUpdateType): types.WorkflowUpdateTypeCamelCase => {
-  switch (updateType) {
-    case 'workflow_continued':
-      return 'continued'
-    case 'workflow_started':
-      return 'started'
-    case 'workflow_timedout':
-      return 'timedOut'
-    default:
-      throw new Error(`Unsupported workflow update type: ${updateType}`)
-  }
-}
-
 const _acknowledgeWorkflowStart = async (props: types.ServerProps, event: types.WorkflowUpdateEvent): Promise<void> => {
   if (event.payload.workflow.status !== 'pending') {
     return
@@ -87,7 +75,7 @@ const _acknowledgeWorkflowStart = async (props: types.ServerProps, event: types.
 }
 
 const _dispatchToHandlers = async (props: types.ServerProps, event: types.WorkflowUpdateEvent): Promise<void> => {
-  const updateType = _updateTypeToCamelCase(event.payload.type)
+  const updateType = bridgeUpdateTypeToSnakeCase(event.payload.type)
   const handlers = props.self.workflowHandlers[updateType]?.[event.payload.workflow.name]
 
   for (const handler of handlers!) {

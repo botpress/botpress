@@ -2,6 +2,7 @@ import type { Server } from 'node:http'
 import { BasePlugin, PluginImplementation } from '../plugin'
 import { serve } from '../serve'
 import * as utils from '../utils'
+import type * as typeUtils from '../utils/type-utils'
 import { BaseBot } from './common'
 import {
   botHandler,
@@ -20,9 +21,10 @@ import {
   type WorkflowHandlersMap,
   type WorkflowHandlers,
   type WorkflowHandlersFnMap,
-  type WorkflowUpdateTypeCamelCase,
+  type WorkflowUpdateTypeSnakeCase,
+  WorkflowUpdateTypeCamelCase,
 } from './server'
-import type * as typeUtils from '../utils/type-utils'
+import { camelCaseUpdateTypeToSnakeCase } from './server/workflows/update-type-conv'
 
 export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}> = {
   actions: UnimplementedActionHandlers<TBot, TPlugins>
@@ -163,7 +165,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     return new Proxy(
       {},
       {
-        get: (_, updateType: WorkflowUpdateTypeCamelCase) => {
+        get: (_, updateType: WorkflowUpdateTypeSnakeCase) => {
           return new Proxy(
             {},
             {
@@ -209,9 +211,10 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
                 }
 
                 return (handler: WorkflowHandlers<TBot>[TWorkflowName]): void => {
-                  this._workflowHandlers[updateType] ??= {}
-                  this._workflowHandlers[updateType][workflowName] = utils.arrays.safePush(
-                    this._workflowHandlers[updateType][workflowName],
+                  const updateTypeSnakeCase = camelCaseUpdateTypeToSnakeCase(updateType)
+                  this._workflowHandlers[updateTypeSnakeCase] ??= {}
+                  this._workflowHandlers[updateTypeSnakeCase][workflowName] = utils.arrays.safePush(
+                    this._workflowHandlers[updateTypeSnakeCase][workflowName],
                     handler as WorkflowHandlers<TBot>[TWorkflowName]
                   )
                 }
