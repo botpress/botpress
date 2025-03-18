@@ -3,7 +3,7 @@ import '.botpress'
 import { getBigCommerceClient } from '../client'
 import { productsTableSchema, productsTableName } from '../schemas/products'
 
-const syncProducts = async ({ ctx, client, logger, _input }: any) => {
+const syncProducts = async ({ ctx, client, logger }: any) => {
   /*
   FOR FUTURE PURPOSES:
   This is the client that MUST be imported in order to allow table operations
