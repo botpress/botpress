@@ -1,8 +1,8 @@
-import actions from './actions'
-import * as bp from '.botpress'
 import { Client } from '@botpress/client'
+import actions from './actions'
 import { getBigCommerceClient } from './client'
 import { productsTableSchema, productsTableName } from './schemas/products'
+import * as bp from '.botpress'
 
 /*
 FOR FUTURE PURPOSES:
@@ -11,7 +11,7 @@ within an integration. Without this, the table operations will cause errors ever
 */
 const getBotpressVanillaClient = (client: any): Client => (client as any)._client as Client
 
-/* 
+/*
   Helper function to check if a request is from BigCommerce based on headers
 */
 const isBigCommerceWebhook = (headers: Record<string, string | string[] | undefined>): boolean => {
@@ -23,7 +23,7 @@ const isBigCommerceWebhook = (headers: Record<string, string | string[] | undefi
   )
 }
 
-/* 
+/*
   Helper function to extract product ID from webhook data
 */
 const extractProductId = (webhookData: any): string | undefined => {
@@ -33,7 +33,7 @@ const extractProductId = (webhookData: any): string | undefined => {
   return undefined
 }
 
-/* 
+/*
   Helper function to handle product create/update operations
 */
 const handleProductCreateOrUpdate = async (
@@ -52,7 +52,7 @@ const handleProductCreateOrUpdate = async (
   if (!product) return null
 
   // Fetch all categories to map IDs to names
-  logger.forBot().info(`Fetching categories to map IDs to names`)
+  logger.forBot().info('Fetching categories to map IDs to names')
   const categoriesResponse = await bigCommerceClient.getCategories()
   const categoriesMap = new Map()
 
@@ -63,7 +63,7 @@ const handleProductCreateOrUpdate = async (
   }
 
   // Fetch all brands to map IDs to names
-  logger.forBot().info(`Fetching brands to map IDs to names`)
+  logger.forBot().info('Fetching brands to map IDs to names')
   const brandsResponse = await bigCommerceClient.getBrands()
   const brandsMap = new Map()
 
@@ -97,7 +97,7 @@ const handleProductCreateOrUpdate = async (
     inventory_level: product.inventory_level,
     inventory_tracking: product.inventory_tracking,
     brand_name: brandName,
-    categories: categories,
+    categories,
     availability: product.availability,
     condition: product.condition,
     is_visible: product.is_visible,
@@ -135,7 +135,7 @@ const handleProductCreateOrUpdate = async (
   }
 }
 
-/* 
+/*
   Helper function to handle product delete operations
 */
 const handleProductDelete = async (
@@ -254,11 +254,7 @@ export default new bp.Integration({
 
         return {
           status: 200,
-          body: JSON.stringify({
-            success: result.success,
-            message: 'BigCommerce webhook processed (full sync)',
-            syncResult: result,
-          }),
+          body: JSON.stringify(result),
         }
       }
 
@@ -281,17 +277,38 @@ export default new bp.Integration({
         })
       )
 
-      // extracting scope/event type
-      let scope = webhookData?.scope
-      if (!scope && req.headers['x-webhook-event']) {
-        scope = req.headers['x-webhook-event']
+      // guard clause: if not a recognized BigCommerce webhook, fall back to event processing
+      if (!webhookData) {
+        logger.forBot().warn('No webhook data found, unable to process')
+        return {
+          status: 400,
+          body: JSON.stringify({
+            success: false,
+            message: 'No webhook data found',
+          }),
+        }
       }
 
-      // extracting product ID
+      // Extract information from the webhook data
       const productId = extractProductId(webhookData)
+      let webhookType = ''
+
+      if (webhookData.scope && typeof webhookData.scope === 'string' && webhookData.scope.includes('product')) {
+        if (webhookData.scope.includes('created')) {
+          webhookType = 'created'
+        } else if (webhookData.scope.includes('updated')) {
+          webhookType = 'updated'
+        } else if (webhookData.scope.includes('deleted')) {
+          webhookType = 'deleted'
+        }
+      } else if (webhookData.producer && webhookData.producer === 'product') {
+        if (webhookData.data && webhookData.data.type) {
+          webhookType = webhookData.data.type.toLowerCase()
+        }
+      }
 
       // guard clause: if missing scope or productId, fall back to full sync
-      if (!scope || !productId) {
+      if (!webhookType || !productId) {
         logger.forBot().warn('Could not extract product ID or event type from webhook, falling back to full sync')
 
         logger.forBot().info('Detailed webhook structure for debugging:', {
@@ -299,7 +316,7 @@ export default new bp.Integration({
           bodyKeys: typeof req.body === 'object' ? Object.keys(req.body) : [],
           headerKeys: Object.keys(req.headers),
           hasProductId: !!productId,
-          hasScope: !!scope,
+          hasScope: !!webhookType,
           payloadSample: JSON.stringify(webhookData).substring(0, 500),
         })
 
@@ -320,31 +337,25 @@ export default new bp.Integration({
         }
       }
 
-      logger.forBot().info(`Processing event: ${scope} for product ID: ${productId}`)
-
-      // format variations --> i did this bc I was getting errors within the scope and couldn't be bothered
-      const normalizedScope = scope.toLowerCase()
-      const isCreated = normalizedScope.includes('created') || normalizedScope.includes('create')
-      const isUpdated = normalizedScope.includes('updated') || normalizedScope.includes('update')
-      const isDeleted = normalizedScope.includes('deleted') || normalizedScope.includes('delete')
+      logger.forBot().info(`Processing event: ${webhookType} for product ID: ${productId}`)
 
       let result
 
       try {
-        if (isCreated || isUpdated) {
+        if (webhookType === 'created' || webhookType === 'updated') {
           result = await handleProductCreateOrUpdate(
             productId.toString(),
             bigCommerceClient,
             botpressVanillaClient,
             tableName,
-            isCreated,
+            webhookType === 'created',
             logger
           )
-        } else if (isDeleted) {
+        } else if (webhookType === 'deleted') {
           result = await handleProductDelete(productId.toString(), botpressVanillaClient, tableName, logger)
         } else {
           // Unrecognized event type = fall back to full sync
-          logger.forBot().warn(`Unrecognized event type: ${scope}, falling back to full sync`)
+          logger.forBot().warn(`Unrecognized event type: ${webhookType}, falling back to full sync`)
           result = await actions.syncProducts({
             ctx,
             client,
@@ -356,23 +367,19 @@ export default new bp.Integration({
 
         return {
           status: 200,
-          body: JSON.stringify({
-            success: result?.success || false,
-            message: result?.message || 'Webhook processed',
-            ...result,
-          }),
+          body: JSON.stringify(result),
         }
       } catch (error) {
-        logger.forBot().error(`Error processing ${scope} for product ${productId}:`, error)
+        logger.forBot().error(`Error processing ${webhookType} for product ${productId}:`, error)
         throw error
       }
     } catch (error) {
-      logger.forBot().error('Error processing webhook:', error)
+      logger.forBot().error('Error handling webhook:', error)
       return {
         status: 500,
         body: JSON.stringify({
           success: false,
-          message: `Error processing webhook: ${error instanceof Error ? error.message : String(error)}`,
+          message: `Error handling webhook: ${error instanceof Error ? error.message : String(error)}`,
         }),
       }
     }

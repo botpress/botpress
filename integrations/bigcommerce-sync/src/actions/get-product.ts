@@ -1,4 +1,4 @@
-import * as bp from '.botpress'
+import '.botpress'
 import { getBigCommerceClient } from '../client'
 
 const getProduct = async ({ ctx, input }: any) => {

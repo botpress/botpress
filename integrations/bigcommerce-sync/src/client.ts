@@ -2,61 +2,61 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import * as bp from '.botpress'
 
 export class BigCommerceClient {
-  private client: AxiosInstance
-  private baseUrl: string
+  private _client: AxiosInstance
+  private _baseUrl: string
 
-  constructor(private config: bp.configuration.Configuration) {
-    this.baseUrl = `https://api.bigcommerce.com/stores/${config.storeHash}`
-    this.client = axios.create({
+  public constructor(private _config: bp.configuration.Configuration) {
+    this._baseUrl = `https://api.bigcommerce.com/stores/${_config.storeHash}`
+    this._client = axios.create({
       headers: {
-        'X-Auth-Token': config.accessToken,
+        'X-Auth-Token': _config.accessToken,
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     })
   }
 
-  async getProducts(params?: Record<string, any>) {
+  public async getProducts(params?: Record<string, any>) {
     try {
-      const response = await this.client.get(`${this.baseUrl}/v3/catalog/products`, { params })
+      const response = await this._client.get(`${this._baseUrl}/v3/catalog/products`, { params })
       return response.data
     } catch (error) {
-      throw this.handleError(error)
+      throw this._handleError(error)
     }
   }
 
-  async getProduct(productId: string) {
+  public async getProduct(productId: string) {
     try {
-      const response = await this.client.get(`${this.baseUrl}/v3/catalog/products/${productId}`)
+      const response = await this._client.get(`${this._baseUrl}/v3/catalog/products/${productId}`)
       return response.data
     } catch (error) {
-      throw this.handleError(error)
+      throw this._handleError(error)
     }
   }
 
-  async getCategories() {
+  public async getCategories() {
     try {
-      const response = await this.client.get(`${this.baseUrl}/v3/catalog/categories`)
+      const response = await this._client.get(`${this._baseUrl}/v3/catalog/categories`)
       return response.data
     } catch (error) {
-      throw this.handleError(error)
+      throw this._handleError(error)
     }
   }
 
-  async getBrands() {
+  public async getBrands() {
     try {
-      const response = await this.client.get(`${this.baseUrl}/v3/catalog/brands`)
+      const response = await this._client.get(`${this._baseUrl}/v3/catalog/brands`)
       return response.data
     } catch (error) {
-      throw this.handleError(error)
+      throw this._handleError(error)
     }
   }
 
-  async makeRequest(config: AxiosRequestConfig) {
+  public async makeRequest(config: AxiosRequestConfig) {
     try {
-      const url = config.url?.startsWith('http') ? config.url : `${this.baseUrl}${config.url}`
+      const url = config.url?.startsWith('http') ? config.url : `${this._baseUrl}${config.url}`
 
-      const response = await this.client.request({
+      const response = await this._client.request({
         ...config,
         url,
       })
@@ -66,13 +66,13 @@ export class BigCommerceClient {
         data: response.data,
       }
     } catch (error) {
-      throw this.handleError(error)
+      throw this._handleError(error)
     }
   }
 
-  async createWebhook(scope: string, destination: string) {
+  public async createWebhook(scope: string, destination: string) {
     try {
-      const response = await this.client.post(`${this.baseUrl}/v3/hooks`, {
+      const response = await this._client.post(`${this._baseUrl}/v3/hooks`, {
         scope,
         destination,
         is_active: true,
@@ -80,11 +80,11 @@ export class BigCommerceClient {
       })
       return response.data
     } catch (error) {
-      throw this.handleError(error)
+      throw this._handleError(error)
     }
   }
 
-  async createProductWebhooks(destination: string) {
+  public async createProductWebhooks(destination: string) {
     if (!destination) {
       throw new Error('Webhook destination URL is required')
     }
@@ -105,7 +105,7 @@ export class BigCommerceClient {
     return results
   }
 
-  private handleError(error: any) {
+  private _handleError(error: any) {
     if (axios.isAxiosError(error)) {
       const message = error.response?.data?.message || error.message
       return new Error(`BigCommerce API Error: ${message}`)

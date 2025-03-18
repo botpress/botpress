@@ -1,11 +1,10 @@
 import { Client } from '@botpress/client'
-import * as bp from '.botpress'
-import { z } from '@botpress/sdk'
+import '.botpress'
 import { getBigCommerceClient } from '../client'
 import { productsTableSchema, productsTableName } from '../schemas/products'
 
-const syncProducts = async ({ ctx, client, logger, input }: any) => {
-  /* 
+const syncProducts = async ({ ctx, client, logger, _input }: any) => {
+  /*
   FOR FUTURE PURPOSES:
   This is the client that MUST be imported in order to allow table operations
   within an integration. Without this, the table operations will cause errors everywhere.
@@ -96,7 +95,7 @@ const syncProducts = async ({ ctx, client, logger, input }: any) => {
         inventory_level: product.inventory_level,
         inventory_tracking: product.inventory_tracking,
         brand_name: brandName,
-        categories: categories,
+        categories,
         availability: product.availability,
         condition: product.condition,
         is_visible: product.is_visible,
