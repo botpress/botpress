@@ -31,6 +31,7 @@ import {
   StateExpiredPayloads,
   ActionHandlerPayloads,
   EventPayloads,
+  WorkflowHandlers,
 } from './server/types'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
@@ -366,6 +367,48 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       this._hookHandlers.after_outgoing_call_action[type as string] = utils.arrays.safePush(
         this._hookHandlers.after_outgoing_call_action[type as string],
         handler as HookHandlers<any>['after_outgoing_call_action'][string]
+      )
+    },
+
+    /**
+     * # EXPERIMENTAL
+     * This API is experimental and may change in the future.
+     */
+    workflowStarted: <T extends keyof WorkflowHandlersMap<TPlugin>['started']>(
+      type: T,
+      handler: WorkflowHandlers<TPlugin>[T]
+    ): void => {
+      this._workflowHandlers.started[type as string] = utils.arrays.safePush(
+        this._workflowHandlers.started[type],
+        handler as WorkflowHandlers<any>[string]
+      )
+    },
+
+    /**
+     * # EXPERIMENTAL
+     * This API is experimental and may change in the future.
+     */
+    workflowContinued: <T extends keyof WorkflowHandlersMap<TPlugin>['continued']>(
+      type: T,
+      handler: WorkflowHandlers<TPlugin>[T]
+    ): void => {
+      this._workflowHandlers.continued[type as string] = utils.arrays.safePush(
+        this._workflowHandlers.continued[type],
+        handler as WorkflowHandlers<any>[string]
+      )
+    },
+
+    /**
+     * # EXPERIMENTAL
+     * This API is experimental and may change in the future.
+     */
+    workflowTimedOut: <T extends keyof WorkflowHandlersMap<TPlugin>['timed_out']>(
+      type: T,
+      handler: WorkflowHandlers<TPlugin>[T]
+    ): void => {
+      this._workflowHandlers.timed_out[type as string] = utils.arrays.safePush(
+        this._workflowHandlers.timed_out[type],
+        handler as WorkflowHandlers<any>[string]
       )
     },
   }
