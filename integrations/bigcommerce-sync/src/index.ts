@@ -157,11 +157,7 @@ const handleProductDelete = async (
   }
 }
 
-const setupBigCommerceWebhooks = async (
-  ctx: bp.IntegrationProps['ctx'],
-  logger: bp.Logger,
-  webhookId: string
-) => {
+const setupBigCommerceWebhooks = async (ctx: bp.IntegrationProps['ctx'], logger: bp.Logger, webhookId: string) => {
   const webhookUrl = `https://webhook.botpress.cloud/${webhookId}`
   logger.forBot().info(`Setting up BigCommerce webhooks to: ${webhookUrl}`)
 
