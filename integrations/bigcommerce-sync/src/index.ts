@@ -9,7 +9,7 @@ FOR FUTURE PURPOSES:
 This is the client that MUST be imported in order to allow table operations
 within an integration. Without this, the table operations will cause errors everywhere.
 */
-const getBotpressVanillaClient = (client: any): Client => (client as any)._client as Client
+const getBotpressVanillaClient = (client: bp.Client): Client => (client as any)._client as Client
 
 /*
   Helper function to check if a request is from BigCommerce based on headers
