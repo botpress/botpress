@@ -43,9 +43,9 @@ const handleProductCreateOrUpdate = async (
   const categoriesMap = new Map()
 
   if (categoriesResponse && categoriesResponse.data) {
-    categoriesResponse.data.forEach((category: any) => {
+    for (const category of categoriesResponse.data) {
       categoriesMap.set(category.id, category.name)
-    })
+    }
   }
 
   logger.forBot().info('Fetching brands to map IDs to names')
@@ -53,9 +53,9 @@ const handleProductCreateOrUpdate = async (
   const brandsMap = new Map()
 
   if (brandsResponse && brandsResponse.data) {
-    brandsResponse.data.forEach((brand: any) => {
+    for (const brand of brandsResponse.data) {
       brandsMap.set(brand.id, brand.name)
-    })
+    }
   }
 
   const categoryNames =
