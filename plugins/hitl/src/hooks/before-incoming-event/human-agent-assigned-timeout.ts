@@ -1,21 +1,22 @@
 import { DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE, DEFAULT_USER_HITL_CANCELLED_MESSAGE } from '../../../plugin.definition'
 import * as conv from '../../conv-manager'
+import * as consts from '../consts'
 import * as bp from '.botpress'
 
-export const handleEvent: bp.EventHandlers['humanAgentAssignedTimeout'] = async (props) => {
+export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAssignedTimeout'] = async (props) => {
   const {
     conversationId: upstreamConversationId,
     payload: { downstreamConversationId },
-  } = props.event
+  } = props.data
 
   if (!_isTimeoutElapsed(props)) {
     props.logger.info('Human agent assigned timeout event ignored because the timeout has not lapsed yet')
-    return
+    return consts.LET_BOT_HANDLE_EVENT
   }
 
   if (!upstreamConversationId || !downstreamConversationId) {
     props.logger.error('Missing conversationId in event payload')
-    return
+    return consts.LET_BOT_HANDLE_EVENT
   }
 
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
@@ -24,27 +25,29 @@ export const handleEvent: bp.EventHandlers['humanAgentAssignedTimeout'] = async 
 
   if (isAgentAlreadyAssigned) {
     props.logger.info('Human agent assigned timeout event ignored because the agent is already assigned')
-    return
+    return consts.LET_BOT_HANDLE_EVENT
   }
 
   await _handleTimeout(props, upstreamCm, downstreamCm)
+  return consts.LET_BOT_HANDLE_EVENT
 }
 
-const _isTimeoutElapsed = (props: bp.EventHandlerProps): boolean => {
+const _isTimeoutElapsed = (props: bp.HookHandlerProps['before_incoming_event']): boolean => {
   if (!_isTimeoutEnabled(props)) {
     props.logger.info('Human agent assigned timeout is not enabled')
     return false
   }
 
   const now = Date.now()
-  const timeWhenCreated = new Date(props.event.payload.sessionStartedAt).getTime()
+  const timeWhenCreated = new Date(props.data.payload.sessionStartedAt).getTime()
   const elapsedSeconds = (now - timeWhenCreated) / 1000
   const timeoutSeconds = props.configuration.agentAssignedTimeoutSeconds ?? 0
 
   return elapsedSeconds >= timeoutSeconds
 }
 
-const _isTimeoutEnabled = (props: bp.EventHandlerProps): boolean => !!props.configuration.agentAssignedTimeoutSeconds
+const _isTimeoutEnabled = (props: bp.HookHandlerProps['before_incoming_event']): boolean =>
+  !!props.configuration.agentAssignedTimeoutSeconds
 
 const _isAgentAlreadyAssigned = async (
   upstreamCm: conv.ConversationManager,
@@ -68,7 +71,7 @@ const _isAgentAlreadyAssigned = async (
 }
 
 const _handleTimeout = async (
-  props: bp.EventHandlerProps,
+  props: bp.HookHandlerProps['before_incoming_event'],
   upstreamCm: conv.ConversationManager,
   downstreamCm: conv.ConversationManager
 ) => {

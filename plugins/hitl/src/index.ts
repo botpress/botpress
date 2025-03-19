@@ -10,27 +10,28 @@ const plugin = new bp.Plugin({
 })
 
 plugin.on.beforeIncomingMessage('*', async (props) => {
-  console.info('Before incoming message', props.data.payload)
+  props.logger.info('Before incoming message', props.data.payload)
   return await hooks.beforeIncomingMessage.all.handleMessage(props)
 })
 
 plugin.on.beforeIncomingEvent('hitl:hitlAssigned', async (props) => {
-  console.info('HITL assigned', props.data.payload)
+  props.logger.info('HITL assigned', props.data.payload)
   return await hooks.beforeIncomingEvent.hitlAssigned.handleEvent(props)
 })
 
 plugin.on.beforeIncomingEvent('hitl:hitlStopped', async (props) => {
-  console.info('HITL stopped', props.data.payload)
+  props.logger.info('HITL stopped', props.data.payload)
   return await hooks.beforeIncomingEvent.hitlStopped.handleEvent(props)
 })
 
-plugin.on.beforeIncomingEvent('*', async (props) => {
-  return await hooks.beforeIncomingEvent.all.handleEvent(props)
+plugin.on.beforeIncomingEvent('humanAgentAssignedTimeout', async (props) => {
+  props.logger.info('HITL agent assigned timeout', props.data.payload)
+  return await hooks.beforeIncomingEvent.humanAgentAssignedTimeout.handleEvent(props)
 })
 
-plugin.on.event('humanAgentAssignedTimeout', async (props) => {
-  console.info('HITL agent assigned timeout', props.event.payload)
-  return await hooks.onEvent.humanAgentAssignedTimeout.handleEvent(props)
+plugin.on.beforeIncomingEvent('*', async (props) => {
+  props.logger.info('Before incoming event', props.data.payload)
+  return await hooks.beforeIncomingEvent.all.handleEvent(props)
 })
 
 export default plugin
