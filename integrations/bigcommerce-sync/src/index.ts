@@ -5,7 +5,7 @@ import { productsTableSchema, productsTableName } from './schemas/products'
 import * as bp from '.botpress'
 
 // this client is necessary for table operations
-const getBotpressVanillaClient = (client: bp.Client): Client => (client as any)._client as Client
+const getBotpressVanillaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
 
 const isBigCommerceWebhook = (headers: Record<string, string | string[] | undefined>): boolean => {
   return !!(

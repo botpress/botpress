@@ -5,7 +5,8 @@ import * as bp from '.botpress'
 
 const syncProducts = async ({ ctx, client, logger }: any) => {
   // this client is necessary for table operations
-  const botpressVanillaClient = (client as bp.Client)._client as Client
+  const getVaniallaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
+  const botpressVanillaClient = getVaniallaClient(client)
 
   const bigCommerceClient = getBigCommerceClient(ctx.configuration)
 
