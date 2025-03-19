@@ -3,7 +3,30 @@ import { getBigCommerceClient } from '../client'
 import { productsTableSchema, productsTableName } from '../schemas/products'
 import * as bp from '.botpress'
 
-const syncProducts = async ({ ctx, client, logger }: any) => {
+type BigCommerceProduct = {
+  id: number;
+  name: string;
+  sku?: string;
+  price?: number;
+  sale_price?: number;
+  retail_price?: number;
+  cost_price?: number;
+  weight?: number;
+  type?: string;
+  inventory_level?: number;
+  inventory_tracking?: string;
+  brand_id?: number;
+  categories?: number[];
+  availability?: string;
+  condition?: string;
+  is_visible?: boolean;
+  sort_order?: number;
+  description?: string;
+  images?: Array<{ url_standard: string }>;
+  custom_url?: { url: string };
+}
+
+const syncProducts = async ({ ctx, client, logger }: bp.IntegrationActionProps) => {
   // this client is necessary for table operations
   const getVaniallaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
   const botpressVanillaClient = getVaniallaClient(client)
@@ -38,7 +61,7 @@ const syncProducts = async ({ ctx, client, logger }: any) => {
     const categoriesMap = new Map()
 
     if (categoriesResponse && categoriesResponse.data) {
-      categoriesResponse.data.forEach((category: any) => {
+      categoriesResponse.data.forEach((category: { id: number; name: string }) => {
         categoriesMap.set(category.id, category.name)
       })
     }
@@ -48,12 +71,12 @@ const syncProducts = async ({ ctx, client, logger }: any) => {
     const brandsMap = new Map()
 
     if (brandsResponse && brandsResponse.data) {
-      brandsResponse.data.forEach((brand: any) => {
+      brandsResponse.data.forEach((brand: { id: number; name: string }) => {
         brandsMap.set(brand.id, brand.name)
       })
     }
 
-    const tableRows = products.map((product: any) => {
+    const tableRows = products.map((product: BigCommerceProduct) => {
       const categoryNames =
         product.categories?.map((categoryId: number) => categoriesMap.get(categoryId) || categoryId.toString()) || []
 
@@ -61,7 +84,7 @@ const syncProducts = async ({ ctx, client, logger }: any) => {
 
       const brandName = product.brand_id ? brandsMap.get(product.brand_id) || product.brand_id.toString() : ''
 
-      const imageUrl = product.images && product.images.length > 0 ? product.images[0].url_standard : ''
+      const imageUrl = product.images && product.images.length > 0 ? product.images[0]?.url_standard || '' : ''
 
       return {
         product_id: product.id,
