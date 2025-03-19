@@ -3,4 +3,4 @@ import * as bp from '.botpress'
 
 export default {
   syncProducts,
-} satisfies bp.IntegrationProps['actions']
+} satisfies bp.ActionHandlers<bp.TIntegration>

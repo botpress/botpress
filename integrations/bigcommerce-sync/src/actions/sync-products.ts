@@ -26,12 +26,15 @@ type BigCommerceProduct = {
   custom_url?: { url: string }
 }
 
-const syncProducts = async ({ ctx, client, logger }: bp.IntegrationProps) => {
+const syncProducts = async (props: bp.ActionHandlerProps<bp.TIntegration, 'syncProducts', {}>) => {
+  const { client, logger } = props
+  const ctx = props.ctx.configuration
+
   // this client is necessary for table operations
   const getVaniallaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
   const botpressVanillaClient = getVaniallaClient(client)
 
-  const bigCommerceClient = getBigCommerceClient(ctx.configuration)
+  const bigCommerceClient = getBigCommerceClient(ctx)
 
   try {
     const tableName = productsTableName

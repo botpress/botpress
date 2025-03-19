@@ -157,12 +157,12 @@ const handleProductDelete = async (
   }
 }
 
-const setupBigCommerceWebhooks = async (ctx: bp.IntegrationProps['ctx'], logger: bp.Logger, webhookId: string) => {
+const setupBigCommerceWebhooks = async (configuration: any, logger: bp.Logger, webhookId: string) => {
   const webhookUrl = `https://webhook.botpress.cloud/${webhookId}`
   logger.forBot().info(`Setting up BigCommerce webhooks to: ${webhookUrl}`)
 
   try {
-    const bigCommerceClient = getBigCommerceClient(ctx.configuration)
+    const bigCommerceClient = getBigCommerceClient(configuration)
     const webhookResults = await bigCommerceClient.createProductWebhooks(webhookUrl)
     logger.forBot().info('Webhook creation results:', webhookResults)
     return { success: true }
@@ -172,12 +172,12 @@ const setupBigCommerceWebhooks = async (ctx: bp.IntegrationProps['ctx'], logger:
   }
 }
 
-const syncBigCommerceProducts = async (ctx: bp.IntegrationProps['ctx'], client: bp.Client, logger: bp.Logger) => {
+const syncBigCommerceProducts = async (configuration: any, client: bp.Client, logger: bp.Logger) => {
   logger.forBot().info('Syncing BigCommerce products...')
 
   try {
     const syncResult = await actions.syncProducts({
-      ctx,
+      ctx: { configuration },
       client,
       logger,
       input: {},
@@ -191,11 +191,10 @@ const syncBigCommerceProducts = async (ctx: bp.IntegrationProps['ctx'], client: 
   }
 }
 
-export default new bp.Integration({
-  register: async ({ client, ctx, logger }) => {
-    logger.forBot().info('Registering BigCommerce integration')
-
+export default {
+  register: async ({ client, ctx, logger }: bp.IntegrationProps) => {
     try {
+      logger.forBot().info('Registering BigCommerce integration')
       const botpressVanillaClient = getBotpressVanillaClient(client)
 
       await botpressVanillaClient.getOrCreateTable({
@@ -203,10 +202,10 @@ export default new bp.Integration({
         schema: productsTableSchema,
       })
 
-      const syncResult = await syncBigCommerceProducts(ctx, client, logger)
+      const syncResult = await syncBigCommerceProducts(ctx.configuration, client, logger)
 
       if (syncResult.success && ctx.webhookId) {
-        await setupBigCommerceWebhooks(ctx, logger, ctx.webhookId)
+        await setupBigCommerceWebhooks(ctx.configuration, logger, ctx.webhookId)
       }
 
       logger.forBot().info('BigCommerce integration registered successfully')
@@ -217,7 +216,7 @@ export default new bp.Integration({
   unregister: async () => {},
   actions,
   channels: {},
-  handler: async ({ req, client, ctx, logger }) => {
+  handler: async ({ req, client, ctx, logger }: bp.IntegrationProps) => {
     if (req.method !== 'POST') {
       return {
         status: 405,
@@ -239,7 +238,7 @@ export default new bp.Integration({
       if (!isBCWebhook) {
         logger.forBot().warn('Not a recognized BigCommerce webhook, falling back to full sync')
         const result = await actions.syncProducts({
-          ctx,
+          ctx: { configuration: ctx.configuration },
           client,
           logger,
           input: {},
@@ -372,4 +371,4 @@ export default new bp.Integration({
       }
     }
   },
-})
+}
