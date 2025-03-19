@@ -88,7 +88,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
       {
         /** returns both the message handlers for the target type but global as well */
         get: (_, messageName: string) => {
-          const selfSpecificHandlers = this._messageHandlers[messageName as keyof MessageHandlersMap<TBot>] ?? []
+          const selfSpecificHandlers = this._messageHandlers[messageName] ?? []
           const selfGlobalHandlers = this._messageHandlers['*'] ?? []
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
           const pluginHandlers = Object.values(this._plugins).flatMap(
