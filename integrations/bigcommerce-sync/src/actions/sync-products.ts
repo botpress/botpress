@@ -4,26 +4,26 @@ import { productsTableSchema, productsTableName } from '../schemas/products'
 import * as bp from '.botpress'
 
 type BigCommerceProduct = {
-  id: number;
-  name: string;
-  sku?: string;
-  price?: number;
-  sale_price?: number;
-  retail_price?: number;
-  cost_price?: number;
-  weight?: number;
-  type?: string;
-  inventory_level?: number;
-  inventory_tracking?: string;
-  brand_id?: number;
-  categories?: number[];
-  availability?: string;
-  condition?: string;
-  is_visible?: boolean;
-  sort_order?: number;
-  description?: string;
-  images?: Array<{ url_standard: string }>;
-  custom_url?: { url: string };
+  id: number
+  name: string
+  sku?: string
+  price?: number
+  sale_price?: number
+  retail_price?: number
+  cost_price?: number
+  weight?: number
+  type?: string
+  inventory_level?: number
+  inventory_tracking?: string
+  brand_id?: number
+  categories?: number[]
+  availability?: string
+  condition?: string
+  is_visible?: boolean
+  sort_order?: number
+  description?: string
+  images?: Array<{ url_standard: string }>
+  custom_url?: { url: string }
 }
 
 const syncProducts = async ({ ctx, client, logger }: bp.IntegrationActionProps) => {

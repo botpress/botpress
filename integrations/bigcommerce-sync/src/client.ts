@@ -2,21 +2,21 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import * as bp from '.botpress'
 
 export type ProductQueryParams = {
-  id?: number | number[];
-  name?: string;
-  sku?: string;
-  price?: number;
-  page?: number;
-  limit?: number;
-  include?: string;
-  brand_id?: number;
-  categories?: number | number[];
-  keyword?: string;
-  status?: string;
-  include_fields?: string;
-  exclude_fields?: string;
-  sort?: string;
-  direction?: 'asc' | 'desc';
+  id?: number | number[]
+  name?: string
+  sku?: string
+  price?: number
+  page?: number
+  limit?: number
+  include?: string
+  brand_id?: number
+  categories?: number | number[]
+  keyword?: string
+  status?: string
+  include_fields?: string
+  exclude_fields?: string
+  sort?: string
+  direction?: 'asc' | 'desc'
 }
 
 export class BigCommerceClient {
