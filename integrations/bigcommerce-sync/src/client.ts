@@ -1,6 +1,24 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import * as bp from '.botpress'
 
+export type ProductQueryParams = {
+  id?: number | number[];
+  name?: string;
+  sku?: string;
+  price?: number;
+  page?: number;
+  limit?: number;
+  include?: string;
+  brand_id?: number;
+  categories?: number | number[];
+  keyword?: string;
+  status?: string;
+  include_fields?: string;
+  exclude_fields?: string;
+  sort?: string;
+  direction?: 'asc' | 'desc';
+}
+
 export class BigCommerceClient {
   private _client: AxiosInstance
   private _baseUrl: string
@@ -16,7 +34,7 @@ export class BigCommerceClient {
     })
   }
 
-  public async getProducts(params?: Record<string, any>) {
+  public async getProducts(params?: ProductQueryParams) {
     try {
       const response = await this._client.get(`${this._baseUrl}/v3/catalog/products`, { params })
       return response.data
@@ -105,12 +123,12 @@ export class BigCommerceClient {
     return results
   }
 
-  private _handleError(error: any) {
+  private _handleError(error: unknown) {
     if (axios.isAxiosError(error)) {
       const message = error.response?.data?.message || error.message
       return new Error(`BigCommerce API Error: ${message}`)
     }
-    return error
+    return error instanceof Error ? error : new Error(String(error))
   }
 }
 
