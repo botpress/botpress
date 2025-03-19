@@ -380,7 +380,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
      * # EXPERIMENTAL
      * This API is experimental and may change in the future.
      */
-    workflowStarted: <T extends utils.types.StringKeys<WorkflowHandlersMap<TPlugin>['started']>>(
+    workflowStart: <T extends utils.types.StringKeys<WorkflowHandlersMap<TPlugin>['started']>>(
       type: T,
       handler: WorkflowHandlers<TPlugin>[T]
     ): void => {
@@ -394,7 +394,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
      * # EXPERIMENTAL
      * This API is experimental and may change in the future.
      */
-    workflowContinued: <T extends utils.types.StringKeys<WorkflowHandlersMap<TPlugin>['continued']>>(
+    workflowContinue: <T extends utils.types.StringKeys<WorkflowHandlersMap<TPlugin>['continued']>>(
       type: T,
       handler: WorkflowHandlers<TPlugin>[T]
     ): void => {
@@ -408,7 +408,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
      * # EXPERIMENTAL
      * This API is experimental and may change in the future.
      */
-    workflowTimedOut: <T extends utils.types.StringKeys<WorkflowHandlersMap<TPlugin>['timed_out']>>(
+    workflowTimeout: <T extends utils.types.StringKeys<WorkflowHandlersMap<TPlugin>['timed_out']>>(
       type: T,
       handler: WorkflowHandlers<TPlugin>[T]
     ): void => {

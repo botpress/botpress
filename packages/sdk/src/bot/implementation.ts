@@ -302,7 +302,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
      * # EXPERIMENTAL
      * This API is experimental and may change in the future.
      */
-    workflowStarted: <T extends utils.types.StringKeys<WorkflowHandlersMap<TBot>['started']>>(
+    workflowStart: <T extends utils.types.StringKeys<WorkflowHandlersMap<TBot>['started']>>(
       type: T,
       handler: WorkflowHandlers<TBot>[T]
     ): void => {
@@ -316,7 +316,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
      * # EXPERIMENTAL
      * This API is experimental and may change in the future.
      */
-    workflowContinued: <T extends utils.types.StringKeys<WorkflowHandlersMap<TBot>['continued']>>(
+    workflowContinue: <T extends utils.types.StringKeys<WorkflowHandlersMap<TBot>['continued']>>(
       type: T,
       handler: WorkflowHandlers<TBot>[T]
     ): void => {
@@ -330,7 +330,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
      * # EXPERIMENTAL
      * This API is experimental and may change in the future.
      */
-    workflowTimedOut: <T extends utils.types.StringKeys<WorkflowHandlersMap<TBot>['timed_out']>>(
+    workflowTimeout: <T extends utils.types.StringKeys<WorkflowHandlersMap<TBot>['timed_out']>>(
       type: T,
       handler: WorkflowHandlers<TBot>[T]
     ): void => {
