@@ -44,7 +44,7 @@ type _ListInstances<TBot extends commonTypes.BaseBot, TWorkflowName extends type
 
 export type WorkflowWithUtilities<
   TBot extends commonTypes.BaseBot,
-  TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>,
+  TWorkflowName extends keyof TBot['workflows'],
 > = Readonly<
   client.Workflow & {
     name: TWorkflowName

@@ -157,6 +157,23 @@ export type ActionHandlers<TPlugin extends common.BasePlugin> = {
   ) => Promise<TPlugin['actions'][K]['output']>
 }
 
+export type WorkflowPayloads<TPlugin extends common.BasePlugin, TExtraTools extends object = {}> = {
+  [WorkflowName in keyof TPlugin['workflows']]: CommonHandlerProps<TPlugin> & {
+    conversation?: client.Conversation
+    user?: client.User
+
+    /**
+     * # EXPERIMENTAL
+     * This API is experimental and may change in the future.
+     */
+    workflow: workflowProxy.WorkflowWithUtilities<TPlugin, WorkflowName>
+  } & TExtraTools
+}
+
+export type WorkflowHandlers<TPlugin extends common.BasePlugin, TExtraTools extends object = {}> = {
+  [K in keyof TPlugin['workflows']]: (props: WorkflowPayloads<TPlugin, TExtraTools>[K]) => Promise<void>
+}
+
 type BaseHookDefinition = { stoppable?: boolean; data: any }
 type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = THookDef
 
@@ -252,6 +269,12 @@ export type StateExpiredHandlersMap<TPlugin extends common.BasePlugin> = {
 export type HookHandlersMap<TPlugin extends common.BasePlugin> = {
   [H in keyof HookData<TPlugin>]: {
     [T in keyof HookData<TPlugin>[H]]?: HookHandlers<TPlugin>[H][T][]
+  }
+}
+
+export type WorkflowHandlersMap<TPlugin extends common.BasePlugin, TExtraTools extends object = {}> = {
+  [U in bot.WorkflowUpdateType]: {
+    [T in keyof TPlugin['workflows']]?: WorkflowHandlers<TPlugin, TExtraTools>[T][]
   }
 }
 
