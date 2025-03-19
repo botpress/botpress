@@ -4,35 +4,21 @@ import { productsTableSchema, productsTableName } from '../schemas/products'
 import * as bp from '.botpress'
 
 const syncProducts = async ({ ctx, client, logger }: any) => {
-  /*
-  FOR FUTURE PURPOSES:
-  This is the client that MUST be imported in order to allow table operations
-  within an integration. Without this, the table operations will cause errors everywhere.
-  */
+  // this client is necessary for table operations
   const botpressVanillaClient = (client as bp.Client)._client as Client
 
-  // Getting the BigCommerce client
   const bigCommerceClient = getBigCommerceClient(ctx.configuration)
 
   try {
-    /*
-    FOR FUTURE PURPOSES (SO YOU DON'T STRUGGLE LIKE I DID):
-    The table name MUST NOT START WITH A NUMBER.
-    Also, it must end with 'Table'.
-    (you should have better logging than I did when building this to catch this early)
-    */
     const tableName = productsTableName
 
-    // Note: max 20 columns per botpress table.
     const tableSchema = productsTableSchema
 
-    // As you can see, we can use the getOrCreateTable operation from botpress after using botpressVanillaClient.
     await botpressVanillaClient.getOrCreateTable({
       table: tableName,
       schema: tableSchema,
     })
 
-    // Fetching products from BigCommerce
     logger.forBot().info('Fetching products from BigCommerce...')
     const response = await bigCommerceClient.getProducts()
     const products = response.data
@@ -46,7 +32,6 @@ const syncProducts = async ({ ctx, client, logger }: any) => {
       }
     }
 
-    // Fetch all categories to map IDs to names
     logger.forBot().info('Fetching categories to map IDs to names...')
     const categoriesResponse = await bigCommerceClient.getCategories()
     const categoriesMap = new Map()
@@ -57,7 +42,6 @@ const syncProducts = async ({ ctx, client, logger }: any) => {
       })
     }
 
-    // Fetch all brands to map IDs to names
     logger.forBot().info('Fetching brands to map IDs to names...')
     const brandsResponse = await bigCommerceClient.getBrands()
     const brandsMap = new Map()
@@ -68,16 +52,12 @@ const syncProducts = async ({ ctx, client, logger }: any) => {
       })
     }
 
-    // Transform products for table insertion
-    // Only include fields that match our schema (max 20 columns)
     const tableRows = products.map((product: any) => {
-      // Map category IDs to names
       const categoryNames =
         product.categories?.map((categoryId: number) => categoriesMap.get(categoryId) || categoryId.toString()) || []
 
       const categories = categoryNames.join(',')
 
-      // Get brand name from brand ID
       const brandName = product.brand_id ? brandsMap.get(product.brand_id) || product.brand_id.toString() : ''
 
       const imageUrl = product.images && product.images.length > 0 ? product.images[0].url_standard : ''
@@ -100,13 +80,12 @@ const syncProducts = async ({ ctx, client, logger }: any) => {
         condition: product.condition,
         is_visible: product.is_visible,
         sort_order: product.sort_order,
-        description: product.description?.substring(0, 1000) || '', // Limit description length
+        description: product.description?.substring(0, 1000) || '',
         image_url: imageUrl,
         url: product.custom_url?.url || '',
       }
     })
 
-    // My syncing is a deletion-insertion sync. Might not be most optimal.
     try {
       logger.forBot().info('Dropping existing products table...')
 
@@ -119,9 +98,7 @@ const syncProducts = async ({ ctx, client, logger }: any) => {
         schema: tableSchema,
       })
     } catch (error) {
-      // Table might not exist yet
       logger.forBot().warn('Error dropping products table', error)
-      // Continue with the sync process anyways
     }
 
     logger.forBot().info(`Inserting ${tableRows.length} products...`)

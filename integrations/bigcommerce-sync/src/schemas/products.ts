@@ -1,4 +1,3 @@
-// Define the shared products table schema
 export const productsTableSchema = {
   type: 'object',
   properties: {
@@ -26,5 +25,4 @@ export const productsTableSchema = {
   required: ['product_id', 'name'],
 }
 
-// Export the table name as well to ensure consistency
 export const productsTableName = 'bigcommerce_products_Table'

@@ -4,16 +4,9 @@ import { getBigCommerceClient } from './client'
 import { productsTableSchema, productsTableName } from './schemas/products'
 import * as bp from '.botpress'
 
-/*
-FOR FUTURE PURPOSES:
-This is the client that MUST be imported in order to allow table operations
-within an integration. Without this, the table operations will cause errors everywhere.
-*/
+// this client is necessary for table operations
 const getBotpressVanillaClient = (client: bp.Client): Client => (client as any)._client as Client
 
-/*
-  Helper function to check if a request is from BigCommerce based on headers
-*/
 const isBigCommerceWebhook = (headers: Record<string, string | string[] | undefined>): boolean => {
   return !!(
     (headers['webhook-id'] && headers['webhook-signature'] && headers['webhook-timestamp']) ||
@@ -23,9 +16,6 @@ const isBigCommerceWebhook = (headers: Record<string, string | string[] | undefi
   )
 }
 
-/*
-  Helper function to extract product ID from webhook data
-*/
 const extractProductId = (webhookData: any): string | undefined => {
   if (webhookData?.data?.id) return webhookData.data.id
   if (webhookData?.data?.entity_id) return webhookData.data.entity_id
@@ -33,9 +23,6 @@ const extractProductId = (webhookData: any): string | undefined => {
   return undefined
 }
 
-/*
-  Helper function to handle product create/update operations
-*/
 const handleProductCreateOrUpdate = async (
   productId: string,
   bigCommerceClient: any,
@@ -51,7 +38,6 @@ const handleProductCreateOrUpdate = async (
 
   if (!product) return null
 
-  // Fetch all categories to map IDs to names
   logger.forBot().info('Fetching categories to map IDs to names')
   const categoriesResponse = await bigCommerceClient.getCategories()
   const categoriesMap = new Map()
@@ -62,7 +48,6 @@ const handleProductCreateOrUpdate = async (
     })
   }
 
-  // Fetch all brands to map IDs to names
   logger.forBot().info('Fetching brands to map IDs to names')
   const brandsResponse = await bigCommerceClient.getBrands()
   const brandsMap = new Map()
@@ -73,13 +58,11 @@ const handleProductCreateOrUpdate = async (
     })
   }
 
-  // Map category IDs to names
   const categoryNames =
     product.categories?.map((categoryId: number) => categoriesMap.get(categoryId) || categoryId.toString()) || []
 
   const categories = categoryNames.join(',')
 
-  // Get brand name from brand ID
   const brandName = product.brand_id ? brandsMap.get(product.brand_id) || product.brand_id.toString() : ''
 
   const imageUrl = product.images && product.images.length > 0 ? product.images[0].url_standard : ''
@@ -107,21 +90,18 @@ const handleProductCreateOrUpdate = async (
     url: product.custom_url?.url || '',
   }
 
-  // checking if the product already exists in our table
   const { rows } = await botpressVanillaClient.findTableRows({
     table: tableName,
     filter: { product_id: product.id },
   })
 
   if (rows.length > 0 && rows[0]?.id) {
-    // this updates the existing product
     logger.forBot().info(`Updating existing product ID: ${productId}`)
     await botpressVanillaClient.updateTableRows({
       table: tableName,
       rows: [{ id: rows[0].id, ...productRow }],
     })
   } else {
-    // else insert the new product
     logger.forBot().info(`Creating new product ID: ${productId}`)
     await botpressVanillaClient.createTableRows({
       table: tableName,
@@ -135,9 +115,6 @@ const handleProductCreateOrUpdate = async (
   }
 }
 
-/*
-  Helper function to handle product delete operations
-*/
 const handleProductDelete = async (
   productId: string,
   botpressVanillaClient: Client,
@@ -146,7 +123,6 @@ const handleProductDelete = async (
 ) => {
   logger.forBot().info(`Deleting product ID: ${productId}`)
 
-  // Convert the productId to a number since it's stored that way in the schema
   const productIdNumber = Number(productId)
 
   const { rows } = await botpressVanillaClient.findTableRows({
@@ -155,7 +131,6 @@ const handleProductDelete = async (
   })
 
   if (rows.length > 0 && rows[0]?.id) {
-    // deleting the row pertaining to the product
     await botpressVanillaClient.deleteTableRows({
       table: tableName,
       ids: [rows[0].id],
@@ -235,7 +210,6 @@ export default new bp.Integration({
   actions,
   channels: {},
   handler: async ({ req, client, ctx, logger }) => {
-    // guard clause for non-POST requests
     if (req.method !== 'POST') {
       return {
         status: 405,
@@ -251,11 +225,9 @@ export default new bp.Integration({
     try {
       logger.forBot().info('Webhook headers:', JSON.stringify(req.headers))
 
-      // checking if this is a BigCommerce webhook
       const isBCWebhook = isBigCommerceWebhook(req.headers)
       logger.forBot().info(`Is BigCommerce webhook based on headers: ${isBCWebhook}`)
 
-      // guard clause: if not a BigCommerce webhook, do full sync
       if (!isBCWebhook) {
         logger.forBot().warn('Not a recognized BigCommerce webhook, falling back to full sync')
         const result = await actions.syncProducts({
@@ -271,7 +243,6 @@ export default new bp.Integration({
         }
       }
 
-      // parsing webhook data
       const webhookData = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
       logger.forBot().info('Webhook data:', JSON.stringify(webhookData))
 
@@ -290,7 +261,6 @@ export default new bp.Integration({
         })
       )
 
-      // guard clause: if not a recognized BigCommerce webhook, fall back to event processing
       if (!webhookData) {
         logger.forBot().warn('No webhook data found, unable to process')
         return {
@@ -302,7 +272,6 @@ export default new bp.Integration({
         }
       }
 
-      // Extract information from the webhook data
       const productId = extractProductId(webhookData)
       let webhookType = ''
 
@@ -320,7 +289,6 @@ export default new bp.Integration({
         }
       }
 
-      // guard clause: if missing scope or productId, fall back to full sync
       if (!webhookType || !productId) {
         logger.forBot().warn('Could not extract product ID or event type from webhook, falling back to full sync')
 
@@ -367,7 +335,6 @@ export default new bp.Integration({
         } else if (webhookType === 'deleted') {
           result = await handleProductDelete(productId.toString(), botpressVanillaClient, tableName, logger)
         } else {
-          // Unrecognized event type = fall back to full sync
           logger.forBot().warn(`Unrecognized event type: ${webhookType}, falling back to full sync`)
           result = await actions.syncProducts({
             ctx,

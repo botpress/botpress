@@ -9,7 +9,6 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   description: 'Sync products from BigCommerce to Botpress',
   configuration,
-  // Only exposing the syncProducts action in the UI for manual triggers
   actions: {
     syncProducts: actions.syncProducts,
   },
