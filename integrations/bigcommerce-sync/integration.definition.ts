@@ -1,9 +1,8 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { integrationName } from './package.json'
 import { configuration, states, actions } from './src/definitions/index'
 
 export default new IntegrationDefinition({
-  name: integrationName,
+  name: 'bigcommerce',
   title: 'BigCommerce',
   version: '3.0.0',
   readme: 'hub.md',
