@@ -25,7 +25,7 @@ import {
 export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}> = {
   actions: UnimplementedActionHandlers<TBot, TPlugins>
   plugins: {
-    [K in keyof TPlugins]: PluginImplementation<TPlugins[K]>
+    [K in utils.types.StringKeys<TPlugins>]: PluginImplementation<TPlugins[K]>
   }
 }
 
@@ -63,14 +63,14 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     return new Proxy(
       {},
       {
-        get: (_, prop: string) => {
-          let action = this._actionHandlers[prop]
+        get: (_, actionName: string) => {
+          let action = this._actionHandlers[actionName]
           if (action) {
             return action
           }
 
           for (const plugin of Object.values(this._plugins)) {
-            action = plugin.actionHandlers[prop]
+            action = plugin.actionHandlers[actionName]
             if (action) {
               return action
             }
@@ -87,11 +87,13 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
       {},
       {
         /** returns both the message handlers for the target type but global as well */
-        get: (_, prop: string) => {
-          const selfSpecificHandlers = this._messageHandlers[prop as keyof MessageHandlersMap<TBot>] ?? []
+        get: (_, messageName: string) => {
+          const selfSpecificHandlers = this._messageHandlers[messageName as keyof MessageHandlersMap<TBot>] ?? []
           const selfGlobalHandlers = this._messageHandlers['*'] ?? []
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
-          const pluginHandlers = Object.values(this._plugins).flatMap((plugin) => plugin.messageHandlers[prop] ?? [])
+          const pluginHandlers = Object.values(this._plugins).flatMap(
+            (plugin) => plugin.messageHandlers[messageName] ?? []
+          )
           return utils.arrays.unique([...selfHandlers, ...pluginHandlers])
         },
       }
@@ -103,11 +105,11 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
       {},
       {
         /** returns both the event handlers for the target type but global as well */
-        get: (_, prop: string) => {
-          const selfSpecificHandlers = this._eventHandlers[prop as keyof EventHandlersMap<TBot>] ?? []
+        get: (_, eventName: string) => {
+          const selfSpecificHandlers = this._eventHandlers[eventName as keyof EventHandlersMap<TBot>] ?? []
           const selfGlobalHandlers = this._eventHandlers['*'] ?? []
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
-          const pluginHandlers = Object.values(this._plugins).flatMap((plugin) => plugin.eventHandlers[prop] ?? [])
+          const pluginHandlers = Object.values(this._plugins).flatMap((plugin) => plugin.eventHandlers[eventName] ?? [])
           return utils.arrays.unique([...selfHandlers, ...pluginHandlers])
         },
       }
@@ -119,12 +121,13 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
       {},
       {
         /** returns both the state expired handlers for the target type but global as well */
-        get: (_, prop: string) => {
-          const selfSpecificHandlers = this._stateExpiredHandlers[prop as keyof StateExpiredHandlersMap<TBot>] ?? []
+        get: (_, stateName: string) => {
+          const selfSpecificHandlers =
+            this._stateExpiredHandlers[stateName as keyof StateExpiredHandlersMap<TBot>] ?? []
           const selfGlobalHandlers = this._stateExpiredHandlers['*'] ?? []
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
           const pluginHandlers = Object.values(this._plugins).flatMap(
-            (plugin) => plugin.stateExpiredHandlers[prop] ?? []
+            (plugin) => plugin.stateExpiredHandlers[stateName] ?? []
           )
           return utils.arrays.unique([...selfHandlers, ...pluginHandlers])
         },
@@ -136,20 +139,23 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     return new Proxy(
       {},
       {
-        get: (_, prop1: string) => {
+        get: (_, hookType: utils.types.StringKeys<HookHandlersMap<TBot>>) => {
+          const hooks = this._hookHandlers[hookType]
+          if (!hooks) {
+            return undefined
+          }
+
           return new Proxy(
             {},
             {
-              get: (_, prop2: string) => {
-                const hookType = prop1 as keyof HookHandlersMap<TBot>
-
+              get: (_, hookDataName: string) => {
                 const selfHooks = this._hookHandlers[hookType] ?? {}
-                const selfSpecificHandlers = selfHooks[prop2] ?? []
+                const selfSpecificHandlers = selfHooks[hookDataName] ?? []
                 const selfGlobalHandlers = selfHooks['*'] ?? []
                 const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
 
                 const pluginHandlers = Object.values(this._plugins).flatMap(
-                  (plugin) => (plugin.hookHandlers[hookType]?.[prop2] ?? []) as typeof selfHandlers
+                  (plugin) => (plugin.hookHandlers[hookType]?.[hookDataName] ?? []) as typeof selfHandlers
                 )
 
                 return utils.arrays.unique([...selfHandlers, ...pluginHandlers])
@@ -191,97 +197,103 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
   }
 
   public readonly on = {
-    message: <T extends keyof MessageHandlersMap<TBot>>(type: T, handler: MessageHandlers<TBot>[T]): void => {
-      this._messageHandlers[type as string] = utils.arrays.safePush(
-        this._messageHandlers[type as string],
+    message: <T extends utils.types.StringKeys<MessageHandlersMap<TBot>>>(
+      type: T,
+      handler: MessageHandlers<TBot>[T]
+    ): void => {
+      this._messageHandlers[type] = utils.arrays.safePush(
+        this._messageHandlers[type],
         handler as MessageHandlers<any>[string]
       )
     },
 
-    event: <T extends keyof EventHandlersMap<TBot>>(type: T, handler: EventHandlers<TBot>[T]): void => {
-      this._eventHandlers[type as string] = utils.arrays.safePush(
-        this._eventHandlers[type as string],
+    event: <T extends utils.types.StringKeys<EventHandlersMap<TBot>>>(
+      type: T,
+      handler: EventHandlers<TBot>[T]
+    ): void => {
+      this._eventHandlers[type] = utils.arrays.safePush(
+        this._eventHandlers[type],
         handler as EventHandlers<any>[string]
       )
     },
-    stateExpired: <T extends keyof StateExpiredHandlersMap<TBot>>(
+    stateExpired: <T extends utils.types.StringKeys<StateExpiredHandlersMap<TBot>>>(
       type: T,
       handler: StateExpiredHandlers<TBot>[T]
     ): void => {
-      this._stateExpiredHandlers[type as string] = utils.arrays.safePush(
-        this._stateExpiredHandlers[type as string],
+      this._stateExpiredHandlers[type] = utils.arrays.safePush(
+        this._stateExpiredHandlers[type],
         handler as StateExpiredHandlers<any>[string]
       )
     },
-    beforeIncomingEvent: <T extends keyof HookData<TBot>['before_incoming_event']>(
+    beforeIncomingEvent: <T extends utils.types.StringKeys<HookData<TBot>['before_incoming_event']>>(
       type: T,
       handler: HookHandlers<TBot>['before_incoming_event'][T]
     ) => {
-      this._hookHandlers.before_incoming_event[type as string] = utils.arrays.safePush(
-        this._hookHandlers.before_incoming_event[type as string],
+      this._hookHandlers.before_incoming_event[type] = utils.arrays.safePush(
+        this._hookHandlers.before_incoming_event[type],
         handler as HookHandlers<any>['before_incoming_event'][string]
       )
     },
-    beforeIncomingMessage: <T extends keyof HookData<TBot>['before_incoming_message']>(
+    beforeIncomingMessage: <T extends utils.types.StringKeys<HookData<TBot>['before_incoming_message']>>(
       type: T,
       handler: HookHandlers<TBot>['before_incoming_message'][T]
     ) => {
-      this._hookHandlers.before_incoming_message[type as string] = utils.arrays.safePush(
-        this._hookHandlers.before_incoming_message[type as string],
+      this._hookHandlers.before_incoming_message[type] = utils.arrays.safePush(
+        this._hookHandlers.before_incoming_message[type],
         handler as HookHandlers<any>['before_incoming_message'][string]
       )
     },
-    beforeOutgoingMessage: <T extends keyof HookData<TBot>['before_outgoing_message']>(
+    beforeOutgoingMessage: <T extends utils.types.StringKeys<HookData<TBot>['before_outgoing_message']>>(
       type: T,
       handler: HookHandlers<TBot>['before_outgoing_message'][T]
     ) => {
-      this._hookHandlers.before_outgoing_message[type as string] = utils.arrays.safePush(
-        this._hookHandlers.before_outgoing_message[type as string],
+      this._hookHandlers.before_outgoing_message[type] = utils.arrays.safePush(
+        this._hookHandlers.before_outgoing_message[type],
         handler as HookHandlers<any>['before_outgoing_message'][string]
       )
     },
-    beforeOutgoingCallAction: <T extends keyof HookData<TBot>['before_outgoing_call_action']>(
+    beforeOutgoingCallAction: <T extends utils.types.StringKeys<HookData<TBot>['before_outgoing_call_action']>>(
       type: T,
       handler: HookHandlers<TBot>['before_outgoing_call_action'][T]
     ) => {
-      this._hookHandlers.before_outgoing_call_action[type as string] = utils.arrays.safePush(
-        this._hookHandlers.before_outgoing_call_action[type as string],
+      this._hookHandlers.before_outgoing_call_action[type] = utils.arrays.safePush(
+        this._hookHandlers.before_outgoing_call_action[type],
         handler as HookHandlers<any>['before_outgoing_call_action'][string]
       )
     },
-    afterIncomingEvent: <T extends keyof HookData<TBot>['after_incoming_event']>(
+    afterIncomingEvent: <T extends utils.types.StringKeys<HookData<TBot>['after_incoming_event']>>(
       type: T,
       handler: HookHandlers<TBot>['after_incoming_event'][T]
     ) => {
-      this._hookHandlers.after_incoming_event[type as string] = utils.arrays.safePush(
-        this._hookHandlers.after_incoming_event[type as string],
+      this._hookHandlers.after_incoming_event[type] = utils.arrays.safePush(
+        this._hookHandlers.after_incoming_event[type],
         handler as HookHandlers<any>['after_incoming_event'][string]
       )
     },
-    afterIncomingMessage: <T extends keyof HookData<TBot>['after_incoming_message']>(
+    afterIncomingMessage: <T extends utils.types.StringKeys<HookData<TBot>['after_incoming_message']>>(
       type: T,
       handler: HookHandlers<TBot>['after_incoming_message'][T]
     ) => {
-      this._hookHandlers.after_incoming_message[type as string] = utils.arrays.safePush(
-        this._hookHandlers.after_incoming_message[type as string],
+      this._hookHandlers.after_incoming_message[type] = utils.arrays.safePush(
+        this._hookHandlers.after_incoming_message[type],
         handler as HookHandlers<any>['after_incoming_message'][string]
       )
     },
-    afterOutgoingMessage: <T extends keyof HookData<TBot>['after_outgoing_message']>(
+    afterOutgoingMessage: <T extends utils.types.StringKeys<HookData<TBot>['after_outgoing_message']>>(
       type: T,
       handler: HookHandlers<TBot>['after_outgoing_message'][T]
     ) => {
-      this._hookHandlers.after_outgoing_message[type as string] = utils.arrays.safePush(
-        this._hookHandlers.after_outgoing_message[type as string],
+      this._hookHandlers.after_outgoing_message[type] = utils.arrays.safePush(
+        this._hookHandlers.after_outgoing_message[type],
         handler as HookHandlers<any>['after_outgoing_message'][string]
       )
     },
-    afterOutgoingCallAction: <T extends keyof HookData<TBot>['after_outgoing_call_action']>(
+    afterOutgoingCallAction: <T extends utils.types.StringKeys<HookData<TBot>['after_outgoing_call_action']>>(
       type: T,
       handler: HookHandlers<TBot>['after_outgoing_call_action'][T]
     ) => {
-      this._hookHandlers.after_outgoing_call_action[type as string] = utils.arrays.safePush(
-        this._hookHandlers.after_outgoing_call_action[type as string],
+      this._hookHandlers.after_outgoing_call_action[type] = utils.arrays.safePush(
+        this._hookHandlers.after_outgoing_call_action[type],
         handler as HookHandlers<any>['after_outgoing_call_action'][string]
       )
     },
@@ -290,11 +302,11 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
      * # EXPERIMENTAL
      * This API is experimental and may change in the future.
      */
-    workflowStarted: <T extends keyof WorkflowHandlersMap<TBot>['started']>(
+    workflowStarted: <T extends utils.types.StringKeys<WorkflowHandlersMap<TBot>['started']>>(
       type: T,
       handler: WorkflowHandlers<TBot>[T]
     ): void => {
-      this._workflowHandlers.started[type as string] = utils.arrays.safePush(
+      this._workflowHandlers.started[type] = utils.arrays.safePush(
         this._workflowHandlers.started[type],
         handler as WorkflowHandlers<any>[string]
       )
@@ -304,11 +316,11 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
      * # EXPERIMENTAL
      * This API is experimental and may change in the future.
      */
-    workflowContinued: <T extends keyof WorkflowHandlersMap<TBot>['continued']>(
+    workflowContinued: <T extends utils.types.StringKeys<WorkflowHandlersMap<TBot>['continued']>>(
       type: T,
       handler: WorkflowHandlers<TBot>[T]
     ): void => {
-      this._workflowHandlers.continued[type as string] = utils.arrays.safePush(
+      this._workflowHandlers.continued[type] = utils.arrays.safePush(
         this._workflowHandlers.continued[type],
         handler as WorkflowHandlers<any>[string]
       )
@@ -318,11 +330,11 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
      * # EXPERIMENTAL
      * This API is experimental and may change in the future.
      */
-    workflowTimedOut: <T extends keyof WorkflowHandlersMap<TBot>['timed_out']>(
+    workflowTimedOut: <T extends utils.types.StringKeys<WorkflowHandlersMap<TBot>['timed_out']>>(
       type: T,
       handler: WorkflowHandlers<TBot>[T]
     ): void => {
-      this._workflowHandlers.timed_out[type as string] = utils.arrays.safePush(
+      this._workflowHandlers.timed_out[type] = utils.arrays.safePush(
         this._workflowHandlers.timed_out[type],
         handler as WorkflowHandlers<any>[string]
       )

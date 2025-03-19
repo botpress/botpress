@@ -18,7 +18,7 @@ export type BotContext = {
 }
 
 type _IncomingEvents<TBot extends common.BaseBot> = {
-  [K in keyof common.EnumerateEvents<TBot>]: utils.Merge<
+  [K in utils.StringKeys<common.EnumerateEvents<TBot>>]: utils.Merge<
     client.Event,
     { type: K; payload: common.EnumerateEvents<TBot>[K] }
   >
@@ -26,7 +26,7 @@ type _IncomingEvents<TBot extends common.BaseBot> = {
 
 type _IncomingMessages<TBot extends common.BaseBot> = {
   // TODO: use bot definiton message property to infer allowed tags
-  [K in keyof common.GetMessages<TBot>]: utils.Merge<
+  [K in utils.StringKeys<common.GetMessages<TBot>>]: utils.Merge<
     //
     client.Message,
     { type: K; payload: common.GetMessages<TBot>[K] }
@@ -34,21 +34,21 @@ type _IncomingMessages<TBot extends common.BaseBot> = {
 }
 
 type _IncomingStates<TBot extends common.BaseBot> = {
-  [K in keyof common.EnumerateStates<TBot>]: utils.Merge<
+  [K in utils.StringKeys<common.EnumerateStates<TBot>>]: utils.Merge<
     client.State,
     { name: K; payload: common.EnumerateStates<TBot>[K] }
   >
 }
 
 type _OutgoingMessageRequests<TBot extends common.BaseBot> = {
-  [K in keyof common.GetMessages<TBot>]: utils.Merge<
+  [K in utils.StringKeys<common.GetMessages<TBot>>]: utils.Merge<
     client.ClientInputs['createMessage'],
     { type: K; payload: common.GetMessages<TBot>[K] }
   >
 }
 
 type _OutgoingMessageResponses<TBot extends common.BaseBot> = {
-  [K in keyof common.GetMessages<TBot>]: utils.Merge<
+  [K in utils.StringKeys<common.GetMessages<TBot>>]: utils.Merge<
     client.ClientOutputs['createMessage'],
     {
       message: utils.Merge<client.Message, { type: K; payload: common.GetMessages<TBot>[K] }>
@@ -57,14 +57,14 @@ type _OutgoingMessageResponses<TBot extends common.BaseBot> = {
 }
 
 type _OutgoingCallActionRequests<TBot extends common.BaseBot> = {
-  [K in keyof common.EnumerateActionInputs<TBot>]: utils.Merge<
+  [K in utils.StringKeys<common.EnumerateActionInputs<TBot>>]: utils.Merge<
     client.ClientInputs['callAction'],
     { type: K; input: common.EnumerateActionInputs<TBot>[K] }
   >
 }
 
 type _OutgoingCallActionResponses<TBot extends common.BaseBot> = {
-  [K in keyof common.EnumerateActionOutputs<TBot>]: utils.Merge<
+  [K in utils.StringKeys<common.EnumerateActionOutputs<TBot>>]: utils.Merge<
     client.ClientOutputs['callAction'],
     { output: common.EnumerateActionOutputs<TBot>[K] }
   >
@@ -116,13 +116,13 @@ export type CommonHandlerProps<TBot extends common.BaseBot> = {
 }
 
 export type MessagePayloads<TBot extends common.BaseBot> = {
-  [K in keyof IncomingMessages<TBot>]: CommonHandlerProps<TBot> & {
-    message: IncomingMessages<TBot>[K]
+  [TMessageName in utils.StringKeys<IncomingMessages<TBot>>]: CommonHandlerProps<TBot> & {
+    message: IncomingMessages<TBot>[TMessageName]
     user: client.User
     conversation: client.Conversation
     event: client.Event
     states: {
-      [TState in keyof TBot['states']]: {
+      [TState in utils.StringKeys<TBot['states']>]: {
         type: 'user' | 'conversation' | 'bot'
         payload: TBot['states'][TState]
       }
@@ -131,31 +131,42 @@ export type MessagePayloads<TBot extends common.BaseBot> = {
 }
 
 export type MessageHandlers<TBot extends common.BaseBot> = {
-  [K in keyof IncomingMessages<TBot>]: (args: MessagePayloads<TBot>[K]) => Promise<void>
+  [TMessageName in utils.StringKeys<IncomingMessages<TBot>>]: (
+    args: MessagePayloads<TBot>[TMessageName]
+  ) => Promise<void>
 }
 
 export type EventPayloads<TBot extends common.BaseBot> = {
-  [K in keyof IncomingEvents<TBot>]: CommonHandlerProps<TBot> & { event: IncomingEvents<TBot>[K] }
+  [TEventName in utils.StringKeys<IncomingEvents<TBot>>]: CommonHandlerProps<TBot> & {
+    event: IncomingEvents<TBot>[TEventName]
+  }
 }
 
 export type EventHandlers<TBot extends common.BaseBot> = {
-  [K in keyof IncomingEvents<TBot>]: (args: EventPayloads<TBot>[K]) => Promise<void>
+  [TEventName in utils.StringKeys<IncomingEvents<TBot>>]: (args: EventPayloads<TBot>[TEventName]) => Promise<void>
 }
 
 export type StateExpiredPayloads<TBot extends common.BaseBot> = {
-  [K in keyof IncomingStates<TBot>]: CommonHandlerProps<TBot> & { state: IncomingStates<TBot>[K] }
+  [TSateName in utils.StringKeys<IncomingStates<TBot>>]: CommonHandlerProps<TBot> & {
+    state: IncomingStates<TBot>[TSateName]
+  }
 }
 
 export type StateExpiredHandlers<TBot extends common.BaseBot> = {
-  [K in keyof IncomingStates<TBot>]: (args: StateExpiredPayloads<TBot>[K]) => Promise<void>
+  [TSateName in utils.StringKeys<IncomingStates<TBot>>]: (args: StateExpiredPayloads<TBot>[TSateName]) => Promise<void>
 }
 
 export type ActionHandlerPayloads<TBot extends common.BaseBot> = {
-  [K in keyof TBot['actions']]: CommonHandlerProps<TBot> & { type?: K; input: TBot['actions'][K]['input'] }
+  [TActionName in utils.StringKeys<TBot['actions']>]: CommonHandlerProps<TBot> & {
+    type?: TActionName
+    input: TBot['actions'][TActionName]['input']
+  }
 }
 
 export type ActionHandlers<TBot extends common.BaseBot> = {
-  [K in keyof TBot['actions']]: (props: ActionHandlerPayloads<TBot>[K]) => Promise<TBot['actions'][K]['output']>
+  [TActionName in utils.StringKeys<TBot['actions']>]: (
+    props: ActionHandlerPayloads<TBot>[TActionName]
+  ) => Promise<TBot['actions'][TActionName]['output']>
 }
 
 export type BridgeWorkflowUpdateType =
@@ -180,7 +191,7 @@ export type WorkflowUpdateEvent = utils.Merge<
 >
 
 export type WorkflowPayloads<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
-  [WorkflowName in keyof TBot['workflows']]: CommonHandlerProps<TBot> & {
+  [TWorkflowName in utils.StringKeys<TBot['workflows']>]: CommonHandlerProps<TBot> & {
     conversation?: client.Conversation
     user?: client.User
 
@@ -188,12 +199,14 @@ export type WorkflowPayloads<TBot extends common.BaseBot, TExtraTools extends ob
      * # EXPERIMENTAL
      * This API is experimental and may change in the future.
      */
-    workflow: workflowProxy.WorkflowWithUtilities<TBot, WorkflowName>
+    workflow: workflowProxy.WorkflowWithUtilities<TBot, TWorkflowName>
   } & TExtraTools
 }
 
 export type WorkflowHandlers<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
-  [K in keyof TBot['workflows']]: (props: WorkflowPayloads<TBot, TExtraTools>[K]) => Promise<void>
+  [TWorkflowName in utils.StringKeys<TBot['workflows']>]: (
+    props: WorkflowPayloads<TBot, TExtraTools>[TWorkflowName]
+  ) => Promise<void>
 }
 
 type BaseHookDefinition = { stoppable?: boolean; data: any }
@@ -244,55 +257,59 @@ export type HookDefinitions<TBot extends common.BaseBot> = {
 }
 
 export type HookData<TBot extends common.BaseBot> = {
-  [H in keyof HookDefinitions<TBot>]: {
-    [T in keyof HookDefinitions<TBot>[H]['data']]: HookDefinitions<TBot>[H]['data'][T]
+  [THookType in utils.StringKeys<HookDefinitions<TBot>>]: {
+    [THookDataName in utils.StringKeys<
+      HookDefinitions<TBot>[THookType]['data']
+    >]: HookDefinitions<TBot>[THookType]['data'][THookDataName]
   }
 }
 
 export type HookInputs<TBot extends common.BaseBot> = {
-  [H in keyof HookData<TBot>]: {
-    [T in keyof HookData<TBot>[H]]: CommonHandlerProps<TBot> & {
-      data: HookData<TBot>[H][T]
+  [THookType in utils.StringKeys<HookData<TBot>>]: {
+    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]: CommonHandlerProps<TBot> & {
+      data: HookData<TBot>[THookType][THookDataName]
     }
   }
 }
 
 export type HookOutputs<TBot extends common.BaseBot> = {
-  [H in keyof HookData<TBot>]: {
-    [T in keyof HookData<TBot>[H]]: {
-      data?: HookData<TBot>[H][T]
-    } & (HookDefinitions<TBot>[H]['stoppable'] extends true ? { stop?: boolean } : {})
+  [THookType in utils.StringKeys<HookData<TBot>>]: {
+    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]: {
+      data?: HookData<TBot>[THookType][THookDataName]
+    } & (HookDefinitions<TBot>[THookType]['stoppable'] extends true ? { stop?: boolean } : {})
   }
 }
 
 export type HookHandlers<TBot extends common.BaseBot> = {
-  [H in keyof HookData<TBot>]: {
-    [T in keyof HookData<TBot>[H]]: (input: HookInputs<TBot>[H][T]) => Promise<HookOutputs<TBot>[H][T] | undefined>
+  [THookType in utils.StringKeys<HookData<TBot>>]: {
+    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]: (
+      input: HookInputs<TBot>[THookType][THookDataName]
+    ) => Promise<HookOutputs<TBot>[THookType][THookDataName] | undefined>
   }
 }
 
 export type MessageHandlersMap<TBot extends common.BaseBot> = {
-  [T in keyof IncomingMessages<TBot>]?: MessageHandlers<TBot>[T][]
+  [TMessageName in utils.StringKeys<IncomingMessages<TBot>>]?: MessageHandlers<TBot>[TMessageName][]
 }
 
 export type EventHandlersMap<TBot extends common.BaseBot> = {
-  [T in keyof IncomingEvents<TBot>]?: EventHandlers<TBot>[T][]
+  [TEventName in utils.StringKeys<IncomingEvents<TBot>>]?: EventHandlers<TBot>[TEventName][]
 }
 
 export type StateExpiredHandlersMap<TBot extends common.BaseBot> = {
-  [T in keyof IncomingStates<TBot>]?: StateExpiredHandlers<TBot>[T][]
+  [TStateName in utils.StringKeys<IncomingStates<TBot>>]?: StateExpiredHandlers<TBot>[TStateName][]
 }
 
 export type HookHandlersMap<TBot extends common.BaseBot> = {
-  [H in keyof HookData<TBot>]: {
-    [T in keyof HookData<TBot>[H]]?: HookHandlers<TBot>[H][T][]
+  [THookType in utils.StringKeys<HookData<TBot>>]: {
+    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]?: HookHandlers<TBot>[THookType][THookDataName][]
   }
 }
 
 export type WorkflowUpdateType = 'started' | 'continued' | 'timed_out'
 export type WorkflowHandlersMap<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
-  [U in WorkflowUpdateType]: {
-    [T in keyof TBot['workflows']]?: WorkflowHandlers<TBot, TExtraTools>[T][]
+  [TWorkflowUpdateType in WorkflowUpdateType]: {
+    [TWorkflowName in utils.StringKeys<TBot['workflows']>]?: WorkflowHandlers<TBot, TExtraTools>[TWorkflowName][]
   }
 }
 
@@ -321,29 +338,37 @@ type ImplementedActions<
   TPlugins extends Record<string, plugin.BasePlugin>,
 > = utils.UnionToIntersection<
   utils.ValueOf<{
-    [TPlugin in keyof TPlugins]: {
-      [TAction in keyof TPlugins[TPlugin]['actions'] as `${_GetPluginPrefix<utils.Cast<TPlugin, string>, TPlugins[TPlugin]>}${utils.Cast<TAction, string>}`]: TPlugins[TPlugin]['actions'][TAction]
+    [TPlugin in utils.StringKeys<TPlugins>]: {
+      [TAction in utils.StringKeys<
+        TPlugins[TPlugin]['actions']
+      > as `${_GetPluginPrefix<utils.Cast<TPlugin, string>, TPlugins[TPlugin]>}${utils.Cast<TAction, string>}`]: TPlugins[TPlugin]['actions'][TAction]
     }
   }>
 >
 
 type UnimplementedActions<TBot extends common.BaseBot, TPlugins extends Record<string, plugin.BasePlugin>> = Omit<
   TBot['actions'],
-  keyof ImplementedActions<TBot, TPlugins>
+  utils.StringKeys<ImplementedActions<TBot, TPlugins>>
 >
 
 export type ImplementedActionHandlers<
   TBot extends common.BaseBot,
   TPlugins extends Record<string, plugin.BasePlugin>,
 > = {
-  [K in keyof ImplementedActions<TBot, TPlugins>]: ActionHandlers<TBot>[utils.Cast<K, keyof ActionHandlers<TBot>>]
+  [K in utils.StringKeys<ImplementedActions<TBot, TPlugins>>]: ActionHandlers<TBot>[utils.Cast<
+    K,
+    keyof ActionHandlers<TBot>
+  >]
 }
 
 export type UnimplementedActionHandlers<
   TBot extends common.BaseBot,
   TPlugins extends Record<string, plugin.BasePlugin>,
 > = {
-  [K in keyof UnimplementedActions<TBot, TPlugins>]: ActionHandlers<TBot>[utils.Cast<K, keyof ActionHandlers<TBot>>]
+  [K in utils.StringKeys<UnimplementedActions<TBot, TPlugins>>]: ActionHandlers<TBot>[utils.Cast<
+    K,
+    keyof ActionHandlers<TBot>
+  >]
 }
 
 export type ServerProps = Omit<CommonHandlerProps<common.BaseBot>, 'workflows'> & {
