@@ -37,7 +37,7 @@ const handleProductCreateOrUpdate = async (
   botpressVanillaClient: Client,
   tableName: string,
   isCreated: boolean,
-  logger: bp.IntegrationLogger
+  logger: bp.Logger
 ) => {
   logger.forBot().info(`Fetching product details for ID: ${productId}`)
 
@@ -127,7 +127,7 @@ const handleProductDelete = async (
   productId: string,
   botpressVanillaClient: Client,
   tableName: string,
-  logger: bp.IntegrationLogger
+  logger: bp.Logger
 ) => {
   logger.forBot().info(`Deleting product ID: ${productId}`)
 
@@ -158,8 +158,8 @@ const handleProductDelete = async (
 }
 
 const setupBigCommerceWebhooks = async (
-  ctx: bp.IntegrationContext,
-  logger: bp.IntegrationLogger,
+  ctx: bp.IntegrationProps['ctx'],
+  logger: bp.Logger,
   webhookId: string
 ) => {
   const webhookUrl = `https://webhook.botpress.cloud/${webhookId}`
@@ -176,7 +176,7 @@ const setupBigCommerceWebhooks = async (
   }
 }
 
-const syncBigCommerceProducts = async (ctx: bp.IntegrationContext, client: bp.Client, logger: bp.IntegrationLogger) => {
+const syncBigCommerceProducts = async (ctx: bp.IntegrationProps['ctx'], client: bp.Client, logger: bp.Logger) => {
   logger.forBot().info('Syncing BigCommerce products...')
 
   try {
