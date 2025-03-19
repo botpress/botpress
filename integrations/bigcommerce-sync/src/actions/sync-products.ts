@@ -61,31 +61,31 @@ const syncProducts = async (props: bp.ActionHandlerProps<bp.TIntegration, 'syncP
 
     logger.forBot().info('Fetching categories to map IDs to names...')
     const categoriesResponse = await bigCommerceClient.getCategories()
-    const categoriesMap = new Map()
+    const categoryById: Record<number, string> = {}
 
     if (categoriesResponse && categoriesResponse.data) {
       categoriesResponse.data.forEach((category: { id: number; name: string }) => {
-        categoriesMap.set(category.id, category.name)
+        categoryById[category.id] = category.name
       })
     }
 
     logger.forBot().info('Fetching brands to map IDs to names...')
     const brandsResponse = await bigCommerceClient.getBrands()
-    const brandsMap = new Map()
+    const brandById: Record<number, string> = {}
 
     if (brandsResponse && brandsResponse.data) {
       brandsResponse.data.forEach((brand: { id: number; name: string }) => {
-        brandsMap.set(brand.id, brand.name)
+        brandById[brand.id] = brand.name
       })
     }
 
     const tableRows = products.map((product: BigCommerceProduct) => {
       const categoryNames =
-        product.categories?.map((categoryId: number) => categoriesMap.get(categoryId) || categoryId.toString()) || []
+        product.categories?.map((categoryId: number) => categoryById[categoryId] || categoryId.toString()) || []
 
       const categories = categoryNames.join(',')
 
-      const brandName = product.brand_id ? brandsMap.get(product.brand_id) || product.brand_id.toString() : ''
+      const brandName = product.brand_id ? brandById[product.brand_id] || product.brand_id.toString() : ''
 
       const imageUrl = product.images && product.images.length > 0 ? product.images[0]?.url_standard || '' : ''
 
