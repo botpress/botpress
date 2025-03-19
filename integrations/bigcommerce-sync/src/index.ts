@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import actions from './actions'
-import { getBigCommerceClient } from './client'
+import { getBigCommerceClient, BigCommerceClient } from './client'
 import { productsTableSchema, productsTableName } from './schemas/products'
 import * as bp from '.botpress'
 
@@ -16,20 +16,28 @@ const isBigCommerceWebhook = (headers: Record<string, string | string[] | undefi
   )
 }
 
-const extractProductId = (webhookData: any): string | undefined => {
-  if (webhookData?.data?.id) return webhookData.data.id
-  if (webhookData?.data?.entity_id) return webhookData.data.entity_id
-  if (webhookData?.id) return webhookData.id
+type WebhookData = {
+  data?: {
+    id?: string | number;
+    entity_id?: string | number;
+  };
+  id?: string | number;
+};
+
+const extractProductId = (webhookData: WebhookData): string | undefined => {
+  if (webhookData?.data?.id) return String(webhookData.data.id)
+  if (webhookData?.data?.entity_id) return String(webhookData.data.entity_id)
+  if (webhookData?.id) return String(webhookData.id)
   return undefined
 }
 
 const handleProductCreateOrUpdate = async (
   productId: string,
-  bigCommerceClient: any,
+  bigCommerceClient: BigCommerceClient,
   botpressVanillaClient: Client,
   tableName: string,
   isCreated: boolean,
-  logger: any
+  logger: bp.IntegrationLogger
 ) => {
   logger.forBot().info(`Fetching product details for ID: ${productId}`)
 
@@ -119,7 +127,7 @@ const handleProductDelete = async (
   productId: string,
   botpressVanillaClient: Client,
   tableName: string,
-  logger: any
+  logger: bp.IntegrationLogger
 ) => {
   logger.forBot().info(`Deleting product ID: ${productId}`)
 
@@ -149,7 +157,7 @@ const handleProductDelete = async (
   }
 }
 
-const setupBigCommerceWebhooks = async (ctx: any, logger: any, webhookId: string) => {
+const setupBigCommerceWebhooks = async (ctx: bp.IntegrationContext, logger: bp.IntegrationLogger, webhookId: string) => {
   const webhookUrl = `https://webhook.botpress.cloud/${webhookId}`
   logger.forBot().info(`Setting up BigCommerce webhooks to: ${webhookUrl}`)
 
@@ -164,7 +172,7 @@ const setupBigCommerceWebhooks = async (ctx: any, logger: any, webhookId: string
   }
 }
 
-const syncBigCommerceProducts = async (ctx: any, client: bp.Client, logger: any) => {
+const syncBigCommerceProducts = async (ctx: bp.IntegrationContext, client: bp.Client, logger: bp.IntegrationLogger) => {
   logger.forBot().info('Syncing BigCommerce products...')
 
   try {
