@@ -18,11 +18,11 @@ const isBigCommerceWebhook = (headers: Record<string, string | string[] | undefi
 
 type WebhookData = {
   data?: {
-    id?: string | number;
-    entity_id?: string | number;
-  };
-  id?: string | number;
-};
+    id?: string | number
+    entity_id?: string | number
+  }
+  id?: string | number
+}
 
 const extractProductId = (webhookData: WebhookData): string | undefined => {
   if (webhookData?.data?.id) return String(webhookData.data.id)
@@ -157,7 +157,11 @@ const handleProductDelete = async (
   }
 }
 
-const setupBigCommerceWebhooks = async (ctx: bp.IntegrationContext, logger: bp.IntegrationLogger, webhookId: string) => {
+const setupBigCommerceWebhooks = async (
+  ctx: bp.IntegrationContext,
+  logger: bp.IntegrationLogger,
+  webhookId: string
+) => {
   const webhookUrl = `https://webhook.botpress.cloud/${webhookId}`
   logger.forBot().info(`Setting up BigCommerce webhooks to: ${webhookUrl}`)
 
