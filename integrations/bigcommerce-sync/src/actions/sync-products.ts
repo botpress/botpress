@@ -26,7 +26,7 @@ type BigCommerceProduct = {
   custom_url?: { url: string }
 }
 
-const syncProducts = async (props: bp.HandlerProps<'syncProducts'>) => {
+const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (props) => {
   const { client, logger } = props
   const ctx = props.ctx.configuration
 
