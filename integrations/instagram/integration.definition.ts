@@ -7,7 +7,7 @@ export const INTEGRATION_NAME = 'instagram'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.0.1',
+  version: '2.1.0',
   title: 'Instagram',
   description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',

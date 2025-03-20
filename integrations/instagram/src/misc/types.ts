@@ -7,10 +7,22 @@ const InstagramMessageBaseSchema = z.object({
   timestamp: z.number(),
 })
 
+const InstagramMessagingEntryAttachmentTypeSchema = z.enum([
+  'audio',
+  'file',
+  'image',
+  'share',
+  'story_mention',
+  'video',
+  'ig_reel',
+  'reel',
+])
 export const InstagramMessagingEntryMessageSchema = InstagramMessageBaseSchema.extend({
   message: z.object({
     mid: z.string(),
-    attachments: z.array(z.object({ type: z.string(), payload: z.object({ url: z.string() }) })).optional(),
+    attachments: z
+      .array(z.object({ type: InstagramMessagingEntryAttachmentTypeSchema, payload: z.object({ url: z.string() }) }))
+      .optional(),
     is_echo: z.boolean().optional(),
     quick_reply: z.object({ payload: z.string() }).optional(),
     text: z.string().optional(),
