@@ -30,11 +30,9 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         props.logger.forBot().debug('Sending video message from bot to Instagram:', payload.videoUrl)
         return client.sendVideoMessage(recipientId, payload.videoUrl)
       }),
-    file: async ({ payload, ...props }) =>
-      sendMessage(props, async (client, recipientId) => {
-        props.logger.forBot().debug('Sending file message from bot to Instagram:', payload.fileUrl)
-        return client.sendFileMessage(recipientId, payload.fileUrl)
-      }),
+    file: ({ type }) => {
+      throw new RuntimeError(`Messages of type '${type}' not implemented`)
+    },
     location: async ({ payload, ...props }) =>
       sendMessage(props, async (client, recipientId) => {
         const googleMapLink = formatGoogleMapLink(payload)
@@ -65,8 +63,8 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         props.logger.forBot().debug('Sending choice message from bot to Instagram:', choiceMessage)
         return instagram.sendMessage(recipientId, getChoiceMessage(payload))
       }),
-    bloc: () => {
-      throw new RuntimeError('Not implemented')
+    bloc: ({ type }) => {
+      throw new RuntimeError(`Messages of type '${type}' not implemented`)
     },
   },
 }

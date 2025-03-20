@@ -7,6 +7,18 @@ import {
 } from 'src/misc/types'
 import * as bp from '.botpress'
 
+type IncomingMessageTypes = keyof Pick<
+  bp.channels.channel.Messages,
+  'audio' | 'file' | 'image' | 'text' | 'video' | 'bloc'
+>
+type IncomingMessages = {
+  [TMessage in IncomingMessageTypes]: {
+    type: TMessage
+    payload: bp.channels.channel.Messages[TMessage]
+  }
+}
+type IncomingMessage = IncomingMessages[IncomingMessageTypes]
+
 export const messagingHandler = async (props: bp.HandlerProps) => {
   const { logger, req } = props
   if (!req.body) {
@@ -47,8 +59,7 @@ const _postbackHandler = async (messagingEntry: InstagramMessagingEntryPostback,
   handlerProps.logger.forBot().debug('Received postback from Instagram:', postback.payload)
   const decodedPayload = _decodePostbackPayload(postback.payload)
   await _commonMessagingHandler({
-    payload: { text: decodedPayload },
-    type: 'text',
+    incomingMessage: { type: 'text', payload: { text: decodedPayload } },
     mid: postback.mid,
     messagingEntry,
     handlerProps,
@@ -57,28 +68,68 @@ const _postbackHandler = async (messagingEntry: InstagramMessagingEntryPostback,
 
 const _messageHandler = async (messagingEntry: InstagramMessagingEntryMessage, handlerProps: bp.HandlerProps) => {
   const { message } = messagingEntry
-  handlerProps.logger.forBot().debug('Received text message from Instagram:', message.text)
-  if (!message.text || message.is_echo) {
+  if (message.is_echo) {
+    return
+  }
+  handlerProps.logger
+    .forBot()
+    .debug(
+      `Received message from Instagram: text=${message.text ?? '[None]'}, attachments=[${message.attachments?.map((a) => `${a.type}:${a.payload.url}`).join(', ') ?? 'None'}]`
+    )
+
+  const incomingMessages: IncomingMessage[] = []
+  const { text, attachments } = message
+  if (text) {
+    incomingMessages.push({ type: 'text', payload: { text } })
+  }
+  if (attachments) {
+    for (const attachment of attachments) {
+      if (attachment.type === 'image') {
+        incomingMessages.push({ type: 'image', payload: { imageUrl: attachment.payload.url } })
+      } else if (attachment.type === 'video') {
+        incomingMessages.push({ type: 'video', payload: { videoUrl: attachment.payload.url } })
+      } else if (attachment.type === 'audio') {
+        incomingMessages.push({ type: 'audio', payload: { audioUrl: attachment.payload.url } })
+      } else if (attachment.type === 'file') {
+        incomingMessages.push({ type: 'file', payload: { fileUrl: attachment.payload.url } })
+      } else {
+        handlerProps.logger.forBot().warn(`Unsupported attachment type: ${attachment.type}`)
+      }
+    }
+  }
+
+  let incomingMessage: IncomingMessage | undefined
+  if (incomingMessages.length > 1) {
+    const items = incomingMessages.filter((m) => m.type !== 'bloc')
+    incomingMessage = {
+      type: 'bloc',
+      payload: {
+        items,
+      },
+    }
+  } else {
+    incomingMessage = incomingMessages[0]
+  }
+
+  if (!incomingMessage) {
+    handlerProps.logger.forBot().debug('No incoming message to process')
     return
   }
   await _commonMessagingHandler({
-    type: 'text',
-    payload: { text: message.text },
+    incomingMessage,
     mid: message.mid,
     messagingEntry,
     handlerProps,
   })
 }
 
-const _commonMessagingHandler = async <TMessage extends keyof bp.channels.channel.Messages>({
-  type,
-  payload,
+const _commonMessagingHandler = async ({
+  incomingMessage: { type, payload },
   mid,
   messagingEntry,
   handlerProps,
 }: {
-  type: TMessage extends string ? TMessage : never
-  payload: bp.channels.channel.Messages[TMessage]
+  incomingMessage: IncomingMessage
   mid: string
   messagingEntry: InstagramMessagingEntry
   handlerProps: bp.HandlerProps
