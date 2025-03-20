@@ -191,8 +191,8 @@ const syncBigCommerceProducts = async (configuration: any, client: bp.Client, lo
   }
 }
 
-export default {
-  register: async ({ client, ctx, logger }: bp.IntegrationProps) => {
+export default new bp.Integration({
+  register: async ({ client, ctx, logger }) => {
     try {
       logger.forBot().info('Registering BigCommerce integration')
       const botpressVanillaClient = getBotpressVanillaClient(client)
@@ -216,7 +216,7 @@ export default {
   unregister: async () => {},
   actions,
   channels: {},
-  handler: async ({ req, client, ctx, logger }: bp.IntegrationProps) => {
+  handler: async ({ req, client, ctx, logger }) => {
     if (req.method !== 'POST') {
       return {
         status: 405,
@@ -371,4 +371,4 @@ export default {
       }
     }
   },
-}
+})
