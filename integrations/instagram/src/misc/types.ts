@@ -7,15 +7,15 @@ const InstagramMessageBaseSchema = z.object({
   timestamp: z.number(),
 })
 
-const InstagramMessagingEntryAttachmentTypeSchema = z.union([
-  z.literal('audio'),
-  z.literal('file'),
-  z.literal('image'),
-  z.literal('share'),
-  z.literal('story_mention'),
-  z.literal('video'),
-  z.literal('ig_reel'),
-  z.literal('reel'),
+const InstagramMessagingEntryAttachmentTypeSchema = z.enum([
+  'audio',
+  'file',
+  'image',
+  'share',
+  'story_mention',
+  'video',
+  'ig_reel',
+  'reel',
 ])
 export const InstagramMessagingEntryMessageSchema = InstagramMessageBaseSchema.extend({
   message: z.object({
