@@ -190,7 +190,7 @@ export type WorkflowUpdateEvent = utils.Merge<
   }
 >
 
-export type WorkflowPayloads<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
+export type WorkflowPayloads<TBot extends common.BaseBot> = {
   [TWorkflowName in utils.StringKeys<TBot['workflows']>]: CommonHandlerProps<TBot> & {
     conversation?: client.Conversation
     user?: client.User
@@ -200,12 +200,12 @@ export type WorkflowPayloads<TBot extends common.BaseBot, TExtraTools extends ob
      * This API is experimental and may change in the future.
      */
     workflow: workflowProxy.WorkflowWithUtilities<TBot, TWorkflowName>
-  } & TExtraTools
+  }
 }
 
-export type WorkflowHandlers<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
+export type WorkflowHandlers<TBot extends common.BaseBot> = {
   [TWorkflowName in utils.StringKeys<TBot['workflows']>]: (
-    props: WorkflowPayloads<TBot, TExtraTools>[TWorkflowName]
+    props: WorkflowPayloads<TBot>[TWorkflowName]
   ) => Promise<void>
 }
 
@@ -307,9 +307,9 @@ export type HookHandlersMap<TBot extends common.BaseBot> = {
 }
 
 export type WorkflowUpdateType = 'started' | 'continued' | 'timed_out'
-export type WorkflowHandlersMap<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
+export type WorkflowHandlersMap<TBot extends common.BaseBot> = {
   [TWorkflowUpdateType in WorkflowUpdateType]: {
-    [TWorkflowName in utils.StringKeys<TBot['workflows']>]?: WorkflowHandlers<TBot, TExtraTools>[TWorkflowName][]
+    [TWorkflowName in utils.StringKeys<TBot['workflows']>]?: WorkflowHandlers<TBot>[TWorkflowName][]
   }
 }
 
@@ -340,10 +340,10 @@ export type OrderedHookHandlersMap<TBot extends common.BaseBot> = {
   }
 }
 
-export type OrderedWorkflowHandlersMap<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
+export type OrderedWorkflowHandlersMap<TBot extends common.BaseBot> = {
   [TWorkflowUpdateType in WorkflowUpdateType]: {
     [TWorkflowName in utils.StringKeys<TBot['workflows']>]?: {
-      handler: WorkflowHandlers<TBot, TExtraTools>[TWorkflowName]
+      handler: WorkflowHandlers<TBot>[TWorkflowName]
       order: number
     }[]
   }
