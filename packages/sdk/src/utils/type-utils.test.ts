@@ -83,6 +83,20 @@ describe('AtLeastOneProperty<T>', () => {
       ]
     >
   })
+
+  test('when T is undefined, should not allow any properties', () => {
+    type A = utils.AtLeastOneProperty<undefined>
+    type B = {}
+    type C = { foo: 1 }
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertExtends<B, A>,
+        utils.AssertExtends<A, B>,
+        utils.AssertNotExtends<A, C>,
+      ]
+    >
+  })
 })
 
 describe('ExactlyOneProperty<T>', () => {

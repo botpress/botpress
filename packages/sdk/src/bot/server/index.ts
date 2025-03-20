@@ -6,17 +6,13 @@ import * as utils from '../../utils/type-utils'
 import { BotLogger } from '../bot-logger'
 import { BotSpecificClient } from '../client'
 import * as common from '../common'
+import { proxyWorkflows } from '../workflow-proxy'
 import { extractContext } from './context'
+import { SUCCESS_RESPONSE } from './responses'
 import * as types from './types'
+import { handleWorkflowUpdateEvent } from './workflows/update-handler'
 
 export * from './types'
-
-type ServerProps = types.CommonHandlerProps<common.BaseBot> & {
-  req: Request
-  self: types.BotHandlers<common.BaseBot>
-}
-
-const SUCCESS_RESPONSE = { status: 200 }
 
 export const botHandler =
   (bot: types.BotHandlers<common.BaseBot>) =>
@@ -33,11 +29,13 @@ export const botHandler =
         createMessage: async (req) => {
           const beforeOutgoingMessageHooks = bot.hookHandlers.before_outgoing_message[req.type] ?? []
           for (const handler of beforeOutgoingMessageHooks) {
+            const client = new BotSpecificClient(vanillaClient)
             const hookOutput = await handler({
-              client: new BotSpecificClient(vanillaClient),
+              client,
               ctx,
               logger,
               data: req,
+              ..._getBotTools({ client }),
             })
             req = hookOutput?.data ?? req
           }
@@ -46,11 +44,13 @@ export const botHandler =
         callAction: async (req) => {
           const beforeOutgoingCallActionHooks = bot.hookHandlers.before_outgoing_call_action[req.type] ?? []
           for (const handler of beforeOutgoingCallActionHooks) {
+            const client = new BotSpecificClient(vanillaClient)
             const hookOutput = await handler({
-              client: new BotSpecificClient(vanillaClient),
+              client,
               ctx,
               logger,
               data: req,
+              ..._getBotTools({ client }),
             })
             req = hookOutput?.data ?? req
           }
@@ -61,11 +61,13 @@ export const botHandler =
         createMessage: async (res) => {
           const afterOutgoingMessageHooks = bot.hookHandlers.after_outgoing_message[res.message.type] ?? []
           for (const handler of afterOutgoingMessageHooks) {
+            const client = new BotSpecificClient(vanillaClient)
             const hookOutput = await handler({
-              client: new BotSpecificClient(vanillaClient),
+              client,
               ctx,
               logger,
               data: res,
+              ..._getBotTools({ client }),
             })
             res = hookOutput?.data ?? res
           }
@@ -74,11 +76,13 @@ export const botHandler =
         callAction: async (res) => {
           const afterOutgoingCallActionHooks = bot.hookHandlers.after_outgoing_call_action[res.output.type] ?? []
           for (const handler of afterOutgoingCallActionHooks) {
+            const client = new BotSpecificClient(vanillaClient)
             const hookOutput = await handler({
-              client: new BotSpecificClient(vanillaClient),
+              client,
               ctx,
               logger,
               data: res,
+              ..._getBotTools({ client }),
             })
             res = hookOutput?.data ?? res
           }
@@ -87,7 +91,7 @@ export const botHandler =
       },
     })
 
-    const props: ServerProps = {
+    const props: types.ServerProps = {
       req,
       ctx,
       logger,
@@ -111,22 +115,27 @@ export const botHandler =
     }
   }
 
-const onPing = async ({ ctx }: ServerProps): Promise<Response> => {
+const onPing = async ({ ctx }: types.ServerProps): Promise<Response> => {
   log.info(`Received ${ctx.operation} operation for bot ${ctx.botId} of type ${ctx.type}`)
   return SUCCESS_RESPONSE
 }
 
-const onRegister = async (_: ServerProps): Promise<Response> => SUCCESS_RESPONSE
+const onRegister = async (_: types.ServerProps): Promise<Response> => SUCCESS_RESPONSE
 
-const onUnregister = async (_: ServerProps): Promise<Response> => SUCCESS_RESPONSE
+const onUnregister = async (_: types.ServerProps): Promise<Response> => SUCCESS_RESPONSE
 
-const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps): Promise<Response> => {
-  const common: types.CommonHandlerProps<common.BaseBot> = { client, ctx, logger }
+const onEventReceived = async (serverProps: types.ServerProps): Promise<Response> => {
+  const { ctx, logger, req, client, self } = serverProps
+  const common: types.CommonHandlerProps<common.BaseBot> = { client, ctx, logger, ..._getBotTools({ client }) }
 
   log.debug(`Received event ${ctx.type}`)
 
   type AnyEventPayload = utils.ValueOf<types.EventPayloads<common.BaseBot>>
   const body = parseBody<AnyEventPayload>(req)
+
+  if (ctx.type === 'workflow_update') {
+    return await handleWorkflowUpdateEvent(serverProps, body.event as types.WorkflowUpdateEvent)
+  }
 
   if (ctx.type === 'message_created') {
     const event = body.event
@@ -218,7 +227,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
   return SUCCESS_RESPONSE
 }
 
-const onActionTriggered = async ({ ctx, logger, req, client, self }: ServerProps): Promise<Response> => {
+const onActionTriggered = async ({ ctx, logger, req, client, self }: types.ServerProps): Promise<Response> => {
   type AnyActionPayload = utils.ValueOf<types.ActionHandlerPayloads<common.BaseBot>>
   const { input, type } = parseBody<AnyActionPayload>(req)
 
@@ -232,7 +241,7 @@ const onActionTriggered = async ({ ctx, logger, req, client, self }: ServerProps
     throw new Error(`Action ${type} not found`)
   }
 
-  const output = await action({ ctx, logger, input, client, type })
+  const output = await action({ ctx, logger, input, client, type, ..._getBotTools({ client }) })
 
   const response = { output }
   return {
@@ -240,3 +249,9 @@ const onActionTriggered = async ({ ctx, logger, req, client, self }: ServerProps
     body: JSON.stringify(response),
   }
 }
+
+const _getBotTools = (
+  props: Pick<types.CommonHandlerProps<common.BaseBot>, 'client'>
+): Pick<types.CommonHandlerProps<common.BaseBot>, 'workflows'> => ({
+  workflows: proxyWorkflows(props.client),
+})

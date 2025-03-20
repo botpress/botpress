@@ -8,6 +8,7 @@ import {
   MessageDefinition,
   ActionDefinition,
   TableDefinition,
+  WorkflowDefinition,
 } from '../bot/definition'
 import { IntegrationPackage, InterfacePackage } from '../package'
 import { ZuiObjectSchema } from '../zui'
@@ -23,6 +24,7 @@ export {
   ActionDefinition,
   TableDefinition,
   IntegrationConfigInstance,
+  WorkflowDefinition,
 } from '../bot/definition'
 
 type BaseConfig = ZuiObjectSchema
@@ -32,6 +34,7 @@ type BaseActions = Record<string, ZuiObjectSchema>
 type BaseInterfaces = Record<string, any>
 type BaseIntegrations = Record<string, any>
 type BaseTables = Record<string, ZuiObjectSchema>
+type BaseWorkflows = Record<string, ZuiObjectSchema>
 
 export type PluginDefinitionProps<
   TName extends string = string,
@@ -43,6 +46,7 @@ export type PluginDefinitionProps<
   TInterfaces extends BaseInterfaces = BaseInterfaces,
   TIntegrations extends BaseIntegrations = BaseIntegrations,
   TTables extends BaseTables = BaseTables,
+  TWorkflows extends BaseWorkflows = BaseWorkflows,
 > = {
   name: TName
   version: TVersion
@@ -75,6 +79,14 @@ export type PluginDefinitionProps<
   tables?: {
     [K in keyof TTables]: TableDefinition<TTables[K]>
   }
+
+  /**
+   * # EXPERIMENTAL
+   * This API is experimental and may change in the future.
+   */
+  workflows?: {
+    [K in keyof TWorkflows]: WorkflowDefinition<TWorkflows[K]>
+  }
 }
 
 export class PluginDefinition<
@@ -87,6 +99,7 @@ export class PluginDefinition<
   TInterfaces extends BaseInterfaces = BaseInterfaces,
   TIntegrations extends BaseIntegrations = BaseIntegrations,
   TTables extends BaseTables = BaseTables,
+  TWorkflows extends BaseWorkflows = BaseWorkflows,
 > {
   public readonly name: this['props']['name']
   public readonly version: this['props']['version']
@@ -108,6 +121,7 @@ export class PluginDefinition<
   public readonly recurringEvents: this['props']['recurringEvents']
   public readonly actions: this['props']['actions']
   public readonly tables: this['props']['tables']
+  public readonly workflows: this['props']['workflows']
 
   public constructor(
     public readonly props: PluginDefinitionProps<
@@ -119,7 +133,8 @@ export class PluginDefinition<
       TActions,
       TInterfaces,
       TIntegrations,
-      TTables
+      TTables,
+      TWorkflows
     >
   ) {
     this.name = props.name
@@ -139,5 +154,6 @@ export class PluginDefinition<
     this.recurringEvents = props.recurringEvents
     this.actions = props.actions
     this.tables = props.tables
+    this.workflows = props.workflows
   }
 }
