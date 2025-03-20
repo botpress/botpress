@@ -107,8 +107,8 @@ const _commonMessagingHandler = async <TMessage extends keyof bp.channels.channe
 
       logger.forBot().debug('Fetched latest Instagram user profile: ', userProfile)
 
-      if (userProfile?.name) {
-        await client.updateUser({ ...user, name: userProfile?.name, pictureUrl: userProfile?.profile_pic })
+      if (userProfile?.name || userProfile?.profile_pic) {
+        await client.updateUser({ id: user.id, name: userProfile?.name, pictureUrl: userProfile?.profile_pic })
       }
     } catch (error) {
       logger.forBot().error('Error while fetching user profile from Instagram', error)
