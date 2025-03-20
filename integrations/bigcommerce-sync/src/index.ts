@@ -1,5 +1,4 @@
 import { Client } from '@botpress/client'
-import { ActionMetadataStore } from '@botpress/sdk'
 import actions from './actions'
 import { getBigCommerceClient, BigCommerceClient } from './client'
 import { productsTableSchema, productsTableName } from './schemas/products'
@@ -180,21 +179,17 @@ const setupBigCommerceWebhooks = async (configuration: BigCommerceConfig, logger
   }
 }
 
-const syncBigCommerceProducts = async (
-  ctx: bp.IntegrationContext<bp.Integration>,
-  client: bp.Client,
-  logger: bp.Logger
-) => {
+const syncBigCommerceProducts = async (ctx: bp.Context, client: bp.Client, logger: bp.Logger) => {
   logger.forBot().info('Syncing BigCommerce products...')
 
   try {
-    const metadata = new ActionMetadataStore()
     const syncResult = await actions.syncProducts({
       ctx,
       client,
       logger,
       input: {},
-      metadata,
+      type: 'syncProducts',
+      metadata: { setCost: (_cost: number) => {} },
     })
 
     logger.forBot().info(`Product sync completed: ${syncResult.message}`)
@@ -251,13 +246,13 @@ export default new bp.Integration({
 
       if (!isBCWebhook) {
         logger.forBot().warn('Not a recognized BigCommerce webhook, falling back to full sync')
-        const metadata = new ActionMetadataStore()
         const result = await actions.syncProducts({
           ctx,
           client,
           logger,
           input: {},
-          metadata,
+          type: 'syncProducts',
+          metadata: { setCost: (_cost: number) => {} },
         })
 
         return {
@@ -323,13 +318,13 @@ export default new bp.Integration({
           hasScope: !!webhookType,
           payloadSample: JSON.stringify(webhookData).substring(0, 500),
         })
-        const metadata = new ActionMetadataStore()
         const result = await actions.syncProducts({
           ctx,
           client,
           logger,
           input: {},
-          metadata,
+          type: 'syncProducts',
+          metadata: { setCost: (_cost: number) => {} },
         })
 
         return {
@@ -360,13 +355,13 @@ export default new bp.Integration({
           result = await handleProductDelete(productId.toString(), botpressVanillaClient, tableName, logger)
         } else {
           logger.forBot().warn(`Unrecognized event type: ${webhookType}, falling back to full sync`)
-          const metadata = new ActionMetadataStore()
           result = await actions.syncProducts({
             ctx,
             client,
             logger,
             input: {},
-            metadata,
+            type: 'syncProducts',
+            metadata: { setCost: (_cost: number) => {} },
           })
           result.message = 'Full sync performed (unrecognized event type)'
         }
