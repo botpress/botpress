@@ -194,3 +194,59 @@ test('getting creatable:itemCreated after_incoming_event hook handlers also retu
   const itemCreatedHandlers = plugin.hookHandlers.after_incoming_event['creatable:itemCreated']
   expect(itemCreatedHandlers?.map((handler) => handler.name)).toEqual(['handler2'])
 })
+
+test('getting message handlers respects register order', () => {
+  const plugin = createPlugin()
+
+  plugin.on.message('*', async function handler1() {
+    return undefined
+  })
+  plugin.on.message('text', async function handler2() {
+    return undefined
+  })
+
+  const handlers = plugin.messageHandlers['text']
+  expect(handlers?.map((handler) => handler.name)).toEqual(['handler1', 'handler2'])
+})
+
+test('getting event handlers respects register order', () => {
+  const plugin = createPlugin()
+
+  plugin.on.event('*', async function handler1() {})
+  plugin.on.event('creatable:itemCreated', async function handler2() {})
+  plugin.on.event('github:prOpened', async function handler3() {})
+
+  const handlers = plugin.eventHandlers['github:prOpened']
+  expect(handlers?.map((handler) => handler.name)).toEqual(['handler1', 'handler2', 'handler3'])
+})
+
+test('getting state handlers respects register order', () => {
+  const plugin = createPlugin()
+
+  plugin.on.stateExpired('*', async function handler1() {
+    return undefined
+  })
+  plugin.on.stateExpired('myState', async function handler2() {
+    return undefined
+  })
+
+  const handlers = plugin.stateExpiredHandlers['myState']
+  expect(handlers?.map((handler) => handler.name)).toEqual(['handler1', 'handler2'])
+})
+
+test('getting hook handlers respects register order', () => {
+  const plugin = createPlugin()
+
+  plugin.on.beforeIncomingEvent('*', async function handler1() {
+    return undefined
+  })
+  plugin.on.beforeIncomingEvent('creatable:itemCreated', async function handler2() {
+    return undefined
+  })
+  plugin.on.beforeIncomingEvent('github:prOpened', async function handler3() {
+    return undefined
+  })
+
+  const handlers = plugin.hookHandlers.before_incoming_event['github:prOpened']
+  expect(handlers?.map((handler) => handler.name)).toEqual(['handler1', 'handler2', 'handler3'])
+})
