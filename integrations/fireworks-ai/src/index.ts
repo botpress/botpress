@@ -15,16 +15,30 @@ const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'accounts/fireworks/models/ll
 //  https://fireworks.ai/pricing
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   'accounts/fireworks/models/deepseek-r1': {
-    name: 'DeepSeek R1',
+    name: 'DeepSeek R1 (Fast)',
     description:
-      'DeepSeek-R1 is a state-of-the-art large language model optimized with reinforcement learning and cold-start data for exceptional reasoning, math, and code performance. **Note**: This model will always use a temperature of 0.6 as recommended by DeepSeek.',
+      'This version of the R1 model has a perfect balance between speed and cost-efficiency for real-time interactive experiences, with speeds up to 90 tokens per second.\n\nDeepSeek-R1 is a state-of-the-art large language model optimized with reinforcement learning and cold-start data for exceptional reasoning, math, and code performance. **Note**: This model will always use a temperature of 0.6 as recommended by DeepSeek.',
     tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
     input: {
-      costPer1MTokens: 8,
+      costPer1MTokens: 3,
       maxTokens: 128_000,
     },
     output: {
       costPer1MTokens: 8,
+      maxTokens: 32_768,
+    },
+  },
+  'accounts/fireworks/models/deepseek-r1-basic': {
+    name: 'DeepSeek R1 (Basic)',
+    description:
+      'This version of the R1 model is optimized for throughput and cost-effectiveness and has a lower cost but slightly higher latency than the "Fast" version of the model.\n\nDeepSeek-R1 is a state-of-the-art large language model optimized with reinforcement learning and cold-start data for exceptional reasoning, math, and code performance. **Note**: This model will always use a temperature of 0.6 as recommended by DeepSeek.',
+    tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
+    input: {
+      costPer1MTokens: 0.55,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 2.19,
       maxTokens: 32_768,
     },
   },
