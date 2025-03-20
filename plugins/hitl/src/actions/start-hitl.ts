@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import { DEFAULT_HITL_HANDOFF_MESSAGE } from '../../plugin.definition'
 import * as conv from '../conv-manager'
 import * as user from '../user-linker'
@@ -9,6 +10,13 @@ type Props = Parameters<bp.PluginProps['actions']['startHitl']>[0]
 
 export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) => {
   const { conversationId: upstreamConversationId, userId: upstreamUserId, userEmail: upstreamUserEmail } = props.input
+  if (!upstreamConversationId.length) {
+    throw new sdk.RuntimeError('conversationId is required to start HITL')
+  }
+  if (!upstreamUserId.length) {
+    throw new sdk.RuntimeError('userId is required to start HITL')
+  }
+
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
 
   const { conversation: upstreamConversation } = await props.client.getConversation({ id: upstreamConversationId })
