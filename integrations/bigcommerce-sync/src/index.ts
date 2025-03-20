@@ -181,6 +181,7 @@ const syncBigCommerceProducts = async (ctx: any, client: bp.Client, logger: bp.L
       client,
       logger,
       input: {},
+      metadata: {},
     })
 
     logger.forBot().info(`Product sync completed: ${syncResult.message}`)
@@ -242,6 +243,7 @@ export default new bp.Integration({
           client,
           logger,
           input: {},
+          metadata: {},
         })
 
         return {
@@ -313,6 +315,7 @@ export default new bp.Integration({
           client,
           logger,
           input: {},
+          metadata: {},
         })
 
         return {
@@ -348,6 +351,7 @@ export default new bp.Integration({
             client,
             logger,
             input: {},
+            metadata: {},
           })
           result.message = 'Full sync performed (unrecognized event type)'
         }
