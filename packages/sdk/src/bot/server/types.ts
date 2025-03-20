@@ -313,6 +313,42 @@ export type WorkflowHandlersMap<TBot extends common.BaseBot, TExtraTools extends
   }
 }
 
+export type OrderedMessageHandlersMap<TBot extends common.BaseBot> = {
+  [TMessageName in utils.StringKeys<IncomingMessages<TBot>>]?: {
+    handler: MessageHandlers<TBot>[TMessageName]
+    order: number
+  }[]
+}
+
+export type OrderedEventHandlersMap<TBot extends common.BaseBot> = {
+  [TEventName in utils.StringKeys<IncomingEvents<TBot>>]?: { handler: EventHandlers<TBot>[TEventName]; order: number }[]
+}
+
+export type OrderedStateExpiredHandlersMap<TBot extends common.BaseBot> = {
+  [TStateName in utils.StringKeys<IncomingStates<TBot>>]?: {
+    handler: StateExpiredHandlers<TBot>[TStateName]
+    order: number
+  }[]
+}
+
+export type OrderedHookHandlersMap<TBot extends common.BaseBot> = {
+  [THookType in utils.StringKeys<HookData<TBot>>]: {
+    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]?: {
+      handler: HookHandlers<TBot>[THookType][THookDataName]
+      order: number
+    }[]
+  }
+}
+
+export type OrderedWorkflowHandlersMap<TBot extends common.BaseBot, TExtraTools extends object = {}> = {
+  [TWorkflowUpdateType in WorkflowUpdateType]: {
+    [TWorkflowName in utils.StringKeys<TBot['workflows']>]?: {
+      handler: WorkflowHandlers<TBot, TExtraTools>[TWorkflowName]
+      order: number
+    }[]
+  }
+}
+
 /**
  * TODO:
  * the consumer of this type shouldnt be able to access "*" directly;

@@ -289,7 +289,49 @@ export type HookHandlersMap<TPlugin extends common.BasePlugin> = {
 
 export type WorkflowHandlersMap<TPlugin extends common.BasePlugin, TExtraTools extends object = {}> = {
   [TWorkflowUpdateType in bot.WorkflowUpdateType]: {
-    [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]?: WorkflowHandlers<TPlugin, TExtraTools>[TWorkflowName][]
+    [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]?: {
+      handler: WorkflowHandlers<TPlugin, TExtraTools>[TWorkflowName]
+      order: number
+    }[]
+  }
+}
+
+export type OrderedMessageHandlersMap<TPlugin extends common.BasePlugin> = {
+  [TMessageName in utils.StringKeys<IncomingMessages<TPlugin>>]?: {
+    handler: MessageHandlers<TPlugin>[TMessageName]
+    order: number
+  }[]
+}
+
+export type OrderedEventHandlersMap<TPlugin extends common.BasePlugin> = {
+  [TEventName in utils.StringKeys<IncomingEvents<TPlugin>>]?: {
+    handler: EventHandlers<TPlugin>[TEventName]
+    order: number
+  }[]
+}
+
+export type OrderedStateExpiredHandlersMap<TPlugin extends common.BasePlugin> = {
+  [TStateName in utils.StringKeys<IncomingStates<TPlugin>>]?: {
+    handler: StateExpiredHandlers<TPlugin>[TStateName]
+    order: number
+  }[]
+}
+
+export type OrderedHookHandlersMap<TPlugin extends common.BasePlugin> = {
+  [THookType in utils.StringKeys<HookData<TPlugin>>]: {
+    [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]?: {
+      handler: HookHandlers<TPlugin>[THookType][THookDataName]
+      order: number
+    }[]
+  }
+}
+
+export type OrderedWorkflowHandlersMap<TPlugin extends common.BasePlugin, TExtraTools extends object = {}> = {
+  [TWorkflowUpdateType in bot.WorkflowUpdateType]: {
+    [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]?: {
+      handler: WorkflowHandlers<TPlugin, TExtraTools>[TWorkflowName]
+      order: number
+    }[]
   }
 }
 
