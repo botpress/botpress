@@ -19,14 +19,13 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['*'] = async 
     return
   }
 
-  const { conversation } = await props.client.getConversation({ id: conversationId })
-  if (conversation.integration !== props.interfaces.hitl.name) {
-    return
-  }
-
   const downstreamCm = conv.ConversationManager.from(props, conversationId)
   const isHitlActive = await downstreamCm.isHitlActive()
-  if (!isHitlActive) {
+  if (isHitlActive) {
+    /**
+     * if conversation is downstream; we prevent the bot from answering in the ticket
+     * if conversation is upstream; we prevent the bot from answering in the chat
+     */
     return consts.STOP_EVENT_HANDLING
   }
 
