@@ -166,7 +166,7 @@ export type ActionHandlers<TPlugin extends common.BasePlugin> = {
   ) => Promise<TPlugin['actions'][TActionName]['output']>
 }
 
-export type WorkflowPayloads<TPlugin extends common.BasePlugin, TExtraTools extends object = {}> = {
+export type WorkflowPayloads<TPlugin extends common.BasePlugin> = {
   [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]: CommonHandlerProps<TPlugin> & {
     conversation?: client.Conversation
     user?: client.User
@@ -176,12 +176,12 @@ export type WorkflowPayloads<TPlugin extends common.BasePlugin, TExtraTools exte
      * This API is experimental and may change in the future.
      */
     workflow: workflowProxy.WorkflowWithUtilities<TPlugin, TWorkflowName>
-  } & TExtraTools
+  }
 }
 
-export type WorkflowHandlers<TPlugin extends common.BasePlugin, TExtraTools extends object = {}> = {
+export type WorkflowHandlers<TPlugin extends common.BasePlugin> = {
   [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]: (
-    props: WorkflowPayloads<TPlugin, TExtraTools>[TWorkflowName]
+    props: WorkflowPayloads<TPlugin>[TWorkflowName]
   ) => Promise<void>
 }
 
@@ -287,10 +287,10 @@ export type HookHandlersMap<TPlugin extends common.BasePlugin> = {
   }
 }
 
-export type WorkflowHandlersMap<TPlugin extends common.BasePlugin, TExtraTools extends object = {}> = {
+export type WorkflowHandlersMap<TPlugin extends common.BasePlugin> = {
   [TWorkflowUpdateType in bot.WorkflowUpdateType]: {
     [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]?: {
-      handler: WorkflowHandlers<TPlugin, TExtraTools>[TWorkflowName]
+      handler: WorkflowHandlers<TPlugin>[TWorkflowName]
       order: number
     }[]
   }
@@ -326,10 +326,10 @@ export type OrderedHookHandlersMap<TPlugin extends common.BasePlugin> = {
   }
 }
 
-export type OrderedWorkflowHandlersMap<TPlugin extends common.BasePlugin, TExtraTools extends object = {}> = {
+export type OrderedWorkflowHandlersMap<TPlugin extends common.BasePlugin> = {
   [TWorkflowUpdateType in bot.WorkflowUpdateType]: {
     [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]?: {
-      handler: WorkflowHandlers<TPlugin, TExtraTools>[TWorkflowName]
+      handler: WorkflowHandlers<TPlugin>[TWorkflowName]
       order: number
     }[]
   }
@@ -341,4 +341,5 @@ export type PluginHandlers<TPlugin extends common.BasePlugin> = {
   eventHandlers: EventHandlersMap<TPlugin>
   stateExpiredHandlers: StateExpiredHandlersMap<TPlugin>
   hookHandlers: HookHandlersMap<TPlugin>
+  workflowHandlers: WorkflowHandlersMap<TPlugin>
 }
