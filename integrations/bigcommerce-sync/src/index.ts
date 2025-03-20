@@ -177,8 +177,6 @@ const syncBigCommerceProducts = async (ctx: any, client: bp.Client, logger: bp.L
 
   try {
     const syncResult = await actions.syncProducts({
-      type: 'syncProducts',
-      metadata: {},
       ctx,
       client,
       logger,
@@ -240,8 +238,6 @@ export default new bp.Integration({
       if (!isBCWebhook) {
         logger.forBot().warn('Not a recognized BigCommerce webhook, falling back to full sync')
         const result = await actions.syncProducts({
-          type: 'syncProducts',
-          metadata: {},
           ctx,
           client,
           logger,
@@ -313,8 +309,6 @@ export default new bp.Integration({
         })
 
         const result = await actions.syncProducts({
-          type: 'syncProducts',
-          metadata: {},
           ctx,
           client,
           logger,
@@ -350,8 +344,6 @@ export default new bp.Integration({
         } else {
           logger.forBot().warn(`Unrecognized event type: ${webhookType}, falling back to full sync`)
           result = await actions.syncProducts({
-            type: 'syncProducts',
-            metadata: {},
             ctx,
             client,
             logger,
