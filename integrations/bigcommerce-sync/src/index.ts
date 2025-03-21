@@ -1,7 +1,7 @@
 import { Client } from '@botpress/client'
 import actions from './actions'
 import { getBigCommerceClient, BigCommerceClient } from './client'
-import { productsTableSchema, productsTableName } from './schemas/products'
+import { productsTableSchema, productsTableName as productTable } from './schemas/products'
 import * as bp from '.botpress'
 
 // this client is necessary for table operations
@@ -207,7 +207,7 @@ export default new bp.Integration({
       const botpressVanillaClient = getBotpressVanillaClient(client)
 
       await botpressVanillaClient.getOrCreateTable({
-        table: productsTableName,
+        table: productTable,
         schema: productsTableSchema,
       })
 
@@ -245,19 +245,13 @@ export default new bp.Integration({
       logger.forBot().info(`Is BigCommerce webhook based on headers: ${isBCWebhook}`)
 
       if (!isBCWebhook) {
-        logger.forBot().warn('Not a recognized BigCommerce webhook, falling back to full sync')
-        const result = await actions.syncProducts({
-          ctx,
-          client,
-          logger,
-          input: {},
-          type: 'syncProducts',
-          metadata: { setCost: (_cost: number) => {} },
-        })
-
+        logger.forBot().warn('Rejecting request - not a BigCommerce webhook')
         return {
-          status: 200,
-          body: JSON.stringify(result),
+          status: 401,
+          body: JSON.stringify({
+            success: false,
+            message: 'Unauthorized: Request does not appear to be from BigCommerce',
+          }),
         }
       }
 
@@ -265,7 +259,7 @@ export default new bp.Integration({
       logger.forBot().info('Webhook data:', JSON.stringify(webhookData))
 
       const botpressVanillaClient = getBotpressVanillaClient(client)
-      const tableName = productsTableName
+      const tableName = productTable
       const bigCommerceClient = getBigCommerceClient(ctx.configuration)
 
       logger.forBot().info(
