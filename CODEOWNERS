@@ -30,6 +30,7 @@
 ## Others
 /integrations/airtable @pascal-botpress @botpress/engineering
 /integrations/asana @SebastienPoitras @botpress/engineering
+/integrations/bigcommerce-sync @matthewbotpress @botpress/engineering
 /integrations/chat @franklevasseur @botpress/engineering
 /integrations/clickup @franklevasseur @botpress/engineering
 /integrations/dropbox @pascal-botpress @botpress/engineering
