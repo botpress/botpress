@@ -61,6 +61,58 @@ const integration = new bp.Integration({
       { actionName: 'searchItems' },
       async ({ dropboxClient }, searchParams) => await dropboxClient.searchItems(searchParams)
     ),
+
+    filesReadonlyTransferFileToBotpress: wrapAction(
+      { actionName: 'filesReadonlyTransferFileToBotpress' },
+      async ({ dropboxClient, client }, { file: fileToTransfer, fileKey }) => {
+        const fileBuffer = await dropboxClient.getFileContents({ path: fileToTransfer.id })
+
+        const { file: uploadedFile } = await client.uploadFile({
+          key: fileKey,
+          content: fileBuffer,
+        })
+
+        return { botpressFileId: uploadedFile.id }
+      }
+    ),
+    filesReadonlyListItemsInFolder: wrapAction(
+      { actionName: 'filesReadonlyListItemsInFolder' },
+      async ({ dropboxClient }, { folderId, filters, nextToken: prevToken }) => {
+        const parentId = folderId ?? ''
+        const { items, nextToken } = await dropboxClient.listItemsInFolder({
+          path: parentId,
+          recursive: false,
+          nextToken: prevToken,
+        })
+
+        const mappedAndFilteredItems = items
+          .map((item) => ({
+            id: item.id,
+            type: item.itemType,
+            name: item.name,
+            parentId,
+            sizeInBytes: item.itemType === 'file' ? item.size : undefined,
+            lastModifiedDate: item.itemType === 'file' ? item.modifiedAt : undefined,
+            contentHash: item.itemType === 'file' ? item.revision : undefined,
+            absolutePath: item.path,
+          }))
+          .filter(
+            (item) =>
+              !(
+                (filters?.itemType && item.type !== filters.itemType) ||
+                (filters?.maxSizeInBytes && item.sizeInBytes && item.sizeInBytes > filters.maxSizeInBytes) ||
+                (filters?.modifiedAfter &&
+                  item.lastModifiedDate &&
+                  new Date(item.lastModifiedDate) < new Date(filters.modifiedAfter))
+              )
+          )
+
+        return {
+          items: mappedAndFilteredItems,
+          meta: { nextToken },
+        }
+      }
+    ),
   },
 
   async handler() {},
