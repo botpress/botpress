@@ -363,6 +363,22 @@ importers:
         specifier: ^0.18.12
         version: 0.18.12
 
+  integrations/bigcommerce-sync:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.7.2
+        version: 1.7.9
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/browser:
     dependencies:
       '@botpress/sdk':
