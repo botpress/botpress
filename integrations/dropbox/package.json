@@ -15,5 +15,8 @@
     "build": "bp add -y && bp build",
     "check:bplint": "bp lint",
     "check:type": "tsc --noEmit"
+  },
+  "bpDependencies": {
+    "files-readonly": "../../interfaces/files-readonly"
   }
 }

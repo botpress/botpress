@@ -1,0 +1,27 @@
+{
+  "name": "@bp-bots/file-sync-bot",
+  "scripts": {
+    "postinstall": "genenv -o ./.genenv/index.ts -e FILESYNC_DROPBOX_CLIENT_ID -e FILESYNC_DROPBOX_CLIENT_SECRET -e FILESYNC_DROPBOX_ACCESS_TOKEN",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpresshub/chat": "workspace:*",
+    "@botpresshub/dropbox": "workspace:*",
+    "@botpresshub/file-synchronizer-plugin": "workspace:*",
+    "@bpinternal/genenv": "0.0.1"
+  },
+  "bpDependencies": {
+    "chat": "../../integrations/chat",
+    "dropbox": "../../integrations/dropbox",
+    "fileSynchronizer": "../../plugins/file-synchronizer"
+  }
+}
