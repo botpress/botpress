@@ -1601,6 +1601,16 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  interfaces/files-readonly:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   interfaces/hitl:
     dependencies:
       '@botpress/sdk':
