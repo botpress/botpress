@@ -2245,6 +2245,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      browser-or-node:
+        specifier: ^2.1.1
+        version: 2.1.1
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
