@@ -1,19 +1,38 @@
+import * as sdk from '@botpress/sdk'
+import * as models from '../definitions/models'
 import type * as types from './types'
+import * as utils from './utils'
 import * as bp from '.botpress'
+
+const QUEUE_ITEM = models.FILE_WITH_PATH.extend({
+  status: sdk.z.enum(['pending', 'newly-synced', 'already-synced', 'errored']),
+  errorMessage: sdk.z.string().optional(),
+})
 
 export const getSyncQueue = async (
   props: bp.WorkflowHandlerProps['processQueue']
 ): Promise<{ syncQueue: types.SyncQueue; key: string }> => {
-  try {
-    const { jobFileContent, key } = await _retrieveJobFile(props)
-    const syncQueue = _parseJobFile(jobFileContent)
-
-    return { syncQueue, key }
-  } catch (thrown: unknown) {
+  const { jobFileContent, key } = await _retrieveJobFile(props).catch(async (thrown: unknown) => {
     const err: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
     await props.workflow.setFailed({ failureReason: `Failed to retrieve job file: ${err.message}` })
     throw new Error(`Failed to retrieve job file: ${thrown}`)
+  })
+
+  const syncQueue: types.SyncQueue = []
+  const syncQueueGenerator = utils.jsonl.parseJsonLines(jobFileContent, QUEUE_ITEM)
+
+  for (const item of syncQueueGenerator) {
+    if ('error' in item) {
+      props.logger
+        .withWorkflowId(props.workflow.id)
+        .error('Error while parsing line in job file. This line will be ignored.', item)
+      continue
+    }
+
+    syncQueue.push(item.value)
   }
+
+  return { syncQueue, key }
 }
 
 const _retrieveJobFile = async (
@@ -23,30 +42,6 @@ const _retrieveJobFile = async (
   const jobFileContent = await fetch(jobFile.url).then((res) => res.text())
 
   return { jobFileContent, key: jobFile.key }
-}
-
-const _parseJobFile = (jsonl: string): types.SyncQueue => {
-  const result: types.SyncQueue = []
-  let startCursor = 0
-
-  for (let endCursor = 0; endCursor <= jsonl.length; endCursor++) {
-    if (jsonl[endCursor] === '\n' || endCursor === jsonl.length) {
-      const line = jsonl.slice(startCursor, endCursor).trim()
-      startCursor = endCursor + 1
-
-      if (line) {
-        try {
-          // TODO: validate against a zod schema
-          result.push(JSON.parse(line) as types.SyncQueueItem)
-        } catch (thrown: unknown) {
-          const err: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
-          throw new Error(`Failed to parse job file line: ${line} - ${err.message}`)
-        }
-      }
-    }
-  }
-
-  return result
 }
 
 export const updateSyncQueue = async (
