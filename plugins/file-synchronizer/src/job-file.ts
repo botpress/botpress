@@ -10,7 +10,8 @@ export const getSyncQueue = async (
 
     return { syncQueue, key }
   } catch (thrown: unknown) {
-    await props.workflow.setFailed({ failureReason: `Failed to retrieve job file: ${thrown}` })
+    const err: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    await props.workflow.setFailed({ failureReason: `Failed to retrieve job file: ${err.message}` })
     throw new Error(`Failed to retrieve job file: ${thrown}`)
   }
 }
@@ -38,7 +39,8 @@ const _parseJobFile = (jsonl: string): types.SyncQueue => {
           // TODO: validate against a zod schema
           result.push(JSON.parse(line) as types.SyncQueueItem)
         } catch (thrown: unknown) {
-          throw new Error(`Failed to parse job file line: ${line} - ${thrown}`)
+          const err: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
+          throw new Error(`Failed to parse job file line: ${line} - ${err.message}`)
         }
       }
     }
