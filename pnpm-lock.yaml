@@ -136,6 +136,34 @@ importers:
         specifier: workspace:*
         version: link:../../integrations/chat
 
+  bots/file-sync-bot:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpresshub/chat':
+        specifier: workspace:*
+        version: link:../../integrations/chat
+      '@botpresshub/dropbox':
+        specifier: workspace:*
+        version: link:../../integrations/dropbox
+      '@botpresshub/file-synchronizer-plugin':
+        specifier: workspace:*
+        version: link:../../plugins/file-synchronizer
+      '@bpinternal/genenv':
+        specifier: 0.0.1
+        version: 0.0.1
+
   bots/hello-world:
     dependencies:
       '@botpress/cli':
