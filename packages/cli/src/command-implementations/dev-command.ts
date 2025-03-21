@@ -309,8 +309,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       await this.projectCache.set('devId', bot.id)
     }
 
-    const updateLine = this.logger.line()
-    updateLine.started('Deploying dev bot...')
+    this.logger.started('Deploying dev bot...')
 
     const updateBotBody = apiUtils.prepareUpdateBotBody(
       {
@@ -325,8 +324,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
     })
-    updateLine.success(`Dev Bot deployed with id "${updatedBot.id}" at "${externalUrl}"`)
-    updateLine.commit()
+    this.logger.success(`Dev Bot deployed with id "${updatedBot.id}" at "${externalUrl}"`)
 
     const tablesPublisher = new tables.TablesPublisher({ api, logger: this.logger, prompt: this.prompt })
     await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition: botDef })
