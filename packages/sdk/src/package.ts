@@ -43,7 +43,7 @@ type PluginPackageDefinition = NameVersion & {
   states?: Record<string, plugin.StateDefinition>
   configuration?: plugin.ConfigurationDefinition
   events?: Record<string, plugin.EventDefinition>
-  recurringEvents?: Record<string, plugin.RecurringEventDefinition>
+  recurringEvents?: plugin.DynamicRecurringEvents
   actions?: Record<string, plugin.ActionDefinition>
   tables?: Record<string, plugin.TableDefinition>
   workflows?: Record<string, plugin.WorkflowDefinition>

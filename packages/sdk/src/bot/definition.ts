@@ -205,7 +205,20 @@ export class BotDefinition<
     self.user = this._mergeUser(self.user, pluginPkg.definition.user)
     self.conversation = this._mergeConversation(self.conversation, pluginPkg.definition.conversation)
     self.message = this._mergeMessage(self.message, pluginPkg.definition.message)
-    self.recurringEvents = this._mergeRecurringEvents(self.recurringEvents, pluginPkg.definition.recurringEvents)
+
+    // Allow recurring events to be dynamically generated based on the plugin's configuration:
+    self.recurringEvents = this._mergeRecurringEvents(
+      self.recurringEvents,
+      Object.fromEntries(
+        Object.entries(pluginPkg.definition.recurringEvents ?? {})
+          .map(([key, recurringEvent]) => [
+            key,
+            typeof recurringEvent === 'function' ? recurringEvent({ configuration: config }) : recurringEvent,
+          ])
+          .filter(([, recurringEvent]) => recurringEvent !== undefined) as [string, RecurringEventDefinition][]
+      )
+    )
+
     self.tables = this._mergeTables(self.tables, pluginPkg.definition.tables)
     self.workflows = this._mergeWorkflows(self.workflows, pluginPkg.definition.workflows)
 
