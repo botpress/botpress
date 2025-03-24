@@ -10,7 +10,10 @@ export const handleEvent: bp.WorkflowHandlers['processQueue'] = async (props) =>
     logger,
     syncQueue,
     fileRepository: props.client,
-    integration: { ...props.interfaces['files-readonly'], ...props.actions['files-readonly'] },
+    integration: {
+      ...props.interfaces['files-readonly'],
+      transferFileToBotpress: props.actions['files-readonly'].transferFileToBotpress,
+    },
     updateSyncQueue: (params) => updateSyncQueue(props, key, params.syncQueue),
   })
 
