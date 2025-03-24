@@ -329,7 +329,16 @@ export default new bp.Integration({
 
       logger.forBot().info(`Processing event: ${webhookType} for product ID: ${productId}`)
 
-      let result
+      let result: {
+        success: boolean
+        message: string
+        productsCount?: number
+        syncResult?: {
+          success: boolean
+          message: string
+          productsCount: number
+        }
+      } | null
 
       try {
         if (webhookType === 'created' || webhookType === 'updated') {
@@ -353,7 +362,9 @@ export default new bp.Integration({
             type: 'syncProducts',
             metadata: { setCost: (_cost: number) => {} },
           })
-          result.message = 'Full sync performed (unrecognized event type)'
+          if (result) {
+            result.message = 'Full sync performed (unrecognized event type)'
+          }
         }
 
         return {
