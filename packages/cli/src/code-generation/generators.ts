@@ -61,3 +61,17 @@ export function primitiveRecordToTypescriptValues(x: Record<string, Primitive>):
     .fromPairs()
     .value()
 }
+
+export const getFunctionSource = (fn: (...x: never[]) => unknown): string => {
+  const source = fn.toString().trim()
+  const isAsync = source.startsWith('async ')
+  const asyncPrefix = isAsync ? 'async ' : ''
+
+  const match = source.match(/^(?:async\s*)?(?:function\s*[^(]*|\w+)?\(([^)]*)\)\s*{([\s\S]*)}/)
+  if (match) {
+    const [, params, body] = match
+    return `${asyncPrefix}(${params}) => {${body}}`
+  }
+
+  return source
+}

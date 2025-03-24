@@ -11,7 +11,7 @@ import {
   WorkflowDefinition,
 } from '../bot/definition'
 import { IntegrationPackage, InterfacePackage } from '../package'
-import { ZuiObjectSchema } from '../zui'
+import type { ZuiObjectSchema, infer as ZodInfer } from '../zui'
 
 export {
   StateDefinition,
@@ -35,6 +35,12 @@ type BaseInterfaces = Record<string, any>
 type BaseIntegrations = Record<string, any>
 type BaseTables = Record<string, ZuiObjectSchema>
 type BaseWorkflows = Record<string, ZuiObjectSchema>
+
+export type DynamicRecurringEvents<TEvents extends BaseEvents = BaseEvents, TConfig extends BaseConfig = BaseConfig> = {
+  [x: string]:
+    | RecurringEventDefinition<TEvents>
+    | ((self: { configuration: ZodInfer<TConfig> }) => RecurringEventDefinition<TEvents> | undefined)
+}
 
 export type PluginDefinitionProps<
   TName extends string = string,
@@ -72,7 +78,7 @@ export type PluginDefinitionProps<
   events?: {
     [K in keyof TEvents]: EventDefinition<TEvents[K]>
   }
-  recurringEvents?: Record<string, RecurringEventDefinition<TEvents>>
+  recurringEvents?: DynamicRecurringEvents<TEvents, TConfig>
   actions?: {
     [K in keyof TActions]: ActionDefinition<TActions[K]>
   }

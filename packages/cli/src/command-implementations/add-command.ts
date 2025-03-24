@@ -238,6 +238,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
                 )
               ),
             },
+            recurringEvents: projectDefinition.definition.recurringEvents,
           },
         },
       }

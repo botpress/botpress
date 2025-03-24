@@ -94,12 +94,24 @@ export type InterfaceDefinition = PackageRef & {
   channels?: Record<string, TitleDescription & { messages: Record<string, TitleDescription & { schema: Schema }> }>
 }
 
+type RecurringEventDefinition = {
+  type: string
+  payload: Record<string, any>
+  schedule: { cron: string }
+}
+export type DynamicRecurringEvents = {
+  [x: string]:
+    | RecurringEventDefinition
+    | ((self: { configuration: Record<string, any> }) => RecurringEventDefinition | undefined)
+}
+
 export type PluginDefinition = PackageRef & {
   configuration?: TitleDescription & { schema?: Schema }
   user?: { tags: Record<string, {}> }
   conversation?: Tags
   states?: Record<string, TitleDescription & { type: client.State['type']; schema: Schema }>
   events?: Record<string, TitleDescription & { schema: Schema }>
+  recurringEvents?: DynamicRecurringEvents
   actions?: Record<string, TitleDescription & InputOutput>
   workflows?: Record<string, TitleDescription & Tags & InputOutput>
   dependencies?: {

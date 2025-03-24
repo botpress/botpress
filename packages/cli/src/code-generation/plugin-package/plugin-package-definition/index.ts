@@ -4,6 +4,7 @@ import { Module } from '../../module'
 import { ActionsModule } from './actions-module'
 import { DefaultConfigurationModule } from './configuration-module'
 import { EventsModule } from './events-module'
+import { RecurringEventsModule } from './recurring-events-module'
 import { InterfacesModule } from './interfaces-module'
 import { StatesModule } from './states-module'
 import * as types from './typings'
@@ -14,6 +15,7 @@ type PluginPackageModuleDependencies = {
   eventsModule: EventsModule
   statesModule: StatesModule
   interfacesModule: InterfacesModule
+  recurringEventsModule: RecurringEventsModule
 }
 
 export class PluginPackageDefinitionModule extends Module {
@@ -34,6 +36,9 @@ export class PluginPackageDefinitionModule extends Module {
     const eventsModule = new EventsModule(_plugin.events ?? {})
     eventsModule.unshift('events')
 
+    const recurringEventsModule = new RecurringEventsModule(_plugin.recurringEvents ?? {})
+    recurringEventsModule.unshift('recurringEvents')
+
     const statesModule = new StatesModule(_plugin.states ?? {})
     statesModule.unshift('states')
 
@@ -46,6 +51,7 @@ export class PluginPackageDefinitionModule extends Module {
       eventsModule,
       statesModule,
       interfacesModule,
+      recurringEventsModule,
     }
 
     for (const dep of Object.values(this._dependencies)) {
@@ -56,13 +62,15 @@ export class PluginPackageDefinitionModule extends Module {
   public async getContent() {
     let content = ''
 
-    const { defaultConfigModule, actionsModule, eventsModule, statesModule, interfacesModule } = this._dependencies
+    const { defaultConfigModule, actionsModule, eventsModule, recurringEventsModule, statesModule, interfacesModule } =
+      this._dependencies
 
     const defaultConfigImport = defaultConfigModule.import(this)
     const actionsImport = actionsModule.import(this)
     const eventsImport = eventsModule.import(this)
     const statesImport = statesModule.import(this)
     const interfacesImport = interfacesModule.import(this)
+    const recurringEventsImport = recurringEventsModule.import(this)
 
     const user = {
       tags: this._plugin.user?.tags ?? {},
@@ -81,11 +89,13 @@ export class PluginPackageDefinitionModule extends Module {
       `import * as ${eventsModule.name} from "./${eventsImport}"`,
       `import * as ${statesModule.name} from "./${statesImport}"`,
       `import * as ${interfacesModule.name} from "./${interfacesImport}"`,
+      `import * as ${recurringEventsModule.name} from "./${recurringEventsImport}"`,
       `export * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
       `export * as ${actionsModule.name} from "./${actionsImport}"`,
       `export * as ${eventsModule.name} from "./${eventsImport}"`,
       `export * as ${statesModule.name} from "./${statesImport}"`,
       `export * as ${interfacesModule.name} from "./${interfacesImport}"`,
+      `export * as ${recurringEventsModule.name} from "./${recurringEventsImport}"`,
       '',
       'export default {',
       `  name: "${this._plugin.name}",`,
@@ -97,6 +107,7 @@ export class PluginPackageDefinitionModule extends Module {
       `  events: ${eventsModule.name}.${eventsModule.exportName},`,
       `  states: ${statesModule.name}.${statesModule.exportName},`,
       `  interfaces: ${interfacesModule.name}.${interfacesModule.exportName},`,
+      `  recurringEvents: ${recurringEventsModule.name}.${recurringEventsModule.exportName},`,
       '} satisfies sdk.PluginPackage["definition"]',
     ].join('\n')
 
