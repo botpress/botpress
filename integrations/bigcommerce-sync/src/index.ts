@@ -1,7 +1,7 @@
 import { Client } from '@botpress/client'
 import actions from './actions'
 import { getBigCommerceClient, BigCommerceClient } from './client'
-import { productsTableSchema, productsTableName as productTable } from './schemas/products'
+import { PRODUCT_TABLE_SCHEMA, PRODUCTS_TABLE_NAME as PRODUCT_TABLE } from './schemas/products'
 import * as bp from '.botpress'
 
 // this client is necessary for table operations
@@ -207,8 +207,8 @@ export default new bp.Integration({
       const botpressVanillaClient = getBotpressVanillaClient(client)
 
       await botpressVanillaClient.getOrCreateTable({
-        table: productTable,
-        schema: productsTableSchema,
+        table: PRODUCT_TABLE,
+        schema: PRODUCT_TABLE_SCHEMA,
       })
 
       const syncResult = await syncBigCommerceProducts(ctx, client, logger)
@@ -259,7 +259,7 @@ export default new bp.Integration({
       logger.forBot().info('Webhook data:', JSON.stringify(webhookData))
 
       const botpressVanillaClient = getBotpressVanillaClient(client)
-      const tableName = productTable
+      const tableName = PRODUCT_TABLE
       const bigCommerceClient = getBigCommerceClient(ctx.configuration)
 
       logger.forBot().info(

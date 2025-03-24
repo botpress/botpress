@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import { getBigCommerceClient } from '../client'
-import { productsTableSchema, productsTableName as productTable } from '../schemas/products'
+import { PRODUCT_TABLE_SCHEMA, PRODUCTS_TABLE_NAME as PRODUCT_TABLE } from '../schemas/products'
 import * as bp from '.botpress'
 
 type BigCommerceProduct = {
@@ -37,9 +37,9 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
   const bigCommerceClient = getBigCommerceClient(ctx)
 
   try {
-    const tableName = productTable
+    const tableName = PRODUCT_TABLE
 
-    const tableSchema = productsTableSchema
+    const tableSchema = PRODUCT_TABLE_SCHEMA
 
     await botpressVanillaClient.getOrCreateTable({
       table: tableName,
