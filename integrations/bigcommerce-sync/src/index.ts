@@ -227,6 +227,44 @@ const syncBigCommerceProducts = async (ctx: bp.Context, client: bp.Client, logge
   }
 }
 
+const processWebhookByType = async (
+  webhookType: string,
+  productId: string,
+  bigCommerceClient: BigCommerceClient,
+  botpressVanillaClient: Client,
+  tableName: string,
+  logger: bp.Logger,
+  ctx: bp.Context,
+  client: bp.Client
+) => {
+  if (webhookType === 'created' || webhookType === 'updated') {
+    return await handleProductCreateOrUpdate(
+      productId.toString(),
+      bigCommerceClient,
+      botpressVanillaClient,
+      tableName,
+      webhookType === 'created',
+      logger
+    )
+  } else if (webhookType === 'deleted') {
+    return await handleProductDelete(productId.toString(), botpressVanillaClient, tableName, logger)
+  } else {
+    logger.forBot().warn(`Unrecognized event type: ${webhookType}, falling back to full sync`)
+    const result = await actions.syncProducts({
+      ctx,
+      client,
+      logger,
+      input: {},
+      type: 'syncProducts',
+      metadata: { setCost: (_cost: number) => {} },
+    })
+    if (result) {
+      result.message = 'Full sync performed (unrecognized event type)'
+    }
+    return result
+  }
+}
+
 export default new bp.Integration({
   register: async ({ client, ctx, logger }) => {
     try {
@@ -360,31 +398,16 @@ export default new bp.Integration({
       } | null
 
       try {
-        if (webhookType === 'created' || webhookType === 'updated') {
-          result = await handleProductCreateOrUpdate(
-            productId.toString(),
-            bigCommerceClient,
-            botpressVanillaClient,
-            tableName,
-            webhookType === 'created',
-            logger
-          )
-        } else if (webhookType === 'deleted') {
-          result = await handleProductDelete(productId.toString(), botpressVanillaClient, tableName, logger)
-        } else {
-          logger.forBot().warn(`Unrecognized event type: ${webhookType}, falling back to full sync`)
-          result = await actions.syncProducts({
-            ctx,
-            client,
-            logger,
-            input: {},
-            type: 'syncProducts',
-            metadata: { setCost: (_cost: number) => {} },
-          })
-          if (result) {
-            result.message = 'Full sync performed (unrecognized event type)'
-          }
-        }
+        result = await processWebhookByType(
+          webhookType,
+          productId.toString(),
+          bigCommerceClient,
+          botpressVanillaClient,
+          tableName,
+          logger,
+          ctx,
+          client
+        )
 
         return {
           status: 200,
