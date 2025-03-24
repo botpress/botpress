@@ -5,9 +5,12 @@ import proactiveUser from 'bp_modules/proactive-user'
 
 export const INTEGRATION_NAME = 'instagram'
 
+// File message type unsupported both ways
+const { file: _file, ...channelMessages } = messages.defaults
+
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.1.1',
+  version: '3.0.0',
   title: 'Instagram',
   description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
@@ -69,7 +72,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Direct Message',
       description: 'Direct message conversation between an Instagram user and the bot',
-      messages: { ...messages.defaults, markdown: messages.markdown },
+      messages: channelMessages,
       message: {
         tags: {
           id: {

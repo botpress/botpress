@@ -1,4 +1,3 @@
-import { RuntimeError } from '@botpress/sdk'
 import { sendMessage } from 'src/misc/outgoing-message'
 import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage } from 'src/misc/utils'
 import * as bp from '.botpress'
@@ -15,11 +14,6 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         props.logger.forBot().debug('Sending image message from bot to Instagram:', payload.imageUrl)
         return client.sendImageMessage(recipientId, payload.imageUrl)
       }),
-    markdown: async ({ payload, ...props }) =>
-      sendMessage(props, async (instagram, recipientId) => {
-        props.logger.forBot().debug('Sending markdown message from bot to Instagram:', payload.markdown)
-        return instagram.sendTextMessage(recipientId, payload.markdown)
-      }),
     audio: async ({ payload, ...props }) =>
       sendMessage(props, async (client, recipientId) => {
         props.logger.forBot().debug('Sending audio message from bot to Instagram:', payload.audioUrl)
@@ -30,9 +24,6 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         props.logger.forBot().debug('Sending video message from bot to Instagram:', payload.videoUrl)
         return client.sendVideoMessage(recipientId, payload.videoUrl)
       }),
-    file: ({ type }) => {
-      throw new RuntimeError(`Messages of type '${type}' not implemented`)
-    },
     location: async ({ payload, ...props }) =>
       sendMessage(props, async (client, recipientId) => {
         const googleMapLink = formatGoogleMapLink(payload)
@@ -63,8 +54,40 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         props.logger.forBot().debug('Sending choice message from bot to Instagram:', choiceMessage)
         return instagram.sendMessage(recipientId, getChoiceMessage(payload))
       }),
-    bloc: ({ type }) => {
-      throw new RuntimeError(`Messages of type '${type}' not implemented`)
+    bloc: async ({ payload, ...props }) => {
+      props.logger.forBot().debug('Sending bloc message from bot to Instagram:', payload.items)
+      for (const item of payload.items) {
+        const logMessage = `Sending bloc item of type ${item.type} from bot to Instagram:`
+        if (item.type === 'text') {
+          await sendMessage(props, async (instagram, recipientId) => {
+            props.logger.forBot().debug(logMessage, item.payload.text)
+            return instagram.sendTextMessage(recipientId, item.payload.text)
+          })
+        } else if (item.type === 'image') {
+          await sendMessage(props, async (instagram, recipientId) => {
+            props.logger.forBot().debug(logMessage, item.payload.imageUrl)
+            return instagram.sendImageMessage(recipientId, item.payload.imageUrl)
+          })
+        } else if (item.type === 'audio') {
+          await sendMessage(props, async (instagram, recipientId) => {
+            props.logger.forBot().debug(logMessage, item.payload.audioUrl)
+            return instagram.sendAudioMessage(recipientId, item.payload.audioUrl)
+          })
+        } else if (item.type === 'video') {
+          await sendMessage(props, async (instagram, recipientId) => {
+            props.logger.forBot().debug(logMessage, item.payload.videoUrl)
+            return instagram.sendVideoMessage(recipientId, item.payload.videoUrl)
+          })
+        } else if (item.type === 'location') {
+          await sendMessage(props, async (instagram, recipientId) => {
+            const googleMapLink = formatGoogleMapLink(item.payload)
+            props.logger.forBot().debug(logMessage, googleMapLink)
+            return instagram.sendTextMessage(recipientId, googleMapLink)
+          })
+        } else {
+          props.logger.forBot().warn(`Unsupported bloc item type: ${item.type}`)
+        }
+      }
     },
   },
 }
