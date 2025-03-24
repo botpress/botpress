@@ -213,7 +213,9 @@ export class BotDefinition<
         Object.entries(pluginPkg.definition.recurringEvents ?? {})
           .map(([key, recurringEvent]) => [
             key,
-            typeof recurringEvent === 'function' ? recurringEvent({ configuration: config }) : recurringEvent,
+            typeof recurringEvent === 'function'
+              ? recurringEvent({ configuration: config.configuration })
+              : recurringEvent,
           ])
           .filter(([, recurringEvent]) => recurringEvent !== undefined) as [string, RecurringEventDefinition][]
       )
