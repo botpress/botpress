@@ -304,13 +304,9 @@ export default new bp.Integration({
       if (!webhookType || !productId) {
         logger.forBot().warn('Could not extract product ID or event type from webhook, falling back to full sync')
 
-        logger.forBot().info('Detailed webhook structure for debugging:', {
-          bodyType: typeof req.body,
-          bodyKeys: typeof req.body === 'object' ? Object.keys(req.body) : [],
-          headerKeys: Object.keys(req.headers),
+        logger.forBot().info('Webhook info:', {
           hasProductId: !!productId,
           hasScope: !!webhookType,
-          payloadSample: JSON.stringify(webhookData).substring(0, 500),
         })
         const result = await actions.syncProducts({
           ctx,
