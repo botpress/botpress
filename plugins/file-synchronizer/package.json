@@ -1,5 +1,5 @@
 {
-  "name": "@botpresshub/hitl-plugin",
+  "name": "@botpresshub/file-synchronizer-plugin",
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp add -y && bp build"
@@ -8,14 +8,14 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "browser-or-node": "^2.1.1"
+    "picomatch": "^4.0.2"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpresshub/hitl": "workspace:*",
-    "@types/lodash": "^4.14.191"
+    "@types/picomatch": "^3.0.2"
   },
   "bpDependencies": {
-    "hitl": "../../interfaces/hitl"
+    "files-readonly": "../../interfaces/files-readonly"
   }
 }
