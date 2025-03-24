@@ -7,6 +7,24 @@ import * as bp from '.botpress'
 // this client is necessary for table operations
 const getBotpressVanillaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
 
+const determineWebhookTypeFromScope = (scope: string): string => {
+  if (scope.includes('created')) {
+    return 'created'
+  } else if (scope.includes('updated')) {
+    return 'updated'
+  } else if (scope.includes('deleted')) {
+    return 'deleted'
+  }
+  return ''
+}
+
+const determineWebhookTypeFromProducer = (webhookData: WebhookDataWithProducer): string => {
+  if (webhookData.data && webhookData.data.type) {
+    return webhookData.data.type.toLowerCase()
+  }
+  return ''
+}
+
 const isBigCommerceWebhook = (headers: Record<string, string | string[] | undefined>): boolean => {
   return !!(
     (headers['webhook-id'] && headers['webhook-signature'] && headers['webhook-timestamp']) ||
@@ -22,6 +40,15 @@ type WebhookData = {
     entity_id?: string | number
   }
   id?: string | number
+}
+
+type WebhookDataWithProducer = WebhookData & {
+  producer?: string
+  data?: {
+    id?: string | number
+    entity_id?: string | number
+    type?: string
+  }
 }
 
 const extractProductId = (webhookData: WebhookData): string | undefined => {
@@ -288,17 +315,9 @@ export default new bp.Integration({
       let webhookType = ''
 
       if (webhookData.scope && typeof webhookData.scope === 'string' && webhookData.scope.includes('product')) {
-        if (webhookData.scope.includes('created')) {
-          webhookType = 'created'
-        } else if (webhookData.scope.includes('updated')) {
-          webhookType = 'updated'
-        } else if (webhookData.scope.includes('deleted')) {
-          webhookType = 'deleted'
-        }
+        webhookType = determineWebhookTypeFromScope(webhookData.scope)
       } else if (webhookData.producer && webhookData.producer === 'product') {
-        if (webhookData.data && webhookData.data.type) {
-          webhookType = webhookData.data.type.toLowerCase()
-        }
+        webhookType = determineWebhookTypeFromProducer(webhookData)
       }
 
       if (!webhookType || !productId) {
