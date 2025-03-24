@@ -7,10 +7,7 @@ import {
 } from 'src/misc/types'
 import * as bp from '.botpress'
 
-type IncomingMessageTypes = keyof Pick<
-  bp.channels.channel.Messages,
-  'audio' | 'file' | 'image' | 'text' | 'video' | 'bloc'
->
+type IncomingMessageTypes = keyof Pick<bp.channels.channel.Messages, 'audio' | 'image' | 'text' | 'video' | 'bloc'>
 type IncomingMessages = {
   [TMessage in IncomingMessageTypes]: {
     type: TMessage
@@ -90,10 +87,8 @@ const _messageHandler = async (messagingEntry: InstagramMessagingEntryMessage, h
         incomingMessages.push({ type: 'video', payload: { videoUrl: attachment.payload.url } })
       } else if (attachment.type === 'audio') {
         incomingMessages.push({ type: 'audio', payload: { audioUrl: attachment.payload.url } })
-      } else if (attachment.type === 'file') {
-        incomingMessages.push({ type: 'file', payload: { fileUrl: attachment.payload.url } })
       } else {
-        handlerProps.logger.forBot().warn(`Unsupported attachment type: ${attachment.type}`)
+        handlerProps.logger.forBot().warn(`Unsupported attachment type in incoming message: ${attachment.type}`)
       }
     }
   }
