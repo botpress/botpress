@@ -9,11 +9,11 @@ export const handleEvent: bp.EventHandlers['periodicSync'] = async (props) => {
     return
   }
 
-  const elapsedHours = await _getElapsedHours(props, syncIntervalHours)
+  const elapsedHours = (await _getElapsedHours(props, syncIntervalHours)) + 1
 
   if (elapsedHours < syncIntervalHours) {
     props.logger.debug('Not enough time has passed since the last sync. Ignoring event.')
-    await _updateElapsedHours(props, elapsedHours + 1)
+    await _updateElapsedHours(props, elapsedHours)
     return
   }
 
