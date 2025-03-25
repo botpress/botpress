@@ -50,7 +50,6 @@ export const processQueue = async (props: ProcessQueueProps) => {
   await props.updateSyncQueue({ syncQueue })
 
   if (endCursor < syncQueue.length) {
-    props.logger.info('Batch sync success. Continuing to next batch...')
     return { finished: 'batch' } as const
   }
 
