@@ -21,6 +21,10 @@ class _FakeStream implements _IFakeStream {
     this._lines[this._y] = line
   }
 
+  public get isTTY() {
+    return true
+  }
+
   public write(str: Uint8Array | string): boolean {
     const tokens: string[] = str.toString().split(/(\n)/).filter(Boolean)
 

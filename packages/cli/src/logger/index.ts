@@ -44,15 +44,12 @@ class _SingleLineLogger extends BaseLogger {
   }
 
   protected print(message: string, props: Partial<{ prefix: string }> = {}): void {
-    let suffix: string
-    if (!this._commited) {
+    if (!this._commited && process.stdout.isTTY) {
       this.opts.outStream.clearLine(0)
       this.opts.outStream.cursorTo(0)
-      suffix = ''
-    } else {
-      suffix = '\n'
     }
 
+    const suffix = this._commited ? '\n' : ''
     const { prefix } = props
     if (prefix) {
       this.render(`${prefix} ${message}${suffix}`)
