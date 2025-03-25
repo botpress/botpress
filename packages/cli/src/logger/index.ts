@@ -1,12 +1,11 @@
-import { cursorTo, clearLine } from 'readline'
-import { BaseLogger, LoggerOptions } from './base-logger'
+import { BaseLogger, StreamType } from './base-logger'
 
 export class Logger extends BaseLogger {
-  private static _previousLine: SingleLineLogger | undefined // this is global to the whole process
+  private static _previousLine: _SingleLineLogger | undefined // this is global to the whole process
 
   protected print(message: string, props: Partial<{ prefix: string; stderr?: boolean }> = {}): void {
     this.cleanup()
-    const stream = props.stderr ? process.stderr : process.stdout
+    const stream: StreamType = props.stderr ? 'err' : 'out'
     const { prefix } = props
     if (prefix) {
       this.render(`${prefix} ${message}\n`, stream)
@@ -15,9 +14,9 @@ export class Logger extends BaseLogger {
     this.render(`${message}\n`, stream)
   }
 
-  public line(): SingleLineLogger {
+  public line(): _SingleLineLogger {
     this.cleanup()
-    const currentLine = new SingleLineLogger({ ...this.opts })
+    const currentLine = new _SingleLineLogger({ ...this.opts })
     Logger._previousLine = currentLine
     return currentLine
   }
@@ -30,19 +29,15 @@ export class Logger extends BaseLogger {
   }
 }
 
-export class SingleLineLogger extends BaseLogger {
+class _SingleLineLogger extends BaseLogger {
   private _commited = false
-
-  public constructor(opts: LoggerOptions) {
-    super(opts)
-  }
 
   public commit(): void {
     if (this._commited) {
       return
     }
     this._commited = true
-    console.info()
+    this.render('\n')
   }
 
   protected print(message: string, props: Partial<{ prefix: string }> = {}): void {
@@ -50,9 +45,10 @@ export class SingleLineLogger extends BaseLogger {
       return
     }
 
-    clearLine(process.stdout, 0)
+    this.opts.outStream.clearLine(0)
     const { prefix } = props
-    cursorTo(process.stdout, 0)
+    this.opts.outStream.cursorTo(0)
+
     if (prefix) {
       this.render(`${prefix} ${message}`)
       return
