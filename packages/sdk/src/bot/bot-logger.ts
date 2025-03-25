@@ -5,6 +5,7 @@ type BotLogOptions = {
   conversationId?: string
   workflowId?: string
   eventId?: string
+  messageId?: string
 }
 
 export class BotLogger extends BaseLogger<BotLogOptions> {
@@ -39,6 +40,12 @@ export class BotLogger extends BaseLogger<BotLogOptions> {
   public withEventId(eventId: string) {
     return this.with({
       eventId,
+    })
+  }
+
+  public withMessageId(messageId: string) {
+    return this.with({
+      messageId,
     })
   }
 }

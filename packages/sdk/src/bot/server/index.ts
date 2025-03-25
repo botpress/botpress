@@ -33,7 +33,7 @@ export const botHandler =
             const hookOutput = await handler({
               client,
               ctx,
-              logger,
+              logger: logger.with({ conversationId: req.conversationId, userId: req.userId }),
               data: req,
               ..._getBotTools({ client }),
             })
@@ -65,7 +65,11 @@ export const botHandler =
             const hookOutput = await handler({
               client,
               ctx,
-              logger,
+              logger: logger.with({
+                messageId: res.message.id,
+                conversationId: res.message.conversationId,
+                userId: res.message.userId,
+              }),
               data: res,
               ..._getBotTools({ client }),
             })
