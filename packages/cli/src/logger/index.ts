@@ -29,6 +29,9 @@ export class Logger extends BaseLogger {
   }
 }
 
+/**
+ * Prints to a single line unless it is committed. When committed, it will print normally using new lines.
+ */
 class _SingleLineLogger extends BaseLogger {
   private _commited = false
 
@@ -37,22 +40,21 @@ class _SingleLineLogger extends BaseLogger {
       return
     }
     this._commited = true
-    this.render('\n')
+    this.print('')
   }
 
   protected print(message: string, props: Partial<{ prefix: string }> = {}): void {
-    if (this._commited) {
-      return
+    if (!this._commited) {
+      this.opts.outStream.clearLine(0)
+      this.opts.outStream.cursorTo(0)
     }
 
-    this.opts.outStream.clearLine(0)
+    const suffix = this._commited ? '\n' : ''
     const { prefix } = props
-    this.opts.outStream.cursorTo(0)
-
     if (prefix) {
-      this.render(`${prefix} ${message}`)
+      this.render(`${prefix} ${message}${suffix}`)
       return
     }
-    this.render(message)
+    this.render(message + suffix)
   }
 }

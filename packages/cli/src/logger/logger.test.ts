@@ -95,7 +95,7 @@ test('logging on a single line should write message on a single line', () => {
   expect(stream.data).toEqual('lol4')
 })
 
-test('logging on a single line, then logging on multiple line should commit the single line', () => {
+test('logging on a single line, then logging on multiple line should keep logging on next line', () => {
   const stream = _FakeStream.create()
 
   const logger = new Logger({ outStream: stream as NodeJS.WriteStream, errStream: stream as NodeJS.WriteStream })
@@ -110,5 +110,6 @@ test('logging on a single line, then logging on multiple line should commit the 
   expect(stream.data).toEqual(`lol1
 lol3
 lol4
+lol5
 `)
 })
