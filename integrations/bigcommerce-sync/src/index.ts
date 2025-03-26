@@ -229,7 +229,7 @@ const syncBigCommerceProducts = async (ctx: bp.Context, client: bp.Client, logge
 }
 
 const processWebhookByType = async (
-  webhookType: string,
+  webhookType: WebhookType,
   productId: string,
   bigCommerceClient: BigCommerceClient,
   botpressVanillaClient: Client,
