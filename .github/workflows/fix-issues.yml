@@ -1,0 +1,46 @@
+name: Fix linting issues
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'bots/**'
+      - 'definitions/**'
+      - 'integrations/**'
+      - 'interfaces/**'
+      - 'packages/**'
+      - 'plugins/**'
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  check-integration-versions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - run: pnpm run fix
+
+      - name: Commit and push changed files
+        shell: bash
+        run: |
+          # Configure for user https://api.github.com/users/github-actions%5Bbot%5D :
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add bots definitions integrations interfaces packages plugins
+          git diff --name-only --exit-code --cached
+
+          if [ $? -eq 0 ]; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "fix: linting issues [skip ci]"
+          git push
