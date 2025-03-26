@@ -13,29 +13,29 @@ const WORKFLOW_UPDATE_TYPES = [
 ] as const
 
 export const handleWorkflowUpdateEvent = async (
-  props: types.ServerProps,
+  rawProps: types.ServerProps,
   event: types.WorkflowUpdateEvent
 ): Promise<Response> => {
-  if (props.ctx.type !== 'workflow_update' || !WORKFLOW_UPDATE_TYPES.includes(event.payload.type)) {
+  if (rawProps.ctx.type !== 'workflow_update' || !WORKFLOW_UPDATE_TYPES.includes(event.payload.type)) {
     throw new Error('Unexpected event type')
   }
 
+  const props = { ...rawProps, logger: _attachWorkflowContextToLogger(rawProps, event) }
+
   if (!event.payload.workflow.name) {
-    props.logger
-      .withWorkflowId(event.payload.workflow.id)
-      .warn(
-        'Received workflow update event without a workflow name. Assuming this workflow was not defined by the bot.',
-        event.payload.workflow
-      )
+    props.logger.warn(
+      'Received workflow update event without a workflow name. Assuming this workflow was not defined by the bot.',
+      event.payload.workflow
+    )
     return SUCCESS_RESPONSE
   }
 
   switch (event.payload.type) {
     case 'child_workflow_deleted':
     case 'child_workflow_finished':
-      props.logger
-        .withWorkflowId(event.payload.workflow.id)
-        .info(`Received child workflow event "${event.payload.type}", but child workflows are not yet supported`)
+      props.logger.info(
+        `Received child workflow event "${event.payload.type}", but child workflows are not yet supported`
+      )
       break
     case 'workflow_timedout':
     case 'workflow_started':
@@ -48,14 +48,23 @@ export const handleWorkflowUpdateEvent = async (
   return SUCCESS_RESPONSE
 }
 
+const _attachWorkflowContextToLogger = (
+  props: types.ServerProps,
+  event: types.WorkflowUpdateEvent
+): types.ServerProps['logger'] =>
+  props.logger.with({
+    eventId: event.id,
+    workflowId: event.payload.workflow.id,
+    conversationId: event.payload.conversation?.id,
+    userId: event.payload.user?.id,
+  })
+
 const _handleWorkflowUpdate = async (props: types.ServerProps, event: types.WorkflowUpdateEvent): Promise<Response> => {
   const updateType = bridgeUpdateTypeToSnakeCase(event.payload.type)
   const handlers = props.self.workflowHandlers[updateType]?.[event.payload.workflow.name]
 
   if (!handlers || handlers.length === 0) {
-    props.logger
-      .withWorkflowId(event.payload.workflow.id)
-      .warn(`No ${updateType} handler found for workflow "${event.payload.workflow.name}"`)
+    props.logger.warn(`No ${updateType} handler found for workflow "${event.payload.workflow.name}"`)
     return SUCCESS_RESPONSE
   }
 
