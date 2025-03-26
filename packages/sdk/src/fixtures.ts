@@ -173,7 +173,10 @@ export type FooBarBazBot = DefaultBot<{
     }
   }
   states: {
-    currentUser: { name: string; age: number }
+    currentUser: {
+      type: 'conversation'
+      payload: { name: string; age: number }
+    }
   }
   workflows: {
     fooWorkflow: {

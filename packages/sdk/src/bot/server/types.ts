@@ -36,7 +36,11 @@ type _IncomingMessages<TBot extends common.BaseBot> = {
 type _IncomingStates<TBot extends common.BaseBot> = {
   [K in utils.StringKeys<common.EnumerateStates<TBot>>]: utils.Merge<
     client.State,
-    { name: K; payload: common.EnumerateStates<TBot>[K] }
+    {
+      name: K
+      type: common.EnumerateStates<TBot>[K]['type']
+      payload: common.EnumerateStates<TBot>[K]['payload']
+    }
   >
 }
 

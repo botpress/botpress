@@ -183,7 +183,10 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
   if (ctx.type === 'state_expired') {
     const event = body.event
     const state: client.State = event.payload.state
-    const statePayload: utils.ValueOf<types.StateExpiredPayloads<common.BaseBot>> = { ...common, state }
+    const statePayload: utils.ValueOf<types.StateExpiredPayloads<common.BaseBot>> = {
+      ...common,
+      state: state as types.IncomingStates<common.BaseBot>[string],
+    }
 
     const stateHandlers = self.stateExpiredHandlers['*'] ?? []
     for (const handler of stateHandlers) {

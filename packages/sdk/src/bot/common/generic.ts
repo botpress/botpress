@@ -1,5 +1,6 @@
 import { BaseIntegration, DefaultIntegration, InputBaseIntegration } from '../../integration/common/generic'
 import * as utils from '../../utils/type-utils'
+import * as def from '../definition'
 
 export * from '../../integration/common/generic'
 
@@ -20,10 +21,15 @@ export type BaseWorkflow = {
   }
 }
 
+export type BaseState = {
+  type: def.StateType | 'workflow' | 'task'
+  payload: any
+}
+
 export type BaseBot = {
   integrations: Record<string, BaseIntegration>
   events: Record<string, any>
-  states: Record<string, any>
+  states: Record<string, BaseState>
   actions: Record<string, BaseAction>
   tables: Record<string, BaseTable>
   workflows: Record<string, BaseWorkflow>
