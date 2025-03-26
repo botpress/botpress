@@ -94,6 +94,12 @@ export type InterfaceDefinition = PackageRef & {
   channels?: Record<string, TitleDescription & { messages: Record<string, TitleDescription & { schema: Schema }> }>
 }
 
+export type RecurringEventDefinition = {
+  type: string
+  payload: Record<string, any>
+  schedule: { cron: string }
+}
+
 export type PluginDefinition = PackageRef & {
   configuration?: TitleDescription & { schema?: Schema }
   user?: { tags: Record<string, {}> }
@@ -106,6 +112,7 @@ export type PluginDefinition = PackageRef & {
     interfaces?: Record<string, PackageRef>
     integrations?: Record<string, PackageRef>
   }
+  recurringEvents?: Record<string, RecurringEventDefinition>
 }
 
 export type IntegrationInstallablePackage = NameVersion & {
