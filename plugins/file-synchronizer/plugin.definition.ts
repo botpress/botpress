@@ -3,7 +3,7 @@ import filesReadonly from './bp_modules/files-readonly'
 
 export default new sdk.PluginDefinition({
   name: 'file-synchronizer',
-  version: '0.2.0',
+  version: '0.3.0',
   title: 'File Synchronizer',
   description: 'Synchronize files from external services to Botpress',
   icon: 'icon.svg',
@@ -33,14 +33,12 @@ export default new sdk.PluginDefinition({
         .describe(
           'Enable synchronisation using the provided schedule. Leave empty to disable periodic synchronization.'
         ),
-      /*
       enableRealTimeSync: sdk.z
         .boolean()
         .default(true)
         .describe(
           'Enable real-time synchronization. Whever a file is created, updated, or deleted, synchronize it to Botpress immediately. This does not work with every integration.'
         ),
-      */
       includeFiles: sdk.z
         .array(
           sdk.z.object({

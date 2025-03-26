@@ -1,18 +1,12 @@
 import * as sdk from '@botpress/sdk'
 import type * as models from '../../definitions/models'
-import { MAX_FILE_SIZE_BYTES } from '../consts'
 import type * as types from '../types'
 
-type FilesApiFile = {
-  id: string
-  tags: Record<string, string>
-}
-
-export type ProcessQueueProps = {
-  syncQueue: Readonly<types.SyncQueue>
+export type ProcessFileProps = {
+  fileToSync: Readonly<types.SyncQueueItem>
   logger: sdk.BotLogger
   fileRepository: {
-    listFiles: (params: { tags: Record<string, string> }) => Promise<{ files: FilesApiFile[] }>
+    listFiles: (params: { tags: Record<string, string> }) => Promise<{ files: types.FilesApiFile[] }>
     deleteFile: (params: { id: string }) => Promise<unknown>
     updateFileMetadata: (params: { id: string; tags: Record<string, string | null> }) => Promise<unknown>
   }
@@ -23,65 +17,30 @@ export type ProcessQueueProps = {
       fileKey: string
     }) => Promise<{ botpressFileId: string }>
   }
-  updateSyncQueue: (props: { syncQueue: types.SyncQueue }) => Promise<unknown>
 }
 
-export const processQueue = async (props: ProcessQueueProps) => {
-  const syncQueue = structuredClone(props.syncQueue) as types.SyncQueue
-  const startCursor = syncQueue.findIndex((file) => file.status === 'pending') ?? syncQueue.length - 1
-  const endCursor = _findBatchEndCursor(startCursor, syncQueue)
-  const filesInBatch = syncQueue.slice(startCursor, endCursor)
+export const processQueueFile = async (props: ProcessFileProps): Promise<types.SyncQueueItem> => {
+  const fileToSync = structuredClone(props.fileToSync) as types.SyncQueueItem
+  const existingFile = await _getExistingFileFromFilesApi(props, fileToSync)
+  const shouldUploadFile = await _shouldUploadFile(props, fileToSync, existingFile)
 
-  for (const fileToSync of filesInBatch) {
-    const existingFile = await _getExistingFileFromFilesApi(props, fileToSync)
-    const shouldUploadFile = await _shouldUploadFile(props, fileToSync, existingFile)
-
-    if (!shouldUploadFile) {
-      fileToSync.status = 'already-synced'
-      continue
-    }
-
-    fileToSync.status = 'newly-synced'
-
-    await _deleteExistingFileFromFilesApi(props, existingFile)
-    await _transferFileToBotpress(props, fileToSync)
+  if (!shouldUploadFile) {
+    fileToSync.status = 'already-synced'
+    return fileToSync
   }
 
-  await props.updateSyncQueue({ syncQueue })
+  fileToSync.status = 'newly-synced'
 
-  if (endCursor < syncQueue.length) {
-    return { finished: 'batch' } as const
-  }
+  await _deleteExistingFileFromFilesApi(props, existingFile)
+  await _transferFileToBotpress(props, fileToSync)
 
-  return { finished: 'all' } as const
-}
-
-const _findBatchEndCursor = (startCursor: number, filesToSync: types.SyncQueue) => {
-  const maxBatchSize = MAX_FILE_SIZE_BYTES
-
-  let currentBatchSize = 0
-
-  for (let newCursor = startCursor; newCursor < filesToSync.length; newCursor++) {
-    const fileToSync = filesToSync[newCursor]!
-
-    if (fileToSync.sizeInBytes === undefined) {
-      continue
-    }
-
-    currentBatchSize += fileToSync.sizeInBytes
-
-    if (currentBatchSize > maxBatchSize) {
-      return newCursor
-    }
-  }
-
-  return filesToSync.length
+  return fileToSync
 }
 
 const _getExistingFileFromFilesApi = async (
-  props: ProcessQueueProps,
+  props: ProcessFileProps,
   fileToSync: models.FileWithPath
-): Promise<FilesApiFile | undefined> => {
+): Promise<types.FilesApiFile | undefined> => {
   const { files: existingFiles } = await props.fileRepository.listFiles({
     tags: {
       externalId: fileToSync.id,
@@ -105,9 +64,9 @@ const _getExistingFileFromFilesApi = async (
 }
 
 const _shouldUploadFile = async (
-  props: ProcessQueueProps,
+  props: ProcessFileProps,
   fileToSync: models.FileWithPath,
-  existingFile?: FilesApiFile
+  existingFile?: types.FilesApiFile
 ) => {
   if (!existingFile) {
     props.logger.debug(`No existing file found. Uploading ${fileToSync.absolutePath} ...`)
@@ -143,7 +102,7 @@ const _shouldUploadFile = async (
   return false
 }
 
-const _deleteExistingFileFromFilesApi = async (props: ProcessQueueProps, existingFile?: FilesApiFile) => {
+const _deleteExistingFileFromFilesApi = async (props: ProcessFileProps, existingFile?: types.FilesApiFile) => {
   if (!existingFile) {
     return
   }
@@ -153,7 +112,7 @@ const _deleteExistingFileFromFilesApi = async (props: ProcessQueueProps, existin
   } catch {}
 }
 
-const _transferFileToBotpress = async (props: ProcessQueueProps, fileToSync: types.SyncQueueItem) => {
+const _transferFileToBotpress = async (props: ProcessFileProps, fileToSync: types.SyncQueueItem) => {
   try {
     const { botpressFileId } = await props.integration.transferFileToBotpress({
       file: fileToSync,
@@ -163,10 +122,13 @@ const _transferFileToBotpress = async (props: ProcessQueueProps, fileToSync: typ
     await props.fileRepository.updateFileMetadata({
       id: botpressFileId,
       tags: {
+        integrationName: props.integration.name,
         externalId: fileToSync.id,
         externalModifiedDate: fileToSync.lastModifiedDate ?? null,
         externalSize: fileToSync.sizeInBytes?.toString() ?? null,
         externalContentHash: fileToSync.contentHash ?? null,
+        externalPath: fileToSync.absolutePath,
+        externalParentId: fileToSync.parentId ?? null,
       },
     })
   } catch (thrown: unknown) {

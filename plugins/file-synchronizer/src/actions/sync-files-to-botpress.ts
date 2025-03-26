@@ -1,8 +1,6 @@
-import * as picomatch from 'picomatch'
 import type * as models from '../../definitions/models'
-import { MAX_FILE_SIZE_BYTES } from '../consts'
 import { randomUUID } from '../crypto'
-import { updateSyncQueue } from '../job-file'
+import * as SyncQueue from '../sync-queue'
 import type * as types from '../types'
 import * as bp from '.botpress'
 
@@ -17,7 +15,12 @@ export const callAction: bp.AnyActionHandler = async (props) => {
 
   props.logger.info('Preparing sync job...')
   const jobMeta = await _prepareSyncJob(props, allFiles)
-  const jobFileId = await updateSyncQueue(props, jobMeta.syncFileKey, jobMeta.syncQueue, jobMeta.tags)
+  const jobFileId = await SyncQueue.jobFileManager.updateSyncQueue(
+    props,
+    jobMeta.syncFileKey,
+    jobMeta.syncQueue,
+    jobMeta.tags
+  )
 
   props.logger.info('Starting sync job...')
   await props.workflows.processQueue.startNewInstance({
@@ -45,7 +48,7 @@ const _enumerateAllFilesRecursive = async (
   for (const item of items) {
     const itemPath = `${path}${item.name}`
 
-    if (_shouldItemBeIgnored(props, item, itemPath)) {
+    if (SyncQueue.globMatcher.shouldItemBeIgnored({ configuration: props.configuration, item, itemPath })) {
       props.logger.debug('Ignoring item', { itemPath })
       continue
     }
@@ -76,37 +79,6 @@ const _getFolderItems = async (props: bp.ActionHandlerProps, folderId?: string):
   } while (nextToken)
 
   return items
-}
-
-const _shouldItemBeIgnored = (
-  { configuration }: bp.ActionHandlerProps,
-  itemToSync: models.FolderItem,
-  itemPath: string
-) => {
-  for (const { pathGlobPattern } of configuration.excludeFiles) {
-    if (picomatch.isMatch(itemPath, pathGlobPattern)) {
-      return true
-    }
-  }
-
-  for (const { pathGlobPattern, maxSizeInBytes, modifiedAfter } of configuration.includeFiles) {
-    if (!picomatch.isMatch(itemPath, pathGlobPattern)) {
-      continue
-    }
-
-    const isFileWithUnmetRequirements =
-      itemToSync.type === 'file' &&
-      ((maxSizeInBytes &&
-        itemToSync.sizeInBytes &&
-        (itemToSync.sizeInBytes > maxSizeInBytes || itemToSync.sizeInBytes > MAX_FILE_SIZE_BYTES)) ||
-        (modifiedAfter &&
-          itemToSync.lastModifiedDate &&
-          new Date(itemToSync.lastModifiedDate) < new Date(modifiedAfter)))
-
-    return isFileWithUnmetRequirements
-  }
-
-  return true
 }
 
 const _prepareSyncJob = async (props: bp.ActionHandlerProps, filesToSync: models.FileWithPath[]) => {

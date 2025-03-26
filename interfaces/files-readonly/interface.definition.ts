@@ -36,7 +36,7 @@ const NEXT_TOKEN = z.string().optional().describe('The token to get the next pag
 
 export default new InterfaceDefinition({
   name: 'files-readonly',
-  version: '0.1.0',
+  version: '0.1.1',
   actions: {
     listItemsInFolder: {
       title: 'List items in folder',
@@ -97,7 +97,7 @@ export default new InterfaceDefinition({
       schema: () =>
         z.object({
           file: FILE.extend({
-            path: z.string().describe('The full path of the file'),
+            absolutePath: z.string().describe('The full path of the file'),
           }).describe('The created file'),
         }),
     },
@@ -105,7 +105,7 @@ export default new InterfaceDefinition({
       schema: () =>
         z.object({
           file: FILE.extend({
-            path: z.string().describe('The full path of the file'),
+            absolutePath: z.string().describe('The full path of the file'),
           }).describe('The updated file'),
         }),
     },
@@ -113,7 +113,7 @@ export default new InterfaceDefinition({
       schema: () =>
         z.object({
           file: FILE.extend({
-            path: z.string().describe('The full path of the file'),
+            absolutePath: z.string().describe('The full path of the file'),
           }).describe('The deleted file'),
         }),
     },
@@ -121,7 +121,7 @@ export default new InterfaceDefinition({
       schema: () =>
         z.object({
           folder: FOLDER.extend({
-            path: z.string().describe('The full path of the folder'),
+            absolutePath: z.string().describe('The full path of the folder'),
           }).describe('The deleted folder'),
         }),
     },
