@@ -7,7 +7,8 @@ import * as bp from '.botpress'
 // this client is necessary for table operations
 const getBotpressVanillaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
 
-const determineWebhookTypeFromScope = (scope: string): string => {
+type WebhookType = 'created' | 'updated' | 'deleted'
+const determineWebhookTypeFromScope = (scope: string): WebhookType | undefined => {
   if (scope.includes('created')) {
     return 'created'
   } else if (scope.includes('updated')) {
@@ -15,14 +16,14 @@ const determineWebhookTypeFromScope = (scope: string): string => {
   } else if (scope.includes('deleted')) {
     return 'deleted'
   }
-  return ''
+  return undefined
 }
 
-const determineWebhookTypeFromProducer = (webhookData: WebhookDataWithProducer): string => {
+const determineWebhookTypeFromProducer = (webhookData: WebhookDataWithProducer): WebhookType | undefined => {
   if (webhookData.data && webhookData.data.type) {
-    return webhookData.data.type.toLowerCase()
+    return webhookData.data.type.toLowerCase() as WebhookType
   }
-  return ''
+  return undefined
 }
 
 const isBigCommerceWebhook = (headers: Record<string, string | string[] | undefined>): boolean => {
@@ -246,23 +247,28 @@ const processWebhookByType = async (
       webhookType === 'created',
       logger
     )
-  } else if (webhookType === 'deleted') {
-    return await handleProductDelete(productId.toString(), botpressVanillaClient, tableName, logger)
-  } else {
-    logger.forBot().warn(`Unrecognized event type: ${webhookType}, falling back to full sync`)
-    const result = await actions.syncProducts({
-      ctx,
-      client,
-      logger,
-      input: {},
-      type: 'syncProducts',
-      metadata: { setCost: (_cost: number) => {} },
-    })
-    if (result) {
-      result.message = 'Full sync performed (unrecognized event type)'
-    }
-    return result
   }
+
+  if (webhookType === 'deleted') {
+    return await handleProductDelete(productId.toString(), botpressVanillaClient, tableName, logger)
+  }
+
+  logger.forBot().warn(`Unrecognized event type: ${webhookType}, falling back to full sync`)
+
+  const result = await actions.syncProducts({
+    ctx,
+    client,
+    logger,
+    input: {},
+    type: 'syncProducts',
+    metadata: { setCost: (_cost: number) => {} },
+  })
+
+  if (result) {
+    result.message = 'Full sync performed (unrecognized event type)'
+  }
+
+  return result
 }
 
 export default new bp.Integration({
@@ -350,7 +356,7 @@ export default new bp.Integration({
       }
 
       const productId = extractProductId(webhookData)
-      let webhookType = ''
+      let webhookType: WebhookType | undefined
 
       if (webhookData.scope && typeof webhookData.scope === 'string' && webhookData.scope.includes('product')) {
         webhookType = determineWebhookTypeFromScope(webhookData.scope)
