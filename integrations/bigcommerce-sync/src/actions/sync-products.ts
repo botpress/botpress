@@ -26,6 +26,14 @@ type BigCommerceProduct = {
   custom_url?: { url: string }
 }
 
+const stripHtmlTags = (html: string | undefined): string => {
+  if (!html) return ''
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (props) => {
   const { client, logger } = props
   const ctx = props.ctx.configuration
@@ -107,7 +115,7 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
         condition: product.condition,
         is_visible: product.is_visible,
         sort_order: product.sort_order,
-        description: product.description?.substring(0, 1000) || '',
+        description: stripHtmlTags(product.description)?.substring(0, 1000) || '',
         image_url: imageUrl,
         url: product.custom_url?.url || '',
       }

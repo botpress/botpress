@@ -59,6 +59,14 @@ const extractProductId = (webhookData: WebhookData): string | undefined => {
   return undefined
 }
 
+const stripHtmlTags = (html: string | undefined): string => {
+  if (!html) return ''
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 const handleProductCreateOrUpdate = async (
   productId: string,
   bigCommerceClient: BigCommerceClient,
@@ -121,7 +129,7 @@ const handleProductCreateOrUpdate = async (
     condition: product.condition,
     is_visible: product.is_visible,
     sort_order: product.sort_order,
-    description: product.description?.substring(0, 1000) || '',
+    description: stripHtmlTags(product.description)?.substring(0, 1000) || '',
     image_url: imageUrl,
     url: product.custom_url?.url || '',
   }
