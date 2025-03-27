@@ -36,7 +36,11 @@ export class BigCommerceClient {
 
   public async getProducts(params?: ProductQueryParams) {
     try {
-      const response = await this._client.get(`${this._baseUrl}/v3/catalog/products`, { params })
+      const updatedParams = {
+        ...params,
+        include: params?.include ? `${params.include},images` : 'images'
+      }
+      const response = await this._client.get(`${this._baseUrl}/v3/catalog/products`, { params: updatedParams })
       return response.data
     } catch (error) {
       throw this._handleError(error)
@@ -45,7 +49,9 @@ export class BigCommerceClient {
 
   public async getProduct(productId: string) {
     try {
-      const response = await this._client.get(`${this._baseUrl}/v3/catalog/products/${productId}`)
+      const response = await this._client.get(`${this._baseUrl}/v3/catalog/products/${productId}`, {
+        params: { include: 'images' }
+      })
       return response.data
     } catch (error) {
       throw this._handleError(error)
