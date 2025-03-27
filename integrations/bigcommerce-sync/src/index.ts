@@ -238,7 +238,7 @@ const processWebhookEvent = async (
   ctx: bp.Context,
   client: bp.Client
 ) => {
-  if (webhookType === 'created' || webhookType === 'updated') { 
+  if (webhookType === 'created' || webhookType === 'updated') {
     return await handleProductCreateOrUpdate(
       productId.toString(),
       bigCommerceClient,
@@ -281,7 +281,16 @@ const processWebhookByType = async (
   client: bp.Client
 ) => {
   try {
-    return await processWebhookEvent(webhookType, productId, bigCommerceClient, botpressVanillaClient, tableName, logger, ctx, client)
+    return await processWebhookEvent(
+      webhookType,
+      productId,
+      bigCommerceClient,
+      botpressVanillaClient,
+      tableName,
+      logger,
+      ctx,
+      client
+    )
   } catch (error) {
     logger.forBot().error(`Error processing ${webhookType} for product ${productId}:`, error)
     throw error
