@@ -315,7 +315,7 @@ importers:
       '@botpresshub/dropbox':
         specifier: workspace:*
         version: link:../../integrations/dropbox
-      '@botpresshub/file-synchronizer-plugin':
+      '@botpresshub/file-synchronizer':
         specifier: workspace:*
         version: link:../../plugins/file-synchronizer
       '@bpinternal/genenv':

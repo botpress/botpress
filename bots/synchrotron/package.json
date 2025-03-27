@@ -16,7 +16,7 @@
     "@botpress/common": "workspace:*",
     "@botpresshub/chat": "workspace:*",
     "@botpresshub/dropbox": "workspace:*",
-    "@botpresshub/file-synchronizer-plugin": "workspace:*",
+    "@botpresshub/file-synchronizer": "workspace:*",
     "@bpinternal/genenv": "0.0.1"
   },
   "bpDependencies": {

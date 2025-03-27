@@ -1,5 +1,5 @@
 {
-  "name": "@botpresshub/file-synchronizer-plugin",
+  "name": "@botpresshub/file-synchronizer",
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp add -y && bp build"
