@@ -14,4 +14,14 @@ export const states = {
         .secret(),
     }),
   },
+  realTimeSync: {
+    type: 'integration',
+    schema: sdk.z.object({
+      syncCursor: sdk.z
+        .string()
+        .title('Sync Cursor')
+        .describe('The cursor used to track the sync state of the tracked Dropbox account.'),
+      fileTreeJson: sdk.z.string().title('File Tree JSON').describe('The JSON representation of the file tree.'),
+    }),
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['states']
