@@ -307,3 +307,25 @@ test('deep partial should make all properties optional', () => {
     ]
   >
 })
+
+test('IsStricterFunction and function extension', () => {
+  type Foo = { foo: string }
+  type FooPrime = Foo & { metadata: object }
+
+  type Bar = { bar: number }
+  type BarPrime = Bar & { metadata: object }
+
+  type A = (a: Foo) => Bar
+  type B = (a: FooPrime) => Bar
+  type C = (a: Foo) => BarPrime
+
+  type _assertion = utils.AssertAll<
+    [
+      //
+      utils.IsExtend<A, B>,
+      utils.IsExtend<C, A>,
+      utils.Not<utils.IsExtend<B, A>>,
+      utils.IsStricterFunction<B, A>,
+    ]
+  >
+})

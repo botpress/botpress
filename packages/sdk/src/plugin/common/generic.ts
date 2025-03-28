@@ -1,3 +1,4 @@
+import * as bot from '../../bot'
 import { BaseIntegration, DefaultIntegration, InputBaseIntegration } from '../../integration/common/generic'
 import { BaseInterface, InputBaseInterface, DefaultInterface } from '../../interface/common/generic'
 import * as utils from '../../utils/type-utils'
@@ -19,6 +20,11 @@ export type BaseWorkflow = {
   }
 }
 
+export type BaseState = {
+  type: bot.StateType
+  payload: any
+}
+
 export type BasePlugin = {
   name: string
   version: string
@@ -26,7 +32,7 @@ export type BasePlugin = {
   integrations: Record<string, BaseIntegration>
   interfaces: Record<string, BaseInterface>
   events: Record<string, any>
-  states: Record<string, any>
+  states: Record<string, BaseState>
   actions: Record<string, BaseAction>
   tables: Record<string, BaseTable>
   workflows: Record<string, BaseWorkflow>
