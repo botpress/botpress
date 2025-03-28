@@ -22,7 +22,7 @@ export type BaseWorkflow = {
 }
 
 export type BaseState = {
-  type: def.StateType | 'workflow' | 'task'
+  type: def.StateType
   payload: any
 }
 

@@ -212,27 +212,30 @@ describe('ClientOperations', () => {
     type General = client.Client['deleteUser']
     type _assertion = utils.AssertExtends<Specific, General>
   })
-  // FIXME: uncomment these tests and fix typing
-  // test('getState of BotSpecificClient extends General', () => {
-  //   type Specific = types.ClientOperations<BaseBot>['getState']
-  //   type General = client.Client['getState']
-  //   type _assertion = utils.AssertExtends<Specific, General>
-  // })
-  // test('setState of BotSpecificClient extends General', () => {
-  //   type Specific = types.ClientOperations<BaseBot>['setState']
-  //   type General = client.Client['setState']
-  //   type _assertion = utils.AssertExtends<Specific, General>
-  // })
-  // test('getOrSetState of BotSpecificClient extends General', () => {
-  //   type Specific = types.ClientOperations<BaseBot>['getOrSetState']
-  //   type General = client.Client['getOrSetState']
-  //   type _assertion = utils.AssertExtends<Specific, General>
-  // })
-  // test('patchState of BotSpecificClient extends General', () => {
-  //   type Specific = types.ClientOperations<BaseBot>['patchState']
-  //   type General = client.Client['patchState']
-  //   type _assertion = utils.AssertExtends<Specific, General>
-  // })
+  test('getState of BotSpecificClient is stricter than General', () => {
+    type Specific = types.ClientOperations<BaseBot>['getState']
+    type General = client.Client['getState']
+    // different than an IsExtend assertion because the general function accepts { type: "integration" } as an input while the specific doesn't
+    type _assertion = utils.AssertTrue<utils.IsStricterFunction<Specific, General>>
+  })
+  test('setState of BotSpecificClient is stricter than General', () => {
+    type Specific = types.ClientOperations<BaseBot>['setState']
+    type General = client.Client['setState']
+    // different than an IsExtend assertion because the general function accepts { type: "integration" } as an input while the specific doesn't
+    type _assertion = utils.AssertTrue<utils.IsStricterFunction<Specific, General>>
+  })
+  test('getOrSetState of BotSpecificClient is stricter than General', () => {
+    type Specific = types.ClientOperations<BaseBot>['getOrSetState']
+    type General = client.Client['getOrSetState']
+    // different than an IsExtend assertion because the general function accepts { type: "integration" } as an input while the specific doesn't
+    type _assertion = utils.AssertTrue<utils.IsStricterFunction<Specific, General>>
+  })
+  test('patchState of BotSpecificClient is stricter than General', () => {
+    type Specific = types.ClientOperations<BaseBot>['patchState']
+    type General = client.Client['patchState']
+    // different than an IsExtend assertion because the general function accepts { type: "integration" } as an input while the specific doesn't
+    type _assertion = utils.AssertTrue<utils.IsStricterFunction<Specific, General>>
+  })
   test('callAction of BotSpecificClient extends General', () => {
     type Specific = types.ClientOperations<BaseBot>['callAction']
     type General = client.Client['callAction']
