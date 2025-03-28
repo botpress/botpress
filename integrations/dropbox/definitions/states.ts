@@ -24,4 +24,14 @@ export const states = {
       fileTreeJson: sdk.z.string().title('File Tree JSON').describe('The JSON representation of the file tree.'),
     }),
   },
+  setupMeta: {
+    type: 'integration',
+    schema: sdk.z.object({
+      integrationRegisteredAt: sdk.z
+        .string()
+        .datetime()
+        .title('Registered At')
+        .describe('Date and time when the user configured the integration'),
+    }),
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['states']
