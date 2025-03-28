@@ -12,3 +12,8 @@ export type SyncQueueItem = models.FileWithPath & {
 export type SyncQueue = SyncQueueItem[]
 
 export type CommonProps = CommonHandlerProps<TPlugin>
+
+export type FilesApiFile = {
+  id: string
+  tags: Record<string, string>
+}
