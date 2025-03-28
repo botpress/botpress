@@ -8,6 +8,10 @@ const plugin = new bp.Plugin({
       props.logger.info('Called action syncFilesToBotpess')
       return await actions.syncFilesToBotpess.callAction(props)
     },
+    async listItemsInFolder(props) {
+      props.logger.info('Called action listItemsInFolder. Redirecting to integration...')
+      return await props.actions['files-readonly'].listItemsInFolder(props.input)
+    },
   },
 })
 
