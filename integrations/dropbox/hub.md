@@ -27,6 +27,16 @@ Currently, the Dropbox integration only supports OAuth authentication using your
 8. On Botpress, enter your **App key**, **App secret**, and **Access Code** in the integration configuration page.
 9. Save the configuration to enable the integration.
 
+### Extra configuration for the File Synchronizer plugin
+
+If you are using the File Synchronizer plugin, you need to set up a webhook in
+your Dropbox app to receive real-time file change notifications.
+
+1. On Botpress, copy the **Webhook URL** from the integration configuration page. This URL usually starts with `https://webhook.botpress.cloud/`.
+2. From the Dropbox App Console, navigate to your app's settings page.
+3. In the **Webhook** section, paste the **Webhook URL** you copied from Botpress and click `Add`.
+4. Your bot should now be able to receive real-time file change notifications from Dropbox.
+
 # Using the integration
 
 The integration provides actions to manage your Dropbox files effectively:
