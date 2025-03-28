@@ -1,18 +1,17 @@
 import * as dropbox from 'dropbox'
-import { File as FileEntity, Folder as FolderEntity } from '../../../definitions'
+import { File as FileEntity, Folder as FolderEntity, Deleted as DeletedEntity } from '../../../definitions'
 
-type File = FileEntity.InferredType
-type Folder = FolderEntity.InferredType
+export type File = FileEntity.InferredType
+export type Folder = FolderEntity.InferredType
+export type Deleted = DeletedEntity.InferredType
 
-type DropboxFile = dropbox.files.FileMetadata
-type DropboxFolder = dropbox.files.FolderMetadata
-type DropboxItem =
-  | dropbox.files.FileMetadataReference
-  | dropbox.files.FolderMetadataReference
-  | dropbox.files.DeletedMetadataReference
+export type DropboxFileReference = dropbox.files.FileMetadata
+export type DropboxFolderReference = dropbox.files.FolderMetadata
+export type DropboxDeletedMetadata = dropbox.files.DeletedMetadata
+export type DropboxReference = DropboxFileReference | DropboxFolderReference | DropboxDeletedMetadata
 
 export namespace ResponseMapping {
-  export const mapFile = (dropboxFile: DropboxFile): File => ({
+  export const mapFile = (dropboxFile: DropboxFileReference): File => ({
     id: dropboxFile.id,
     itemType: 'file',
     name: dropboxFile.name,
@@ -28,7 +27,7 @@ export namespace ResponseMapping {
     symlinkTarget: dropboxFile.symlink_info?.target,
   })
 
-  export const mapFolder = (dropboxFolder: DropboxFolder): Folder => ({
+  export const mapFolder = (dropboxFolder: DropboxFolderReference): Folder => ({
     id: dropboxFolder.id,
     itemType: 'folder',
     name: dropboxFolder.name,
@@ -38,11 +37,27 @@ export namespace ResponseMapping {
     webUrl: dropboxFolder.preview_url,
   })
 
-  export const mapItem = (dropboxItem: DropboxItem): File | Folder =>
-    dropboxItem['.tag'] === 'file' ? mapFile(dropboxItem) : mapFolder(dropboxItem as DropboxFolder)
+  export const mapDeleted = (dropboxDeleted: DropboxDeletedMetadata): Deleted => ({
+    itemType: 'deleted',
+    name: dropboxDeleted.name,
+    path: dropboxDeleted.path_display ?? dropboxDeleted.path_lower ?? '',
+    isDeleted: true,
+  })
+
+  export const mapItem = (dropboxItem: DropboxReference): File | Folder | Deleted =>
+    _isDropboxFileReference(dropboxItem)
+      ? mapFile(dropboxItem)
+      : _isDropboxFolderReference(dropboxItem)
+        ? mapFolder(dropboxItem)
+        : mapDeleted(dropboxItem)
 
   export const mapSearchMatch = (searchMatch: dropbox.files.SearchMatchV2) => ({
     item: mapItem((searchMatch.metadata as dropbox.files.MetadataV2Metadata).metadata),
     matchType: searchMatch.match_type?.['.tag'],
   })
+
+  const _isDropboxFileReference = (item: DropboxReference): item is DropboxFileReference =>
+    '.tag' in item && item['.tag'] === 'file'
+  const _isDropboxFolderReference = (item: DropboxReference): item is DropboxFolderReference =>
+    '.tag' in item && item['.tag'] === 'folder'
 }

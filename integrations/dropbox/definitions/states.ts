@@ -14,4 +14,24 @@ export const states = {
         .secret(),
     }),
   },
+  realTimeSync: {
+    type: 'integration',
+    schema: sdk.z.object({
+      syncCursor: sdk.z
+        .string()
+        .title('Sync Cursor')
+        .describe('The cursor used to track the sync state of the tracked Dropbox account.'),
+      fileTreeJson: sdk.z.string().title('File Tree JSON').describe('The JSON representation of the file tree.'),
+    }),
+  },
+  setupMeta: {
+    type: 'integration',
+    schema: sdk.z.object({
+      integrationRegisteredAt: sdk.z
+        .string()
+        .datetime()
+        .title('Registered At')
+        .describe('Date and time when the user configured the integration'),
+    }),
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['states']
