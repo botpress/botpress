@@ -32,11 +32,19 @@ const FILE = BASE_ITEM('file').extend({
   contentHash: z.string().optional().describe('The hash of the file content, or version/revision number, if available'),
 })
 
+const FILE_WITH_PATH = FILE.extend({
+  absolutePath: z.string().describe('The full path of the file'),
+})
+
+const FOLDER_WITH_PATH = FOLDER.extend({
+  absolutePath: z.string().describe('The full path of the folder'),
+})
+
 const NEXT_TOKEN = z.string().optional().describe('The token to get the next page of items.')
 
 export default new InterfaceDefinition({
   name: 'files-readonly',
-  version: '0.1.1',
+  version: '0.2.0',
   actions: {
     listItemsInFolder: {
       title: 'List items in folder',
@@ -96,33 +104,37 @@ export default new InterfaceDefinition({
     fileCreated: {
       schema: () =>
         z.object({
-          file: FILE.extend({
-            absolutePath: z.string().describe('The full path of the file'),
-          }).describe('The created file'),
+          file: FILE_WITH_PATH.describe('The created file'),
         }),
     },
     fileUpdated: {
       schema: () =>
         z.object({
-          file: FILE.extend({
-            absolutePath: z.string().describe('The full path of the file'),
-          }).describe('The updated file'),
+          file: FILE_WITH_PATH.describe('The updated file'),
         }),
     },
     fileDeleted: {
       schema: () =>
         z.object({
-          file: FILE.extend({
-            absolutePath: z.string().describe('The full path of the file'),
-          }).describe('The deleted file'),
+          file: FILE_WITH_PATH.describe('The deleted file'),
         }),
     },
     folderDeletedRecursive: {
       schema: () =>
         z.object({
-          folder: FOLDER.extend({
-            absolutePath: z.string().describe('The full path of the folder'),
-          }).describe('The deleted folder'),
+          folder: FOLDER_WITH_PATH.describe('The deleted folder'),
+        }),
+    },
+    aggregateFileChanges: {
+      schema: () =>
+        z.object({
+          modifiedItems: z
+            .object({
+              created: z.array(FILE_WITH_PATH).describe('The files created'),
+              updated: z.array(FILE_WITH_PATH).describe('The files updated'),
+              deleted: z.array(z.union([FILE_WITH_PATH, FOLDER_WITH_PATH])).describe('The files and folders deleted'),
+            })
+            .describe('The modified items'),
         }),
     },
   },
