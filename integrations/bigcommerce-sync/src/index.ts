@@ -1,11 +1,30 @@
 import { Client } from '@botpress/client'
 import actions from './actions'
 import { getBigCommerceClient, BigCommerceClient } from './client'
-import { productsTableSchema, productsTableName } from './schemas/products'
+import { PRODUCT_TABLE_SCHEMA, PRODUCTS_TABLE_NAME as PRODUCT_TABLE } from './schemas/products'
 import * as bp from '.botpress'
 
 // this client is necessary for table operations
 const getBotpressVanillaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
+
+type WebhookType = 'created' | 'updated' | 'deleted'
+const determineWebhookTypeFromScope = (scope: string): WebhookType | undefined => {
+  if (scope.includes('created')) {
+    return 'created'
+  } else if (scope.includes('updated')) {
+    return 'updated'
+  } else if (scope.includes('deleted')) {
+    return 'deleted'
+  }
+  return undefined
+}
+
+const determineWebhookTypeFromProducer = (webhookData: WebhookDataWithProducer): WebhookType | undefined => {
+  if (webhookData.data && webhookData.data.type) {
+    return webhookData.data.type.toLowerCase() as WebhookType
+  }
+  return undefined
+}
 
 const isBigCommerceWebhook = (headers: Record<string, string | string[] | undefined>): boolean => {
   return !!(
@@ -24,11 +43,28 @@ type WebhookData = {
   id?: string | number
 }
 
+type WebhookDataWithProducer = WebhookData & {
+  producer?: string
+  data?: {
+    id?: string | number
+    entity_id?: string | number
+    type?: string
+  }
+}
+
 const extractProductId = (webhookData: WebhookData): string | undefined => {
   if (webhookData?.data?.id) return String(webhookData.data.id)
   if (webhookData?.data?.entity_id) return String(webhookData.data.entity_id)
   if (webhookData?.id) return String(webhookData.id)
   return undefined
+}
+
+const stripHtmlTags = (html: string | undefined): string => {
+  if (!html) return ''
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 const handleProductCreateOrUpdate = async (
@@ -93,7 +129,7 @@ const handleProductCreateOrUpdate = async (
     condition: product.condition,
     is_visible: product.is_visible,
     sort_order: product.sort_order,
-    description: product.description?.substring(0, 1000) || '',
+    description: stripHtmlTags(product.description)?.substring(0, 1000) || '',
     image_url: imageUrl,
     url: product.custom_url?.url || '',
   }
@@ -200,6 +236,75 @@ const syncBigCommerceProducts = async (ctx: bp.Context, client: bp.Client, logge
   }
 }
 
+const processWebhookEvent = async (
+  webhookType: WebhookType,
+  productId: string,
+  bigCommerceClient: BigCommerceClient,
+  botpressVanillaClient: Client,
+  tableName: string,
+  logger: bp.Logger,
+  ctx: bp.Context,
+  client: bp.Client
+) => {
+  if (webhookType === 'created' || webhookType === 'updated') {
+    return await handleProductCreateOrUpdate(
+      productId.toString(),
+      bigCommerceClient,
+      botpressVanillaClient,
+      tableName,
+      webhookType === 'created',
+      logger
+    )
+  }
+
+  if (webhookType === 'deleted') {
+    return await handleProductDelete(productId.toString(), botpressVanillaClient, tableName, logger)
+  }
+
+  logger.forBot().warn(`Unrecognized event type: ${webhookType}, falling back to full sync`)
+
+  const result = await actions.syncProducts({
+    ctx,
+    client,
+    logger,
+    input: {},
+    type: 'syncProducts',
+    metadata: { setCost: (_cost: number) => {} },
+  })
+
+  if (result) {
+    result.message = 'Full sync performed (unrecognized event type)'
+  }
+
+  return result
+}
+const processWebhookByType = async (
+  webhookType: WebhookType,
+  productId: string,
+  bigCommerceClient: BigCommerceClient,
+  botpressVanillaClient: Client,
+  tableName: string,
+  logger: bp.Logger,
+  ctx: bp.Context,
+  client: bp.Client
+) => {
+  try {
+    return await processWebhookEvent(
+      webhookType,
+      productId,
+      bigCommerceClient,
+      botpressVanillaClient,
+      tableName,
+      logger,
+      ctx,
+      client
+    )
+  } catch (error) {
+    logger.forBot().error(`Error processing ${webhookType} for product ${productId}:`, error)
+    throw error
+  }
+}
+
 export default new bp.Integration({
   register: async ({ client, ctx, logger }) => {
     try {
@@ -207,8 +312,8 @@ export default new bp.Integration({
       const botpressVanillaClient = getBotpressVanillaClient(client)
 
       await botpressVanillaClient.getOrCreateTable({
-        table: productsTableName,
-        schema: productsTableSchema,
+        table: PRODUCT_TABLE,
+        schema: PRODUCT_TABLE_SCHEMA,
       })
 
       const syncResult = await syncBigCommerceProducts(ctx, client, logger)
@@ -245,19 +350,13 @@ export default new bp.Integration({
       logger.forBot().info(`Is BigCommerce webhook based on headers: ${isBCWebhook}`)
 
       if (!isBCWebhook) {
-        logger.forBot().warn('Not a recognized BigCommerce webhook, falling back to full sync')
-        const result = await actions.syncProducts({
-          ctx,
-          client,
-          logger,
-          input: {},
-          type: 'syncProducts',
-          metadata: { setCost: (_cost: number) => {} },
-        })
-
+        logger.forBot().warn('Rejecting request - not a BigCommerce webhook')
         return {
-          status: 200,
-          body: JSON.stringify(result),
+          status: 401,
+          body: JSON.stringify({
+            success: false,
+            message: 'Unauthorized: Request does not appear to be from BigCommerce',
+          }),
         }
       }
 
@@ -265,7 +364,7 @@ export default new bp.Integration({
       logger.forBot().info('Webhook data:', JSON.stringify(webhookData))
 
       const botpressVanillaClient = getBotpressVanillaClient(client)
-      const tableName = productsTableName
+      const tableName = PRODUCT_TABLE
       const bigCommerceClient = getBigCommerceClient(ctx.configuration)
 
       logger.forBot().info(
@@ -291,32 +390,20 @@ export default new bp.Integration({
       }
 
       const productId = extractProductId(webhookData)
-      let webhookType = ''
+      let webhookType: WebhookType | undefined
 
       if (webhookData.scope && typeof webhookData.scope === 'string' && webhookData.scope.includes('product')) {
-        if (webhookData.scope.includes('created')) {
-          webhookType = 'created'
-        } else if (webhookData.scope.includes('updated')) {
-          webhookType = 'updated'
-        } else if (webhookData.scope.includes('deleted')) {
-          webhookType = 'deleted'
-        }
+        webhookType = determineWebhookTypeFromScope(webhookData.scope)
       } else if (webhookData.producer && webhookData.producer === 'product') {
-        if (webhookData.data && webhookData.data.type) {
-          webhookType = webhookData.data.type.toLowerCase()
-        }
+        webhookType = determineWebhookTypeFromProducer(webhookData)
       }
 
       if (!webhookType || !productId) {
         logger.forBot().warn('Could not extract product ID or event type from webhook, falling back to full sync')
 
-        logger.forBot().info('Detailed webhook structure for debugging:', {
-          bodyType: typeof req.body,
-          bodyKeys: typeof req.body === 'object' ? Object.keys(req.body) : [],
-          headerKeys: Object.keys(req.headers),
+        logger.forBot().info('Webhook info:', {
           hasProductId: !!productId,
           hasScope: !!webhookType,
-          payloadSample: JSON.stringify(webhookData).substring(0, 500),
         })
         const result = await actions.syncProducts({
           ctx,
@@ -339,40 +426,31 @@ export default new bp.Integration({
 
       logger.forBot().info(`Processing event: ${webhookType} for product ID: ${productId}`)
 
-      let result
-
-      try {
-        if (webhookType === 'created' || webhookType === 'updated') {
-          result = await handleProductCreateOrUpdate(
-            productId.toString(),
-            bigCommerceClient,
-            botpressVanillaClient,
-            tableName,
-            webhookType === 'created',
-            logger
-          )
-        } else if (webhookType === 'deleted') {
-          result = await handleProductDelete(productId.toString(), botpressVanillaClient, tableName, logger)
-        } else {
-          logger.forBot().warn(`Unrecognized event type: ${webhookType}, falling back to full sync`)
-          result = await actions.syncProducts({
-            ctx,
-            client,
-            logger,
-            input: {},
-            type: 'syncProducts',
-            metadata: { setCost: (_cost: number) => {} },
-          })
-          result.message = 'Full sync performed (unrecognized event type)'
+      let result: {
+        success: boolean
+        message: string
+        productsCount?: number
+        syncResult?: {
+          success: boolean
+          message: string
+          productsCount: number
         }
+      } | null
 
-        return {
-          status: 200,
-          body: JSON.stringify(result),
-        }
-      } catch (error) {
-        logger.forBot().error(`Error processing ${webhookType} for product ${productId}:`, error)
-        throw error
+      result = await processWebhookByType(
+        webhookType,
+        productId.toString(),
+        bigCommerceClient,
+        botpressVanillaClient,
+        tableName,
+        logger,
+        ctx,
+        client
+      )
+
+      return {
+        status: 200,
+        body: JSON.stringify(result),
       }
     } catch (error) {
       logger.forBot().error('Error handling webhook:', error)
