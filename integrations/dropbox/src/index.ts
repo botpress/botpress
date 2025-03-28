@@ -6,11 +6,24 @@ import * as bp from '.botpress'
 
 const integration = new bp.Integration({
   async register(props) {
-    const dropboxClient = await DropboxClient.create({ ctx: props.ctx, client: props.client })
-    const authTest = await dropboxClient.isProperlyAuthenticated()
+    let authenticationSucceeded = false
 
-    if (!authTest) {
-      throw new sdk.RuntimeError('Dropbox authentication failed. Please check your access token.')
+    try {
+      await DropboxClient.processAuthorizationCode(props)
+      const dropboxClient = await DropboxClient.create(props)
+      authenticationSucceeded = await dropboxClient.isProperlyAuthenticated()
+    } catch (thrown: unknown) {
+      console.error('Failed to authenticate with Dropbox', thrown)
+      authenticationSucceeded = false
+    }
+
+    if (!authenticationSucceeded) {
+      throw new sdk.RuntimeError(
+        'Dropbox authentication failed. ' +
+          'Please note that the Access Code is only valid for a few minutes. ' +
+          'You may need to reauthorize your Dropbox application by navigating ' +
+          "to the authorization URL and update the integration's config accordingly."
+      )
     }
   },
 
