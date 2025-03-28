@@ -98,6 +98,7 @@ export class FileTree {
     // remove all its children:
     for (const childPath of this._tree.keys()) {
       if (childPath.startsWith(fileItem.path) && childPath !== fileItem.path) {
+        deletedChildren.push(this._tree.get(childPath)!)
         this._tree.delete(childPath)
       }
     }
