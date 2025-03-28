@@ -107,7 +107,7 @@ describe.concurrent('FileTree', () => {
         expect(diff).toStrictEqual({
           added: [newFile],
           updated: [],
-          deleted: [folder],
+          deleted: expect.arrayContaining([folder, childFile]),
         })
         expect(fileTree.getItems()).toStrictEqual([newFile])
       })
@@ -249,7 +249,7 @@ describe.concurrent('FileTree', () => {
         expect(fileTree.getItems()).toHaveLength(6)
 
         // Act
-        fileTree.pushItem(createDeletedItem('/root/folder1'))
+        const diff = fileTree.pushItem(createDeletedItem('/root/folder1'))
 
         // Assert
         expect(fileTree.getItems()).toStrictEqual(
@@ -259,6 +259,15 @@ describe.concurrent('FileTree', () => {
             expect.objectContaining({ path: '/root/folder2/file3.txt' }),
           ])
         )
+        expect(diff).toStrictEqual({
+          added: [],
+          updated: [],
+          deleted: expect.arrayContaining([
+            expect.objectContaining({ path: '/root/folder1' }),
+            expect.objectContaining({ path: '/root/folder1/file1.txt' }),
+            expect.objectContaining({ path: '/root/folder1/file2.txt' }),
+          ]),
+        })
       })
     })
   })
