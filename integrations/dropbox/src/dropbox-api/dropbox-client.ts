@@ -3,6 +3,7 @@ import { Dropbox } from 'dropbox'
 import { File as FileEntity, Folder as FolderEntity } from '../../definitions'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { ActionInput, RequestMapping, ResponseMapping } from './mapping'
+import { DropboxOAuthClient } from './oauth-client'
 import * as bp from '.botpress'
 
 type File = FileEntity.InferredType
@@ -11,17 +12,32 @@ type Folder = FolderEntity.InferredType
 export class DropboxClient {
   private static readonly _maxResultsPerPage = 100
   private readonly _dropboxRestClient: Dropbox
+  private readonly _accountId: string
 
-  private constructor(credentials: { accessToken: string; clientId: string; clientSecret: string }) {
+  private constructor(credentials: { accessToken: string; clientId: string; clientSecret: string; accountId: string }) {
     this._dropboxRestClient = new Dropbox(credentials)
+    this._accountId = credentials.accountId
   }
 
-  public static async create({ ctx }: { client: bp.Client; ctx: bp.Context }) {
+  public static async create({ ctx, client }: { client: bp.Client; ctx: bp.Context }) {
+    const oauthClient = new DropboxOAuthClient({ ctx, client })
+    const { accessToken, accountId } = await oauthClient.getNewAccessToken()
+
     return new DropboxClient({
-      accessToken: ctx.configuration.accessToken,
+      accessToken,
       clientId: ctx.configuration.clientId,
       clientSecret: ctx.configuration.clientSecret,
+      accountId,
     })
+  }
+
+  public getAccountId(): string {
+    return this._accountId
+  }
+
+  public static async processAuthorizationCode(props: { client: bp.Client; ctx: bp.Context }): Promise<void> {
+    const oauthClient = new DropboxOAuthClient(props)
+    await oauthClient.processAuthorizationCode(props.ctx.configuration.authorizationCode)
   }
 
   @handleErrors('Failed to validate Dropbox authentication')

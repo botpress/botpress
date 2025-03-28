@@ -1,20 +1,11 @@
-import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { wrapAction } from './action-wrapper'
-import { DropboxClient } from './dropbox-api'
+import { register, unregister } from './setup'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
-  async register(props) {
-    const dropboxClient = await DropboxClient.create({ ctx: props.ctx, client: props.client })
-    const authTest = await dropboxClient.isProperlyAuthenticated()
-
-    if (!authTest) {
-      throw new sdk.RuntimeError('Dropbox authentication failed. Please check your access token.')
-    }
-  },
-
-  async unregister() {},
+  register,
+  unregister,
 
   actions: {
     createFile: wrapAction({ actionName: 'createFile' }, async ({ dropboxClient }, { contents, path }) => ({
