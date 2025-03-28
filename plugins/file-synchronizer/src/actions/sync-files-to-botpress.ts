@@ -4,14 +4,17 @@ import * as SyncQueue from '../sync-queue'
 import type * as types from '../types'
 import * as bp from '.botpress'
 
-export const callAction: bp.AnyActionHandler = async (props) => {
+export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpess'] = async (props) => {
   if (await _isSyncAlreadyInProgress(props)) {
     props.logger.info('Sync is already in progress. Ignoring sync event...')
     return { status: 'already-running' }
   }
 
   props.logger.info('Enumerating files...')
-  const allFiles = await _enumerateAllFilesRecursive(props)
+  const allFiles = await _enumerateAllFilesRecursive(props, {
+    includeFiles: props.input.includeFiles ?? props.configuration.includeFiles,
+    excludeFiles: props.input.excludeFiles ?? props.configuration.excludeFiles,
+  })
 
   props.logger.info('Preparing sync job...')
   const jobMeta = await _prepareSyncJob(props, allFiles)
@@ -39,6 +42,7 @@ const _isSyncAlreadyInProgress = async (props: bp.ActionHandlerProps) => {
 
 const _enumerateAllFilesRecursive = async (
   props: bp.ActionHandlerProps,
+  configuration: Pick<bp.configuration.Configuration, 'includeFiles' | 'excludeFiles'>,
   folderId?: string,
   path: string = '/'
 ): Promise<models.FileWithPath[]> => {
@@ -48,13 +52,13 @@ const _enumerateAllFilesRecursive = async (
   for (const item of items) {
     const itemPath = `${path}${item.name}`
 
-    if (SyncQueue.globMatcher.shouldItemBeIgnored({ configuration: props.configuration, item, itemPath })) {
+    if (SyncQueue.globMatcher.shouldItemBeIgnored({ configuration, item, itemPath })) {
       props.logger.debug('Ignoring item', { itemPath })
       continue
     }
 
     if (item.type === 'folder') {
-      files.push(...(await _enumerateAllFilesRecursive(props, item.id, `${itemPath}/`)))
+      files.push(...(await _enumerateAllFilesRecursive(props, configuration, item.id, `${itemPath}/`)))
     } else {
       props.logger.debug('Including file', itemPath)
       files.push({ ...item, absolutePath: itemPath })
