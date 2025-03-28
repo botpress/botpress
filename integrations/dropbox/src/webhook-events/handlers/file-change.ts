@@ -65,14 +65,19 @@ const _collectChangesAndBroadcast = async (
 ) => {
   const { items: modifiedItems, newSyncCursor } = await _getModifiedItems(props, prevSyncCursor)
 
-  // TODO: if this is the first sync (prevSyncCursor is undefined), ignore files modified before the integration's register()
-
   const diff = fileTree.pushItems(modifiedItems)
+  const integrationSetupDate = await _getIntegrationSetupDate(props)
+
+  const isFileModifiedAfterSetup = (item: FileEntity.InferredType | FolderEntity.InferredType) =>
+    item.itemType === 'file' &&
+    // If it is the first sync (prevSyncCursor is undefined), omit files that
+    // were created/modified before the integration was set up:
+    (prevSyncCursor ? true : !item.modifiedAt || new Date(item.modifiedAt) > integrationSetupDate)
 
   await _broadcastChanges(props, {
     deleted: diff.deleted,
-    updated: diff.updated.filter((item) => item.itemType === 'file'),
-    added: diff.added.filter((item) => item.itemType === 'file'),
+    updated: diff.updated.filter(isFileModifiedAfterSetup),
+    added: diff.added.filter(isFileModifiedAfterSetup),
   })
 
   return { newSyncCursor }
@@ -94,6 +99,20 @@ const _getModifiedItems = async (props: bp.HandlerProps, prevSyncCursor: string 
   return {
     newSyncCursor: currentSyncCursor,
     items,
+  }
+}
+
+const _getIntegrationSetupDate = async (props: bp.HandlerProps): Promise<Date> => {
+  try {
+    const { state } = await props.client.getState({
+      type: 'integration',
+      id: props.ctx.integrationId,
+      name: 'setupMeta',
+    })
+
+    return new Date(state.payload.integrationRegisteredAt)
+  } catch {
+    return new Date(0)
   }
 }
 

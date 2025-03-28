@@ -10,6 +10,7 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
   }
 
   await _authenticate(props)
+  await _saveRegistrationDate(props)
 }
 
 export const unregister: bp.IntegrationProps['unregister'] = async () => {}
@@ -55,4 +56,15 @@ const _authenticate = async (props: RegisterProps): Promise<void> => {
         "to the authorization URL and update the integration's config accordingly."
     )
   }
+}
+
+const _saveRegistrationDate = async (props: RegisterProps): Promise<void> => {
+  await props.client.setState({
+    id: props.ctx.integrationId,
+    type: 'integration',
+    name: 'setupMeta',
+    payload: {
+      integrationRegisteredAt: new Date().toISOString(),
+    },
+  })
 }
