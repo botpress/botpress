@@ -37,6 +37,7 @@ export class DropboxOAuthClient {
         refreshToken: result.refresh_token,
         accountId: result.account_id,
         grantedScopes: result.scope.split(' '),
+        authorizationCode,
       },
     })
   }

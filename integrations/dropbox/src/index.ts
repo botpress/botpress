@@ -1,33 +1,11 @@
-import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { wrapAction } from './action-wrapper'
-import { DropboxClient } from './dropbox-api'
+import { register, unregister } from './setup'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
-  async register(props) {
-    let authenticationSucceeded = false
-
-    try {
-      await DropboxClient.processAuthorizationCode(props)
-      const dropboxClient = await DropboxClient.create(props)
-      authenticationSucceeded = await dropboxClient.isProperlyAuthenticated()
-    } catch (thrown: unknown) {
-      console.error('Failed to authenticate with Dropbox', thrown)
-      authenticationSucceeded = false
-    }
-
-    if (!authenticationSucceeded) {
-      throw new sdk.RuntimeError(
-        'Dropbox authentication failed. ' +
-          'Please note that the Access Code is only valid for a few minutes. ' +
-          'You may need to reauthorize your Dropbox application by navigating ' +
-          "to the authorization URL and update the integration's config accordingly."
-      )
-    }
-  },
-
-  async unregister() {},
+  register,
+  unregister,
 
   actions: {
     createFile: wrapAction({ actionName: 'createFile' }, async ({ dropboxClient }, { contents, path }) => ({
