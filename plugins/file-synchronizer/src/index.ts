@@ -36,6 +36,11 @@ plugin.on.event('files-readonly:folderDeletedRecursive', async (props) => {
   await hooks.onEvent.folderDeletedRecursive.handleEvent(props)
 })
 
+plugin.on.event('files-readonly:aggregateFileChanges', async (props) => {
+  props.logger.info('Aggregate file changes event triggered', props.event.payload.modifiedItems)
+  await hooks.onEvent.aggregateFileChanges.handleEvent(props)
+})
+
 plugin.on.workflowStart('processQueue', async (props) => {
   props.logger.info('processQueue workflow started', props.workflow.tags)
   await hooks.onWorkflowStart.processQueue.handleEvent(props)
