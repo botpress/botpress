@@ -1,5 +1,10 @@
 The Google Calendar Integration allows you to seamlessly interact with Google Calendar within your Botpress bot. This integration provides various actions to manage calendar events, enhancing the functionality of your bot.
 
+## Important note
+
+Unfortunately, **automatic configuration is temporarily unavailable**.
+We are currently in the process of getting our Google Calendar integration verified by Google. Once this verification is complete, you will be able to use the automatic configuration method to set up the Google Calendar integration with just a few clicks. Until then, you will need to create your own Google Cloud Platform (GCP) Service Account by following the steps outlined in the `Manual configuration using a service account` section below.
+
 ## Migrating from version `0.x` to `1.x`
 
 If you are migrating from version `0.x` to `1.x`, please note the following changes:

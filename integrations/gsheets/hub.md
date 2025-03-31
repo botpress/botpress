@@ -3,6 +3,11 @@ From tracking inventory and managing project tasks to organizing event attendees
 Give your bot new abilities like add new entries, update existing records, and retrieve essential information.
 Stay agile and organized by dynamically adding new sheets to accommodate evolving data needs, ensuring your spreadsheets remain flexible and scalable.
 
+## Important note
+
+Unfortunately, **automatic configuration is temporarily unavailable**.
+We are currently in the process of getting our Google Sheets integration verified by Google. Once this verification is complete, you will be able to use the automatic configuration method to set up the Google Sheets integration with just a few clicks. Until then, you will need to create your own Google Cloud Platform (GCP) Service Account by following the steps outlined in the `Manual configuration using a service account` section below.
+
 ## Configuration
 
 ### Automatic configuration with OAuth
