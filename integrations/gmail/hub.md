@@ -1,5 +1,10 @@
 Simplify your email communication and supercharge your chatbot with seamless integration between Botpress and Gmail. Experience the power of combining your AI-powered chatbot with the versatility of Gmail, empowering you to streamline workflows, automate tasks, and deliver exceptional customer experiences. Unlock a world of possibilities as your chatbot seamlessly interacts with your Gmail inbox, managing emails, composing messages, and executing actions with ease. Leverage Gmail's robust features, such as advanced search, labeling, and filtering, to efficiently organize and respond to emails. Elevate your chatbot's capabilities and revolutionize your email-based interactions with the Botpress and Gmail Integration.
 
+## Important note
+
+Unfortunately, **automatic configuration is temporarily unavailable**.
+We are currently in the process of getting our Gmail integration verified by Google. Once this verification is complete, you will be able to use the automatic configuration method to set up the Gmail integration with just a few clicks. Until then, you will need to create your own OAuth app by following the steps outlined in the `Manual configuration with OAuth` section below.
+
 ## Configuration
 
 Due to the sensitive nature of email communication, the Gmail integration requires a secure connection between Botpress and Gmail. To establish this secure connection, you **must** configure the Gmail integration using OAuth.
