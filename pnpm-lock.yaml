@@ -2210,7 +2210,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: ^0.1.8
+        specifier: workspace:^
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
