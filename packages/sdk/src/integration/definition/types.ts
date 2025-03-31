@@ -66,8 +66,10 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   cacheable?: boolean
 }
 
+export type StateType = 'integration' | 'conversation' | 'user'
+
 export type StateDefinition<TState extends BaseStates[string] = BaseStates[string]> = SchemaDefinition<TState> & {
-  type: 'integration' | 'conversation' | 'user'
+  type: StateType
 }
 
 export type UserDefinition = Partial<{

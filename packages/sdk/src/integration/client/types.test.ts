@@ -143,22 +143,22 @@ describe.concurrent('ClientOperations', () => {
   test('getState of IntegrationSpecificClient extends general', () => {
     type Specific = types.ClientOperations<BaseIntegration>['getState']
     type General = client.Client['getState']
-    type _assertion = utils.AssertExtends<Specific, General>
+    type _assertion = utils.AssertTrue<utils.IsStricterFunction<Specific, General>>
   })
   test('setState of IntegrationSpecificClient extends general', () => {
     type Specific = types.ClientOperations<BaseIntegration>['setState']
     type General = client.Client['setState']
-    type _assertion = utils.AssertExtends<Specific, General>
+    type _assertion = utils.AssertTrue<utils.IsStricterFunction<Specific, General>>
   })
   test('getOrSetState of IntegrationSpecificClient extends general', () => {
     type Specific = types.ClientOperations<BaseIntegration>['getOrSetState']
     type General = client.Client['getOrSetState']
-    type _assertion = utils.AssertExtends<Specific, General>
+    type _assertion = utils.AssertTrue<utils.IsStricterFunction<Specific, General>>
   })
   test('patchState of IntegrationSpecificClient extends general', () => {
     type Specific = types.ClientOperations<BaseIntegration>['patchState']
     type General = client.Client['patchState']
-    type _assertion = utils.AssertExtends<Specific, General>
+    type _assertion = utils.AssertTrue<utils.IsStricterFunction<Specific, General>>
   })
   test('configureIntegration of IntegrationSpecificClient extends general', () => {
     type Specific = types.ClientOperations<BaseIntegration>['configureIntegration']

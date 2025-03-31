@@ -87,7 +87,7 @@ export class SlackOauthClient {
 export const saveCredentials = async (
   client: Client,
   ctx: IntegrationCtx,
-  credentials: bp.states.credentials.Credentials
+  credentials: bp.states.credentials.Credentials['payload']
 ) => {
   await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
 }
@@ -303,7 +303,7 @@ export const saveConfig = async (client: Client, ctx: IntegrationCtx, config: Co
 }
 
 export const getConfig = async (client: Client, ctx: IntegrationCtx): Promise<Configuration> => {
-  const emptyPayload: bp.states.configuration.Configuration = {}
+  const emptyPayload: bp.states.configuration.Configuration['payload'] = {}
 
   const {
     state: { payload },

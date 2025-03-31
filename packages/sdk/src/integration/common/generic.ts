@@ -1,4 +1,5 @@
 import * as utils from '../../utils/type-utils'
+import * as def from '../definition'
 
 export type BaseMessage = {
   tags: Record<string, any>
@@ -23,6 +24,11 @@ export type BaseAction = {
   output: any
 }
 
+export type BaseState = {
+  type: def.StateType
+  payload: any
+}
+
 export type BaseIntegration = {
   name: string
   version: string
@@ -31,7 +37,7 @@ export type BaseIntegration = {
   actions: Record<string, BaseAction>
   channels: Record<string, BaseChannel>
   events: Record<string, any>
-  states: Record<string, any>
+  states: Record<string, BaseState>
   user: BaseUser
   entities: Record<string, any>
 }
