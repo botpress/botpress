@@ -31,14 +31,64 @@ Once the connection is established, you must specify the identifier of the calen
 
 ### Manual configuration using a service account
 
-1. Login to Google Cloud Console and create a new project.
-2. Enable Google Calendar API for the project.
-3. Create a service account for the project. This integration won't work with any other type of credentials.
-4. Download the JSON credentials file and save it somewhere safe.
-5. The downloaded JSON file contains a `client_email` field. Share your calendar with this email address to give it access.
-   - Please note: your organization may have restrictions on sharing calendars with external users. If you are unable to share the calendar with the service account email, you may need to use a different account or ask your organization's administrator for help.
-6. Install this integration in your bot with the following configuration:
-   - **Calendar ID**: The ID of the Google Calendar to interact with. This identifier can be found by navigating to the calendar in Google Calendar and opening the settings for that calendar. Once in the settings, you will find the _Calendar ID_ in the `Integrate calendar` section.
+#### Creating a Google Cloud Platform project
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a new project by clicking the `Select a resource` dropdown in the top navigation bar and selecting `New Project`.
+3. Follow the on-screen instructions to create the new project.
+
+#### Enabling the Google Calendar API
+
+1. In the Google Cloud Console, navigate to the `APIs & Services` section.
+2. Click on `Library` in the left sidebar.
+3. Search for `Google Calendar API` and click on the result.
+4. Click the `Enable` button to enable the Google Calendar API for your project.
+
+#### Creating a service account
+
+1. In the Google Cloud Console, navigate to the `IAM & Admin` section.
+2. Click on `Service Accounts` in the left sidebar.
+3. Click the `Create service account` button.
+4. Enter a name for the service account. This should automatically fill the `Service account ID` field.
+5. Click `Done` to proceed. There is no need to grant any roles or permissions at this stage.
+
+#### Downloading the service account credentials file
+
+1. In the Google Cloud Console, navigate to the `IAM & Admin` section.
+2. Click on `Service Accounts` in the left sidebar.
+3. Select the service account you created previously.
+4. Click on the `Keys` tab.
+5. Click the `Add Key` button and select `JSON`.
+6. A JSON file containing the service account credentials will be downloaded to your computer. Save this file in a secure location, as it contains sensitive information. You will need this file to configure the Google Calendar integration in Botpress.
+
+#### Locating your service account email and private key
+
+1. Open the downloaded JSON file in a text editor.
+2. Look for the `client_email` field. This is the email address of the service account you created. Copy the email address, excluding the quotation marks. You will need this email address to share your calendar with the service account and to configure the integration in Botpress.
+3. Look for the `private_key` field. This is the private key associated with the service account. Copy the private key, excluding the quotation marks. You will need this private key to configure the integration in Botpress.
+   > This public key begins with `-----BEGIN PRIVATE KEY-----\n` and ends with `\n-----END PRIVATE KEY-----\n`. You must copy the entire key: everything that is between the quotation marks.
+
+#### Sharing your calendar with the service account
+
+1. Open Google Calendar in your web browser.
+2. Find the calendar you want to access on Botpress.
+3. Click on the three dots next to the calendar name and select `Settings and sharing`.
+4. In the `Shared with` section, click on `Add people`.
+5. Enter the service account email address (found in the downloaded JSON file) and select the appropriate permissions: `Make changes to events`.
+
+> **Please note:** your organization may have restrictions on sharing calendars with external users. If you are unable to share the calendar with the service account email address, you may need to use a different account or ask your organization's administrator for help.
+
+#### Locating your calendar ID
+
+1. Open Google Calendar in your web browser.
+2. Find the calendar you want to access on Botpress.
+3. Click on the three dots next to the calendar name and select `Settings and sharing`.
+4. In the `Integrate calendar` section, you will find the _Calendar ID_. You will need this ID to configure the integration in Botpress.
+
+#### Configuring the Google Calendar integration in Botpress
+
+1. Install this integration in your bot with the following configuration:
+   - **Calendar ID**: The ID of the Google Calendar to interact with.
    - **Service account private key**: The private key from the Google service account. You can get it from the downloaded JSON file.
    - **Service account email**: The client email from the Google service account. You can get it from the downloaded JSON file.
 
