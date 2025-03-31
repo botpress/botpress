@@ -1,4 +1,4 @@
-import { type llm } from '@botpress/common'
+import { llm } from '@botpress/common'
 import OpenAI from 'openai'
 import { ModelId } from './schemas'
 import * as bp from '.botpress'
