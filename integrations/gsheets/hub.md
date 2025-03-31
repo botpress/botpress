@@ -26,14 +26,66 @@ Once the connection is established, you must specify the identifier of the Googl
 
 ### Manual configuration using a service account
 
-1. Login to Google Cloud Console and create a new project.
-2. Enable Google Sheets API for the project.
-3. Create a service account for the project. This integration won't work with any other type of credentials.
-4. Download the JSON credentials file and save it somewhere safe.
-5. The downloaded JSON file contains a `client_email` field. Share your spreadsheet with this email address to give it access.
-6. Install this integration in your bot with the following configuration:
+#### Creating a Google Cloud Platform project
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a new project by clicking the `Select a resource` dropdown in the top navigation bar and selecting `New Project`.
+3. Follow the on-screen instructions to create the new project.
+
+#### Enabling the Google Sheets API
+
+1. In the Google Cloud Console, navigate to the `APIs & Services` section.
+2. Click on `Library` in the left sidebar.
+3. Search for `Google Sheets API` and click on the result.
+4. Click the `Enable` button to enable the Google Sheets API for your project.
+
+#### Creating a service account
+
+1. In the Google Cloud Console, navigate to the `IAM & Admin` section.
+2. Click on `Service Accounts` in the left sidebar.
+3. Click the `Create service account` button.
+4. Enter a name for the service account. This should automatically fill the `Service account ID` field.
+5. Click `Done` to proceed. There is no need to grant any roles or permissions at this stage.
+
+#### Downloading the service account credentials file
+
+1. In the Google Cloud Console, navigate to the `IAM & Admin` section.
+2. Click on `Service Accounts` in the left sidebar.
+3. Select the service account you created previously.
+4. Click on the `Keys` tab.
+5. Click the `Add Key` button and select `JSON`.
+6. A JSON file containing the service account credentials will be downloaded to your computer. Save this file in a secure location, as it contains sensitive information. You will need this file to configure the Google Sheets integration in Botpress.
+
+#### Locating your service account email and private key
+
+1. Open the downloaded JSON file in a text editor.
+2. Look for the `client_email` field. This is the email address of the service account you created. Copy the email address, excluding the quotation marks. You will need this email address to share your spreadsheet with the service account and to configure the integration in Botpress.
+3. Look for the `private_key` field. This is the private key associated with the service account. Copy the private key, excluding the quotation marks. You will need this private key to configure the integration in Botpress.
+   > This public key begins with `-----BEGIN PRIVATE KEY-----\n` and ends with `\n-----END PRIVATE KEY-----\n`. You must copy the entire key: everything that is between the quotation marks.
+
+#### Sharing your spreadsheet with the service account
+
+1. Open Google Sheets in your web browser.
+2. Find the spreadsheet you want to access on Botpress and open it.
+3. Click on the `Share` button in the top right corner of the screen.
+4. In the dialog window, enter the service account email address you copied earlier in the `Add people` field.
+5. Give the `Editor` permission to the service account by selecting it from the dropdown menu.
+6. Click the `Send` button to share the spreadsheet with the service account.
+
+> **Please note:** your organization may have restrictions on sharing spreadsheets with external users. If you are unable to share the spreadsheet with the service account email address, you may need to use a different account or ask your organization's administrator for help.
+
+#### Locating your spreadsheet ID
+
+1. Open Google Sheets in your web browser.
+2. Find the spreadsheet you want to access on Botpress and open it.
+3. In the URL of the spreadsheet, you will find the _Spreadsheet ID_. You will need this ID to configure your integration on Botpress. The ID is the long string of characters between `/spreadsheets/d/` and `/edit` in the URL.
+   - For example, if the URL is `https://docs.google.com/spreadsheets/d/1a2b3c4d5e6f7g8h9i0j/edit`, the ID is `1a2b3c4d5e6f7g8h9i0j`.
+   - Copy **only** the ID part of the URL, excluding the `/spreadsheets/d/` and `/edit` parts.
+
+#### Configuring the Google Sheets integration in Botpress
+
+1. Install this integration in your bot with the following configuration:
    - **Spreadsheet ID**: The ID of the Google Spreadsheet to interact with. When editing a spreadsheet, the ID is the long string of characters in the URL between `/spreadsheets/d/` and `/edit`.
-     - For example, if the URL is `https://docs.google.com/spreadsheets/d/1a2b3c4d5e6f7g8h9i0j/edit`, the ID is `1a2b3c4d5e6f7g8h9i0j`.
    - **Service account private key**: The private key from the Google service account. You can get it from the downloaded JSON file.
    - **Service account email**: The client email from the Google service account. You can get it from the downloaded JSON file.
 
