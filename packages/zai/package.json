@@ -19,14 +19,11 @@
     "test:e2e:update": "vitest -u run --config vitest.config.ts",
     "test:e2e:watch": "vitest --config vitest.config.ts"
   },
-  "publishConfig": {
-    "linkWorkspacePackages": false
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@botpress/cognitive": "workspace:^",
+    "@botpress/cognitive": "0.1.9",
     "json5": "^2.2.3",
     "jsonrepair": "^3.10.0",
     "lodash-es": "^4.17.21"

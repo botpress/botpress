@@ -48,16 +48,13 @@ jobs:
         with:
           path: './packages/cognitive'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'
-          package_manager: 'pnpm'
       - name: Publish Vai
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           path: './packages/vai'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'
-          package_manager: 'pnpm'
       - name: Publish Zai
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           path: './packages/vai'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'
-          package_manager: 'pnpm'
