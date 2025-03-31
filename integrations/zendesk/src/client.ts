@@ -220,5 +220,7 @@ class ZendeskApi {
   }
 }
 
+export type ZendeskClient = InstanceType<typeof ZendeskApi>
+
 export const getZendeskClient = (config: bp.configuration.Configuration): ZendeskApi =>
   new ZendeskApi(config.organizationSubdomain, config.email, config.apiToken)

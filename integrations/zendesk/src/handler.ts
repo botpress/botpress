@@ -1,7 +1,7 @@
-import { createOrUpdateUser } from '@botpress/common'
 import { getZendeskClient } from './client'
 import { articlePublished } from './events/article-published'
 import { articleUnpublished } from './events/article-unpublished'
+import { executeMessageReceived } from './events/message-received'
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
 import type { TriggerPayload } from './triggers'
@@ -40,46 +40,11 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
   switch (zendeskTrigger.type) {
     case 'newMessage':
-      const { conversation } = await client.getOrCreateConversation({
-        channel: 'hitl',
-        tags: {
-          id: zendeskTrigger.ticketId,
-        },
-      })
-
-      const { user } = await createOrUpdateUser({
-        client,
-        name: zendeskTrigger.currentUser.name,
-        pictureUrl: zendeskTrigger.currentUser.remote_photo_url,
-        tags: {
-          id: zendeskTrigger.currentUser.id,
-          email: zendeskTrigger.currentUser.email,
-          role: zendeskTrigger.currentUser.role,
-        },
-        discriminateByTags: ['id'],
-      })
-
-      if (!zendeskTrigger.currentUser.externalId?.length) {
-        await zendeskClient.updateUser(zendeskTrigger.currentUser.id, {
-          external_id: user.id,
-        })
-      }
-
-      const messageWithoutAuthor = zendeskTrigger.comment.split('\n').slice(3).join('\n')
-
-      await client.createMessage({
-        tags: {},
-        type: 'text',
-        userId: user.id,
-        conversationId: conversation.id,
-        payload: { text: messageWithoutAuthor },
-      })
-
-      return
-
+      return await executeMessageReceived({ zendeskClient, zendeskTrigger, client })
     case 'ticketAssigned':
       return await executeTicketAssigned({ zendeskTrigger, client })
     case 'ticketSolved':
+      await executeMessageReceived({ zendeskClient, zendeskTrigger, client })
       return await executeTicketSolved({ zendeskTrigger, client })
 
     default:
