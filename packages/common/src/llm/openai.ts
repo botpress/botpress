@@ -147,7 +147,7 @@ export async function generateContent<M extends string>(
     choices: response.choices.map((choice) => ({
       role: choice.message.role,
       type: 'text', // note: OpenAI only returns text messages (TODO: investigate response format for image generation)
-      content: choice.message.content,
+      content: choice.message.content ?? null, // Some OpenAI-compatible providers (e.g. Cerebras) might not return a `content` at all (e.g. when doing a tool call) so we always fallback to null if it's not present.
       index: choice.index,
       stopReason: mapToStopReason(choice.finish_reason),
       toolCalls: mapToToolCalls(choice.message.tool_calls, logger, props.provider),

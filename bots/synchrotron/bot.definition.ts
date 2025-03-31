@@ -26,13 +26,13 @@ export default new sdk.BotDefinition({
     configuration: {
       clientId: genenv.FILESYNC_DROPBOX_CLIENT_ID,
       clientSecret: genenv.FILESYNC_DROPBOX_CLIENT_SECRET,
-      accessToken: genenv.FILESYNC_DROPBOX_ACCESS_TOKEN,
+      authorizationCode: genenv.FILESYNC_DROPBOX_AUTHORIZATION_CODE,
     },
   })
   .addPlugin(fileSynchronizer, {
     configuration: {
       // enablePeriodicSync: undefined,
-      // enableRealTimeSync: false,
+      enableRealTimeSync: true,
       includeFiles: [
         {
           pathGlobPattern: '**',

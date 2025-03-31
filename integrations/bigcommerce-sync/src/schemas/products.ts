@@ -1,4 +1,4 @@
-export const productsTableSchema = {
+export const PRODUCT_TABLE_SCHEMA = {
   type: 'object',
   properties: {
     product_id: { type: 'number' },
@@ -25,4 +25,4 @@ export const productsTableSchema = {
   required: ['product_id', 'name'],
 }
 
-export const productsTableName = 'bigcommerce_products_Table'
+export const PRODUCTS_TABLE_NAME = 'bigcommerce_products_Table'

@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
-import * as models from '../definitions/models'
-import type * as types from './types'
-import * as utils from './utils'
+import * as models from '../../definitions/models'
+import type * as types from '../types'
+import * as utils from '../utils'
 import * as bp from '.botpress'
 
 const QUEUE_ITEM = models.FILE_WITH_PATH.extend({
@@ -23,9 +23,7 @@ export const getSyncQueue = async (
 
   for (const item of syncQueueGenerator) {
     if ('error' in item) {
-      props.logger
-        .withWorkflowId(props.workflow.id)
-        .error('Error while parsing line in job file. This line will be ignored.', item)
+      props.logger.error('Error while parsing line in job file. This line will be ignored.', item)
       continue
     }
 

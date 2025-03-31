@@ -40,6 +40,9 @@ export const getActionFromError = (error: any): Action => {
 
 export const isNotFoundError = (error: any): boolean => isBotpressError(error) && error.type === 'ResourceNotFound'
 
+export const isForbiddenOrUnauthorizedError = (error: any): boolean =>
+  isBotpressError(error) && (error.type === 'Forbidden' || error.type === 'Unauthorized')
+
 export const isBotpressError = (error: any): error is BotpressError =>
   typeof error === 'object' &&
   error !== null &&

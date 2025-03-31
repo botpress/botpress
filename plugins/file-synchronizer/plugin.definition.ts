@@ -1,9 +1,57 @@
 import * as sdk from '@botpress/sdk'
 import filesReadonly from './bp_modules/files-readonly'
 
+const FILE_FILTER_PROPS = {
+  includeFiles: sdk.z
+    .array(
+      sdk.z
+        .object({
+          pathGlobPattern: sdk.z
+            .string()
+            .describe(
+              'A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported.'
+            ),
+          maxSizeInBytes: sdk.z
+            .number()
+            .optional()
+            .describe(
+              'Filter by maximum size (in bytes). Only files smaller than the specified size will be synchronized.'
+            ),
+          modifiedAfter: sdk.z
+            .string()
+            .datetime()
+            .optional()
+            .describe(
+              'Filter the items by modified date. Only files modified after the specified date will be synchronized.'
+            ),
+        })
+        .title('Include Criteria')
+        .describe('A file must match all criteria to be synchronized.')
+    )
+    .title('Include Rules')
+    .describe('A list of rules to include files. Only files that match one or more rules will be synchronized.'),
+  excludeFiles: sdk.z
+    .array(
+      sdk.z
+        .object({
+          pathGlobPattern: sdk.z
+            .string()
+            .describe(
+              'A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration.'
+            ),
+        })
+        .title('Exclude Criteria')
+        .describe('A file must match all exclude criteria to be ignored.')
+    )
+    .title('Exclude Rules')
+    .describe(
+      'A list of rules to exclude files. Files that match one or more rules will be ignored. This takes precedence over Include Rules.'
+    ),
+} as const
+
 export default new sdk.PluginDefinition({
   name: 'file-synchronizer',
-  version: '0.2.0',
+  version: '0.4.0',
   title: 'File Synchronizer',
   description: 'Synchronize files from external services to Botpress',
   icon: 'icon.svg',
@@ -33,59 +81,40 @@ export default new sdk.PluginDefinition({
         .describe(
           'Enable synchronisation using the provided schedule. Leave empty to disable periodic synchronization.'
         ),
-      /*
       enableRealTimeSync: sdk.z
         .boolean()
         .default(true)
         .describe(
           'Enable real-time synchronization. Whever a file is created, updated, or deleted, synchronize it to Botpress immediately. This does not work with every integration.'
         ),
-      */
-      includeFiles: sdk.z
-        .array(
-          sdk.z.object({
-            pathGlobPattern: sdk.z
-              .string()
-              .describe(
-                'A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported.'
-              ),
-            maxSizeInBytes: sdk.z
-              .number()
-              .optional()
-              .describe(
-                'Filter by maximum size (in bytes). Only files smaller than the specified size will be synchronized.'
-              ),
-            modifiedAfter: sdk.z
-              .string()
-              .datetime()
-              .optional()
-              .describe(
-                'Filter the items by modified date. Only files modified after the specified date will be synchronized.'
-              ),
-          })
-        )
-        .min(1),
-      excludeFiles: sdk.z.array(
-        sdk.z.object({
-          pathGlobPattern: sdk.z
-            .string()
-            .describe(
-              'A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration.'
-            ),
-        })
-      ),
+      ...FILE_FILTER_PROPS,
     }),
   },
   actions: {
     syncFilesToBotpess: {
       title: 'Sync files to Botpress',
-      description: 'Start synchronization of all files from the external service to Botpress',
-      input: { schema: sdk.z.object({}) },
+      description: 'Start synchronization of files from the external service to Botpress',
+      input: {
+        schema: sdk.z.object({
+          includeFiles: FILE_FILTER_PROPS.includeFiles
+            .title('Include Rules Override')
+            .describe('If omitted, the global Include Rules will be used.')
+            .optional(),
+          excludeFiles: FILE_FILTER_PROPS.excludeFiles
+            .title('Exclude Rules Override')
+            .describe('If omitted, the global Exclude Rules will be used')
+            .optional(),
+        }),
+      },
       output: {
         schema: sdk.z.object({
           status: sdk.z.enum(['queued', 'already-running', 'error']),
         }),
       },
+    },
+    listItemsInFolder: {
+      // Re-export the action from the files-readonly interface:
+      ...filesReadonly.definition.actions.listItemsInFolder,
     },
   },
   events: {

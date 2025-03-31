@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import { getBigCommerceClient } from '../client'
-import { productsTableSchema, productsTableName } from '../schemas/products'
+import { PRODUCT_TABLE_SCHEMA, PRODUCTS_TABLE_NAME as PRODUCT_TABLE } from '../schemas/products'
 import * as bp from '.botpress'
 
 type BigCommerceProduct = {
@@ -26,6 +26,14 @@ type BigCommerceProduct = {
   custom_url?: { url: string }
 }
 
+const stripHtmlTags = (html: string | undefined): string => {
+  if (!html) return ''
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (props) => {
   const { client, logger } = props
   const ctx = props.ctx.configuration
@@ -37,9 +45,9 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
   const bigCommerceClient = getBigCommerceClient(ctx)
 
   try {
-    const tableName = productsTableName
+    const tableName = PRODUCT_TABLE
 
-    const tableSchema = productsTableSchema
+    const tableSchema = PRODUCT_TABLE_SCHEMA
 
     await botpressVanillaClient.getOrCreateTable({
       table: tableName,
@@ -107,7 +115,7 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
         condition: product.condition,
         is_visible: product.is_visible,
         sort_order: product.sort_order,
-        description: product.description?.substring(0, 1000) || '',
+        description: stripHtmlTags(product.description)?.substring(0, 1000) || '',
         image_url: imageUrl,
         url: product.custom_url?.url || '',
       }

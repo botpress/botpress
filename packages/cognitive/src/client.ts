@@ -4,7 +4,6 @@ import { createNanoEvents, Unsubscribe } from 'nanoevents'
 import { ExtendedClient, getExtendedClient } from './bp-client'
 import { getActionFromError } from './errors'
 import { InterceptorManager } from './interceptors'
-import { GenerateContentOutput } from './llm'
 import {
   DOWNTIME_THRESHOLD_MINUTES,
   getBestModels,
@@ -16,6 +15,7 @@ import {
   pickModel,
   RemoteModelProvider,
 } from './models'
+import { GenerateContentOutput } from './schemas.gen'
 import { CognitiveProps, Events, InputProps, Request, Response } from './types'
 
 export class Cognitive {

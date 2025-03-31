@@ -33,7 +33,7 @@ export const botHandler =
             const hookOutput = await handler({
               client,
               ctx,
-              logger,
+              logger: logger.with({ conversationId: req.conversationId, userId: req.userId }),
               data: req,
               ..._getBotTools({ client }),
             })
@@ -65,7 +65,11 @@ export const botHandler =
             const hookOutput = await handler({
               client,
               ctx,
-              logger,
+              logger: logger.with({
+                messageId: res.message.id,
+                conversationId: res.message.conversationId,
+                userId: res.message.userId,
+              }),
               data: res,
               ..._getBotTools({ client }),
             })
@@ -133,6 +137,13 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
   type AnyEventPayload = utils.ValueOf<types.EventPayloads<common.BaseBot>>
   const body = parseBody<AnyEventPayload>(req)
 
+  common.logger = common.logger.with({
+    eventId: body.event.id,
+    messageId: body.event.messageId,
+    conversationId: body.event.conversationId,
+    userId: body.event.userId,
+  })
+
   if (ctx.type === 'workflow_update') {
     return await handleWorkflowUpdateEvent(serverProps, body.event as types.WorkflowUpdateEvent)
   }
@@ -140,6 +151,13 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
   if (ctx.type === 'message_created') {
     const event = body.event
     let message: client.Message = event.payload.message
+
+    common.logger = common.logger.with({
+      messageId: message.id,
+      conversationId: message.conversationId,
+      userId: message.userId,
+    })
+
     const beforeIncomingMessageHooks = self.hookHandlers.before_incoming_message[message.type] ?? []
     for (const handler of beforeIncomingMessageHooks) {
       const hookOutput = await handler({

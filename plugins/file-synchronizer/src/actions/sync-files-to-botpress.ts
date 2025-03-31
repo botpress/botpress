@@ -1,23 +1,29 @@
-import * as picomatch from 'picomatch'
 import type * as models from '../../definitions/models'
-import { MAX_FILE_SIZE_BYTES } from '../consts'
 import { randomUUID } from '../crypto'
-import { updateSyncQueue } from '../job-file'
+import * as SyncQueue from '../sync-queue'
 import type * as types from '../types'
 import * as bp from '.botpress'
 
-export const callAction: bp.AnyActionHandler = async (props) => {
+export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpess'] = async (props) => {
   if (await _isSyncAlreadyInProgress(props)) {
     props.logger.info('Sync is already in progress. Ignoring sync event...')
     return { status: 'already-running' }
   }
 
   props.logger.info('Enumerating files...')
-  const allFiles = await _enumerateAllFilesRecursive(props)
+  const allFiles = await _enumerateAllFilesRecursive(props, {
+    includeFiles: props.input.includeFiles ?? props.configuration.includeFiles,
+    excludeFiles: props.input.excludeFiles ?? props.configuration.excludeFiles,
+  })
 
   props.logger.info('Preparing sync job...')
   const jobMeta = await _prepareSyncJob(props, allFiles)
-  const jobFileId = await updateSyncQueue(props, jobMeta.syncFileKey, jobMeta.syncQueue, jobMeta.tags)
+  const jobFileId = await SyncQueue.jobFileManager.updateSyncQueue(
+    props,
+    jobMeta.syncFileKey,
+    jobMeta.syncQueue,
+    jobMeta.tags
+  )
 
   props.logger.info('Starting sync job...')
   await props.workflows.processQueue.startNewInstance({
@@ -36,6 +42,7 @@ const _isSyncAlreadyInProgress = async (props: bp.ActionHandlerProps) => {
 
 const _enumerateAllFilesRecursive = async (
   props: bp.ActionHandlerProps,
+  configuration: Pick<bp.configuration.Configuration, 'includeFiles' | 'excludeFiles'>,
   folderId?: string,
   path: string = '/'
 ): Promise<models.FileWithPath[]> => {
@@ -45,13 +52,13 @@ const _enumerateAllFilesRecursive = async (
   for (const item of items) {
     const itemPath = `${path}${item.name}`
 
-    if (_shouldItemBeIgnored(props, item, itemPath)) {
+    if (SyncQueue.globMatcher.shouldItemBeIgnored({ configuration, item, itemPath })) {
       props.logger.debug('Ignoring item', { itemPath })
       continue
     }
 
     if (item.type === 'folder') {
-      files.push(...(await _enumerateAllFilesRecursive(props, item.id, `${itemPath}/`)))
+      files.push(...(await _enumerateAllFilesRecursive(props, configuration, item.id, `${itemPath}/`)))
     } else {
       props.logger.debug('Including file', itemPath)
       files.push({ ...item, absolutePath: itemPath })
@@ -76,37 +83,6 @@ const _getFolderItems = async (props: bp.ActionHandlerProps, folderId?: string):
   } while (nextToken)
 
   return items
-}
-
-const _shouldItemBeIgnored = (
-  { configuration }: bp.ActionHandlerProps,
-  itemToSync: models.FolderItem,
-  itemPath: string
-) => {
-  for (const { pathGlobPattern } of configuration.excludeFiles) {
-    if (picomatch.isMatch(itemPath, pathGlobPattern)) {
-      return true
-    }
-  }
-
-  for (const { pathGlobPattern, maxSizeInBytes, modifiedAfter } of configuration.includeFiles) {
-    if (!picomatch.isMatch(itemPath, pathGlobPattern)) {
-      continue
-    }
-
-    const isFileWithUnmetRequirements =
-      itemToSync.type === 'file' &&
-      ((maxSizeInBytes &&
-        itemToSync.sizeInBytes &&
-        (itemToSync.sizeInBytes > maxSizeInBytes || itemToSync.sizeInBytes > MAX_FILE_SIZE_BYTES)) ||
-        (modifiedAfter &&
-          itemToSync.lastModifiedDate &&
-          new Date(itemToSync.lastModifiedDate) < new Date(modifiedAfter)))
-
-    return isFileWithUnmetRequirements
-  }
-
-  return true
 }
 
 const _prepareSyncJob = async (props: bp.ActionHandlerProps, filesToSync: models.FileWithPath[]) => {
