@@ -114,12 +114,6 @@ export type MessagePayloads<TPlugin extends common.BasePlugin> = {
     user: client.User
     conversation: client.Conversation
     event: client.Event
-    states: {
-      [TState in utils.StringKeys<TPlugin['states']>]: {
-        type: 'user' | 'conversation' | 'bot'
-        payload: TPlugin['states'][TState]
-      }
-    }
   }
 }
 

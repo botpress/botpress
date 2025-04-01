@@ -63,9 +63,12 @@ export type ToSealedRecord<R extends Record<string, any>> = {
   [K in keyof R as string extends K ? never : K]: R[K]
 }
 
+// Ensure tuples aren't collapsed into arrays
+type NormalizeTuple<T> = T extends [...infer A] ? { [K in keyof A]: Normalize<A[K]> } : never
 type NormalizeObject<T extends object> = T extends infer O ? { [K in keyof O]: Normalize<O[K]> } : never
+
 export type Normalize<T> = T extends (...args: infer A) => infer R
-  ? (...args: Normalize<A>) => Normalize<R>
+  ? (...args: NormalizeTuple<A>) => Normalize<R>
   : T extends Array<infer E>
     ? Array<Normalize<E>>
     : T extends ReadonlyArray<infer E>

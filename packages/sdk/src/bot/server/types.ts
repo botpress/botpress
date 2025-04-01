@@ -125,12 +125,6 @@ export type MessagePayloads<TBot extends common.BaseBot> = {
     user: client.User
     conversation: client.Conversation
     event: client.Event
-    states: {
-      [TState in utils.StringKeys<TBot['states']>]: {
-        type: 'user' | 'conversation' | 'bot'
-        payload: TBot['states'][TState]
-      }
-    }
   }
 }
 

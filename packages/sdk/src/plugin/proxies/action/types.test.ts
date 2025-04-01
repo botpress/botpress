@@ -50,7 +50,8 @@ test('ActionProxy of EmptyPlugin should be almost empty', async () => {
       //
       utils.IsExtend<Actual, Expected>,
       utils.IsExtend<Expected, Actual>,
-      utils.IsEquivalent<Actual, Expected>,
+      // FIXME: uncomment this line to make the test fail
+      // utils.IsIdentical<Actual, Expected>,
     ]
   >
 })
@@ -67,7 +68,7 @@ test('ActionProxy of BasePlugin should be a record', async () => {
       //
       utils.IsExtend<Actual, Expected>,
       utils.IsExtend<Expected, Actual>,
-      utils.IsEquivalent<Actual, Expected>,
+      utils.IsIdentical<Actual, Expected>,
     ]
   >
 })

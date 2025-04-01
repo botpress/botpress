@@ -211,6 +211,24 @@ export type FooBarBazPlugin = DefaultPlugin<{
       output: { optionalString?: string; number: number }
     }
   }
+  states: {
+    alpha: {
+      type: 'conversation'
+      payload: { alpha: string }
+    }
+    beta: {
+      type: 'user'
+      payload: { beta: number }
+    }
+    gamma: {
+      type: 'bot'
+      payload: { gamma: boolean }
+    }
+    delta: {
+      type: 'conversation'
+      payload: { delta: null }
+    }
+  }
 }>
 
 export type EmptyBot = DefaultBot<{

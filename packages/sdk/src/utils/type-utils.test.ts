@@ -329,3 +329,12 @@ test('IsStricterFunction and function extension', () => {
     ]
   >
 })
+
+test('Normalize Function should not change function type', () => {
+  type MyFunc = (a: string, b: number) => Promise<{ c: boolean }>
+
+  type Expected = MyFunc
+  type Actual = utils.Normalize<MyFunc>
+
+  type _assertion = utils.AssertTrue<utils.IsIdentical<Actual, Expected>>
+})
