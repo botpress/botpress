@@ -1,6 +1,6 @@
-import * as bot from '../../../bot'
-import * as utils from '../../../utils/type-utils'
-import { BasePlugin } from '../../common'
+import * as bot from '../../bot'
+import * as utils from '../../utils/type-utils'
+import { BasePlugin } from '../common'
 
 type _EnumerateStates<TPlugin extends BasePlugin> = {
   [TStateName in keyof TPlugin['states']]: TPlugin['states'][TStateName] & { name: TStateName }

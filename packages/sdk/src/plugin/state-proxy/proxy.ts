@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
-import { BotSpecificClient, StateType } from '../../../bot'
-import { BasePlugin, PluginRuntimeProps } from '../../common'
+import { BotSpecificClient, StateType } from '../../bot'
+import { BasePlugin, PluginRuntimeProps } from '../common'
 import { StateProxy, StateRepo } from './types'
 
 // TODO: this constant is dupplicated in many place; find a common location

@@ -1,8 +1,8 @@
 import { test } from 'vitest'
-import { EmptyPlugin, FooBarBazPlugin } from '../../../fixtures'
+import { EmptyPlugin, FooBarBazPlugin } from '../../fixtures'
 import { StateProxy, StateRepo } from './types'
-import * as utils from '../../../utils/type-utils'
-import { BasePlugin } from '../../common'
+import * as utils from '../../utils/type-utils'
+import { BasePlugin } from '../common'
 
 test('StateProxy of FooBarBazPlugin should reflect states of bot, integration and interface deps', async () => {
   type Expected = utils.Normalize<{
