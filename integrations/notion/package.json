@@ -8,12 +8,12 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "@notionhq/client": "^2.3.0"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*",
-    "@botpress/common": "workspace:*"
+    "@botpress/cli": "workspace:*"
   }
 }

@@ -1,4 +1,4 @@
-import type { NotionPagePropertyTypes } from './notion.types'
+import type { NotionPagePropertyTypes } from '../types'
 
 /**
  * the properties with type `null` cannot be updated via the API

@@ -1,16 +1,8 @@
-import * as notion from '../notion'
-import * as bp from '.botpress'
+import { wrapAction } from '../action-wrapper'
 
-export const addCommentToDiscussion: bp.IntegrationProps['actions']['addCommentToDiscussion'] = async ({
-  ctx,
-  client,
-  input,
-}) => {
-  const response = await notion.addCommentToDiscussion(ctx, client, input.discussionId, input.commentBody)
-  if (response) {
-    console.info('Successfully added comment to discussion')
-    return {}
-  } else {
-    return {}
+export const addCommentToDiscussion = wrapAction(
+  { actionName: 'addCommentToDiscussion', errorMessage: 'Failed to add comment to discussion' },
+  async ({ notionClient }, { commentBody, discussionId }) => {
+    await notionClient.addCommentToDiscussion({ commentBody, discussionId })
   }
-}
+)
