@@ -10,6 +10,7 @@ export const getTriggerTemplate = (name: TriggerNames) => ({
     remote_photo_url: '{{ticket.assignee.remote_photo_url}}',
   },
   comment: '{{ticket.latest_public_comment_html}}',
+  commentId: '{{ticket.public_comments[0].id}}',
   ticketId: '{{ticket.id}}',
   status: '{{ticket.status}}',
   currentUser: {
