@@ -64,7 +64,7 @@ export class DropboxOAuthClient {
   }
 
   @handleErrors('Failed to get authorization state. Please reconfigure the integration.')
-  private async _getAuthState(): Promise<bp.states.authorization.Authorization> {
+  private async _getAuthState(): Promise<bp.states.authorization.Authorization['payload']> {
     const { state } = await this._client.getState({
       id: this._ctx.integrationId,
       type: 'integration',
