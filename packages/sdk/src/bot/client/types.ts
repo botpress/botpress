@@ -36,7 +36,8 @@ type StateResponse<
     state: utils.Merge<
       Awaited<Res<client.Client['getState']>>['state'],
       {
-        payload: TBot['states'][TState]
+        type: utils.Cast<TBot['states'][TState]['type'], string>
+        payload: TBot['states'][TState]['payload']
       }
     >
   }
@@ -109,7 +110,8 @@ export type GetState<TBot extends common.BaseBot> = <TState extends keyof TBot['
   x: utils.Merge<
     Arg<client.Client['getState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TBot['states'][TState]['type'], string>
     }
   >
 ) => Promise<StateResponse<TBot, TState>>
@@ -118,8 +120,9 @@ export type SetState<TBot extends common.BaseBot> = <TState extends keyof TBot['
   x: utils.Merge<
     Arg<client.Client['setState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
-      payload: TBot['states'][TState] | null
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TBot['states'][TState]['type'], string>
+      payload: TBot['states'][TState]['payload'] | null
     }
   >
 ) => Promise<StateResponse<TBot, TState>>
@@ -128,8 +131,9 @@ export type GetOrSetState<TBot extends common.BaseBot> = <TState extends keyof T
   x: utils.Merge<
     Arg<client.Client['getOrSetState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
-      payload: TBot['states'][TState]
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TBot['states'][TState]['type'], string>
+      payload: TBot['states'][TState]['payload']
     }
   >
 ) => Promise<StateResponse<TBot, TState>>
@@ -138,18 +142,12 @@ export type PatchState<TBot extends common.BaseBot> = <TState extends keyof TBot
   x: utils.Merge<
     Arg<client.Client['patchState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
-      payload: Partial<TBot['states'][TState]>
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TBot['states'][TState]['type'], string>
+      payload: Partial<TBot['states'][TState]['payload']>
     }
   >
-) => Promise<{
-  state: utils.Merge<
-    Awaited<Res<client.Client['patchState']>>['state'],
-    {
-      payload: TBot['states'][TState]
-    }
-  >
-}>
+) => Promise<StateResponse<TBot, TState>>
 
 export type CallAction<TBot extends common.BaseBot> = <ActionType extends keyof common.EnumerateActions<TBot>>(
   x: utils.Merge<

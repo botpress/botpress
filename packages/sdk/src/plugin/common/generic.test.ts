@@ -16,7 +16,8 @@ test('DefaulPlugin with missing key should return a valid BasePlugin', () => {
   type Default = DefaultPlugin<{
     states: {
       foo: {
-        current: string
+        type: 'user'
+        payload: { current: string }
       }
     }
   }>

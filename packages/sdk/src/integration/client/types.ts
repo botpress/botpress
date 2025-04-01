@@ -241,7 +241,9 @@ type StateResponse<TIntegration extends common.BaseIntegration, TState extends k
   state: utils.Merge<
     Awaited<Res<client.Client['getState']>>['state'],
     {
-      payload: TIntegration['states'][TState]
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TIntegration['states'][TState]['type'], string>
+      payload: TIntegration['states'][TState]['payload']
     }
   >
   meta: {
@@ -253,6 +255,7 @@ export type GetState<TIntegration extends common.BaseIntegration> = <TState exte
   x: utils.Merge<
     Arg<client.Client['getState']>,
     {
+      type: utils.Cast<TIntegration['states'][TState]['type'], string>
       name: utils.Cast<TState, string>
     }
   >
@@ -263,7 +266,8 @@ export type SetState<TIntegration extends common.BaseIntegration> = <TState exte
     Arg<client.Client['setState']>,
     {
       name: utils.Cast<TState, string>
-      payload: TIntegration['states'][TState] | null
+      type: utils.Cast<TIntegration['states'][TState]['type'], string>
+      payload: TIntegration['states'][TState]['payload'] | null
     }
   >
 ) => Promise<StateResponse<TIntegration, TState>>
@@ -273,7 +277,8 @@ export type GetOrSetState<TIntegration extends common.BaseIntegration> = <TState
     Arg<client.Client['getOrSetState']>,
     {
       name: utils.Cast<TState, string>
-      payload: TIntegration['states'][TState]
+      type: utils.Cast<TIntegration['states'][TState]['type'], string>
+      payload: TIntegration['states'][TState]['payload']
     }
   >
 ) => Promise<StateResponse<TIntegration, TState>>
@@ -283,7 +288,8 @@ export type PatchState<TIntegration extends common.BaseIntegration> = <TState ex
     Arg<client.Client['patchState']>,
     {
       name: utils.Cast<TState, string>
-      payload: Partial<TIntegration['states'][TState]>
+      type: utils.Cast<TIntegration['states'][TState]['type'], string>
+      payload: Partial<TIntegration['states'][TState]['payload']>
     }
   >
 ) => Promise<StateResponse<TIntegration, TState>>

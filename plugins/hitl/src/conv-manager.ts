@@ -1,7 +1,7 @@
 import * as types from './types'
 import * as bp from '.botpress'
 
-type HitlState = bp.states.hitl.Hitl
+type HitlState = bp.states.hitl.Hitl['payload']
 
 const DEFAULT_STATE: HitlState = { hitlActive: false }
 
@@ -76,7 +76,7 @@ export class ConversationManager {
     await this.respond({ text: errorMessage })
   }
 
-  private async _getHitlState(): Promise<bp.states.hitl.Hitl> {
+  private async _getHitlState(): Promise<bp.states.hitl.Hitl['payload']> {
     const response = await this._props.client.getOrSetState({
       id: this._convId,
       type: 'conversation',
