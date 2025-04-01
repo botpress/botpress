@@ -93,13 +93,11 @@ export type OutgoingCallActionResponses<TPlugin extends common.BasePlugin> = _Ou
 // TODO: some ressources should be strongly type while leaving room for unknown definitions
 export type PluginClient<_TPlugin extends common.BasePlugin> = bot.BotSpecificClient<common.BasePlugin>
 
-export type PluginConfiguration<TPlugin extends common.BasePlugin> = TPlugin['configuration']
-
 export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
   ctx: bot.BotContext
   logger: bot.BotLogger
   client: PluginClient<TPlugin>
-  configuration: PluginConfiguration<TPlugin>
+  configuration: common.PluginConfiguration<TPlugin>
   interfaces: common.PluginInterfaceExtensions<TPlugin>
   actions: proxies.action.ActionProxy<TPlugin>
 
