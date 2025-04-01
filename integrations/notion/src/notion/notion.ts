@@ -1,4 +1,4 @@
-import { Client } from '@notionhq/client'
+import { Client as NotionClient } from '@notionhq/client'
 import type { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
 import { NOTION_PROPERTY_STRINGIFIED_TYPE_MAP } from './notion.constants'
 import type { NotionPagePropertyTypes } from './notion.types'
@@ -6,10 +6,36 @@ import * as bp from '.botpress'
 
 // TODO: Write a decorator to achieve this
 
-export function getNotionClient(integrationContext: bp.Context) {
-  return new Client({
-    auth: integrationContext.configuration.authToken,
+export async function getNotionClient(integrationContext: bp.Context, client: bp.Client) {
+  const bearerToken = await _getBearerToken(integrationContext, client)
+
+  return new NotionClient({
+    auth: bearerToken,
   })
+}
+
+const _getBearerToken = async (integrationContext: bp.Context, client: bp.Client) => {
+  let bearerToken = ''
+
+  if (integrationContext.configurationType === 'customApp') {
+    bearerToken = integrationContext.configuration.authToken
+  } else {
+    const { state } = await client.getState({
+      type: 'integration',
+      id: integrationContext.integrationId,
+      name: 'oauth',
+    })
+    bearerToken = state.payload.authToken
+  }
+
+  return bearerToken
+}
+
+export const getNotionBotUser = async (integrationContext: bp.Context, client: bp.Client) => {
+  const notion = await getNotionClient(integrationContext, client)
+  const botUser = notion.users.me({})
+
+  return botUser
 }
 
 // TODO: Add types for property
@@ -19,13 +45,14 @@ export function getNotionClient(integrationContext: bp.Context) {
  * @param properties
  * @returns
  */
-export function addPageToDb(
+export async function addPageToDb(
   integrationContext: bp.Context,
+  client: bp.Client,
   databaseId: string,
   properties: Record<NotionPagePropertyTypes, any>
 ) {
-  const notion = getNotionClient(integrationContext)
-  return notion.pages.create({
+  const notion = await getNotionClient(integrationContext, client)
+  return await notion.pages.create({
     parent: { database_id: databaseId },
     properties,
   })
@@ -38,9 +65,14 @@ export function addPageToDb(
  * @param messageBody
  * @returns
  */
-export function addCommentToPage(integrationContext: bp.Context, blockId: string, messageBody: string) {
-  const notion = getNotionClient(integrationContext)
-  return notion.comments.create({
+export async function addCommentToPage(
+  integrationContext: bp.Context,
+  client: bp.Client,
+  blockId: string,
+  messageBody: string
+) {
+  const notion = await getNotionClient(integrationContext, client)
+  return await notion.comments.create({
     parent: { page_id: blockId },
     rich_text: [
       {
@@ -53,9 +85,14 @@ export function addCommentToPage(integrationContext: bp.Context, blockId: string
   })
 }
 
-export function addCommentToDiscussion(integrationContext: bp.Context, discussionId: string, messageBody: string) {
-  const notion = getNotionClient(integrationContext)
-  return notion.comments.create({
+export async function addCommentToDiscussion(
+  integrationContext: bp.Context,
+  client: bp.Client,
+  discussionId: string,
+  messageBody: string
+) {
+  const notion = await getNotionClient(integrationContext, client)
+  return await notion.comments.create({
     discussion_id: discussionId,
     rich_text: [
       {
@@ -68,9 +105,9 @@ export function addCommentToDiscussion(integrationContext: bp.Context, discussio
   })
 }
 
-export function getAllCommentsForBlock(integrationContext: bp.Context, blockId: string) {
-  const notion = getNotionClient(integrationContext)
-  return notion.comments.list({ block_id: blockId })
+export async function getAllCommentsForBlock(integrationContext: bp.Context, client: bp.Client, blockId: string) {
+  const notion = await getNotionClient(integrationContext, client)
+  return await notion.comments.list({ block_id: blockId })
 }
 
 /**
@@ -79,13 +116,13 @@ export function getAllCommentsForBlock(integrationContext: bp.Context, blockId: 
  * - a page
  * - a block
  */
-export function deleteBlock(integrationContext: bp.Context, blockId: string) {
-  const notion = getNotionClient(integrationContext)
-  return notion.blocks.delete({ block_id: blockId })
+export async function deleteBlock(integrationContext: bp.Context, client: bp.Client, blockId: string) {
+  const notion = await getNotionClient(integrationContext, client)
+  return await notion.blocks.delete({ block_id: blockId })
 }
 
-export function getDb(integrationContext: bp.Context, databaseId: string) {
-  const notion = getNotionClient(integrationContext)
+export async function getDb(integrationContext: bp.Context, client: bp.Client, databaseId: string) {
+  const notion = await getNotionClient(integrationContext, client)
   return notion.databases.retrieve({ database_id: databaseId })
 }
 
@@ -111,4 +148,28 @@ export function getDbStructure(response: GetDatabaseResponse): string {
   }, '{')
 
   return stringifiedTypes
+}
+
+export const handleOAuthCallback: bp.IntegrationProps['handler'] = async ({ req, client, ctx }) => {
+  const searchParams = new URLSearchParams(req.query)
+  const REDIRECT_URI = `${process.env.BP_WEBHOOK_URL}/oauth`
+
+  const notion = new NotionClient({})
+  const response = await notion.oauth.token({
+    client_id: bp.secrets.CLIENT_ID,
+    client_secret: bp.secrets.CLIENT_SECRET,
+    grant_type: 'authorization_code',
+    code: searchParams.get('code') ?? '',
+    redirect_uri: REDIRECT_URI,
+  })
+  await client.setState({
+    type: 'integration',
+    name: 'oauth',
+    id: ctx.integrationId,
+    payload: { authToken: response.access_token },
+  })
+
+  await client.configureIntegration({
+    identifier: response.workspace_id,
+  })
 }

@@ -8,18 +8,49 @@ export default new IntegrationDefinition({
   name: 'notion',
   description: 'Add pages and comments, manage databases, and engage in discussions — all within your chatbot.',
   title: 'Notion',
-  version: '0.3.4',
+  version: '1.0.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
-    schema: z.object({
-      /**
-       * The auth token for the integration [Notion Integrations](https://developers.notion.com/docs/authorization#internal-integration-auth-flow-set-up)
-       */
-      authToken: z.string().min(1),
-    }),
+    schema: z.object({}),
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+      required: true,
+    },
+  },
+  configurations: {
+    customApp: {
+      title: 'Manual configuration with a custom Notion integration',
+      description: 'Configure the integration using a Notion integration token.',
+      schema: z.object({
+        authToken: z
+          .string()
+          .min(1)
+          .title('Notion Integration Token')
+          .describe('Can be found on Notion in your integration settings.'),
+      }),
+    },
   },
   user: { tags: { id: {} } },
+  secrets: {
+    CLIENT_ID: {
+      description: 'The client ID of the Botpress Notion Integration.',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret of the Botpress Notion Integration.',
+    },
+    WEBHOOK_VERIFICATION_SECRET: {
+      description: 'The Notion-provided secret for verifying incoming webhooks.',
+    },
+  },
+  states: {
+    oauth: {
+      type: 'integration',
+      schema: z.object({
+        authToken: z.string(),
+      }),
+    },
+  },
   actions: {
     addPageToDb: {
       input: {
