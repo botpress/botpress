@@ -1,5 +1,5 @@
-import * as utils from '../../utils/type-utils'
-import { BasePlugin } from '../common'
+import * as utils from '../../../utils/type-utils'
+import { BasePlugin } from '../../common'
 
 type IntegrationActionProxy<TPlugin extends BasePlugin> = {
   [TIntegrationName in keyof TPlugin['integrations']]: {

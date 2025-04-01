@@ -11,9 +11,9 @@ import type {
 } from '../bot'
 import { WorkflowProxy, proxyWorkflows } from '../bot/workflow-proxy'
 import * as utils from '../utils'
-import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginInterfaceExtensions } from './common'
 import { formatEventRef, parseEventRef, resolveEvent } from './interface-resolution'
+import { ActionProxy, proxyActions } from './proxies/action'
 import {
   ActionHandlers,
   MessageHandlers,

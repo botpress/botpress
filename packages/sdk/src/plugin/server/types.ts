@@ -2,8 +2,8 @@ import * as client from '@botpress/client'
 import * as bot from '../../bot'
 import * as workflowProxy from '../../bot/workflow-proxy'
 import * as utils from '../../utils/type-utils'
-import * as actionProxy from '../action-proxy'
 import * as common from '../common'
+import * as proxies from '../proxies'
 
 type EnumeratePluginEvents<TPlugin extends common.BasePlugin> = bot.EnumerateEvents<TPlugin> &
   common.EnumerateInterfaceEvents<TPlugin>
@@ -101,7 +101,7 @@ export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
   client: PluginClient<TPlugin>
   configuration: PluginConfiguration<TPlugin>
   interfaces: common.PluginInterfaceExtensions<TPlugin>
-  actions: actionProxy.ActionProxy<TPlugin>
+  actions: proxies.action.ActionProxy<TPlugin>
 
   /**
    * # EXPERIMENTAL
