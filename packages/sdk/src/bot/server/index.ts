@@ -174,7 +174,6 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
       ...common,
       user: event.payload.user,
       conversation: event.payload.conversation,
-      states: event.payload.states,
       message,
       event,
     }

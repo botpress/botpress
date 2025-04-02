@@ -4,6 +4,7 @@ import * as workflowProxy from '../../bot/workflow-proxy'
 import * as utils from '../../utils/type-utils'
 import * as actionProxy from '../action-proxy'
 import * as common from '../common'
+import * as stateProxy from '../state-proxy'
 
 type EnumeratePluginEvents<TPlugin extends common.BasePlugin> = bot.EnumerateEvents<TPlugin> &
   common.EnumerateInterfaceEvents<TPlugin>
@@ -93,15 +94,14 @@ export type OutgoingCallActionResponses<TPlugin extends common.BasePlugin> = _Ou
 // TODO: some ressources should be strongly type while leaving room for unknown definitions
 export type PluginClient<_TPlugin extends common.BasePlugin> = bot.BotSpecificClient<common.BasePlugin>
 
-export type PluginConfiguration<TPlugin extends common.BasePlugin> = TPlugin['configuration']
-
 export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
   ctx: bot.BotContext
   logger: bot.BotLogger
   client: PluginClient<TPlugin>
-  configuration: PluginConfiguration<TPlugin>
+  configuration: common.PluginConfiguration<TPlugin>
   interfaces: common.PluginInterfaceExtensions<TPlugin>
   actions: actionProxy.ActionProxy<TPlugin>
+  states: stateProxy.StateProxy<TPlugin>
 
   /**
    * # EXPERIMENTAL
@@ -116,12 +116,6 @@ export type MessagePayloads<TPlugin extends common.BasePlugin> = {
     user: client.User
     conversation: client.Conversation
     event: client.Event
-    states: {
-      [TState in utils.StringKeys<TPlugin['states']>]: {
-        type: 'user' | 'conversation' | 'bot'
-        payload: TPlugin['states'][TState]
-      }
-    }
   }
 }
 

@@ -1,12 +1,12 @@
 import { Client } from '@botpress/client'
 import { BotSpecificClient } from '../../bot'
-import { BasePlugin, PluginInterfaceExtensions } from '../common'
+import { BasePlugin, PluginInterfaceExtensions, PluginRuntimeProps } from '../common'
 import { resolveAction, formatActionRef } from '../interface-resolution'
 import { ActionProxy } from './types'
 
 export const proxyActions = <TPlugin extends BasePlugin>(
   client: BotSpecificClient<TPlugin> | Client,
-  interfaces: PluginInterfaceExtensions<TPlugin>
+  props: PluginRuntimeProps<TPlugin>
 ): ActionProxy<TPlugin> =>
   new Proxy<Partial<ActionProxy<TPlugin>>>(
     {},
@@ -19,7 +19,7 @@ export const proxyActions = <TPlugin extends BasePlugin>(
               return (input: Record<string, any>) =>
                 _callAction({
                   client,
-                  interfaces,
+                  interfaces: props.interfaces,
                   integrationOrInterfaceName: prop1 as string,
                   methodName: prop2 as string,
                   input,

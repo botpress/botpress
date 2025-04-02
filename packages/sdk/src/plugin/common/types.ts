@@ -35,3 +35,11 @@ export type PluginInterfaceExtension<TInterface extends BaseInterface = BaseInte
 export type PluginInterfaceExtensions<TPlugin extends BasePlugin = BasePlugin> = {
   [K in keyof TPlugin['interfaces']]: PluginInterfaceExtension<TPlugin['interfaces'][K]>
 }
+
+export type PluginConfiguration<TPlugin extends BasePlugin> = TPlugin['configuration']
+
+export type PluginRuntimeProps<TPlugin extends BasePlugin = BasePlugin> = {
+  alias?: string
+  configuration: PluginConfiguration<TPlugin>
+  interfaces: PluginInterfaceExtensions<TPlugin>
+}

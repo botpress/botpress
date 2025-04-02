@@ -12,7 +12,7 @@ import type {
 import { WorkflowProxy, proxyWorkflows } from '../bot/workflow-proxy'
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
-import { BasePlugin, PluginInterfaceExtensions } from './common'
+import { BasePlugin, PluginConfiguration, PluginInterfaceExtensions, PluginRuntimeProps } from './common'
 import { formatEventRef, parseEventRef, resolveEvent } from './interface-resolution'
 import {
   ActionHandlers,
@@ -37,24 +37,19 @@ import {
   StateExpiredPayloads,
   HookInputs as HookPayloads,
   WorkflowPayloads,
-  PluginConfiguration,
   HookDefinitionType,
 } from './server/types'
+import { proxyStates, StateProxy } from './state-proxy'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>
-}
-
-export type PluginRuntimeProps<TPlugin extends BasePlugin = BasePlugin> = {
-  alias?: string
-  configuration: PluginConfiguration<TPlugin>
-  interfaces: PluginInterfaceExtensions<TPlugin>
 }
 
 type Tools<TPlugin extends BasePlugin = BasePlugin> = {
   configuration: PluginConfiguration<TPlugin>
   interfaces: PluginInterfaceExtensions<TPlugin>
   actions: ActionProxy<TPlugin>
+  states: StateProxy<TPlugin>
   workflows: WorkflowProxy<TPlugin>
   alias?: string
 }
@@ -104,13 +99,15 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
   private _getTools(client: BotSpecificClient<any>): Tools {
     const { configuration, interfaces, alias } = this._runtime
-    const actions = proxyActions(client, interfaces) as ActionProxy<BasePlugin>
+    const actions = proxyActions(client, this._runtime) as ActionProxy<BasePlugin>
+    const states = proxyStates(client, this._runtime) as StateProxy<BasePlugin>
     const workflows = proxyWorkflows(client) as WorkflowProxy<BasePlugin>
 
     return {
       configuration,
       interfaces,
       actions,
+      states,
       alias,
       workflows,
     }
