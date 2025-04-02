@@ -1086,6 +1086,9 @@ importers:
       '@notionhq/client':
         specifier: ^2.3.0
         version: 2.3.0
+      notion-to-md:
+        specifier: ^4.0.0-alpha.4
+        version: 4.0.0-alpha.4(@notionhq/client@2.3.0)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -13384,6 +13387,12 @@ packages:
     engines: {node: '>=4.0.0'}
     hasBin: true
 
+  /mime@3.0.0:
+    resolution: {integrity: sha512-jSCU7/VB1loIWBZe14aEYHU/+1UMEHoaO7qxCOVJOw9GgH72VAWppxNcjU+x9a2k3GSIBXNKxXQFqRvvZ7vr3A==}
+    engines: {node: '>=10.0.0'}
+    hasBin: true
+    dev: false
+
   /mimic-fn@2.1.0:
     resolution: {integrity: sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==}
     engines: {node: '>=6'}
@@ -13614,6 +13623,19 @@ packages:
   /normalize-url@4.5.1:
     resolution: {integrity: sha512-9UZCFRHQdNrfTpGg8+1INIg93B6zE0aXMVFkw1WFwvO4SlZywU6aLg5Of0Ap/PgcbSw4LNxvMWXMeugwMCX0AA==}
     engines: {node: '>=8'}
+    dev: false
+
+  /notion-to-md@4.0.0-alpha.4(@notionhq/client@2.3.0):
+    resolution: {integrity: sha512-MxK71vIj0l8jCDbzTAROp/2pXI8f2bhjJINuUk/uIlGKs2XPJCzYKFu+4ELvSG+DiNvmGWxdr+Dtba47fnULTg==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      '@notionhq/client': ^2.0.0
+    dependencies:
+      '@notionhq/client': 2.3.0
+      mime: 3.0.0
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /npm-run-path@4.0.1:
