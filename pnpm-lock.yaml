@@ -1081,8 +1081,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       '@notionhq/client':
-        specifier: ^2.2.7
-        version: 2.2.7
+        specifier: ^2.3.0
+        version: 2.3.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -5410,11 +5410,11 @@ packages:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
 
-  /@notionhq/client@2.2.7:
-    resolution: {integrity: sha512-ackhUZiCTxsDacHPfnuwfJmo7fmi6Il6BK+YByCZM5NEXVIohyEBWm/r18OQkuJzJjeC6Q+Jhh+0yhxjvWq/cA==}
+  /@notionhq/client@2.3.0:
+    resolution: {integrity: sha512-l7WqTCpQqC+HibkB9chghONQTYcxNQT0/rOJemBfmuKQRTu2vuV8B3yA395iKaUdDo7HI+0KvQaz9687Xskzkw==}
     engines: {node: '>=12'}
     dependencies:
-      '@types/node-fetch': 2.6.4
+      '@types/node-fetch': 2.6.12
       node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
@@ -7643,13 +7643,6 @@ packages:
     dependencies:
       '@types/node': 18.19.76
       form-data: 4.0.2
-    dev: false
-
-  /@types/node-fetch@2.6.4:
-    resolution: {integrity: sha512-1ZX9fcN4Rvkvgv4E6PAY5WXUFWFcRWxZa3EW83UjycOB9ljJCedb2CupIP4RZMEwF/M3eTcCihbBRgwtGbg5Rg==}
-    dependencies:
-      '@types/node': 18.19.76
-      form-data: 3.0.1
     dev: false
 
   /@types/node@10.17.60:

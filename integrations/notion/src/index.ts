@@ -1,11 +1,6 @@
 import { addCommentToDiscussion, addCommentToPage, addPageToDb, deleteBlock, getDb } from './actions'
+import { getNotionBotUser, handleOAuthCallback } from './notion'
 import * as bp from '.botpress'
-
-class NotImplementedError extends Error {
-  public constructor() {
-    super('Not implemented')
-  }
-}
 
 export default new bp.Integration({
   createConversation: async ({ client, channel }) => {
@@ -20,7 +15,9 @@ export default new bp.Integration({
     }
   },
   channels: {},
-  register: async () => {},
+  register: async ({ ctx, client }) => {
+    await getNotionBotUser(ctx, client)
+  },
   unregister: async () => {},
   actions: {
     deleteBlock,
@@ -29,7 +26,14 @@ export default new bp.Integration({
     addPageToDb,
     getDb,
   },
-  handler: async () => {
-    throw new NotImplementedError()
+  handler: async (props) => {
+    const { req, logger } = props
+    if (req.path.startsWith('/oauth')) {
+      logger.forBot().info('Handling Notion OAuth callback')
+
+      await handleOAuthCallback(props)
+    }
+
+    console.debug('Received unknown webhook event', req)
   },
 })
