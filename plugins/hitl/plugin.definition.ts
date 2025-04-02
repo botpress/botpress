@@ -58,7 +58,9 @@ export default new sdk.PluginDefinition({
       userHitlCloseCommand: sdk.z
         .string()
         .title('Termination Command')
-        .describe('Users may use this command to end the hitl session at any time')
+        .describe(
+          'Users may send this command to end the hitl session at any time. It is case-insensitive, so it works regardless of letter casing.'
+        )
         .optional()
         .placeholder(DEFAULT_USER_HITL_CLOSE_COMMAND),
       onUserHitlCloseMessage: sdk.z
