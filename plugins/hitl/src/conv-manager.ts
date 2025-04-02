@@ -77,22 +77,11 @@ export class ConversationManager {
   }
 
   private async _getHitlState(): Promise<bp.states.hitl.Hitl['payload']> {
-    const response = await this._props.client.getOrSetState({
-      id: this._convId,
-      type: 'conversation',
-      name: 'hitl',
-      payload: DEFAULT_STATE,
-    })
-    return response.state.payload
+    return await this._props.states.conversation.hitl.getOrSet(this._convId, DEFAULT_STATE)
   }
 
   private async _setHitlState(state: HitlState): Promise<void> {
-    await this._props.client.setState({
-      id: this._convId,
-      type: 'conversation',
-      name: 'hitl',
-      payload: state,
-    })
+    return await this._props.states.conversation.hitl.set(this._convId, state)
   }
 
   private async _patchConversationTags(tags: Record<string, string>): Promise<void> {
