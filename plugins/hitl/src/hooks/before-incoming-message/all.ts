@@ -129,8 +129,12 @@ const _abortHitlSession = async ({
   return consts.STOP_EVENT_HANDLING
 }
 
-const _isHitlCloseCommand = (props: bp.HookHandlerProps['before_incoming_message']) =>
-  props.data.payload.text.trim().startsWith(props.configuration.userHitlCloseCommand ?? DEFAULT_USER_HITL_CLOSE_COMMAND)
+const _isHitlCloseCommand = (props: bp.HookHandlerProps['before_incoming_message']) => {
+  const closeCommand = props.configuration.userHitlCloseCommand || DEFAULT_USER_HITL_CLOSE_COMMAND
+
+  const inputText: string = props.data.payload.text
+  return inputText.trim().toLowerCase() === closeCommand.trim().toLowerCase()
+}
 
 const _handleHitlCloseCommand = async (
   props: bp.HookHandlerProps['before_incoming_message'],
