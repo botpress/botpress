@@ -1,10 +1,8 @@
 import { Client } from '@botpress/client'
 import { BotSpecificClient, StateType } from '../../bot'
+import * as consts from '../../consts'
 import { BasePlugin, PluginRuntimeProps } from '../common'
 import { StateProxy, StateRepo } from './types'
-
-// TODO: this constant is dupplicated in many place; find a common location
-const PLUGIN_PREFIX_SEPARATOR = '#'
 
 class _StateRepo<TPayload extends object> implements StateRepo<TPayload> {
   public constructor(
@@ -78,7 +76,7 @@ export const proxyStates = <TPlugin extends BasePlugin>(
           {
             get: (_target, stateName: string) => {
               const actualName =
-                props.alias !== undefined ? `${props.alias}${PLUGIN_PREFIX_SEPARATOR}${stateName}` : stateName
+                props.alias !== undefined ? `${props.alias}${consts.PLUGIN_PREFIX_SEPARATOR}${stateName}` : stateName
               return new _StateRepo(client, stateType, actualName)
             },
           }

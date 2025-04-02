@@ -1,12 +1,11 @@
 import { Table } from '@botpress/client'
+import * as consts from '../consts'
 import { IntegrationPackage, PluginPackage } from '../package'
 import { PluginInterfaceExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
 import * as utils from '../utils'
 import { ValueOf, Writable, Merge } from '../utils/type-utils'
 import z, { ZuiObjectSchema } from '../zui'
-
-const PLUGIN_PREFIX_SEPARATOR = '#'
 
 type BaseConfig = ZuiObjectSchema
 type BaseStates = Record<string, ZuiObjectSchema>
@@ -316,6 +315,6 @@ export class BotDefinition<
     if (!obj || !alias) {
       return obj
     }
-    return utils.records.mapKeys(obj, (key) => `${alias}${PLUGIN_PREFIX_SEPARATOR}${key}`) as T
+    return utils.records.mapKeys(obj, (key) => `${alias}${consts.PLUGIN_PREFIX_SEPARATOR}${key}`) as T
   }
 }
