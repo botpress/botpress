@@ -26,15 +26,13 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
     text: props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   })
 
-  try {
-    // Call stopHitl in the hitl integration (zendesk, etc.):
-    await props.actions.hitl.stopHitl({ conversationId: downstreamConversationId })
-  } finally {
-    await Promise.all([
-      upstreamCm.setHitlInactive(conv.HITL_END_REASON.CLOSE_ACTION_CALLED),
-      downstreamCm.setHitlInactive(conv.HITL_END_REASON.CLOSE_ACTION_CALLED),
-    ])
-  }
+  await Promise.allSettled([
+    upstreamCm.setHitlInactive(conv.HITL_END_REASON.CLOSE_ACTION_CALLED),
+    downstreamCm.setHitlInactive(conv.HITL_END_REASON.CLOSE_ACTION_CALLED),
+  ])
+
+  // Call stopHitl in the hitl integration (zendesk, etc.):
+  await props.actions.hitl.stopHitl({ conversationId: downstreamConversationId })
 
   return {}
 }

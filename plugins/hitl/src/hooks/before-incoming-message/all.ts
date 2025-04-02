@@ -129,8 +129,12 @@ const _abortHitlSession = async ({
   return consts.STOP_EVENT_HANDLING
 }
 
-const _isHitlCloseCommand = (props: bp.HookHandlerProps['before_incoming_message']) =>
-  props.data.payload.text.trim().startsWith(props.configuration.userHitlCloseCommand ?? DEFAULT_USER_HITL_CLOSE_COMMAND)
+const _isHitlCloseCommand = (props: bp.HookHandlerProps['before_incoming_message']) => {
+  const closeCommand = props.configuration.userHitlCloseCommand || DEFAULT_USER_HITL_CLOSE_COMMAND
+
+  const inputText: string = props.data.payload.text
+  return inputText.trim().toLowerCase() === closeCommand.trim().toLowerCase()
+}
 
 const _handleHitlCloseCommand = async (
   props: bp.HookHandlerProps['before_incoming_message'],
@@ -145,6 +149,11 @@ const _handleHitlCloseCommand = async (
     }),
   ])
 
+  await Promise.allSettled([
+    upstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
+    downstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
+  ])
+
   props.logger
     .withConversationId(upstreamCm.conversationId)
     .info('User ended the HITL session using the termination command')
@@ -152,13 +161,6 @@ const _handleHitlCloseCommand = async (
     .withConversationId(downstreamCm.conversationId)
     .info('User ended the HITL session using the termination command')
 
-  try {
-    // Call stopHitl in the hitl integration (zendesk, etc.):
-    await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
-  } finally {
-    await Promise.all([
-      upstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
-      downstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
-    ])
-  }
+  // Call stopHitl in the hitl integration (zendesk, etc.):
+  await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
 }
