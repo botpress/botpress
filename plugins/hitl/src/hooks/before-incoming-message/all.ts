@@ -145,6 +145,11 @@ const _handleHitlCloseCommand = async (
     }),
   ])
 
+  await Promise.allSettled([
+    upstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
+    downstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
+  ])
+
   props.logger
     .withConversationId(upstreamCm.conversationId)
     .info('User ended the HITL session using the termination command')
@@ -152,13 +157,6 @@ const _handleHitlCloseCommand = async (
     .withConversationId(downstreamCm.conversationId)
     .info('User ended the HITL session using the termination command')
 
-  try {
-    // Call stopHitl in the hitl integration (zendesk, etc.):
-    await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
-  } finally {
-    await Promise.all([
-      upstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
-      downstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
-    ])
-  }
+  // Call stopHitl in the hitl integration (zendesk, etc.):
+  await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
 }
