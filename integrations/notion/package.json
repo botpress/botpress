@@ -15,7 +15,8 @@
     "notion-to-md": "^4.0.0-alpha.4"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*"
+    "@botpress/cli": "workspace:*",
+    "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
     "files-readonly": "../../interfaces/files-readonly"
