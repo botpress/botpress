@@ -1,21 +1,24 @@
-import { Client as NotionHQClient } from '@notionhq/client'
+import * as notionhq from '@notionhq/client'
 import { getDbStructure } from './db-structure'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { NotionOAuthClient } from './notion-oauth-client'
-import type { NotionPagePropertyTypes } from './types'
+import { NotionToMdxClient } from './notion-to-mdx-client'
+import type * as types from './types'
 import * as bp from '.botpress'
 
 export class NotionClient {
-  private _notion: NotionHQClient
+  private readonly _notion: notionhq.Client
+  private readonly _notionToMdxClient: NotionToMdxClient
 
   private constructor(credentials: { accessToken: string }) {
-    this._notion = new NotionHQClient({
+    this._notion = new notionhq.Client({
       auth: credentials.accessToken,
     })
+    this._notionToMdxClient = new NotionToMdxClient(this._notion)
   }
 
   public static async create({ ctx, client }: { client: bp.Client; ctx: bp.Context }): Promise<NotionClient> {
-    const accessToken = await this._getAccessToken({ ctx, client })
+    const accessToken = await NotionClient._getAccessToken({ ctx, client })
 
     return new NotionClient({
       accessToken,
@@ -51,7 +54,7 @@ export class NotionClient {
     properties,
   }: {
     databaseId: string
-    properties: Record<NotionPagePropertyTypes, any>
+    properties: Record<types.NotionPagePropertyTypes, any>
   }): Promise<void> {
     void (await this._notion.pages.create({
       parent: { database_id: databaseId },
@@ -107,5 +110,67 @@ export class NotionClient {
     // TODO: do not return the raw response; perform mapping
 
     return { ...response, structure: getDbStructure(response) }
+  }
+
+  @handleErrors('Failed to enumerate items')
+  public async enumerateTopLevelItems({ nextToken }: { nextToken?: string }) {
+    const { next_cursor, results } = await this._notion.search({ start_cursor: nextToken })
+
+    // Discard partial or nested results:
+    const filteredResults = results.filter(
+      (res) => 'parent' in res && res.parent.type === 'workspace' && !res.in_trash
+    ) as types.NotionTopLevelItem[]
+
+    return {
+      results: filteredResults,
+      nextToken: next_cursor ?? undefined,
+    }
+  }
+
+  @handleErrors('Failed to enumerate page children')
+  public async enumeratePageChildren({ pageId, nextToken }: { pageId: string; nextToken?: string }) {
+    const { next_cursor, results } = await this._notion.blocks.children.list({
+      block_id: pageId,
+      start_cursor: nextToken,
+    })
+
+    const filteredResults = results.filter(
+      (res) => 'parent' in res && !res.in_trash && ['child_page', 'child_database'].includes(res.type)
+    ) as types.NotionPageChild[]
+
+    return {
+      results: filteredResults,
+      nextToken: next_cursor ?? undefined,
+    }
+  }
+
+  @handleErrors('Failed to retrieve page')
+  public async getPage({ pageId }: { pageId: string }) {
+    const page = await this._notion.pages.retrieve({ page_id: pageId })
+
+    return 'parent' in page ? page : undefined
+  }
+
+  @handleErrors('Failed to enumerate database children')
+  public async enumerateDatabaseChildren({ databaseId, nextToken }: { databaseId: string; nextToken?: string }) {
+    const { next_cursor, results } = await this._notion.databases.query({
+      database_id: databaseId,
+      in_trash: false,
+      start_cursor: nextToken,
+    })
+
+    const filteredResults = results.filter((res) => 'parent' in res && !res.in_trash) as types.NotionDatabaseChild[]
+
+    return {
+      results: filteredResults,
+      nextToken: next_cursor ?? undefined,
+    }
+  }
+
+  @handleErrors('Failed to download page as markdown')
+  public async downloadPageAsMarkdown({ pageId }: { pageId: string }): Promise<{ markdown: string }> {
+    const markdown = await this._notionToMdxClient.convertNotionPageToMarkdown({ pageId })
+
+    return { markdown }
   }
 }

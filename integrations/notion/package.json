@@ -11,9 +11,13 @@
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@notionhq/client": "^2.3.0"
+    "@notionhq/client": "^2.3.0",
+    "notion-to-md": "^4.0.0-alpha.4"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*"
+  },
+  "bpDependencies": {
+    "files-readonly": "../../interfaces/files-readonly"
   }
 }

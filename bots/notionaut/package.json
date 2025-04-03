@@ -1,0 +1,27 @@
+{
+  "name": "@bp-bots/notionaut",
+  "scripts": {
+    "postinstall": "genenv -o ./.genenv/index.ts -e NOTION_AUTH_TOKEN",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpresshub/chat": "workspace:*",
+    "@botpresshub/file-synchronizer": "workspace:*",
+    "@botpresshub/notion": "workspace:*",
+    "@bpinternal/genenv": "0.0.1"
+  },
+  "bpDependencies": {
+    "chat": "../../integrations/chat",
+    "notion": "../../integrations/notion",
+    "fileSynchronizer": "../../plugins/file-synchronizer"
+  }
+}
