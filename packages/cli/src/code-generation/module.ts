@@ -11,6 +11,7 @@ export type ModuleProps = {
 
 export abstract class Module {
   private _localDependencies: Module[] = []
+  private _customTypeName: string | undefined
 
   public get path(): string {
     return this._def.path.split(pathlib.sep).map(strings.fileName).join(pathlib.sep)
@@ -43,9 +44,18 @@ export abstract class Module {
     return [...this._localDependencies]
   }
 
+  public get typeName(): string {
+    return this._customTypeName ?? this.name
+  }
+
   protected constructor(private _def: ModuleProps) {}
 
   public abstract getContent(): Promise<string>
+
+  public setCustomTypeName(alias: string): this {
+    this._customTypeName = alias
+    return this
+  }
 
   public pushDep(...dependencies: Module[]): this {
     this._localDependencies.push(...dependencies)
@@ -107,9 +117,9 @@ export class ReExportTypeModule extends Module {
     content += '\n'
 
     content += `export type ${this.exportName} = {\n`
-    for (const { name, exportName: exports } of this.deps) {
+    for (const { name, typeName, exportName: exports } of this.deps) {
       const importAlias = strings.importAlias(name)
-      content += `  "${name}": ${importAlias}.${exports};\n`
+      content += `  "${typeName}": ${importAlias}.${exports};\n`
     }
     content += '}'
 
