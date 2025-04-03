@@ -1,16 +1,8 @@
-import * as notion from '../notion'
-import * as bp from '.botpress'
+import { wrapAction } from '../action-wrapper'
 
-export const addCommentToPage: bp.IntegrationProps['actions']['addCommentToPage'] = async ({ ctx, client, input }) => {
-  try {
-    const response = await notion.addCommentToPage(ctx, client, input.pageId, input.commentBody)
-    if (response) {
-      console.info('Successfully added comment to page')
-      return {}
-    } else {
-      return {}
-    }
-  } catch {
-    return {}
+export const addCommentToPage = wrapAction(
+  { actionName: 'addCommentToPage', errorMessage: 'Failed to add comment to page' },
+  async ({ notionClient }, { commentBody, pageId }) => {
+    await notionClient.addCommentToPage({ commentBody, pageId })
   }
-}
+)

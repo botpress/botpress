@@ -1,16 +1,8 @@
-import * as notion from '../notion'
-import * as bp from '.botpress'
+import { wrapAction } from '../action-wrapper'
 
-export const addPageToDb: bp.IntegrationProps['actions']['addPageToDb'] = async ({ ctx, client, input }) => {
-  try {
-    const response = await notion.addPageToDb(ctx, client, input.databaseId, input.pageProperties as any)
-    if (response) {
-      console.info('Successfully added page to database')
-      return {}
-    } else {
-      return {}
-    }
-  } catch {
-    return {}
+export const addPageToDb = wrapAction(
+  { actionName: 'addPageToDb', errorMessage: 'Failed to add page to database' },
+  async ({ notionClient }, { databaseId, pageProperties }) => {
+    await notionClient.addPageToDb({ databaseId, properties: pageProperties as any }) // TODO: fix type and bump major
   }
-}
+)
