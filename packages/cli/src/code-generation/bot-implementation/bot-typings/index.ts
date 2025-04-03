@@ -15,7 +15,7 @@ class BotIntegrationsModule extends ReExportTypeModule {
     })
 
     for (const [alias, integration] of Object.entries(bot.integrations ?? {})) {
-      const integrationModule = new IntegrationTypingsModule(integration.definition)
+      const integrationModule = new IntegrationTypingsModule(integration.definition).setCustomTypeName(alias)
       integrationModule.unshift(alias)
       this.pushDep(integrationModule)
     }
