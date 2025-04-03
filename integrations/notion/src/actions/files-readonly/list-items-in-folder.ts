@@ -28,9 +28,7 @@ type EnumerateItemsFn = (props: {
 const _enumerateTopLevelItems: EnumerateItemsFn = async ({ notionClient, prevToken }) => {
   const { nextToken, results } = await notionClient.enumerateTopLevelItems({ nextToken: prevToken })
 
-  const ret = { meta: { nextToken }, items: mapping.mapEntities(results) }
-  console.debug({ type: 'topLevel', prevToken, nextToken, results, items: ret.items })
-  return ret
+  return { meta: { nextToken }, items: mapping.mapEntities(results) }
 }
 
 const _enumeratePageAndChildItems: EnumerateItemsFn = async ({ folderId, prevToken, notionClient }) => {
@@ -47,9 +45,7 @@ const _enumeratePageAndChildItems: EnumerateItemsFn = async ({ folderId, prevTok
     items.push(mapping.mapPageToFile(page))
   }
 
-  const ret = { meta: { nextToken }, items }
-  console.debug({ type: 'pageFolder', prevToken, nextToken, results, items: ret.items })
-  return ret
+  return { meta: { nextToken }, items }
 }
 
 const _enumerateDbChildItems: EnumerateItemsFn = async ({ folderId, prevToken, notionClient }) => {
@@ -59,7 +55,5 @@ const _enumerateDbChildItems: EnumerateItemsFn = async ({ folderId, prevToken, n
     nextToken: prevToken,
   })
 
-  const ret = { meta: { nextToken }, items: mapping.mapEntities(results) }
-  console.debug({ type: 'dbFolder', prevToken, nextToken, results, items: ret.items })
-  return ret
+  return { meta: { nextToken }, items: mapping.mapEntities(results) }
 }
