@@ -6,7 +6,7 @@ export default new sdk.IntegrationDefinition({
   name: 'notion',
   description: 'Add pages and comments, manage databases, and engage in discussions — all within your chatbot.',
   title: 'Notion',
-  version: '1.1.0',
+  version: '1.1.1',
   icon: 'icon.svg',
   readme: 'hub.md',
   actions,
