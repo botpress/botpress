@@ -48,6 +48,10 @@ export abstract class Module {
     return this._customTypeName ?? this.name
   }
 
+  public get importAlias(): string {
+    return this.typeName.split(pathlib.sep).map(strings.importAlias).join('__')
+  }
+
   protected constructor(private _def: ModuleProps) {}
 
   public abstract getContent(): Promise<string>
@@ -107,8 +111,7 @@ export class ReExportTypeModule extends Module {
     let content = consts.GENERATED_HEADER
 
     for (const m of this.deps) {
-      const { name } = m
-      const importAlias = strings.importAlias(name)
+      const { importAlias } = m
       const importFrom = m.import(this)
       content += `import * as ${importAlias} from "./${importFrom}";\n`
       content += `export * as ${importAlias} from "./${importFrom}";\n`
@@ -117,8 +120,7 @@ export class ReExportTypeModule extends Module {
     content += '\n'
 
     content += `export type ${this.exportName} = {\n`
-    for (const { name, typeName, exportName: exports } of this.deps) {
-      const importAlias = strings.importAlias(name)
+    for (const { importAlias, typeName, exportName: exports } of this.deps) {
       content += `  "${typeName}": ${importAlias}.${exports};\n`
     }
     content += '}'
@@ -144,8 +146,7 @@ export class ReExportVariableModule extends Module {
     let content = consts.GENERATED_HEADER
 
     for (const m of this.deps) {
-      const { name } = m
-      const importAlias = strings.importAlias(name)
+      const { importAlias } = m
       const importFrom = m.import(this)
       content += `import * as ${importAlias} from "./${importFrom}";\n`
       content += `export * as ${importAlias} from "./${importFrom}";\n`
@@ -154,7 +155,7 @@ export class ReExportVariableModule extends Module {
     content += '\n'
 
     const depProps: Record<string, string> = Object.fromEntries(
-      this.deps.map(({ name, exportName }) => [name, `${strings.importAlias(name)}.${exportName}`])
+      this.deps.map(({ name, exportName, importAlias }) => [name, `${importAlias}.${exportName}`])
     )
 
     const allProps = { ...depProps, ...this._extraProps }
