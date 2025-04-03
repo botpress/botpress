@@ -238,6 +238,34 @@ importers:
         specifier: ^6.9.7
         version: 6.9.7
 
+  bots/notionaut:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpresshub/chat':
+        specifier: workspace:*
+        version: link:../../integrations/chat
+      '@botpresshub/file-synchronizer':
+        specifier: workspace:*
+        version: link:../../plugins/file-synchronizer
+      '@botpresshub/notion':
+        specifier: workspace:*
+        version: link:../../integrations/notion
+      '@bpinternal/genenv':
+        specifier: 0.0.1
+        version: 0.0.1
+
   bots/sheetzy:
     dependencies:
       '@botpress/client':
