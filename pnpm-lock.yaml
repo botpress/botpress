@@ -1121,6 +1121,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@sentry/cli':
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/openai:
     dependencies:
