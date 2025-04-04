@@ -1,8 +1,8 @@
 The Notion Integration for Botpress Studio allows you to do the following things:
 
-## Migrating from version `0.x` to `1.x`
+## Migrating from version `0.x` or `1.x` to `2.x`
 
-Version `1.0` of the Notion integration adds OAuth support, which is now the default configuration option.
+Version `2.0` of the Notion integration adds OAuth support, which is now the default configuration option.
 
 If you previously created a Notion integration in the Notion developer portal and wish to keep using this integration, please select the manual configuration option and follow the instructions below.
 
