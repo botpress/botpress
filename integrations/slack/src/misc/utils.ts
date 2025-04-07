@@ -29,22 +29,8 @@ type InteractiveBody = {
   }
 }
 
-type SlackMessage = NonNullable<Awaited<ReturnType<WebClient['chat']['postMessage']>>['message']>
-
 export function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
   return value !== null && value !== undefined
-}
-
-function getTags(message: SlackMessage) {
-  const tags: Record<string, string> = {}
-
-  if (!message.ts) {
-    throw Error('No message timestamp found')
-  }
-
-  tags.ts = message.ts
-
-  return tags
 }
 
 const oauthHeaders = {
@@ -171,7 +157,7 @@ export async function sendSlackMessage(
     throw Error('Error sending message')
   }
 
-  await ack({ tags: getTags(message) })
+  await ack({ tags: { ts: message.ts, channelId: response.channel, userId: response.message?.user } })
 
   return message
 }
