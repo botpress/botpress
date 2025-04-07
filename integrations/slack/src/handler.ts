@@ -26,16 +26,16 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     })
   }
 
+  if (!req.body) {
+    logger.forBot().warn('Handler received an empty body, so the message was ignored')
+    return
+  }
+
   const signingSecret = await getSigningSecret(client, ctx)
   const isSignatureValid = new SlackEventSignatureValidator(signingSecret, req, logger).isEventProperlyAuthenticated()
 
   if (!isSignatureValid) {
     logger.forBot().error('Handler received a request with an invalid signature')
-    return
-  }
-
-  if (!req.body) {
-    logger.forBot().warn('Handler received an empty body, so the message was ignored')
     return
   }
 

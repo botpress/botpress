@@ -56,6 +56,7 @@ export const executeMessageReceived = async ({
       userId: slackEvent.user,
       channelId: slackEvent.channel,
     },
+    discriminateByTags: ['ts', 'channelId'],
     type: 'text',
     payload: {
       text: slackEvent.text!,
