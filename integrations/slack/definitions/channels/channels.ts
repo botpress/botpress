@@ -3,7 +3,6 @@ import { textSchema } from './text-input-schema'
 
 const messages = {
   ...sdk.messages.defaults,
-  markdown: sdk.messages.markdown,
   text: {
     schema: textSchema,
   },

@@ -28,19 +28,26 @@ export const identifier = {
 } as const satisfies sdk.IntegrationDefinitionProps['identifier']
 
 export const configurations = {
-  botToken: {
+  refreshToken: {
     title: 'Manual configuration',
-    description: 'Configure by manually supplying the bot token and signing secret',
+    description: 'Configure by manually supplying the refresh token and signing secret',
     schema: sdk.z.object({
-      botToken: sdk.z
+      refreshToken: sdk.z
         .string()
         .secret()
-        .title('Slack Bot User OAuth Token')
-        .describe('Available in the app admin panel under OAuth & Permissions'),
+        .regex(/^xoxe[-]1/)
+        .title('Slack Bot Refresh Token')
+        .describe('Available in the app admin panel under OAuth & Permissions. Always starts with xoxe-1'),
       signingSecret: sdk.z
         .string()
         .secret()
         .title('Slack Signing Secret')
+        .describe('Available in the app admin panel under Basic Info'),
+      clientId: sdk.z.string().title('Slack Client ID').describe('Available in the app admin panel under Basic Info'),
+      clientSecret: sdk.z
+        .string()
+        .secret()
+        .title('Slack Client Secret')
         .describe('Available in the app admin panel under Basic Info'),
       ...SHARED_CONFIGURATION,
     }),

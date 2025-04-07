@@ -1,160 +1,118 @@
 import { RuntimeError } from '@botpress/client'
-import { WebClient } from '@slack/web-api'
-import { SlackScopes } from './misc/slack-scopes'
-import { CreateConversationFunction, CreateUserFunction, RegisterFunction, UnregisterFunction } from './misc/types'
-import { getAccessToken, saveConfig, saveCredentials, updateBotpressBotNameAndAvatar } from './misc/utils'
-import { Client, Context } from '.botpress'
+import { isValidUrl } from './misc/utils'
+import { SlackClient } from './slack-api'
+import * as bp from '.botpress'
 
-export type SyncState = { usersLastSyncTs?: number }
-export type Configuration = { botUserId?: string }
+const REQUIRED_SLACK_SCOPES = [
+  'channels:history',
+  'channels:manage',
+  'channels:read',
+  'chat:write',
+  'groups:history',
+  'groups:read',
+  'groups:write',
+  'im:history',
+  'im:read',
+  'im:write',
+  'mpim:history',
+  'mpim:read',
+  'mpim:write',
+  'reactions:read',
+  'reactions:write',
+  'team:read',
+  'users.profile:read',
+  'users:read',
+]
 
-export const register: RegisterFunction = async ({ client, ctx, logger }) => {
+export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {
   logger.forBot().debug('Registering Slack integration')
 
-  if (ctx.configurationType === 'botToken') {
-    if (!ctx.configuration.botToken || !ctx.configuration.signingSecret) {
+  await _updateBotpressBotNameAndAvatar(client, ctx)
+
+  let slackClient: SlackClient
+
+  if (ctx.configurationType === 'refreshToken') {
+    if (
+      !ctx.configuration.refreshToken ||
+      !ctx.configuration.signingSecret ||
+      !ctx.configuration.clientId ||
+      !ctx.configuration.clientSecret
+    ) {
       throw new RuntimeError(
-        'Missing configuration: the Bot Token and Signing Secret are both required when using manual configuration'
+        'Missing configuration: Refresh Token, Signing Secret, Client ID, and Client Secret are all required when using manual configuration'
       )
     }
-    await saveCredentials(client, ctx, {
-      accessToken: ctx.configuration.botToken,
-      signingSecret: ctx.configuration.signingSecret,
+
+    const originalRefreshToken = await _getPreviouslyRegisteredToken(client, ctx)
+
+    if (originalRefreshToken === ctx.configuration.refreshToken) {
+      // The user registered the integration with the same refresh token as before,
+      // so we don't need to update anything. This can happen when the user
+      // merely updates to the latest version of the integration.
+      logger.forBot().debug('No change in refresh token, skipping authentication')
+      return
+    }
+
+    slackClient = await SlackClient.createFromRefreshToken({
+      client,
+      ctx,
+      logger,
+      refreshToken: ctx.configuration.refreshToken,
     })
+    await _saveOriginalRefreshToken(client, ctx, ctx.configuration.refreshToken)
+  } else {
+    slackClient = await SlackClient.createFromStates({ client, ctx, logger })
   }
 
-  const accessToken = await getAccessToken(client, ctx)
+  await slackClient.testAuthentication()
 
-  if (!accessToken) {
-    return
+  const hasRequiredScopes = slackClient.hasAllScopes(REQUIRED_SLACK_SCOPES)
+
+  if (!hasRequiredScopes) {
+    throw new RuntimeError(
+      `Missing required scopes: ${REQUIRED_SLACK_SCOPES.join(', ')}. Please reauthorize the app with the required scopes.`
+    )
   }
-
-  const slackClient = new WebClient(accessToken)
-  const identity = await slackClient.auth.test()
-
-  const grantedScopes = identity.response_metadata?.scopes ?? []
-  await SlackScopes.saveScopes({ client, ctx, scopes: grantedScopes })
-  await SlackScopes.ensureHasAllScopes({
-    client,
-    ctx,
-    requiredScopes: [
-      'channels:history',
-      'channels:manage',
-      'channels:read',
-      'chat:write',
-      'groups:history',
-      'groups:read',
-      'groups:write',
-      'im:history',
-      'im:read',
-      'im:write',
-      'mpim:history',
-      'mpim:read',
-      'mpim:write',
-      'reactions:read',
-      'reactions:write',
-      'team:read',
-      'users.profile:read',
-      'users:read',
-    ],
-    operation: 'auth.test',
-  })
-
-  const configuration: Configuration = { botUserId: identity.user_id }
-
-  await saveConfig(client, ctx, configuration)
-
-  await updateBotpressBotNameAndAvatar(client, ctx)
 }
 
-export const unregister: UnregisterFunction = async () => {
+const _updateBotpressBotNameAndAvatar = async (client: bp.Client, ctx: bp.Context) => {
+  const { botAvatarUrl } = ctx.configuration
+
+  await client.updateUser({
+    id: ctx.botUserId,
+    pictureUrl: botAvatarUrl && isValidUrl(botAvatarUrl) ? botAvatarUrl.trim() : undefined,
+    name: ctx.configuration.botName?.trim(),
+  })
+}
+
+const _getPreviouslyRegisteredToken = async (client: bp.Client, ctx: bp.Context) => {
+  try {
+    const { state } = await client.getState({
+      type: 'integration',
+      name: 'oAuthCredentialsV2',
+      id: ctx.integrationId,
+    })
+
+    return state.payload.originalRefreshToken
+  } catch {}
+  return
+}
+
+const _saveOriginalRefreshToken = async (client: bp.Client, ctx: bp.Context, refreshToken: string) => {
+  const { state } = await client.getState({
+    type: 'integration',
+    name: 'oAuthCredentialsV2',
+    id: ctx.integrationId,
+  })
+
+  await client.setState({
+    type: 'integration',
+    id: ctx.integrationId,
+    name: 'oAuthCredentialsV2',
+    payload: { ...state.payload, originalRefreshToken: refreshToken },
+  })
+}
+
+export const unregister: bp.IntegrationProps['unregister'] = async () => {
   // nothing to unregister
-}
-
-export const createUser: CreateUserFunction = async ({ client, tags, ctx }) => {
-  const userId = tags.id
-  if (!userId) {
-    return
-  }
-
-  const accessToken = await getAccessToken(client, ctx)
-  const slackClient = new WebClient(accessToken)
-
-  await SlackScopes.ensureHasAllScopes({
-    client,
-    ctx,
-    requiredScopes: ['users:read'],
-    operation: 'users.info',
-  })
-  const member = await slackClient.users.info({ user: userId })
-
-  if (!member.user?.id) {
-    return
-  }
-
-  const { user } = await client.getOrCreateUser({ tags: { id: member.user?.id } })
-
-  return {
-    body: JSON.stringify({ user: { id: user.id } }),
-    headers: {},
-    statusCode: 200,
-  }
-}
-
-export const createConversation: CreateConversationFunction = async ({ client, channel, tags, ctx }) => {
-  let conversationId = tags.id
-  const thread = (tags as Record<string, string>).thread // TODO: fix cast in SDK typings
-
-  if (!conversationId) {
-    return
-  }
-
-  const slackClient = new WebClient(await getAccessToken(client, ctx))
-
-  if (_isUserId(conversationId)) {
-    const channelId = await _getDirectMessageForUser({ userId: conversationId, slackClient, client, ctx })
-    conversationId = channelId || conversationId
-  }
-
-  await SlackScopes.ensureHasAllScopes({
-    client,
-    ctx,
-    requiredScopes: ['im:read', 'channels:read', 'groups:read', 'mpim:read'],
-    operation: 'conversations.info',
-  })
-  const response = await slackClient.conversations.info({ channel: conversationId })
-
-  if (!response.channel?.id) {
-    return
-  }
-
-  const { conversation } =
-    channel === 'thread'
-      ? await client.getOrCreateConversation({ channel, tags: { id: response.channel.id, thread } })
-      : await client.getOrCreateConversation({ channel, tags: { id: response.channel.id } })
-
-  return {
-    body: JSON.stringify({ conversation: { id: conversation.id, thread } }),
-    headers: {},
-    statusCode: 200,
-  }
-}
-
-const _isUserId = (id: string) => id.startsWith('U')
-
-const _getDirectMessageForUser = async ({
-  userId,
-  slackClient,
-  client,
-  ctx,
-}: {
-  userId: string
-  slackClient: WebClient
-  client: Client
-  ctx: Context
-}) => {
-  await SlackScopes.ensureHasAllScopes({ client, ctx, requiredScopes: ['im:write'], operation: 'conversations.open' })
-  const conversation = await slackClient.conversations.open({ users: userId })
-
-  return conversation.channel?.id
 }

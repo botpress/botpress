@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import * as crypto from 'crypto'
-import { SlackEventSignatureValidator } from './utils'
+import { SlackEventSignatureValidator } from './signature-validator'
 
 const VALID_SIGNING_SECRET = 'valid-signing-secret'
 const INVALID_SIGNING_SECRET = 'invalid-signing-secret'

@@ -35,7 +35,7 @@ If you prefer to manually configure the integration, you can provide a bot token
    - `users.profile:read`: needed to retrieve profile informations for channel and DM members.
    - `users:read`: needed to obtain a list of all members of the workspace and to receive notifications when new members join the workspace.
 5. Navigate to the "Basic Information" section of your Slack app.
-6. Copy the "Signing Secret" and paste it into the "Slack Signing Secret" field in the Botpress integration settings.
+6. Copy the "Client ID", "Client Secret", and "Signing Secret" and paste into the corresponding fields in the Botpress integration settings.
 7. In the integration settings, copy the webhook URL provided by Botpress.
 8. Navigate to the "Event Subscriptions" section of your Slack app.
 9. Enable event subscriptions and paste the webhook URL into the "Request URL" field. Save the changes for your Slack app.
