@@ -1,8 +1,8 @@
 import { addReaction } from './add-reaction'
 import { findTarget } from './find-target'
-import { syncMembers } from './list-users'
-import { retrieveMessage } from './retreive-message'
+import { retrieveMessage } from './retrieve-message'
 import { startDmConversation } from './start-dm'
+import { syncMembers } from './sync-members'
 import { startTypingIndicator, stopTypingIndicator } from './typing-indicator'
 import { updateChannelTopic } from './update-channel-topic'
 

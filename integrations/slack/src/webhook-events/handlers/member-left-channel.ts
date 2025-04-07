@@ -1,14 +1,14 @@
 import { MemberLeftChannelEvent } from '@slack/types'
 
-import { Client } from '../misc/types'
-import { getBotpressUserFromSlackUser, getBotpressConversationFromSlackThread } from '../misc/utils'
+import { getBotpressUserFromSlackUser, getBotpressConversationFromSlackThread } from '../../misc/utils'
+import * as bp from '.botpress'
 
-export const executeMemberLeftChannel = async ({
+export const handleEvent = async ({
   slackEvent,
   client,
 }: {
   slackEvent: MemberLeftChannelEvent
-  client: Client
+  client: bp.Client
 }) => {
   const { user: slackUserId, channel: slackChannelId } = slackEvent
   const { botpressUserId } = await getBotpressUserFromSlackUser({ slackUserId }, client)

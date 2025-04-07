@@ -1,9 +1,9 @@
 import { TeamJoinEvent } from '@slack/types'
 
-import { Client } from '../misc/types'
-import { getBotpressUserFromSlackUser } from '../misc/utils'
+import { getBotpressUserFromSlackUser } from '../../misc/utils'
+import * as bp from '.botpress'
 
-export const executeTeamJoin = async ({ slackEvent, client }: { slackEvent: TeamJoinEvent; client: Client }) => {
+export const handleEvent = async ({ slackEvent, client }: { slackEvent: TeamJoinEvent; client: bp.Client }) => {
   const slackUserId = slackEvent.user.id
   const { botpressUserId } = await getBotpressUserFromSlackUser({ slackUserId }, client)
 
