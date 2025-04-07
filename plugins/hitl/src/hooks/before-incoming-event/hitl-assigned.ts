@@ -9,6 +9,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
+    await _emitHitlAssignedEvent(props, downstreamConversationId, humanAgentUserId)
     return consts.STOP_EVENT_HANDLING
   }
 
@@ -18,6 +19,8 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
     props.logger
       .withConversationId(downstreamConversationId)
       .error('Downstream conversation was not binded to upstream conversation')
+
+    await _emitHitlAssignedEvent(props, downstreamConversationId, humanAgentUserId)
     return consts.STOP_EVENT_HANDLING
   }
 
@@ -33,5 +36,24 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
     downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
   ])
+
+  await _emitHitlAssignedEvent(props, downstreamConversationId, humanAgentUserId, upstreamConversationId)
+
   return consts.STOP_EVENT_HANDLING
+}
+
+const _emitHitlAssignedEvent = async (
+  props: bp.HookHandlerProps['before_incoming_event'],
+  downstreamConversationId: string,
+  humanAgentUserId: string,
+  upstreamConversationId?: string
+) => {
+  await props.client.createEvent({
+    type: 'hitlAssigned',
+    payload: {
+      downstreamConversationId,
+      humanAgentUserId,
+    },
+    conversationId: upstreamConversationId,
+  })
 }

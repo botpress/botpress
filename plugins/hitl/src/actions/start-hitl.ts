@@ -61,6 +61,7 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
   await _saveStartMessageId(props, lastMessageByUser)
   await _activateHitl(upstreamCm, downstreamCm)
   await _startHitlTimeout(props, upstreamCm, downstreamCm, upstreamUserId)
+  await _emitHitlStartedEvent(props, downstreamConversationId, upstreamConversationId, downstreamUserId, upstreamUserId)
 
   return {}
 }
@@ -194,5 +195,23 @@ const _saveStartMessageId = async (props: Props, startMessageId: string | undefi
     tags: {
       startMessageId,
     },
+  })
+}
+
+const _emitHitlStartedEvent = async (
+  props: Props,
+  downstreamConversationId: string,
+  upstreamConversationId: string,
+  downstreamUserId: string,
+  upstreamUserId: string
+) => {
+  await props.client.createEvent({
+    type: 'hitlStarted',
+    payload: {
+      downstreamConversationId,
+      downstreamUserId,
+    },
+    conversationId: upstreamConversationId,
+    userId: upstreamUserId,
   })
 }

@@ -8,6 +8,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
+    await _emitHitlStoppedEvent(props, downstreamConversationId)
     return consts.STOP_EVENT_HANDLING
   }
 
@@ -17,6 +18,8 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
     props.logger
       .withConversationId(downstreamConversationId)
       .error('Downstream conversation was not binded to upstream conversation')
+
+    await _emitHitlStoppedEvent(props, downstreamConversationId)
     return consts.STOP_EVENT_HANDLING
   }
 
@@ -29,5 +32,21 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
     downstreamCm.setHitlInactive(conv.HITL_END_REASON.AGENT_CLOSED_TICKET),
     upstreamCm.setHitlInactive(conv.HITL_END_REASON.AGENT_CLOSED_TICKET),
   ])
+
+  await _emitHitlStoppedEvent(props, downstreamConversationId, upstreamConversationId)
   return consts.STOP_EVENT_HANDLING
+}
+
+const _emitHitlStoppedEvent = async (
+  props: bp.HookHandlerProps['before_incoming_event'],
+  downstreamConversationId: string,
+  upstreamConversationId?: string
+) => {
+  await props.client.createEvent({
+    type: 'hitlStopped',
+    payload: {
+      downstreamConversationId,
+    },
+    conversationId: upstreamConversationId,
+  })
 }

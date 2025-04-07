@@ -16,7 +16,7 @@ export const DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE =
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.4.4',
+  version: '0.5.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -191,6 +191,32 @@ export default new sdk.PluginDefinition({
           .string()
           .title('Session Started At')
           .describe('Timestamp of when the HITL session started'),
+        downstreamConversationId: sdk.z
+          .string()
+          .title('Downstream Conversation ID')
+          .describe('ID of the downstream conversation'),
+      }),
+    },
+    hitlAssigned: {
+      schema: sdk.z.object({
+        downstreamConversationId: sdk.z
+          .string()
+          .title('Downstream Conversation ID')
+          .describe('ID of the downstream conversation'),
+        humanAgentUserId: sdk.z.string().title('Human Agent User ID').describe('ID of the human agent user'),
+      }),
+    },
+    hitlStarted: {
+      schema: sdk.z.object({
+        downstreamConversationId: sdk.z
+          .string()
+          .title('Downstream Conversation ID')
+          .describe('ID of the downstream conversation'),
+        downstreamUserId: sdk.z.string().title('Downstream User ID').describe('ID of the downstream user'),
+      }),
+    },
+    hitlStopped: {
+      schema: sdk.z.object({
         downstreamConversationId: sdk.z
           .string()
           .title('Downstream Conversation ID')
