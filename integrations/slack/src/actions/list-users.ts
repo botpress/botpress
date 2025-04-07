@@ -1,11 +1,10 @@
 import { User } from '@botpress/client'
+import { createOrUpdateUser } from '@botpress/common'
 import { isApiError } from '@botpress/sdk'
 import { Member } from '@slack/web-api/dist/response/UsersListResponse'
-import { chain, mapKeys, isEqual } from 'lodash'
 import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
 import { SlackScopes } from 'src/misc/slack-scopes'
 import { getSyncState, saveSyncState } from 'src/misc/utils'
-import { userTags } from '../definitions/index'
 import * as bp from '.botpress'
 
 export const syncMembers = wrapActionAndInjectSlackClient('syncMembers', {
@@ -31,11 +30,9 @@ export const syncMembers = wrapActionAndInjectSlackClient('syncMembers', {
 
     await getAllMembers()
 
-    const membersToSync = chain(allMembers)
-      .sortBy((x) => x.updated, 'asc')
-      .filter((x) => !x.deleted)
-      .filter((x) => (x.updated ?? 0) > (usersLastSyncTs ?? -1))
-      .value()
+    const membersToSync = allMembers
+      .filter((x) => !x.deleted && (x.updated ?? 0) > (usersLastSyncTs ?? -1))
+      .sort((a, b) => (a.updated ?? 0) - (b.updated ?? 0))
 
     logger.forBot().debug(`Found ${membersToSync.length}/${allMembers.length} members to sync in Slack workspace`)
 
@@ -62,49 +59,36 @@ export const syncMembers = wrapActionAndInjectSlackClient('syncMembers', {
 
 const syncSlackUserToBotpressUser = async (member: Member, botpressClient: bp.Client): Promise<User> => {
   try {
-    const { user } = await botpressClient.getOrCreateUser({
-      tags: {
-        id: member.id,
-      },
-    })
-
-    const latestTags = mapKeys(user.tags, (_v, k) => k.split(':')[1])
-    const updatedTags: Record<keyof typeof userTags, string | undefined> = {
-      dm_conversation_id: user.tags.dm_conversation_id,
-      id: member.id,
-      avatar_hash: member.profile?.avatar_hash,
-      display_name: member.profile?.display_name,
-      display_name_normalized: member.profile?.display_name_normalized,
-      email: member.profile?.email,
-      image_24: member.profile?.image_24,
-      image_48: member.profile?.image_48,
-      image_192: member.profile?.image_192,
-      image_512: member.profile?.image_512,
-      image_1024: member.profile?.image_1024,
-      is_admin: member.is_admin?.toString(),
-      is_bot: member.is_bot?.toString(),
-      phone: member.profile?.phone,
-      real_name: member.profile?.real_name,
-      real_name_normalized: member.profile?.real_name_normalized,
-      status_emoji: member.profile?.status_emoji,
-      status_text: member.profile?.status_text,
-      team: member.team_id,
-      title: member.profile?.title,
-      tz: member.tz,
-    }
-
-    if (isEqual(latestTags, updatedTags)) {
-      return user
-    }
-
-    const { user: updatedUser } = await botpressClient.updateUser({
-      id: user.id,
+    const { user } = await createOrUpdateUser({
+      client: botpressClient,
       name: member.name,
       pictureUrl: member.profile?.image_512,
-      tags: updatedTags,
+      tags: {
+        id: member.id,
+        avatar_hash: member.profile?.avatar_hash,
+        display_name: member.profile?.display_name,
+        display_name_normalized: member.profile?.display_name_normalized,
+        email: member.profile?.email,
+        image_24: member.profile?.image_24,
+        image_48: member.profile?.image_48,
+        image_192: member.profile?.image_192,
+        image_512: member.profile?.image_512,
+        image_1024: member.profile?.image_1024,
+        is_admin: member.is_admin?.toString(),
+        is_bot: member.is_bot?.toString(),
+        phone: member.profile?.phone,
+        real_name: member.profile?.real_name,
+        real_name_normalized: member.profile?.real_name_normalized,
+        status_emoji: member.profile?.status_emoji,
+        status_text: member.profile?.status_text,
+        team: member.team_id,
+        title: member.profile?.title,
+        tz: member.tz,
+      },
+      discriminateByTags: ['id'],
     })
 
-    return updatedUser
+    return user
   } catch (err) {
     if (isApiError(err) && err.type === 'RateLimited') {
       await new Promise((resolve) => setTimeout(resolve, 10 * 1000))

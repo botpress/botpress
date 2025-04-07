@@ -1,9 +1,7 @@
-import type { Request } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { ChatPostMessageArguments, WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as crypto from 'crypto'
-import queryString from 'query-string'
-import VError from 'verror'
 import * as bp from '../../.botpress'
 import { Configuration, SyncState } from '../setup'
 import { AckFunction, Client, IntegrationCtx, IntegrationLogger, Conversation } from './types'
@@ -78,13 +76,13 @@ export const saveCredentials = async (
   await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
 }
 
-export async function onOAuth(req: Request, client: bp.Client, ctx: bp.Context) {
+export async function onOAuth(req: sdk.Request, client: bp.Client, ctx: bp.Context) {
   const slackOAuthClient = new SlackOauthClient()
 
-  const query = queryString.parse(req.query)
-  const code = query.code
+  const query = new URLSearchParams(req.query)
+  const code = query.get('code')
 
-  if (typeof code !== 'string') {
+  if (!code || typeof code !== 'string') {
     throw new Error('Handler received an empty code')
   }
 
@@ -162,36 +160,38 @@ export async function sendSlackMessage(
   return message
 }
 
-export const isInteractiveRequest = (req: Request) => {
+export const isInteractiveRequest = (req: sdk.Request) => {
   // Keeping interactive_path for backward compatibility
   return req.body?.startsWith('payload=') || req.path === '/interactive'
 }
 
-export const parseInteractiveBody = (req: Request): InteractiveBody => {
+export const parseInteractiveBody = (req: sdk.Request): InteractiveBody => {
   try {
     return JSON.parse(decodeURIComponent(req.body!).replace('payload=', ''))
-  } catch (err) {
-    throw new VError('Body is invalid for interactive request', err)
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new sdk.RuntimeError('Body is invalid for interactive request', error)
   }
 }
 
 export const respondInteractive = async (body: InteractiveBody): Promise<string> => {
   if (!body.actions.length) {
-    throw new VError('No action in body')
+    throw new sdk.RuntimeError('No action in body')
   }
 
   const action = body.actions[0]
   const text = action?.value || action?.selected_option?.value || action?.action_id
   if (text === undefined) {
-    throw new VError('Action value cannot be undefined')
+    throw new sdk.RuntimeError('Action value cannot be undefined')
   }
 
   try {
     await axios.post(body.response_url, { text })
 
     return text
-  } catch (err: any) {
-    throw new VError(err, 'Error while responding to interactive request')
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new sdk.RuntimeError('Error while responding to interactive request', error)
   }
 }
 
@@ -340,7 +340,7 @@ export const getSigningSecret = async (client: Client, ctx: IntegrationCtx) => {
 export class SlackEventSignatureValidator {
   public constructor(
     private readonly _signingSecret: string,
-    private readonly _request: Request,
+    private readonly _request: sdk.Request,
     private readonly _logger: IntegrationLogger
   ) {}
 

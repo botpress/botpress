@@ -1174,6 +1174,9 @@ importers:
 
   integrations/slack:
     dependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -1192,15 +1195,6 @@ importers:
       fuse.js:
         specifier: ^6.6.2
         version: 6.6.2
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
-      query-string:
-        specifier: ^6.14.1
-        version: 6.14.1
-      verror:
-        specifier: ^1.10.1
-        version: 1.10.1
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1208,18 +1202,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
-      '@types/lodash':
-        specifier: ^4.14.191
-        version: 4.14.195
-      '@types/verror':
-        specifier: ^1.10.6
-        version: 1.10.6
 
   integrations/stripe:
     dependencies:

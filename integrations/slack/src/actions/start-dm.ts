@@ -35,15 +35,9 @@ export const startDmConversation = wrapActionAndInjectSlackClient('startDmConver
       channel: 'dm',
       tags: {
         id: channel.id,
-      },
-    })
-
-    await client.updateConversation({
-      id: conversation.id,
-      tags: {
         title: `DM with ${user.name}`,
-        id: channel.id,
       },
+      discriminateByTags: ['id'],
     })
 
     await client.updateUser({
