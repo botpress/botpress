@@ -1,0 +1,19 @@
+name: Prevent Merge of `on hold` PRs
+
+on:
+  pull_request:
+    types:
+      - opened
+      - labeled
+      - unlabeled
+
+jobs:
+  fail-if-on-hold:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if PR is on hold
+        if: contains(github.event.pull_request.labels.*.name, 'on hold')
+        run: |
+          echo "This PR is currently on hold."
+          echo "::error title=\`on hold\` label is present::This PR is currently on hold. Please remove the 'on hold' label to proceed."
+          exit 1
