@@ -1,7 +1,7 @@
 import Fuse from 'fuse.js'
 import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
 import { SlackScopes } from 'src/misc/slack-scopes'
-import { Target } from '../definitions/actions'
+import { Target } from '../../definitions/actions'
 
 const fuse = new Fuse<Target>([], {
   shouldSort: true,
