@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { textSchema } from './definitions/schemas'
+import { textSchema } from '../definitions/channels/text-input-schema'
 import { renderCard } from './misc/renderer'
 import { Channels } from './misc/types'
 import { getSlackTarget, notEmpty, sendSlackMessage } from './misc/utils'
