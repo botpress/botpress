@@ -1,4 +1,4 @@
-import { Client, errorFrom } from '../src'
+import { Client, errorFrom } from '../src/public'
 
 const main = async () => {
   const client = new Client()

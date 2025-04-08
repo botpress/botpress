@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios'
-import { UpsertFileResponse } from './gen/operations/upsertFile'
+import { UpsertFileResponse } from '../gen/public/operations/upsertFile'
 
-export * from './gen/errors'
+export * from '../gen/public/errors'
 
 export class UploadFileError extends Error {
   public constructor(
