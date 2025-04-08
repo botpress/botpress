@@ -61,15 +61,10 @@ const _handleTimeout = async (
   upstreamCm: conv.ConversationManager,
   downstreamCm: conv.ConversationManager
 ) => {
-  await Promise.allSettled([
-    upstreamCm.respond({
-      text: props.configuration.onAgentAssignedTimeoutMessage ?? DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE,
-    }),
-    downstreamCm.respond({
-      // TODO: We might want to add a custom message for the human agent.
-      text: props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
-    }),
-  ])
+  await downstreamCm.respond({
+    // TODO: We might want to add a custom message for the human agent.
+    text: props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
+  })
 
   await Promise.allSettled([
     upstreamCm.setHitlInactive(conv.HITL_END_REASON.AGENT_ASSIGNMENT_TIMEOUT),
@@ -83,4 +78,8 @@ const _handleTimeout = async (
 
   // Call stopHitl in the hitl integration (zendesk, etc.):
   await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
+
+  await upstreamCm.respond({
+    text: props.configuration.onAgentAssignedTimeoutMessage ?? DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE,
+  })
 }
