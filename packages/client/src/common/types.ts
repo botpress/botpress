@@ -11,17 +11,22 @@ export type CommonClientProps = {
 
 export type Cast<T, U> = T extends U ? T : U
 export type AsyncFunc = (...args: any[]) => Promise<any>
+
+type SimplifyTuple<T> = T extends [...infer A] ? { [K in keyof A]: Simplify<A[K]> } : never
+type SimplifyObject<T extends object> = T extends infer O ? { [K in keyof O]: Simplify<O[K]> } : never
 export type Simplify<T> = T extends (...args: infer A) => infer R
-  ? (...args: Simplify<A>) => Simplify<R>
-  : T extends Promise<infer R>
-    ? Promise<Simplify<R>>
-    : T extends Buffer
-      ? Buffer
-      : T extends object
-        ? T extends infer O
-          ? { [K in keyof O]: Simplify<O[K]> }
-          : never
-        : T
+  ? (...args: SimplifyTuple<A>) => Simplify<R>
+  : T extends Array<infer E>
+    ? Array<Simplify<E>>
+    : T extends ReadonlyArray<infer E>
+      ? ReadonlyArray<Simplify<E>>
+      : T extends Promise<infer R>
+        ? Promise<Simplify<R>>
+        : T extends Buffer
+          ? Buffer
+          : T extends object
+            ? SimplifyObject<T>
+            : T
 
 export type Operation<C extends Record<string, AsyncFunc>> = Simplify<
   keyof {
