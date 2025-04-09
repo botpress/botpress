@@ -19,6 +19,23 @@ export type EnumerateInterfaceEvents<TPlugin extends BasePlugin> = UnionToInters
   }[keyof TPlugin['interfaces']]
 >
 
+type ChannelKey<TIntegrationName extends string, TMessageName extends string> = string extends TIntegrationName
+  ? string
+  : string extends TMessageName
+    ? string
+    : Join<[TIntegrationName, ':', TMessageName]>
+
+export type EnumerateInterfaceChannels<TPlugin extends BasePlugin> = UnionToIntersection<
+  {
+    [TInterfaceName in keyof TPlugin['interfaces']]: {
+      [TChannelName in keyof TPlugin['interfaces'][TInterfaceName]['channels'] as ChannelKey<
+        Cast<TInterfaceName, string>,
+        Cast<TChannelName, string>
+      >]: TPlugin['interfaces'][TInterfaceName]['channels'][TChannelName]
+    }
+  }[keyof TPlugin['interfaces']]
+>
+
 /**
  * Used by a bot to tell the plugin what integration should be used to implement an interface.
  */

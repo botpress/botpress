@@ -16,12 +16,15 @@ type _IncomingEvents<TPlugin extends common.BasePlugin> = {
   >
 }
 
+type EnumeratePluginMessages<TPlugin extends common.BasePlugin> = bot.GetMessages<TPlugin> &
+  common.EnumerateInterfaceChannels<TPlugin>
+
 type _IncomingMessages<TPlugin extends common.BasePlugin> = {
   // TODO: use bot definiton message property to infer allowed tags
-  [K in utils.StringKeys<bot.GetMessages<TPlugin>>]: utils.Merge<
+  [K in utils.StringKeys<EnumeratePluginMessages<TPlugin>>]: utils.Merge<
     //
     client.Message,
-    { type: K; payload: bot.GetMessages<TPlugin>[K] }
+    { type: K; payload: EnumeratePluginMessages<TPlugin>[K] }
   >
 }
 
@@ -33,17 +36,17 @@ type _IncomingStates<TPlugin extends common.BasePlugin> = {
 }
 
 type _OutgoingMessageRequests<TPlugin extends common.BasePlugin> = {
-  [K in utils.StringKeys<bot.GetMessages<TPlugin>>]: utils.Merge<
+  [K in utils.StringKeys<EnumeratePluginMessages<TPlugin>>]: utils.Merge<
     client.ClientInputs['createMessage'],
-    { type: K; payload: bot.GetMessages<TPlugin>[K] }
+    { type: K; payload: EnumeratePluginMessages<TPlugin>[K] }
   >
 }
 
 type _OutgoingMessageResponses<TPlugin extends common.BasePlugin> = {
-  [K in utils.StringKeys<bot.GetMessages<TPlugin>>]: utils.Merge<
+  [K in utils.StringKeys<EnumeratePluginMessages<TPlugin>>]: utils.Merge<
     client.ClientOutputs['createMessage'],
     {
-      message: utils.Merge<client.Message, { type: K; payload: bot.GetMessages<TPlugin>[K] }>
+      message: utils.Merge<client.Message, { type: K; payload: EnumeratePluginMessages<TPlugin>[K] }>
     }
   >
 }
