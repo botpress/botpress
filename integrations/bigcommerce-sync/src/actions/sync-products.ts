@@ -39,14 +39,13 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
   const ctx = props.ctx.configuration
 
   // this client is necessary for table operations
-  const getVaniallaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
-  const botpressVanillaClient = getVaniallaClient(client)
+  const getVanillaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
+  const botpressVanillaClient = getVanillaClient(client)
 
   const bigCommerceClient = getBigCommerceClient(ctx)
 
   try {
     const tableName = PRODUCT_TABLE
-
     const tableSchema = PRODUCT_TABLE_SCHEMA
 
     await botpressVanillaClient.getOrCreateTable({
@@ -54,11 +53,36 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
       schema: tableSchema,
     })
 
-    logger.forBot().info('Fetching products from BigCommerce...')
-    const response = await bigCommerceClient.getProducts()
-    const products = response.data
-
-    if (!products || products.length === 0) {
+    const allProducts = []
+    let currentPage = 1
+    let hasMoreProducts = true
+    const PRODUCTS_PER_PAGE = 250
+    
+    logger.forBot().info('Fetching products from BigCommerce in batches...')
+    
+    while (hasMoreProducts) {
+      logger.forBot().info(`Fetching products batch - page ${currentPage}...`)
+      const response = await bigCommerceClient.getProducts({
+        page: currentPage,
+        limit: PRODUCTS_PER_PAGE
+      })
+      
+      const products = response.data
+      
+      if (!products || products.length === 0) {
+        hasMoreProducts = false
+      } else {
+        allProducts.push(...products)
+        
+        if (products.length < PRODUCTS_PER_PAGE) {
+          hasMoreProducts = false
+        } else {
+          currentPage++
+        }
+      }
+    }
+    
+    if (allProducts.length === 0) {
       logger.forBot().warn('No products found in BigCommerce store')
       return {
         success: true,
@@ -66,6 +90,8 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
         productsCount: 0,
       }
     }
+    
+    logger.forBot().info(`Total products fetched: ${allProducts.length}`)
 
     logger.forBot().info('Fetching categories to map IDs to names...')
     const categoriesResponse = await bigCommerceClient.getCategories()
@@ -87,14 +113,12 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
       })
     }
 
-    const tableRows = products.map((product: BigCommerceProduct) => {
+    const tableRows = allProducts.map((product: BigCommerceProduct) => {
       const categoryNames =
         product.categories?.map((categoryId: number) => categoryById[categoryId] || categoryId.toString()) || []
 
       const categories = categoryNames.join(',')
-
       const brandName = product.brand_id ? brandById[product.brand_id] || product.brand_id.toString() : ''
-
       const imageUrl = product.images && product.images.length > 0 ? product.images[0]?.url_standard || '' : ''
 
       return {
@@ -123,7 +147,6 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
 
     try {
       logger.forBot().info('Dropping existing products table...')
-
       await botpressVanillaClient.deleteTable({
         table: tableName,
       })
@@ -136,23 +159,35 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
       logger.forBot().warn('Error dropping products table', error)
     }
 
-    logger.forBot().info(`Inserting ${tableRows.length} products...`)
-    await botpressVanillaClient.createTableRows({
-      table: tableName,
-      rows: tableRows,
-    })
+    const BATCH_SIZE = 50
+    const totalRows = tableRows.length
+    let processedRows = 0
+    
+    logger.forBot().info(`Inserting ${totalRows} products in batches of ${BATCH_SIZE}...`)
+    
+    while (processedRows < totalRows) {
+      const batch = tableRows.slice(processedRows, processedRows + BATCH_SIZE)
+      logger.forBot().info(`Inserting batch ${Math.floor(processedRows / BATCH_SIZE) + 1}/${Math.ceil(totalRows / BATCH_SIZE)}, size: ${batch.length}`)
+      
+      await botpressVanillaClient.createTableRows({
+        table: tableName,
+        rows: batch,
+      })
+      
+      processedRows += batch.length
+      logger.forBot().info(`Progress: ${processedRows}/${totalRows} (${Math.round((processedRows / totalRows) * 100)}%)`)
+    }
 
     return {
       success: true,
-      message: `Successfully synced ${products.length} products from BigCommerce`,
-      productsCount: products.length,
+      message: `Successfully synced ${allProducts.length} products from BigCommerce`,
+      productsCount: allProducts.length,
     }
   } catch (error) {
-    logger.forBot().error('Error syncing products', error)
+    logger.forBot().error('Error syncing BigCommerce products', error)
     return {
       success: false,
-      message: `Error syncing products: ${error instanceof Error ? error.message : String(error)}`,
-      productsCount: 0,
+      message: `Error syncing BigCommerce products: ${error instanceof Error ? error.message : String(error)}`,
     }
   }
 }
