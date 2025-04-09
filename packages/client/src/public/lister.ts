@@ -1,12 +1,15 @@
 import * as common from '../common'
 import * as gen from '../gen/public'
-import * as types from './types'
+
+type IClient = common.types.Simplify<gen.Client>
+type Operation = common.types.Operation<IClient>
+type ClientInputs = common.types.Inputs<IClient>
 
 type ListOperation = keyof {
-  [K in types.Operation as types.ClientInputs[K] extends { nextToken?: string | undefined } ? K : never]: null
+  [K in Operation as ClientInputs[K] extends { nextToken?: string | undefined } ? K : never]: null
 }
 type ListInputs = {
-  [K in ListOperation]: Omit<types.ClientInputs[K], 'nextToken'>
+  [K in ListOperation]: Omit<ClientInputs[K], 'nextToken'>
 }
 
 // lots of repeated code here, but I prefer using vertical selection than to make the code more complex - fleur

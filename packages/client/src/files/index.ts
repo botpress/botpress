@@ -2,9 +2,8 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import * as common from '../common'
 import * as gen from '../gen/files'
+import * as types from '../types'
 import * as uploadFile from './upload-file'
-
-export * from './errors'
 
 type IClient = common.types.Simplify<
   gen.Client & {
@@ -23,7 +22,7 @@ export type ClientProps = common.types.CommonClientProps & {
 }
 
 export class Client extends gen.Client implements IClient {
-  public readonly config: Readonly<common.types.ClientConfig>
+  public readonly config: Readonly<types.ClientConfig>
 
   public constructor(clientProps: ClientProps) {
     const clientConfig = common.config.getClientConfig(clientProps)

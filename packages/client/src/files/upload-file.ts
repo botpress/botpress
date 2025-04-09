@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import * as common from '../common'
+import * as errors from '../errors'
 import { UpsertFileInput, UpsertFileResponse } from '../gen/files/operations/upsertFile'
-import * as errors from './errors'
 
 export type UploadFileInput = common.types.Simplify<
   Omit<UpsertFileInput, 'size'> & {

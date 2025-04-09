@@ -1,21 +1,12 @@
-import { IAxiosRetryConfig } from 'axios-retry'
+import * as types from '../types'
 
-export type Headers = Record<string, string | string[]>
-
-export type RetryConfig = IAxiosRetryConfig
+export * from '../types'
 
 export type CommonClientProps = {
   apiUrl?: string
   timeout?: number
-  headers?: Headers
-  retry?: RetryConfig
-}
-
-export type ClientConfig = {
-  apiUrl: string
-  headers: Headers
-  withCredentials: boolean
-  timeout: number
+  headers?: types.Headers
+  retry?: types.RetryConfig
 }
 
 export type Cast<T, U> = T extends U ? T : U

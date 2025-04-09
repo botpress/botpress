@@ -2,8 +2,7 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import * as common from '../common'
 import * as gen from '../gen/runtime'
-
-export * from '../gen/admin/errors'
+import * as types from '../types'
 
 type IClient = common.types.Simplify<gen.Client>
 export type Operation = common.types.Operation<IClient>
@@ -17,7 +16,7 @@ export type ClientProps = common.types.CommonClientProps & {
 }
 
 export class Client extends gen.Client {
-  public readonly config: Readonly<common.types.ClientConfig>
+  public readonly config: Readonly<types.ClientConfig>
 
   public constructor(clientProps: ClientProps) {
     const clientConfig = common.config.getClientConfig(clientProps)
