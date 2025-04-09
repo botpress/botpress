@@ -10,5 +10,5 @@ export const createAxios = (config: types.ClientConfig): axios.AxiosRequestConfi
   maxBodyLength: consts.maxBodyLength,
   maxContentLength: consts.maxContentLength,
   httpAgent: consts.httpAgent,
-  httpsAgent: consts.httpAgent,
+  httpsAgent: consts.httpsAgent,
 })
