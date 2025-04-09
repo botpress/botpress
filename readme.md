@@ -93,7 +93,7 @@ The [`/bots`](./bots) folder contains examples of bots "_as code_" made only usi
 
 However it can be useful for experienced developers who want to build bots in a more programmatic way.
 
-It is also used internally by the Botress team since the Studio and CLI both use the same underlying primitives.
+It is also used internally by the Botress team since the Studio and SDK both use the same underlying primitives.
 
 ## Plugins
 
