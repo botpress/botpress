@@ -140,14 +140,9 @@ const _handleHitlCloseCommand = async (
   props: bp.HookHandlerProps['before_incoming_message'],
   { downstreamCm, upstreamCm }: { downstreamCm: conv.ConversationManager; upstreamCm: conv.ConversationManager }
 ) => {
-  await Promise.allSettled([
-    downstreamCm.respond({
-      text: props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
-    }),
-    upstreamCm.respond({
-      text: props.configuration.onUserHitlCloseMessage ?? DEFAULT_USER_HITL_COMMAND_MESSAGE,
-    }),
-  ])
+  await downstreamCm.respond({
+    text: props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
+  })
 
   await Promise.allSettled([
     upstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
@@ -163,4 +158,8 @@ const _handleHitlCloseCommand = async (
 
   // Call stopHitl in the hitl integration (zendesk, etc.):
   await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
+
+  await upstreamCm.respond({
+    text: props.configuration.onUserHitlCloseMessage ?? DEFAULT_USER_HITL_COMMAND_MESSAGE,
+  })
 }

@@ -74,7 +74,9 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
     return
   }
 
-  await Promise.all(messageIds.map((id) => _processMessage(props, id, googleClient, emailAddress)))
+  for (const messageId of messageIds) {
+    await _processMessage(props, messageId, googleClient, emailAddress)
+  }
 
   await client.setState({
     type: 'integration',
