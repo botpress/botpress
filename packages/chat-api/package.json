@@ -13,7 +13,6 @@
     "esbuild": "^0.16.12"
   },
   "dependencies": {
-    "@botpress/api": "0.85.0",
     "@bpinternal/opapi": "0.12.1",
     "lodash": "^4.17.21",
     "zod": "^3.20.6"

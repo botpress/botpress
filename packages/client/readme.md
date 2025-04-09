@@ -13,7 +13,7 @@ pnpm add @botpress/client # for pnpm
 ## Usage
 
 ```ts
-import { Client } from '@botpress/client'
+import { Client, ClientInputs, ClientOutputs } from '@botpress/client'
 
 // 0. Type definitions for each operation's IO
 type GetBotInput = ClientInputs['getBot']
