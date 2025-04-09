@@ -4,7 +4,6 @@ import * as common from '../common'
 import * as uploadFile from '../files/upload-file'
 import * as gen from '../gen/public'
 import * as types from '../types'
-import * as lister from './lister'
 
 type IClient = common.types.Simplify<
   gen.Client & {
@@ -39,7 +38,77 @@ export class Client extends gen.Client implements IClient {
   }
 
   public get list() {
-    return new lister.Lister(this)
+    type ListInputs = common.types.ListInputs<IClient>
+    return {
+      conversations: (props: ListInputs['listConversations']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listConversations({ nextToken, ...props }).then((r) => ({ ...r, items: r.conversations }))
+        ),
+      participants: (props: ListInputs['listParticipants']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listParticipants({ nextToken, ...props }).then((r) => ({ ...r, items: r.participants }))
+        ),
+      events: (props: ListInputs['listEvents']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listEvents({ nextToken, ...props }).then((r) => ({ ...r, items: r.events }))
+        ),
+      messages: (props: ListInputs['listMessages']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listMessages({ nextToken, ...props }).then((r) => ({ ...r, items: r.messages }))
+        ),
+      users: (props: ListInputs['listUsers']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listUsers({ nextToken, ...props }).then((r) => ({ ...r, items: r.users }))
+        ),
+      tasks: (props: ListInputs['listTasks']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listTasks({ nextToken, ...props }).then((r) => ({ ...r, items: r.tasks }))
+        ),
+      publicIntegrations: (props: ListInputs['listPublicIntegrations']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listPublicIntegrations({ nextToken, ...props }).then((r) => ({ ...r, items: r.integrations }))
+        ),
+      bots: (props: ListInputs['listBots']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listBots({ nextToken, ...props }).then((r) => ({ ...r, items: r.bots }))
+        ),
+      botIssues: (props: ListInputs['listBotIssues']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listBotIssues({ nextToken, ...props }).then((r) => ({ ...r, items: r.issues }))
+        ),
+      workspaces: (props: ListInputs['listWorkspaces']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listWorkspaces({ nextToken, ...props }).then((r) => ({ ...r, items: r.workspaces }))
+        ),
+      publicWorkspaces: (props: ListInputs['listPublicWorkspaces']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listPublicWorkspaces({ nextToken, ...props }).then((r) => ({ ...r, items: r.workspaces }))
+        ),
+      workspaceMembers: (props: ListInputs['listWorkspaceMembers']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listWorkspaceMembers({ nextToken, ...props }).then((r) => ({ ...r, items: r.members }))
+        ),
+      integrations: (props: ListInputs['listIntegrations']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listIntegrations({ nextToken, ...props }).then((r) => ({ ...r, items: r.integrations }))
+        ),
+      interfaces: (props: ListInputs['listInterfaces']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listInterfaces({ nextToken, ...props }).then((r) => ({ ...r, items: r.interfaces }))
+        ),
+      activities: (props: ListInputs['listActivities']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listActivities({ nextToken, ...props }).then((r) => ({ ...r, items: r.activities }))
+        ),
+      files: (props: ListInputs['listFiles']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listFiles({ nextToken, ...props }).then((r) => ({ ...r, items: r.files }))
+        ),
+      filePassages: (props: ListInputs['listFilePassages']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listFilePassages({ nextToken, ...props }).then((r) => ({ ...r, items: r.passages }))
+        ),
+    }
   }
 
   /**

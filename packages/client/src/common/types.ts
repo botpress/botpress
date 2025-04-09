@@ -41,3 +41,13 @@ export type Inputs<C extends Record<string, AsyncFunc>> = Simplify<{
 export type Outputs<C extends Record<string, AsyncFunc>> = Simplify<{
   [T in Operation<C>]: Awaited<ReturnType<C[Cast<T, keyof C>]>>
 }>
+
+export type ListOperation<C extends Record<string, AsyncFunc>> = Simplify<
+  keyof {
+    [K in keyof Inputs<C> as Inputs<C>[K] extends { nextToken?: string | undefined } ? K : never]: null
+  }
+>
+
+export type ListInputs<C extends Record<string, AsyncFunc>> = Simplify<{
+  [T in ListOperation<C>]: Omit<Inputs<C>[Cast<T, keyof Inputs<C>>], 'nextToken'>
+}>

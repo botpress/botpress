@@ -12,7 +12,7 @@ export type UploadFileInput = common.types.Simplify<
 
 export type UploadFileOutput = UpsertFileResponse
 
-export type UploadFileClient = {
+type UploadFileClient = {
   upsertFile: (input: UpsertFileInput) => Promise<UpsertFileResponse>
 }
 

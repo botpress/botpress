@@ -30,6 +30,4 @@ export class Client extends gen.Client {
 
     this.config = clientConfig
   }
-
-  // TODO: add listing utilities
 }

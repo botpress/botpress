@@ -37,9 +37,24 @@ export class Client extends gen.Client implements IClient {
     this.config = clientConfig
   }
 
+  public get list() {
+    type ListInputs = common.types.ListInputs<IClient>
+    return {
+      files: (props: ListInputs['listFiles']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listFiles({ nextToken, ...props }).then((r) => ({ ...r, items: r.files }))
+        ),
+      filePassages: (props: ListInputs['listFilePassages']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listFilePassages({ nextToken, ...props }).then((r) => ({ ...r, items: r.passages }))
+        ),
+    }
+  }
+
+  /**
+   * Create/update and upload a file in a single step. Returns an object containing the file metadata and the URL to retrieve the file.
+   */
   public async uploadFile(input: uploadFile.UploadFileInput): Promise<uploadFile.UploadFileOutput> {
     return await uploadFile.upload(this, input)
   }
-
-  // TODO: add listing utilities
 }
