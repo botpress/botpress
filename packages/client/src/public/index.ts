@@ -28,7 +28,9 @@ export class Client extends gen.Client implements IClient {
     const clientConfig = common.config.getClientConfig(clientProps)
     const axiosConfig = common.axios.createAxios(clientConfig)
     const axiosInstance = axios.create(axiosConfig)
-    super(axiosInstance)
+    super(axiosInstance, {
+      toApiError: common.errors.toApiError,
+    })
 
     if (clientProps.retry) {
       axiosRetry(axiosInstance, clientProps.retry)
