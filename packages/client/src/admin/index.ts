@@ -71,6 +71,14 @@ export class Client extends gen.Client {
         new common.listing.AsyncCollection(({ nextToken }) =>
           this.listActivities({ nextToken, ...props }).then((r) => ({ ...r, items: r.activities }))
         ),
+      usageActivity: (props: ListInputs['listUsageActivity']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listUsageActivity({ nextToken, ...props }).then((r) => ({ ...r, items: r.data }))
+        ),
+      usageActivityDaily: (props: ListInputs['listUsageActivityDaily']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listUsageActivityDaily({ nextToken, ...props }).then((r) => ({ ...r, items: r.data }))
+        ),
     }
   }
 }
