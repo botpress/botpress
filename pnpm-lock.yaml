@@ -1878,7 +1878,7 @@ importers:
         version: link:../chat-client
       '@botpress/client':
         specifier: 1.0.0
-        version: link:../client
+        version: 1.0.0
       '@botpress/sdk':
         specifier: 4.0.1
         version: link:../sdk
@@ -1990,7 +1990,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.0.0
-        version: link:../../../client
+        version: 1.0.0
       '@botpress/sdk':
         specifier: 4.0.1
         version: link:../../../sdk
@@ -2006,7 +2006,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.0.0
-        version: link:../../../client
+        version: 1.0.0
       '@botpress/sdk':
         specifier: 4.0.1
         version: link:../../../sdk
@@ -2035,7 +2035,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.0.0
-        version: link:../../../client
+        version: 1.0.0
       '@botpress/sdk':
         specifier: 4.0.1
         version: link:../../../sdk
@@ -2051,7 +2051,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.0.0
-        version: link:../../../client
+        version: 1.0.0
       '@botpress/sdk':
         specifier: 4.0.1
         version: link:../../../sdk
@@ -2153,7 +2153,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.0.0
-        version: link:../client
+        version: 1.0.0
       '@bpinternal/zui':
         specifier: ^0.13.5
         version: 0.13.5
@@ -2184,7 +2184,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.0.0
-        version: link:../client
+        version: 1.0.0
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
         version: 1.0.2
@@ -4126,6 +4126,18 @@ packages:
       - openapi-types
       - supports-color
     dev: true
+
+  /@botpress/client@1.0.0:
+    resolution: {integrity: sha512-l6jwQBiEfYja3KGRlBqjFj+JiUJ1uHKbnPagkTkG+HoZS07vJ0dzVGGLBlMVt6t7AohlxTbmHZMSaM2no28tyA==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      axios: 1.7.9
+      axios-retry: 4.5.0(axios@1.7.9)
+      browser-or-node: 2.1.1
+      qs: 6.13.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /@bpinternal/const@0.1.0:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -8506,6 +8518,15 @@ packages:
       axios: 0.x || 1.x
     dependencies:
       axios: 1.6.1
+      is-retry-allowed: 2.2.0
+    dev: false
+
+  /axios-retry@4.5.0(axios@1.7.9):
+    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
+    peerDependencies:
+      axios: 0.x || 1.x
+    dependencies:
+      axios: 1.7.9
       is-retry-allowed: 2.2.0
     dev: false
 
