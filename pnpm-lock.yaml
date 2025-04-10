@@ -1880,7 +1880,7 @@ importers:
         specifier: 1.2.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.0.2
+        specifier: 4.0.3
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -1992,7 +1992,7 @@ importers:
         specifier: 1.2.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.2
+        specifier: 4.0.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2008,7 +2008,7 @@ importers:
         specifier: 1.2.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.2
+        specifier: 4.0.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2021,7 +2021,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.0.2
+        specifier: 4.0.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2037,7 +2037,7 @@ importers:
         specifier: 1.2.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.2
+        specifier: 4.0.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2053,7 +2053,7 @@ importers:
         specifier: 1.2.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.2
+        specifier: 4.0.3
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2226,7 +2226,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.12
+        specifier: 0.1.13
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
