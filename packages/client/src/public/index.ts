@@ -110,6 +110,14 @@ export class Client extends gen.Client implements IClient {
         new common.listing.AsyncCollection(({ nextToken }) =>
           this.listFilePassages({ nextToken, ...props }).then((r) => ({ ...r, items: r.passages }))
         ),
+      usageActivity: (props: ListInputs['listUsageActivity']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listUsageActivity({ nextToken, ...props }).then((r) => ({ ...r, items: r.data }))
+        ),
+      usageActivityDaily: (props: ListInputs['listUsageActivityDaily']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listUsageActivityDaily({ nextToken, ...props }).then((r) => ({ ...r, items: r.data }))
+        ),
     }
   }
 
