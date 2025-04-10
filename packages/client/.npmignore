@@ -1,4 +1,4 @@
-node_modules
-tsconfig.tsbuildinfo
-src/
-tsconfig.json
+*
+!dist/**/*
+!package.json
+!readme.md
