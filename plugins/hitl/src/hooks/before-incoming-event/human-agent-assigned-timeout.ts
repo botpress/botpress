@@ -36,6 +36,12 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
   }
 
   await _handleTimeout(props, upstreamCm, downstreamCm)
+
+  if (props.configuration.flowOnHitlStopped) {
+    // the bot will continue the conversation without the patient having to send another message
+    await upstreamCm.continueWorkflow()
+  }
+
   return consts.STOP_EVENT_HANDLING
 }
 
