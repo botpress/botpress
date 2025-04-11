@@ -11,11 +11,7 @@ import type {
 export namespace partialUtil {
   export type DeepPartial<T extends ZodTypeAny> =
     T extends ZodObject<ZodRawShape>
-      ? ZodObject<
-          { [k in keyof T['shape']]: ZodOptional<DeepPartial<T['shape'][k]>> },
-          T['_def']['unknownKeys'],
-          T['_def']['catchall']
-        >
+      ? ZodObject<{ [k in keyof T['shape']]: ZodOptional<DeepPartial<T['shape'][k]>> }, T['_def']['unknownKeys']>
       : T extends ZodArray<infer Type, infer Card>
         ? ZodArray<DeepPartial<Type>, Card>
         : T extends ZodOptional<infer Type>

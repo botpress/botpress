@@ -1,6 +1,6 @@
 import { zuiKey } from '../../../ui/constants'
 import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodObjectDef } from '../../../z/index'
+import { ZodObjectDef, ZodType } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 
@@ -10,6 +10,21 @@ export type JsonSchema7ObjectType = {
   additionalProperties: boolean | JsonSchema7Type
   required?: string[]
   [zuiKey]?: ZuiExtensionObject
+}
+
+const getAdditionalProperties = (def: ZodObjectDef, refs: Refs): boolean | JsonSchema7Type => {
+  if (def.unknownKeys instanceof ZodType) {
+    return (
+      parseDef(def.unknownKeys._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, 'additionalProperties'],
+      }) ?? true
+    )
+  }
+  if (def.unknownKeys === 'passthrough') {
+    return true
+  }
+  return false
 }
 
 export function parseObjectDefX(def: ZodObjectDef, refs: Refs) {
@@ -49,13 +64,7 @@ export function parseObjectDefX(def: ZodObjectDef, refs: Refs) {
     {
       type: 'object',
       properties: {},
-      additionalProperties:
-        def.catchall._def.typeName === 'ZodNever'
-          ? def.unknownKeys === 'passthrough'
-          : (parseDef(def.catchall._def, {
-              ...refs,
-              currentPath: [...refs.currentPath, 'additionalProperties'],
-            }) ?? true),
+      additionalProperties: getAdditionalProperties(def, refs),
     },
   )
 
@@ -83,13 +92,7 @@ export function parseObjectDefX(def: ZodObjectDef, refs: Refs) {
       },
       { properties: {}, required: [] },
     ),
-    additionalProperties:
-      def.catchall._def.typeName === 'ZodNever'
-        ? def.unknownKeys === 'passthrough'
-        : (parseDef(def.catchall._def, {
-            ...refs,
-            currentPath: [...refs.currentPath, 'additionalProperties'],
-          }) ?? true),
+    additionalProperties: getAdditionalProperties(def, refs),
   }
   if (!result.required!.length) delete result.required
   return result
@@ -120,13 +123,7 @@ export function parseObjectDef(def: ZodObjectDef, refs: Refs) {
       },
       { properties: {}, required: [] },
     ),
-    additionalProperties:
-      def.catchall._def.typeName === 'ZodNever'
-        ? def.unknownKeys === 'passthrough'
-        : (parseDef(def.catchall._def, {
-            ...refs,
-            currentPath: [...refs.currentPath, 'additionalProperties'],
-          }) ?? true),
+    additionalProperties: getAdditionalProperties(def, refs),
   }
   if (!result.required!.length) delete result.required
   return result

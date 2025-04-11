@@ -156,7 +156,7 @@ test('test that optional keys are unset', async () => {
     set: z.string().optional(),
     unset: z.string().optional(),
   })
-  const result = await SNamedEntity.parse({
+  const result = SNamedEntity.parse({
     id: 'asdf',
     set: undefined,
   })
@@ -329,21 +329,6 @@ test('intersection of object with refine with date', async () => {
 })
 
 test('constructor key', () => {
-  const person = z
-    .object({
-      name: z.string(),
-    })
-    .strict()
-
-  expect(() =>
-    person.parse({
-      name: 'bob dylan',
-      constructor: 61,
-    }),
-  ).toThrow()
-})
-
-test('constructor key', () => {
   const Example = z.object({
     prop: z.string(),
     opt: z.number().optional(),
@@ -371,11 +356,9 @@ test('unknownkeys merging', () => {
 
   const mergedSchema = schemaA.merge(schemaB)
   type mergedSchema = typeof mergedSchema
-  util.assertEqual<mergedSchema['_def']['unknownKeys'], 'strip'>(true)
-  expect(mergedSchema._def.unknownKeys).toEqual('strip')
 
-  util.assertEqual<mergedSchema['_def']['catchall'], z.ZodString>(true)
-  expect(mergedSchema._def.catchall instanceof z.ZodString).toEqual(true)
+  util.assertEqual<mergedSchema['_def']['unknownKeys'], z.ZodString>(true)
+  expect(mergedSchema._def.unknownKeys instanceof z.ZodString).toEqual(true)
 })
 
 const personToExtend = z.object({
@@ -427,5 +410,96 @@ test('xor', () => {
   type Outer = { data: C }
   const Outer: z.ZodType<Outer> = z.object({
     data: z.union([z.object({ name: z.string(), a: z.number() }), z.object({ name: z.string(), b: z.number() })]),
+  })
+})
+
+test('object with strip should strip keys', () => {
+  const schema = z.object({ foo: z.string() }).strip()
+  const result = schema.safeParse({ foo: '123', bar: 123 })
+  expect(result).toEqual({
+    success: true,
+    data: { foo: '123' },
+  })
+})
+
+test('object with passthrough should allow all extra keys', () => {
+  const schema = z.object({ foo: z.string() }).passthrough()
+  const result = schema.safeParse({ foo: '123', bar: 123 })
+  expect(result).toEqual({
+    success: true,
+    data: { foo: '123', bar: 123 },
+  })
+})
+
+test('object with strict should fail if extra keys', () => {
+  const schema = z.object({ foo: z.string() }).strict()
+  const result = schema.safeParse({ foo: '123', bar: 123 })
+  expect(result).toMatchObject({
+    success: false,
+  })
+})
+
+test('object with catchall any should allow all keys', () => {
+  const schema = z.object({ foo: z.string() }).catchall(z.any())
+  const result = schema.safeParse({ foo: '123', bar: 123 })
+  expect(result).toEqual({
+    success: true,
+    data: { foo: '123', bar: 123 },
+  })
+})
+
+test('object with catchall never should fail if extra keys', () => {
+  const schema = z.object({ foo: z.string() }).catchall(z.never())
+  const result = schema.safeParse({ foo: '123', bar: 123 })
+  expect(result).toMatchObject({
+    success: false,
+  })
+})
+
+test('object with catchall number should succeed for extra number keys but fail otherwise', () => {
+  const schema = z.object({ foo: z.string() }).catchall(z.number())
+  const result1 = schema.safeParse({ foo: '123', bar: 123 })
+  expect(result1).toEqual({
+    success: true,
+    data: { foo: '123', bar: 123 },
+  })
+
+  const result2 = schema.safeParse({ foo: '123', bar: '456' })
+  expect(result2).toMatchObject({
+    success: false,
+  })
+})
+
+test('object with conflicting passthrough and catchall never should behave as the last modifier', () => {
+  const schema = z.object({ foo: z.string() }).passthrough().catchall(z.never())
+  const result = schema.safeParse({ foo: '123', bar: '456' })
+  expect(result).toMatchObject({
+    success: false,
+  })
+})
+
+test('object with conflicting passthrough and catchall number should behave as the last modifier', () => {
+  const schema = z.object({ foo: z.string() }).passthrough().catchall(z.number())
+  const result = schema.safeParse({ foo: '123', bar: '456' })
+  expect(result).toMatchObject({
+    success: false,
+  })
+})
+
+test('object with conflicting strict and catchall any should behave as the last modifier', () => {
+  const schema = z.object({ foo: z.string() }).strict().catchall(z.any())
+  const result = schema.safeParse({ foo: '123', bar: '456' })
+  expect(result).toEqual({
+    success: true,
+    data: { foo: '123', bar: '456' },
+  })
+})
+
+test('object with conflicting strict and catchall number should behave as the last modifier', () => {
+  const schema = z.object({ foo: z.string() }).strict().catchall(z.number())
+  const result = schema.safeParse({ foo: '123', bar: 456 })
+  expect(result).toEqual({
+    success: true,
+    data: { foo: '123', bar: 456 },
   })
 })

@@ -72,8 +72,7 @@ export type ZodDiscriminatedUnionOption<Discriminator extends string> = ZodObjec
   {
     [key in Discriminator]: ZodTypeAny
   } & ZodRawShape,
-  UnknownKeysParam,
-  ZodTypeAny
+  UnknownKeysParam
 >
 
 export interface ZodDiscriminatedUnionDef<
