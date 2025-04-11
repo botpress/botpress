@@ -34,10 +34,7 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
   // Call stopHitl in the hitl integration (zendesk, etc.):
   await props.actions.hitl.stopHitl({ conversationId: downstreamConversationId })
 
-  if (props.configuration.flowOnHitlStopped) {
-    // the bot will continue the conversation without the patient having to send another message
-    await upstreamCm.continueWorkflow()
-  }
+  // TODO: possibly send the workflowContinue event here
 
   return {}
 }
