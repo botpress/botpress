@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/confluence",
-  "integrationName": "confluence/confluence",
   "scripts": {
     "build": "bp add -y && bp build",
     "check:bplint": "bp lint",
