@@ -1,5 +1,5 @@
 {
-  "name": "@bp-templates/confluence",
+  "name": "@botpresshub/confluence",
   "integrationName": "confluence/confluence",
   "scripts": {
     "build": "bp add -y && bp build",
