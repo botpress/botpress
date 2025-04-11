@@ -1,7 +1,7 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import filesReadonly from './bp_modules/files-readonly'
 
-import { actions, channels } from './definitions'
+import { actions } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'confluence',
@@ -18,7 +18,6 @@ export default new IntegrationDefinition({
     }),
   },
   actions,
-  channels,
 }).extend(filesReadonly, ({}) => ({
   entities: {},
   actions: {
