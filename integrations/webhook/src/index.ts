@@ -61,6 +61,7 @@ const integration = new bp.Integration({
         body,
         query: query as Record<string, any>,
         method,
+        headers: req.headers as Record<string, any>,
         path: req.path,
       },
     })
