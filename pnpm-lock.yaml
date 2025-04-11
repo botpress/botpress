@@ -569,10 +569,10 @@ importers:
   integrations/confluence:
     dependencies:
       '@botpress/client':
-        specifier: 0.48.3
-        version: 0.48.3
+        specifier: workspace:*
+        version: link:../../packages/client
       '@botpress/common':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
@@ -580,16 +580,6 @@ importers:
       axios:
         specifier: 1.8.4
         version: 1.8.4
-      dotenv:
-        specifier: 16.4.7
-        version: 16.4.7
-    devDependencies:
-      '@types/node':
-        specifier: ^18.19.67
-        version: 18.19.67
-      typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
 
   integrations/dalle:
     dependencies:
@@ -4151,18 +4141,6 @@ packages:
       - openapi-types
       - supports-color
     dev: true
-
-  /@botpress/client@0.48.3:
-    resolution: {integrity: sha512-h5c1ck51rjl8aaHw1a7Fzd6zYzMMWW4AIkYMHhuz0B1it+4NecMhtb9R4QPvV+YZuIZ2AnBOls6r2b5JgRLzGA==}
-    engines: {node: '>=18.0.0'}
-    dependencies:
-      axios: 1.8.4
-      axios-retry: 4.5.0(axios@1.8.4)
-      browser-or-node: 2.1.1
-      qs: 6.13.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
 
   /@bpinternal/const@0.1.0:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -8546,15 +8524,6 @@ packages:
       is-retry-allowed: 2.2.0
     dev: false
 
-  /axios-retry@4.5.0(axios@1.8.4):
-    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
-    peerDependencies:
-      axios: 0.x || 1.x
-    dependencies:
-      axios: 1.8.4
-      is-retry-allowed: 2.2.0
-    dev: false
-
   /axios@0.21.4(debug@4.4.0):
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
@@ -9874,11 +9843,6 @@ packages:
   /dotenv@16.4.4:
     resolution: {integrity: sha512-XvPXc8XAQThSjAbY6cQ/9PcBXmFoWuw1sQ3b8HqUCR6ziGXjkTi//kB9SWa2UwqlgdAIuRqAa/9hVljzPehbYg==}
     engines: {node: '>=12'}
-
-  /dotenv@16.4.7:
-    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
-    engines: {node: '>=12'}
-    dev: false
 
   /dotenv@8.6.0:
     resolution: {integrity: sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==}
