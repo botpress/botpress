@@ -5,7 +5,7 @@ import { actions, channels } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'confluence',
-  version: '0.0.1',
+  version: '0.0.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
