@@ -29,14 +29,12 @@ if (getFromConfluence) {
 
   const file = getConfluencePage(213432) // provide relevant pageId
 
-  file
-    .then((data) => {
-      const markdown = parseJsonToMarkdown(JSON.parse(data.body.atlas_doc_format.value))
-      // Write json and markdown results. JSON is used for debugging purposes (searching for tokens)
-      fs.writeFileSync(path.join(PATH, fileName + '.json'), data.body.atlas_doc_format.value)
-      fs.writeFileSync(path.join(PATH, fileName + '.md'), markdown)
-    })
-    .catch((error) => console.log(error))
+  file.then((data) => {
+    const markdown = parseJsonToMarkdown(JSON.parse(data.body.atlas_doc_format.value))
+    // Write json and markdown results. JSON is used for debugging purposes (searching for tokens)
+    fs.writeFileSync(path.join(PATH, fileName + '.json'), data.body.atlas_doc_format.value)
+    fs.writeFileSync(path.join(PATH, fileName + '.md'), markdown)
+  })
 
   async function getConfluencePage(pageId: number, logger?: IntegrationLogger) {
     const auth = Buffer.from(`${CONFLUENCE_USER}:${CONFLUENCE_API_TOKEN}`).toString('base64')

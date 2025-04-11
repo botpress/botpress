@@ -23,7 +23,7 @@ type Table = 'table' | 'tableRow' | 'tableHeader' | 'tableCell'
 type List = 'bulletList' | 'listItem'
 type Task = 'taskList' | 'taskItem'
 
-interface BaseNode {
+type BaseNode = {
   type: NodeType
   content?: AtlassianNode[]
   attrs?: Record<string, any>
