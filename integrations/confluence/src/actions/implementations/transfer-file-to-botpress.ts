@@ -1,26 +1,24 @@
+import * as bp from '.botpress'
+
 import { parseJsonToMarkdown } from 'src/parser/confluenceToMarkdown'
+import { ConfluenceClient } from 'src/client'
+import { RuntimeError } from '@botpress/sdk'
 
-import { wrapAction } from '../wrapper'
-import { getConfluencePage } from './get-page'
-
-export const filesReadonlyTransferFileToBotpress = wrapAction(
-  { actionName: 'filesReadonlyTransferFileToBotpress', errorMessage: 'Failed to transfer file to Botpress' },
-  async ({ logger, client }, { file, fileKey }) => {
+export const filesReadonlyTransferFileToBotpress: bp.IntegrationProps['actions']['filesReadonlyTransferFileToBotpress'] =
+  async ({ logger, client, ctx, input: { file, fileKey } }) => {
     logger.debug('Transferring file to Botpress')
-    const content = await getConfluencePage(file.id, logger)
+    const confluenceClient = ConfluenceClient(ctx.configuration)
+    const content = await confluenceClient.getPage({ pageId: parseInt(file.id) })
 
     if (!content) {
-      logger.error('No content found')
-      return
+      throw new RuntimeError('Content not found')
     }
 
     const markdown = parseJsonToMarkdown(JSON.parse(content.body.atlas_doc_format.value), logger)
 
     if (!markdown) {
-      logger.error('No markdown content found')
-      return
+      throw new RuntimeError('Markdown not found')
     }
-    logger.debug(markdown)
 
     const { file: uploadedFile } = await client.uploadFile({
       key: fileKey,
@@ -31,4 +29,3 @@ export const filesReadonlyTransferFileToBotpress = wrapAction(
 
     return { botpressFileId: uploadedFile.id }
   }
-)

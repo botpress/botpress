@@ -9,8 +9,7 @@
     "@botpress/client": "0.48.3",
     "@botpress/common": "workspace:^",
     "@botpress/sdk": "workspace:*",
-    "axios": "1.8.4",
-    "dotenv": "16.4.7"
+    "axios": "1.8.4"
   },
   "devDependencies": {
     "@types/node": "^18.19.67",

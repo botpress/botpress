@@ -1,10 +1,7 @@
 import * as bp from '.botpress'
-import dotenv from 'dotenv'
 
 import { actions } from './actions'
 import { channels } from './channels'
-
-dotenv.config()
 
 export default new bp.Integration({
   register: async () => {

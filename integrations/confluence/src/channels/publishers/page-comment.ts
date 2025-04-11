@@ -1,10 +1,11 @@
-import * as bp from '.botpress'
+import type { Context } from '.botpress'
 import { IntegrationLogger } from '@botpress/sdk'
-import axios from 'axios'
+import { ConfluenceClient } from 'src/client'
 
 type PageCommentPublisherArgs = {
   payload: Record<string, unknown>
   logger: IntegrationLogger
+  ctx: Context
 }
 
 export namespace PageCommentPublisher {
@@ -19,23 +20,9 @@ export namespace PageCommentPublisher {
 
     args.logger.forBot().info(`Creating comment on page "${pageId}" with content: "${content}"`)
 
-    await writeFooterComment(typeof pageId === 'string' ? parseInt(pageId) : pageId, args.logger)
-  }
-}
+    const client = ConfluenceClient(args.ctx.configuration)
 
-async function writeFooterComment(pageId: number, logger: IntegrationLogger) {
-  const auth = Buffer.from(`${bp.secrets.CONFLUENCE_USER}:${bp.secrets.CONFLUENCE_API_TOKEN}`).toString('base64')
-
-  const config = {
-    headers: {
-      Authorization: `Basic ${auth}`,
-      Accept: 'application/json',
-    },
-  }
-  try {
-    const response = await axios.get(`${bp.secrets.CONFLUENCE_HOST}/wiki/api/v2/pages/${pageId}`, config)
-    return response.data
-  } catch (err) {
-    logger.error('Error while calling confluence', err)
+    const pageIdInt = typeof pageId === 'string' ? parseInt(pageId) : pageId
+    await client.writeFooterComment({ pageId: pageIdInt })
   }
 }
