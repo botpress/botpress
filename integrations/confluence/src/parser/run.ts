@@ -22,37 +22,37 @@ fs.writeFileSync(path.join(PATH, fileName + '.md'), markdown)
 */
 const getFromConfluence = false
 
-if (getFromConfluence) {
-  const CONFLUENCE_HOST = 'workspace uri'
-  const CONFLUENCE_USER = 'mail'
-  const CONFLUENCE_API_TOKEN = 'token'
+const CONFLUENCE_HOST = 'workspace uri'
+const CONFLUENCE_USER = 'mail'
+const CONFLUENCE_API_TOKEN = 'token'
 
+async function getConfluencePage(pageId: number, logger?: IntegrationLogger) {
+  const auth = Buffer.from(`${CONFLUENCE_USER}:${CONFLUENCE_API_TOKEN}`).toString('base64')
+
+  const config = {
+    headers: {
+      Authorization: `Basic ${auth}`,
+      Accept: 'application/json',
+    },
+  }
+  try {
+    const response = await axios.get(
+      `${CONFLUENCE_HOST}/wiki/api/v2/pages/${pageId}?body-format=ATLAS_DOC_FORMAT`,
+      config
+    )
+    return response.data
+  } catch (err) {
+    logger?.error('Error while calling confluence', err)
+  }
+}
+
+if (getFromConfluence) {
   const file = getConfluencePage(213432) // provide relevant pageId
 
-  file.then((data) => {
+  void file.then((data) => {
     const markdown = parseJsonToMarkdown(JSON.parse(data.body.atlas_doc_format.value))
     // Write json and markdown results. JSON is used for debugging purposes (searching for tokens)
     fs.writeFileSync(path.join(PATH, fileName + '.json'), data.body.atlas_doc_format.value)
     fs.writeFileSync(path.join(PATH, fileName + '.md'), markdown)
   })
-
-  async function getConfluencePage(pageId: number, logger?: IntegrationLogger) {
-    const auth = Buffer.from(`${CONFLUENCE_USER}:${CONFLUENCE_API_TOKEN}`).toString('base64')
-
-    const config = {
-      headers: {
-        Authorization: `Basic ${auth}`,
-        Accept: 'application/json',
-      },
-    }
-    try {
-      const response = await axios.get(
-        `${CONFLUENCE_HOST}/wiki/api/v2/pages/${pageId}?body-format=ATLAS_DOC_FORMAT`,
-        config
-      )
-      return response.data
-    } catch (err) {
-      logger?.error('Error while calling confluence', err)
-    }
-  }
 }
