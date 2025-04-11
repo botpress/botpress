@@ -566,6 +566,31 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  integrations/confluence:
+    dependencies:
+      '@botpress/client':
+        specifier: 0.48.3
+        version: 0.48.3
+      '@botpress/common':
+        specifier: workspace:^
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: 1.8.4
+        version: 1.8.4
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+    devDependencies:
+      '@types/node':
+        specifier: ^18.19.67
+        version: 18.19.67
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+
   integrations/dalle:
     dependencies:
       '@botpress/client':
@@ -4127,6 +4152,18 @@ packages:
       - supports-color
     dev: true
 
+  /@botpress/client@0.48.3:
+    resolution: {integrity: sha512-h5c1ck51rjl8aaHw1a7Fzd6zYzMMWW4AIkYMHhuz0B1it+4NecMhtb9R4QPvV+YZuIZ2AnBOls6r2b5JgRLzGA==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      axios: 1.8.4
+      axios-retry: 4.5.0(axios@1.8.4)
+      browser-or-node: 2.1.1
+      qs: 6.13.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@bpinternal/const@0.1.0:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
@@ -4340,8 +4377,8 @@ packages:
     peerDependencies:
       type-fest: ^4.12.0
     dependencies:
-      axios: 1.7.9
-      axios-case-converter: 1.1.1(axios@1.7.9)
+      axios: 1.8.4
+      axios-case-converter: 1.1.1(axios@1.8.4)
       axios-retry: 3.9.1
       runtypes: 6.7.0
       ts-custom-error: 3.3.1
@@ -5366,7 +5403,7 @@ packages:
     dependencies:
       '@types/node': 22.10.2
     optionalDependencies:
-      axios: 1.7.9
+      axios: 1.8.4
     transitivePeerDependencies:
       - debug
     dev: false
@@ -7468,7 +7505,7 @@ packages:
     resolution: {integrity: sha512-9JgOaunvQdsQ/qW2OPmE5+hCeUB52lQSolecrFrthct55QekhmXEwT203s20RL+UHtCQc15y3VXpby9E7Kkh/g==}
     deprecated: This is a stub types definition. axios provides its own type definitions, so you do not need this installed.
     dependencies:
-      axios: 1.7.9
+      axios: 1.8.4
     transitivePeerDependencies:
       - debug
     dev: true
@@ -8462,12 +8499,12 @@ packages:
     resolution: {integrity: sha512-NmWvPnx0F1SfrQbYwOi7OeaNGokp9XhzNioJ/CSBs8Qa4vxug81mhJEAVZwxXuBmYB5KDRfMq/F3RR0BIU7sWg==}
     dev: false
 
-  /axios-case-converter@1.1.1(axios@1.7.9):
+  /axios-case-converter@1.1.1(axios@1.8.4):
     resolution: {integrity: sha512-v13pB7cYryh/7f4TKxN/gniD2hwqPQcjip29Hk3J9iwsnA37Rht2Hkn5VyrxynxlKdMNSIfGk6I9D6G28oTRyQ==}
     peerDependencies:
       axios: '>=1.0.0 <2.0.0'
     dependencies:
-      axios: 1.7.9
+      axios: 1.8.4
       camel-case: 4.1.2
       header-case: 2.0.4
       snake-case: 3.0.4
@@ -8506,6 +8543,15 @@ packages:
       axios: 0.x || 1.x
     dependencies:
       axios: 1.6.1
+      is-retry-allowed: 2.2.0
+    dev: false
+
+  /axios-retry@4.5.0(axios@1.8.4):
+    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
+    peerDependencies:
+      axios: 0.x || 1.x
+    dependencies:
+      axios: 1.8.4
       is-retry-allowed: 2.2.0
     dev: false
 
@@ -8671,6 +8717,15 @@ packages:
 
   /axios@1.7.9:
     resolution: {integrity: sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==}
+    dependencies:
+      follow-redirects: 1.15.6(debug@4.4.0)
+      form-data: 4.0.2
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
+  /axios@1.8.4:
+    resolution: {integrity: sha512-eBSYY4Y68NNlHbHBMdeDmKNtDgXWhQsJcGqzO3iLUM0GraQFSS9cVgPX5I9b3lbdFKyYoAEGAZF1DwhTaljNAw==}
     dependencies:
       follow-redirects: 1.15.6(debug@4.4.0)
       form-data: 4.0.2
@@ -9819,6 +9874,11 @@ packages:
   /dotenv@16.4.4:
     resolution: {integrity: sha512-XvPXc8XAQThSjAbY6cQ/9PcBXmFoWuw1sQ3b8HqUCR6ziGXjkTi//kB9SWa2UwqlgdAIuRqAa/9hVljzPehbYg==}
     engines: {node: '>=12'}
+
+  /dotenv@16.4.7:
+    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
+    engines: {node: '>=12'}
+    dev: false
 
   /dotenv@8.6.0:
     resolution: {integrity: sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==}
@@ -15634,7 +15694,7 @@ packages:
   /trello.js@1.2.7:
     resolution: {integrity: sha512-fFk5pQ8UvnTkGgLfSHKDpmejIx460yiSjG99hjvnj4XLdGsrmSNTKTTiD8or+2uAQ6+mJgq8q4Ztj34r7z0qFQ==}
     dependencies:
-      axios: 1.7.9
+      axios: 1.8.4
       form-data: 4.0.0
       tslib: 2.6.2
     transitivePeerDependencies:
