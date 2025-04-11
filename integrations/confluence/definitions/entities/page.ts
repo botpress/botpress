@@ -1,4 +1,6 @@
-import { z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
+
+const { z } = sdk
 
 export namespace Page {
   const _fields = {
@@ -55,5 +57,5 @@ export namespace Page {
   } as const
 
   export const schema = z.object(_fields)
-  export type InferredType = z.infer<typeof schema>
+  export type InferredType = sdk.z.infer<typeof schema>
 }
