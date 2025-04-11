@@ -30,10 +30,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
     upstreamCm.setHitlInactive(conv.HITL_END_REASON.AGENT_CLOSED_TICKET),
   ])
 
-  if (props.configuration.flowOnHitlStopped) {
-    // the bot will continue the conversation without the patient having to send another message
-    await upstreamCm.continueWorkflow()
-  }
+  // TODO: possibly send the workflowContinue event here
 
   return consts.STOP_EVENT_HANDLING
 }
