@@ -34,5 +34,7 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
   // Call stopHitl in the hitl integration (zendesk, etc.):
   await props.actions.hitl.stopHitl({ conversationId: downstreamConversationId })
 
+  // TODO: possibly send the workflowContinue event here
+
   return {}
 }

@@ -61,6 +61,16 @@ export class ConversationManager {
     ])
   }
 
+  public async continueWorkflow(): Promise<void> {
+    await this._props.client.createEvent({
+      type: 'continueWorkflow',
+      conversationId: this._convId,
+      payload: {
+        conversationId: this._convId,
+      } satisfies bp.events.continueWorkflow.ContinueWorkflow,
+    })
+  }
+
   public async respond({ text, userId }: RespondProps): Promise<void> {
     await this._props.client.createMessage({
       userId: this._props.ctx.botId,

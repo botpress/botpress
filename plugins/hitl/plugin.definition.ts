@@ -16,7 +16,7 @@ export const DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE =
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.4.6',
+  version: '0.5.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -84,6 +84,11 @@ export default new sdk.PluginDefinition({
         .nonnegative()
         .optional()
         .placeholder('0'),
+      flowOnHitlStopped: sdk.z
+        .boolean()
+        .default(true)
+        .title('Flow on HITL Stopped')
+        .describe('Weither to wait for the user to respond to continue the flow after the hitl session'),
     }),
   },
   actions: {
@@ -195,6 +200,11 @@ export default new sdk.PluginDefinition({
           .string()
           .title('Downstream Conversation ID')
           .describe('ID of the downstream conversation'),
+      }),
+    },
+    continueWorkflow: {
+      schema: sdk.z.object({
+        conversationId: sdk.z.string().title('Conversation ID').describe('ID of the conversation'),
       }),
     },
   },
