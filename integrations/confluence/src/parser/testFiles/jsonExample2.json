@@ -1,0 +1,779 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "panel",
+      "attrs": {
+        "panelType": "note"
+      },
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "text": "Ce modèle vous est proposé par Mural, une app de collaboration visuelle.",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "emoji",
+          "attrs": {
+            "id": "2753",
+            "text": "❓",
+            "shortName": ":question:"
+          }
+        },
+        {
+          "text": "Besoins non satisfaits",
+          "type": "text",
+          "marks": [
+            {
+              "type": "annotation",
+              "attrs": {
+                "annotationType": "inlineComment",
+                "id": "8526d93f-957f-4825-a069-5c7014e1d96a"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "placeholder",
+          "attrs": {
+            "text": "Pourquoi faisons-nous cela ? Quelle tâche impossible l'utilisateur cherche-t-il à accomplir ? Pourquoi est-il important de résoudre ce problème ?"
+          }
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "emoji",
+          "attrs": {
+            "id": "1f3f9",
+            "text": "🏹",
+            "shortName": ":bow_and_arrow:"
+          }
+        },
+        {
+          "text": " Objectifs",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "placeholder",
+          "attrs": {
+            "text": "Que souhaitons-nous atteindre avec ce projet ?"
+          }
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "emoji",
+          "attrs": {
+            "id": "1f465",
+            "text": "👥",
+            "shortName": ":busts_in_silhouette:"
+          }
+        },
+        {
+          "text": " Personas utilisateur",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "placeholder",
+          "attrs": {
+            "text": "Parmi nos personas, lequel est la cible principale pour ce changement ? Vous pouvez utiliser le modèle de persona pour préciser cela."
+          }
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "emoji",
+          "attrs": {
+            "id": "1f4aa",
+            "text": "💪",
+            "shortName": ":muscle:"
+          }
+        },
+        {
+          "text": " Emplois à pourvoir",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "Lorsque je",
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "annotation",
+                      "attrs": {
+                        "annotationType": "inlineComment",
+                        "id": "f96966e8-32f7-4ce5-9dba-ada0e2d4a7e9"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "placeholder",
+                  "attrs": {
+                    "text": "<describe the specific context>"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "Je souhaite",
+                  "type": "text"
+                },
+                {
+                  "type": "placeholder",
+                  "attrs": {
+                    "text": "<describe user need>"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "text": "Afin de pouvoir",
+                  "type": "text"
+                },
+                {
+                  "type": "placeholder",
+                  "attrs": {
+                    "text": "<describe the reason for the need>"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "emoji",
+          "attrs": {
+            "id": "1f4dc",
+            "text": "📜",
+            "shortName": ":scroll:"
+          }
+        },
+        {
+          "text": " Un peu d'histoire",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "placeholder",
+          "attrs": {
+            "text": "Si le problème a déjà été étudié par le passé, ou si nous avons testé d'autres stratégies et si nous en avons tiré des enseignements pertinents."
+          }
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "emoji",
+          "attrs": {
+            "id": "1f440",
+            "text": "👀",
+            "shortName": ":eyes:"
+          }
+        },
+        {
+          "text": " Contraintes",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "placeholder",
+          "attrs": {
+            "text": "Si ce problème est affecté par ou affecte un autre projet."
+          }
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "emoji",
+          "attrs": {
+            "id": "1f5fa",
+            "text": "🗺",
+            "shortName": ":map:"
+          }
+        },
+        {
+          "text": " Explorations + décisions",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "placeholder",
+          "attrs": {
+            "text": "Décrivez les types d'approches envisagées, ainsi que les avantages et les inconvénients de chacune. Quelles décisions avons-nous prises, et pourquoi ?"
+          }
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "emoji",
+          "attrs": {
+            "id": "1f5d3",
+            "text": "🗓",
+            "shortName": ":calendar_spiral:"
+          }
+        },
+        {
+          "text": " Versions",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "placeholder",
+          "attrs": {
+            "text": "Si ce projet implique des versions, décrivez-les ici."
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "attrs": {
+        "layout": "default",
+        "width": 760,
+        "localId": "7c7a619b-3415-4046-b9c9-31753eeb2a00"
+      },
+      "content": [
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableHeader",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Nom de la version",
+                      "type": "text",
+                      "marks": [
+                        {
+                          "type": "strong"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableHeader",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Valeur ajoutée",
+                      "type": "text",
+                      "marks": [
+                        {
+                          "type": "strong"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableHeader",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Champ",
+                      "type": "text",
+                      "marks": [
+                        {
+                          "type": "strong"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableHeader",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "État",
+                      "type": "text",
+                      "marks": [
+                        {
+                          "type": "strong"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableHeader",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "text": "Date d'achèvement",
+                      "type": "text",
+                      "marks": [
+                        {
+                          "type": "strong"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tableRow",
+          "content": [
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1
+              },
+              "content": [
+                {
+                  "type": "paragraph"
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1
+              },
+              "content": [
+                {
+                  "type": "paragraph"
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1
+              },
+              "content": [
+                {
+                  "type": "paragraph"
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "status",
+                      "attrs": {
+                        "color": "neutral",
+                        "style": "bold",
+                        "text": "À faire",
+                        "localId": "18475d09-f549-402d-8aa5-0d1b31ccabf2"
+                      }
+                    },
+                    {
+                      "text": " / ",
+                      "type": "text"
+                    },
+                    {
+                      "type": "status",
+                      "attrs": {
+                        "color": "blue",
+                        "style": "bold",
+                        "text": "En cours",
+                        "localId": "6ef6d88f-17d1-41e8-ba07-b52465c44c3a"
+                      }
+                    },
+                    {
+                      "text": " / ",
+                      "type": "text"
+                    },
+                    {
+                      "type": "status",
+                      "attrs": {
+                        "color": "red",
+                        "style": "bold",
+                        "text": "Bloqué",
+                        "localId": "ec3963e0-cb63-4cd1-a288-e35829fc33de"
+                      }
+                    },
+                    {
+                      "text": " / ",
+                      "type": "text"
+                    },
+                    {
+                      "type": "status",
+                      "attrs": {
+                        "color": "yellow",
+                        "style": "bold",
+                        "text": "En attente de feedback",
+                        "localId": "b3b32843-0c19-4b71-9fe1-08ebb7ee4991"
+                      }
+                    },
+                    {
+                      "text": " / ",
+                      "type": "text"
+                    },
+                    {
+                      "type": "status",
+                      "attrs": {
+                        "color": "green",
+                        "style": "bold",
+                        "text": "Terminé",
+                        "localId": "9300ae4d-6e8f-464c-b43c-c3e87a575ae9"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableCell",
+              "attrs": {
+                "colspan": 1,
+                "rowspan": 1
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "date",
+                      "attrs": {
+                        "timestamp": "1744243200000"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "emoji",
+          "attrs": {
+            "id": "1f463",
+            "text": "👣",
+            "shortName": ":footprints:"
+          }
+        },
+        {
+          "text": " Étapes suivantes",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "taskList",
+      "attrs": {
+        "localId": ""
+      },
+      "content": [
+        {
+          "type": "taskItem",
+          "attrs": {
+            "state": "DONE",
+            "localId": "2"
+          },
+          "content": [
+            {
+              "text": "Blabla",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "taskItem",
+          "attrs": {
+            "state": "DONE",
+            "localId": "1"
+          },
+          "content": [
+            {
+              "type": "placeholder",
+              "attrs": {
+                "text": "Que devons-nous faire ensuite ?"
+              }
+            },
+            {
+              "type": "status",
+              "attrs": {
+                "color": "neutral",
+                "style": "bold",
+                "text": "Définir un état",
+                "localId": "cdddc2a2-9520-4062-a90f-cbca71f507be"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "emoji",
+          "attrs": {
+            "id": "1f4c8",
+            "text": "📈",
+            "shortName": ":chart_with_upwards_trend:"
+          }
+        },
+        {
+          "text": " Impact",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "placeholder",
+          "attrs": {
+            "text": "Ajoutez des métriques clés et d'autres indicateurs de performance qui font l'objet d'un suivi."
+          }
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "emoji",
+          "attrs": {
+            "id": "1f517",
+            "text": "🔗",
+            "shortName": ":link:"
+          }
+        },
+        {
+          "text": " Autres documents",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "placeholder",
+                  "attrs": {
+                    "text": "Exemple"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph"
+    },
+    {
+      "type": "paragraph"
+    }
+  ],
+  "version": 1
+}
