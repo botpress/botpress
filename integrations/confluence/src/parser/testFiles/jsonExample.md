@@ -5,7 +5,7 @@ Nous avons ajouté un exemple de contenu pour vous aider à démarrer les tests 
 | **🚗 Meneur**          | @Quentin Ackermann                               |
 | ---------------------- | ------------------------------------------------ |
 | **⚡️ Équipe**         | _Mentionnez les contributeurs (p. ex., @xavier)_ |
-|  |
+|                        |
 | **📆 Date d'échéance** | 03/04/2025                                       |
 | **État**               | **[en cours]**                                   |
 
