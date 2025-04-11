@@ -95,7 +95,7 @@ export const messageSchema = schema(
     id: schema(z.string(), {
       description: 'Identifier of the [Message](#schema_message)',
     }),
-    createdAt: schema(z.date(), {
+    createdAt: schema(z.string().datetime(), {
       description: 'Creation date of the [Message](#schema_message) in ISO 8601 format',
     }),
     payload: schema(messagePayloadSchema, {

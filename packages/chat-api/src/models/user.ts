@@ -15,10 +15,10 @@ export const userSchema = schema(
     profile: schema(z.string().optional(), {
       description: 'Custom profile data of the [User](#schema_user) encoded as a string',
     }),
-    createdAt: schema(z.date(), {
+    createdAt: schema(z.string().datetime(), {
       description: 'Creation date of the [User](#schema_user) in ISO 8601 format',
     }),
-    updatedAt: schema(z.date(), {
+    updatedAt: schema(z.string().datetime(), {
       description: 'Updating date of the [User](#schema_user) in ISO 8601 format',
     }),
   }),

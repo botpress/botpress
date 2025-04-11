@@ -11,7 +11,7 @@ export const eventPayloadSchema = schema(z.record(z.any()), {
 export const eventSchema = schema(
   z.object({
     id: schema(z.string(), { description: 'ID of the custom [Event](#schema_event).' }),
-    createdAt: schema(z.date(), {
+    createdAt: schema(z.string().datetime(), {
       description: 'Creation date of the custom [Event](#schema_event) in ISO 8601 format',
     }),
     payload: eventPayloadSchema,

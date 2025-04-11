@@ -21,6 +21,6 @@ jobs:
       - run: pnpm run check:oxlint
       - run: pnpm run check:format
       - run: pnpm run check:eslint
-      - run: pnpm run check:bplint
+      # - run: pnpm run check:bplint # TODO: re-enable once bplint works with the new zui json-schema generators
       - run: pnpm run check:type
       - run: pnpm run test

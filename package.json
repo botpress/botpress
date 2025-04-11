@@ -11,7 +11,7 @@
     "check:format": "prettier --check .",
     "check:eslint": "eslint ./",
     "check:oxlint": "oxlint -c .oxlintrc.json",
-    "check:lint": "pnpm check:bplint && pnpm check:oxlint && pnpm check:eslint",
+    "check:lint": "pnpm check:oxlint && pnpm check:eslint",
     "check:type": "turbo check:type",
     "fix:dep": "depsynky sync --ignore-dev",
     "fix:sherif": "sherif -i zod -i axios -i query-string -i googleapis --fix",

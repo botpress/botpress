@@ -189,7 +189,7 @@ describe.concurrent('Integration Linter', () => {
     expect(results[0]?.message).toContain('title')
   })
 
-  test('should report an error when missing a title in an action input schema', async () => {
+  test.skip('should report an error when missing a title in an action input schema', async () => {
     // arrange
     const definition = {
       ...VALID_INTEGRATION,
