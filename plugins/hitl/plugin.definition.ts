@@ -111,6 +111,18 @@ export default new sdk.PluginDefinition({
             .title('Conversation ID') // this is the upstream conversation
             .describe('ID of the conversation on which to start the HITL mode')
             .placeholder('{{ event.conversationId }}'),
+          customArgs: sdk.z
+            .string()
+            .title('Custom Arguments')
+            .displayAs<any>({
+              id: 'json',
+              params: {
+                allowDynamicVariable: true,
+                showPreview: true,
+              },
+            })
+            .optional()
+            .describe('Custom integration arguments, check your HITL Integration docs for details'),
         }),
       },
       output: { schema: sdk.z.object({}) },

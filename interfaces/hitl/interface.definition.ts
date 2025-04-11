@@ -32,7 +32,7 @@ const messageSchema = z.union(messagePayloadSchemas as Tuple<AnyZodObject>)
 
 export default new InterfaceDefinition({
   name: 'hitl',
-  version: '0.4.0',
+  version: '0.4.1',
   entities: {},
   events: {
     hitlAssigned: {
@@ -78,6 +78,8 @@ export default new InterfaceDefinition({
               .array(messageSchema)
               .optional()
               .describe('Message history to display in the HITL session'),
+            // Or string since type record doesn't work for frontend input schema
+            customArgs: z.record(z.unknown()).or(z.string()).optional().describe('Custom integration arguments'),
           }),
       },
       output: {

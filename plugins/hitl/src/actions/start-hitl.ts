@@ -106,12 +106,26 @@ const _createDownstreamConversation = async (
   input: StartHitlInput,
   messageHistory: MessageHistoryElement[]
 ): Promise<string> => {
+  let customArgs = input.customArgs
+
+  // We could be receiving a JSON object as string, so we need to parse it.
+  // This behavior is not optimal but type record or object is not supported
+  // on frontend components yet
+  if (typeof input.customArgs == 'string') {
+    try {
+      customArgs = JSON.parse(input.customArgs as string)
+    } catch (err: any) {
+      customArgs = { err }
+    }
+  }
+
   // Call startHitl in the hitl integration (zendesk, etc.):
   const { conversationId: downstreamConversationId } = await props.actions.hitl.startHitl({
     title: input.title,
     description: input.description,
     userId: downstreamUserId,
     messageHistory,
+    customArgs,
   })
 
   return downstreamConversationId
