@@ -2,6 +2,8 @@
   "name": "@bp-templates/confluence",
   "integrationName": "confluence/confluence",
   "scripts": {
+    "build": "bp add -y && bp build",
+    "check:bplint": "bp lint",
     "check:type": "tsc --noEmit"
   },
   "private": true,
