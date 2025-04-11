@@ -32,12 +32,7 @@ export default new IntegrationDefinition({
           body: z.any(),
           query: z.record(z.any()),
           path: z.string(),
-          headers: z.record(
-            z.union([
-              z.string(),
-              z.string().array(),
-            ])
-          ),
+          headers: z.record(z.union([z.string(), z.string().array()])),
           method: z.enum(['GET', 'POST']),
         })
         .passthrough(),
