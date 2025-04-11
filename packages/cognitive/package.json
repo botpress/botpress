@@ -30,7 +30,7 @@
   "devDependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@bpinternal/zui": "0.13.5",
+    "@bpinternal/zui": "/Users/francoislevasseur/Documents/code/packages/zui",
     "@size-limit/file": "^11.1.6",
     "@types/axios": "^0.14.4",
     "@types/debug": "^4.1.12",

@@ -7,10 +7,10 @@ export const conversationIdSchema = schema(z.string(), {
 
 export const conversationSchema = z.object({
   id: conversationIdSchema,
-  createdAt: schema(z.date(), {
+  createdAt: schema(z.string().datetime(), {
     description: 'Creation date of the [Conversation](#schema_conversation) in ISO 8601 format',
   }),
-  updatedAt: schema(z.date(), {
+  updatedAt: schema(z.string().datetime(), {
     description: 'Updating date of the [Conversation](#schema_conversation) in ISO 8601 format',
   }),
 })

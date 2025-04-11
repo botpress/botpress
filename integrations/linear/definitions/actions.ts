@@ -81,7 +81,7 @@ const userSchema = z.object({
     .title('Description')
     .describe("The user's description, such as their title or bio"),
   lastSeen: z.string().optional().title('Last Seen').describe('The last time the user was seen'),
-  updatedAt: z.date().title('Updated At').describe('The last time the user was updated'),
+  updatedAt: z.string().datetime().title('Updated At').describe('The last time the user was updated'),
 })
 
 const listUsers = {

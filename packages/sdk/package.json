@@ -25,7 +25,7 @@
     "tsup": "^8.0.2"
   },
   "peerDependencies": {
-    "@bpinternal/zui": "^0.13.5",
+    "@bpinternal/zui": "/Users/francoislevasseur/Documents/code/packages/zui",
     "esbuild": "^0.16.12"
   },
   "peerDependenciesMeta": {

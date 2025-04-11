@@ -41,7 +41,7 @@
   },
   "peerDependencies": {
     "@bpinternal/thicktoken": "^1.0.0",
-    "@bpinternal/zui": "^0.17.1"
+    "@bpinternal/zui": "/Users/francoislevasseur/Documents/code/packages/zui"
   },
   "engines": {
     "node": ">=18.0.0"
