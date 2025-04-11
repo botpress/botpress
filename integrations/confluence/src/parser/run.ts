@@ -2,7 +2,7 @@ import { IntegrationLogger } from '@botpress/sdk'
 import axios from 'axios'
 import fs from 'fs'
 import path from 'path'
-import { parseJsonToMarkdown } from './confluenceToMarkdown'
+import { convertAtlassianDocumentToMarkdown } from './confluenceToMarkdown'
 
 // Launch using npx ts-node run.ts
 
@@ -13,7 +13,7 @@ const fileName = 'jsonExample'
 const PATH = __dirname + path.sep + 'testFiles'
 
 const file = fs.readFileSync(path.join(PATH, fileName + '.json'), 'utf-8')
-const markdown = parseJsonToMarkdown(JSON.parse(file))
+const markdown = convertAtlassianDocumentToMarkdown(JSON.parse(file))
 
 fs.writeFileSync(path.join(PATH, fileName + '.md'), markdown)
 
@@ -50,7 +50,7 @@ if (getFromConfluence) {
   const file = getConfluencePage(213432) // provide relevant pageId
 
   void file.then((data) => {
-    const markdown = parseJsonToMarkdown(JSON.parse(data.body.atlas_doc_format.value))
+    const markdown = convertAtlassianDocumentToMarkdown(JSON.parse(data.body.atlas_doc_format.value))
     // Write json and markdown results. JSON is used for debugging purposes (searching for tokens)
     fs.writeFileSync(path.join(PATH, fileName + '.json'), data.body.atlas_doc_format.value)
     fs.writeFileSync(path.join(PATH, fileName + '.md'), markdown)

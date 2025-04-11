@@ -5,11 +5,11 @@ import { actions, channels } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'confluence',
-  version: '0.0.2',
+  version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   title: 'Confluence',
-  description: 'Confluence integration for Botpress',
+  description: 'Manage your files and folders effortlessly.',
   configuration: {
     schema: z.object({
       host: z.string().describe('Host URI. Format is https://your_workspace_name.atlassian.net').title('Host'),

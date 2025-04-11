@@ -36,6 +36,31 @@ type AtlassianNode = BaseNode
 const CHECKBOX_DONE_STATUS = 'DONE'
 
 /**
+ * Converts a JSON representation of an Atlassian document into Markdown format.
+ *
+ * This function takes a JSON object representing an Atlassian document structure
+ * and recursively processes its nodes to generate a Markdown string. It supports
+ * various node types such as paragraphs, headings, tables, lists, emojis, mentions,
+ * and more. Each node type is handled specifically to ensure proper Markdown formatting.
+ *
+ * @param json - The root AtlassianNode object representing the document to be converted.
+ *               The root node is expected to have a type of "doc".
+ * @param logger - An optional logger instance for debugging purposes. Logs information
+ *                 about the parsing process and any unhandled node types.
+ * @returns A string containing the Markdown representation of the input JSON document.
+ *          If the input JSON is invalid or not of type "doc", an empty string is returned.
+ */
+export function convertAtlassianDocumentToMarkdown(json: AtlassianNode, logger?: IntegrationLogger): string {
+  logger?.debug('Parsing JSON to Markdown', json)
+  if (json.type !== 'doc') {
+    logger?.debug('Invalid JSON structure: expected "doc" type')
+    return ''
+  }
+
+  return json.content?.map(parseNode).join('') ?? ''
+}
+
+/**
  * Recursively processes an AtlassianNode and converts it into its Markdown representation.
  *
  * This function handles various node types from an Atlassian document structure and
@@ -205,31 +230,6 @@ function handleExtension(node: AtlassianNode): string {
   // return `\n> 📅 **${title}** (roadmap intégrée)\n`
   console.warn('Unhandled extension')
   return ''
-}
-
-/**
- * Converts a JSON representation of an Atlassian document into Markdown format.
- *
- * This function takes a JSON object representing an Atlassian document structure
- * and recursively processes its nodes to generate a Markdown string. It supports
- * various node types such as paragraphs, headings, tables, lists, emojis, mentions,
- * and more. Each node type is handled specifically to ensure proper Markdown formatting.
- *
- * @param json - The root AtlassianNode object representing the document to be converted.
- *               The root node is expected to have a type of "doc".
- * @param logger - An optional logger instance for debugging purposes. Logs information
- *                 about the parsing process and any unhandled node types.
- * @returns A string containing the Markdown representation of the input JSON document.
- *          If the input JSON is invalid or not of type "doc", an empty string is returned.
- */
-export function parseJsonToMarkdown(json: AtlassianNode, logger?: IntegrationLogger): string {
-  logger?.debug('Parsing JSON to Markdown', json)
-  if (json.type !== 'doc') {
-    logger?.debug('Invalid JSON structure: expected "doc" type')
-    return ''
-  }
-
-  return json.content?.map(parseNode).join('') ?? ''
 }
 
 function parseNode(node: AtlassianNode): string {

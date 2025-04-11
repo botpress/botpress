@@ -3,7 +3,7 @@ import * as bp from '.botpress'
 import { PageCommentPublisher } from './publishers/page-comment'
 
 export const channels = {
-  comments: {
+  pageComments: {
     messages: {
       text: PageCommentPublisher.publishFooterComment,
     },

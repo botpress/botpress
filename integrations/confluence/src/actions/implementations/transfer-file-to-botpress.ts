@@ -1,6 +1,6 @@
 import * as bp from '.botpress'
 
-import { parseJsonToMarkdown } from 'src/parser/confluenceToMarkdown'
+import { convertAtlassianDocumentToMarkdown } from 'src/parser/confluenceToMarkdown'
 import { ConfluenceClient } from 'src/client'
 import { RuntimeError } from '@botpress/sdk'
 
@@ -14,7 +14,7 @@ export const filesReadonlyTransferFileToBotpress: bp.IntegrationProps['actions']
       throw new RuntimeError('Content not found')
     }
 
-    const markdown = parseJsonToMarkdown(JSON.parse(content.body.atlas_doc_format.value), logger)
+    const markdown = convertAtlassianDocumentToMarkdown(JSON.parse(content.body.atlas_doc_format.value), logger)
 
     if (!markdown) {
       throw new RuntimeError('Markdown not found')
@@ -22,7 +22,7 @@ export const filesReadonlyTransferFileToBotpress: bp.IntegrationProps['actions']
 
     const { file: uploadedFile } = await client.uploadFile({
       key: fileKey,
-      content: markdown ?? 'No content. There might be in error.',
+      content: markdown,
       contentType: 'text/plain',
       index: true,
     })

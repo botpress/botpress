@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 
 export const channels = {
-  comments: {
+  pageComments: {
     title: 'Page comments',
     description: 'Comment thread on a page',
     messages: {
@@ -9,7 +9,7 @@ export const channels = {
     },
     conversation: {
       tags: {
-        id: {
+        taskId: {
           title: 'Task ID',
           description: 'The ID of the task',
         },
@@ -17,7 +17,7 @@ export const channels = {
     },
     message: {
       tags: {
-        id: {
+        taskId: {
           title: 'Page ID',
           description: 'The ID of the page',
         },

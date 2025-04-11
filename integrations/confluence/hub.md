@@ -2,14 +2,6 @@
 
 ## Configuration
 
-### Automatic configuration with OAuth
-
-<!-- To set up the Confluence integration using OAuth, click the authorization button and follow the on-screen instructions to connect your Botpress chatbot to Confluence.
-
-When configuring your bot with OAuth, you can either log in with your user account or with a user account you created specifically for your bot.
-Please keep in mind that if you log in with your user account, the bot actions and interactions will appear as yours.
-For most use cases, it is recommended to create a user account specifically for your bot. You will have to grant the bot's user appropriate permissions in Confluence for it to access pages and perform actions. -->
-
 ### Manual configuration using API credentials
 
 1. Confluence API token creation
