@@ -14,6 +14,9 @@ export const DEFAULT_USER_HITL_COMMAND_MESSAGE =
 export const DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE =
   'No human agent is available at the moment. Please try again later. I will continue assisting you for the time being.'
 
+const EVENT_USER_ID = '{{ event.userId }}'
+const EVENT_CONVERSATION_ID = '{{ event.conversationId }}'
+
 export default new sdk.PluginDefinition({
   name: 'hitl',
   version: '0.5.1',
@@ -103,7 +106,8 @@ export default new sdk.PluginDefinition({
             .string()
             .title('User ID')
             .describe('ID of the user that starts the HITL mode')
-            .default('{{ event.userId }}'),
+            .placeholder(EVENT_USER_ID)
+            .default(EVENT_USER_ID),
           userEmail: sdk.z
             .string()
             .title('User Email')
@@ -115,7 +119,8 @@ export default new sdk.PluginDefinition({
             .string()
             .title('Conversation ID') // this is the upstream conversation
             .describe('ID of the conversation on which to start the HITL mode')
-            .default('{{ event.conversationId }}'),
+            .placeholder(EVENT_CONVERSATION_ID)
+            .default(EVENT_CONVERSATION_ID),
         }),
       },
       output: { schema: sdk.z.object({}) },
@@ -128,7 +133,8 @@ export default new sdk.PluginDefinition({
           conversationId: sdk.z
             .string()
             .describe('ID of the conversation on which to stop the HITL mode')
-            .default('{{ event.conversationId }}'),
+            .placeholder(EVENT_CONVERSATION_ID)
+            .default(EVENT_CONVERSATION_ID),
         }),
       },
       output: { schema: sdk.z.object({}) },
