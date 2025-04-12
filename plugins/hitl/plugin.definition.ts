@@ -16,7 +16,7 @@ export const DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE =
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.5.0',
+  version: '0.5.1',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -103,7 +103,7 @@ export default new sdk.PluginDefinition({
             .string()
             .title('User ID')
             .describe('ID of the user that starts the HITL mode')
-            .placeholder('{{ event.userId }}'),
+            .default('{{ event.userId }}'),
           userEmail: sdk.z
             .string()
             .title('User Email')
@@ -115,7 +115,7 @@ export default new sdk.PluginDefinition({
             .string()
             .title('Conversation ID') // this is the upstream conversation
             .describe('ID of the conversation on which to start the HITL mode')
-            .placeholder('{{ event.conversationId }}'),
+            .default('{{ event.conversationId }}'),
         }),
       },
       output: { schema: sdk.z.object({}) },
@@ -128,7 +128,7 @@ export default new sdk.PluginDefinition({
           conversationId: sdk.z
             .string()
             .describe('ID of the conversation on which to stop the HITL mode')
-            .placeholder('{{ event.conversationId }}'),
+            .default('{{ event.conversationId }}'),
         }),
       },
       output: { schema: sdk.z.object({}) },
