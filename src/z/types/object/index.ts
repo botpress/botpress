@@ -26,8 +26,8 @@ import {
   errorUtil,
   partialUtil,
   createZodEnum,
-  ZodUnknown,
   ZodNever,
+  ZodAny,
 } from '../index'
 import { CustomSet } from '../utils/custom-set'
 
@@ -74,6 +74,14 @@ export type UnknownKeysOutputType<T extends UnknownKeysParam> = T extends ZodTyp
   : T extends 'passthrough'
     ? { [k: string]: unknown }
     : {}
+
+export type AdditionalProperties<T extends UnknownKeysParam> = T extends ZodTypeAny
+  ? T
+  : T extends 'passthrough'
+    ? ZodAny
+    : T extends 'strict'
+      ? ZodNever
+      : undefined
 
 export type deoptional<T extends ZodTypeAny> =
   T extends ZodOptional<infer U> ? deoptional<U> : T extends ZodNullable<infer U> ? ZodNullable<deoptional<U>> : T
@@ -278,6 +286,22 @@ export class ZodObject<
       ...this._def,
       unknownKeys: 'passthrough',
     })
+  }
+
+  /**
+   * @returns The ZodType that is used to validate additional properties or undefined if extra keys are stripped.
+   */
+  additionalProperties(): AdditionalProperties<UnknownKeys> {
+    if (this._def.unknownKeys instanceof ZodType) {
+      return this._def.unknownKeys as AdditionalProperties<UnknownKeys>
+    }
+    if (this._def.unknownKeys === 'passthrough') {
+      return ZodAny.create() as AdditionalProperties<UnknownKeys>
+    }
+    if (this._def.unknownKeys === 'strict') {
+      return ZodNever.create() as AdditionalProperties<UnknownKeys>
+    }
+    return undefined as AdditionalProperties<UnknownKeys>
   }
 
   /**
@@ -579,7 +603,7 @@ export class ZodObject<
 
   isEqual(schema: ZodType): boolean {
     if (!(schema instanceof ZodObject)) return false
-    if (!this._unknownKeysEqual(schema._def.unknownKeys)) return false
+    if (!this._unknownKeysEqual(schema)) return false
 
     const thisShape = this._def.shape()
     const thatShape = schema._def.shape()
@@ -592,11 +616,13 @@ export class ZodObject<
     return thisProps.isEqual(thatProps)
   }
 
-  private _unknownKeysEqual(that: UnknownKeysParam): boolean {
-    if (this._def.unknownKeys instanceof ZodType && that instanceof ZodType) {
-      return this._def.unknownKeys.isEqual(that)
+  private _unknownKeysEqual(that: ZodObject): boolean {
+    const thisAdditionalProperties = this.additionalProperties()
+    const thatAdditionalProperties = that.additionalProperties()
+    if (thisAdditionalProperties === undefined || thatAdditionalProperties === undefined) {
+      return thisAdditionalProperties === thatAdditionalProperties
     }
-    return this._def.unknownKeys === that
+    return thisAdditionalProperties.isEqual(thatAdditionalProperties)
   }
 
   static create = <T extends ZodRawShape>(shape: T, params?: RawCreateParams): ZodObject<T, 'strip'> => {

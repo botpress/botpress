@@ -178,6 +178,40 @@ describe('isEqual', () => {
       }),
     )
   })
+  test('strict object', () => {
+    expectZui(
+      z
+        .object({
+          a: z.string(),
+          b: z.number(),
+        })
+        .strict(),
+    ).toEqual(
+      z
+        .object({
+          b: z.number(),
+          a: z.string(),
+        })
+        .catchall(z.never()),
+    )
+  })
+  test('passthrough object', () => {
+    expectZui(
+      z
+        .object({
+          a: z.string(),
+          b: z.number(),
+        })
+        .passthrough(),
+    ).toEqual(
+      z
+        .object({
+          b: z.number(),
+          a: z.string(),
+        })
+        .catchall(z.any()),
+    )
+  })
   test('optional', () => {
     expectZui(z.string().optional()).toEqual(z.optional(z.string()))
   })
@@ -280,5 +314,21 @@ describe('isNotEqual', () => {
     expectZui(z.bigint().min(min1)).not.toEqual(z.bigint().min(min2))
   })
 
-  // TODO: add more not equal tests
+  test('object with different catchall', () => {
+    expectZui(
+      z
+        .object({
+          a: z.string(),
+          b: z.number(),
+        })
+        .catchall(z.string()),
+    ).not.toEqual(
+      z
+        .object({
+          a: z.string(),
+          b: z.number(),
+        })
+        .catchall(z.number()),
+    )
+  })
 })

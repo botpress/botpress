@@ -95,6 +95,36 @@ describe('zuiToJsonSchemaNext', () => {
     })
   })
 
+  test('should map strict ZodObject to ObjectSchema with addtionalProperties never', () => {
+    const schema = toJsonSchema(z.object({ name: z.string() }).strict())
+    expect(schema).toEqual({
+      type: 'object',
+      properties: { name: { type: 'string' } },
+      required: ['name'],
+      additionalProperties: { not: true },
+    })
+  })
+
+  test('should map passthrough ZodObject to ObjectSchema with addtionalProperties any', () => {
+    const schema = toJsonSchema(z.object({ name: z.string() }).passthrough())
+    expect(schema).toEqual({
+      type: 'object',
+      properties: { name: { type: 'string' } },
+      required: ['name'],
+      additionalProperties: {},
+    })
+  })
+
+  test('should map ZodObject with catchall ZodNumber to ObjectSchema with addtionalProperties number', () => {
+    const schema = toJsonSchema(z.object({ name: z.string() }).catchall(z.number()))
+    expect(schema).toEqual({
+      type: 'object',
+      properties: { name: { type: 'string' } },
+      required: ['name'],
+      additionalProperties: { type: 'number' },
+    })
+  })
+
   test('should map ZodUnion to UnionSchema', () => {
     const schema = toJsonSchema(z.union([z.string(), z.number()]))
     expect(schema).toEqual({

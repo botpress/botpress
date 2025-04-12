@@ -82,10 +82,11 @@ type _ObjectSchema = util.Satisfies<
   {
     type: 'object'
     properties: { [key: string]: ZuiJsonSchema }
+    additionalProperties?: ZuiJsonSchema
     required: string[]
   },
   JSONSchema7
-> // TODO: add support for unknownKeys ('passthrough' | 'strict' | 'strip')
+>
 type _TupleSchema = util.Satisfies<
   { type: 'array'; items: ZuiJsonSchema[]; additionalItems?: ZuiJsonSchema },
   JSONSchema7

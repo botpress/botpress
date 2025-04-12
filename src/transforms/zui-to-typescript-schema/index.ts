@@ -72,17 +72,14 @@ function sUnwrapZod(schema: z.Schema): string {
       return `z.array(${sUnwrapZod(def.type)})${generateArrayChecks(def)}${_addZuiExtensions(def)}${_maybeDescribe(def)}`
 
     case z.ZodFirstPartyTypeKind.ZodObject:
-      const props = mapValues(def.shape(), (value) => {
-        if (value instanceof z.Schema) {
-          return sUnwrapZod(value)
-        }
-        return `z.any()`
-      })
+      const props = mapValues(def.shape(), sUnwrapZod)
+      const catchall = (schema as z.ZodObject).additionalProperties()
+      const catchallString = catchall ? `.catchall(${sUnwrapZod(catchall)})` : ''
       return [
         //
         `z.object({`,
         ...Object.entries(props).map(([key, value]) => `  ${key}: ${value},`),
-        `})${_addZuiExtensions(def)}${_maybeDescribe(def)}`,
+        `})${catchallString}${_addZuiExtensions(def)}${_maybeDescribe(def)}`,
       ]
         .join('\n')
         .trim()

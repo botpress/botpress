@@ -126,11 +126,9 @@ function _fromJsonSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
 
   if (schema.type === 'object') {
     if (schema.additionalProperties !== undefined && schema.properties !== undefined) {
-      // TODO: should be supported with the .catchall() method but the behavior of this method is inconsistent
-      throw new errors.UnsupportedJSONSchemaToZuiError({
-        additionalProperties: schema.additionalProperties,
-        properties: schema.properties,
-      })
+      const catchAll = _fromJsonSchema(schema.additionalProperties)
+      const inner = _fromJsonSchema({ ...schema, additionalProperties: undefined }) as z.ZodObject
+      return inner.catchall(catchAll)
     }
 
     if (schema.properties !== undefined) {

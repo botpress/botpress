@@ -301,6 +301,37 @@ describe.concurrent('toTypescriptZuiString', () => {
     })
     assert(schema).toGenerateItself()
   })
+
+  test('strict object', () => {
+    const schema = z
+      .object({
+        a: z.string(),
+        b: z.number(),
+      })
+      .strict()
+    assert(schema).toGenerateItself()
+  })
+
+  test('passthrough object', () => {
+    const schema = z
+      .object({
+        a: z.string(),
+        b: z.number(),
+      })
+      .passthrough()
+    assert(schema).toGenerateItself()
+  })
+
+  test('catchall object', () => {
+    const schema = z
+      .object({
+        a: z.string(),
+        b: z.number(),
+      })
+      .catchall(z.boolean())
+    assert(schema).toGenerateItself()
+  })
+
   test('union', () => {
     const schema = z.union([z.string(), z.number(), z.boolean()])
     assert(schema).toGenerateItself()

@@ -75,13 +75,15 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
         .map(([key, value]) => [key, _toRequired(value)] satisfies [string, z.ZodType])
         .map(([key, value]) => [key, toJsonSchema(value)] satisfies [string, json.ZuiJsonSchema])
 
-      // TODO: ensure unknownKeys and catchall are not lost
+      const zAdditionalProperties = (schema as z.ZodObject).additionalProperties()
+      const additionalProperties = zAdditionalProperties ? toJsonSchema(zAdditionalProperties) : undefined
 
       return {
         type: 'object',
         properties: Object.fromEntries(properties),
         required,
         'x-zui': def['x-zui'],
+        additionalProperties,
       } satisfies json.ObjectSchema
 
     case z.ZodFirstPartyTypeKind.ZodUnion:

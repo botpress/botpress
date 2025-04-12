@@ -139,6 +139,42 @@ describe.concurrent('zuifromJsonSchemaNext', () => {
     assert(zSchema).toEqual(expected)
   })
 
+  test('should map ObjectSchema with additional properties NumberSchema to ZodObject', () => {
+    const jSchema = buildSchema({
+      type: 'object',
+      properties: { name: { type: 'string' } },
+      required: ['name'],
+      additionalProperties: { type: 'number' },
+    })
+    const zSchema = fromJsonSchema(jSchema)
+    const expected = z.object({ name: z.string() }).catchall(z.number())
+    assert(zSchema).toEqual(expected)
+  })
+
+  test('should map ObjectSchema with additional properties AnySchema to ZodObject', () => {
+    const jSchema = buildSchema({
+      type: 'object',
+      properties: { name: { type: 'string' } },
+      required: ['name'],
+      additionalProperties: true,
+    })
+    const zSchema = fromJsonSchema(jSchema)
+    const expected = z.object({ name: z.string() }).passthrough()
+    assert(zSchema).toEqual(expected)
+  })
+
+  test('should map ObjectSchema with additional properties NeverSchema to ZodObject', () => {
+    const jSchema = buildSchema({
+      type: 'object',
+      properties: { name: { type: 'string' } },
+      required: ['name'],
+      additionalProperties: false,
+    })
+    const zSchema = fromJsonSchema(jSchema)
+    const expected = z.object({ name: z.string() }).strict()
+    assert(zSchema).toEqual(expected)
+  })
+
   test('should map UnionSchema to ZodUnion', () => {
     const jSchema = buildSchema({ anyOf: [{ type: 'string' }, { type: 'number' }] })
     const zSchema = fromJsonSchema(jSchema)
