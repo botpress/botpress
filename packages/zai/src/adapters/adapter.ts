@@ -1,4 +1,4 @@
-import { GenerationMetadata } from '../utils'
+import { GenerationMetadata } from '../utils.js'
 
 export type SaveExampleProps<TInput, TOutput> = {
   key: string

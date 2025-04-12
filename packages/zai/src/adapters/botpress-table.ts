@@ -1,8 +1,8 @@
 import { type Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
 
-import { GenerationMetadata } from '../utils'
-import { Adapter, GetExamplesProps, SaveExampleProps } from './adapter'
+import { GenerationMetadata } from '../utils.js'
+import { Adapter, GetExamplesProps, SaveExampleProps } from './adapter.js'
 
 const CRITICAL_TAGS = {
   system: 'true',

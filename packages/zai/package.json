@@ -2,17 +2,18 @@
   "name": "@botpress/zai",
   "description": "Zui AI (zai) – An LLM utility library written on top of Zui and the Botpress API",
   "version": "1.2.7",
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     "types": "./dist/index.d.ts",
-    "require": "./dist/index.js",
+    "require": "./dist/index.cjs",
     "import": "./dist/index.js"
   },
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp add -y && pnpm run build:types && pnpm run build:neutral",
-    "build:neutral": "ts-node -T ./build.ts",
+    "build:neutral": "node --loader ts-node/esm build.ts",
     "build:types": "tsup",
     "watch": "tsup --watch",
     "test:e2e": "vitest run --config vitest.config.ts",

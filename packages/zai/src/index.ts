@@ -1,11 +1,11 @@
-import { Zai } from './zai'
+import { Zai } from './zai.js'
 
-import './operations/text'
-import './operations/rewrite'
-import './operations/summarize'
-import './operations/check'
-import './operations/filter'
-import './operations/extract'
-import './operations/label'
+import './operations/text.js'
+import './operations/rewrite.js'
+import './operations/summarize.js'
+import './operations/check.js'
+import './operations/filter.js'
+import './operations/extract.js'
+import './operations/label.js'
 
 export { Zai }

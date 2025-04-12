@@ -1,4 +1,4 @@
-import { Adapter } from './adapter'
+import { Adapter } from './adapter.js'
 
 export class MemoryAdapter extends Adapter {
   public constructor(public examples: any[]) {

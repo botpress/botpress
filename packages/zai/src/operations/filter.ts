@@ -2,9 +2,9 @@
 import { z } from '@bpinternal/zui'
 
 import { clamp } from 'lodash-es'
-import { fastHash, stringify, takeUntilTokens } from '../utils'
-import { Zai } from '../zai'
-import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
+import { fastHash, stringify, takeUntilTokens } from '../utils.js'
+import { Zai } from '../zai.js'
+import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants.js'
 
 type Example = z.input<typeof Example>
 const Example = z.object({
