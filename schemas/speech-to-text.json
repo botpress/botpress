@@ -7,12 +7,14 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
         "required": [
           "id"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },
@@ -26,27 +28,33 @@
           "type": "object",
           "properties": {
             "model": {
-              "$ref": "speechToTextModelRef"
+              "$ref": "speechToTextModelRef",
+              "x-zui": {}
             },
             "fileUrl": {
               "type": "string",
               "description": "URL of the audio file to transcribe. The URL should return a content-type header in order to detect the audio format. Supported audio formats supported are: mp3, mp4, mpeg, mpga, m4a, wav, webm",
+              "x-zui": {},
               "format": "uri"
             },
             "language": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "prompt": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "temperature": {
               "type": "number",
+              "x-zui": {},
               "default": 0
             }
           },
           "required": [
             "fileUrl"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -55,11 +63,13 @@
           "properties": {
             "language": {
               "type": "string",
-              "description": "Detected language of the audio"
+              "description": "Detected language of the audio",
+              "x-zui": {}
             },
             "duration": {
               "type": "number",
-              "description": "Duration of the audio file, in seconds"
+              "description": "Duration of the audio file, in seconds",
+              "x-zui": {}
             },
             "segments": {
               "type": "array",
@@ -68,46 +78,57 @@
                 "properties": {
                   "text": {
                     "type": "string",
-                    "description": "Text content of the segment."
+                    "description": "Text content of the segment.",
+                    "x-zui": {}
                   },
                   "id": {
                     "type": "number",
-                    "description": "Unique identifier of the segment"
+                    "description": "Unique identifier of the segment",
+                    "x-zui": {}
                   },
                   "seek": {
                     "type": "number",
-                    "description": "Seek offset of the segment"
+                    "description": "Seek offset of the segment",
+                    "x-zui": {}
                   },
                   "start": {
                     "type": "number",
-                    "description": "Start time of the segment in seconds."
+                    "description": "Start time of the segment in seconds.",
+                    "x-zui": {}
                   },
                   "end": {
                     "type": "number",
-                    "description": "End time of the segment in seconds."
+                    "description": "End time of the segment in seconds.",
+                    "x-zui": {}
                   },
                   "tokens": {
                     "type": "array",
                     "description": "Array of token IDs for the text content.",
                     "items": {
-                      "type": "number"
-                    }
+                      "type": "number",
+                      "x-zui": {}
+                    },
+                    "x-zui": {}
                   },
                   "temperature": {
                     "type": "number",
-                    "description": "Temperature parameter used for generating the segment."
+                    "description": "Temperature parameter used for generating the segment.",
+                    "x-zui": {}
                   },
                   "avg_logprob": {
                     "type": "number",
-                    "description": "Average logprob of the segment. If the value is lower than -1, consider the logprobs failed."
+                    "description": "Average logprob of the segment. If the value is lower than -1, consider the logprobs failed.",
+                    "x-zui": {}
                   },
                   "compression_ratio": {
                     "type": "number",
-                    "description": "Compression ratio of the segment. If the value is greater than 2.4, consider the compression failed."
+                    "description": "Compression ratio of the segment. If the value is greater than 2.4, consider the compression failed.",
+                    "x-zui": {}
                   },
                   "no_speech_prob": {
                     "type": "number",
-                    "description": "Probability of no speech in the segment. If the value is higher than 1.0 and the avg_logprob is below -1, consider this segment silent."
+                    "description": "Probability of no speech in the segment. If the value is higher than 1.0 and the avg_logprob is below -1, consider this segment silent.",
+                    "x-zui": {}
                   }
                 },
                 "required": [
@@ -121,28 +142,34 @@
                   "avg_logprob",
                   "compression_ratio",
                   "no_speech_prob"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             },
             "model": {
               "type": "string",
-              "description": "Model name used"
+              "description": "Model name used",
+              "x-zui": {}
             },
             "cost": {
               "type": "number",
-              "description": "Total cost of the transcription, in U.S. dollars (DEPRECATED)"
+              "description": "Total cost of the transcription, in U.S. dollars (DEPRECATED)",
+              "x-zui": {}
             },
             "botpress": {
               "type": "object",
               "properties": {
                 "cost": {
                   "type": "number",
-                  "description": "Total cost of the transcription, in U.S. dollars"
+                  "description": "Total cost of the transcription, in U.S. dollars",
+                  "x-zui": {}
                 }
               },
               "required": [
                 "cost"
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
@@ -152,7 +179,8 @@
             "model",
             "cost",
             "botpress"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -161,7 +189,8 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -176,32 +205,40 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "name": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "costPerMinute": {
                         "type": "number",
-                        "description": "Cost per minute of speech transcription, in U.S. dollars"
+                        "description": "Cost per minute of speech transcription, in U.S. dollars",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id",
                       "name",
                       "costPerMinute"
-                    ]
+                    ],
+                    "x-zui": {}
                   },
                   {
-                    "$ref": "speechToTextModelRef"
+                    "$ref": "speechToTextModelRef",
+                    "x-zui": {}
                   }
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "models"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     }

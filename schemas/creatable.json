@@ -7,12 +7,14 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
         "required": [
           "id"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },
@@ -24,25 +26,30 @@
           "item": {
             "allOf": [
               {
-                "$ref": "item"
+                "$ref": "item",
+                "x-zui": {}
               },
               {
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id"
-                ]
+                ],
+                "x-zui": {}
               }
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "item"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },
@@ -53,12 +60,14 @@
           "type": "object",
           "properties": {
             "item": {
-              "$ref": "item"
+              "$ref": "item",
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -68,25 +77,30 @@
             "item": {
               "allOf": [
                 {
-                  "$ref": "item"
+                  "$ref": "item",
+                  "x-zui": {}
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id"
-                  ]
+                  ],
+                  "x-zui": {}
                 }
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     }

@@ -13,12 +13,14 @@
             "data": {
               "type": "string",
               "description": "JSON string of data to send",
+              "x-zui": {},
               "minLength": 1
             }
           },
           "required": [
             "data"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -28,12 +30,14 @@
           "properties": {
             "success": {
               "type": "boolean",
-              "description": "True if the data was sent successfully"
+              "description": "True if the data was sent successfully",
+              "x-zui": {}
             },
             "response": {
               "anyOf": [
                 {
-                  "description": "Data received from Make.com, will be the string `Accepted` if successful and no data is returned"
+                  "description": "Data received from Make.com, will be the string `Accepted` if successful and no data is returned",
+                  "x-zui": {}
                 },
                 {
                   "type": "null"
@@ -48,7 +52,8 @@
           },
           "required": [
             "success"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     }

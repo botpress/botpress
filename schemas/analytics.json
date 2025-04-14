@@ -11,7 +11,8 @@
     "schema": {
       "type": "object",
       "properties": {},
-      "required": []
+      "required": [],
+      "x-zui": {}
     }
   },
   "actions": {
@@ -21,23 +22,27 @@
           "type": "object",
           "properties": {
             "name": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "count": {
-              "type": "number"
+              "type": "number",
+              "x-zui": {}
             }
           },
           "required": [
             "name",
             "count"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     }

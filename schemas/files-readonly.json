@@ -13,25 +13,31 @@
             "properties": {
               "id": {
                 "type": "string",
-                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                "x-zui": {}
               },
               "type": {
                 "type": "string",
-                "const": "file"
+                "const": "file",
+                "x-zui": {}
               },
               "name": {
                 "type": "string",
-                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
+                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                "x-zui": {}
               },
               "parentId": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "absolutePath": {
                 "type": "string",
-                "description": "The full path of the file"
+                "description": "The full path of the file",
+                "x-zui": {}
               },
               "sizeInBytes": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "lastModifiedDate": {
                 "type": "string",
@@ -43,7 +49,8 @@
                 "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
@@ -51,12 +58,14 @@
               "type",
               "name",
               "absolutePath"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "file"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "fileUpdated": {
@@ -69,25 +78,31 @@
             "properties": {
               "id": {
                 "type": "string",
-                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                "x-zui": {}
               },
               "type": {
                 "type": "string",
-                "const": "file"
+                "const": "file",
+                "x-zui": {}
               },
               "name": {
                 "type": "string",
-                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
+                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                "x-zui": {}
               },
               "parentId": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "absolutePath": {
                 "type": "string",
-                "description": "The full path of the file"
+                "description": "The full path of the file",
+                "x-zui": {}
               },
               "sizeInBytes": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "lastModifiedDate": {
                 "type": "string",
@@ -99,7 +114,8 @@
                 "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
@@ -107,12 +123,14 @@
               "type",
               "name",
               "absolutePath"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "file"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "fileDeleted": {
@@ -125,25 +143,31 @@
             "properties": {
               "id": {
                 "type": "string",
-                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                "x-zui": {}
               },
               "type": {
                 "type": "string",
-                "const": "file"
+                "const": "file",
+                "x-zui": {}
               },
               "name": {
                 "type": "string",
-                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
+                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                "x-zui": {}
               },
               "parentId": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "absolutePath": {
                 "type": "string",
-                "description": "The full path of the file"
+                "description": "The full path of the file",
+                "x-zui": {}
               },
               "sizeInBytes": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "lastModifiedDate": {
                 "type": "string",
@@ -155,7 +179,8 @@
                 "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
@@ -163,12 +188,14 @@
               "type",
               "name",
               "absolutePath"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "file"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "folderDeletedRecursive": {
@@ -181,22 +208,27 @@
             "properties": {
               "id": {
                 "type": "string",
-                "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+                "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                "x-zui": {}
               },
               "type": {
                 "type": "string",
-                "const": "folder"
+                "const": "folder",
+                "x-zui": {}
               },
               "name": {
                 "type": "string",
-                "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\""
+                "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
+                "x-zui": {}
               },
               "parentId": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "absolutePath": {
                 "type": "string",
-                "description": "The full path of the folder"
+                "description": "The full path of the folder",
+                "x-zui": {}
               }
             },
             "required": [
@@ -204,12 +236,14 @@
               "type",
               "name",
               "absolutePath"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "folder"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "aggregateFileChanges": {
@@ -228,25 +262,31 @@
                   "properties": {
                     "id": {
                       "type": "string",
-                      "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+                      "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                      "x-zui": {}
                     },
                     "type": {
                       "type": "string",
-                      "const": "file"
+                      "const": "file",
+                      "x-zui": {}
                     },
                     "name": {
                       "type": "string",
-                      "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
+                      "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                      "x-zui": {}
                     },
                     "parentId": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "absolutePath": {
                       "type": "string",
-                      "description": "The full path of the file"
+                      "description": "The full path of the file",
+                      "x-zui": {}
                     },
                     "sizeInBytes": {
-                      "type": "number"
+                      "type": "number",
+                      "x-zui": {}
                     },
                     "lastModifiedDate": {
                       "type": "string",
@@ -258,7 +298,8 @@
                       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     "contentHash": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
@@ -266,8 +307,10 @@
                     "type",
                     "name",
                     "absolutePath"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               },
               "updated": {
                 "type": "array",
@@ -277,25 +320,31 @@
                   "properties": {
                     "id": {
                       "type": "string",
-                      "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+                      "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                      "x-zui": {}
                     },
                     "type": {
                       "type": "string",
-                      "const": "file"
+                      "const": "file",
+                      "x-zui": {}
                     },
                     "name": {
                       "type": "string",
-                      "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
+                      "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                      "x-zui": {}
                     },
                     "parentId": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "absolutePath": {
                       "type": "string",
-                      "description": "The full path of the file"
+                      "description": "The full path of the file",
+                      "x-zui": {}
                     },
                     "sizeInBytes": {
-                      "type": "number"
+                      "type": "number",
+                      "x-zui": {}
                     },
                     "lastModifiedDate": {
                       "type": "string",
@@ -307,7 +356,8 @@
                       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     "contentHash": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
@@ -315,8 +365,10 @@
                     "type",
                     "name",
                     "absolutePath"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               },
               "deleted": {
                 "type": "array",
@@ -328,25 +380,31 @@
                       "properties": {
                         "id": {
                           "type": "string",
-                          "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+                          "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                          "x-zui": {}
                         },
                         "type": {
                           "type": "string",
-                          "const": "file"
+                          "const": "file",
+                          "x-zui": {}
                         },
                         "name": {
                           "type": "string",
-                          "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
+                          "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                          "x-zui": {}
                         },
                         "parentId": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "absolutePath": {
                           "type": "string",
-                          "description": "The full path of the file"
+                          "description": "The full path of the file",
+                          "x-zui": {}
                         },
                         "sizeInBytes": {
-                          "type": "number"
+                          "type": "number",
+                          "x-zui": {}
                         },
                         "lastModifiedDate": {
                           "type": "string",
@@ -358,7 +416,8 @@
                           "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                         },
                         "contentHash": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         }
                       },
                       "required": [
@@ -366,29 +425,35 @@
                         "type",
                         "name",
                         "absolutePath"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "id": {
                           "type": "string",
-                          "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+                          "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                          "x-zui": {}
                         },
                         "type": {
                           "type": "string",
-                          "const": "folder"
+                          "const": "folder",
+                          "x-zui": {}
                         },
                         "name": {
                           "type": "string",
-                          "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\""
+                          "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
+                          "x-zui": {}
                         },
                         "parentId": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "absolutePath": {
                           "type": "string",
-                          "description": "The full path of the folder"
+                          "description": "The full path of the folder",
+                          "x-zui": {}
                         }
                       },
                       "required": [
@@ -396,22 +461,27 @@
                         "type",
                         "name",
                         "absolutePath"
-                      ]
+                      ],
+                      "x-zui": {}
                     }
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "created",
               "updated",
               "deleted"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "modifiedItems"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },
@@ -425,7 +495,8 @@
           "properties": {
             "folderId": {
               "type": "string",
-              "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+              "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+              "x-zui": {}
             },
             "filters": {
               "type": "object",
@@ -435,19 +506,23 @@
                   "anyOf": [
                     {
                       "type": "string",
-                      "const": "file"
+                      "const": "file",
+                      "x-zui": {}
                     },
                     {
                       "type": "string",
-                      "const": "folder"
+                      "const": "folder",
+                      "x-zui": {}
                     }
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 "maxSizeInBytes": {
                   "description": "The file size in bytes, if available",
                   "anyOf": [
                     {
-                      "type": "number"
+                      "type": "number",
+                      "x-zui": {}
                     },
                     {
                       "not": true,
@@ -492,13 +567,16 @@
                   }
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             },
             "nextToken": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -515,24 +593,30 @@
                     "properties": {
                       "id": {
                         "type": "string",
-                        "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+                        "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                        "x-zui": {}
                       },
                       "type": {
                         "type": "string",
-                        "const": "file"
+                        "const": "file",
+                        "x-zui": {}
                       },
                       "name": {
                         "type": "string",
-                        "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
+                        "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                        "x-zui": {}
                       },
                       "parentId": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "absolutePath": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "sizeInBytes": {
-                        "type": "number"
+                        "type": "number",
+                        "x-zui": {}
                       },
                       "lastModifiedDate": {
                         "type": "string",
@@ -544,7 +628,8 @@
                         "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                       },
                       "contentHash": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
@@ -561,46 +646,57 @@
                     "properties": {
                       "id": {
                         "type": "string",
-                        "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+                        "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                        "x-zui": {}
                       },
                       "type": {
                         "type": "string",
-                        "const": "folder"
+                        "const": "folder",
+                        "x-zui": {}
                       },
                       "name": {
                         "type": "string",
-                        "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\""
+                        "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
+                        "x-zui": {}
                       },
                       "parentId": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "absolutePath": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id",
                       "type",
                       "name"
-                    ]
+                    ],
+                    "x-zui": {}
                   }
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             }
           },
           "required": [
             "items",
             "meta"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -617,24 +713,30 @@
               "properties": {
                 "id": {
                   "type": "string",
-                  "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+                  "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                  "x-zui": {}
                 },
                 "type": {
                   "type": "string",
-                  "const": "file"
+                  "const": "file",
+                  "x-zui": {}
                 },
                 "name": {
                   "type": "string",
-                  "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
+                  "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                  "x-zui": {}
                 },
                 "parentId": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "absolutePath": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "sizeInBytes": {
-                  "type": "number"
+                  "type": "number",
+                  "x-zui": {}
                 },
                 "lastModifiedDate": {
                   "type": "string",
@@ -646,7 +748,8 @@
                   "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                 },
                 "contentHash": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
               "required": [
@@ -669,7 +772,8 @@
           "required": [
             "file",
             "fileKey"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -678,12 +782,14 @@
           "properties": {
             "botpressFileId": {
               "type": "string",
-              "description": "The file ID of the uploaded file on Botpress"
+              "description": "The file ID of the uploaded file on Botpress",
+              "x-zui": {}
             }
           },
           "required": [
             "botpressFileId"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     }

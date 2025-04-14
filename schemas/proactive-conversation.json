@@ -33,7 +33,8 @@
           },
           "required": [
             "conversation"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -50,7 +51,8 @@
           },
           "required": [
             "conversationId"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     }

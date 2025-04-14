@@ -11,24 +11,30 @@
           "properties": {
             "prompt": {
               "type": "string",
-              "description": "Prompt for image generation."
+              "description": "Prompt for image generation.",
+              "x-zui": {}
             },
             "size": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "quality": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "model": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "user": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "prompt"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -37,16 +43,19 @@
           "properties": {
             "url": {
               "type": "string",
+              "x-zui": {},
               "format": "uri"
             },
             "createdDate": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "url",
             "createdDate"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     }

@@ -7,12 +7,14 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
         "required": [
           "id"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },
@@ -22,12 +24,14 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
         "required": [
           "id"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },
@@ -38,19 +42,22 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     }

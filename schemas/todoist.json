@@ -54,7 +54,8 @@
           "content",
           "description",
           "priority"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "taskPriorityChanged": {
@@ -92,7 +93,8 @@
         "required": [
           "id",
           "newPriority"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "taskCompleted": {
@@ -145,7 +147,8 @@
           "content",
           "description",
           "priority"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },
@@ -177,14 +180,16 @@
           "required": [
             "taskId",
             "priority"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -205,7 +210,8 @@
           },
           "required": [
             "name"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -235,7 +241,8 @@
           },
           "required": [
             "taskId"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -256,7 +263,8 @@
           },
           "required": [
             "name"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -286,7 +294,8 @@
           },
           "required": [
             "projectId"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -297,7 +306,8 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -421,7 +431,8 @@
                   "isInboxProject",
                   "isTeamInbox",
                   "webUrl"
-                ]
+                ],
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Projects"
@@ -430,7 +441,8 @@
           },
           "required": [
             "projects"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -449,7 +461,8 @@
               }
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -494,7 +507,8 @@
                   "id",
                   "name",
                   "positionWithinParent"
-                ]
+                ],
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Sections"
@@ -503,7 +517,8 @@
           },
           "required": [
             "sections"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -536,7 +551,8 @@
               }
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -726,7 +742,8 @@
                   "numberOfComments",
                   "createdAt",
                   "createdBy"
-                ]
+                ],
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Tasks"
@@ -735,7 +752,8 @@
           },
           "required": [
             "tasks"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -831,7 +849,8 @@
           },
           "required": [
             "content"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -848,7 +867,8 @@
           },
           "required": [
             "taskId"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     }
@@ -864,12 +884,14 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "text"
-            ]
+            ],
+            "x-zui": {}
           }
         }
       },
@@ -907,7 +929,8 @@
         },
         "required": [
           "accessToken"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "configuration": {
@@ -922,7 +945,8 @@
             }
           }
         },
-        "required": []
+        "required": [],
+        "x-zui": {}
       }
     }
   },
@@ -1110,7 +1134,8 @@
           "numberOfComments",
           "createdAt",
           "createdBy"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "project": {
@@ -1230,7 +1255,8 @@
           "isInboxProject",
           "isTeamInbox",
           "webUrl"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "section": {
@@ -1271,7 +1297,8 @@
           "id",
           "name",
           "positionWithinParent"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "comment": {
@@ -1318,7 +1345,8 @@
           "id",
           "postedAt",
           "content"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "personalLabel": {
@@ -1392,7 +1420,8 @@
           "color",
           "orderWithinList",
           "isFavorite"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "sharedLabel": {
@@ -1411,7 +1440,8 @@
         },
         "required": [
           "name"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },

@@ -20,26 +20,32 @@
           "properties": {
             "userPhone": {
               "type": "string",
-              "description": "Phone number of the Whatsapp user to start the conversation with."
+              "description": "Phone number of the Whatsapp user to start the conversation with.",
+              "x-zui": {}
             },
             "templateName": {
               "type": "string",
-              "description": "Name of the Whatsapp Message Template to start the conversation with."
+              "description": "Name of the Whatsapp Message Template to start the conversation with.",
+              "x-zui": {}
             },
             "templateLanguage": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "templateVariablesJson": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "senderPhoneNumberId": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "userPhone",
             "templateName"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -47,12 +53,14 @@
           "type": "object",
           "properties": {
             "conversationId": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "conversationId"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -62,26 +70,31 @@
           "type": "object",
           "properties": {
             "conversationId": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "messageId": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "timeout": {
-              "type": "number"
+              "type": "number",
+              "x-zui": {}
             }
           },
           "required": [
             "conversationId",
             "messageId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -91,23 +104,27 @@
           "type": "object",
           "properties": {
             "conversationId": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "messageId": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "conversationId",
             "messageId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     }
@@ -121,12 +138,14 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "text"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "image": {
@@ -135,12 +154,14 @@
             "properties": {
               "imageUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "imageUrl"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "audio": {
@@ -149,12 +170,14 @@
             "properties": {
               "audioUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "audioUrl"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "video": {
@@ -163,12 +186,14 @@
             "properties": {
               "videoUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "videoUrl"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "file": {
@@ -177,19 +202,23 @@
             "properties": {
               "fileUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "title": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "filename": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
               "fileUrl"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "location": {
@@ -197,22 +226,27 @@
             "type": "object",
             "properties": {
               "latitude": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "longitude": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "address": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "title": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
               "latitude",
               "longitude"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "carousel": {
@@ -226,14 +260,17 @@
                   "properties": {
                     "title": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "subtitle": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "imageUrl": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "actions": {
@@ -247,14 +284,17 @@
                               "postback",
                               "url",
                               "say"
-                            ]
+                            ],
+                            "x-zui": {}
                           },
                           "label": {
                             "type": "string",
+                            "x-zui": {},
                             "minLength": 1
                           },
                           "value": {
                             "type": "string",
+                            "x-zui": {},
                             "minLength": 1
                           }
                         },
@@ -262,20 +302,25 @@
                           "action",
                           "label",
                           "value"
-                        ]
-                      }
+                        ],
+                        "x-zui": {}
+                      },
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "title",
                     "actions"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "items"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "card": {
@@ -284,14 +329,17 @@
             "properties": {
               "title": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "subtitle": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "imageUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "actions": {
@@ -305,14 +353,17 @@
                         "postback",
                         "url",
                         "say"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     "label": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "value": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     }
                   },
@@ -320,14 +371,17 @@
                     "action",
                     "label",
                     "value"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "title",
               "actions"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "dropdown": {
@@ -336,6 +390,7 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "options": {
@@ -345,24 +400,29 @@
                   "properties": {
                     "label": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "value": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     }
                   },
                   "required": [
                     "label",
                     "value"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "text",
               "options"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "choice": {
@@ -371,6 +431,7 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "options": {
@@ -380,24 +441,29 @@
                   "properties": {
                     "label": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "value": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     }
                   },
                   "required": [
                     "label",
                     "value"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "text",
               "options"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "bloc": {
@@ -413,196 +479,231 @@
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "text"
+                          "const": "text",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "text": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "text"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "markdown"
+                          "const": "markdown",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "markdown": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "markdown"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "image"
+                          "const": "image",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "imageUrl": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "imageUrl"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "audio"
+                          "const": "audio",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "audioUrl": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "audioUrl"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "video"
+                          "const": "video",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "videoUrl": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "videoUrl"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "file"
+                          "const": "file",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "fileUrl": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             },
                             "title": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "fileUrl"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "location"
+                          "const": "location",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "latitude": {
-                              "type": "number"
+                              "type": "number",
+                              "x-zui": {}
                             },
                             "longitude": {
-                              "type": "number"
+                              "type": "number",
+                              "x-zui": {}
                             },
                             "address": {
-                              "type": "string"
+                              "type": "string",
+                              "x-zui": {}
                             },
                             "title": {
-                              "type": "string"
+                              "type": "string",
+                              "x-zui": {}
                             }
                           },
                           "required": [
                             "latitude",
                             "longitude"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     }
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "items"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "markdown": {
@@ -611,12 +712,14 @@
             "properties": {
               "markdown": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "markdown"
-            ]
+            ],
+            "x-zui": {}
           }
         }
       },
@@ -658,16 +761,20 @@
         "type": "object",
         "properties": {
           "accessToken": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           },
           "phoneNumberId": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           },
           "wabaId": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
-        "required": []
+        "required": [],
+        "x-zui": {}
       }
     }
   },

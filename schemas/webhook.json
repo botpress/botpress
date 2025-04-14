@@ -8,36 +8,48 @@
       "schema": {
         "type": "object",
         "properties": {
-          "body": {},
+          "body": {
+            "x-zui": {}
+          },
           "query": {
             "type": "object",
-            "additionalProperties": {}
+            "additionalProperties": {
+              "x-zui": {}
+            },
+            "x-zui": {}
           },
           "path": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           },
           "headers": {
             "type": "object",
             "additionalProperties": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 {
                   "type": "array",
                   "items": {
-                    "type": "string"
-                  }
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "x-zui": {}
                 }
-              ]
-            }
+              ],
+              "x-zui": {}
+            },
+            "x-zui": {}
           },
           "method": {
             "type": "string",
             "enum": [
               "GET",
               "POST"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
@@ -46,7 +58,10 @@
           "headers",
           "method"
         ],
-        "additionalProperties": {}
+        "additionalProperties": {
+          "x-zui": {}
+        },
+        "x-zui": {}
       }
     }
   },

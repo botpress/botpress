@@ -10,27 +10,32 @@
           "type": "object",
           "properties": {
             "conversationId": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "messageId": {
               "type": "string",
-              "description": "The message ID to which the typing indicator should be attached"
+              "description": "The message ID to which the typing indicator should be attached",
+              "x-zui": {}
             },
             "timeout": {
-              "type": "number"
+              "type": "number",
+              "x-zui": {}
             }
           },
           "required": [
             "conversationId",
             "messageId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -40,24 +45,28 @@
           "type": "object",
           "properties": {
             "conversationId": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "messageId": {
               "type": "string",
-              "description": "The message ID from which the typing indicator should be removed"
+              "description": "The message ID from which the typing indicator should be removed",
+              "x-zui": {}
             }
           },
           "required": [
             "conversationId",
             "messageId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     }

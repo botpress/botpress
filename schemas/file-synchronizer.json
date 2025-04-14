@@ -18,15 +18,18 @@
           "properties": {
             "everyNHours": {
               "type": "number",
-              "description": "The interval (in hours) at which to synchronize files."
+              "description": "The interval (in hours) at which to synchronize files.",
+              "x-zui": {}
             }
           },
           "required": [
             "everyNHours"
-          ]
+          ],
+          "x-zui": {}
         },
         "enableRealTimeSync": {
           "type": "boolean",
+          "x-zui": {},
           "default": true
         },
         "includeFiles": {
@@ -38,10 +41,12 @@
             "properties": {
               "pathGlobPattern": {
                 "type": "string",
-                "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported."
+                "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported.",
+                "x-zui": {}
               },
               "maxSizeInBytes": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "modifiedAfter": {
                 "type": "string",
@@ -73,7 +78,8 @@
             "properties": {
               "pathGlobPattern": {
                 "type": "string",
-                "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration."
+                "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration.",
+                "x-zui": {}
               }
             },
             "required": [
@@ -91,7 +97,8 @@
       "required": [
         "includeFiles",
         "excludeFiles"
-      ]
+      ],
+      "x-zui": {}
     }
   },
   "events": {
@@ -99,7 +106,8 @@
       "schema": {
         "type": "object",
         "properties": {},
-        "required": []
+        "required": [],
+        "x-zui": {}
       }
     }
   },
@@ -120,10 +128,12 @@
                 "properties": {
                   "pathGlobPattern": {
                     "type": "string",
-                    "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported."
+                    "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported.",
+                    "x-zui": {}
                   },
                   "maxSizeInBytes": {
-                    "type": "number"
+                    "type": "number",
+                    "x-zui": {}
                   },
                   "modifiedAfter": {
                     "type": "string",
@@ -155,7 +165,8 @@
                 "properties": {
                   "pathGlobPattern": {
                     "type": "string",
-                    "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration."
+                    "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration.",
+                    "x-zui": {}
                   }
                 },
                 "required": [
@@ -170,7 +181,8 @@
               }
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -183,12 +195,14 @@
                 "queued",
                 "already-running",
                 "error"
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "status"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -198,7 +212,8 @@
           "type": "object",
           "properties": {
             "folderId": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "filters": {
               "type": "object",
@@ -207,18 +222,22 @@
                   "anyOf": [
                     {
                       "type": "string",
-                      "const": "file"
+                      "const": "file",
+                      "x-zui": {}
                     },
                     {
                       "type": "string",
-                      "const": "folder"
+                      "const": "folder",
+                      "x-zui": {}
                     }
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 "maxSizeInBytes": {
                   "anyOf": [
                     {
-                      "type": "number"
+                      "type": "number",
+                      "x-zui": {}
                     },
                     {
                       "not": true,
@@ -262,13 +281,16 @@
                   }
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             },
             "nextToken": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -283,23 +305,29 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "type": {
                         "type": "string",
-                        "const": "file"
+                        "const": "file",
+                        "x-zui": {}
                       },
                       "name": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "parentId": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "absolutePath": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "sizeInBytes": {
-                        "type": "number"
+                        "type": "number",
+                        "x-zui": {}
                       },
                       "lastModifiedDate": {
                         "type": "string",
@@ -311,58 +339,71 @@
                         "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                       },
                       "contentHash": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id",
                       "type",
                       "name"
-                    ]
+                    ],
+                    "x-zui": {}
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "type": {
                         "type": "string",
-                        "const": "folder"
+                        "const": "folder",
+                        "x-zui": {}
                       },
                       "name": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "parentId": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "absolutePath": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id",
                       "type",
                       "name"
-                    ]
+                    ],
+                    "x-zui": {}
                   }
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             }
           },
           "required": [
             "items",
             "meta"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "title": "List items in folder",
@@ -376,12 +417,14 @@
         "type": "object",
         "properties": {
           "elapsedHoursSinceLastSync": {
-            "type": "number"
+            "type": "number",
+            "x-zui": {}
           }
         },
         "required": [
           "elapsedHoursSinceLastSync"
-        ]
+        ],
+        "x-zui": {}
       },
       "expiry": 172800000
     }

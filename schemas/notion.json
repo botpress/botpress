@@ -20,23 +20,29 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "type": {
                 "type": "string",
-                "const": "file"
+                "const": "file",
+                "x-zui": {}
               },
               "name": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "parentId": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "absolutePath": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "sizeInBytes": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "lastModifiedDate": {
                 "type": "string",
@@ -48,7 +54,8 @@
                 "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
@@ -56,12 +63,14 @@
               "type",
               "name",
               "absolutePath"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "file"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "fileUpdated": {
@@ -72,23 +81,29 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "type": {
                 "type": "string",
-                "const": "file"
+                "const": "file",
+                "x-zui": {}
               },
               "name": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "parentId": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "absolutePath": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "sizeInBytes": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "lastModifiedDate": {
                 "type": "string",
@@ -100,7 +115,8 @@
                 "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
@@ -108,12 +124,14 @@
               "type",
               "name",
               "absolutePath"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "file"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "fileDeleted": {
@@ -124,23 +142,29 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "type": {
                 "type": "string",
-                "const": "file"
+                "const": "file",
+                "x-zui": {}
               },
               "name": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "parentId": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "absolutePath": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "sizeInBytes": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "lastModifiedDate": {
                 "type": "string",
@@ -152,7 +176,8 @@
                 "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
@@ -160,12 +185,14 @@
               "type",
               "name",
               "absolutePath"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "file"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "folderDeletedRecursive": {
@@ -176,20 +203,25 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "type": {
                 "type": "string",
-                "const": "folder"
+                "const": "folder",
+                "x-zui": {}
               },
               "name": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "parentId": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "absolutePath": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
@@ -197,12 +229,14 @@
               "type",
               "name",
               "absolutePath"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "folder"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "aggregateFileChanges": {
@@ -218,23 +252,29 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "type": {
                       "type": "string",
-                      "const": "file"
+                      "const": "file",
+                      "x-zui": {}
                     },
                     "name": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "parentId": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "absolutePath": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "sizeInBytes": {
-                      "type": "number"
+                      "type": "number",
+                      "x-zui": {}
                     },
                     "lastModifiedDate": {
                       "type": "string",
@@ -246,7 +286,8 @@
                       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     "contentHash": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
@@ -254,8 +295,10 @@
                     "type",
                     "name",
                     "absolutePath"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               },
               "updated": {
                 "type": "array",
@@ -263,23 +306,29 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "type": {
                       "type": "string",
-                      "const": "file"
+                      "const": "file",
+                      "x-zui": {}
                     },
                     "name": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "parentId": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "absolutePath": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "sizeInBytes": {
-                      "type": "number"
+                      "type": "number",
+                      "x-zui": {}
                     },
                     "lastModifiedDate": {
                       "type": "string",
@@ -291,7 +340,8 @@
                       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     "contentHash": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
@@ -299,8 +349,10 @@
                     "type",
                     "name",
                     "absolutePath"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               },
               "deleted": {
                 "type": "array",
@@ -310,23 +362,29 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "type": {
                           "type": "string",
-                          "const": "file"
+                          "const": "file",
+                          "x-zui": {}
                         },
                         "name": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "parentId": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "absolutePath": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "sizeInBytes": {
-                          "type": "number"
+                          "type": "number",
+                          "x-zui": {}
                         },
                         "lastModifiedDate": {
                           "type": "string",
@@ -338,7 +396,8 @@
                           "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                         },
                         "contentHash": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         }
                       },
                       "required": [
@@ -346,26 +405,32 @@
                         "type",
                         "name",
                         "absolutePath"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "type": {
                           "type": "string",
-                          "const": "folder"
+                          "const": "folder",
+                          "x-zui": {}
                         },
                         "name": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "parentId": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "absolutePath": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         }
                       },
                       "required": [
@@ -373,22 +438,27 @@
                         "type",
                         "name",
                         "absolutePath"
-                      ]
+                      ],
+                      "x-zui": {}
                     }
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "created",
               "updated",
               "deleted"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "modifiedItems"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },
@@ -415,7 +485,10 @@
                 "type": "object",
                 "properties": {},
                 "required": [],
-                "additionalProperties": {}
+                "additionalProperties": {
+                  "x-zui": {}
+                },
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Page Properties"
@@ -425,14 +498,16 @@
           "required": [
             "databaseId",
             "pageProperties"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -463,14 +538,16 @@
           "required": [
             "pageId",
             "commentBody"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -492,14 +569,16 @@
           },
           "required": [
             "blockId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -521,7 +600,8 @@
           },
           "required": [
             "databaseId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -542,7 +622,10 @@
                 "type": "object",
                 "properties": {},
                 "required": [],
-                "additionalProperties": {}
+                "additionalProperties": {
+                  "x-zui": {}
+                },
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Database Properties"
@@ -560,7 +643,8 @@
             "object",
             "properties",
             "structure"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -591,14 +675,16 @@
           "required": [
             "discussionId",
             "commentBody"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -608,7 +694,8 @@
           "type": "object",
           "properties": {
             "folderId": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "filters": {
               "type": "object",
@@ -617,18 +704,22 @@
                   "anyOf": [
                     {
                       "type": "string",
-                      "const": "file"
+                      "const": "file",
+                      "x-zui": {}
                     },
                     {
                       "type": "string",
-                      "const": "folder"
+                      "const": "folder",
+                      "x-zui": {}
                     }
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 "maxSizeInBytes": {
                   "anyOf": [
                     {
-                      "type": "number"
+                      "type": "number",
+                      "x-zui": {}
                     },
                     {
                       "not": true,
@@ -672,13 +763,16 @@
                   }
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             },
             "nextToken": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -693,23 +787,29 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "type": {
                         "type": "string",
-                        "const": "file"
+                        "const": "file",
+                        "x-zui": {}
                       },
                       "name": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "parentId": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "absolutePath": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "sizeInBytes": {
-                        "type": "number"
+                        "type": "number",
+                        "x-zui": {}
                       },
                       "lastModifiedDate": {
                         "type": "string",
@@ -721,58 +821,71 @@
                         "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                       },
                       "contentHash": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id",
                       "type",
                       "name"
-                    ]
+                    ],
+                    "x-zui": {}
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "type": {
                         "type": "string",
-                        "const": "folder"
+                        "const": "folder",
+                        "x-zui": {}
                       },
                       "name": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "parentId": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "absolutePath": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id",
                       "type",
                       "name"
-                    ]
+                    ],
+                    "x-zui": {}
                   }
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             }
           },
           "required": [
             "items",
             "meta"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "title": "List items in folder",
@@ -788,23 +901,29 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "type": {
                   "type": "string",
-                  "const": "file"
+                  "const": "file",
+                  "x-zui": {}
                 },
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "parentId": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "absolutePath": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "sizeInBytes": {
-                  "type": "number"
+                  "type": "number",
+                  "x-zui": {}
                 },
                 "lastModifiedDate": {
                   "type": "string",
@@ -816,23 +935,27 @@
                   "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                 },
                 "contentHash": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
               "required": [
                 "id",
                 "type",
                 "name"
-              ]
+              ],
+              "x-zui": {}
             },
             "fileKey": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "file",
             "fileKey"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -840,12 +963,14 @@
           "type": "object",
           "properties": {
             "botpressFileId": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "botpressFileId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "title": "Transfer file to Botpress",
@@ -870,7 +995,8 @@
         },
         "required": [
           "authToken"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },

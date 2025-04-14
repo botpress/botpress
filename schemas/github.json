@@ -219,7 +219,8 @@
                     "nodeId",
                     "url",
                     "name"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Labels"
@@ -340,7 +341,8 @@
                     "name",
                     "handle",
                     "botpressUser"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Assignees"
@@ -501,7 +503,8 @@
           "content",
           "repositoryName",
           "repositoryOwner"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "pullRequestMerged": {
@@ -699,7 +702,8 @@
                     "nodeId",
                     "url",
                     "name"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Labels"
@@ -820,7 +824,8 @@
                     "name",
                     "handle",
                     "botpressUser"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Assignees"
@@ -1247,7 +1252,8 @@
           "title",
           "content",
           "targets"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "pullRequestOpened": {
@@ -1445,7 +1451,8 @@
                     "nodeId",
                     "url",
                     "name"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Labels"
@@ -1566,7 +1573,8 @@
                     "name",
                     "handle",
                     "botpressUser"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Assignees"
@@ -1993,7 +2001,8 @@
           "title",
           "content",
           "targets"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "pullRequestReviewSubmitted": {
@@ -2216,7 +2225,8 @@
                         "nodeId",
                         "url",
                         "name"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     "x-zui": {
                       "title": "Labels"
@@ -2337,7 +2347,8 @@
                         "name",
                         "handle",
                         "botpressUser"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     "x-zui": {
                       "title": "Assignees"
@@ -2788,7 +2799,8 @@
         "required": [
           "review",
           "eventSender"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },
@@ -2799,14 +2811,16 @@
           "type": "object",
           "properties": {
             "query": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "channel": {
               "type": "string",
               "enum": [
                 "pullRequest",
                 "issue"
-              ]
+              ],
+              "x-zui": {}
             },
             "repo": {
               "type": "string",
@@ -2820,7 +2834,8 @@
             "query",
             "channel",
             "repo"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2833,33 +2848,40 @@
                 "type": "object",
                 "properties": {
                   "displayName": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "tags": {
                     "type": "object",
                     "additionalProperties": {
-                      "type": "string"
-                    }
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "x-zui": {}
                   },
                   "channel": {
                     "type": "string",
                     "enum": [
                       "pullRequest",
                       "issue"
-                    ]
+                    ],
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "displayName",
                   "tags",
                   "channel"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "targets"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     }
@@ -2939,12 +2961,14 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "text"
-            ]
+            ],
+            "x-zui": {}
           }
         }
       }
@@ -3039,12 +3063,14 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "text"
-            ]
+            ],
+            "x-zui": {}
           }
         }
       }
@@ -3119,12 +3145,14 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "text"
-            ]
+            ],
+            "x-zui": {}
           }
         }
       }
@@ -3219,12 +3247,14 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "text"
-            ]
+            ],
+            "x-zui": {}
           }
         }
       }
@@ -3319,12 +3349,14 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "text"
-            ]
+            ],
+            "x-zui": {}
           }
         }
       }
@@ -3350,7 +3382,8 @@
             }
           }
         },
-        "required": []
+        "required": [],
+        "x-zui": {}
       }
     }
   },

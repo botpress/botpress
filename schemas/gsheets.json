@@ -23,7 +23,8 @@
           },
           "required": [
             "title"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -84,7 +85,8 @@
           "required": [
             "spreadsheetId",
             "newSheet"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -139,7 +141,8 @@
           "required": [
             "range",
             "values"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -156,7 +159,8 @@
           },
           "required": [
             "spreadsheetId"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -178,7 +182,8 @@
           },
           "required": [
             "range"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -203,7 +208,8 @@
           "required": [
             "spreadsheetId",
             "clearedRange"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -241,7 +247,8 @@
             "sheetId",
             "rangeName",
             "rangeA1"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -258,7 +265,8 @@
           },
           "required": [
             "namedRangeId"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -279,14 +287,16 @@
           },
           "required": [
             "sheetId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -297,7 +307,8 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -360,7 +371,8 @@
                   "isHidden",
                   "hasProtectedRanges",
                   "isFullyProtected"
-                ]
+                ],
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Sheets"
@@ -369,7 +381,8 @@
           },
           "required": [
             "sheets"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -397,7 +410,8 @@
           },
           "required": [
             "fields"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -445,7 +459,9 @@
             "dataSources": {
               "type": "array",
               "description": "The data sources connected to the spreadsheet.",
-              "items": {},
+              "items": {
+                "x-zui": {}
+              },
               "x-zui": {
                 "title": "Data Sources"
               }
@@ -453,7 +469,9 @@
             "dataSourceSchedules": {
               "type": "array",
               "description": "The schedules of the data sources.",
-              "items": {},
+              "items": {
+                "x-zui": {}
+              },
               "x-zui": {
                 "title": "Data Source Schedules"
               }
@@ -461,7 +479,9 @@
             "developerMetadata": {
               "type": "array",
               "description": "The developer metadata associated with the spreadsheet.",
-              "items": {},
+              "items": {
+                "x-zui": {}
+              },
               "x-zui": {
                 "title": "Developer Metadata"
               }
@@ -469,7 +489,9 @@
             "namedRanges": {
               "type": "array",
               "description": "The named ranges defined in the spreadsheet.",
-              "items": {},
+              "items": {
+                "x-zui": {}
+              },
               "x-zui": {
                 "title": "Named Ranges"
               }
@@ -483,13 +505,16 @@
             "sheets": {
               "type": "array",
               "description": "The sheets present in the spreadsheet.",
-              "items": {},
+              "items": {
+                "x-zui": {}
+              },
               "x-zui": {
                 "title": "Sheets"
               }
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -500,7 +525,8 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -548,7 +574,8 @@
                   "name",
                   "range",
                   "sheetId"
-                ]
+                ],
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Named Ranges"
@@ -557,7 +584,8 @@
           },
           "required": [
             "namedRanges"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -568,7 +596,8 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -640,7 +669,8 @@
                   "description",
                   "warningOnly",
                   "requestingUserCanEdit"
-                ]
+                ],
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Protected Ranges"
@@ -649,7 +679,8 @@
           },
           "required": [
             "protectedRanges"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -682,7 +713,8 @@
           },
           "required": [
             "range"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -733,7 +765,8 @@
           "required": [
             "range",
             "values"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -762,14 +795,16 @@
           "required": [
             "sheetId",
             "newIndex"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -802,7 +837,8 @@
           },
           "required": [
             "namedRangeId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -819,7 +855,8 @@
           },
           "required": [
             "protectedRangeId"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -848,14 +885,16 @@
           "required": [
             "sheetId",
             "newTitle"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -884,14 +923,16 @@
           "required": [
             "sheetId",
             "isHidden"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -912,14 +953,16 @@
           },
           "required": [
             "protectedRangeId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -974,7 +1017,8 @@
           "required": [
             "range",
             "values"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -1023,7 +1067,8 @@
             "updatedRows",
             "updatedColumns",
             "updatedCells"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     }
@@ -1045,7 +1090,8 @@
         },
         "required": [
           "refreshToken"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },

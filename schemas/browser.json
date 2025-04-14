@@ -12,12 +12,14 @@
           "type": "object",
           "properties": {
             "url": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "url"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -25,12 +27,14 @@
           "type": "object",
           "properties": {
             "imageUrl": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "imageUrl"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "cacheable": true,
@@ -46,13 +50,16 @@
             "urls": {
               "type": "array",
               "items": {
-                "type": "string"
-              }
+                "type": "string",
+                "x-zui": {}
+              },
+              "x-zui": {}
             },
             "waitFor": {
               "anyOf": [
                 {
-                  "type": "number"
+                  "type": "number",
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -73,7 +80,8 @@
           },
           "required": [
             "urls"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -86,31 +94,39 @@
                 "type": "object",
                 "properties": {
                   "url": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "content": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "favicon": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "title": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "description": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "url",
                   "content"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "results"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "cacheable": true,
@@ -126,6 +142,7 @@
             "query": {
               "type": "string",
               "description": "What are we searching for?",
+              "x-zui": {},
               "minLength": 1,
               "maxLength": 1000
             },
@@ -133,26 +150,31 @@
               "type": "array",
               "items": {
                 "type": "string",
+                "x-zui": {},
                 "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
                 "minLength": 3,
                 "maxLength": 50
               },
+              "x-zui": {},
               "maxItems": 20
             },
             "excludeSites": {
               "type": "array",
               "items": {
                 "type": "string",
+                "x-zui": {},
                 "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
                 "minLength": 3,
                 "maxLength": 50
               },
+              "x-zui": {},
               "maxItems": 20
             },
             "count": {
               "anyOf": [
                 {
                   "type": "number",
+                  "x-zui": {},
                   "minimum": 1,
                   "maximum": 20
                 },
@@ -178,12 +200,14 @@
                 "Day",
                 "Week",
                 "Month"
-              ]
+              ],
+              "x-zui": {}
             },
             "browsePages": {
               "anyOf": [
                 {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -204,7 +228,8 @@
           },
           "required": [
             "query"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -218,15 +243,18 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "description": "Title of the page"
+                    "description": "Title of the page",
+                    "x-zui": {}
                   },
                   "url": {
                     "type": "string",
-                    "description": "URL of the page"
+                    "description": "URL of the page",
+                    "x-zui": {}
                   },
                   "snippet": {
                     "type": "string",
-                    "description": "A short summary of the page"
+                    "description": "A short summary of the page",
+                    "x-zui": {}
                   },
                   "links": {
                     "type": "array",
@@ -234,54 +262,67 @@
                       "type": "object",
                       "properties": {
                         "name": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "url": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "name",
                         "url"
-                      ]
-                    }
+                      ],
+                      "x-zui": {}
+                    },
+                    "x-zui": {}
                   },
                   "page": {
                     "type": "object",
                     "properties": {
                       "url": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "content": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "favicon": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "title": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "description": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "url",
                       "content"
-                    ]
+                    ],
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "name",
                   "url",
                   "snippet"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "results"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "cacheable": true

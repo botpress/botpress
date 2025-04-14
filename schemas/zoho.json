@@ -49,7 +49,8 @@
           "required": [
             "endpoint",
             "method"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -80,7 +81,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -109,7 +111,8 @@
           "required": [
             "module",
             "data"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -140,7 +143,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -177,7 +181,8 @@
             "module",
             "recordId",
             "data"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -208,7 +213,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -237,7 +243,8 @@
           "required": [
             "module",
             "recordId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -268,7 +275,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -297,7 +305,8 @@
           "required": [
             "module",
             "criteria"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -328,7 +337,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -357,7 +367,8 @@
           "required": [
             "module",
             "recordId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -388,7 +399,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -415,7 +427,8 @@
           },
           "required": [
             "module"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -446,7 +459,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -457,7 +471,8 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -488,7 +503,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -506,7 +522,8 @@
               }
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -537,7 +554,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -555,7 +573,8 @@
               }
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -586,7 +605,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -607,7 +627,8 @@
           },
           "required": [
             "appointmentId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -638,7 +659,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -659,7 +681,8 @@
           },
           "required": [
             "data"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -690,7 +713,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -719,7 +743,8 @@
           "required": [
             "appointmentId",
             "data"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -750,7 +775,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -771,7 +797,8 @@
           },
           "required": [
             "appointmentId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -802,7 +829,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -839,7 +867,8 @@
             "module",
             "recordId",
             "data"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -870,7 +899,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -891,7 +921,8 @@
           },
           "required": [
             "fileUrl"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -922,7 +953,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -943,7 +975,8 @@
           },
           "required": [
             "fileId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -974,7 +1007,8 @@
           "required": [
             "success",
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     }
@@ -995,7 +1029,8 @@
         },
         "required": [
           "accessToken"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },

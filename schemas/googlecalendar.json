@@ -222,19 +222,23 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id"
-                ]
+                ],
+                "x-zui": {}
               }
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "item"
-        ]
+        ],
+        "x-zui": {}
       },
       "name": "eventCreated"
     },
@@ -456,19 +460,23 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id"
-                ]
+                ],
+                "x-zui": {}
               }
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "item"
-        ]
+        ],
+        "x-zui": {}
       },
       "name": "eventUpdated"
     },
@@ -477,12 +485,14 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
         "required": [
           "id"
-        ]
+        ],
+        "x-zui": {}
       },
       "name": "eventDeleted"
     }
@@ -497,6 +507,7 @@
           "properties": {
             "count": {
               "type": "number",
+              "x-zui": {},
               "minimum": 1,
               "maximum": 2500,
               "default": 100
@@ -514,7 +525,8 @@
               }
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -746,7 +758,8 @@
           },
           "required": [
             "events"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -1562,14 +1575,16 @@
           },
           "required": [
             "eventId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -1579,10 +1594,12 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -1805,30 +1822,37 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id"
-                    ]
+                    ],
+                    "x-zui": {}
                   }
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             }
           },
           "required": [
             "items",
             "meta"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "eventList"
@@ -2049,7 +2073,8 @@
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2270,19 +2295,23 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id"
-                  ]
+                  ],
+                  "x-zui": {}
                 }
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "eventCreate"
@@ -2293,12 +2322,14 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2519,19 +2550,23 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id"
-                  ]
+                  ],
+                  "x-zui": {}
                 }
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "eventRead"
@@ -2542,7 +2577,8 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "item": {
               "type": "object",
@@ -2756,7 +2792,8 @@
           "required": [
             "id",
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2977,19 +3014,23 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id"
-                  ]
+                  ],
+                  "x-zui": {}
                 }
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "eventUpdate"
@@ -3000,19 +3041,22 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "name": "eventDelete"
@@ -3035,7 +3079,8 @@
         },
         "required": [
           "refreshToken"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },

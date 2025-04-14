@@ -18,11 +18,13 @@
           "origin": {
             "type": "string",
             "description": "The origin of the event trigger",
-            "const": "stripe"
+            "const": "stripe",
+            "x-zui": {}
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID"
+            "description": "Botpress User ID",
+            "x-zui": {}
           },
           "data": {
             "type": "object",
@@ -30,6 +32,7 @@
             "properties": {
               "type": {
                 "type": "string",
+                "x-zui": {},
                 "default": "charge.failed"
               },
               "object": {
@@ -37,19 +40,24 @@
                 "description": "The object of the failed charge",
                 "properties": {},
                 "required": [],
-                "additionalProperties": {}
+                "additionalProperties": {
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "object"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "origin",
           "userId",
           "data"
-        ]
+        ],
+        "x-zui": {}
       },
       "title": "Charge Failed",
       "description": "This event occurs when a charge fails in Stripe."
@@ -61,11 +69,13 @@
           "origin": {
             "type": "string",
             "description": "The origin of the event trigger",
-            "const": "stripe"
+            "const": "stripe",
+            "x-zui": {}
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID"
+            "description": "Botpress User ID",
+            "x-zui": {}
           },
           "data": {
             "type": "object",
@@ -73,6 +83,7 @@
             "properties": {
               "type": {
                 "type": "string",
+                "x-zui": {},
                 "default": "customer.subscription.deleted"
               },
               "object": {
@@ -80,19 +91,24 @@
                 "description": "The object of the deleted subscription",
                 "properties": {},
                 "required": [],
-                "additionalProperties": {}
+                "additionalProperties": {
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "object"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "origin",
           "userId",
           "data"
-        ]
+        ],
+        "x-zui": {}
       },
       "title": "Subscription Deleted",
       "description": "This event occurs when a subscription is canceled/deleted in Stripe."
@@ -104,11 +120,13 @@
           "origin": {
             "type": "string",
             "description": "The origin of the event trigger",
-            "const": "stripe"
+            "const": "stripe",
+            "x-zui": {}
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID"
+            "description": "Botpress User ID",
+            "x-zui": {}
           },
           "data": {
             "type": "object",
@@ -116,6 +134,7 @@
             "properties": {
               "type": {
                 "type": "string",
+                "x-zui": {},
                 "default": "customer.subscription.updated"
               },
               "object": {
@@ -123,19 +142,24 @@
                 "description": "The object of the updated subscription",
                 "properties": {},
                 "required": [],
-                "additionalProperties": {}
+                "additionalProperties": {
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "object"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "origin",
           "userId",
           "data"
-        ]
+        ],
+        "x-zui": {}
       },
       "title": "Subscription Updated",
       "description": "This event occurs when a subscription is updated in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true."
@@ -147,11 +171,13 @@
           "origin": {
             "type": "string",
             "description": "The origin of the event trigger",
-            "const": "stripe"
+            "const": "stripe",
+            "x-zui": {}
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID"
+            "description": "Botpress User ID",
+            "x-zui": {}
           },
           "data": {
             "type": "object",
@@ -159,6 +185,7 @@
             "properties": {
               "type": {
                 "type": "string",
+                "x-zui": {},
                 "default": "customer.subscription.created"
               },
               "object": {
@@ -166,19 +193,24 @@
                 "description": "The object of the created subscription",
                 "properties": {},
                 "required": [],
-                "additionalProperties": {}
+                "additionalProperties": {
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "object"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "origin",
           "userId",
           "data"
-        ]
+        ],
+        "x-zui": {}
       },
       "title": "Subscription Created",
       "description": "This event occurs when a subscription is created in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true."
@@ -190,11 +222,13 @@
           "origin": {
             "type": "string",
             "description": "The origin of the event trigger",
-            "const": "stripe"
+            "const": "stripe",
+            "x-zui": {}
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID"
+            "description": "Botpress User ID",
+            "x-zui": {}
           },
           "data": {
             "type": "object",
@@ -202,6 +236,7 @@
             "properties": {
               "type": {
                 "type": "string",
+                "x-zui": {},
                 "default": "invoice.payment_failed"
               },
               "object": {
@@ -209,19 +244,24 @@
                 "description": "The object of the invoice whose payment failed",
                 "properties": {},
                 "required": [],
-                "additionalProperties": {}
+                "additionalProperties": {
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "object"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "origin",
           "userId",
           "data"
-        ]
+        ],
+        "x-zui": {}
       },
       "title": "Invoice Payment Failed",
       "description": "This event occurs when an invoice payment fails in Stripe."
@@ -233,11 +273,13 @@
           "origin": {
             "type": "string",
             "description": "The origin of the event trigger",
-            "const": "stripe"
+            "const": "stripe",
+            "x-zui": {}
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID"
+            "description": "Botpress User ID",
+            "x-zui": {}
           },
           "data": {
             "type": "object",
@@ -245,6 +287,7 @@
             "properties": {
               "type": {
                 "type": "string",
+                "x-zui": {},
                 "default": "payment_intent.payment_failed"
               },
               "object": {
@@ -252,19 +295,24 @@
                 "description": "The object of the payment intent that failed",
                 "properties": {},
                 "required": [],
-                "additionalProperties": {}
+                "additionalProperties": {
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "object"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "origin",
           "userId",
           "data"
-        ]
+        ],
+        "x-zui": {}
       },
       "title": "Payment Intent Failed",
       "description": "This event occurs when a payment intent fails in Stripe."
@@ -276,11 +324,13 @@
           "origin": {
             "type": "string",
             "description": "The origin of the event trigger",
-            "const": "stripe"
+            "const": "stripe",
+            "x-zui": {}
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID"
+            "description": "Botpress User ID",
+            "x-zui": {}
           },
           "data": {
             "type": "object",
@@ -288,6 +338,7 @@
             "properties": {
               "type": {
                 "type": "string",
+                "x-zui": {},
                 "default": "subscription_schedule.created"
               },
               "object": {
@@ -295,19 +346,24 @@
                 "description": "The object of the created subscription schedule",
                 "properties": {},
                 "required": [],
-                "additionalProperties": {}
+                "additionalProperties": {
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "object"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "origin",
           "userId",
           "data"
-        ]
+        ],
+        "x-zui": {}
       },
       "title": "Subscription Schedule Created",
       "description": "This event occurs when a subscription schedule is created in Stripe."
@@ -319,11 +375,13 @@
           "origin": {
             "type": "string",
             "description": "The origin of the event trigger",
-            "const": "stripe"
+            "const": "stripe",
+            "x-zui": {}
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID"
+            "description": "Botpress User ID",
+            "x-zui": {}
           },
           "data": {
             "type": "object",
@@ -331,6 +389,7 @@
             "properties": {
               "type": {
                 "type": "string",
+                "x-zui": {},
                 "default": "subscription_schedule.updated"
               },
               "object": {
@@ -338,19 +397,24 @@
                 "description": "The object of the updated subscription schedule",
                 "properties": {},
                 "required": [],
-                "additionalProperties": {}
+                "additionalProperties": {
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "object"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "origin",
           "userId",
           "data"
-        ]
+        ],
+        "x-zui": {}
       },
       "title": "Subscription Schedule Updated",
       "description": "This event occurs when a subscription schedule is updated in Stripe."
@@ -398,7 +462,8 @@
             "currency": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -419,7 +484,8 @@
             "quantity": {
               "anyOf": [
                 {
-                  "type": "number"
+                  "type": "number",
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -440,7 +506,8 @@
             "adjustableQuantity": {
               "anyOf": [
                 {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -515,7 +582,8 @@
           },
           "required": [
             "productName"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -523,13 +591,16 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "url": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -539,7 +610,8 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -552,7 +624,8 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "prices": {
                     "type": "array",
@@ -562,7 +635,8 @@
                         "unit_amount": {
                           "anyOf": [
                             {
-                              "type": "number"
+                              "type": "number",
+                              "x-zui": {}
                             },
                             {
                               "type": "null"
@@ -575,7 +649,8 @@
                           }
                         },
                         "currency": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "recurring": {
                           "anyOf": [
@@ -583,7 +658,10 @@
                               "type": "object",
                               "properties": {},
                               "required": [],
-                              "additionalProperties": {}
+                              "additionalProperties": {
+                                "x-zui": {}
+                              },
+                              "x-zui": {}
                             },
                             {
                               "type": "null"
@@ -599,18 +677,23 @@
                       "required": [
                         "unit_amount",
                         "currency"
-                      ]
-                    }
+                      ],
+                      "x-zui": {}
+                    },
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "name",
                   "prices"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -622,12 +705,14 @@
           "properties": {
             "productName": {
               "type": "string",
-              "description": "The name of the subscription product"
+              "description": "The name of the subscription product",
+              "x-zui": {}
             },
             "unit_amount": {
               "anyOf": [
                 {
-                  "type": "number"
+                  "type": "number",
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -648,7 +733,8 @@
             "currency": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -669,7 +755,8 @@
             "quantity": {
               "anyOf": [
                 {
-                  "type": "number"
+                  "type": "number",
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -690,7 +777,8 @@
             "adjustableQuantity": {
               "anyOf": [
                 {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -789,15 +877,18 @@
             },
             "trial_period_days": {
               "type": "number",
+              "x-zui": {},
               "minimum": 1
             },
             "description": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "productName"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -805,13 +896,16 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "url": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -821,7 +915,8 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -834,20 +929,25 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "url": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id",
                   "url"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -868,7 +968,8 @@
           },
           "required": [
             "url"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -876,10 +977,12 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -899,7 +1002,8 @@
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -907,16 +1011,20 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "url": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "active": {
-              "type": "boolean"
+              "type": "boolean",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -928,12 +1036,14 @@
           "properties": {
             "email": {
               "type": "string",
+              "x-zui": {},
               "format": "email",
               "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
               "maxLength": 512
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -948,12 +1058,14 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "email": {
                       "anyOf": [
                         {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         {
                           "type": "null"
@@ -968,7 +1080,8 @@
                     "name": {
                       "anyOf": [
                         {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         {
                           "type": "null"
@@ -983,7 +1096,8 @@
                     "description": {
                       "anyOf": [
                         {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         {
                           "type": "null"
@@ -998,7 +1112,8 @@
                     "phone": {
                       "anyOf": [
                         {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         {
                           "type": "null"
@@ -1016,7 +1131,10 @@
                           "type": "object",
                           "properties": {},
                           "required": [],
-                          "additionalProperties": {}
+                          "additionalProperties": {
+                            "x-zui": {}
+                          },
+                          "x-zui": {}
                         },
                         {
                           "type": "null"
@@ -1029,12 +1147,14 @@
                       }
                     },
                     "created": {
-                      "type": "number"
+                      "type": "number",
+                      "x-zui": {}
                     },
                     "delinquent": {
                       "anyOf": [
                         {
-                          "type": "boolean"
+                          "type": "boolean",
+                          "x-zui": {}
                         },
                         {
                           "type": "null"
@@ -1053,12 +1173,18 @@
                     "description",
                     "created"
                   ],
-                  "additionalProperties": {}
-                }
-              }
+                  "additionalProperties": {
+                    "x-zui": {}
+                  },
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -1070,16 +1196,20 @@
           "properties": {
             "email": {
               "type": "string",
+              "x-zui": {},
               "maxLength": 512
             },
             "name": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "phone": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -1092,12 +1222,14 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "email": {
                     "anyOf": [
                       {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       {
                         "type": "null"
@@ -1112,7 +1244,8 @@
                   "name": {
                     "anyOf": [
                       {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       {
                         "type": "null"
@@ -1127,7 +1260,8 @@
                   "description": {
                     "anyOf": [
                       {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       {
                         "type": "null"
@@ -1142,7 +1276,8 @@
                   "phone": {
                     "anyOf": [
                       {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       {
                         "type": "null"
@@ -1160,7 +1295,10 @@
                         "type": "object",
                         "properties": {},
                         "required": [],
-                        "additionalProperties": {}
+                        "additionalProperties": {
+                          "x-zui": {}
+                        },
+                        "x-zui": {}
                       },
                       {
                         "type": "null"
@@ -1173,12 +1311,14 @@
                     }
                   },
                   "created": {
-                    "type": "number"
+                    "type": "number",
+                    "x-zui": {}
                   },
                   "delinquent": {
                     "anyOf": [
                       {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "x-zui": {}
                       },
                       {
                         "type": "null"
@@ -1197,11 +1337,16 @@
                   "description",
                   "created"
                 ],
-                "additionalProperties": {}
-              }
+                "additionalProperties": {
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -1254,7 +1399,8 @@
           },
           "required": [
             "email"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -1265,12 +1411,14 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "email": {
                   "anyOf": [
                     {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     {
                       "type": "null"
@@ -1285,7 +1433,8 @@
                 "name": {
                   "anyOf": [
                     {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     {
                       "type": "null"
@@ -1300,7 +1449,8 @@
                 "description": {
                   "anyOf": [
                     {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     {
                       "type": "null"
@@ -1315,7 +1465,8 @@
                 "phone": {
                   "anyOf": [
                     {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     {
                       "type": "null"
@@ -1333,7 +1484,10 @@
                       "type": "object",
                       "properties": {},
                       "required": [],
-                      "additionalProperties": {}
+                      "additionalProperties": {
+                        "x-zui": {}
+                      },
+                      "x-zui": {}
                     },
                     {
                       "type": "null"
@@ -1346,12 +1500,14 @@
                   }
                 },
                 "created": {
-                  "type": "number"
+                  "type": "number",
+                  "x-zui": {}
                 },
                 "delinquent": {
                   "anyOf": [
                     {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "x-zui": {}
                     },
                     {
                       "type": "null"
@@ -1370,10 +1526,14 @@
                 "description",
                 "created"
               ],
-              "additionalProperties": {}
+              "additionalProperties": {
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -1426,7 +1586,8 @@
           },
           "required": [
             "email"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -1439,12 +1600,14 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "email": {
                       "anyOf": [
                         {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         {
                           "type": "null"
@@ -1459,7 +1622,8 @@
                     "name": {
                       "anyOf": [
                         {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         {
                           "type": "null"
@@ -1474,7 +1638,8 @@
                     "description": {
                       "anyOf": [
                         {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         {
                           "type": "null"
@@ -1489,7 +1654,8 @@
                     "phone": {
                       "anyOf": [
                         {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         {
                           "type": "null"
@@ -1507,7 +1673,10 @@
                           "type": "object",
                           "properties": {},
                           "required": [],
-                          "additionalProperties": {}
+                          "additionalProperties": {
+                            "x-zui": {}
+                          },
+                          "x-zui": {}
                         },
                         {
                           "type": "null"
@@ -1520,12 +1689,14 @@
                       }
                     },
                     "created": {
-                      "type": "number"
+                      "type": "number",
+                      "x-zui": {}
                     },
                     "delinquent": {
                       "anyOf": [
                         {
-                          "type": "boolean"
+                          "type": "boolean",
+                          "x-zui": {}
                         },
                         {
                           "type": "null"
@@ -1544,7 +1715,10 @@
                     "description",
                     "created"
                   ],
-                  "additionalProperties": {}
+                  "additionalProperties": {
+                    "x-zui": {}
+                  },
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -1569,12 +1743,14 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "email": {
                         "anyOf": [
                           {
-                            "type": "string"
+                            "type": "string",
+                            "x-zui": {}
                           },
                           {
                             "type": "null"
@@ -1589,7 +1765,8 @@
                       "name": {
                         "anyOf": [
                           {
-                            "type": "string"
+                            "type": "string",
+                            "x-zui": {}
                           },
                           {
                             "type": "null"
@@ -1604,7 +1781,8 @@
                       "description": {
                         "anyOf": [
                           {
-                            "type": "string"
+                            "type": "string",
+                            "x-zui": {}
                           },
                           {
                             "type": "null"
@@ -1619,7 +1797,8 @@
                       "phone": {
                         "anyOf": [
                           {
-                            "type": "string"
+                            "type": "string",
+                            "x-zui": {}
                           },
                           {
                             "type": "null"
@@ -1637,7 +1816,10 @@
                             "type": "object",
                             "properties": {},
                             "required": [],
-                            "additionalProperties": {}
+                            "additionalProperties": {
+                              "x-zui": {}
+                            },
+                            "x-zui": {}
                           },
                           {
                             "type": "null"
@@ -1650,12 +1832,14 @@
                         }
                       },
                       "created": {
-                        "type": "number"
+                        "type": "number",
+                        "x-zui": {}
                       },
                       "delinquent": {
                         "anyOf": [
                           {
-                            "type": "boolean"
+                            "type": "boolean",
+                            "x-zui": {}
                           },
                           {
                             "type": "null"
@@ -1674,8 +1858,12 @@
                       "description",
                       "created"
                     ],
-                    "additionalProperties": {}
-                  }
+                    "additionalProperties": {
+                      "x-zui": {}
+                    },
+                    "x-zui": {}
+                  },
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -1693,7 +1881,8 @@
               }
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -1713,7 +1902,8 @@
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -1721,12 +1911,14 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "email": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 {
                   "type": "null"
@@ -1741,7 +1933,8 @@
             "description": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 {
                   "type": "null"
@@ -1754,11 +1947,15 @@
               }
             },
             "created": {
-              "type": "number"
+              "type": "number",
+              "x-zui": {}
             }
           },
           "required": [],
-          "additionalProperties": {}
+          "additionalProperties": {
+            "x-zui": {}
+          },
+          "x-zui": {}
         }
       }
     }
@@ -1771,12 +1968,14 @@
         "type": "object",
         "properties": {
           "stripeWebhookId": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
         "required": [
           "stripeWebhookId"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },

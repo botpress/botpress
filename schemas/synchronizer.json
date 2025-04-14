@@ -21,7 +21,8 @@
       },
       "required": [
         "tableName"
-      ]
+      ],
+      "x-zui": {}
     }
   },
   "events": {
@@ -29,7 +30,8 @@
       "schema": {
         "type": "object",
         "properties": {},
-        "required": []
+        "required": [],
+        "x-zui": {}
       }
     },
     "rowInserted": {
@@ -40,17 +42,20 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
               "id"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "row"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "rowUpdated": {
@@ -61,17 +66,20 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
               "id"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "row"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "rowDeleted": {
@@ -82,17 +90,20 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
               "id"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "row"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },
@@ -104,7 +115,8 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -112,12 +124,14 @@
           "type": "object",
           "properties": {
             "itemsLeft": {
-              "type": "boolean"
+              "type": "boolean",
+              "x-zui": {}
             }
           },
           "required": [
             "itemsLeft"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -128,14 +142,16 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     }
@@ -153,7 +169,8 @@
             }
           }
         },
-        "required": []
+        "required": [],
+        "x-zui": {}
       }
     },
     "job": {
@@ -168,7 +185,8 @@
             }
           }
         },
-        "required": []
+        "required": [],
+        "x-zui": {}
       }
     }
   }

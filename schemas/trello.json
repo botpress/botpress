@@ -24,19 +24,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -45,19 +48,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "member": {
             "type": "object",
@@ -66,25 +72,29 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the member",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Full name of the member"
+                "description": "Full name of the member",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "member"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "commentCard": {
@@ -99,19 +109,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -120,19 +133,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "list": {
             "type": "object",
@@ -140,29 +156,34 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the list",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list"
+                "description": "Name of the list",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "text": {
             "type": "string",
-            "description": "Text of the comment"
+            "description": "Text of the comment",
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "text"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "createCard": {
@@ -177,19 +198,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -198,19 +222,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "list": {
             "type": "object",
@@ -218,24 +245,28 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the list",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list"
+                "description": "Name of the list",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "deleteCard": {
@@ -250,19 +281,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -271,6 +305,7 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
@@ -278,7 +313,8 @@
             },
             "required": [
               "id"
-            ]
+            ],
+            "x-zui": {}
           },
           "list": {
             "type": "object",
@@ -286,24 +322,28 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the list",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list"
+                "description": "Name of the list",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "removeMemberFromCard": {
@@ -318,19 +358,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -339,19 +382,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "member": {
             "type": "object",
@@ -360,25 +406,29 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the member",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Full name of the member"
+                "description": "Full name of the member",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "member"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "updateCard": {
@@ -393,19 +443,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -414,34 +467,41 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               },
               "idList": {
                 "type": "string",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "desc": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "idLabels": {
                 "type": "array",
                 "items": {
                   "type": "string",
+                  "x-zui": {},
                   "maxLength": 24,
                   "minLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$"
-                }
+                },
+                "x-zui": {}
               },
               "pos": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "start": {
                 "anyOf": [
@@ -457,7 +517,8 @@
                   {
                     "type": "null"
                   }
-                ]
+                ],
+                "x-zui": {}
               },
               "due": {
                 "anyOf": [
@@ -473,34 +534,41 @@
                   {
                     "type": "null"
                   }
-                ]
+                ],
+                "x-zui": {}
               },
               "dueReminder": {
                 "anyOf": [
                   {
                     "type": "number",
-                    "const": -1
+                    "const": -1,
+                    "x-zui": {}
                   },
                   {
                     "type": "null"
                   },
                   {
                     "type": "number",
+                    "x-zui": {},
                     "minimum": 0
                   }
-                ]
+                ],
+                "x-zui": {}
               },
               "dueComplete": {
-                "type": "boolean"
+                "type": "boolean",
+                "x-zui": {}
               },
               "closed": {
-                "type": "boolean"
+                "type": "boolean",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "old": {
             "type": "object",
@@ -508,20 +576,24 @@
             "properties": {
               "name": {
                 "type": "string",
-                "description": "Previous name of the card"
+                "description": "Previous name of the card",
+                "x-zui": {}
               },
               "desc": {
                 "anyOf": [
                   {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   {
                     "type": "null"
                   }
-                ]
+                ],
+                "x-zui": {}
               },
               "idList": {
                 "type": "string",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
@@ -530,13 +602,16 @@
                 "type": "array",
                 "items": {
                   "type": "string",
+                  "x-zui": {},
                   "maxLength": 24,
                   "minLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$"
-                }
+                },
+                "x-zui": {}
               },
               "pos": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "start": {
                 "anyOf": [
@@ -552,7 +627,8 @@
                   {
                     "type": "null"
                   }
-                ]
+                ],
+                "x-zui": {}
               },
               "due": {
                 "anyOf": [
@@ -568,33 +644,40 @@
                   {
                     "type": "null"
                   }
-                ]
+                ],
+                "x-zui": {}
               },
               "dueReminder": {
                 "anyOf": [
                   {
                     "type": "number",
-                    "const": -1
+                    "const": -1,
+                    "x-zui": {}
                   },
                   {
                     "type": "null"
                   },
                   {
                     "type": "number",
+                    "x-zui": {},
                     "minimum": 0
                   }
-                ]
+                ],
+                "x-zui": {}
               },
               "dueComplete": {
-                "type": "boolean"
+                "type": "boolean",
+                "x-zui": {}
               },
               "closed": {
-                "type": "boolean"
+                "type": "boolean",
+                "x-zui": {}
               }
             },
             "required": [
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "list": {
             "type": "object",
@@ -602,19 +685,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the list",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list"
+                "description": "Name of the list",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "listBefore": {
             "type": "object",
@@ -622,19 +708,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the previous list",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the previous list"
+                "description": "Name of the previous list",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "listAfter": {
             "type": "object",
@@ -642,25 +731,29 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the new list",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the new list"
+                "description": "Name of the new list",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "old"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "updateCheckItemStateOnCard": {
@@ -675,19 +768,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -696,19 +792,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "checklist": {
             "type": "object",
@@ -717,19 +816,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the checklist",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the checklist"
+                "description": "Name of the checklist",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "checkItem": {
             "type": "object",
@@ -738,26 +840,31 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the check item",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the check item"
+                "description": "Name of the check item",
+                "x-zui": {}
               },
               "state": {
                 "description": "State of the check item",
                 "anyOf": [
                   {
                     "type": "string",
-                    "const": "complete"
+                    "const": "complete",
+                    "x-zui": {}
                   },
                   {
                     "type": "string",
-                    "const": "incomplete"
+                    "const": "incomplete",
+                    "x-zui": {}
                   }
-                ]
+                ],
+                "x-zui": {}
               },
               "textData": {
                 "type": "object",
@@ -766,12 +873,14 @@
                     "type": "object",
                     "description": "Emoji of the check item",
                     "properties": {},
-                    "required": []
+                    "required": [],
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "emoji"
-                ]
+                ],
+                "x-zui": {}
               },
               "due": {
                 "type": "string",
@@ -788,14 +897,16 @@
               "name",
               "state",
               "textData"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "checklist",
           "checkItem"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "addLabelToCard": {
@@ -810,19 +921,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -831,19 +945,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "label": {
             "type": "object",
@@ -852,30 +969,35 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the label",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the label"
+                "description": "Name of the label",
+                "x-zui": {}
               },
               "color": {
                 "type": "string",
-                "description": "Color of the label"
+                "description": "Color of the label",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name",
               "color"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "label"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "createCheckItem": {
@@ -890,19 +1012,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -911,19 +1036,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "checklist": {
             "type": "object",
@@ -932,19 +1060,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the checklist",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the checklist"
+                "description": "Name of the checklist",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "checkItem": {
             "type": "object",
@@ -953,26 +1084,31 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the check item",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the check item"
+                "description": "Name of the check item",
+                "x-zui": {}
               },
               "state": {
                 "description": "State of the check item",
                 "anyOf": [
                   {
                     "type": "string",
-                    "const": "complete"
+                    "const": "complete",
+                    "x-zui": {}
                   },
                   {
                     "type": "string",
-                    "const": "incomplete"
+                    "const": "incomplete",
+                    "x-zui": {}
                   }
-                ]
+                ],
+                "x-zui": {}
               },
               "textData": {
                 "type": "object",
@@ -981,12 +1117,14 @@
                     "type": "object",
                     "description": "Emoji of the check item",
                     "properties": {},
-                    "required": []
+                    "required": [],
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "emoji"
-                ]
+                ],
+                "x-zui": {}
               },
               "due": {
                 "type": "string",
@@ -1003,14 +1141,16 @@
               "name",
               "state",
               "textData"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "checklist",
           "checkItem"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "deleteCheckItem": {
@@ -1025,19 +1165,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -1046,19 +1189,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "checklist": {
             "type": "object",
@@ -1067,19 +1213,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the checklist",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the checklist"
+                "description": "Name of the checklist",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "checkItem": {
             "type": "object",
@@ -1088,26 +1237,31 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the check item",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the check item"
+                "description": "Name of the check item",
+                "x-zui": {}
               },
               "state": {
                 "description": "State of the check item",
                 "anyOf": [
                   {
                     "type": "string",
-                    "const": "complete"
+                    "const": "complete",
+                    "x-zui": {}
                   },
                   {
                     "type": "string",
-                    "const": "incomplete"
+                    "const": "incomplete",
+                    "x-zui": {}
                   }
-                ]
+                ],
+                "x-zui": {}
               },
               "textData": {
                 "type": "object",
@@ -1116,12 +1270,14 @@
                     "type": "object",
                     "description": "Emoji of the check item",
                     "properties": {},
-                    "required": []
+                    "required": [],
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "emoji"
-                ]
+                ],
+                "x-zui": {}
               },
               "due": {
                 "type": "string",
@@ -1138,14 +1294,16 @@
               "name",
               "state",
               "textData"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "checklist",
           "checkItem"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "deleteComment": {
@@ -1160,19 +1318,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -1181,19 +1342,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "list": {
             "type": "object",
@@ -1201,19 +1365,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the list",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list"
+                "description": "Name of the list",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "action": {
             "type": "object",
@@ -1221,6 +1388,7 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the comment that was deleted",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
@@ -1228,13 +1396,15 @@
             },
             "required": [
               "id"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "action"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "removeLabelFromCard": {
@@ -1249,19 +1419,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -1270,19 +1443,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "label": {
             "type": "object",
@@ -1291,30 +1467,35 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the label",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the label"
+                "description": "Name of the label",
+                "x-zui": {}
               },
               "color": {
                 "type": "string",
-                "description": "Color of the label"
+                "description": "Color of the label",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name",
               "color"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "label"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "updateCheckItem": {
@@ -1329,19 +1510,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -1350,19 +1534,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "checklist": {
             "type": "object",
@@ -1371,19 +1558,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the checklist",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the checklist"
+                "description": "Name of the checklist",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "checkItem": {
             "type": "object",
@@ -1392,26 +1582,31 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the check item",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the check item"
+                "description": "Name of the check item",
+                "x-zui": {}
               },
               "state": {
                 "description": "State of the check item",
                 "anyOf": [
                   {
                     "type": "string",
-                    "const": "complete"
+                    "const": "complete",
+                    "x-zui": {}
                   },
                   {
                     "type": "string",
-                    "const": "incomplete"
+                    "const": "incomplete",
+                    "x-zui": {}
                   }
-                ]
+                ],
+                "x-zui": {}
               },
               "due": {
                 "type": "string",
@@ -1427,7 +1622,8 @@
               "id",
               "name",
               "state"
-            ]
+            ],
+            "x-zui": {}
           },
           "old": {
             "type": "object",
@@ -1435,20 +1631,24 @@
             "properties": {
               "name": {
                 "type": "string",
-                "description": "Old name of the check item"
+                "description": "Old name of the check item",
+                "x-zui": {}
               },
               "state": {
                 "description": "Old state of the check item",
                 "anyOf": [
                   {
                     "type": "string",
-                    "const": "complete"
+                    "const": "complete",
+                    "x-zui": {}
                   },
                   {
                     "type": "string",
-                    "const": "incomplete"
+                    "const": "incomplete",
+                    "x-zui": {}
                   }
-                ]
+                ],
+                "x-zui": {}
               },
               "due": {
                 "type": "string",
@@ -1463,7 +1663,8 @@
             "required": [
               "name",
               "state"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
@@ -1471,7 +1672,8 @@
           "checklist",
           "checkItem",
           "old"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "updateComment": {
@@ -1486,19 +1688,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -1507,19 +1712,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "list": {
             "type": "object",
@@ -1527,19 +1735,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the list",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list"
+                "description": "Name of the list",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "action": {
             "type": "object",
@@ -1547,19 +1758,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the comment that was updated",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "text": {
                 "type": "string",
-                "description": "New text of the comment"
+                "description": "New text of the comment",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "text"
-            ]
+            ],
+            "x-zui": {}
           },
           "old": {
             "type": "object",
@@ -1567,19 +1781,22 @@
             "properties": {
               "text": {
                 "type": "string",
-                "description": "Old text of the comment"
+                "description": "Old text of the comment",
+                "x-zui": {}
               }
             },
             "required": [
               "text"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "action",
           "old"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "voteOnCard": {
@@ -1594,19 +1811,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -1614,28 +1834,33 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "voted": {
             "type": "boolean",
-            "description": "Whether the user voted on the card"
+            "description": "Whether the user voted on the card",
+            "x-zui": {}
           }
         },
         "required": [
           "voted"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "addAttachmentToCard": {
@@ -1650,19 +1875,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -1671,19 +1899,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "list": {
             "type": "object",
@@ -1691,19 +1922,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the list",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list"
+                "description": "Name of the list",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "attachment": {
             "type": "object",
@@ -1712,37 +1946,44 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the attachment",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the attachment"
+                "description": "Name of the attachment",
+                "x-zui": {}
               },
               "url": {
                 "type": "string",
+                "x-zui": {},
                 "format": "uri"
               },
               "previewUrl": {
                 "type": "string",
+                "x-zui": {},
                 "format": "uri"
               },
               "previewUrl2x": {
                 "type": "string",
+                "x-zui": {},
                 "format": "uri"
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "attachment"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "deleteAttachmentFromCard": {
@@ -1757,19 +1998,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the board",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board"
+                "description": "Name of the board",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "card": {
             "type": "object",
@@ -1778,19 +2022,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the card",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card"
+                "description": "Name of the card",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "list": {
             "type": "object",
@@ -1798,19 +2045,22 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the list",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list"
+                "description": "Name of the list",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           },
           "attachment": {
             "type": "object",
@@ -1819,25 +2069,29 @@
               "id": {
                 "type": "string",
                 "description": "Unique identifier of the attachment",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the attachment"
+                "description": "Name of the attachment",
+                "x-zui": {}
               }
             },
             "required": [
               "id",
               "name"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "card",
           "attachment"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "cardCreated": {
@@ -1851,30 +2105,37 @@
                 "properties": {
                   "id": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "description": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "listId": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "verticalPosition": {
-                    "type": "number"
+                    "type": "number",
+                    "x-zui": {}
                   },
                   "isClosed": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "x-zui": {}
                   },
                   "isCompleted": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "x-zui": {}
                   },
                   "dueDate": {
                     "type": "string",
@@ -1889,19 +2150,23 @@
                     "type": "array",
                     "items": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
-                    }
+                    },
+                    "x-zui": {}
                   },
                   "memberIds": {
                     "type": "array",
                     "items": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
-                    }
+                    },
+                    "x-zui": {}
                   }
                 },
                 "required": [
@@ -1914,25 +2179,30 @@
                   "isCompleted",
                   "labelIds",
                   "memberIds"
-                ]
+                ],
+                "x-zui": {}
               },
               {
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id"
-                ]
+                ],
+                "x-zui": {}
               }
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "item"
-        ]
+        ],
+        "x-zui": {}
       },
       "name": "cardCreated"
     },
@@ -1947,30 +2217,37 @@
                 "properties": {
                   "id": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "description": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "listId": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "verticalPosition": {
-                    "type": "number"
+                    "type": "number",
+                    "x-zui": {}
                   },
                   "isClosed": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "x-zui": {}
                   },
                   "isCompleted": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "x-zui": {}
                   },
                   "dueDate": {
                     "type": "string",
@@ -1985,19 +2262,23 @@
                     "type": "array",
                     "items": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
-                    }
+                    },
+                    "x-zui": {}
                   },
                   "memberIds": {
                     "type": "array",
                     "items": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
-                    }
+                    },
+                    "x-zui": {}
                   }
                 },
                 "required": [
@@ -2010,25 +2291,30 @@
                   "isCompleted",
                   "labelIds",
                   "memberIds"
-                ]
+                ],
+                "x-zui": {}
               },
               {
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id"
-                ]
+                ],
+                "x-zui": {}
               }
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "required": [
           "item"
-        ]
+        ],
+        "x-zui": {}
       },
       "name": "cardUpdated"
     },
@@ -2037,12 +2323,14 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
         "required": [
           "id"
-        ]
+        ],
+        "x-zui": {}
       },
       "name": "cardDeleted"
     }
@@ -2058,12 +2346,14 @@
           "properties": {
             "boardName": {
               "type": "string",
-              "description": "Display name of the board"
+              "description": "Display name of the board",
+              "x-zui": {}
             }
           },
           "required": [
             "boardName"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2078,24 +2368,29 @@
                 "properties": {
                   "id": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id",
                   "name"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "boards"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2110,19 +2405,22 @@
             "boardId": {
               "type": "string",
               "description": "Unique identifier of the board",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
             },
             "listName": {
               "type": "string",
-              "description": "Display name of the list"
+              "description": "Display name of the list",
+              "x-zui": {}
             }
           },
           "required": [
             "boardId",
             "listName"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2137,24 +2435,29 @@
                 "properties": {
                   "id": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id",
                   "name"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "lists"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2169,6 +2472,7 @@
             "listId": {
               "type": "string",
               "description": "Unique identifier of the list",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -2176,7 +2480,8 @@
           },
           "required": [
             "listId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2189,23 +2494,27 @@
               "properties": {
                 "id": {
                   "type": "string",
+                  "x-zui": {},
                   "maxLength": 24,
                   "minLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
               "required": [
                 "id",
                 "name"
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "list"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2220,19 +2529,22 @@
             "listId": {
               "type": "string",
               "description": "Unique identifier of the list",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
             },
             "cardName": {
               "type": "string",
-              "description": "Display name of the card"
+              "description": "Display name of the card",
+              "x-zui": {}
             }
           },
           "required": [
             "listId",
             "cardName"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2247,30 +2559,37 @@
                 "properties": {
                   "id": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "description": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "listId": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "verticalPosition": {
-                    "type": "number"
+                    "type": "number",
+                    "x-zui": {}
                   },
                   "isClosed": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "x-zui": {}
                   },
                   "isCompleted": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "x-zui": {}
                   },
                   "dueDate": {
                     "type": "string",
@@ -2285,19 +2604,23 @@
                     "type": "array",
                     "items": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
-                    }
+                    },
+                    "x-zui": {}
                   },
                   "memberIds": {
                     "type": "array",
                     "items": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
-                    }
+                    },
+                    "x-zui": {}
                   }
                 },
                 "required": [
@@ -2310,13 +2633,16 @@
                   "isCompleted",
                   "labelIds",
                   "memberIds"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "cards"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2331,34 +2657,41 @@
             "listId": {
               "type": "string",
               "description": "ID of the list in which to insert the new card",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
             },
             "cardName": {
               "type": "string",
-              "description": "Name of the new card"
+              "description": "Name of the new card",
+              "x-zui": {}
             },
             "cardBody": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "members": {
               "type": "array",
               "items": {
                 "type": "string",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
-              }
+              },
+              "x-zui": {}
             },
             "labels": {
               "type": "array",
               "items": {
                 "type": "string",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
-              }
+              },
+              "x-zui": {}
             },
             "dueDate": {
               "anyOf": [
@@ -2390,7 +2723,8 @@
           "required": [
             "listId",
             "cardName"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2400,11 +2734,13 @@
           "properties": {
             "message": {
               "type": "string",
-              "description": "Output message"
+              "description": "Output message",
+              "x-zui": {}
             },
             "newCardId": {
               "type": "string",
               "description": "Unique identifier of the new card",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -2413,7 +2749,8 @@
           "required": [
             "message",
             "newCardId"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2427,6 +2764,7 @@
             "cardId": {
               "type": "string",
               "description": "Unique identifier of the card",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -2435,6 +2773,7 @@
               "anyOf": [
                 {
                   "type": "number",
+                  "x-zui": {},
                   "minimum": 1
                 },
                 {
@@ -2456,7 +2795,8 @@
           },
           "required": [
             "cardId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2466,12 +2806,14 @@
           "properties": {
             "message": {
               "type": "string",
-              "description": "Output message"
+              "description": "Output message",
+              "x-zui": {}
             }
           },
           "required": [
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2485,6 +2827,7 @@
             "cardId": {
               "type": "string",
               "description": "Unique identifier of the card",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -2493,6 +2836,7 @@
               "anyOf": [
                 {
                   "type": "number",
+                  "x-zui": {},
                   "minimum": 1
                 },
                 {
@@ -2514,7 +2858,8 @@
           },
           "required": [
             "cardId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2524,12 +2869,14 @@
           "properties": {
             "message": {
               "type": "string",
-              "description": "Output message"
+              "description": "Output message",
+              "x-zui": {}
             }
           },
           "required": [
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2543,6 +2890,7 @@
             "cardId": {
               "type": "string",
               "description": "Unique identifier of the card",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -2550,6 +2898,7 @@
             "newListId": {
               "type": "string",
               "description": "Unique identifier of the list in which the card will be moved",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -2558,7 +2907,8 @@
           "required": [
             "cardId",
             "newListId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2568,12 +2918,14 @@
           "properties": {
             "message": {
               "type": "string",
-              "description": "Output message"
+              "description": "Output message",
+              "x-zui": {}
             }
           },
           "required": [
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2588,19 +2940,22 @@
             "cardId": {
               "type": "string",
               "description": "Unique identifier of the card to which a comment will be added",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
             },
             "commentBody": {
               "type": "string",
-              "description": "The body text of the comment"
+              "description": "The body text of the comment",
+              "x-zui": {}
             }
           },
           "required": [
             "cardId",
             "commentBody"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2610,11 +2965,13 @@
           "properties": {
             "message": {
               "type": "string",
-              "description": "Output message"
+              "description": "Output message",
+              "x-zui": {}
             },
             "newCommentId": {
               "type": "string",
               "description": "Unique identifier of the newly created comment",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -2623,7 +2980,8 @@
           "required": [
             "message",
             "newCommentId"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2638,15 +2996,18 @@
             "cardId": {
               "type": "string",
               "description": "Unique identifier of the card",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
             },
             "name": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "bodyText": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "closedState": {
               "description": "Whether the card should be archived (Optional). Enter \"open\", \"archived\" (without quotes), or leave empty to keep the previous status.",
@@ -2656,7 +3017,8 @@
                   "enum": [
                     "open",
                     "archived"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -2681,7 +3043,8 @@
                   "enum": [
                     "complete",
                     "incomplete"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -2702,37 +3065,45 @@
               "type": "array",
               "items": {
                 "type": "string",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
-              }
+              },
+              "x-zui": {}
             },
             "membersToRemove": {
               "type": "array",
               "items": {
                 "type": "string",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
-              }
+              },
+              "x-zui": {}
             },
             "labelsToAdd": {
               "type": "array",
               "items": {
                 "type": "string",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
-              }
+              },
+              "x-zui": {}
             },
             "labelsToRemove": {
               "type": "array",
               "items": {
                 "type": "string",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
-              }
+              },
+              "x-zui": {}
             },
             "dueDate": {
               "anyOf": [
@@ -2763,7 +3134,8 @@
           },
           "required": [
             "cardId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2773,12 +3145,14 @@
           "properties": {
             "message": {
               "type": "string",
-              "description": "Output message"
+              "description": "Output message",
+              "x-zui": {}
             }
           },
           "required": [
             "message"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2793,19 +3167,22 @@
             "boardId": {
               "type": "string",
               "description": "Unique identifier of the board",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
             },
             "displayName": {
               "type": "string",
-              "description": "Display name of the member"
+              "description": "Display name of the member",
+              "x-zui": {}
             }
           },
           "required": [
             "boardId",
             "displayName"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2820,28 +3197,34 @@
                 "properties": {
                   "id": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "username": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "fullName": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id",
                   "username",
                   "fullName"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "members"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2856,6 +3239,7 @@
             "boardId": {
               "type": "string",
               "description": "Unique identifier of the board",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -2863,7 +3247,8 @@
           },
           "required": [
             "boardId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2878,28 +3263,34 @@
                 "properties": {
                   "id": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "username": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "fullName": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id",
                   "username",
                   "fullName"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "members"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2911,7 +3302,8 @@
           "type": "object",
           "description": "Input schema for getting all boards",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2926,24 +3318,29 @@
                 "properties": {
                   "id": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id",
                   "name"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "boards"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -2958,6 +3355,7 @@
             "boardId": {
               "type": "string",
               "description": "Unique identifier of the board",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -2965,7 +3363,8 @@
           },
           "required": [
             "boardId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -2978,23 +3377,27 @@
               "properties": {
                 "id": {
                   "type": "string",
+                  "x-zui": {},
                   "maxLength": 24,
                   "minLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
               "required": [
                 "id",
                 "name"
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "board"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -3009,6 +3412,7 @@
             "boardId": {
               "type": "string",
               "description": "Unique identifier of the board",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -3016,7 +3420,8 @@
           },
           "required": [
             "boardId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -3031,24 +3436,29 @@
                 "properties": {
                   "id": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id",
                   "name"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "lists"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -3063,6 +3473,7 @@
             "listId": {
               "type": "string",
               "description": "Unique identifier of the list",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -3070,7 +3481,8 @@
           },
           "required": [
             "listId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -3085,30 +3497,37 @@
                 "properties": {
                   "id": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "description": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "listId": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "verticalPosition": {
-                    "type": "number"
+                    "type": "number",
+                    "x-zui": {}
                   },
                   "isClosed": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "x-zui": {}
                   },
                   "isCompleted": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "x-zui": {}
                   },
                   "dueDate": {
                     "type": "string",
@@ -3123,19 +3542,23 @@
                     "type": "array",
                     "items": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
-                    }
+                    },
+                    "x-zui": {}
                   },
                   "memberIds": {
                     "type": "array",
                     "items": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
-                    }
+                    },
+                    "x-zui": {}
                   }
                 },
                 "required": [
@@ -3148,13 +3571,16 @@
                   "isCompleted",
                   "labelIds",
                   "memberIds"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "cards"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -3169,6 +3595,7 @@
             "cardId": {
               "type": "string",
               "description": "Unique identifier of the card",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -3176,7 +3603,8 @@
           },
           "required": [
             "cardId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -3189,30 +3617,37 @@
               "properties": {
                 "id": {
                   "type": "string",
+                  "x-zui": {},
                   "maxLength": 24,
                   "minLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "description": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "listId": {
                   "type": "string",
+                  "x-zui": {},
                   "maxLength": 24,
                   "minLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "verticalPosition": {
-                  "type": "number"
+                  "type": "number",
+                  "x-zui": {}
                 },
                 "isClosed": {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "x-zui": {}
                 },
                 "isCompleted": {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "x-zui": {}
                 },
                 "dueDate": {
                   "type": "string",
@@ -3227,19 +3662,23 @@
                   "type": "array",
                   "items": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
-                  }
+                  },
+                  "x-zui": {}
                 },
                 "memberIds": {
                   "type": "array",
                   "items": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
-                  }
+                  },
+                  "x-zui": {}
                 }
               },
               "required": [
@@ -3252,12 +3691,14 @@
                 "isCompleted",
                 "labelIds",
                 "memberIds"
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "card"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -3274,19 +3715,23 @@
               "anyOf": [
                 {
                   "type": "string",
+                  "x-zui": {},
                   "maxLength": 24,
                   "minLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "memberIdOrUsername"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -3299,27 +3744,32 @@
               "properties": {
                 "id": {
                   "type": "string",
+                  "x-zui": {},
                   "maxLength": 24,
                   "minLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "username": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "fullName": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
               "required": [
                 "id",
                 "username",
                 "fullName"
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "member"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -3334,6 +3784,7 @@
             "cardId": {
               "type": "string",
               "description": "Unique identifier of the card",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
@@ -3341,7 +3792,8 @@
           },
           "required": [
             "cardId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -3356,28 +3808,34 @@
                 "properties": {
                   "id": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "username": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "fullName": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "id",
                   "username",
                   "fullName"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "required": [
             "members"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -3387,10 +3845,12 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -3406,30 +3866,37 @@
                     "properties": {
                       "id": {
                         "type": "string",
+                        "x-zui": {},
                         "maxLength": 24,
                         "minLength": 24,
                         "pattern": "^[0-9a-fA-F]{24}$"
                       },
                       "name": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "description": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "listId": {
                         "type": "string",
+                        "x-zui": {},
                         "maxLength": 24,
                         "minLength": 24,
                         "pattern": "^[0-9a-fA-F]{24}$"
                       },
                       "verticalPosition": {
-                        "type": "number"
+                        "type": "number",
+                        "x-zui": {}
                       },
                       "isClosed": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "x-zui": {}
                       },
                       "isCompleted": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "x-zui": {}
                       },
                       "dueDate": {
                         "type": "string",
@@ -3444,19 +3911,23 @@
                         "type": "array",
                         "items": {
                           "type": "string",
+                          "x-zui": {},
                           "maxLength": 24,
                           "minLength": 24,
                           "pattern": "^[0-9a-fA-F]{24}$"
-                        }
+                        },
+                        "x-zui": {}
                       },
                       "memberIds": {
                         "type": "array",
                         "items": {
                           "type": "string",
+                          "x-zui": {},
                           "maxLength": 24,
                           "minLength": 24,
                           "pattern": "^[0-9a-fA-F]{24}$"
-                        }
+                        },
+                        "x-zui": {}
                       }
                     },
                     "required": [
@@ -3469,36 +3940,44 @@
                       "isCompleted",
                       "labelIds",
                       "memberIds"
-                    ]
+                    ],
+                    "x-zui": {}
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id"
-                    ]
+                    ],
+                    "x-zui": {}
                   }
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             }
           },
           "required": [
             "items",
             "meta"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "cardList"
@@ -3509,12 +3988,14 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -3528,30 +4009,37 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "name": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "description": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "listId": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "verticalPosition": {
-                      "type": "number"
+                      "type": "number",
+                      "x-zui": {}
                     },
                     "isClosed": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "x-zui": {}
                     },
                     "isCompleted": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "x-zui": {}
                     },
                     "dueDate": {
                       "type": "string",
@@ -3566,19 +4054,23 @@
                       "type": "array",
                       "items": {
                         "type": "string",
+                        "x-zui": {},
                         "maxLength": 24,
                         "minLength": 24,
                         "pattern": "^[0-9a-fA-F]{24}$"
-                      }
+                      },
+                      "x-zui": {}
                     },
                     "memberIds": {
                       "type": "array",
                       "items": {
                         "type": "string",
+                        "x-zui": {},
                         "maxLength": 24,
                         "minLength": 24,
                         "pattern": "^[0-9a-fA-F]{24}$"
-                      }
+                      },
+                      "x-zui": {}
                     }
                   },
                   "required": [
@@ -3591,25 +4083,30 @@
                     "isCompleted",
                     "labelIds",
                     "memberIds"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id"
-                  ]
+                  ],
+                  "x-zui": {}
                 }
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "cardRead"
@@ -3624,30 +4121,37 @@
               "properties": {
                 "id": {
                   "type": "string",
+                  "x-zui": {},
                   "maxLength": 24,
                   "minLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "description": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "listId": {
                   "type": "string",
+                  "x-zui": {},
                   "maxLength": 24,
                   "minLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "verticalPosition": {
-                  "type": "number"
+                  "type": "number",
+                  "x-zui": {}
                 },
                 "isClosed": {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "x-zui": {}
                 },
                 "isCompleted": {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "x-zui": {}
                 },
                 "dueDate": {
                   "type": "string",
@@ -3662,19 +4166,23 @@
                   "type": "array",
                   "items": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
-                  }
+                  },
+                  "x-zui": {}
                 },
                 "memberIds": {
                   "type": "array",
                   "items": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
-                  }
+                  },
+                  "x-zui": {}
                 }
               },
               "required": [
@@ -3687,12 +4195,14 @@
                 "isCompleted",
                 "labelIds",
                 "memberIds"
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -3706,30 +4216,37 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "name": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "description": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "listId": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "verticalPosition": {
-                      "type": "number"
+                      "type": "number",
+                      "x-zui": {}
                     },
                     "isClosed": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "x-zui": {}
                     },
                     "isCompleted": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "x-zui": {}
                     },
                     "dueDate": {
                       "type": "string",
@@ -3744,19 +4261,23 @@
                       "type": "array",
                       "items": {
                         "type": "string",
+                        "x-zui": {},
                         "maxLength": 24,
                         "minLength": 24,
                         "pattern": "^[0-9a-fA-F]{24}$"
-                      }
+                      },
+                      "x-zui": {}
                     },
                     "memberIds": {
                       "type": "array",
                       "items": {
                         "type": "string",
+                        "x-zui": {},
                         "maxLength": 24,
                         "minLength": 24,
                         "pattern": "^[0-9a-fA-F]{24}$"
-                      }
+                      },
+                      "x-zui": {}
                     }
                   },
                   "required": [
@@ -3769,25 +4290,30 @@
                     "isCompleted",
                     "labelIds",
                     "memberIds"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id"
-                  ]
+                  ],
+                  "x-zui": {}
                 }
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "cardCreate"
@@ -3798,37 +4324,45 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "item": {
               "type": "object",
               "properties": {
                 "id": {
                   "type": "string",
+                  "x-zui": {},
                   "maxLength": 24,
                   "minLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "description": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "listId": {
                   "type": "string",
+                  "x-zui": {},
                   "maxLength": 24,
                   "minLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "verticalPosition": {
-                  "type": "number"
+                  "type": "number",
+                  "x-zui": {}
                 },
                 "isClosed": {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "x-zui": {}
                 },
                 "isCompleted": {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "x-zui": {}
                 },
                 "dueDate": {
                   "type": "string",
@@ -3843,19 +4377,23 @@
                   "type": "array",
                   "items": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
-                  }
+                  },
+                  "x-zui": {}
                 },
                 "memberIds": {
                   "type": "array",
                   "items": {
                     "type": "string",
+                    "x-zui": {},
                     "maxLength": 24,
                     "minLength": 24,
                     "pattern": "^[0-9a-fA-F]{24}$"
-                  }
+                  },
+                  "x-zui": {}
                 }
               },
               "required": [
@@ -3868,13 +4406,15 @@
                 "isCompleted",
                 "labelIds",
                 "memberIds"
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "id",
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -3888,30 +4428,37 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "name": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "description": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "listId": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "verticalPosition": {
-                      "type": "number"
+                      "type": "number",
+                      "x-zui": {}
                     },
                     "isClosed": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "x-zui": {}
                     },
                     "isCompleted": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "x-zui": {}
                     },
                     "dueDate": {
                       "type": "string",
@@ -3926,19 +4473,23 @@
                       "type": "array",
                       "items": {
                         "type": "string",
+                        "x-zui": {},
                         "maxLength": 24,
                         "minLength": 24,
                         "pattern": "^[0-9a-fA-F]{24}$"
-                      }
+                      },
+                      "x-zui": {}
                     },
                     "memberIds": {
                       "type": "array",
                       "items": {
                         "type": "string",
+                        "x-zui": {},
                         "maxLength": 24,
                         "minLength": 24,
                         "pattern": "^[0-9a-fA-F]{24}$"
-                      }
+                      },
+                      "x-zui": {}
                     }
                   },
                   "required": [
@@ -3951,25 +4502,30 @@
                     "isCompleted",
                     "labelIds",
                     "memberIds"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id"
-                  ]
+                  ],
+                  "x-zui": {}
                 }
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "cardUpdate"
@@ -3980,19 +4536,22 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "name": "cardDelete"
@@ -4003,10 +4562,12 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -4022,47 +4583,57 @@
                     "properties": {
                       "id": {
                         "type": "string",
+                        "x-zui": {},
                         "maxLength": 24,
                         "minLength": 24,
                         "pattern": "^[0-9a-fA-F]{24}$"
                       },
                       "name": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id",
                       "name"
-                    ]
+                    ],
+                    "x-zui": {}
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id"
-                    ]
+                    ],
+                    "x-zui": {}
                   }
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             }
           },
           "required": [
             "items",
             "meta"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "listList"
@@ -4073,12 +4644,14 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -4092,36 +4665,43 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "name": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id",
                     "name"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id"
-                  ]
+                  ],
+                  "x-zui": {}
                 }
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "listRead"
@@ -4132,10 +4712,12 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -4151,47 +4733,57 @@
                     "properties": {
                       "id": {
                         "type": "string",
+                        "x-zui": {},
                         "maxLength": 24,
                         "minLength": 24,
                         "pattern": "^[0-9a-fA-F]{24}$"
                       },
                       "name": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id",
                       "name"
-                    ]
+                    ],
+                    "x-zui": {}
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id"
-                    ]
+                    ],
+                    "x-zui": {}
                   }
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             }
           },
           "required": [
             "items",
             "meta"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "boardList"
@@ -4202,12 +4794,14 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -4221,36 +4815,43 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "name": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id",
                     "name"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id"
-                  ]
+                  ],
+                  "x-zui": {}
                 }
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "boardRead"
@@ -4261,10 +4862,12 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -4280,51 +4883,62 @@
                     "properties": {
                       "id": {
                         "type": "string",
+                        "x-zui": {},
                         "maxLength": 24,
                         "minLength": 24,
                         "pattern": "^[0-9a-fA-F]{24}$"
                       },
                       "username": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "fullName": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id",
                       "username",
                       "fullName"
-                    ]
+                    ],
+                    "x-zui": {}
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id"
-                    ]
+                    ],
+                    "x-zui": {}
                   }
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             }
           },
           "required": [
             "items",
             "meta"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "boardMemberList"
@@ -4335,12 +4949,14 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -4354,40 +4970,48 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "username": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "fullName": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id",
                     "username",
                     "fullName"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id"
-                  ]
+                  ],
+                  "x-zui": {}
                 }
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "boardMemberRead"
@@ -4398,10 +5022,12 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -4417,51 +5043,62 @@
                     "properties": {
                       "id": {
                         "type": "string",
+                        "x-zui": {},
                         "maxLength": 24,
                         "minLength": 24,
                         "pattern": "^[0-9a-fA-F]{24}$"
                       },
                       "username": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       },
                       "fullName": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id",
                       "username",
                       "fullName"
-                    ]
+                    ],
+                    "x-zui": {}
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id"
-                    ]
+                    ],
+                    "x-zui": {}
                   }
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             }
           },
           "required": [
             "items",
             "meta"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "cardMemberList"
@@ -4472,12 +5109,14 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -4491,40 +5130,48 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "x-zui": {},
                       "maxLength": 24,
                       "minLength": 24,
                       "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "username": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "fullName": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id",
                     "username",
                     "fullName"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "id"
-                  ]
+                  ],
+                  "x-zui": {}
                 }
-              ]
+              ],
+              "x-zui": {}
             }
           },
           "required": [
             "item"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "cardMemberRead"
@@ -4539,12 +5186,14 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "text"
-            ]
+            ],
+            "x-zui": {}
           }
         }
       },
@@ -4594,6 +5243,7 @@
             "anyOf": [
               {
                 "type": "string",
+                "x-zui": {},
                 "maxLength": 24,
                 "minLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$"
@@ -4602,10 +5252,12 @@
                 "type": "null"
               }
             ],
+            "x-zui": {},
             "default": null
           }
         },
-        "required": []
+        "required": [],
+        "x-zui": {}
       }
     }
   },
@@ -4618,30 +5270,37 @@
         "properties": {
           "id": {
             "type": "string",
+            "x-zui": {},
             "maxLength": 24,
             "minLength": 24,
             "pattern": "^[0-9a-fA-F]{24}$"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           },
           "listId": {
             "type": "string",
+            "x-zui": {},
             "maxLength": 24,
             "minLength": 24,
             "pattern": "^[0-9a-fA-F]{24}$"
           },
           "verticalPosition": {
-            "type": "number"
+            "type": "number",
+            "x-zui": {}
           },
           "isClosed": {
-            "type": "boolean"
+            "type": "boolean",
+            "x-zui": {}
           },
           "isCompleted": {
-            "type": "boolean"
+            "type": "boolean",
+            "x-zui": {}
           },
           "dueDate": {
             "type": "string",
@@ -4656,19 +5315,23 @@
             "type": "array",
             "items": {
               "type": "string",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
-            }
+            },
+            "x-zui": {}
           },
           "memberIds": {
             "type": "array",
             "items": {
               "type": "string",
+              "x-zui": {},
               "maxLength": 24,
               "minLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$"
-            }
+            },
+            "x-zui": {}
           }
         },
         "required": [
@@ -4681,7 +5344,8 @@
           "isCompleted",
           "labelIds",
           "memberIds"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "list": {
@@ -4692,18 +5356,21 @@
         "properties": {
           "id": {
             "type": "string",
+            "x-zui": {},
             "maxLength": 24,
             "minLength": 24,
             "pattern": "^[0-9a-fA-F]{24}$"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
         "required": [
           "id",
           "name"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "board": {
@@ -4714,18 +5381,21 @@
         "properties": {
           "id": {
             "type": "string",
+            "x-zui": {},
             "maxLength": 24,
             "minLength": 24,
             "pattern": "^[0-9a-fA-F]{24}$"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
         "required": [
           "id",
           "name"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "boardMember": {
@@ -4736,22 +5406,26 @@
         "properties": {
           "id": {
             "type": "string",
+            "x-zui": {},
             "maxLength": 24,
             "minLength": 24,
             "pattern": "^[0-9a-fA-F]{24}$"
           },
           "username": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           },
           "fullName": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
         "required": [
           "id",
           "username",
           "fullName"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "cardMember": {
@@ -4762,22 +5436,26 @@
         "properties": {
           "id": {
             "type": "string",
+            "x-zui": {},
             "maxLength": 24,
             "minLength": 24,
             "pattern": "^[0-9a-fA-F]{24}$"
           },
           "username": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           },
           "fullName": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
         "required": [
           "id",
           "username",
           "fullName"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },

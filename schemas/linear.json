@@ -111,7 +111,8 @@
               "labelIds": {
                 "type": "array",
                 "items": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Label IDs"
@@ -145,7 +146,8 @@
               "subscriberIds": {
                 "type": "array",
                 "items": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Subscriber IDs"
@@ -205,7 +207,8 @@
           "status",
           "conversationId",
           "targets"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "issueUpdated": {
@@ -307,7 +310,8 @@
               "labelIds": {
                 "type": "array",
                 "items": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Label IDs"
@@ -341,7 +345,8 @@
               "subscriberIds": {
                 "type": "array",
                 "items": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Subscriber IDs"
@@ -401,7 +406,8 @@
           "status",
           "conversationId",
           "targets"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "issueDeleted": {
@@ -409,12 +415,14 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "x-zui": {}
           }
         },
         "required": [
           "id"
-        ]
+        ],
+        "x-zui": {}
       },
       "name": "issueDeleted"
     }
@@ -449,7 +457,8 @@
           "required": [
             "query",
             "channel"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -473,7 +482,8 @@
                     "type": "object",
                     "description": "The tags applied to the issue",
                     "additionalProperties": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "x-zui": {
                       "title": "Tags"
@@ -494,7 +504,8 @@
                   "displayName",
                   "tags",
                   "channel"
-                ]
+                ],
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Results"
@@ -503,7 +514,8 @@
           },
           "required": [
             "targets"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -517,7 +529,8 @@
             "count": {
               "anyOf": [
                 {
-                  "type": "number"
+                  "type": "number",
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -554,7 +567,8 @@
               }
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -655,7 +669,8 @@
                       "labelIds": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "x-zui": {
                           "title": "Label IDs"
@@ -689,7 +704,8 @@
                       "subscriberIds": {
                         "type": "array",
                         "items": {
-                          "type": "string"
+                          "type": "string",
+                          "x-zui": {}
                         },
                         "x-zui": {
                           "title": "Subscriber IDs"
@@ -731,7 +747,8 @@
           },
           "required": [
             "issues"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -742,7 +759,8 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -785,7 +803,8 @@
                 "required": [
                   "id",
                   "name"
-                ]
+                ],
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Teams"
@@ -794,7 +813,8 @@
           },
           "required": [
             "teams"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -808,7 +828,8 @@
             "count": {
               "anyOf": [
                 {
-                  "type": "number"
+                  "type": "number",
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -833,7 +854,8 @@
               }
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -910,7 +932,8 @@
                   "name",
                   "displayName",
                   "updatedAt"
-                ]
+                ],
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Users"
@@ -925,7 +948,8 @@
           },
           "required": [
             "users"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -954,14 +978,16 @@
           "required": [
             "issueId",
             "relatedIssueId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -982,7 +1008,8 @@
           },
           "required": [
             "issueId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -1100,7 +1127,8 @@
           },
           "required": [
             "linearUserId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -1251,7 +1279,8 @@
             "labels": {
               "type": "array",
               "items": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Set labels"
@@ -1266,7 +1295,8 @@
           },
           "required": [
             "issueId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -1368,7 +1398,8 @@
               }
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -1410,7 +1441,8 @@
             "labels": {
               "type": "array",
               "items": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "x-zui": {
                 "title": "Labels"
@@ -1427,7 +1459,8 @@
             "title",
             "description",
             "teamName"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -1532,7 +1565,8 @@
           },
           "required": [
             "issue"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -1553,14 +1587,16 @@
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -1570,10 +1606,12 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "output": {
@@ -1682,30 +1720,37 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "x-zui": {}
                       }
                     },
                     "required": [
                       "id"
-                    ]
+                    ],
+                    "x-zui": {}
                   }
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
-              "required": []
+              "required": [],
+              "x-zui": {}
             }
           },
           "required": [
             "items",
             "meta"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "name": "issueList"
@@ -1716,19 +1761,22 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "id"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       },
       "name": "issueDelete"
@@ -1745,12 +1793,14 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "text"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "image": {
@@ -1759,12 +1809,14 @@
             "properties": {
               "imageUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "imageUrl"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "audio": {
@@ -1773,12 +1825,14 @@
             "properties": {
               "audioUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "audioUrl"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "video": {
@@ -1787,12 +1841,14 @@
             "properties": {
               "videoUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "videoUrl"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "file": {
@@ -1801,16 +1857,19 @@
             "properties": {
               "fileUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "title": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "fileUrl"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "location": {
@@ -1818,22 +1877,27 @@
             "type": "object",
             "properties": {
               "latitude": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "longitude": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "address": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "title": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
               "latitude",
               "longitude"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "carousel": {
@@ -1847,14 +1911,17 @@
                   "properties": {
                     "title": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "subtitle": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "imageUrl": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "actions": {
@@ -1868,14 +1935,17 @@
                               "postback",
                               "url",
                               "say"
-                            ]
+                            ],
+                            "x-zui": {}
                           },
                           "label": {
                             "type": "string",
+                            "x-zui": {},
                             "minLength": 1
                           },
                           "value": {
                             "type": "string",
+                            "x-zui": {},
                             "minLength": 1
                           }
                         },
@@ -1883,20 +1953,25 @@
                           "action",
                           "label",
                           "value"
-                        ]
-                      }
+                        ],
+                        "x-zui": {}
+                      },
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "title",
                     "actions"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "items"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "card": {
@@ -1905,14 +1980,17 @@
             "properties": {
               "title": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "subtitle": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "imageUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "actions": {
@@ -1926,14 +2004,17 @@
                         "postback",
                         "url",
                         "say"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     "label": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "value": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     }
                   },
@@ -1941,14 +2022,17 @@
                     "action",
                     "label",
                     "value"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "title",
               "actions"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "dropdown": {
@@ -1957,6 +2041,7 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "options": {
@@ -1966,24 +2051,29 @@
                   "properties": {
                     "label": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "value": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     }
                   },
                   "required": [
                     "label",
                     "value"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "text",
               "options"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "choice": {
@@ -1992,6 +2082,7 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "options": {
@@ -2001,24 +2092,29 @@
                   "properties": {
                     "label": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "value": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     }
                   },
                   "required": [
                     "label",
                     "value"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "text",
               "options"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "bloc": {
@@ -2034,196 +2130,231 @@
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "text"
+                          "const": "text",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "text": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "text"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "markdown"
+                          "const": "markdown",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "markdown": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "markdown"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "image"
+                          "const": "image",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "imageUrl": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "imageUrl"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "audio"
+                          "const": "audio",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "audioUrl": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "audioUrl"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "video"
+                          "const": "video",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "videoUrl": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "videoUrl"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "file"
+                          "const": "file",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "fileUrl": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             },
                             "title": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "fileUrl"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "location"
+                          "const": "location",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "latitude": {
-                              "type": "number"
+                              "type": "number",
+                              "x-zui": {}
                             },
                             "longitude": {
-                              "type": "number"
+                              "type": "number",
+                              "x-zui": {}
                             },
                             "address": {
-                              "type": "string"
+                              "type": "string",
+                              "x-zui": {}
                             },
                             "title": {
-                              "type": "string"
+                              "type": "string",
+                              "x-zui": {}
                             }
                           },
                           "required": [
                             "latitude",
                             "longitude"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     }
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "items"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "markdown": {
@@ -2232,12 +2363,14 @@
             "properties": {
               "markdown": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "markdown"
-            ]
+            ],
+            "x-zui": {}
           }
         }
       },
@@ -2303,7 +2436,8 @@
         "required": [
           "accessToken",
           "expiresAt"
-        ]
+        ],
+        "x-zui": {}
       }
     },
     "configuration": {
@@ -2318,7 +2452,8 @@
             }
           }
         },
-        "required": []
+        "required": [],
+        "x-zui": {}
       }
     },
     "profile": {

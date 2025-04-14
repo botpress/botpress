@@ -17,16 +17,19 @@
             "name": {
               "type": "string",
               "description": "The name of the task (e.g. \"My Test Task\")",
+              "x-zui": {},
               "title": "The name of the task (e.g. \"My Test Task\")"
             },
             "notes": {
               "type": "string",
+              "x-zui": {},
               "title": "The description of the task (Optional) (e.g. \"This is my other task created using the Asana API\")"
             },
             "assignee": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "x-zui": {}
                 },
                 {
                   "not": true,
@@ -47,24 +50,29 @@
             },
             "projects": {
               "type": "string",
+              "x-zui": {},
               "title": "The project IDs should be strings separated by commas (Optional) (e.g. \"1205199808673678, 1215207282932839\")."
             },
             "parent": {
               "type": "string",
+              "x-zui": {},
               "title": "The ID of the parent task (Optional) (e.g. \"1205206556256028\")"
             },
             "start_on": {
               "type": "string",
+              "x-zui": {},
               "title": "The start date of the task in YYYY-MM-DD format (Optional) (e.g. \"2023-08-13\")"
             },
             "due_on": {
               "type": "string",
+              "x-zui": {},
               "title": "The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. \"2023-08-15\")"
             }
           },
           "required": [
             "name"
-          ]
+          ],
+          "x-zui": {}
         },
         "ui": {
           "name": {
@@ -95,12 +103,14 @@
           "type": "object",
           "properties": {
             "permalink_url": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "permalink_url"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -113,37 +123,45 @@
           "properties": {
             "name": {
               "type": "string",
+              "x-zui": {},
               "title": "The name of the task (Optional) (e.g. \"My Test Task\")"
             },
             "notes": {
               "type": "string",
+              "x-zui": {},
               "title": "The description of the task (Optional) (e.g. \"This is my other task created using the Asana API\")"
             },
             "assignee": {
               "type": "string",
+              "x-zui": {},
               "title": "The ID of the user who will be assigned to the task or \"me\" to assign to the current user (Optional) (e.g. \"1215207682932839\")"
             },
             "start_on": {
               "type": "string",
+              "x-zui": {},
               "title": "The start date of the task in YYYY-MM-DD format (Optional) (e.g. \"2023-08-13\")"
             },
             "due_on": {
               "type": "string",
+              "x-zui": {},
               "title": "The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. \"2023-08-15\")"
             },
             "taskId": {
               "type": "string",
               "description": "Task ID to update",
+              "x-zui": {},
               "title": "Task ID to update"
             },
             "completed": {
               "type": "string",
+              "x-zui": {},
               "title": "If the task is completed, enter \"true\" (without quotes), otherwise it will keep its previous status. (Optional)"
             }
           },
           "required": [
             "taskId"
-          ]
+          ],
+          "x-zui": {}
         },
         "ui": {
           "name": {
@@ -174,12 +192,14 @@
           "type": "object",
           "properties": {
             "permalink_url": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "permalink_url"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -193,12 +213,14 @@
             "userEmail": {
               "type": "string",
               "description": "User Email (e.g. \"mrsomebody@example.com\")",
+              "x-zui": {},
               "title": "User Email (e.g. \"mrsomebody@example.com\")"
             }
           },
           "required": [
             "userEmail"
-          ]
+          ],
+          "x-zui": {}
         },
         "ui": {
           "userEmail": {
@@ -211,13 +233,16 @@
           "type": "object",
           "properties": {
             "gid": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "name": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "email": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "photo": {
               "anyOf": [
@@ -225,19 +250,24 @@
                   "type": "object",
                   "properties": {
                     "image_21x21": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "image_27x27": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "image_36x36": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "image_60x60": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     },
                     "image_128x128": {
-                      "type": "string"
+                      "type": "string",
+                      "x-zui": {}
                     }
                   },
                   "required": [
@@ -246,7 +276,8 @@
                     "image_36x36",
                     "image_60x60",
                     "image_128x128"
-                  ]
+                  ],
+                  "x-zui": {}
                 },
                 {
                   "type": "null"
@@ -259,7 +290,8 @@
               }
             },
             "resource_type": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             },
             "workspaces": {
               "type": "array",
@@ -267,24 +299,30 @@
                 "type": "object",
                 "properties": {
                   "gid": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   },
                   "resource_type": {
-                    "type": "string"
+                    "type": "string",
+                    "x-zui": {}
                   }
                 },
                 "required": [
                   "gid",
                   "name",
                   "resource_type"
-                ]
-              }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -298,18 +336,21 @@
             "taskId": {
               "type": "string",
               "description": "Task ID to comment",
+              "x-zui": {},
               "title": "Task ID to comment"
             },
             "comment": {
               "type": "string",
               "description": "Content of the comment to be added",
+              "x-zui": {},
               "title": "Content of the comment to be added"
             }
           },
           "required": [
             "taskId",
             "comment"
-          ]
+          ],
+          "x-zui": {}
         },
         "ui": {
           "taskId": {
@@ -325,12 +366,14 @@
           "type": "object",
           "properties": {
             "text": {
-              "type": "string"
+              "type": "string",
+              "x-zui": {}
             }
           },
           "required": [
             "text"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     }
@@ -344,12 +387,14 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "text"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "image": {
@@ -358,12 +403,14 @@
             "properties": {
               "imageUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "imageUrl"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "audio": {
@@ -372,12 +419,14 @@
             "properties": {
               "audioUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "audioUrl"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "video": {
@@ -386,12 +435,14 @@
             "properties": {
               "videoUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "videoUrl"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "file": {
@@ -400,16 +451,19 @@
             "properties": {
               "fileUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "title": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "fileUrl"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "location": {
@@ -417,22 +471,27 @@
             "type": "object",
             "properties": {
               "latitude": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "longitude": {
-                "type": "number"
+                "type": "number",
+                "x-zui": {}
               },
               "address": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               },
               "title": {
-                "type": "string"
+                "type": "string",
+                "x-zui": {}
               }
             },
             "required": [
               "latitude",
               "longitude"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "carousel": {
@@ -446,14 +505,17 @@
                   "properties": {
                     "title": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "subtitle": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "imageUrl": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "actions": {
@@ -467,14 +529,17 @@
                               "postback",
                               "url",
                               "say"
-                            ]
+                            ],
+                            "x-zui": {}
                           },
                           "label": {
                             "type": "string",
+                            "x-zui": {},
                             "minLength": 1
                           },
                           "value": {
                             "type": "string",
+                            "x-zui": {},
                             "minLength": 1
                           }
                         },
@@ -482,20 +547,25 @@
                           "action",
                           "label",
                           "value"
-                        ]
-                      }
+                        ],
+                        "x-zui": {}
+                      },
+                      "x-zui": {}
                     }
                   },
                   "required": [
                     "title",
                     "actions"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "items"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "card": {
@@ -504,14 +574,17 @@
             "properties": {
               "title": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "subtitle": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "imageUrl": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "actions": {
@@ -525,14 +598,17 @@
                         "postback",
                         "url",
                         "say"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     "label": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "value": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     }
                   },
@@ -540,14 +616,17 @@
                     "action",
                     "label",
                     "value"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "title",
               "actions"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "dropdown": {
@@ -556,6 +635,7 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "options": {
@@ -565,24 +645,29 @@
                   "properties": {
                     "label": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "value": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     }
                   },
                   "required": [
                     "label",
                     "value"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "text",
               "options"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "choice": {
@@ -591,6 +676,7 @@
             "properties": {
               "text": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               },
               "options": {
@@ -600,24 +686,29 @@
                   "properties": {
                     "label": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     },
                     "value": {
                       "type": "string",
+                      "x-zui": {},
                       "minLength": 1
                     }
                   },
                   "required": [
                     "label",
                     "value"
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "text",
               "options"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "bloc": {
@@ -633,196 +724,231 @@
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "text"
+                          "const": "text",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "text": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "text"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "markdown"
+                          "const": "markdown",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "markdown": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "markdown"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "image"
+                          "const": "image",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "imageUrl": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "imageUrl"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "audio"
+                          "const": "audio",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "audioUrl": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "audioUrl"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "video"
+                          "const": "video",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "videoUrl": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "videoUrl"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "file"
+                          "const": "file",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "fileUrl": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             },
                             "title": {
                               "type": "string",
+                              "x-zui": {},
                               "minLength": 1
                             }
                           },
                           "required": [
                             "fileUrl"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "location"
+                          "const": "location",
+                          "x-zui": {}
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "latitude": {
-                              "type": "number"
+                              "type": "number",
+                              "x-zui": {}
                             },
                             "longitude": {
-                              "type": "number"
+                              "type": "number",
+                              "x-zui": {}
                             },
                             "address": {
-                              "type": "string"
+                              "type": "string",
+                              "x-zui": {}
                             },
                             "title": {
-                              "type": "string"
+                              "type": "string",
+                              "x-zui": {}
                             }
                           },
                           "required": [
                             "latitude",
                             "longitude"
-                          ]
+                          ],
+                          "x-zui": {}
                         }
                       },
                       "required": [
                         "type",
                         "payload"
-                      ]
+                      ],
+                      "x-zui": {}
                     }
-                  ]
-                }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
               }
             },
             "required": [
               "items"
-            ]
+            ],
+            "x-zui": {}
           }
         },
         "markdown": {
@@ -831,12 +957,14 @@
             "properties": {
               "markdown": {
                 "type": "string",
+                "x-zui": {},
                 "minLength": 1
               }
             },
             "required": [
               "markdown"
-            ]
+            ],
+            "x-zui": {}
           }
         }
       }

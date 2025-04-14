@@ -125,7 +125,8 @@
           "minimum": 0
         }
       },
-      "required": []
+      "required": [],
+      "x-zui": {}
     }
   },
   "events": {
@@ -151,7 +152,8 @@
         "required": [
           "sessionStartedAt",
           "downstreamConversationId"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   },
@@ -203,14 +205,16 @@
             "title",
             "userId",
             "conversationId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     },
@@ -231,14 +235,16 @@
           },
           "required": [
             "conversationId"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "required": []
+          "required": [],
+          "x-zui": {}
         }
       }
     }
@@ -259,7 +265,8 @@
         },
         "required": [
           "hitlActive"
-        ]
+        ],
+        "x-zui": {}
       }
     }
   }

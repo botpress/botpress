@@ -13,6 +13,7 @@
             "markdown": {
               "type": "string",
               "description": "The markdown content to convert to PDF",
+              "x-zui": {},
               "minLength": 1
             },
             "filename": {
@@ -21,6 +22,7 @@
                 {
                   "type": "string",
                   "description": "The filename of the PDF",
+                  "x-zui": {},
                   "minLength": 1,
                   "pattern": "\\.pdf$"
                 },
@@ -43,7 +45,8 @@
           },
           "required": [
             "markdown"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -52,17 +55,20 @@
           "properties": {
             "fileId": {
               "type": "string",
-              "description": "The generated PDF file ID"
+              "description": "The generated PDF file ID",
+              "x-zui": {}
             },
             "fileUrl": {
               "type": "string",
-              "description": "The public URL to download the PDF"
+              "description": "The public URL to download the PDF",
+              "x-zui": {}
             }
           },
           "required": [
             "fileId",
             "fileUrl"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     },
@@ -76,6 +82,7 @@
             "html": {
               "type": "string",
               "description": "The HTML content to convert to PDF",
+              "x-zui": {},
               "minLength": 1
             },
             "filename": {
@@ -84,6 +91,7 @@
                 {
                   "type": "string",
                   "description": "The filename of the PDF",
+                  "x-zui": {},
                   "minLength": 1,
                   "pattern": "\\.pdf$"
                 },
@@ -106,7 +114,8 @@
           },
           "required": [
             "html"
-          ]
+          ],
+          "x-zui": {}
         }
       },
       "output": {
@@ -115,17 +124,20 @@
           "properties": {
             "fileId": {
               "type": "string",
-              "description": "The generated PDF file ID"
+              "description": "The generated PDF file ID",
+              "x-zui": {}
             },
             "fileUrl": {
               "type": "string",
-              "description": "The public URL to download the PDF"
+              "description": "The public URL to download the PDF",
+              "x-zui": {}
             }
           },
           "required": [
             "fileId",
             "fileUrl"
-          ]
+          ],
+          "x-zui": {}
         }
       }
     }
