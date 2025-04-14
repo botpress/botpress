@@ -72,9 +72,9 @@ const stripHtmlTags = (html: string | undefined): string => {
 
 const getProductImageUrl = (images: BigCommerceProductImage[]): string => {
   if (!images || images.length === 0) return ''
-  
+
   const thumbnailImage = images.find((img) => img.is_thumbnail)
-  return thumbnailImage ? thumbnailImage.url_standard : (images[0]?.url_standard || '')
+  return thumbnailImage ? thumbnailImage.url_standard : images[0]?.url_standard || ''
 }
 
 const handleProductCreateOrUpdate = async (
