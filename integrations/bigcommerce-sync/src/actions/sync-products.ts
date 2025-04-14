@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { getBigCommerceClient } from '../client'
+import { getBigCommerceClient, BigCommerceClient } from '../client'
 import { PRODUCT_TABLE_SCHEMA, PRODUCTS_TABLE_NAME as PRODUCT_TABLE } from '../schemas/products'
 import * as bp from '.botpress'
 
@@ -34,6 +34,51 @@ const stripHtmlTags = (html: string | undefined): string => {
     .trim()
 }
 
+function processProductsPage(
+  products: BigCommerceProduct[] | undefined, 
+  allProducts: BigCommerceProduct[], 
+  currentPage: number, 
+  PRODUCTS_PER_PAGE: number
+): { hasMoreProducts: boolean; nextPage: number } {
+  if (!products || products.length === 0) {
+    return { hasMoreProducts: false, nextPage: currentPage }
+  }
+  
+  allProducts.push(...products)
+  
+  if (products.length < PRODUCTS_PER_PAGE) {
+    return { hasMoreProducts: false, nextPage: currentPage }
+  }
+  
+  return { hasMoreProducts: true, nextPage: currentPage + 1 }
+}
+
+async function fetchAllProducts(bigCommerceClient: BigCommerceClient) {
+  const allProducts: BigCommerceProduct[] = []
+  let currentPage = 1
+  let hasMoreProducts = true
+  const PRODUCTS_PER_PAGE = 250
+
+  while (hasMoreProducts) {
+    const response = await bigCommerceClient.getProducts({
+      page: currentPage,
+      limit: PRODUCTS_PER_PAGE,
+    })
+
+    const { hasMoreProducts: shouldContinue, nextPage } = processProductsPage(
+      response.data, 
+      allProducts, 
+      currentPage, 
+      PRODUCTS_PER_PAGE
+    )
+    
+    hasMoreProducts = shouldContinue
+    currentPage = nextPage
+  }
+  
+  return allProducts
+}
+
 const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (props) => {
   const { client, logger } = props
   const ctx = props.ctx.configuration
@@ -53,31 +98,7 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
       schema: tableSchema,
     })
 
-    const allProducts = []
-    let currentPage = 1
-    let hasMoreProducts = true
-    const PRODUCTS_PER_PAGE = 250
-
-    while (hasMoreProducts) {
-      const response = await bigCommerceClient.getProducts({
-        page: currentPage,
-        limit: PRODUCTS_PER_PAGE,
-      })
-
-      const products = response.data
-
-      if (!products || products.length === 0) {
-        hasMoreProducts = false
-      } else {
-        allProducts.push(...products)
-
-        if (products.length < PRODUCTS_PER_PAGE) {
-          hasMoreProducts = false
-        } else {
-          currentPage++
-        }
-      }
-    }
+    const allProducts = await fetchAllProducts(bigCommerceClient)
 
     if (allProducts.length === 0) {
       logger.forBot().warn('No products found in BigCommerce store')
