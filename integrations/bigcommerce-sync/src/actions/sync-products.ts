@@ -58,10 +58,7 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
     let hasMoreProducts = true
     const PRODUCTS_PER_PAGE = 250
 
-    logger.forBot().info('Fetching products from BigCommerce in batches...')
-
     while (hasMoreProducts) {
-      logger.forBot().info(`Fetching products batch - page ${currentPage}...`)
       const response = await bigCommerceClient.getProducts({
         page: currentPage,
         limit: PRODUCTS_PER_PAGE,
@@ -93,7 +90,6 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
 
     logger.forBot().info(`Total products fetched: ${allProducts.length}`)
 
-    logger.forBot().info('Fetching categories to map IDs to names...')
     const categoriesResponse = await bigCommerceClient.getCategories()
     const categoryById: Record<number, string> = {}
 
@@ -103,7 +99,6 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
       })
     }
 
-    logger.forBot().info('Fetching brands to map IDs to names...')
     const brandsResponse = await bigCommerceClient.getBrands()
     const brandById: Record<number, string> = {}
 
@@ -163,8 +158,6 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
     const totalRows = tableRows.length
     let processedRows = 0
 
-    logger.forBot().info(`Inserting ${totalRows} products in batches of ${BATCH_SIZE}...`)
-
     while (processedRows < totalRows) {
       const batch = tableRows.slice(processedRows, processedRows + BATCH_SIZE)
       logger
@@ -194,7 +187,7 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
     return {
       success: false,
       message: `Error syncing BigCommerce products: ${error instanceof Error ? error.message : String(error)}`,
-      productsCount: 0
+      productsCount: 0,
     }
   }
 }
