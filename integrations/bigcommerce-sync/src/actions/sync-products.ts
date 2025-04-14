@@ -194,6 +194,7 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
     return {
       success: false,
       message: `Error syncing BigCommerce products: ${error instanceof Error ? error.message : String(error)}`,
+      productsCount: 0
     }
   }
 }
