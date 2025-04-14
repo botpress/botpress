@@ -7,7 +7,7 @@ export const DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE = 'A human agent has joined th
 export const DEFAULT_HITL_STOPPED_MESSAGE = 'The human agent closed the conversation. I will continue assisting you.'
 export const DEFAULT_USER_HITL_CANCELLED_MESSAGE = '( The user has ended the session. )'
 export const DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE =
-  'Sorry, the user can only receive text messages. Please resend your message as a text message.'
+  'Sorry, the user can not receive this type of message. Please resend your message as a text message.'
 export const DEFAULT_USER_HITL_CLOSE_COMMAND = '/end'
 export const DEFAULT_USER_HITL_COMMAND_MESSAGE =
   'You have ended the session with the human agent. I will continue assisting you.'
@@ -16,7 +16,7 @@ export const DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE =
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.5.0',
+  version: '0.7.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -38,13 +38,13 @@ export default new sdk.PluginDefinition({
       onHitlStoppedMessage: sdk.z
         .string()
         .title('Escalation Terminated Message')
-        .describe('The message to send to the user when the hitl session stops and control is tranfered back to bot')
+        .describe('The message to send to the user when the HITL session stops and control is transferred back to bot')
         .optional()
         .placeholder(DEFAULT_HITL_STOPPED_MESSAGE),
       onUserHitlCancelledMessage: sdk.z
         .string()
         .title('Escalation Aborted Message')
-        .describe('The message to send to the human agent when the user abruptly ends the hitl session')
+        .describe('The message to send to the human agent when the user abruptly ends the HITL session')
         .optional()
         .placeholder(DEFAULT_USER_HITL_CANCELLED_MESSAGE),
       onIncompatibleMsgTypeMessage: sdk.z
@@ -59,14 +59,14 @@ export default new sdk.PluginDefinition({
         .string()
         .title('Termination Command')
         .describe(
-          'Users may send this command to end the hitl session at any time. It is case-insensitive, so it works regardless of letter casing.'
+          'Users may send this command to end the HITL session at any time. It is case-insensitive, so it works regardless of letter casing.'
         )
         .optional()
         .placeholder(DEFAULT_USER_HITL_CLOSE_COMMAND),
       onUserHitlCloseMessage: sdk.z
         .string()
         .title('Termination Command Message')
-        .describe('The message to send to the user when they end the hitl session using the termination command')
+        .describe('The message to send to the user when they end the HITL session using the termination command')
         .optional()
         .placeholder(DEFAULT_USER_HITL_COMMAND_MESSAGE),
       onAgentAssignedTimeoutMessage: sdk.z
@@ -87,8 +87,10 @@ export default new sdk.PluginDefinition({
       flowOnHitlStopped: sdk.z
         .boolean()
         .default(true)
-        .title('Flow on HITL Stopped')
-        .describe('Weither to wait for the user to respond to continue the flow after the hitl session'),
+        .title('Continue Flow on Session End?')
+        .describe(
+          'Enable this to continue the flow when the HITL session ends. Otherwise, the flow waits for user input.'
+        ),
     }),
   },
   actions: {
@@ -146,11 +148,11 @@ export default new sdk.PluginDefinition({
     tags: {
       downstream: {
         title: 'Downstream User ID',
-        description: 'ID of the downstream user binded to the upstream one',
+        description: 'ID of the downstream user bound to the upstream one',
       },
       upstream: {
         title: 'Upstream User ID',
-        description: 'ID of the upstream user binded to the downstream one',
+        description: 'ID of the upstream user bound to the downstream one',
       },
       integrationName: {
         title: 'HITL Integration Name',
@@ -162,11 +164,11 @@ export default new sdk.PluginDefinition({
     tags: {
       downstream: {
         title: 'Downstream Conversation ID',
-        description: 'ID of the downstream conversation binded to the upstream one',
+        description: 'ID of the downstream conversation bound to the upstream one',
       },
       upstream: {
         title: 'Upstream Conversation ID',
-        description: 'ID of the upstream conversation binded to the downstream one',
+        description: 'ID of the upstream conversation bound to the downstream one',
       },
       humanAgentId: {
         title: 'Human Agent ID',
@@ -204,7 +206,7 @@ export default new sdk.PluginDefinition({
     },
     continueWorkflow: {
       schema: sdk.z.object({
-        conversationId: sdk.z.string().title('Conversation ID').describe('ID of the conversation'),
+        conversationId: sdk.z.string().title('Upstream Conversation ID').describe('ID of the upstream conversation'),
       }),
     },
   },
