@@ -1,0 +1,193 @@
+{
+  "name": "speechToText",
+  "version": "2.0.0",
+  "entities": {
+    "speechToTextModelRef": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    }
+  },
+  "events": {},
+  "actions": {
+    "transcribeAudio": {
+      "billable": true,
+      "cacheable": true,
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "$ref": "speechToTextModelRef"
+            },
+            "fileUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "language": {
+              "type": "string"
+            },
+            "prompt": {
+              "type": "string"
+            },
+            "temperature": {
+              "default": 0,
+              "type": "number"
+            }
+          },
+          "required": [
+            "fileUrl"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "language": {
+              "type": "string"
+            },
+            "duration": {
+              "type": "number"
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "number"
+                  },
+                  "seek": {
+                    "type": "number"
+                  },
+                  "start": {
+                    "type": "number"
+                  },
+                  "end": {
+                    "type": "number"
+                  },
+                  "tokens": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "temperature": {
+                    "type": "number"
+                  },
+                  "avg_logprob": {
+                    "type": "number"
+                  },
+                  "compression_ratio": {
+                    "type": "number"
+                  },
+                  "no_speech_prob": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "text",
+                  "id",
+                  "seek",
+                  "start",
+                  "end",
+                  "tokens",
+                  "temperature",
+                  "avg_logprob",
+                  "compression_ratio",
+                  "no_speech_prob"
+                ]
+              }
+            },
+            "model": {
+              "type": "string"
+            },
+            "cost": {
+              "type": "number"
+            },
+            "botpress": {
+              "type": "object",
+              "properties": {
+                "cost": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "cost"
+              ]
+            }
+          },
+          "required": [
+            "language",
+            "duration",
+            "segments",
+            "model",
+            "cost",
+            "botpress"
+          ]
+        }
+      }
+    },
+    "listSpeechToTextModels": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "models": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "costPerMinute": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "costPerMinute"
+                    ]
+                  },
+                  {
+                    "$ref": "speechToTextModelRef"
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "models"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {}
+}

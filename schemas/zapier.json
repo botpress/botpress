@@ -1,0 +1,113 @@
+{
+  "name": "zapier",
+  "version": "0.3.4",
+  "title": "Zapier",
+  "description": "Trigger workflows from Zapier or let Zapier trigger your workflows to automate tasks and enhance your bot's capabilities.",
+  "user": {
+    "tags": {
+      "id": {}
+    }
+  },
+  "events": {
+    "event": {
+      "title": "Event from Zapier",
+      "description": "This is called when a Zap sends an event to the Zapier webhook of your bot.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "title": "Event Data received from Zapier",
+            "examples": [
+              "{ \"message\": \"Hello Botpress!\" }"
+            ]
+          },
+          "correlationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ui": {
+        "data": {
+          "title": "Event Data received from Zapier",
+          "examples": [
+            "{ \"message\": \"Hello Botpress!\" }"
+          ]
+        }
+      }
+    }
+  },
+  "actions": {
+    "trigger": {
+      "title": "Send to Zapier",
+      "description": "This sends a trigger to Zapier which you can use to start a Zap.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string",
+              "title": "Trigger Data to send to Zapier",
+              "examples": [
+                "{ \"message\": \"Hello Zapier!\" }"
+              ]
+            },
+            "correlationId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "data"
+          ]
+        },
+        "ui": {
+          "data": {
+            "title": "Trigger Data to send to Zapier",
+            "examples": [
+              "{ \"message\": \"Hello Zapier!\" }"
+            ]
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    }
+  },
+  "channels": {},
+  "states": {
+    "triggers": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "subscribers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url"
+              ]
+            }
+          }
+        },
+        "required": [
+          "subscribers"
+        ]
+      }
+    }
+  },
+  "interfaces": {}
+}

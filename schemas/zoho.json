@@ -1,0 +1,927 @@
+{
+  "name": "zoho",
+  "version": "3.1.0",
+  "title": "Zoho",
+  "description": "Integrate your Botpress chatbot with Zoho CRM to manage customer interactions. Add, update, and retrieve contacts, deals, orders, and appointments directly through your chatbot.",
+  "user": {
+    "tags": {
+      "id": {
+        "title": "Zoho Tokens",
+        "description": "Zoho CRM access and refresh tokens"
+      }
+    }
+  },
+  "actions": {
+    "makeApiCall": {
+      "title": "Make API Call",
+      "description": "Make a custom API call to the Zoho CRM API",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "endpoint": {
+              "type": "string",
+              "x-zui": {
+                "title": "Endpoint"
+              }
+            },
+            "method": {
+              "type": "string",
+              "x-zui": {
+                "title": "Method"
+              }
+            },
+            "data": {
+              "type": "string",
+              "x-zui": {
+                "title": "Date"
+              }
+            },
+            "params": {
+              "type": "string",
+              "x-zui": {
+                "title": "Params"
+              }
+            }
+          },
+          "required": [
+            "endpoint",
+            "method"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "insertRecord": {
+      "title": "Insert Record",
+      "description": "Insert a new record into a Zoho CRM module",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "data": {
+              "type": "string",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "module",
+            "data"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "updateRecord": {
+      "title": "Update Record",
+      "description": "Update an existing record in a Zoho CRM module",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "recordId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Record ID"
+              }
+            },
+            "data": {
+              "type": "string",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "module",
+            "recordId",
+            "data"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "deleteRecord": {
+      "title": "Delete Record",
+      "description": "Delete a record from a Zoho CRM module",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "recordId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Record ID"
+              }
+            }
+          },
+          "required": [
+            "module",
+            "recordId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "searchRecords": {
+      "title": "Search Records",
+      "description": "Search for records in a Zoho CRM module",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "criteria": {
+              "type": "string",
+              "x-zui": {
+                "title": "Criteria"
+              }
+            }
+          },
+          "required": [
+            "module",
+            "criteria"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "getRecordById": {
+      "title": "Get Record By ID",
+      "description": "Retrieve a record from a Zoho CRM module by its unique ID",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "recordId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Record ID"
+              }
+            }
+          },
+          "required": [
+            "module",
+            "recordId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "getRecords": {
+      "title": "Get Records",
+      "description": "Retrieve records from a Zoho CRM module",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "params": {
+              "type": "string",
+              "x-zui": {
+                "title": "Params"
+              }
+            }
+          },
+          "required": [
+            "module"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "getOrganizationDetails": {
+      "title": "Get Organization Details",
+      "description": "Retrieve details about the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "getUsers": {
+      "title": "Get Users",
+      "description": "Retrieve a list of users from the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "type": "string",
+              "x-zui": {
+                "title": "Params"
+              }
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "getAppointments": {
+      "title": "Get Appointments",
+      "description": "Retrieve a list of appointments from the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "type": "string",
+              "x-zui": {
+                "title": "Params"
+              }
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "getAppointmentById": {
+      "title": "Get Appointment By ID",
+      "description": "Retrieve an appointment from the Zoho CRM organization by its unique ID",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "appointmentId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Appointment ID"
+              }
+            }
+          },
+          "required": [
+            "appointmentId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "createAppointment": {
+      "title": "Create Appointment",
+      "description": "Create a new appointment in the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "data"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "updateAppointment": {
+      "title": "Update Appointment",
+      "description": "Update an existing appointment in the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "appointmentId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Appointment ID"
+              }
+            },
+            "data": {
+              "type": "string",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "appointmentId",
+            "data"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "deleteAppointment": {
+      "title": "Delete Appointment",
+      "description": "Delete an appointment from the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "appointmentId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Appointment ID"
+              }
+            }
+          },
+          "required": [
+            "appointmentId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "sendMail": {
+      "title": "Send Mail",
+      "description": "Send an email using the Zoho CRM Mail API",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "recordId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Record ID"
+              }
+            },
+            "data": {
+              "type": "string",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "module",
+            "recordId",
+            "data"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "uploadFile": {
+      "title": "Upload File",
+      "description": "Upload a file to the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fileUrl": {
+              "type": "string",
+              "x-zui": {
+                "title": "File URL"
+              }
+            }
+          },
+          "required": [
+            "fileUrl"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    },
+    "getFile": {
+      "title": "Get File",
+      "description": "Retrieve a file from the Zoho CRM organization by its unique ID",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fileId": {
+              "type": "string",
+              "x-zui": {
+                "title": "File ID"
+              }
+            }
+          },
+          "required": [
+            "fileId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": [
+            "success",
+            "message"
+          ]
+        }
+      }
+    }
+  },
+  "states": {
+    "credentials": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "x-zui": {
+              "title": "Access Token"
+            }
+          }
+        },
+        "required": [
+          "accessToken"
+        ]
+      }
+    }
+  },
+  "interfaces": {}
+}

@@ -1,0 +1,64 @@
+{
+  "name": "typingIndicator",
+  "version": "0.0.1",
+  "entities": {},
+  "events": {},
+  "actions": {
+    "startTypingIndicator": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "conversationId": {
+              "type": "string"
+            },
+            "messageId": {
+              "type": "string"
+            },
+            "timeout": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "conversationId",
+            "messageId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "stopTypingIndicator": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "conversationId": {
+              "type": "string"
+            },
+            "messageId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "conversationId",
+            "messageId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    }
+  },
+  "channels": {}
+}

@@ -1,0 +1,646 @@
+{
+  "name": "files-readonly",
+  "version": "0.2.0",
+  "entities": {},
+  "events": {
+    "fileCreated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "file"
+              },
+              "name": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "absolutePath": {
+                "type": "string"
+              },
+              "sizeInBytes": {
+                "type": "number"
+              },
+              "lastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              },
+              "contentHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name",
+              "absolutePath"
+            ]
+          }
+        },
+        "required": [
+          "file"
+        ]
+      }
+    },
+    "fileUpdated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "file"
+              },
+              "name": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "absolutePath": {
+                "type": "string"
+              },
+              "sizeInBytes": {
+                "type": "number"
+              },
+              "lastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              },
+              "contentHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name",
+              "absolutePath"
+            ]
+          }
+        },
+        "required": [
+          "file"
+        ]
+      }
+    },
+    "fileDeleted": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "file"
+              },
+              "name": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "absolutePath": {
+                "type": "string"
+              },
+              "sizeInBytes": {
+                "type": "number"
+              },
+              "lastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              },
+              "contentHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name",
+              "absolutePath"
+            ]
+          }
+        },
+        "required": [
+          "file"
+        ]
+      }
+    },
+    "folderDeletedRecursive": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "folder": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "folder"
+              },
+              "name": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "absolutePath": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name",
+              "absolutePath"
+            ]
+          }
+        },
+        "required": [
+          "folder"
+        ]
+      }
+    },
+    "aggregateFileChanges": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "modifiedItems": {
+            "type": "object",
+            "properties": {
+              "created": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "file"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parentId": {
+                      "type": "string"
+                    },
+                    "absolutePath": {
+                      "type": "string"
+                    },
+                    "sizeInBytes": {
+                      "type": "number"
+                    },
+                    "lastModifiedDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    "contentHash": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type",
+                    "name",
+                    "absolutePath"
+                  ]
+                }
+              },
+              "updated": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "file"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parentId": {
+                      "type": "string"
+                    },
+                    "absolutePath": {
+                      "type": "string"
+                    },
+                    "sizeInBytes": {
+                      "type": "number"
+                    },
+                    "lastModifiedDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    "contentHash": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type",
+                    "name",
+                    "absolutePath"
+                  ]
+                }
+              },
+              "deleted": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "file"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "parentId": {
+                          "type": "string"
+                        },
+                        "absolutePath": {
+                          "type": "string"
+                        },
+                        "sizeInBytes": {
+                          "type": "number"
+                        },
+                        "lastModifiedDate": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                          "x-zui": {
+                            "precision": null,
+                            "offset": false
+                          }
+                        },
+                        "contentHash": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "name",
+                        "absolutePath"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "folder"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "parentId": {
+                          "type": "string"
+                        },
+                        "absolutePath": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "name",
+                        "absolutePath"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "created",
+              "updated",
+              "deleted"
+            ]
+          }
+        },
+        "required": [
+          "modifiedItems"
+        ]
+      }
+    }
+  },
+  "actions": {
+    "listItemsInFolder": {
+      "title": "List items in folder",
+      "description": "List the files and folders in a folder",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "folderId": {
+              "type": "string"
+            },
+            "filters": {
+              "type": "object",
+              "properties": {
+                "itemType": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "file"
+                    },
+                    {
+                      "type": "string",
+                      "const": "folder"
+                    }
+                  ]
+                },
+                "maxSizeInBytes": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                },
+                "modifiedAfter": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                }
+              },
+              "required": []
+            },
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "file"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "type": "string"
+                      },
+                      "absolutePath": {
+                        "type": "string"
+                      },
+                      "sizeInBytes": {
+                        "type": "number"
+                      },
+                      "lastModifiedDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                        "x-zui": {
+                          "precision": null,
+                          "offset": false
+                        }
+                      },
+                      "contentHash": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "type",
+                      "name"
+                    ],
+                    "x-zui": {
+                      "title": "File to transfer"
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "folder"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "type": "string"
+                      },
+                      "absolutePath": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "type",
+                      "name"
+                    ]
+                  }
+                ]
+              }
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "items",
+            "meta"
+          ]
+        }
+      }
+    },
+    "transferFileToBotpress": {
+      "title": "Transfer file to Botpress",
+      "description": "Transfer a file from an external service to Botpress",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "const": "file"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "parentId": {
+                  "type": "string"
+                },
+                "absolutePath": {
+                  "type": "string"
+                },
+                "sizeInBytes": {
+                  "type": "number"
+                },
+                "lastModifiedDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                  "x-zui": {
+                    "precision": null,
+                    "offset": false
+                  }
+                },
+                "contentHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "name"
+              ],
+              "x-zui": {
+                "title": "File to transfer"
+              }
+            },
+            "fileKey": {
+              "type": "string",
+              "x-zui": {
+                "title": "File key"
+              }
+            }
+          },
+          "required": [
+            "file",
+            "fileKey"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "botpressFileId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "botpressFileId"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {}
+}

@@ -1,0 +1,842 @@
+{
+  "name": "asana",
+  "version": "0.3.7",
+  "title": "Asana",
+  "description": "Connect your bot to your Asana inbox, create and update tasks, add comments, and locate users.",
+  "user": {
+    "tags": {}
+  },
+  "actions": {
+    "createTask": {
+      "title": "Create Task",
+      "description": "Create Task",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "The name of the task (e.g. \"My Test Task\")"
+            },
+            "notes": {
+              "type": "string",
+              "title": "The description of the task (Optional) (e.g. \"This is my other task created using the Asana API\")"
+            },
+            "assignee": {
+              "default": "me",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              },
+              "title": "The ID of the user who will be assigned to the task or \"me\" to assign to the current user (Optional) (e.g. \"1215207682932839\") (Default: \"me\")"
+            },
+            "projects": {
+              "type": "string",
+              "title": "The project IDs should be strings separated by commas (Optional) (e.g. \"1205199808673678, 1215207282932839\")."
+            },
+            "parent": {
+              "type": "string",
+              "title": "The ID of the parent task (Optional) (e.g. \"1205206556256028\")"
+            },
+            "start_on": {
+              "type": "string",
+              "title": "The start date of the task in YYYY-MM-DD format (Optional) (e.g. \"2023-08-13\")"
+            },
+            "due_on": {
+              "type": "string",
+              "title": "The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. \"2023-08-15\")"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        "ui": {
+          "name": {
+            "title": "The name of the task (e.g. \"My Test Task\")"
+          },
+          "notes": {
+            "title": "The description of the task (Optional) (e.g. \"This is my other task created using the Asana API\")"
+          },
+          "assignee": {
+            "title": "The ID of the user who will be assigned to the task or \"me\" to assign to the current user (Optional) (e.g. \"1215207682932839\") (Default: \"me\")"
+          },
+          "projects": {
+            "title": "The project IDs should be strings separated by commas (Optional) (e.g. \"1205199808673678, 1215207282932839\")."
+          },
+          "parent": {
+            "title": "The ID of the parent task (Optional) (e.g. \"1205206556256028\")"
+          },
+          "start_on": {
+            "title": "The start date of the task in YYYY-MM-DD format (Optional) (e.g. \"2023-08-13\")"
+          },
+          "due_on": {
+            "title": "The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. \"2023-08-15\")"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "permalink_url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "permalink_url"
+          ]
+        }
+      }
+    },
+    "updateTask": {
+      "title": "Update Task",
+      "description": "Update Task by taskId",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "The name of the task (Optional) (e.g. \"My Test Task\")"
+            },
+            "notes": {
+              "type": "string",
+              "title": "The description of the task (Optional) (e.g. \"This is my other task created using the Asana API\")"
+            },
+            "assignee": {
+              "type": "string",
+              "title": "The ID of the user who will be assigned to the task or \"me\" to assign to the current user (Optional) (e.g. \"1215207682932839\")"
+            },
+            "start_on": {
+              "type": "string",
+              "title": "The start date of the task in YYYY-MM-DD format (Optional) (e.g. \"2023-08-13\")"
+            },
+            "due_on": {
+              "type": "string",
+              "title": "The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. \"2023-08-15\")"
+            },
+            "taskId": {
+              "type": "string",
+              "title": "Task ID to update"
+            },
+            "completed": {
+              "type": "string",
+              "title": "If the task is completed, enter \"true\" (without quotes), otherwise it will keep its previous status. (Optional)"
+            }
+          },
+          "required": [
+            "taskId"
+          ]
+        },
+        "ui": {
+          "name": {
+            "title": "The name of the task (Optional) (e.g. \"My Test Task\")"
+          },
+          "notes": {
+            "title": "The description of the task (Optional) (e.g. \"This is my other task created using the Asana API\")"
+          },
+          "assignee": {
+            "title": "The ID of the user who will be assigned to the task or \"me\" to assign to the current user (Optional) (e.g. \"1215207682932839\")"
+          },
+          "start_on": {
+            "title": "The start date of the task in YYYY-MM-DD format (Optional) (e.g. \"2023-08-13\")"
+          },
+          "due_on": {
+            "title": "The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. \"2023-08-15\")"
+          },
+          "taskId": {
+            "title": "Task ID to update"
+          },
+          "completed": {
+            "title": "If the task is completed, enter \"true\" (without quotes), otherwise it will keep its previous status. (Optional)"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "permalink_url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "permalink_url"
+          ]
+        }
+      }
+    },
+    "findUser": {
+      "title": "Find User",
+      "description": "Find User by userId",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "userEmail": {
+              "type": "string",
+              "title": "User Email (e.g. \"mrsomebody@example.com\")"
+            }
+          },
+          "required": [
+            "userEmail"
+          ]
+        },
+        "ui": {
+          "userEmail": {
+            "title": "User Email (e.g. \"mrsomebody@example.com\")"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "gid": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "image_21x21": {
+                      "type": "string"
+                    },
+                    "image_27x27": {
+                      "type": "string"
+                    },
+                    "image_36x36": {
+                      "type": "string"
+                    },
+                    "image_60x60": {
+                      "type": "string"
+                    },
+                    "image_128x128": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "image_21x21",
+                    "image_27x27",
+                    "image_36x36",
+                    "image_60x60",
+                    "image_128x128"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "resource_type": {
+              "type": "string"
+            },
+            "workspaces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "gid": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "resource_type": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "gid",
+                  "name",
+                  "resource_type"
+                ]
+              }
+            }
+          },
+          "required": []
+        }
+      }
+    },
+    "addCommentToTask": {
+      "title": "Add Comment to Task",
+      "description": "Add Comment to Task, by task ID",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "taskId": {
+              "type": "string",
+              "title": "Task ID to comment"
+            },
+            "comment": {
+              "type": "string",
+              "title": "Content of the comment to be added"
+            }
+          },
+          "required": [
+            "taskId",
+            "comment"
+          ]
+        },
+        "ui": {
+          "taskId": {
+            "title": "Task ID to comment"
+          },
+          "comment": {
+            "title": "Content of the comment to be added"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {
+    "channel": {
+      "messages": {
+        "text": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "text"
+            ]
+          }
+        },
+        "image": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "imageUrl": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "imageUrl"
+            ]
+          }
+        },
+        "audio": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "audioUrl": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "audioUrl"
+            ]
+          }
+        },
+        "video": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "videoUrl": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "videoUrl"
+            ]
+          }
+        },
+        "file": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "fileUrl": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "fileUrl"
+            ]
+          }
+        },
+        "location": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              },
+              "address": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "latitude",
+              "longitude"
+            ]
+          }
+        },
+        "carousel": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "subtitle": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "actions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "postback",
+                              "url",
+                              "say"
+                            ]
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "action",
+                          "label",
+                          "value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "actions"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "items"
+            ]
+          }
+        },
+        "card": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "subtitle": {
+                "type": "string",
+                "minLength": 1
+              },
+              "imageUrl": {
+                "type": "string",
+                "minLength": 1
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "postback",
+                        "url",
+                        "say"
+                      ]
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "action",
+                    "label",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "title",
+              "actions"
+            ]
+          }
+        },
+        "dropdown": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "options"
+            ]
+          }
+        },
+        "choice": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "options"
+            ]
+          }
+        },
+        "bloc": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "text"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "text"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "markdown"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "markdown": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "markdown"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "image"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "imageUrl": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "imageUrl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "audio"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "audioUrl": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "audioUrl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "video"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "videoUrl": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "videoUrl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "file"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "fileUrl": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "fileUrl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "location"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "latitude": {
+                              "type": "number"
+                            },
+                            "longitude": {
+                              "type": "number"
+                            },
+                            "address": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "latitude",
+                            "longitude"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "items"
+            ]
+          }
+        },
+        "markdown": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "markdown": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "markdown"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "states": {},
+  "interfaces": {}
+}

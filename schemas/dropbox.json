@@ -1,0 +1,2226 @@
+{
+  "name": "dropbox",
+  "version": "1.1.1",
+  "title": "Dropbox",
+  "description": "Manage your files and folders effortlessly.",
+  "events": {
+    "fileCreated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "file"
+              },
+              "name": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "absolutePath": {
+                "type": "string"
+              },
+              "sizeInBytes": {
+                "type": "number"
+              },
+              "lastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              },
+              "contentHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name",
+              "absolutePath"
+            ]
+          }
+        },
+        "required": [
+          "file"
+        ]
+      }
+    },
+    "fileUpdated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "file"
+              },
+              "name": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "absolutePath": {
+                "type": "string"
+              },
+              "sizeInBytes": {
+                "type": "number"
+              },
+              "lastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              },
+              "contentHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name",
+              "absolutePath"
+            ]
+          }
+        },
+        "required": [
+          "file"
+        ]
+      }
+    },
+    "fileDeleted": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "file"
+              },
+              "name": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "absolutePath": {
+                "type": "string"
+              },
+              "sizeInBytes": {
+                "type": "number"
+              },
+              "lastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              },
+              "contentHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name",
+              "absolutePath"
+            ]
+          }
+        },
+        "required": [
+          "file"
+        ]
+      }
+    },
+    "folderDeletedRecursive": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "folder": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "folder"
+              },
+              "name": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "absolutePath": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name",
+              "absolutePath"
+            ]
+          }
+        },
+        "required": [
+          "folder"
+        ]
+      }
+    },
+    "aggregateFileChanges": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "modifiedItems": {
+            "type": "object",
+            "properties": {
+              "created": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "file"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parentId": {
+                      "type": "string"
+                    },
+                    "absolutePath": {
+                      "type": "string"
+                    },
+                    "sizeInBytes": {
+                      "type": "number"
+                    },
+                    "lastModifiedDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    "contentHash": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type",
+                    "name",
+                    "absolutePath"
+                  ]
+                }
+              },
+              "updated": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "file"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parentId": {
+                      "type": "string"
+                    },
+                    "absolutePath": {
+                      "type": "string"
+                    },
+                    "sizeInBytes": {
+                      "type": "number"
+                    },
+                    "lastModifiedDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    "contentHash": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type",
+                    "name",
+                    "absolutePath"
+                  ]
+                }
+              },
+              "deleted": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "file"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "parentId": {
+                          "type": "string"
+                        },
+                        "absolutePath": {
+                          "type": "string"
+                        },
+                        "sizeInBytes": {
+                          "type": "number"
+                        },
+                        "lastModifiedDate": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                          "x-zui": {
+                            "precision": null,
+                            "offset": false
+                          }
+                        },
+                        "contentHash": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "name",
+                        "absolutePath"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "folder"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "parentId": {
+                          "type": "string"
+                        },
+                        "absolutePath": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "name",
+                        "absolutePath"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "created",
+              "updated",
+              "deleted"
+            ]
+          }
+        },
+        "required": [
+          "modifiedItems"
+        ]
+      }
+    }
+  },
+  "actions": {
+    "listItemsInFolder": {
+      "title": "List items in a folder",
+      "description": "List files and folders in dropbox within a directory",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "x-zui": {
+                "title": "Path"
+              }
+            },
+            "recursive": {
+              "default": false,
+              "anyOf": [
+                {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "List recursively?"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "List recursively?",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "nextToken": {
+              "type": "string",
+              "x-zui": {
+                "title": "Pagination token"
+              },
+              "minLength": 1
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "ID"
+                        }
+                      },
+                      "itemType": {
+                        "type": "string",
+                        "const": "file",
+                        "x-zui": {
+                          "title": "Item Type"
+                        }
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Name"
+                        }
+                      },
+                      "path": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Path"
+                        }
+                      },
+                      "webUrl": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Web URL"
+                        }
+                      },
+                      "isDeleted": {
+                        "type": "boolean",
+                        "x-zui": {
+                          "title": "Is Deleted?"
+                        }
+                      },
+                      "isShared": {
+                        "type": "boolean",
+                        "x-zui": {
+                          "title": "Is Shared?"
+                        }
+                      },
+                      "revision": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Revision"
+                        },
+                        "minLength": 1
+                      },
+                      "size": {
+                        "type": "number",
+                        "x-zui": {
+                          "title": "Size"
+                        }
+                      },
+                      "fileHash": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Checksum"
+                        },
+                        "minLength": 1
+                      },
+                      "isDownloadable": {
+                        "type": "boolean",
+                        "x-zui": {
+                          "title": "Is Downloadable?"
+                        }
+                      },
+                      "symlinkTarget": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Symlink Target"
+                        }
+                      },
+                      "modifiedAt": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Modified At"
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "itemType",
+                      "name",
+                      "path",
+                      "isDeleted",
+                      "isShared",
+                      "revision",
+                      "size",
+                      "fileHash",
+                      "isDownloadable",
+                      "modifiedAt"
+                    ],
+                    "x-zui": {
+                      "title": "New File"
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "ID"
+                        }
+                      },
+                      "itemType": {
+                        "type": "string",
+                        "const": "folder",
+                        "x-zui": {
+                          "title": "Item Type"
+                        }
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Name"
+                        }
+                      },
+                      "path": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Path"
+                        }
+                      },
+                      "webUrl": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Web URL"
+                        }
+                      },
+                      "isDeleted": {
+                        "type": "boolean",
+                        "x-zui": {
+                          "title": "Is Deleted?"
+                        }
+                      },
+                      "isShared": {
+                        "type": "boolean",
+                        "x-zui": {
+                          "title": "Is Shared?"
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "itemType",
+                      "name",
+                      "path",
+                      "isDeleted",
+                      "isShared"
+                    ],
+                    "x-zui": {
+                      "title": "New Folder"
+                    }
+                  }
+                ]
+              },
+              "x-zui": {
+                "title": "Items"
+              }
+            },
+            "nextToken": {
+              "type": "string",
+              "x-zui": {
+                "title": "Pagination token"
+              }
+            }
+          },
+          "required": [
+            "items"
+          ]
+        }
+      }
+    },
+    "createFile": {
+      "title": "Upload File",
+      "description": "Upload a file to dropbox",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "contents": {
+              "type": "string",
+              "x-zui": {
+                "title": "Contents"
+              },
+              "minLength": 1
+            },
+            "path": {
+              "type": "string",
+              "x-zui": {
+                "title": "Path"
+              },
+              "minLength": 1
+            }
+          },
+          "required": [
+            "contents",
+            "path"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "newFile": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "ID"
+                  }
+                },
+                "itemType": {
+                  "type": "string",
+                  "const": "file",
+                  "x-zui": {
+                    "title": "Item Type"
+                  }
+                },
+                "name": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Name"
+                  }
+                },
+                "path": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Path"
+                  }
+                },
+                "webUrl": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Web URL"
+                  }
+                },
+                "isDeleted": {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Is Deleted?"
+                  }
+                },
+                "isShared": {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Is Shared?"
+                  }
+                },
+                "revision": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Revision"
+                  },
+                  "minLength": 1
+                },
+                "size": {
+                  "type": "number",
+                  "x-zui": {
+                    "title": "Size"
+                  }
+                },
+                "fileHash": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Checksum"
+                  },
+                  "minLength": 1
+                },
+                "isDownloadable": {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Is Downloadable?"
+                  }
+                },
+                "symlinkTarget": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Symlink Target"
+                  }
+                },
+                "modifiedAt": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Modified At"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "itemType",
+                "name",
+                "path",
+                "isDeleted",
+                "isShared",
+                "revision",
+                "size",
+                "fileHash",
+                "isDownloadable",
+                "modifiedAt"
+              ],
+              "x-zui": {
+                "title": "New File"
+              }
+            }
+          },
+          "required": [
+            "newFile"
+          ]
+        }
+      }
+    },
+    "createFolder": {
+      "title": "Create Folder",
+      "description": "Create a folder in dropbox",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "x-zui": {
+                "title": "Path"
+              },
+              "minLength": 1
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "newFolder": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "ID"
+                  }
+                },
+                "itemType": {
+                  "type": "string",
+                  "const": "folder",
+                  "x-zui": {
+                    "title": "Item Type"
+                  }
+                },
+                "name": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Name"
+                  }
+                },
+                "path": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Path"
+                  }
+                },
+                "webUrl": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Web URL"
+                  }
+                },
+                "isDeleted": {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Is Deleted?"
+                  }
+                },
+                "isShared": {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Is Shared?"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "itemType",
+                "name",
+                "path",
+                "isDeleted",
+                "isShared"
+              ],
+              "x-zui": {
+                "title": "New Folder"
+              }
+            }
+          },
+          "required": [
+            "newFolder"
+          ]
+        }
+      }
+    },
+    "deleteItem": {
+      "title": "Delete Item",
+      "description": "Deletes a file or folder from dropbox",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "x-zui": {
+                "title": "Path"
+              },
+              "minLength": 1
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "downloadFile": {
+      "title": "Download File",
+      "description": "Download a file from dropbox",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "x-zui": {
+                "title": "Path"
+              },
+              "minLength": 1
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fileUrl": {
+              "type": "string",
+              "x-zui": {
+                "title": "Download URL"
+              }
+            }
+          },
+          "required": [
+            "fileUrl"
+          ]
+        }
+      }
+    },
+    "downloadFolder": {
+      "title": "Download Folder",
+      "description": "Download a folder from dropbox",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "x-zui": {
+                "title": "Path"
+              },
+              "minLength": 1
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "zipUrl": {
+              "type": "string",
+              "x-zui": {
+                "title": "Download URL"
+              }
+            }
+          },
+          "required": [
+            "zipUrl"
+          ]
+        }
+      }
+    },
+    "copyItem": {
+      "title": "Copy Item",
+      "description": "Copy a file or folder to a new location in dropbox",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fromPath": {
+              "type": "string",
+              "x-zui": {
+                "title": "Source Path"
+              },
+              "minLength": 1
+            },
+            "toPath": {
+              "type": "string",
+              "x-zui": {
+                "title": "Destination Path"
+              },
+              "minLength": 1
+            }
+          },
+          "required": [
+            "fromPath",
+            "toPath"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "newItem": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "ID"
+                      }
+                    },
+                    "itemType": {
+                      "type": "string",
+                      "const": "file",
+                      "x-zui": {
+                        "title": "Item Type"
+                      }
+                    },
+                    "name": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Name"
+                      }
+                    },
+                    "path": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Path"
+                      }
+                    },
+                    "webUrl": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Web URL"
+                      }
+                    },
+                    "isDeleted": {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Is Deleted?"
+                      }
+                    },
+                    "isShared": {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Is Shared?"
+                      }
+                    },
+                    "revision": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Revision"
+                      },
+                      "minLength": 1
+                    },
+                    "size": {
+                      "type": "number",
+                      "x-zui": {
+                        "title": "Size"
+                      }
+                    },
+                    "fileHash": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Checksum"
+                      },
+                      "minLength": 1
+                    },
+                    "isDownloadable": {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Is Downloadable?"
+                      }
+                    },
+                    "symlinkTarget": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Symlink Target"
+                      }
+                    },
+                    "modifiedAt": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Modified At"
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "itemType",
+                    "name",
+                    "path",
+                    "isDeleted",
+                    "isShared",
+                    "revision",
+                    "size",
+                    "fileHash",
+                    "isDownloadable",
+                    "modifiedAt"
+                  ],
+                  "x-zui": {
+                    "title": "New File"
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "ID"
+                      }
+                    },
+                    "itemType": {
+                      "type": "string",
+                      "const": "folder",
+                      "x-zui": {
+                        "title": "Item Type"
+                      }
+                    },
+                    "name": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Name"
+                      }
+                    },
+                    "path": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Path"
+                      }
+                    },
+                    "webUrl": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Web URL"
+                      }
+                    },
+                    "isDeleted": {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Is Deleted?"
+                      }
+                    },
+                    "isShared": {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Is Shared?"
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "itemType",
+                    "name",
+                    "path",
+                    "isDeleted",
+                    "isShared"
+                  ],
+                  "x-zui": {
+                    "title": "New Folder"
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "New item"
+              }
+            }
+          },
+          "required": [
+            "newItem"
+          ]
+        }
+      }
+    },
+    "moveItem": {
+      "title": "Move Item",
+      "description": "Move a file or folder in dropbox",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fromPath": {
+              "type": "string",
+              "x-zui": {
+                "title": "Source Path"
+              },
+              "minLength": 1
+            },
+            "toPath": {
+              "type": "string",
+              "x-zui": {
+                "title": "Destination Path"
+              },
+              "minLength": 1
+            }
+          },
+          "required": [
+            "fromPath",
+            "toPath"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "newItem": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "ID"
+                      }
+                    },
+                    "itemType": {
+                      "type": "string",
+                      "const": "file",
+                      "x-zui": {
+                        "title": "Item Type"
+                      }
+                    },
+                    "name": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Name"
+                      }
+                    },
+                    "path": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Path"
+                      }
+                    },
+                    "webUrl": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Web URL"
+                      }
+                    },
+                    "isDeleted": {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Is Deleted?"
+                      }
+                    },
+                    "isShared": {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Is Shared?"
+                      }
+                    },
+                    "revision": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Revision"
+                      },
+                      "minLength": 1
+                    },
+                    "size": {
+                      "type": "number",
+                      "x-zui": {
+                        "title": "Size"
+                      }
+                    },
+                    "fileHash": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Checksum"
+                      },
+                      "minLength": 1
+                    },
+                    "isDownloadable": {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Is Downloadable?"
+                      }
+                    },
+                    "symlinkTarget": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Symlink Target"
+                      }
+                    },
+                    "modifiedAt": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Modified At"
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "itemType",
+                    "name",
+                    "path",
+                    "isDeleted",
+                    "isShared",
+                    "revision",
+                    "size",
+                    "fileHash",
+                    "isDownloadable",
+                    "modifiedAt"
+                  ],
+                  "x-zui": {
+                    "title": "New File"
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "ID"
+                      }
+                    },
+                    "itemType": {
+                      "type": "string",
+                      "const": "folder",
+                      "x-zui": {
+                        "title": "Item Type"
+                      }
+                    },
+                    "name": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Name"
+                      }
+                    },
+                    "path": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Path"
+                      }
+                    },
+                    "webUrl": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Web URL"
+                      }
+                    },
+                    "isDeleted": {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Is Deleted?"
+                      }
+                    },
+                    "isShared": {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Is Shared?"
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "itemType",
+                    "name",
+                    "path",
+                    "isDeleted",
+                    "isShared"
+                  ],
+                  "x-zui": {
+                    "title": "New Folder"
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Moved item"
+              }
+            }
+          },
+          "required": [
+            "newItem"
+          ]
+        }
+      }
+    },
+    "searchItems": {
+      "title": "Search Items",
+      "description": "Search for files and folders in dropbox",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "x-zui": {
+                "title": "Search query"
+              },
+              "minLength": 1
+            },
+            "path": {
+              "type": "string",
+              "x-zui": {
+                "title": "Path"
+              }
+            },
+            "orderBy": {
+              "type": "string",
+              "enum": [
+                "relevance",
+                "last_modified_time"
+              ],
+              "x-zui": {
+                "title": "Order By"
+              }
+            },
+            "fileNameOnly": {
+              "default": false,
+              "anyOf": [
+                {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Search only within names?"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Search only within names?",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "fileExtensions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {
+                  "title": "File extension"
+                }
+              },
+              "x-zui": {
+                "title": "Filter by extension"
+              }
+            },
+            "fileCategories": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "image",
+                  "document",
+                  "pdf",
+                  "spreadsheet",
+                  "presentation",
+                  "audio",
+                  "video",
+                  "folder",
+                  "paper",
+                  "others"
+                ]
+              },
+              "x-zui": {
+                "title": "Filter by categories"
+              }
+            },
+            "nextToken": {
+              "type": "string",
+              "x-zui": {
+                "title": "Pagination Token"
+              },
+              "minLength": 1
+            }
+          },
+          "required": [
+            "query"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "item": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "x-zui": {
+                              "title": "ID"
+                            }
+                          },
+                          "itemType": {
+                            "type": "string",
+                            "const": "file",
+                            "x-zui": {
+                              "title": "Item Type"
+                            }
+                          },
+                          "name": {
+                            "type": "string",
+                            "x-zui": {
+                              "title": "Name"
+                            }
+                          },
+                          "path": {
+                            "type": "string",
+                            "x-zui": {
+                              "title": "Path"
+                            }
+                          },
+                          "webUrl": {
+                            "type": "string",
+                            "x-zui": {
+                              "title": "Web URL"
+                            }
+                          },
+                          "isDeleted": {
+                            "type": "boolean",
+                            "x-zui": {
+                              "title": "Is Deleted?"
+                            }
+                          },
+                          "isShared": {
+                            "type": "boolean",
+                            "x-zui": {
+                              "title": "Is Shared?"
+                            }
+                          },
+                          "revision": {
+                            "type": "string",
+                            "x-zui": {
+                              "title": "Revision"
+                            },
+                            "minLength": 1
+                          },
+                          "size": {
+                            "type": "number",
+                            "x-zui": {
+                              "title": "Size"
+                            }
+                          },
+                          "fileHash": {
+                            "type": "string",
+                            "x-zui": {
+                              "title": "Checksum"
+                            },
+                            "minLength": 1
+                          },
+                          "isDownloadable": {
+                            "type": "boolean",
+                            "x-zui": {
+                              "title": "Is Downloadable?"
+                            }
+                          },
+                          "symlinkTarget": {
+                            "type": "string",
+                            "x-zui": {
+                              "title": "Symlink Target"
+                            }
+                          },
+                          "modifiedAt": {
+                            "type": "string",
+                            "x-zui": {
+                              "title": "Modified At"
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "itemType",
+                          "name",
+                          "path",
+                          "isDeleted",
+                          "isShared",
+                          "revision",
+                          "size",
+                          "fileHash",
+                          "isDownloadable",
+                          "modifiedAt"
+                        ],
+                        "x-zui": {
+                          "title": "New File"
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "x-zui": {
+                              "title": "ID"
+                            }
+                          },
+                          "itemType": {
+                            "type": "string",
+                            "const": "folder",
+                            "x-zui": {
+                              "title": "Item Type"
+                            }
+                          },
+                          "name": {
+                            "type": "string",
+                            "x-zui": {
+                              "title": "Name"
+                            }
+                          },
+                          "path": {
+                            "type": "string",
+                            "x-zui": {
+                              "title": "Path"
+                            }
+                          },
+                          "webUrl": {
+                            "type": "string",
+                            "x-zui": {
+                              "title": "Web URL"
+                            }
+                          },
+                          "isDeleted": {
+                            "type": "boolean",
+                            "x-zui": {
+                              "title": "Is Deleted?"
+                            }
+                          },
+                          "isShared": {
+                            "type": "boolean",
+                            "x-zui": {
+                              "title": "Is Shared?"
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "itemType",
+                          "name",
+                          "path",
+                          "isDeleted",
+                          "isShared"
+                        ],
+                        "x-zui": {
+                          "title": "New Folder"
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Item"
+                    }
+                  },
+                  "matchType": {
+                    "type": "string",
+                    "enum": [
+                      "filename",
+                      "file_content",
+                      "filename_and_content",
+                      "image_content",
+                      "metadata",
+                      "other"
+                    ],
+                    "x-zui": {
+                      "title": "Match type"
+                    }
+                  }
+                },
+                "required": [
+                  "item"
+                ]
+              },
+              "x-zui": {
+                "title": "Matches"
+              }
+            },
+            "nextToken": {
+              "type": "string",
+              "x-zui": {
+                "title": "Pagination Token"
+              }
+            }
+          },
+          "required": [
+            "results"
+          ]
+        }
+      }
+    },
+    "filesReadonlyListItemsInFolder": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "folderId": {
+              "type": "string"
+            },
+            "filters": {
+              "type": "object",
+              "properties": {
+                "itemType": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "file"
+                    },
+                    {
+                      "type": "string",
+                      "const": "folder"
+                    }
+                  ]
+                },
+                "maxSizeInBytes": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                },
+                "modifiedAfter": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                }
+              },
+              "required": []
+            },
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "file"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "type": "string"
+                      },
+                      "absolutePath": {
+                        "type": "string"
+                      },
+                      "sizeInBytes": {
+                        "type": "number"
+                      },
+                      "lastModifiedDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                        "x-zui": {
+                          "precision": null,
+                          "offset": false
+                        }
+                      },
+                      "contentHash": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "type",
+                      "name"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "folder"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "type": "string"
+                      },
+                      "absolutePath": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "type",
+                      "name"
+                    ]
+                  }
+                ]
+              }
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "items",
+            "meta"
+          ]
+        }
+      },
+      "title": "List items in folder",
+      "description": "List the files and folders in a folder",
+      "name": "filesReadonlyListItemsInFolder"
+    },
+    "filesReadonlyTransferFileToBotpress": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "const": "file"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "parentId": {
+                  "type": "string"
+                },
+                "absolutePath": {
+                  "type": "string"
+                },
+                "sizeInBytes": {
+                  "type": "number"
+                },
+                "lastModifiedDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                  "x-zui": {
+                    "precision": null,
+                    "offset": false
+                  }
+                },
+                "contentHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "name"
+              ]
+            },
+            "fileKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "file",
+            "fileKey"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "botpressFileId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "botpressFileId"
+          ]
+        }
+      },
+      "title": "Transfer file to Botpress",
+      "description": "Transfer a file from an external service to Botpress",
+      "name": "filesReadonlyTransferFileToBotpress"
+    }
+  },
+  "channels": {},
+  "states": {
+    "authorization": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "x-zui": {
+              "secret": true
+            }
+          },
+          "grantedScopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "authorizationCode": {
+            "type": "string",
+            "x-zui": {
+              "title": "Access Code",
+              "secret": true
+            }
+          }
+        },
+        "required": [
+          "refreshToken",
+          "grantedScopes",
+          "accountId",
+          "authorizationCode"
+        ]
+      }
+    },
+    "realTimeSync": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "syncCursor": {
+            "type": "string",
+            "x-zui": {
+              "title": "Sync Cursor"
+            }
+          },
+          "fileTreeJson": {
+            "type": "string",
+            "x-zui": {
+              "title": "File Tree JSON"
+            }
+          }
+        },
+        "required": [
+          "syncCursor",
+          "fileTreeJson"
+        ]
+      }
+    },
+    "setupMeta": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "integrationRegisteredAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Registered At",
+              "precision": null,
+              "offset": false
+            },
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          }
+        },
+        "required": [
+          "integrationRegisteredAt"
+        ]
+      }
+    }
+  },
+  "entities": {
+    "file": {
+      "title": "File",
+      "description": "A file in a user's Dropbox",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "ID"
+            }
+          },
+          "itemType": {
+            "type": "string",
+            "const": "file",
+            "x-zui": {
+              "title": "Item Type"
+            }
+          },
+          "name": {
+            "type": "string",
+            "x-zui": {
+              "title": "Name"
+            }
+          },
+          "path": {
+            "type": "string",
+            "x-zui": {
+              "title": "Path"
+            }
+          },
+          "webUrl": {
+            "type": "string",
+            "x-zui": {
+              "title": "Web URL"
+            }
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Deleted?"
+            }
+          },
+          "isShared": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Shared?"
+            }
+          },
+          "revision": {
+            "type": "string",
+            "x-zui": {
+              "title": "Revision"
+            },
+            "minLength": 1
+          },
+          "size": {
+            "type": "number",
+            "x-zui": {
+              "title": "Size"
+            }
+          },
+          "fileHash": {
+            "type": "string",
+            "x-zui": {
+              "title": "Checksum"
+            },
+            "minLength": 1
+          },
+          "isDownloadable": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Downloadable?"
+            }
+          },
+          "symlinkTarget": {
+            "type": "string",
+            "x-zui": {
+              "title": "Symlink Target"
+            }
+          },
+          "modifiedAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Modified At"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "itemType",
+          "name",
+          "path",
+          "isDeleted",
+          "isShared",
+          "revision",
+          "size",
+          "fileHash",
+          "isDownloadable",
+          "modifiedAt"
+        ],
+        "x-zui": {
+          "title": "New File"
+        }
+      }
+    },
+    "folder": {
+      "title": "Folder",
+      "description": "A folder in a user's Dropbox",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "ID"
+            }
+          },
+          "itemType": {
+            "type": "string",
+            "const": "folder",
+            "x-zui": {
+              "title": "Item Type"
+            }
+          },
+          "name": {
+            "type": "string",
+            "x-zui": {
+              "title": "Name"
+            }
+          },
+          "path": {
+            "type": "string",
+            "x-zui": {
+              "title": "Path"
+            }
+          },
+          "webUrl": {
+            "type": "string",
+            "x-zui": {
+              "title": "Web URL"
+            }
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Deleted?"
+            }
+          },
+          "isShared": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Shared?"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "itemType",
+          "name",
+          "path",
+          "isDeleted",
+          "isShared"
+        ],
+        "x-zui": {
+          "title": "New Folder"
+        }
+      }
+    }
+  },
+  "interfaces": {
+    "files-readonly": {
+      "id": "",
+      "name": "files-readonly",
+      "version": "0.2.0",
+      "entities": {},
+      "actions": {
+        "listItemsInFolder": {
+          "name": "filesReadonlyListItemsInFolder"
+        },
+        "transferFileToBotpress": {
+          "name": "filesReadonlyTransferFileToBotpress"
+        }
+      },
+      "events": {
+        "fileCreated": {
+          "name": "fileCreated"
+        },
+        "fileUpdated": {
+          "name": "fileUpdated"
+        },
+        "fileDeleted": {
+          "name": "fileDeleted"
+        },
+        "folderDeletedRecursive": {
+          "name": "folderDeletedRecursive"
+        },
+        "aggregateFileChanges": {
+          "name": "aggregateFileChanges"
+        }
+      },
+      "channels": {}
+    }
+  }
+}

@@ -1,0 +1,644 @@
+{
+  "name": "cerebras",
+  "version": "6.0.0",
+  "title": "Cerebras",
+  "description": "Get access to a curated list of Cerebras models for content generation and chat completions within your bot.",
+  "events": {},
+  "actions": {
+    "generateContent": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "enum": [
+                    "llama3.1-8b",
+                    "llama3.3-70b"
+                  ],
+                  "x-zui": {
+                    "placeholder": "llama3.1-8b"
+                  }
+                }
+              },
+              "required": [
+                "id"
+              ]
+            },
+            "reasoningEffort": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "systemPrompt": {
+              "type": "string"
+            },
+            "messages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "user",
+                      "assistant"
+                    ]
+                  },
+                  "type": {
+                    "default": "text",
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "tool_calls",
+                      "tool_result",
+                      "multipart"
+                    ]
+                  },
+                  "toolCalls": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "function"
+                          ]
+                        },
+                        "function": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "arguments": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "additionalProperties": {}
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "x-zui": {
+                                "def": {
+                                  "typeName": "ZodNullable"
+                                }
+                              }
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "arguments"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "function"
+                      ]
+                    }
+                  },
+                  "toolResultCallId": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "text",
+                                    "image"
+                                  ]
+                                },
+                                "mimeType": {
+                                  "type": "string"
+                                },
+                                "text": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type"
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "x-zui": {
+                      "def": {
+                        "typeName": "ZodNullable"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "role",
+                  "content"
+                ]
+              }
+            },
+            "responseFormat": {
+              "type": "string",
+              "enum": [
+                "text",
+                "json_object"
+              ]
+            },
+            "maxTokens": {
+              "type": "number"
+            },
+            "temperature": {
+              "default": 1,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "topP": {
+              "default": 1,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "stopSequences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 4
+            },
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "function"
+                  },
+                  "function": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "argumentsSchema": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                        "additionalProperties": {}
+                      }
+                    },
+                    "required": [
+                      "name"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "function"
+                ]
+              }
+            },
+            "toolChoice": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "auto",
+                    "specific",
+                    "any",
+                    "none",
+                    ""
+                  ]
+                },
+                "functionName": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            },
+            "userId": {
+              "type": "string"
+            },
+            "debug": {
+              "type": "boolean"
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "promptSource": {
+                  "type": "string"
+                },
+                "promptCategory": {
+                  "type": "string"
+                },
+                "integrationName": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "messages"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "choices": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "default": "text",
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "tool_calls",
+                      "tool_result",
+                      "multipart"
+                    ]
+                  },
+                  "toolCalls": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "function"
+                          ]
+                        },
+                        "function": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "arguments": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "additionalProperties": {}
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "x-zui": {
+                                "def": {
+                                  "typeName": "ZodNullable"
+                                }
+                              }
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "arguments"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "function"
+                      ]
+                    }
+                  },
+                  "toolResultCallId": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "text",
+                                    "image"
+                                  ]
+                                },
+                                "mimeType": {
+                                  "type": "string"
+                                },
+                                "text": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type"
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "x-zui": {
+                      "def": {
+                        "typeName": "ZodNullable"
+                      }
+                    }
+                  },
+                  "role": {
+                    "type": "string",
+                    "const": "assistant"
+                  },
+                  "index": {
+                    "type": "integer"
+                  },
+                  "stopReason": {
+                    "type": "string",
+                    "enum": [
+                      "stop",
+                      "max_tokens",
+                      "tool_calls",
+                      "content_filter",
+                      "other"
+                    ]
+                  }
+                },
+                "required": [
+                  "content",
+                  "role",
+                  "index",
+                  "stopReason"
+                ]
+              }
+            },
+            "usage": {
+              "type": "object",
+              "properties": {
+                "inputTokens": {
+                  "type": "integer"
+                },
+                "inputCost": {
+                  "type": "number"
+                },
+                "outputTokens": {
+                  "type": "integer"
+                },
+                "outputCost": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "inputTokens",
+                "inputCost",
+                "outputTokens",
+                "outputCost"
+              ]
+            },
+            "botpress": {
+              "type": "object",
+              "properties": {
+                "cost": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "cost"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "provider",
+            "model",
+            "choices",
+            "usage",
+            "botpress"
+          ]
+        }
+      },
+      "billable": true,
+      "cacheable": true
+    },
+    "listLanguageModels": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "models": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "recommended",
+                            "deprecated",
+                            "general-purpose",
+                            "low-cost",
+                            "vision",
+                            "coding",
+                            "agents",
+                            "function-calling",
+                            "roleplay",
+                            "storytelling",
+                            "reasoning",
+                            "preview"
+                          ]
+                        }
+                      },
+                      "input": {
+                        "type": "object",
+                        "properties": {
+                          "maxTokens": {
+                            "type": "integer"
+                          },
+                          "costPer1MTokens": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "maxTokens",
+                          "costPer1MTokens"
+                        ]
+                      },
+                      "output": {
+                        "type": "object",
+                        "properties": {
+                          "maxTokens": {
+                            "type": "integer"
+                          },
+                          "costPer1MTokens": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "maxTokens",
+                          "costPer1MTokens"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "description",
+                      "tags",
+                      "input",
+                      "output"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "enum": [
+                          "llama3.1-8b",
+                          "llama3.3-70b"
+                        ],
+                        "x-zui": {
+                          "placeholder": "llama3.1-8b"
+                        }
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "models"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {},
+  "entities": {
+    "modelRef": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "llama3.1-8b",
+              "llama3.3-70b"
+            ],
+            "x-zui": {
+              "placeholder": "llama3.1-8b"
+            }
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    }
+  },
+  "interfaces": {
+    "llm<modelRef>": {
+      "id": "",
+      "name": "llm",
+      "version": "8.0.0",
+      "entities": {
+        "modelRef": {
+          "name": "modelRef"
+        }
+      },
+      "actions": {
+        "generateContent": {
+          "name": "generateContent"
+        },
+        "listLanguageModels": {
+          "name": "listLanguageModels"
+        }
+      },
+      "events": {},
+      "channels": {}
+    }
+  }
+}

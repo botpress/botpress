@@ -1,0 +1,52 @@
+{
+  "name": "make",
+  "version": "0.3.4",
+  "title": "Make.com (Deprecated)",
+  "description": "Automate tasks, sync data across multiple applications, and enhance the capabilities of your chatbot like never before.",
+  "actions": {
+    "sendData": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "data"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean"
+            },
+            "response": {
+              "anyOf": [
+                {},
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            }
+          },
+          "required": [
+            "success"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {},
+  "interfaces": {}
+}

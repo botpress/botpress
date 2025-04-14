@@ -1,0 +1,1586 @@
+{
+  "name": "mailchimp",
+  "version": "0.3.6",
+  "title": "Mailchimp",
+  "description": "Send mass email campaigns from within your workflows. Manage customers, campaigns, lists and more.",
+  "actions": {
+    "addCustomerToCampaign": {
+      "title": "Add Customer Profile to Campaign",
+      "description": "Adds a Customer's Profile to a Campaign",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
+              "title": "The email address of the customer (e.g. example@example.com)"
+            },
+            "firstName": {
+              "type": "string",
+              "title": "The first name of the customer (e.g. John) (Optional)"
+            },
+            "lastName": {
+              "type": "string",
+              "title": "The last name of the customer (e.g. Doe) (Optional)"
+            },
+            "company": {
+              "type": "string",
+              "title": "The company of the customer (e.g. Acme Inc.) (Optional)"
+            },
+            "birthday": {
+              "type": "string",
+              "title": "The birthday of the customer (e.g. 01/01/2000) (Optional)"
+            },
+            "language": {
+              "type": "string",
+              "title": "The language of the customer (e.g. en) (Optional)"
+            },
+            "address1": {
+              "type": "string",
+              "title": "The first line of the address of the customer (e.g. 123 St Marie.) (Optional)"
+            },
+            "address2": {
+              "type": "string",
+              "title": "The second line of the address of the customer (e.g. Apt. 4B) (Optional)"
+            },
+            "city": {
+              "type": "string",
+              "title": "The city of the customer (e.g. Anytown) (Optional)"
+            },
+            "state": {
+              "type": "string",
+              "title": "The state or province of the customer (e.g. CA) (Optional)"
+            },
+            "zip": {
+              "type": "string",
+              "title": "The zip or postal code of the customer (e.g. 12345) (Optional)"
+            },
+            "country": {
+              "type": "string",
+              "title": "The country of the customer (e.g. USA) (Optional)"
+            },
+            "phone": {
+              "type": "string",
+              "title": "The phone number of the customer (e.g. 555-1234) (Optional)"
+            },
+            "campaignId": {
+              "type": "string",
+              "title": "The ID of the Mailchimp campaign (e.g. f6g7h8i9j0)"
+            }
+          },
+          "required": [
+            "email",
+            "campaignId"
+          ]
+        },
+        "ui": {
+          "campaignId": {
+            "title": "The ID of the Mailchimp campaign (e.g. f6g7h8i9j0)"
+          },
+          "email": {
+            "title": "The email address of the customer (e.g. example@example.com)"
+          },
+          "firstName": {
+            "title": "The first name of the customer (e.g. John) (Optional)"
+          },
+          "lastName": {
+            "title": "The last name of the customer (e.g. Doe) (Optional)"
+          },
+          "company": {
+            "title": "The company of the customer (e.g. Acme Inc.) (Optional)"
+          },
+          "birthday": {
+            "title": "The birthday of the customer (e.g. 01/01/2000) (Optional)"
+          },
+          "language": {
+            "title": "The language of the customer (e.g. en) (Optional)"
+          },
+          "address1": {
+            "title": "The first line of the address of the customer (e.g. 123 St Marie.) (Optional)"
+          },
+          "address2": {
+            "title": "The second line of the address of the customer (e.g. Apt. 4B) (Optional)"
+          },
+          "city": {
+            "title": "The city of the customer (e.g. Anytown) (Optional)"
+          },
+          "state": {
+            "title": "The state or province of the customer (e.g. CA) (Optional)"
+          },
+          "zip": {
+            "title": "The zip or postal code of the customer (e.g. 12345) (Optional)"
+          },
+          "country": {
+            "title": "The country of the customer (e.g. USA) (Optional)"
+          },
+          "phone": {
+            "title": "The phone number of the customer (e.g. 555-1234) (Optional)"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "email_address": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "list_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "email_address",
+            "status",
+            "list_id"
+          ]
+        }
+      }
+    },
+    "addCustomerToList": {
+      "title": "Add Customer Profile to List/Audience",
+      "description": "Add Customer's Profile to a List/Audience",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
+              "title": "The email address of the customer (e.g. example@example.com)"
+            },
+            "firstName": {
+              "type": "string",
+              "title": "The first name of the customer (e.g. John) (Optional)"
+            },
+            "lastName": {
+              "type": "string",
+              "title": "The last name of the customer (e.g. Doe) (Optional)"
+            },
+            "company": {
+              "type": "string",
+              "title": "The company of the customer (e.g. Acme Inc.) (Optional)"
+            },
+            "birthday": {
+              "type": "string",
+              "title": "The birthday of the customer (e.g. 01/01/2000) (Optional)"
+            },
+            "language": {
+              "type": "string",
+              "title": "The language of the customer (e.g. en) (Optional)"
+            },
+            "address1": {
+              "type": "string",
+              "title": "The first line of the address of the customer (e.g. 123 St Marie.) (Optional)"
+            },
+            "address2": {
+              "type": "string",
+              "title": "The second line of the address of the customer (e.g. Apt. 4B) (Optional)"
+            },
+            "city": {
+              "type": "string",
+              "title": "The city of the customer (e.g. Anytown) (Optional)"
+            },
+            "state": {
+              "type": "string",
+              "title": "The state or province of the customer (e.g. CA) (Optional)"
+            },
+            "zip": {
+              "type": "string",
+              "title": "The zip or postal code of the customer (e.g. 12345) (Optional)"
+            },
+            "country": {
+              "type": "string",
+              "title": "The country of the customer (e.g. USA) (Optional)"
+            },
+            "phone": {
+              "type": "string",
+              "title": "The phone number of the customer (e.g. 555-1234) (Optional)"
+            },
+            "listId": {
+              "type": "string",
+              "title": "The ID of the Mailchimp list or audience (e.g. a1b2c3d4e5)"
+            }
+          },
+          "required": [
+            "email",
+            "listId"
+          ]
+        },
+        "ui": {
+          "listId": {
+            "title": "The ID of the Mailchimp list or audience (e.g. a1b2c3d4e5)"
+          },
+          "email": {
+            "title": "The email address of the customer (e.g. example@example.com)"
+          },
+          "firstName": {
+            "title": "The first name of the customer (e.g. John) (Optional)"
+          },
+          "lastName": {
+            "title": "The last name of the customer (e.g. Doe) (Optional)"
+          },
+          "company": {
+            "title": "The company of the customer (e.g. Acme Inc.) (Optional)"
+          },
+          "birthday": {
+            "title": "The birthday of the customer (e.g. 01/01/2000) (Optional)"
+          },
+          "language": {
+            "title": "The language of the customer (e.g. en) (Optional)"
+          },
+          "address1": {
+            "title": "The first line of the address of the customer (e.g. 123 St Marie.) (Optional)"
+          },
+          "address2": {
+            "title": "The second line of the address of the customer (e.g. Apt. 4B) (Optional)"
+          },
+          "city": {
+            "title": "The city of the customer (e.g. Anytown) (Optional)"
+          },
+          "state": {
+            "title": "The state or province of the customer (e.g. CA) (Optional)"
+          },
+          "zip": {
+            "title": "The zip or postal code of the customer (e.g. 12345) (Optional)"
+          },
+          "country": {
+            "title": "The country of the customer (e.g. USA) (Optional)"
+          },
+          "phone": {
+            "title": "The phone number of the customer (e.g. 555-1234) (Optional)"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "email_address": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "list_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "email_address",
+            "status",
+            "list_id"
+          ]
+        }
+      }
+    },
+    "sendMassEmailCampaign": {
+      "title": "Mass Mailing of the Campaign",
+      "description": "Mass Mailing of the Campaign by its IDs",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "campaignIds": {
+              "type": "string",
+              "title": "The Campaign IDs (Can be either a string with comma-separated IDs)"
+            }
+          },
+          "required": [
+            "campaignIds"
+          ]
+        },
+        "ui": {
+          "campaignIds": {
+            "title": "The Campaign IDs (Can be either a string with comma-separated IDs)"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "pending"
+                },
+                {
+                  "type": "string",
+                  "const": "preprocessing"
+                },
+                {
+                  "type": "string",
+                  "const": "started"
+                },
+                {
+                  "type": "string",
+                  "const": "finalizing"
+                },
+                {
+                  "type": "string",
+                  "const": "finished"
+                }
+              ]
+            },
+            "total_operations": {
+              "type": "number"
+            },
+            "_links": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "rel": {
+                    "type": "string"
+                  },
+                  "href": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": "GET"
+                      },
+                      {
+                        "type": "string",
+                        "const": "POST"
+                      },
+                      {
+                        "type": "string",
+                        "const": "PUT"
+                      },
+                      {
+                        "type": "string",
+                        "const": "PATCH"
+                      },
+                      {
+                        "type": "string",
+                        "const": "DELETE"
+                      },
+                      {
+                        "type": "string",
+                        "const": "OPTIONS"
+                      },
+                      {
+                        "type": "string",
+                        "const": "HEAD"
+                      }
+                    ]
+                  },
+                  "targetSchema": {
+                    "type": "string"
+                  },
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            }
+          },
+          "required": []
+        }
+      }
+    },
+    "getAllLists": {
+      "title": "Get All Email Lists/Audiences",
+      "description": "Get all available email lists/audiences",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "default": 100,
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              },
+              "title": "List count to retrieve"
+            }
+          },
+          "required": []
+        },
+        "ui": {
+          "count": {
+            "title": "List count to retrieve"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "lists": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "web_id": {
+                    "type": "number"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "contact": {
+                    "type": "object",
+                    "properties": {
+                      "company": {
+                        "type": "string"
+                      },
+                      "address1": {
+                        "type": "string"
+                      },
+                      "address2": {
+                        "type": "string"
+                      },
+                      "city": {
+                        "type": "string"
+                      },
+                      "state": {
+                        "type": "string"
+                      },
+                      "zip": {
+                        "type": "string"
+                      },
+                      "country": {
+                        "type": "string"
+                      },
+                      "phone": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "company",
+                      "address1",
+                      "address2",
+                      "city",
+                      "state",
+                      "zip",
+                      "country",
+                      "phone"
+                    ]
+                  },
+                  "permission_reminder": {
+                    "type": "string"
+                  },
+                  "use_archive_bar": {
+                    "type": "boolean"
+                  },
+                  "campaign_defaults": {
+                    "type": "object",
+                    "properties": {
+                      "from_name": {
+                        "type": "string"
+                      },
+                      "from_email": {
+                        "type": "string",
+                        "format": "email",
+                        "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$"
+                      },
+                      "subject": {
+                        "type": "string"
+                      },
+                      "language": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "from_name",
+                      "from_email",
+                      "subject",
+                      "language"
+                    ]
+                  },
+                  "notify_on_subscribe": {
+                    "type": "string"
+                  },
+                  "notify_on_unsubscribe": {
+                    "type": "string"
+                  },
+                  "date_created": {
+                    "type": "string"
+                  },
+                  "list_rating": {
+                    "type": "number"
+                  },
+                  "email_type_option": {
+                    "type": "boolean"
+                  },
+                  "subscribe_url_short": {
+                    "type": "string"
+                  },
+                  "subscribe_url_long": {
+                    "type": "string"
+                  },
+                  "beamer_address": {
+                    "type": "string"
+                  },
+                  "visibility": {
+                    "type": "string"
+                  },
+                  "double_optin": {
+                    "type": "boolean"
+                  },
+                  "has_welcome": {
+                    "type": "boolean"
+                  },
+                  "marketing_permissions": {
+                    "type": "boolean"
+                  },
+                  "modules": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "stats": {
+                    "type": "object",
+                    "properties": {
+                      "member_count": {
+                        "type": "number"
+                      },
+                      "unsubscribe_count": {
+                        "type": "number"
+                      },
+                      "cleaned_count": {
+                        "type": "number"
+                      },
+                      "member_count_since_send": {
+                        "type": "number"
+                      },
+                      "unsubscribe_count_since_send": {
+                        "type": "number"
+                      },
+                      "cleaned_count_since_send": {
+                        "type": "number"
+                      },
+                      "campaign_count": {
+                        "type": "number"
+                      },
+                      "campaign_last_sent": {
+                        "type": "string"
+                      },
+                      "merge_field_count": {
+                        "type": "number"
+                      },
+                      "avg_sub_rate": {
+                        "type": "number"
+                      },
+                      "avg_unsub_rate": {
+                        "type": "number"
+                      },
+                      "target_sub_rate": {
+                        "type": "number"
+                      },
+                      "open_rate": {
+                        "type": "number"
+                      },
+                      "click_rate": {
+                        "type": "number"
+                      },
+                      "last_sub_date": {
+                        "type": "string"
+                      },
+                      "last_unsub_date": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "member_count",
+                      "unsubscribe_count",
+                      "cleaned_count",
+                      "member_count_since_send",
+                      "unsubscribe_count_since_send",
+                      "cleaned_count_since_send",
+                      "campaign_count",
+                      "campaign_last_sent",
+                      "merge_field_count",
+                      "avg_sub_rate",
+                      "avg_unsub_rate",
+                      "target_sub_rate",
+                      "open_rate",
+                      "click_rate",
+                      "last_sub_date",
+                      "last_unsub_date"
+                    ]
+                  },
+                  "_links": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "rel": {
+                          "type": "string"
+                        },
+                        "href": {
+                          "type": "string"
+                        },
+                        "method": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "GET"
+                            },
+                            {
+                              "type": "string",
+                              "const": "POST"
+                            },
+                            {
+                              "type": "string",
+                              "const": "PUT"
+                            },
+                            {
+                              "type": "string",
+                              "const": "PATCH"
+                            },
+                            {
+                              "type": "string",
+                              "const": "DELETE"
+                            },
+                            {
+                              "type": "string",
+                              "const": "OPTIONS"
+                            },
+                            {
+                              "type": "string",
+                              "const": "HEAD"
+                            }
+                          ]
+                        },
+                        "targetSchema": {
+                          "type": "string"
+                        },
+                        "schema": {
+                          "type": "string"
+                        }
+                      },
+                      "required": []
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "web_id",
+                  "name",
+                  "contact",
+                  "permission_reminder",
+                  "use_archive_bar",
+                  "campaign_defaults",
+                  "notify_on_subscribe",
+                  "notify_on_unsubscribe",
+                  "date_created",
+                  "list_rating",
+                  "email_type_option",
+                  "subscribe_url_short",
+                  "subscribe_url_long",
+                  "beamer_address",
+                  "visibility",
+                  "double_optin",
+                  "has_welcome",
+                  "marketing_permissions",
+                  "modules",
+                  "stats",
+                  "_links"
+                ]
+              }
+            },
+            "constraints": {
+              "type": "object",
+              "properties": {
+                "may_create": {
+                  "type": "boolean"
+                },
+                "max_instances": {
+                  "type": "number"
+                },
+                "current_total_instances": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "may_create",
+                "max_instances",
+                "current_total_instances"
+              ]
+            },
+            "_links": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "rel": {
+                    "type": "string"
+                  },
+                  "href": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": "GET"
+                      },
+                      {
+                        "type": "string",
+                        "const": "POST"
+                      },
+                      {
+                        "type": "string",
+                        "const": "PUT"
+                      },
+                      {
+                        "type": "string",
+                        "const": "PATCH"
+                      },
+                      {
+                        "type": "string",
+                        "const": "DELETE"
+                      },
+                      {
+                        "type": "string",
+                        "const": "OPTIONS"
+                      },
+                      {
+                        "type": "string",
+                        "const": "HEAD"
+                      }
+                    ]
+                  },
+                  "targetSchema": {
+                    "type": "string"
+                  },
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            }
+          },
+          "required": [
+            "lists",
+            "constraints",
+            "_links"
+          ]
+        }
+      }
+    },
+    "getAllCampaigns": {
+      "title": "Get All Campaigns",
+      "description": "Get all available campaigns",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "default": 100,
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              },
+              "title": "List count to retrieve"
+            }
+          },
+          "required": []
+        },
+        "ui": {
+          "count": {
+            "title": "List count to retrieve"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "campaigns": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "web_id": {
+                    "type": "number"
+                  },
+                  "parent_campaign_id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "create_time": {
+                    "type": "string"
+                  },
+                  "archive_url": {
+                    "type": "string"
+                  },
+                  "long_archive_url": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "emails_sent": {
+                    "type": "number"
+                  },
+                  "send_time": {
+                    "type": "string"
+                  },
+                  "content_type": {
+                    "type": "string"
+                  },
+                  "needs_block_refresh": {
+                    "type": "boolean"
+                  },
+                  "resendable": {
+                    "type": "boolean"
+                  },
+                  "recipients": {
+                    "type": "object",
+                    "properties": {
+                      "list_id": {
+                        "type": "string"
+                      },
+                      "list_is_active": {
+                        "type": "boolean"
+                      },
+                      "list_name": {
+                        "type": "string"
+                      },
+                      "segment_text": {
+                        "type": "string"
+                      },
+                      "recipient_count": {
+                        "type": "number"
+                      },
+                      "segment_opts": {
+                        "type": "object",
+                        "properties": {
+                          "saved_segment_id": {
+                            "type": "number"
+                          },
+                          "prebuilt_segment_id": {
+                            "type": "string"
+                          },
+                          "match": {
+                            "type": "string"
+                          },
+                          "conditions": {
+                            "type": "array",
+                            "items": {
+                              "x-zui": {
+                                "def": {
+                                  "typeName": "ZodUnknown"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "required": []
+                      }
+                    },
+                    "required": [
+                      "list_id",
+                      "list_is_active",
+                      "list_name",
+                      "segment_text",
+                      "recipient_count",
+                      "segment_opts"
+                    ],
+                    "additionalProperties": {}
+                  },
+                  "settings": {
+                    "type": "object",
+                    "properties": {
+                      "subject_line": {
+                        "type": "string"
+                      },
+                      "preview_text": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "from_name": {
+                        "type": "string"
+                      },
+                      "reply_to": {
+                        "type": "string"
+                      },
+                      "use_conversation": {
+                        "type": "boolean"
+                      },
+                      "to_name": {
+                        "type": "string"
+                      },
+                      "folder_id": {
+                        "type": "string"
+                      },
+                      "authenticate": {
+                        "type": "boolean"
+                      },
+                      "auto_footer": {
+                        "type": "boolean"
+                      },
+                      "inline_css": {
+                        "type": "boolean"
+                      },
+                      "auto_tweet": {
+                        "type": "boolean"
+                      },
+                      "auto_fb_post": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "fb_comments": {
+                        "type": "boolean"
+                      },
+                      "timewarp": {
+                        "type": "boolean"
+                      },
+                      "template_id": {
+                        "type": "number"
+                      },
+                      "drag_and_drop": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "subject_line",
+                      "preview_text",
+                      "title",
+                      "from_name",
+                      "reply_to",
+                      "use_conversation",
+                      "to_name",
+                      "folder_id",
+                      "authenticate",
+                      "auto_footer",
+                      "inline_css",
+                      "auto_tweet",
+                      "fb_comments",
+                      "timewarp",
+                      "template_id",
+                      "drag_and_drop"
+                    ],
+                    "additionalProperties": {}
+                  },
+                  "variate_settings": {
+                    "type": "object",
+                    "properties": {
+                      "winning_combination_id": {
+                        "type": "string"
+                      },
+                      "winning_campaign_id": {
+                        "type": "string"
+                      },
+                      "winner_criteria": {
+                        "type": "string"
+                      },
+                      "wait_time": {
+                        "type": "number"
+                      },
+                      "test_size": {
+                        "type": "number"
+                      },
+                      "subject_lines": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "send_times": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "from_names": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "reply_to_addresses": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "contents": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "combinations": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "subject_line": {
+                              "type": "number"
+                            },
+                            "send_time": {
+                              "type": "number"
+                            },
+                            "from_name": {
+                              "type": "number"
+                            },
+                            "reply_to": {
+                              "type": "number"
+                            },
+                            "content_description": {
+                              "type": "number"
+                            },
+                            "recipients": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "subject_line",
+                            "send_time",
+                            "from_name",
+                            "reply_to",
+                            "content_description",
+                            "recipients"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "winning_combination_id",
+                      "winning_campaign_id",
+                      "winner_criteria",
+                      "wait_time",
+                      "test_size",
+                      "subject_lines",
+                      "send_times",
+                      "from_names",
+                      "reply_to_addresses",
+                      "contents",
+                      "combinations"
+                    ],
+                    "additionalProperties": {}
+                  },
+                  "tracking": {
+                    "type": "object",
+                    "properties": {
+                      "opens": {
+                        "type": "boolean"
+                      },
+                      "html_clicks": {
+                        "type": "boolean"
+                      },
+                      "text_clicks": {
+                        "type": "boolean"
+                      },
+                      "goal_tracking": {
+                        "type": "boolean"
+                      },
+                      "ecomm360": {
+                        "type": "boolean"
+                      },
+                      "google_analytics": {
+                        "type": "string"
+                      },
+                      "clicktale": {
+                        "type": "string"
+                      },
+                      "salesforce": {
+                        "type": "object",
+                        "properties": {
+                          "campaign": {
+                            "type": "boolean"
+                          },
+                          "notes": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "campaign",
+                          "notes"
+                        ]
+                      },
+                      "capsule": {
+                        "type": "object",
+                        "properties": {
+                          "notes": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "notes"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "opens",
+                      "html_clicks",
+                      "text_clicks",
+                      "goal_tracking",
+                      "ecomm360",
+                      "google_analytics",
+                      "clicktale"
+                    ],
+                    "additionalProperties": {}
+                  },
+                  "rss_opts": {
+                    "type": "object",
+                    "properties": {
+                      "feed_url": {
+                        "type": "string"
+                      },
+                      "frequency": {
+                        "type": "string"
+                      },
+                      "schedule": {
+                        "type": "object",
+                        "properties": {
+                          "hour": {
+                            "type": "number"
+                          },
+                          "daily_send": {
+                            "type": "object",
+                            "properties": {
+                              "sunday": {
+                                "type": "boolean"
+                              },
+                              "monday": {
+                                "type": "boolean"
+                              },
+                              "tuesday": {
+                                "type": "boolean"
+                              },
+                              "wednesday": {
+                                "type": "boolean"
+                              },
+                              "thursday": {
+                                "type": "boolean"
+                              },
+                              "friday": {
+                                "type": "boolean"
+                              },
+                              "saturday": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "sunday",
+                              "monday",
+                              "tuesday",
+                              "wednesday",
+                              "thursday",
+                              "friday",
+                              "saturday"
+                            ]
+                          },
+                          "weekly_send_day": {
+                            "type": "string"
+                          },
+                          "monthly_send_date": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "hour",
+                          "daily_send",
+                          "weekly_send_day",
+                          "monthly_send_date"
+                        ]
+                      },
+                      "last_sent": {
+                        "type": "string"
+                      },
+                      "constrain_rss_img": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "feed_url",
+                      "frequency",
+                      "schedule",
+                      "last_sent",
+                      "constrain_rss_img"
+                    ],
+                    "additionalProperties": {}
+                  },
+                  "ab_split_opts": {
+                    "type": "object",
+                    "properties": {
+                      "split_test": {
+                        "type": "string"
+                      },
+                      "pick_winner": {
+                        "type": "string"
+                      },
+                      "wait_units": {
+                        "type": "string"
+                      },
+                      "wait_time": {
+                        "type": "number"
+                      },
+                      "split_size": {
+                        "type": "number"
+                      },
+                      "from_name_a": {
+                        "type": "string"
+                      },
+                      "from_name_b": {
+                        "type": "string"
+                      },
+                      "reply_email_a": {
+                        "type": "string"
+                      },
+                      "reply_email_b": {
+                        "type": "string"
+                      },
+                      "subject_a": {
+                        "type": "string"
+                      },
+                      "subject_b": {
+                        "type": "string"
+                      },
+                      "send_time_a": {
+                        "type": "string"
+                      },
+                      "send_time_b": {
+                        "type": "string"
+                      },
+                      "send_time_winner": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "split_test",
+                      "pick_winner",
+                      "wait_units",
+                      "wait_time",
+                      "split_size",
+                      "from_name_a",
+                      "from_name_b",
+                      "reply_email_a",
+                      "reply_email_b",
+                      "subject_a",
+                      "subject_b",
+                      "send_time_a",
+                      "send_time_b",
+                      "send_time_winner"
+                    ],
+                    "additionalProperties": {}
+                  },
+                  "social_card": {
+                    "type": "object",
+                    "properties": {
+                      "image_url": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "image_url",
+                      "description",
+                      "title"
+                    ]
+                  },
+                  "report_summary": {
+                    "type": "object",
+                    "properties": {
+                      "opens": {
+                        "type": "number"
+                      },
+                      "unique_opens": {
+                        "type": "number"
+                      },
+                      "open_rate": {
+                        "type": "number"
+                      },
+                      "clicks": {
+                        "type": "number"
+                      },
+                      "subscriber_clicks": {
+                        "type": "number"
+                      },
+                      "click_rate": {
+                        "type": "number"
+                      },
+                      "ecommerce": {
+                        "type": "object",
+                        "properties": {
+                          "total_orders": {
+                            "type": "number"
+                          },
+                          "total_spent": {
+                            "type": "number"
+                          },
+                          "total_revenue": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "total_orders",
+                          "total_spent",
+                          "total_revenue"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "opens",
+                      "unique_opens",
+                      "open_rate",
+                      "clicks",
+                      "subscriber_clicks",
+                      "click_rate",
+                      "ecommerce"
+                    ],
+                    "additionalProperties": {}
+                  },
+                  "delivery_status": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean",
+                            "const": true
+                          },
+                          "can_cancel": {
+                            "type": "boolean"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "emails_sent": {
+                            "type": "number"
+                          },
+                          "emails_canceled": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "enabled",
+                          "can_cancel",
+                          "status",
+                          "emails_sent",
+                          "emails_canceled"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean",
+                            "const": false
+                          }
+                        },
+                        "required": [
+                          "enabled"
+                        ]
+                      }
+                    ]
+                  },
+                  "_links": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "rel": {
+                          "type": "string"
+                        },
+                        "href": {
+                          "type": "string"
+                        },
+                        "method": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "const": "GET"
+                            },
+                            {
+                              "type": "string",
+                              "const": "POST"
+                            },
+                            {
+                              "type": "string",
+                              "const": "PUT"
+                            },
+                            {
+                              "type": "string",
+                              "const": "PATCH"
+                            },
+                            {
+                              "type": "string",
+                              "const": "DELETE"
+                            },
+                            {
+                              "type": "string",
+                              "const": "OPTIONS"
+                            },
+                            {
+                              "type": "string",
+                              "const": "HEAD"
+                            }
+                          ]
+                        },
+                        "targetSchema": {
+                          "type": "string"
+                        },
+                        "schema": {
+                          "type": "string"
+                        }
+                      },
+                      "required": []
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "web_id",
+                  "type",
+                  "create_time",
+                  "archive_url",
+                  "long_archive_url",
+                  "status",
+                  "emails_sent",
+                  "send_time",
+                  "content_type",
+                  "needs_block_refresh",
+                  "resendable",
+                  "settings",
+                  "tracking",
+                  "delivery_status",
+                  "_links"
+                ]
+              }
+            },
+            "total_items": {
+              "type": "number"
+            },
+            "_links": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "rel": {
+                    "type": "string"
+                  },
+                  "href": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": "GET"
+                      },
+                      {
+                        "type": "string",
+                        "const": "POST"
+                      },
+                      {
+                        "type": "string",
+                        "const": "PUT"
+                      },
+                      {
+                        "type": "string",
+                        "const": "PATCH"
+                      },
+                      {
+                        "type": "string",
+                        "const": "DELETE"
+                      },
+                      {
+                        "type": "string",
+                        "const": "OPTIONS"
+                      },
+                      {
+                        "type": "string",
+                        "const": "HEAD"
+                      }
+                    ]
+                  },
+                  "targetSchema": {
+                    "type": "string"
+                  },
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "required": []
+              }
+            }
+          },
+          "required": [
+            "campaigns",
+            "total_items",
+            "_links"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {},
+  "interfaces": {}
+}

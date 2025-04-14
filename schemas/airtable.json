@@ -1,0 +1,389 @@
+{
+  "name": "airtable",
+  "version": "0.0.4",
+  "title": "Airtable",
+  "description": "Access and manage Airtable data to allow your chatbot to retrieve details, update records, and organize information.",
+  "user": {
+    "tags": {}
+  },
+  "events": {},
+  "actions": {
+    "getTableRecords": {
+      "title": "Get Records of the Table",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "tableIdOrName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tableIdOrName"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "_rawJson": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": {}
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "_rawJson",
+                  "id"
+                ]
+              }
+            }
+          },
+          "required": [
+            "records"
+          ],
+          "additionalProperties": {}
+        }
+      }
+    },
+    "createTable": {
+      "title": "Create Table",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "fields"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type"
+                ],
+                "additionalProperties": {}
+              }
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "primaryFieldId": {
+              "type": "string"
+            },
+            "views": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "type"
+                ],
+                "additionalProperties": {}
+              }
+            }
+          },
+          "required": [
+            "fields",
+            "id",
+            "name",
+            "primaryFieldId",
+            "views"
+          ],
+          "additionalProperties": {}
+        }
+      }
+    },
+    "updateTable": {
+      "title": "Update Table",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "tableIdOrName": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tableIdOrName"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type"
+                ],
+                "additionalProperties": {}
+              }
+            },
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "primaryFieldId": {
+              "type": "string"
+            },
+            "views": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "type"
+                ],
+                "additionalProperties": {}
+              }
+            }
+          },
+          "required": [
+            "fields",
+            "id",
+            "name",
+            "primaryFieldId",
+            "views"
+          ],
+          "additionalProperties": {}
+        }
+      }
+    },
+    "createRecord": {
+      "title": "Create Record",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "tableIdOrName": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tableIdOrName",
+            "fields"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "_rawJson": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": {}
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "_rawJson",
+            "id"
+          ],
+          "additionalProperties": {}
+        }
+      }
+    },
+    "updateRecord": {
+      "title": "Update Record",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "tableIdOrName": {
+              "type": "string"
+            },
+            "recordId": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tableIdOrName",
+            "recordId",
+            "fields"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "_rawJson": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": {}
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "_rawJson",
+            "id"
+          ],
+          "additionalProperties": {}
+        }
+      }
+    },
+    "listRecords": {
+      "title": "List Records",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "tableIdOrName": {
+              "type": "string"
+            },
+            "nextToken": {
+              "type": "string"
+            },
+            "filterByFormula": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tableIdOrName"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "_rawJson": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": {}
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "_rawJson",
+                  "id"
+                ]
+              }
+            },
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "records"
+          ],
+          "additionalProperties": {}
+        }
+      }
+    }
+  },
+  "channels": {},
+  "states": {},
+  "interfaces": {}
+}

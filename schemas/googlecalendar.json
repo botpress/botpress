@@ -1,0 +1,3255 @@
+{
+  "name": "googlecalendar",
+  "version": "1.0.3",
+  "title": "Google Calendar",
+  "description": "Sync with your calendar to manage events, appointments, and schedules directly within the chatbot.",
+  "events": {
+    "eventCreated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Event ID"
+                    }
+                  },
+                  "summary": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Summary"
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Description"
+                    }
+                  },
+                  "location": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Location"
+                    }
+                  },
+                  "startDateTime": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Start Date/Time"
+                    }
+                  },
+                  "endDateTime": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "End Date/Time"
+                    }
+                  },
+                  "colorId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Color ID"
+                    }
+                  },
+                  "eventType": {
+                    "type": "string",
+                    "enum": [
+                      "default",
+                      "birthday",
+                      "focusTime",
+                      "fromGmail",
+                      "outOfOffice",
+                      "workingLocation"
+                    ],
+                    "x-zui": {
+                      "title": "Event Type"
+                    }
+                  },
+                  "guestsCanInviteOthers": {
+                    "default": true,
+                    "anyOf": [
+                      {
+                        "type": "boolean",
+                        "x-zui": {
+                          "title": "Guests Can Invite Others"
+                        }
+                      },
+                      {
+                        "not": true,
+                        "x-zui": {
+                          "def": {
+                            "typeName": "ZodUndefined"
+                          }
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Guests Can Invite Others",
+                      "def": {
+                        "typeName": "ZodOptional"
+                      }
+                    }
+                  },
+                  "guestsCanSeeOtherGuests": {
+                    "default": true,
+                    "anyOf": [
+                      {
+                        "type": "boolean",
+                        "x-zui": {
+                          "title": "Guests Can See Other Guests"
+                        }
+                      },
+                      {
+                        "not": true,
+                        "x-zui": {
+                          "def": {
+                            "typeName": "ZodUndefined"
+                          }
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Guests Can See Other Guests",
+                      "def": {
+                        "typeName": "ZodOptional"
+                      }
+                    }
+                  },
+                  "htmlLink": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "HTML Link"
+                    }
+                  },
+                  "recurrence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "RFC5545 line"
+                      }
+                    },
+                    "x-zui": {
+                      "title": "Recurrence"
+                    }
+                  },
+                  "status": {
+                    "default": "confirmed",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "confirmed",
+                          "tentative",
+                          "cancelled"
+                        ],
+                        "x-zui": {
+                          "title": "Event Status"
+                        }
+                      },
+                      {
+                        "not": true,
+                        "x-zui": {
+                          "def": {
+                            "typeName": "ZodUndefined"
+                          }
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Event Status",
+                      "def": {
+                        "typeName": "ZodOptional"
+                      }
+                    }
+                  },
+                  "visibility": {
+                    "default": "default",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "default",
+                          "public",
+                          "private",
+                          "confidential"
+                        ],
+                        "x-zui": {
+                          "title": "Event Visibility"
+                        }
+                      },
+                      {
+                        "not": true,
+                        "x-zui": {
+                          "def": {
+                            "typeName": "ZodUndefined"
+                          }
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Event Visibility",
+                      "def": {
+                        "typeName": "ZodOptional"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "summary",
+                  "startDateTime",
+                  "endDateTime",
+                  "eventType",
+                  "htmlLink"
+                ],
+                "x-zui": {
+                  "title": "Updated Event"
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "item"
+        ]
+      },
+      "name": "eventCreated"
+    },
+    "eventUpdated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Event ID"
+                    }
+                  },
+                  "summary": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Summary"
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Description"
+                    }
+                  },
+                  "location": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Location"
+                    }
+                  },
+                  "startDateTime": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Start Date/Time"
+                    }
+                  },
+                  "endDateTime": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "End Date/Time"
+                    }
+                  },
+                  "colorId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Color ID"
+                    }
+                  },
+                  "eventType": {
+                    "type": "string",
+                    "enum": [
+                      "default",
+                      "birthday",
+                      "focusTime",
+                      "fromGmail",
+                      "outOfOffice",
+                      "workingLocation"
+                    ],
+                    "x-zui": {
+                      "title": "Event Type"
+                    }
+                  },
+                  "guestsCanInviteOthers": {
+                    "default": true,
+                    "anyOf": [
+                      {
+                        "type": "boolean",
+                        "x-zui": {
+                          "title": "Guests Can Invite Others"
+                        }
+                      },
+                      {
+                        "not": true,
+                        "x-zui": {
+                          "def": {
+                            "typeName": "ZodUndefined"
+                          }
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Guests Can Invite Others",
+                      "def": {
+                        "typeName": "ZodOptional"
+                      }
+                    }
+                  },
+                  "guestsCanSeeOtherGuests": {
+                    "default": true,
+                    "anyOf": [
+                      {
+                        "type": "boolean",
+                        "x-zui": {
+                          "title": "Guests Can See Other Guests"
+                        }
+                      },
+                      {
+                        "not": true,
+                        "x-zui": {
+                          "def": {
+                            "typeName": "ZodUndefined"
+                          }
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Guests Can See Other Guests",
+                      "def": {
+                        "typeName": "ZodOptional"
+                      }
+                    }
+                  },
+                  "htmlLink": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "HTML Link"
+                    }
+                  },
+                  "recurrence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "RFC5545 line"
+                      }
+                    },
+                    "x-zui": {
+                      "title": "Recurrence"
+                    }
+                  },
+                  "status": {
+                    "default": "confirmed",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "confirmed",
+                          "tentative",
+                          "cancelled"
+                        ],
+                        "x-zui": {
+                          "title": "Event Status"
+                        }
+                      },
+                      {
+                        "not": true,
+                        "x-zui": {
+                          "def": {
+                            "typeName": "ZodUndefined"
+                          }
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Event Status",
+                      "def": {
+                        "typeName": "ZodOptional"
+                      }
+                    }
+                  },
+                  "visibility": {
+                    "default": "default",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "default",
+                          "public",
+                          "private",
+                          "confidential"
+                        ],
+                        "x-zui": {
+                          "title": "Event Visibility"
+                        }
+                      },
+                      {
+                        "not": true,
+                        "x-zui": {
+                          "def": {
+                            "typeName": "ZodUndefined"
+                          }
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Event Visibility",
+                      "def": {
+                        "typeName": "ZodOptional"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "summary",
+                  "startDateTime",
+                  "endDateTime",
+                  "eventType",
+                  "htmlLink"
+                ],
+                "x-zui": {
+                  "title": "Updated Event"
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "item"
+        ]
+      },
+      "name": "eventUpdated"
+    },
+    "eventDeleted": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "name": "eventDeleted"
+    }
+  },
+  "actions": {
+    "listEvents": {
+      "title": "List Events",
+      "description": "Retrieves events from the calendar.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "default": 100,
+              "type": "number",
+              "minimum": 1,
+              "maximum": 2500
+            },
+            "pageToken": {
+              "type": "string",
+              "x-zui": {
+                "title": "Page token"
+              }
+            },
+            "timeMin": {
+              "type": "string",
+              "x-zui": {
+                "title": "On or after"
+              }
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Event ID"
+                    }
+                  },
+                  "summary": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Summary"
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Description"
+                    }
+                  },
+                  "location": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Location"
+                    }
+                  },
+                  "startDateTime": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Start Date/Time"
+                    }
+                  },
+                  "endDateTime": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "End Date/Time"
+                    }
+                  },
+                  "colorId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Color ID"
+                    }
+                  },
+                  "eventType": {
+                    "type": "string",
+                    "enum": [
+                      "default",
+                      "birthday",
+                      "focusTime",
+                      "fromGmail",
+                      "outOfOffice",
+                      "workingLocation"
+                    ],
+                    "x-zui": {
+                      "title": "Event Type"
+                    }
+                  },
+                  "guestsCanInviteOthers": {
+                    "default": true,
+                    "anyOf": [
+                      {
+                        "type": "boolean",
+                        "x-zui": {
+                          "title": "Guests Can Invite Others"
+                        }
+                      },
+                      {
+                        "not": true,
+                        "x-zui": {
+                          "def": {
+                            "typeName": "ZodUndefined"
+                          }
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Guests Can Invite Others",
+                      "def": {
+                        "typeName": "ZodOptional"
+                      }
+                    }
+                  },
+                  "guestsCanSeeOtherGuests": {
+                    "default": true,
+                    "anyOf": [
+                      {
+                        "type": "boolean",
+                        "x-zui": {
+                          "title": "Guests Can See Other Guests"
+                        }
+                      },
+                      {
+                        "not": true,
+                        "x-zui": {
+                          "def": {
+                            "typeName": "ZodUndefined"
+                          }
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Guests Can See Other Guests",
+                      "def": {
+                        "typeName": "ZodOptional"
+                      }
+                    }
+                  },
+                  "htmlLink": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "HTML Link"
+                    }
+                  },
+                  "recurrence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "RFC5545 line"
+                      }
+                    },
+                    "x-zui": {
+                      "title": "Recurrence"
+                    }
+                  },
+                  "status": {
+                    "default": "confirmed",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "confirmed",
+                          "tentative",
+                          "cancelled"
+                        ],
+                        "x-zui": {
+                          "title": "Event Status"
+                        }
+                      },
+                      {
+                        "not": true,
+                        "x-zui": {
+                          "def": {
+                            "typeName": "ZodUndefined"
+                          }
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Event Status",
+                      "def": {
+                        "typeName": "ZodOptional"
+                      }
+                    }
+                  },
+                  "visibility": {
+                    "default": "default",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "default",
+                          "public",
+                          "private",
+                          "confidential"
+                        ],
+                        "x-zui": {
+                          "title": "Event Visibility"
+                        }
+                      },
+                      {
+                        "not": true,
+                        "x-zui": {
+                          "def": {
+                            "typeName": "ZodUndefined"
+                          }
+                        }
+                      }
+                    ],
+                    "x-zui": {
+                      "title": "Event Visibility",
+                      "def": {
+                        "typeName": "ZodOptional"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "summary",
+                  "startDateTime",
+                  "endDateTime",
+                  "eventType",
+                  "htmlLink"
+                ],
+                "x-zui": {
+                  "title": "Event"
+                }
+              },
+              "x-zui": {
+                "title": "Events"
+              }
+            },
+            "nextPageToken": {
+              "type": "string",
+              "x-zui": {
+                "title": "Next page token"
+              }
+            }
+          },
+          "required": [
+            "events"
+          ]
+        }
+      }
+    },
+    "createEvent": {
+      "title": "Create Event",
+      "description": "Creates a new event in the calendar.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "summary": {
+              "type": "string",
+              "x-zui": {
+                "title": "Summary"
+              }
+            },
+            "description": {
+              "type": "string",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "location": {
+              "type": "string",
+              "x-zui": {
+                "title": "Location"
+              }
+            },
+            "startDateTime": {
+              "type": "string",
+              "x-zui": {
+                "title": "Start Date/Time"
+              }
+            },
+            "endDateTime": {
+              "type": "string",
+              "x-zui": {
+                "title": "End Date/Time"
+              }
+            },
+            "colorId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Color ID"
+              }
+            },
+            "guestsCanInviteOthers": {
+              "default": true,
+              "anyOf": [
+                {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Guests Can Invite Others"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Guests Can Invite Others",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "guestsCanSeeOtherGuests": {
+              "default": true,
+              "anyOf": [
+                {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Guests Can See Other Guests"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Guests Can See Other Guests",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "recurrence": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {
+                  "title": "RFC5545 line"
+                }
+              },
+              "x-zui": {
+                "title": "Recurrence"
+              }
+            },
+            "status": {
+              "default": "confirmed",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "confirmed",
+                    "tentative",
+                    "cancelled"
+                  ],
+                  "x-zui": {
+                    "title": "Event Status"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Event Status",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "visibility": {
+              "default": "default",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "public",
+                    "private",
+                    "confidential"
+                  ],
+                  "x-zui": {
+                    "title": "Event Visibility"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Event Visibility",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "summary",
+            "startDateTime",
+            "endDateTime"
+          ],
+          "x-zui": {
+            "title": "New Event"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {
+                "title": "Event ID"
+              }
+            },
+            "summary": {
+              "type": "string",
+              "x-zui": {
+                "title": "Summary"
+              }
+            },
+            "description": {
+              "type": "string",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "location": {
+              "type": "string",
+              "x-zui": {
+                "title": "Location"
+              }
+            },
+            "startDateTime": {
+              "type": "string",
+              "x-zui": {
+                "title": "Start Date/Time"
+              }
+            },
+            "endDateTime": {
+              "type": "string",
+              "x-zui": {
+                "title": "End Date/Time"
+              }
+            },
+            "colorId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Color ID"
+              }
+            },
+            "eventType": {
+              "type": "string",
+              "enum": [
+                "default",
+                "birthday",
+                "focusTime",
+                "fromGmail",
+                "outOfOffice",
+                "workingLocation"
+              ],
+              "x-zui": {
+                "title": "Event Type"
+              }
+            },
+            "guestsCanInviteOthers": {
+              "default": true,
+              "anyOf": [
+                {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Guests Can Invite Others"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Guests Can Invite Others",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "guestsCanSeeOtherGuests": {
+              "default": true,
+              "anyOf": [
+                {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Guests Can See Other Guests"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Guests Can See Other Guests",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "htmlLink": {
+              "type": "string",
+              "x-zui": {
+                "title": "HTML Link"
+              }
+            },
+            "recurrence": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {
+                  "title": "RFC5545 line"
+                }
+              },
+              "x-zui": {
+                "title": "Recurrence"
+              }
+            },
+            "status": {
+              "default": "confirmed",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "confirmed",
+                    "tentative",
+                    "cancelled"
+                  ],
+                  "x-zui": {
+                    "title": "Event Status"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Event Status",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "visibility": {
+              "default": "default",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "public",
+                    "private",
+                    "confidential"
+                  ],
+                  "x-zui": {
+                    "title": "Event Visibility"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Event Visibility",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "id",
+            "summary",
+            "startDateTime",
+            "endDateTime",
+            "eventType",
+            "htmlLink"
+          ],
+          "x-zui": {
+            "title": "Created Event"
+          }
+        }
+      }
+    },
+    "updateEvent": {
+      "title": "Update Event",
+      "description": "Updates an existing event in the calendar. Omitted properties are left unchanged.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {
+                "title": "Event ID"
+              }
+            },
+            "summary": {
+              "type": "string",
+              "x-zui": {
+                "title": "Summary"
+              }
+            },
+            "description": {
+              "type": "string",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "location": {
+              "type": "string",
+              "x-zui": {
+                "title": "Location"
+              }
+            },
+            "startDateTime": {
+              "type": "string",
+              "x-zui": {
+                "title": "Start Date/Time"
+              }
+            },
+            "endDateTime": {
+              "type": "string",
+              "x-zui": {
+                "title": "End Date/Time"
+              }
+            },
+            "colorId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Color ID"
+              }
+            },
+            "guestsCanInviteOthers": {
+              "default": true,
+              "anyOf": [
+                {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Guests Can Invite Others"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Guests Can Invite Others",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "guestsCanSeeOtherGuests": {
+              "default": true,
+              "anyOf": [
+                {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Guests Can See Other Guests"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Guests Can See Other Guests",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "recurrence": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {
+                  "title": "RFC5545 line"
+                }
+              },
+              "x-zui": {
+                "title": "Recurrence"
+              }
+            },
+            "status": {
+              "default": "confirmed",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "confirmed",
+                    "tentative",
+                    "cancelled"
+                  ],
+                  "x-zui": {
+                    "title": "Event Status"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Event Status",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "visibility": {
+              "default": "default",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "public",
+                    "private",
+                    "confidential"
+                  ],
+                  "x-zui": {
+                    "title": "Event Visibility"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Event Visibility",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "id",
+            "summary",
+            "startDateTime",
+            "endDateTime"
+          ],
+          "x-zui": {
+            "title": "Created Event"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {
+                "title": "Event ID"
+              }
+            },
+            "summary": {
+              "type": "string",
+              "x-zui": {
+                "title": "Summary"
+              }
+            },
+            "description": {
+              "type": "string",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "location": {
+              "type": "string",
+              "x-zui": {
+                "title": "Location"
+              }
+            },
+            "startDateTime": {
+              "type": "string",
+              "x-zui": {
+                "title": "Start Date/Time"
+              }
+            },
+            "endDateTime": {
+              "type": "string",
+              "x-zui": {
+                "title": "End Date/Time"
+              }
+            },
+            "colorId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Color ID"
+              }
+            },
+            "eventType": {
+              "type": "string",
+              "enum": [
+                "default",
+                "birthday",
+                "focusTime",
+                "fromGmail",
+                "outOfOffice",
+                "workingLocation"
+              ],
+              "x-zui": {
+                "title": "Event Type"
+              }
+            },
+            "guestsCanInviteOthers": {
+              "default": true,
+              "anyOf": [
+                {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Guests Can Invite Others"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Guests Can Invite Others",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "guestsCanSeeOtherGuests": {
+              "default": true,
+              "anyOf": [
+                {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Guests Can See Other Guests"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Guests Can See Other Guests",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "htmlLink": {
+              "type": "string",
+              "x-zui": {
+                "title": "HTML Link"
+              }
+            },
+            "recurrence": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {
+                  "title": "RFC5545 line"
+                }
+              },
+              "x-zui": {
+                "title": "Recurrence"
+              }
+            },
+            "status": {
+              "default": "confirmed",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "confirmed",
+                    "tentative",
+                    "cancelled"
+                  ],
+                  "x-zui": {
+                    "title": "Event Status"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Event Status",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "visibility": {
+              "default": "default",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "public",
+                    "private",
+                    "confidential"
+                  ],
+                  "x-zui": {
+                    "title": "Event Visibility"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Event Visibility",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "id",
+            "summary",
+            "startDateTime",
+            "endDateTime",
+            "eventType",
+            "htmlLink"
+          ],
+          "x-zui": {
+            "title": "Updated Event"
+          }
+        }
+      }
+    },
+    "deleteEvent": {
+      "title": "Delete Event",
+      "description": "Deletes an event from the calendar.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "eventId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Event ID"
+              }
+            }
+          },
+          "required": [
+            "eventId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "eventList": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Event ID"
+                        }
+                      },
+                      "summary": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Summary"
+                        }
+                      },
+                      "description": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Description"
+                        }
+                      },
+                      "location": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Location"
+                        }
+                      },
+                      "startDateTime": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Start Date/Time"
+                        }
+                      },
+                      "endDateTime": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "End Date/Time"
+                        }
+                      },
+                      "colorId": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Color ID"
+                        }
+                      },
+                      "eventType": {
+                        "type": "string",
+                        "enum": [
+                          "default",
+                          "birthday",
+                          "focusTime",
+                          "fromGmail",
+                          "outOfOffice",
+                          "workingLocation"
+                        ],
+                        "x-zui": {
+                          "title": "Event Type"
+                        }
+                      },
+                      "guestsCanInviteOthers": {
+                        "default": true,
+                        "anyOf": [
+                          {
+                            "type": "boolean",
+                            "x-zui": {
+                              "title": "Guests Can Invite Others"
+                            }
+                          },
+                          {
+                            "not": true,
+                            "x-zui": {
+                              "def": {
+                                "typeName": "ZodUndefined"
+                              }
+                            }
+                          }
+                        ],
+                        "x-zui": {
+                          "title": "Guests Can Invite Others",
+                          "def": {
+                            "typeName": "ZodOptional"
+                          }
+                        }
+                      },
+                      "guestsCanSeeOtherGuests": {
+                        "default": true,
+                        "anyOf": [
+                          {
+                            "type": "boolean",
+                            "x-zui": {
+                              "title": "Guests Can See Other Guests"
+                            }
+                          },
+                          {
+                            "not": true,
+                            "x-zui": {
+                              "def": {
+                                "typeName": "ZodUndefined"
+                              }
+                            }
+                          }
+                        ],
+                        "x-zui": {
+                          "title": "Guests Can See Other Guests",
+                          "def": {
+                            "typeName": "ZodOptional"
+                          }
+                        }
+                      },
+                      "htmlLink": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "HTML Link"
+                        }
+                      },
+                      "recurrence": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "x-zui": {
+                            "title": "RFC5545 line"
+                          }
+                        },
+                        "x-zui": {
+                          "title": "Recurrence"
+                        }
+                      },
+                      "status": {
+                        "default": "confirmed",
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "confirmed",
+                              "tentative",
+                              "cancelled"
+                            ],
+                            "x-zui": {
+                              "title": "Event Status"
+                            }
+                          },
+                          {
+                            "not": true,
+                            "x-zui": {
+                              "def": {
+                                "typeName": "ZodUndefined"
+                              }
+                            }
+                          }
+                        ],
+                        "x-zui": {
+                          "title": "Event Status",
+                          "def": {
+                            "typeName": "ZodOptional"
+                          }
+                        }
+                      },
+                      "visibility": {
+                        "default": "default",
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "default",
+                              "public",
+                              "private",
+                              "confidential"
+                            ],
+                            "x-zui": {
+                              "title": "Event Visibility"
+                            }
+                          },
+                          {
+                            "not": true,
+                            "x-zui": {
+                              "def": {
+                                "typeName": "ZodUndefined"
+                              }
+                            }
+                          }
+                        ],
+                        "x-zui": {
+                          "title": "Event Visibility",
+                          "def": {
+                            "typeName": "ZodOptional"
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "summary",
+                      "startDateTime",
+                      "endDateTime",
+                      "eventType",
+                      "htmlLink"
+                    ],
+                    "x-zui": {
+                      "title": "Updated Event"
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                ]
+              }
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "items",
+            "meta"
+          ]
+        }
+      },
+      "name": "eventList"
+    },
+    "eventCreate": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Event ID"
+                  }
+                },
+                "summary": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Summary"
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Description"
+                  }
+                },
+                "location": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Location"
+                  }
+                },
+                "startDateTime": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Start Date/Time"
+                  }
+                },
+                "endDateTime": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "End Date/Time"
+                  }
+                },
+                "colorId": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Color ID"
+                  }
+                },
+                "eventType": {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "birthday",
+                    "focusTime",
+                    "fromGmail",
+                    "outOfOffice",
+                    "workingLocation"
+                  ],
+                  "x-zui": {
+                    "title": "Event Type"
+                  }
+                },
+                "guestsCanInviteOthers": {
+                  "default": true,
+                  "anyOf": [
+                    {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Guests Can Invite Others"
+                      }
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "title": "Guests Can Invite Others",
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                },
+                "guestsCanSeeOtherGuests": {
+                  "default": true,
+                  "anyOf": [
+                    {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Guests Can See Other Guests"
+                      }
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "title": "Guests Can See Other Guests",
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                },
+                "htmlLink": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "HTML Link"
+                  }
+                },
+                "recurrence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "RFC5545 line"
+                    }
+                  },
+                  "x-zui": {
+                    "title": "Recurrence"
+                  }
+                },
+                "status": {
+                  "default": "confirmed",
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "confirmed",
+                        "tentative",
+                        "cancelled"
+                      ],
+                      "x-zui": {
+                        "title": "Event Status"
+                      }
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "title": "Event Status",
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                },
+                "visibility": {
+                  "default": "default",
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "default",
+                        "public",
+                        "private",
+                        "confidential"
+                      ],
+                      "x-zui": {
+                        "title": "Event Visibility"
+                      }
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "title": "Event Visibility",
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "summary",
+                "startDateTime",
+                "endDateTime",
+                "eventType",
+                "htmlLink"
+              ],
+              "x-zui": {
+                "title": "Updated Event"
+              }
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Event ID"
+                      }
+                    },
+                    "summary": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Summary"
+                      }
+                    },
+                    "description": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Description"
+                      }
+                    },
+                    "location": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Location"
+                      }
+                    },
+                    "startDateTime": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Start Date/Time"
+                      }
+                    },
+                    "endDateTime": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "End Date/Time"
+                      }
+                    },
+                    "colorId": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Color ID"
+                      }
+                    },
+                    "eventType": {
+                      "type": "string",
+                      "enum": [
+                        "default",
+                        "birthday",
+                        "focusTime",
+                        "fromGmail",
+                        "outOfOffice",
+                        "workingLocation"
+                      ],
+                      "x-zui": {
+                        "title": "Event Type"
+                      }
+                    },
+                    "guestsCanInviteOthers": {
+                      "default": true,
+                      "anyOf": [
+                        {
+                          "type": "boolean",
+                          "x-zui": {
+                            "title": "Guests Can Invite Others"
+                          }
+                        },
+                        {
+                          "not": true,
+                          "x-zui": {
+                            "def": {
+                              "typeName": "ZodUndefined"
+                            }
+                          }
+                        }
+                      ],
+                      "x-zui": {
+                        "title": "Guests Can Invite Others",
+                        "def": {
+                          "typeName": "ZodOptional"
+                        }
+                      }
+                    },
+                    "guestsCanSeeOtherGuests": {
+                      "default": true,
+                      "anyOf": [
+                        {
+                          "type": "boolean",
+                          "x-zui": {
+                            "title": "Guests Can See Other Guests"
+                          }
+                        },
+                        {
+                          "not": true,
+                          "x-zui": {
+                            "def": {
+                              "typeName": "ZodUndefined"
+                            }
+                          }
+                        }
+                      ],
+                      "x-zui": {
+                        "title": "Guests Can See Other Guests",
+                        "def": {
+                          "typeName": "ZodOptional"
+                        }
+                      }
+                    },
+                    "htmlLink": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "HTML Link"
+                      }
+                    },
+                    "recurrence": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "RFC5545 line"
+                        }
+                      },
+                      "x-zui": {
+                        "title": "Recurrence"
+                      }
+                    },
+                    "status": {
+                      "default": "confirmed",
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "confirmed",
+                            "tentative",
+                            "cancelled"
+                          ],
+                          "x-zui": {
+                            "title": "Event Status"
+                          }
+                        },
+                        {
+                          "not": true,
+                          "x-zui": {
+                            "def": {
+                              "typeName": "ZodUndefined"
+                            }
+                          }
+                        }
+                      ],
+                      "x-zui": {
+                        "title": "Event Status",
+                        "def": {
+                          "typeName": "ZodOptional"
+                        }
+                      }
+                    },
+                    "visibility": {
+                      "default": "default",
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "default",
+                            "public",
+                            "private",
+                            "confidential"
+                          ],
+                          "x-zui": {
+                            "title": "Event Visibility"
+                          }
+                        },
+                        {
+                          "not": true,
+                          "x-zui": {
+                            "def": {
+                              "typeName": "ZodUndefined"
+                            }
+                          }
+                        }
+                      ],
+                      "x-zui": {
+                        "title": "Event Visibility",
+                        "def": {
+                          "typeName": "ZodOptional"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "summary",
+                    "startDateTime",
+                    "endDateTime",
+                    "eventType",
+                    "htmlLink"
+                  ],
+                  "x-zui": {
+                    "title": "Updated Event"
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "name": "eventCreate"
+    },
+    "eventRead": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Event ID"
+                      }
+                    },
+                    "summary": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Summary"
+                      }
+                    },
+                    "description": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Description"
+                      }
+                    },
+                    "location": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Location"
+                      }
+                    },
+                    "startDateTime": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Start Date/Time"
+                      }
+                    },
+                    "endDateTime": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "End Date/Time"
+                      }
+                    },
+                    "colorId": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Color ID"
+                      }
+                    },
+                    "eventType": {
+                      "type": "string",
+                      "enum": [
+                        "default",
+                        "birthday",
+                        "focusTime",
+                        "fromGmail",
+                        "outOfOffice",
+                        "workingLocation"
+                      ],
+                      "x-zui": {
+                        "title": "Event Type"
+                      }
+                    },
+                    "guestsCanInviteOthers": {
+                      "default": true,
+                      "anyOf": [
+                        {
+                          "type": "boolean",
+                          "x-zui": {
+                            "title": "Guests Can Invite Others"
+                          }
+                        },
+                        {
+                          "not": true,
+                          "x-zui": {
+                            "def": {
+                              "typeName": "ZodUndefined"
+                            }
+                          }
+                        }
+                      ],
+                      "x-zui": {
+                        "title": "Guests Can Invite Others",
+                        "def": {
+                          "typeName": "ZodOptional"
+                        }
+                      }
+                    },
+                    "guestsCanSeeOtherGuests": {
+                      "default": true,
+                      "anyOf": [
+                        {
+                          "type": "boolean",
+                          "x-zui": {
+                            "title": "Guests Can See Other Guests"
+                          }
+                        },
+                        {
+                          "not": true,
+                          "x-zui": {
+                            "def": {
+                              "typeName": "ZodUndefined"
+                            }
+                          }
+                        }
+                      ],
+                      "x-zui": {
+                        "title": "Guests Can See Other Guests",
+                        "def": {
+                          "typeName": "ZodOptional"
+                        }
+                      }
+                    },
+                    "htmlLink": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "HTML Link"
+                      }
+                    },
+                    "recurrence": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "RFC5545 line"
+                        }
+                      },
+                      "x-zui": {
+                        "title": "Recurrence"
+                      }
+                    },
+                    "status": {
+                      "default": "confirmed",
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "confirmed",
+                            "tentative",
+                            "cancelled"
+                          ],
+                          "x-zui": {
+                            "title": "Event Status"
+                          }
+                        },
+                        {
+                          "not": true,
+                          "x-zui": {
+                            "def": {
+                              "typeName": "ZodUndefined"
+                            }
+                          }
+                        }
+                      ],
+                      "x-zui": {
+                        "title": "Event Status",
+                        "def": {
+                          "typeName": "ZodOptional"
+                        }
+                      }
+                    },
+                    "visibility": {
+                      "default": "default",
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "default",
+                            "public",
+                            "private",
+                            "confidential"
+                          ],
+                          "x-zui": {
+                            "title": "Event Visibility"
+                          }
+                        },
+                        {
+                          "not": true,
+                          "x-zui": {
+                            "def": {
+                              "typeName": "ZodUndefined"
+                            }
+                          }
+                        }
+                      ],
+                      "x-zui": {
+                        "title": "Event Visibility",
+                        "def": {
+                          "typeName": "ZodOptional"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "summary",
+                    "startDateTime",
+                    "endDateTime",
+                    "eventType",
+                    "htmlLink"
+                  ],
+                  "x-zui": {
+                    "title": "Updated Event"
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "name": "eventRead"
+    },
+    "eventUpdate": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "item": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Event ID"
+                  }
+                },
+                "summary": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Summary"
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Description"
+                  }
+                },
+                "location": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Location"
+                  }
+                },
+                "startDateTime": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Start Date/Time"
+                  }
+                },
+                "endDateTime": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "End Date/Time"
+                  }
+                },
+                "colorId": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Color ID"
+                  }
+                },
+                "eventType": {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "birthday",
+                    "focusTime",
+                    "fromGmail",
+                    "outOfOffice",
+                    "workingLocation"
+                  ],
+                  "x-zui": {
+                    "title": "Event Type"
+                  }
+                },
+                "guestsCanInviteOthers": {
+                  "default": true,
+                  "anyOf": [
+                    {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Guests Can Invite Others"
+                      }
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "title": "Guests Can Invite Others",
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                },
+                "guestsCanSeeOtherGuests": {
+                  "default": true,
+                  "anyOf": [
+                    {
+                      "type": "boolean",
+                      "x-zui": {
+                        "title": "Guests Can See Other Guests"
+                      }
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "title": "Guests Can See Other Guests",
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                },
+                "htmlLink": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "HTML Link"
+                  }
+                },
+                "recurrence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "RFC5545 line"
+                    }
+                  },
+                  "x-zui": {
+                    "title": "Recurrence"
+                  }
+                },
+                "status": {
+                  "default": "confirmed",
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "confirmed",
+                        "tentative",
+                        "cancelled"
+                      ],
+                      "x-zui": {
+                        "title": "Event Status"
+                      }
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "title": "Event Status",
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                },
+                "visibility": {
+                  "default": "default",
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "default",
+                        "public",
+                        "private",
+                        "confidential"
+                      ],
+                      "x-zui": {
+                        "title": "Event Visibility"
+                      }
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "title": "Event Visibility",
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "summary",
+                "startDateTime",
+                "endDateTime",
+                "eventType",
+                "htmlLink"
+              ],
+              "x-zui": {
+                "title": "Updated Event"
+              }
+            }
+          },
+          "required": [
+            "id",
+            "item"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Event ID"
+                      }
+                    },
+                    "summary": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Summary"
+                      }
+                    },
+                    "description": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Description"
+                      }
+                    },
+                    "location": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Location"
+                      }
+                    },
+                    "startDateTime": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Start Date/Time"
+                      }
+                    },
+                    "endDateTime": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "End Date/Time"
+                      }
+                    },
+                    "colorId": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Color ID"
+                      }
+                    },
+                    "eventType": {
+                      "type": "string",
+                      "enum": [
+                        "default",
+                        "birthday",
+                        "focusTime",
+                        "fromGmail",
+                        "outOfOffice",
+                        "workingLocation"
+                      ],
+                      "x-zui": {
+                        "title": "Event Type"
+                      }
+                    },
+                    "guestsCanInviteOthers": {
+                      "default": true,
+                      "anyOf": [
+                        {
+                          "type": "boolean",
+                          "x-zui": {
+                            "title": "Guests Can Invite Others"
+                          }
+                        },
+                        {
+                          "not": true,
+                          "x-zui": {
+                            "def": {
+                              "typeName": "ZodUndefined"
+                            }
+                          }
+                        }
+                      ],
+                      "x-zui": {
+                        "title": "Guests Can Invite Others",
+                        "def": {
+                          "typeName": "ZodOptional"
+                        }
+                      }
+                    },
+                    "guestsCanSeeOtherGuests": {
+                      "default": true,
+                      "anyOf": [
+                        {
+                          "type": "boolean",
+                          "x-zui": {
+                            "title": "Guests Can See Other Guests"
+                          }
+                        },
+                        {
+                          "not": true,
+                          "x-zui": {
+                            "def": {
+                              "typeName": "ZodUndefined"
+                            }
+                          }
+                        }
+                      ],
+                      "x-zui": {
+                        "title": "Guests Can See Other Guests",
+                        "def": {
+                          "typeName": "ZodOptional"
+                        }
+                      }
+                    },
+                    "htmlLink": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "HTML Link"
+                      }
+                    },
+                    "recurrence": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "RFC5545 line"
+                        }
+                      },
+                      "x-zui": {
+                        "title": "Recurrence"
+                      }
+                    },
+                    "status": {
+                      "default": "confirmed",
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "confirmed",
+                            "tentative",
+                            "cancelled"
+                          ],
+                          "x-zui": {
+                            "title": "Event Status"
+                          }
+                        },
+                        {
+                          "not": true,
+                          "x-zui": {
+                            "def": {
+                              "typeName": "ZodUndefined"
+                            }
+                          }
+                        }
+                      ],
+                      "x-zui": {
+                        "title": "Event Status",
+                        "def": {
+                          "typeName": "ZodOptional"
+                        }
+                      }
+                    },
+                    "visibility": {
+                      "default": "default",
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "default",
+                            "public",
+                            "private",
+                            "confidential"
+                          ],
+                          "x-zui": {
+                            "title": "Event Visibility"
+                          }
+                        },
+                        {
+                          "not": true,
+                          "x-zui": {
+                            "def": {
+                              "typeName": "ZodUndefined"
+                            }
+                          }
+                        }
+                      ],
+                      "x-zui": {
+                        "title": "Event Visibility",
+                        "def": {
+                          "typeName": "ZodOptional"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "summary",
+                    "startDateTime",
+                    "endDateTime",
+                    "eventType",
+                    "htmlLink"
+                  ],
+                  "x-zui": {
+                    "title": "Updated Event"
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "name": "eventUpdate"
+    },
+    "eventDelete": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "name": "eventDelete"
+    }
+  },
+  "channels": {},
+  "states": {
+    "oAuthConfig": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "x-zui": {
+              "title": "Refresh token"
+            }
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      }
+    }
+  },
+  "entities": {
+    "event": {
+      "title": "Google Calendar Event",
+      "description": "An event in a Google Calendar",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "Event ID"
+            }
+          },
+          "summary": {
+            "type": "string",
+            "x-zui": {
+              "title": "Summary"
+            }
+          },
+          "description": {
+            "type": "string",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "location": {
+            "type": "string",
+            "x-zui": {
+              "title": "Location"
+            }
+          },
+          "startDateTime": {
+            "type": "string",
+            "x-zui": {
+              "title": "Start Date/Time"
+            }
+          },
+          "endDateTime": {
+            "type": "string",
+            "x-zui": {
+              "title": "End Date/Time"
+            }
+          },
+          "colorId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Color ID"
+            }
+          },
+          "eventType": {
+            "type": "string",
+            "enum": [
+              "default",
+              "birthday",
+              "focusTime",
+              "fromGmail",
+              "outOfOffice",
+              "workingLocation"
+            ],
+            "x-zui": {
+              "title": "Event Type"
+            }
+          },
+          "guestsCanInviteOthers": {
+            "default": true,
+            "anyOf": [
+              {
+                "type": "boolean",
+                "x-zui": {
+                  "title": "Guests Can Invite Others"
+                }
+              },
+              {
+                "not": true,
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodUndefined"
+                  }
+                }
+              }
+            ],
+            "x-zui": {
+              "title": "Guests Can Invite Others",
+              "def": {
+                "typeName": "ZodOptional"
+              }
+            }
+          },
+          "guestsCanSeeOtherGuests": {
+            "default": true,
+            "anyOf": [
+              {
+                "type": "boolean",
+                "x-zui": {
+                  "title": "Guests Can See Other Guests"
+                }
+              },
+              {
+                "not": true,
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodUndefined"
+                  }
+                }
+              }
+            ],
+            "x-zui": {
+              "title": "Guests Can See Other Guests",
+              "def": {
+                "typeName": "ZodOptional"
+              }
+            }
+          },
+          "htmlLink": {
+            "type": "string",
+            "x-zui": {
+              "title": "HTML Link"
+            }
+          },
+          "recurrence": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-zui": {
+                "title": "RFC5545 line"
+              }
+            },
+            "x-zui": {
+              "title": "Recurrence"
+            }
+          },
+          "status": {
+            "default": "confirmed",
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "confirmed",
+                  "tentative",
+                  "cancelled"
+                ],
+                "x-zui": {
+                  "title": "Event Status"
+                }
+              },
+              {
+                "not": true,
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodUndefined"
+                  }
+                }
+              }
+            ],
+            "x-zui": {
+              "title": "Event Status",
+              "def": {
+                "typeName": "ZodOptional"
+              }
+            }
+          },
+          "visibility": {
+            "default": "default",
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "default",
+                  "public",
+                  "private",
+                  "confidential"
+                ],
+                "x-zui": {
+                  "title": "Event Visibility"
+                }
+              },
+              {
+                "not": true,
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodUndefined"
+                  }
+                }
+              }
+            ],
+            "x-zui": {
+              "title": "Event Visibility",
+              "def": {
+                "typeName": "ZodOptional"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "summary",
+          "startDateTime",
+          "endDateTime",
+          "eventType",
+          "htmlLink"
+        ],
+        "x-zui": {
+          "title": "Updated Event"
+        }
+      }
+    }
+  },
+  "interfaces": {
+    "listable<event>": {
+      "id": "",
+      "name": "listable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "event"
+        }
+      },
+      "actions": {
+        "list": {
+          "name": "eventList"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "creatable<event>": {
+      "id": "",
+      "name": "creatable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "event"
+        }
+      },
+      "actions": {
+        "create": {
+          "name": "eventCreate"
+        }
+      },
+      "events": {
+        "created": {
+          "name": "eventCreated"
+        }
+      },
+      "channels": {}
+    },
+    "readable<event>": {
+      "id": "",
+      "name": "readable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "event"
+        }
+      },
+      "actions": {
+        "read": {
+          "name": "eventRead"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "updatable<event>": {
+      "id": "",
+      "name": "updatable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "event"
+        }
+      },
+      "actions": {
+        "update": {
+          "name": "eventUpdate"
+        }
+      },
+      "events": {
+        "updated": {
+          "name": "eventUpdated"
+        }
+      },
+      "channels": {}
+    },
+    "deletable<event>": {
+      "id": "",
+      "name": "deletable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "event"
+        }
+      },
+      "actions": {
+        "delete": {
+          "name": "eventDelete"
+        }
+      },
+      "events": {
+        "deleted": {
+          "name": "eventDeleted"
+        }
+      },
+      "channels": {}
+    }
+  }
+}

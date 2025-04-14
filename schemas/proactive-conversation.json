@@ -1,0 +1,56 @@
+{
+  "name": "proactiveConversation",
+  "version": "0.0.2",
+  "entities": {
+    "conversation": {
+      "title": "Conversation",
+      "description": "The conversation object fields",
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "x-zui": {
+          "title": "Conversation"
+        }
+      }
+    }
+  },
+  "events": {},
+  "actions": {
+    "getOrCreateConversation": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "conversation": {
+              "$ref": "conversation",
+              "x-zui": {
+                "title": "Conversation"
+              }
+            }
+          },
+          "required": [
+            "conversation"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "conversationId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Conversation ID"
+              }
+            }
+          },
+          "required": [
+            "conversationId"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {}
+}

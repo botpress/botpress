@@ -1,0 +1,55 @@
+{
+  "name": "dalle",
+  "version": "0.3.4",
+  "title": "DALL-E (Deprecated)",
+  "description": "Integrate DALL-E to generate images directly within your chatbot conversations.",
+  "actions": {
+    "generateImage": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "string"
+            },
+            "size": {
+              "type": "string"
+            },
+            "quality": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "user": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "prompt"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "createdDate": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url",
+            "createdDate"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {},
+  "interfaces": {}
+}

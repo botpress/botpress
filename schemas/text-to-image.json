@@ -1,0 +1,153 @@
+{
+  "name": "textToImage",
+  "version": "2.1.0",
+  "entities": {
+    "imageModelRef": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    "imageGenerationParams": {
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  "events": {},
+  "actions": {
+    "generateImage": {
+      "billable": true,
+      "cacheable": true,
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "$ref": "imageModelRef"
+            },
+            "prompt": {
+              "type": "string"
+            },
+            "size": {
+              "type": "string"
+            },
+            "expiration": {
+              "type": "integer",
+              "minimum": 30,
+              "maximum": 90
+            },
+            "params": {
+              "$ref": "imageGenerationParams"
+            }
+          },
+          "required": [
+            "prompt"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "type": "string"
+            },
+            "imageUrl": {
+              "type": "string"
+            },
+            "cost": {
+              "type": "number"
+            },
+            "botpress": {
+              "type": "object",
+              "properties": {
+                "cost": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "cost"
+              ]
+            }
+          },
+          "required": [
+            "model",
+            "imageUrl",
+            "cost",
+            "botpress"
+          ]
+        }
+      }
+    },
+    "listImageModels": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "models": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "costPerImage": {
+                        "type": "number"
+                      },
+                      "sizes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "defaultSize": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "costPerImage",
+                      "sizes",
+                      "defaultSize"
+                    ]
+                  },
+                  {
+                    "$ref": "imageModelRef"
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "models"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {}
+}

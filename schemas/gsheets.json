@@ -1,0 +1,981 @@
+{
+  "name": "gsheets",
+  "version": "1.1.2",
+  "title": "Google Sheets",
+  "description": "Access, update, and append Google Sheets data.",
+  "user": {},
+  "events": {},
+  "actions": {
+    "addSheet": {
+      "title": "Add Sheet",
+      "description": "Adds a new sheet to the spreadsheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-zui": {
+                "title": "Title"
+              }
+            }
+          },
+          "required": [
+            "title"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "spreadsheetId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Spreadsheet ID"
+              }
+            },
+            "newSheet": {
+              "type": "object",
+              "properties": {
+                "sheetId": {
+                  "type": "number",
+                  "x-zui": {
+                    "title": "Sheet ID"
+                  }
+                },
+                "title": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Title"
+                  }
+                },
+                "index": {
+                  "type": "number",
+                  "x-zui": {
+                    "title": "Index"
+                  }
+                },
+                "isHidden": {
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Is Hidden"
+                  }
+                }
+              },
+              "required": [
+                "sheetId",
+                "title",
+                "index",
+                "isHidden"
+              ],
+              "x-zui": {
+                "title": "New Sheet"
+              }
+            }
+          },
+          "required": [
+            "spreadsheetId",
+            "newSheet"
+          ]
+        }
+      }
+    },
+    "appendValues": {
+      "title": "Append Values",
+      "description": "Appends values to the spreadsheet. The input range is used to search for existing data and find a \"table\" within that range. Values will be appended to the next row of the table, starting with the first column of the table.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "range": {
+              "type": "string",
+              "x-zui": {
+                "title": "Range",
+                "placeholder": "'Sheet name'!A1:F8"
+              }
+            },
+            "majorDimension": {
+              "default": "ROWS",
+              "type": "string",
+              "enum": [
+                "ROWS",
+                "COLUMNS"
+              ],
+              "x-zui": {
+                "title": "Major Dimension"
+              }
+            },
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Stringified value"
+                  }
+                },
+                "x-zui": {
+                  "title": "Row or column"
+                }
+              },
+              "x-zui": {
+                "title": "Values"
+              }
+            }
+          },
+          "required": [
+            "range",
+            "values"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "spreadsheetId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Spreadsheet ID"
+              }
+            }
+          },
+          "required": [
+            "spreadsheetId"
+          ]
+        }
+      }
+    },
+    "clearValues": {
+      "title": "Clear Values",
+      "description": "Clears values from a spreadsheet. Only values are cleared; all other properties of the cell (such as formatting, data validation, etc..) are kept.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "range": {
+              "type": "string",
+              "x-zui": {
+                "title": "Range",
+                "placeholder": "'Sheet name'!A1:F8"
+              }
+            }
+          },
+          "required": [
+            "range"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "spreadsheetId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Spreadsheet ID"
+              }
+            },
+            "clearedRange": {
+              "type": "string",
+              "x-zui": {
+                "title": "Cleared Range"
+              }
+            }
+          },
+          "required": [
+            "spreadsheetId",
+            "clearedRange"
+          ]
+        }
+      }
+    },
+    "createNamedRangeInSheet": {
+      "title": "Create Named Range in Sheet",
+      "description": "Creates a named range in a sheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "sheetId": {
+              "type": "number",
+              "x-zui": {
+                "title": "Sheet ID"
+              }
+            },
+            "rangeName": {
+              "type": "string",
+              "x-zui": {
+                "title": "Name"
+              }
+            },
+            "rangeA1": {
+              "type": "string",
+              "x-zui": {
+                "title": "Range",
+                "placeholder": "'Sheet name'!A1:F8"
+              }
+            }
+          },
+          "required": [
+            "sheetId",
+            "rangeName",
+            "rangeA1"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "namedRangeId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Named Range ID"
+              }
+            }
+          },
+          "required": [
+            "namedRangeId"
+          ]
+        }
+      }
+    },
+    "deleteSheet": {
+      "title": "Delete Sheet",
+      "description": "Deletes a sheet from the spreadsheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "sheetId": {
+              "type": "number",
+              "x-zui": {
+                "title": "Sheet ID"
+              }
+            }
+          },
+          "required": [
+            "sheetId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "getAllSheetsInSpreadsheet": {
+      "title": "Get All Sheets in Spreadsheet",
+      "description": "Returns all sheets in the spreadsheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "sheets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "sheetId": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Sheet ID"
+                    }
+                  },
+                  "title": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Title"
+                    }
+                  },
+                  "index": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Index"
+                    }
+                  },
+                  "isHidden": {
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Is Hidden"
+                    }
+                  },
+                  "hasProtectedRanges": {
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Has Protected Ranges"
+                    }
+                  },
+                  "isFullyProtected": {
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Is Protected"
+                    }
+                  }
+                },
+                "required": [
+                  "sheetId",
+                  "title",
+                  "index",
+                  "isHidden",
+                  "hasProtectedRanges",
+                  "isFullyProtected"
+                ]
+              },
+              "x-zui": {
+                "title": "Sheets"
+              }
+            }
+          },
+          "required": [
+            "sheets"
+          ]
+        }
+      }
+    },
+    "getInfoSpreadsheet": {
+      "title": "Get Info of a SpreadSheet",
+      "description": "Returns the properties and metadata of the specified spreadsheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {
+                  "title": "Field name"
+                }
+              },
+              "x-zui": {
+                "title": "Fields"
+              }
+            }
+          },
+          "required": [
+            "fields"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "spreadsheetId": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Spreadsheet ID"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "title": "Spreadsheet ID",
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "spreadsheetUrl": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Spreadsheet URL"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "title": "Spreadsheet URL",
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "dataSources": {
+              "type": "array",
+              "items": {},
+              "x-zui": {
+                "title": "Data Sources"
+              }
+            },
+            "dataSourceSchedules": {
+              "type": "array",
+              "items": {},
+              "x-zui": {
+                "title": "Data Source Schedules"
+              }
+            },
+            "developerMetadata": {
+              "type": "array",
+              "items": {},
+              "x-zui": {
+                "title": "Developer Metadata"
+              }
+            },
+            "namedRanges": {
+              "type": "array",
+              "items": {},
+              "x-zui": {
+                "title": "Named Ranges"
+              }
+            },
+            "properties": {
+              "x-zui": {
+                "title": "Properties"
+              }
+            },
+            "sheets": {
+              "type": "array",
+              "items": {},
+              "x-zui": {
+                "title": "Sheets"
+              }
+            }
+          },
+          "required": []
+        }
+      }
+    },
+    "getNamedRanges": {
+      "title": "Get Named Ranges",
+      "description": "Returns all named ranges in the spreadsheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "namedRanges": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "namedRangeId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Named Range ID"
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Name"
+                    }
+                  },
+                  "range": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Range",
+                      "placeholder": "'Sheet name'!A1:F8"
+                    }
+                  },
+                  "sheetId": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Sheet ID"
+                    }
+                  }
+                },
+                "required": [
+                  "namedRangeId",
+                  "name",
+                  "range",
+                  "sheetId"
+                ]
+              },
+              "x-zui": {
+                "title": "Named Ranges"
+              }
+            }
+          },
+          "required": [
+            "namedRanges"
+          ]
+        }
+      }
+    },
+    "getProtectedRanges": {
+      "title": "Get Protected Ranges",
+      "description": "Returns all protected ranges in the spreadsheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "protectedRanges": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "protectedRangeId": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Protected Range ID"
+                    }
+                  },
+                  "namedRangeId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Named Range ID"
+                    }
+                  },
+                  "range": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Range",
+                      "placeholder": "'Sheet name'!A1:F8"
+                    }
+                  },
+                  "sheetId": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Sheet ID"
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Description"
+                    }
+                  },
+                  "warningOnly": {
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Warning Only"
+                    }
+                  },
+                  "requestingUserCanEdit": {
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Requesting User Can Edit"
+                    }
+                  }
+                },
+                "required": [
+                  "protectedRangeId",
+                  "namedRangeId",
+                  "range",
+                  "sheetId",
+                  "description",
+                  "warningOnly",
+                  "requestingUserCanEdit"
+                ]
+              },
+              "x-zui": {
+                "title": "Protected Ranges"
+              }
+            }
+          },
+          "required": [
+            "protectedRanges"
+          ]
+        }
+      }
+    },
+    "getValues": {
+      "title": "Get Values",
+      "description": "Returns the values of a range in the spreadsheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "range": {
+              "type": "string",
+              "x-zui": {
+                "title": "Range",
+                "placeholder": "'Sheet name'!A1:F8"
+              }
+            },
+            "majorDimension": {
+              "default": "ROWS",
+              "type": "string",
+              "enum": [
+                "ROWS",
+                "COLUMNS"
+              ],
+              "x-zui": {
+                "title": "Major Dimension"
+              }
+            }
+          },
+          "required": [
+            "range"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "range": {
+              "type": "string",
+              "x-zui": {
+                "title": "Range",
+                "placeholder": "'Sheet name'!A1:F8"
+              }
+            },
+            "majorDimension": {
+              "default": "ROWS",
+              "type": "string",
+              "enum": [
+                "ROWS",
+                "COLUMNS"
+              ],
+              "x-zui": {
+                "title": "Major Dimension"
+              }
+            },
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Stringified value"
+                  }
+                },
+                "x-zui": {
+                  "title": "Row or column"
+                }
+              },
+              "x-zui": {
+                "title": "Values"
+              }
+            }
+          },
+          "required": [
+            "range",
+            "values"
+          ]
+        }
+      }
+    },
+    "moveSheetHorizontally": {
+      "title": "Move Sheet Horizontally",
+      "description": "Moves a sheet to a new index in the spreadsheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "sheetId": {
+              "type": "number",
+              "x-zui": {
+                "title": "Sheet ID"
+              }
+            },
+            "newIndex": {
+              "type": "number",
+              "x-zui": {
+                "title": "New Index"
+              }
+            }
+          },
+          "required": [
+            "sheetId",
+            "newIndex"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "protectNamedRange": {
+      "title": "Protect Named Range",
+      "description": "Creates a protected range from a named range, preventing modification.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "namedRangeId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Named Range ID"
+              }
+            },
+            "warningOnly": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Warning Only"
+              }
+            },
+            "requestingUserCanEdit": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Requesting User Can Edit"
+              }
+            }
+          },
+          "required": [
+            "namedRangeId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "protectedRangeId": {
+              "type": "number",
+              "x-zui": {
+                "title": "Protected Range ID"
+              }
+            }
+          },
+          "required": [
+            "protectedRangeId"
+          ]
+        }
+      }
+    },
+    "renameSheet": {
+      "title": "Rename Sheet",
+      "description": "Renames a sheet in the spreadsheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "sheetId": {
+              "type": "number",
+              "x-zui": {
+                "title": "Sheet ID"
+              }
+            },
+            "newTitle": {
+              "type": "string",
+              "x-zui": {
+                "title": "New Title"
+              }
+            }
+          },
+          "required": [
+            "sheetId",
+            "newTitle"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "setSheetVisibility": {
+      "title": "Set Sheet Visibility",
+      "description": "Sets the visibility of a sheet in the spreadsheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "sheetId": {
+              "type": "number",
+              "x-zui": {
+                "title": "Sheet ID"
+              }
+            },
+            "isHidden": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Is Hidden"
+              }
+            }
+          },
+          "required": [
+            "sheetId",
+            "isHidden"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "unprotectRange": {
+      "title": "Unprotect Range",
+      "description": "Removes protection from a protected range in the spreadsheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "protectedRangeId": {
+              "type": "number",
+              "x-zui": {
+                "title": "Protected Range ID"
+              }
+            }
+          },
+          "required": [
+            "protectedRangeId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "updateValues": {
+      "title": "Update Values",
+      "description": "Sets values in a range in the spreadsheet.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "range": {
+              "type": "string",
+              "x-zui": {
+                "title": "Range",
+                "placeholder": "'Sheet name'!A1:F8"
+              }
+            },
+            "majorDimension": {
+              "default": "ROWS",
+              "type": "string",
+              "enum": [
+                "ROWS",
+                "COLUMNS"
+              ],
+              "x-zui": {
+                "title": "Major Dimension"
+              }
+            },
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Stringified value"
+                  }
+                },
+                "x-zui": {
+                  "title": "Row or column"
+                }
+              },
+              "x-zui": {
+                "title": "Values"
+              }
+            }
+          },
+          "required": [
+            "range",
+            "values"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "spreadsheetId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Spreadsheet ID"
+              }
+            },
+            "updatedRange": {
+              "type": "string",
+              "x-zui": {
+                "title": "Updated Range"
+              }
+            },
+            "updatedRows": {
+              "type": "number",
+              "x-zui": {
+                "title": "Updated Rows"
+              }
+            },
+            "updatedColumns": {
+              "type": "number",
+              "x-zui": {
+                "title": "Updated Columns"
+              }
+            },
+            "updatedCells": {
+              "type": "number",
+              "x-zui": {
+                "title": "Updated Cells"
+              }
+            }
+          },
+          "required": [
+            "spreadsheetId",
+            "updatedRange",
+            "updatedRows",
+            "updatedColumns",
+            "updatedCells"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {},
+  "states": {
+    "oAuthConfig": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "x-zui": {
+              "title": "Refresh token"
+            }
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      }
+    }
+  },
+  "interfaces": {}
+}

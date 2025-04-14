@@ -1,0 +1,174 @@
+{
+  "name": "synchronizer",
+  "version": "0.0.1",
+  "user": {
+    "tags": {}
+  },
+  "conversation": {
+    "tags": {}
+  },
+  "configuration": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "tableName": {
+          "type": "string",
+          "x-zui": {
+            "title": "Table Name"
+          }
+        }
+      },
+      "required": [
+        "tableName"
+      ]
+    }
+  },
+  "events": {
+    "listItems": {
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    "rowInserted": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        },
+        "required": [
+          "row"
+        ]
+      }
+    },
+    "rowUpdated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        },
+        "required": [
+          "row"
+        ]
+      }
+    },
+    "rowDeleted": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        },
+        "required": [
+          "row"
+        ]
+      }
+    }
+  },
+  "actions": {
+    "synchronize": {
+      "title": "Synchronize",
+      "description": "Manually synchronize a page of items without waiting for the cron job",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "itemsLeft": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "itemsLeft"
+          ]
+        }
+      }
+    },
+    "clear": {
+      "title": "Clear",
+      "description": "Clear the table",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    }
+  },
+  "states": {
+    "table": {
+      "type": "bot",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "tableCreated": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Table Created"
+            }
+          }
+        },
+        "required": []
+      }
+    },
+    "job": {
+      "type": "bot",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "nextToken": {
+            "type": "string",
+            "x-zui": {
+              "title": "Next Token"
+            }
+          }
+        },
+        "required": []
+      }
+    }
+  }
+}

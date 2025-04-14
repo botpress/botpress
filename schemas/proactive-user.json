@@ -1,0 +1,76 @@
+{
+  "name": "proactiveUser",
+  "version": "0.0.2",
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "A user of the system",
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "x-zui": {
+          "title": "User"
+        }
+      }
+    }
+  },
+  "events": {},
+  "actions": {
+    "getOrCreateUser": {
+      "title": "Get or Create a User",
+      "description": "Proactively create a user from a bot",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-zui": {
+                "title": "Name"
+              }
+            },
+            "pictureUrl": {
+              "type": "string",
+              "x-zui": {
+                "title": "Picture URL"
+              }
+            },
+            "email": {
+              "type": "string",
+              "x-zui": {
+                "title": "Email"
+              }
+            },
+            "user": {
+              "$ref": "user",
+              "x-zui": {
+                "title": "User"
+              }
+            }
+          },
+          "required": [
+            "user"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "string",
+              "x-zui": {
+                "title": "User ID"
+              }
+            }
+          },
+          "required": [
+            "userId"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {}
+}

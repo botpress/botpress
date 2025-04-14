@@ -1,0 +1,2464 @@
+{
+  "name": "linear",
+  "version": "1.1.0",
+  "title": "Linear",
+  "description": "Manage your projects autonomously. Have your bot participate in discussions, manage issues and teams, and track progress.",
+  "user": {
+    "tags": {
+      "id": {
+        "title": "User ID",
+        "description": "The ID of the user on Linear"
+      }
+    }
+  },
+  "events": {
+    "issueCreated": {
+      "title": "Issue Created",
+      "description": "Triggered when an issue is created",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-zui": {
+              "title": "Title"
+            }
+          },
+          "number": {
+            "type": "number",
+            "x-zui": {
+              "title": "Number"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Created At",
+              "precision": null,
+              "offset": false
+            },
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "updatedAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Updated At",
+              "precision": null,
+              "offset": false
+            },
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "priority": {
+            "type": "number",
+            "x-zui": {
+              "title": "Priority"
+            }
+          },
+          "description": {
+            "type": "string",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "teamName": {
+            "type": "string",
+            "x-zui": {
+              "title": "Team Name"
+            }
+          },
+          "teamKey": {
+            "type": "string",
+            "x-zui": {
+              "title": "Team Key"
+            }
+          },
+          "status": {
+            "type": "string",
+            "x-zui": {
+              "title": "Status"
+            }
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-zui": {
+                "title": "Label Name"
+              }
+            },
+            "x-zui": {
+              "title": "Applied Labels"
+            }
+          },
+          "linearIds": {
+            "type": "object",
+            "properties": {
+              "creatorId": {
+                "type": "string",
+                "x-zui": {
+                  "title": "Creator's User ID"
+                }
+              },
+              "labelIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "x-zui": {
+                  "title": "Label IDs"
+                }
+              },
+              "issueId": {
+                "type": "string",
+                "x-zui": {
+                  "title": "Issue ID"
+                }
+              },
+              "teamId": {
+                "type": "string",
+                "x-zui": {
+                  "title": "Team ID"
+                }
+              },
+              "projectId": {
+                "type": "string",
+                "x-zui": {
+                  "title": "Project ID"
+                }
+              },
+              "assigneeId": {
+                "type": "string",
+                "x-zui": {
+                  "title": "Assignee User ID"
+                }
+              },
+              "subscriberIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "x-zui": {
+                  "title": "Subscriber IDs"
+                }
+              }
+            },
+            "required": [
+              "issueId"
+            ],
+            "x-zui": {
+              "title": "Linear IDs"
+            }
+          },
+          "userId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Botpress User ID"
+            }
+          },
+          "conversationId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Botpress Conversation ID"
+            }
+          },
+          "targets": {
+            "type": "object",
+            "properties": {
+              "issue": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Issue"
+                  }
+                },
+                "x-zui": {
+                  "title": "Target Issue"
+                }
+              }
+            },
+            "required": [],
+            "x-zui": {
+              "title": "Created Issue"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "number",
+          "createdAt",
+          "updatedAt",
+          "priority",
+          "status",
+          "conversationId",
+          "targets"
+        ]
+      }
+    },
+    "issueUpdated": {
+      "title": "Issue Updated",
+      "description": "Triggered when an issue is updated",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-zui": {
+              "title": "Title"
+            }
+          },
+          "number": {
+            "type": "number",
+            "x-zui": {
+              "title": "Number"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Created At",
+              "precision": null,
+              "offset": false
+            },
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "updatedAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Updated At",
+              "precision": null,
+              "offset": false
+            },
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "priority": {
+            "type": "number",
+            "x-zui": {
+              "title": "Priority"
+            }
+          },
+          "description": {
+            "type": "string",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "teamName": {
+            "type": "string",
+            "x-zui": {
+              "title": "Team Name"
+            }
+          },
+          "teamKey": {
+            "type": "string",
+            "x-zui": {
+              "title": "Team Key"
+            }
+          },
+          "status": {
+            "type": "string",
+            "x-zui": {
+              "title": "Status"
+            }
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-zui": {
+                "title": "Label Name"
+              }
+            },
+            "x-zui": {
+              "title": "Applied Labels"
+            }
+          },
+          "linearIds": {
+            "type": "object",
+            "properties": {
+              "creatorId": {
+                "type": "string",
+                "x-zui": {
+                  "title": "Creator's User ID"
+                }
+              },
+              "labelIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "x-zui": {
+                  "title": "Label IDs"
+                }
+              },
+              "issueId": {
+                "type": "string",
+                "x-zui": {
+                  "title": "Issue ID"
+                }
+              },
+              "teamId": {
+                "type": "string",
+                "x-zui": {
+                  "title": "Team ID"
+                }
+              },
+              "projectId": {
+                "type": "string",
+                "x-zui": {
+                  "title": "Project ID"
+                }
+              },
+              "assigneeId": {
+                "type": "string",
+                "x-zui": {
+                  "title": "Assignee User ID"
+                }
+              },
+              "subscriberIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "x-zui": {
+                  "title": "Subscriber IDs"
+                }
+              }
+            },
+            "required": [
+              "issueId"
+            ],
+            "x-zui": {
+              "title": "Linear IDs"
+            }
+          },
+          "userId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Botpress User ID"
+            }
+          },
+          "conversationId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Botpress Conversation ID"
+            }
+          },
+          "targets": {
+            "type": "object",
+            "properties": {
+              "issue": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Issue"
+                  }
+                },
+                "x-zui": {
+                  "title": "Target Issue"
+                }
+              }
+            },
+            "required": [],
+            "x-zui": {
+              "title": "Updated Issue"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "number",
+          "createdAt",
+          "updatedAt",
+          "priority",
+          "status",
+          "conversationId",
+          "targets"
+        ]
+      }
+    },
+    "issueDeleted": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "name": "issueDeleted"
+    }
+  },
+  "actions": {
+    "findTarget": {
+      "title": "Find Target",
+      "description": "Find a target on Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "x-zui": {
+                "title": "Search query"
+              },
+              "minLength": 2
+            },
+            "channel": {
+              "type": "string",
+              "enum": [
+                "issue"
+              ],
+              "x-zui": {
+                "title": "Channel"
+              }
+            }
+          },
+          "required": [
+            "query",
+            "channel"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "targets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "displayName": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Display Name"
+                    }
+                  },
+                  "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "x-zui": {
+                      "title": "Tags"
+                    }
+                  },
+                  "channel": {
+                    "type": "string",
+                    "enum": [
+                      "issue"
+                    ],
+                    "x-zui": {
+                      "title": "Channel"
+                    }
+                  }
+                },
+                "required": [
+                  "displayName",
+                  "tags",
+                  "channel"
+                ]
+              },
+              "x-zui": {
+                "title": "Results"
+              }
+            }
+          },
+          "required": [
+            "targets"
+          ]
+        }
+      }
+    },
+    "listIssues": {
+      "title": "List Issues",
+      "description": "List issues from Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "default": 10,
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "startCursor": {
+              "type": "string",
+              "x-zui": {
+                "title": "Start Cursor"
+              }
+            },
+            "teamId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Team ID"
+              }
+            },
+            "startDate": {
+              "type": "string",
+              "x-zui": {
+                "title": "Start Date"
+              }
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "issues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Title"
+                    }
+                  },
+                  "number": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Number"
+                    }
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Created At",
+                      "precision": null,
+                      "offset": false
+                    },
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Updated At",
+                      "precision": null,
+                      "offset": false
+                    },
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                  },
+                  "priority": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Priority"
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Description"
+                    }
+                  },
+                  "id": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Issue ID"
+                    }
+                  },
+                  "identifier": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Identifier"
+                    }
+                  },
+                  "estimate": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Points Estimate"
+                    }
+                  },
+                  "url": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Issue URL"
+                    }
+                  },
+                  "linearIds": {
+                    "type": "object",
+                    "properties": {
+                      "creatorId": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Creator's User ID"
+                        }
+                      },
+                      "labelIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-zui": {
+                          "title": "Label IDs"
+                        }
+                      },
+                      "issueId": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Issue ID"
+                        }
+                      },
+                      "teamId": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Team ID"
+                        }
+                      },
+                      "projectId": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Project ID"
+                        }
+                      },
+                      "assigneeId": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Assignee User ID"
+                        }
+                      },
+                      "subscriberIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-zui": {
+                          "title": "Subscriber IDs"
+                        }
+                      }
+                    },
+                    "required": [
+                      "issueId"
+                    ],
+                    "x-zui": {
+                      "title": "Linear IDs"
+                    }
+                  }
+                },
+                "required": [
+                  "title",
+                  "number",
+                  "createdAt",
+                  "updatedAt",
+                  "priority",
+                  "id",
+                  "identifier",
+                  "url"
+                ],
+                "x-zui": {
+                  "title": "Issue"
+                }
+              },
+              "x-zui": {
+                "title": "Issues"
+              }
+            },
+            "nextCursor": {
+              "type": "string",
+              "x-zui": {
+                "title": "Next Cursor"
+              }
+            }
+          },
+          "required": [
+            "issues"
+          ]
+        }
+      }
+    },
+    "listTeams": {
+      "title": "List Teams",
+      "description": "List teams from Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "teams": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "ID"
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Name"
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Description"
+                    }
+                  },
+                  "icon": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Icon"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              },
+              "x-zui": {
+                "title": "Teams"
+              }
+            }
+          },
+          "required": [
+            "teams"
+          ]
+        }
+      }
+    },
+    "listUsers": {
+      "title": "List Users",
+      "description": "List users from Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "default": 10,
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "startCursor": {
+              "type": "string",
+              "x-zui": {
+                "title": "Start Cursor"
+              }
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "users": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "ID"
+                    }
+                  },
+                  "email": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Email"
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Name"
+                    }
+                  },
+                  "displayName": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Display Name"
+                    }
+                  },
+                  "avatarUrl": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Avatar URL"
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Description"
+                    }
+                  },
+                  "lastSeen": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Last Seen"
+                    }
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Updated At",
+                      "precision": null,
+                      "offset": false
+                    },
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                  }
+                },
+                "required": [
+                  "id",
+                  "email",
+                  "name",
+                  "displayName",
+                  "updatedAt"
+                ]
+              },
+              "x-zui": {
+                "title": "Users"
+              }
+            },
+            "nextCursor": {
+              "type": "string",
+              "x-zui": {
+                "title": "Next Cursor"
+              }
+            }
+          },
+          "required": [
+            "users"
+          ]
+        }
+      }
+    },
+    "markAsDuplicate": {
+      "title": "Mark Issue as Duplicate",
+      "description": "Mark an issue as a duplicate of another",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "issueId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Issue ID"
+              }
+            },
+            "relatedIssueId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Related Issue ID"
+              }
+            }
+          },
+          "required": [
+            "issueId",
+            "relatedIssueId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "getIssue": {
+      "title": "Get Issue",
+      "description": "Get an issue by its ID",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "issueId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Issue ID"
+              }
+            }
+          },
+          "required": [
+            "issueId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-zui": {
+                "title": "Title"
+              }
+            },
+            "number": {
+              "type": "number",
+              "x-zui": {
+                "title": "Number"
+              }
+            },
+            "createdAt": {
+              "type": "string",
+              "x-zui": {
+                "title": "Created At",
+                "precision": null,
+                "offset": false
+              },
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+            },
+            "updatedAt": {
+              "type": "string",
+              "x-zui": {
+                "title": "Updated At",
+                "precision": null,
+                "offset": false
+              },
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+            },
+            "priority": {
+              "type": "number",
+              "x-zui": {
+                "title": "Priority"
+              }
+            },
+            "description": {
+              "type": "string",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "id": {
+              "type": "string",
+              "x-zui": {
+                "title": "Issue ID"
+              }
+            },
+            "identifier": {
+              "type": "string",
+              "x-zui": {
+                "title": "Identifier"
+              }
+            },
+            "estimate": {
+              "type": "number",
+              "x-zui": {
+                "title": "Points Estimate"
+              }
+            },
+            "url": {
+              "type": "string",
+              "x-zui": {
+                "title": "Issue URL"
+              }
+            }
+          },
+          "required": [
+            "title",
+            "number",
+            "createdAt",
+            "updatedAt",
+            "priority",
+            "id",
+            "identifier",
+            "url"
+          ],
+          "x-zui": {
+            "title": "Issue"
+          }
+        }
+      }
+    },
+    "getUser": {
+      "title": "Get User Profile",
+      "description": "Get a user profile from Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "linearUserId": {
+              "type": "string",
+              "x-zui": {
+                "title": "User ID"
+              }
+            }
+          },
+          "required": [
+            "linearUserId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "linearId": {
+              "type": "string",
+              "x-zui": {
+                "title": "User ID"
+              }
+            },
+            "admin": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Is Admin?"
+              }
+            },
+            "archivedAt": {
+              "type": "string",
+              "x-zui": {
+                "title": "Archival Date",
+                "precision": null,
+                "offset": false
+              },
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+            },
+            "avatarUrl": {
+              "type": "string",
+              "x-zui": {
+                "title": "Avatar URL"
+              },
+              "format": "uri"
+            },
+            "createdAt": {
+              "type": "string",
+              "x-zui": {
+                "title": "Creation Date",
+                "precision": null,
+                "offset": false
+              },
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+            },
+            "description": {
+              "type": "string",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "displayName": {
+              "type": "string",
+              "x-zui": {
+                "title": "Display Name"
+              }
+            },
+            "guest": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Is Guest?"
+              }
+            },
+            "email": {
+              "type": "string",
+              "x-zui": {
+                "title": "Email"
+              }
+            },
+            "isMe": {
+              "type": "boolean",
+              "x-zui": {
+                "title": "Is Self?"
+              }
+            },
+            "url": {
+              "type": "string",
+              "x-zui": {
+                "title": "Profile URL"
+              }
+            },
+            "timezone": {
+              "type": "string",
+              "x-zui": {
+                "title": "Timezone"
+              }
+            },
+            "name": {
+              "type": "string",
+              "x-zui": {
+                "title": "Full Name"
+              }
+            }
+          },
+          "required": [
+            "linearId",
+            "admin",
+            "createdAt",
+            "displayName",
+            "guest",
+            "email",
+            "isMe",
+            "url",
+            "name"
+          ],
+          "x-zui": {
+            "title": "User"
+          }
+        }
+      }
+    },
+    "updateIssue": {
+      "title": "Update Issue",
+      "description": "Update an issue on Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "issueId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Issue ID"
+              }
+            },
+            "priority": {
+              "type": "number",
+              "x-zui": {
+                "title": "Priority"
+              }
+            },
+            "teamName": {
+              "type": "string",
+              "x-zui": {
+                "title": "Move to team..."
+              }
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "x-zui": {
+                "title": "Set labels"
+              }
+            },
+            "project": {
+              "type": "string",
+              "x-zui": {
+                "title": "Associate to project..."
+              }
+            }
+          },
+          "required": [
+            "issueId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "issue": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Title"
+                  }
+                },
+                "number": {
+                  "type": "number",
+                  "x-zui": {
+                    "title": "Number"
+                  }
+                },
+                "createdAt": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Created At",
+                    "precision": null,
+                    "offset": false
+                  },
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Updated At",
+                    "precision": null,
+                    "offset": false
+                  },
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                },
+                "priority": {
+                  "type": "number",
+                  "x-zui": {
+                    "title": "Priority"
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Description"
+                  }
+                },
+                "id": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Issue ID"
+                  }
+                },
+                "identifier": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Identifier"
+                  }
+                },
+                "estimate": {
+                  "type": "number",
+                  "x-zui": {
+                    "title": "Points Estimate"
+                  }
+                },
+                "url": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Issue URL"
+                  }
+                }
+              },
+              "required": [
+                "title",
+                "number",
+                "createdAt",
+                "updatedAt",
+                "priority",
+                "id",
+                "identifier",
+                "url"
+              ],
+              "x-zui": {
+                "title": "Issue"
+              }
+            }
+          },
+          "required": []
+        }
+      }
+    },
+    "createIssue": {
+      "title": "Create Issue",
+      "description": "Create an issue on Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-zui": {
+                "title": "Title"
+              },
+              "minLength": 1
+            },
+            "description": {
+              "type": "string",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "priority": {
+              "type": "number",
+              "x-zui": {
+                "title": "Priority"
+              }
+            },
+            "teamName": {
+              "type": "string",
+              "x-zui": {
+                "title": "Team Name"
+              }
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "x-zui": {
+                "title": "Labels"
+              }
+            },
+            "project": {
+              "type": "string",
+              "x-zui": {
+                "title": "Project"
+              }
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "teamName"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "issue": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Title"
+                  }
+                },
+                "number": {
+                  "type": "number",
+                  "x-zui": {
+                    "title": "Number"
+                  }
+                },
+                "createdAt": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Created At",
+                    "precision": null,
+                    "offset": false
+                  },
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Updated At",
+                    "precision": null,
+                    "offset": false
+                  },
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                },
+                "priority": {
+                  "type": "number",
+                  "x-zui": {
+                    "title": "Priority"
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Description"
+                  }
+                },
+                "id": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Issue ID"
+                  }
+                },
+                "identifier": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Identifier"
+                  }
+                },
+                "estimate": {
+                  "type": "number",
+                  "x-zui": {
+                    "title": "Points Estimate"
+                  }
+                },
+                "url": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Issue URL"
+                  }
+                }
+              },
+              "required": [
+                "title",
+                "number",
+                "createdAt",
+                "updatedAt",
+                "priority",
+                "id",
+                "identifier",
+                "url"
+              ],
+              "x-zui": {
+                "title": "Issue"
+              }
+            }
+          },
+          "required": [
+            "issue"
+          ]
+        }
+      }
+    },
+    "deleteIssue": {
+      "title": "Delete Issue",
+      "description": "Delete an issue on Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {
+                "title": "Issue ID"
+              }
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "issueList": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Title"
+                        }
+                      },
+                      "number": {
+                        "type": "number",
+                        "x-zui": {
+                          "title": "Number"
+                        }
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Created At",
+                          "precision": null,
+                          "offset": false
+                        },
+                        "format": "date-time",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Updated At",
+                          "precision": null,
+                          "offset": false
+                        },
+                        "format": "date-time",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                      },
+                      "priority": {
+                        "type": "number",
+                        "x-zui": {
+                          "title": "Priority"
+                        }
+                      },
+                      "description": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Description"
+                        }
+                      },
+                      "id": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Issue ID"
+                        }
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Identifier"
+                        }
+                      },
+                      "estimate": {
+                        "type": "number",
+                        "x-zui": {
+                          "title": "Points Estimate"
+                        }
+                      },
+                      "url": {
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Issue URL"
+                        }
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "number",
+                      "createdAt",
+                      "updatedAt",
+                      "priority",
+                      "id",
+                      "identifier",
+                      "url"
+                    ],
+                    "x-zui": {
+                      "title": "Issue"
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                ]
+              }
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "items",
+            "meta"
+          ]
+        }
+      },
+      "name": "issueList"
+    },
+    "issueDelete": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "name": "issueDelete"
+    }
+  },
+  "channels": {
+    "issue": {
+      "title": "Issue",
+      "description": "A linear issue",
+      "messages": {
+        "text": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "text"
+            ]
+          }
+        },
+        "image": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "imageUrl": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "imageUrl"
+            ]
+          }
+        },
+        "audio": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "audioUrl": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "audioUrl"
+            ]
+          }
+        },
+        "video": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "videoUrl": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "videoUrl"
+            ]
+          }
+        },
+        "file": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "fileUrl": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "fileUrl"
+            ]
+          }
+        },
+        "location": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              },
+              "address": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "latitude",
+              "longitude"
+            ]
+          }
+        },
+        "carousel": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "subtitle": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "actions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "postback",
+                              "url",
+                              "say"
+                            ]
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "action",
+                          "label",
+                          "value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "actions"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "items"
+            ]
+          }
+        },
+        "card": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "subtitle": {
+                "type": "string",
+                "minLength": 1
+              },
+              "imageUrl": {
+                "type": "string",
+                "minLength": 1
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "postback",
+                        "url",
+                        "say"
+                      ]
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "action",
+                    "label",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "title",
+              "actions"
+            ]
+          }
+        },
+        "dropdown": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "options"
+            ]
+          }
+        },
+        "choice": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "options"
+            ]
+          }
+        },
+        "bloc": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "text"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "text"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "markdown"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "markdown": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "markdown"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "image"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "imageUrl": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "imageUrl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "audio"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "audioUrl": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "audioUrl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "video"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "videoUrl": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "videoUrl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "file"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "fileUrl": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "fileUrl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "location"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "latitude": {
+                              "type": "number"
+                            },
+                            "longitude": {
+                              "type": "number"
+                            },
+                            "address": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "latitude",
+                            "longitude"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "items"
+            ]
+          }
+        },
+        "markdown": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "markdown": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "markdown"
+            ]
+          }
+        }
+      },
+      "message": {
+        "tags": {
+          "id": {
+            "title": "Comment ID",
+            "description": "The ID of the comment on Linear"
+          }
+        }
+      },
+      "conversation": {
+        "tags": {
+          "id": {
+            "title": "Issue ID",
+            "description": "The ID of the issue on Linear"
+          },
+          "title": {
+            "title": "Issue Title",
+            "description": "The title of the issue"
+          },
+          "url": {
+            "title": "Issue URL",
+            "description": "The URL of the issue on Linear"
+          },
+          "parentId": {
+            "title": "Parent Issue ID",
+            "description": "The ID of the parent issue on Linear"
+          },
+          "parentTitle": {
+            "title": "Parent Issue Title",
+            "description": "The title of the parent issue"
+          },
+          "parentUrl": {
+            "title": "Parent Issue URL",
+            "description": "The URL of the parent issue on Linear"
+          }
+        }
+      }
+    }
+  },
+  "states": {
+    "credentials": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "x-zui": {
+              "title": "Access Token"
+            }
+          },
+          "expiresAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Expires At"
+            }
+          }
+        },
+        "required": [
+          "accessToken",
+          "expiresAt"
+        ]
+      }
+    },
+    "configuration": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "botUserId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Bot User ID"
+            }
+          }
+        },
+        "required": []
+      }
+    },
+    "profile": {
+      "type": "user",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "linearId": {
+            "type": "string",
+            "x-zui": {
+              "title": "User ID"
+            }
+          },
+          "admin": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Admin?"
+            }
+          },
+          "archivedAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Archival Date",
+              "precision": null,
+              "offset": false
+            },
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "x-zui": {
+              "title": "Avatar URL"
+            },
+            "format": "uri"
+          },
+          "createdAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Creation Date",
+              "precision": null,
+              "offset": false
+            },
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "description": {
+            "type": "string",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "displayName": {
+            "type": "string",
+            "x-zui": {
+              "title": "Display Name"
+            }
+          },
+          "guest": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Guest?"
+            }
+          },
+          "email": {
+            "type": "string",
+            "x-zui": {
+              "title": "Email"
+            }
+          },
+          "isMe": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Self?"
+            }
+          },
+          "url": {
+            "type": "string",
+            "x-zui": {
+              "title": "Profile URL"
+            }
+          },
+          "timezone": {
+            "type": "string",
+            "x-zui": {
+              "title": "Timezone"
+            }
+          },
+          "name": {
+            "type": "string",
+            "x-zui": {
+              "title": "Full Name"
+            }
+          }
+        },
+        "required": [
+          "linearId",
+          "admin",
+          "createdAt",
+          "displayName",
+          "guest",
+          "email",
+          "isMe",
+          "url",
+          "name"
+        ],
+        "x-zui": {
+          "title": "User"
+        }
+      }
+    }
+  },
+  "entities": {
+    "issue": {
+      "title": "Issue",
+      "description": "A linear issue",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "x-zui": {
+              "title": "Title"
+            }
+          },
+          "number": {
+            "type": "number",
+            "x-zui": {
+              "title": "Number"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Created At",
+              "precision": null,
+              "offset": false
+            },
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "updatedAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Updated At",
+              "precision": null,
+              "offset": false
+            },
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+          },
+          "priority": {
+            "type": "number",
+            "x-zui": {
+              "title": "Priority"
+            }
+          },
+          "description": {
+            "type": "string",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "Issue ID"
+            }
+          },
+          "identifier": {
+            "type": "string",
+            "x-zui": {
+              "title": "Identifier"
+            }
+          },
+          "estimate": {
+            "type": "number",
+            "x-zui": {
+              "title": "Points Estimate"
+            }
+          },
+          "url": {
+            "type": "string",
+            "x-zui": {
+              "title": "Issue URL"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "number",
+          "createdAt",
+          "updatedAt",
+          "priority",
+          "id",
+          "identifier",
+          "url"
+        ],
+        "x-zui": {
+          "title": "Issue"
+        }
+      }
+    }
+  },
+  "interfaces": {
+    "listable<issue>": {
+      "id": "",
+      "name": "listable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "issue"
+        }
+      },
+      "actions": {
+        "list": {
+          "name": "issueList"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "deletable<issue>": {
+      "id": "",
+      "name": "deletable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "issue"
+        }
+      },
+      "actions": {
+        "delete": {
+          "name": "issueDelete"
+        }
+      },
+      "events": {
+        "deleted": {
+          "name": "issueDeleted"
+        }
+      },
+      "channels": {}
+    }
+  }
+}

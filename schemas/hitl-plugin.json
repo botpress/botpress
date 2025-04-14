@@ -1,0 +1,250 @@
+{
+  "name": "hitl",
+  "version": "0.4.5",
+  "title": "Human In The Loop",
+  "description": "Seamlessly transfer conversations to human agents",
+  "user": {
+    "tags": {
+      "downstream": {
+        "title": "Downstream User ID",
+        "description": "ID of the downstream user binded to the upstream one"
+      },
+      "upstream": {
+        "title": "Upstream User ID",
+        "description": "ID of the upstream user binded to the downstream one"
+      },
+      "integrationName": {
+        "title": "HITL Integration Name",
+        "description": "Name of the integration which created the downstream user"
+      }
+    }
+  },
+  "conversation": {
+    "tags": {
+      "downstream": {
+        "title": "Downstream Conversation ID",
+        "description": "ID of the downstream conversation binded to the upstream one"
+      },
+      "upstream": {
+        "title": "Upstream Conversation ID",
+        "description": "ID of the upstream conversation binded to the downstream one"
+      },
+      "humanAgentId": {
+        "title": "Human Agent ID",
+        "description": "ID of the human agent assigned to the ticket"
+      },
+      "humanAgentName": {
+        "title": "Human Agent Name",
+        "description": "Name of the human agent assigned to the ticket"
+      },
+      "hitlEndReason": {
+        "title": "HITL End Reason",
+        "description": "Reason why the HITL session ended"
+      },
+      "startMessageId": {
+        "title": "Start Message ID",
+        "description": "ID of the user message that initiated the HITL session"
+      }
+    }
+  },
+  "configuration": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "onHitlHandoffMessage": {
+          "type": "string",
+          "x-zui": {
+            "title": "Escalation Started Message",
+            "placeholder": "I have escalated this conversation to a human agent. They should be with you shortly."
+          }
+        },
+        "onHumanAgentAssignedMessage": {
+          "type": "string",
+          "x-zui": {
+            "title": "Human Agent Assigned Message",
+            "placeholder": "A human agent has joined the conversation."
+          }
+        },
+        "onHitlStoppedMessage": {
+          "type": "string",
+          "x-zui": {
+            "title": "Escalation Terminated Message",
+            "placeholder": "The human agent closed the conversation. I will continue assisting you."
+          }
+        },
+        "onUserHitlCancelledMessage": {
+          "type": "string",
+          "x-zui": {
+            "title": "Escalation Aborted Message",
+            "placeholder": "( The user has ended the session. )"
+          }
+        },
+        "onIncompatibleMsgTypeMessage": {
+          "type": "string",
+          "x-zui": {
+            "title": "Incompatible Message Type Warning",
+            "placeholder": "Sorry, the user can only receive text messages. Please resend your message as a text message."
+          }
+        },
+        "userHitlCloseCommand": {
+          "type": "string",
+          "x-zui": {
+            "title": "Termination Command",
+            "placeholder": "/end"
+          }
+        },
+        "onUserHitlCloseMessage": {
+          "type": "string",
+          "x-zui": {
+            "title": "Termination Command Message",
+            "placeholder": "You have ended the session with the human agent. I will continue assisting you."
+          }
+        },
+        "onAgentAssignedTimeoutMessage": {
+          "type": "string",
+          "x-zui": {
+            "title": "Agent Assigned Timeout Message",
+            "placeholder": "No human agent is available at the moment. Please try again later. I will continue assisting you for the time being."
+          }
+        },
+        "agentAssignedTimeoutSeconds": {
+          "type": "number",
+          "x-zui": {
+            "title": "Agent Assigned Timeout",
+            "placeholder": "0"
+          },
+          "minimum": 0
+        }
+      },
+      "required": []
+    }
+  },
+  "events": {
+    "humanAgentAssignedTimeout": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "sessionStartedAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Session Started At"
+            }
+          },
+          "downstreamConversationId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Downstream Conversation ID"
+            }
+          }
+        },
+        "required": [
+          "sessionStartedAt",
+          "downstreamConversationId"
+        ]
+      }
+    }
+  },
+  "actions": {
+    "startHitl": {
+      "title": "Start HITL",
+      "description": "Starts the HITL mode",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "x-zui": {
+                "title": "Ticket Title"
+              }
+            },
+            "description": {
+              "type": "string",
+              "x-zui": {
+                "title": "Ticket Description"
+              }
+            },
+            "userId": {
+              "type": "string",
+              "x-zui": {
+                "title": "User ID",
+                "placeholder": "{{ event.userId }}"
+              }
+            },
+            "userEmail": {
+              "type": "string",
+              "x-zui": {
+                "title": "User Email"
+              }
+            },
+            "conversationId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Conversation ID",
+                "placeholder": "{{ event.conversationId }}"
+              }
+            }
+          },
+          "required": [
+            "title",
+            "userId",
+            "conversationId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "stopHitl": {
+      "title": "Stop HITL",
+      "description": "Stop the HITL mode",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "conversationId": {
+              "type": "string",
+              "x-zui": {
+                "placeholder": "{{ event.conversationId }}"
+              }
+            }
+          },
+          "required": [
+            "conversationId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    }
+  },
+  "states": {
+    "hitl": {
+      "type": "conversation",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "hitlActive": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is HITL Enabled?"
+            }
+          }
+        },
+        "required": [
+          "hitlActive"
+        ]
+      }
+    }
+  }
+}

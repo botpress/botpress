@@ -1,0 +1,4782 @@
+{
+  "name": "trello",
+  "version": "1.1.2",
+  "title": "Trello",
+  "description": "Update cards, add comments, create new cards, and read board members from your chatbot.",
+  "user": {
+    "tags": {
+      "userId": {
+        "title": "User ID",
+        "description": "Unique identifier of the Trello user"
+      }
+    }
+  },
+  "events": {
+    "addMemberToCard": {
+      "title": "Member added to card",
+      "description": "Triggered when a member is added to a card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "member": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "member"
+        ]
+      }
+    },
+    "commentCard": {
+      "title": "Comment added to card",
+      "description": "Triggered when a comment is added to a card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "list": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "card",
+          "text"
+        ]
+      }
+    },
+    "createCard": {
+      "title": "Card created",
+      "description": "Triggered when a card is created",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "list": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "card"
+        ]
+      }
+    },
+    "deleteCard": {
+      "title": "Card deleted",
+      "description": "Triggered when a card is deleted",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          "list": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "card"
+        ]
+      }
+    },
+    "removeMemberFromCard": {
+      "title": "Member removed from card",
+      "description": "Triggered when a member is removed from a card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "member": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "member"
+        ]
+      }
+    },
+    "updateCard": {
+      "title": "Card updated",
+      "description": "Triggered when a card is updated",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "idList": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "desc": {
+                "type": "string"
+              },
+              "idLabels": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$"
+                }
+              },
+              "pos": {
+                "type": "number"
+              },
+              "start": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                    "x-zui": {
+                      "precision": null,
+                      "offset": false
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "due": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                    "x-zui": {
+                      "precision": null,
+                      "offset": false
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "dueReminder": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "const": -1
+                  },
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              },
+              "dueComplete": {
+                "type": "boolean"
+              },
+              "closed": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "old": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "desc": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "idList": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "idLabels": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$"
+                }
+              },
+              "pos": {
+                "type": "number"
+              },
+              "start": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                    "x-zui": {
+                      "precision": null,
+                      "offset": false
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "due": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                    "x-zui": {
+                      "precision": null,
+                      "offset": false
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "dueReminder": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "const": -1
+                  },
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                ]
+              },
+              "dueComplete": {
+                "type": "boolean"
+              },
+              "closed": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          },
+          "list": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "listBefore": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "listAfter": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "old"
+        ]
+      }
+    },
+    "updateCheckItemStateOnCard": {
+      "title": "Check item state updated on card",
+      "description": "Triggered when the state of a check item is updated in a checklist of a card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "checklist": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "checkItem": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "state": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "complete"
+                  },
+                  {
+                    "type": "string",
+                    "const": "incomplete"
+                  }
+                ]
+              },
+              "textData": {
+                "type": "object",
+                "properties": {
+                  "emoji": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                  }
+                },
+                "required": [
+                  "emoji"
+                ]
+              },
+              "due": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "state",
+              "textData"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "checklist",
+          "checkItem"
+        ]
+      }
+    },
+    "addLabelToCard": {
+      "title": "Label added to card",
+      "description": "Triggered when a label is added to a card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "label": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "color": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "color"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "label"
+        ]
+      }
+    },
+    "createCheckItem": {
+      "title": "Check item created",
+      "description": "Triggered when a check item is added to a checklist of a card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "checklist": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "checkItem": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "state": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "complete"
+                  },
+                  {
+                    "type": "string",
+                    "const": "incomplete"
+                  }
+                ]
+              },
+              "textData": {
+                "type": "object",
+                "properties": {
+                  "emoji": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                  }
+                },
+                "required": [
+                  "emoji"
+                ]
+              },
+              "due": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "state",
+              "textData"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "checklist",
+          "checkItem"
+        ]
+      }
+    },
+    "deleteCheckItem": {
+      "title": "Check item deleted",
+      "description": "Triggered when a check item is removed from a checklist of a card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "checklist": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "checkItem": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "state": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "complete"
+                  },
+                  {
+                    "type": "string",
+                    "const": "incomplete"
+                  }
+                ]
+              },
+              "textData": {
+                "type": "object",
+                "properties": {
+                  "emoji": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                  }
+                },
+                "required": [
+                  "emoji"
+                ]
+              },
+              "due": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "state",
+              "textData"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "checklist",
+          "checkItem"
+        ]
+      }
+    },
+    "deleteComment": {
+      "title": "Comment deleted",
+      "description": "Triggered when a comment is deleted",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "list": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "action": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "action"
+        ]
+      }
+    },
+    "removeLabelFromCard": {
+      "title": "Label removed from card",
+      "description": "Triggered when a label is removed from a card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "label": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "color": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "color"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "label"
+        ]
+      }
+    },
+    "updateCheckItem": {
+      "title": "Check item updated",
+      "description": "Triggered when a check item is modified in a checklist of a card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "checklist": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "checkItem": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "state": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "complete"
+                  },
+                  {
+                    "type": "string",
+                    "const": "incomplete"
+                  }
+                ]
+              },
+              "due": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "state"
+            ]
+          },
+          "old": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "state": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "complete"
+                  },
+                  {
+                    "type": "string",
+                    "const": "incomplete"
+                  }
+                ]
+              },
+              "due": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              }
+            },
+            "required": [
+              "name",
+              "state"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "checklist",
+          "checkItem",
+          "old"
+        ]
+      }
+    },
+    "updateComment": {
+      "title": "Comment updated",
+      "description": "Triggered when a comment is updated",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "list": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "action": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "text"
+            ]
+          },
+          "old": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "text"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "action",
+          "old"
+        ]
+      }
+    },
+    "voteOnCard": {
+      "title": "Vote on card",
+      "description": "Triggered when a vote is added to a card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "voted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "voted"
+        ]
+      }
+    },
+    "addAttachmentToCard": {
+      "title": "Attachment added to card",
+      "description": "Triggered when an attachment is added to a card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "list": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "attachment": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "previewUrl": {
+                "type": "string",
+                "format": "uri"
+              },
+              "previewUrl2x": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "attachment"
+        ]
+      }
+    },
+    "deleteAttachmentFromCard": {
+      "title": "Attachment deleted from card",
+      "description": "Triggered when an attachment is deleted from a card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "board": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "list": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "attachment": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "card",
+          "attachment"
+        ]
+      }
+    },
+    "cardCreated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "listId": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "verticalPosition": {
+                    "type": "number"
+                  },
+                  "isClosed": {
+                    "type": "boolean"
+                  },
+                  "isCompleted": {
+                    "type": "boolean"
+                  },
+                  "dueDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                    "x-zui": {
+                      "precision": null,
+                      "offset": false
+                    }
+                  },
+                  "labelIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
+                  },
+                  "memberIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "description",
+                  "listId",
+                  "verticalPosition",
+                  "isClosed",
+                  "isCompleted",
+                  "labelIds",
+                  "memberIds"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "item"
+        ]
+      },
+      "name": "cardCreated"
+    },
+    "cardUpdated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "listId": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "verticalPosition": {
+                    "type": "number"
+                  },
+                  "isClosed": {
+                    "type": "boolean"
+                  },
+                  "isCompleted": {
+                    "type": "boolean"
+                  },
+                  "dueDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                    "x-zui": {
+                      "precision": null,
+                      "offset": false
+                    }
+                  },
+                  "labelIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
+                  },
+                  "memberIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "description",
+                  "listId",
+                  "verticalPosition",
+                  "isClosed",
+                  "isCompleted",
+                  "labelIds",
+                  "memberIds"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "item"
+        ]
+      },
+      "name": "cardUpdated"
+    },
+    "cardDeleted": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "name": "cardDeleted"
+    }
+  },
+  "actions": {
+    "getBoardsByDisplayName": {
+      "title": "Get boards by name",
+      "description": "Find all boards whose display name match this name",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "boardName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "boardName"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "boards": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              }
+            }
+          },
+          "required": [
+            "boards"
+          ]
+        }
+      }
+    },
+    "getListsByDisplayName": {
+      "title": "Get lists by name",
+      "description": "Find all lists whose display name match this name",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "boardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "listName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "boardId",
+            "listName"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "lists": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              }
+            }
+          },
+          "required": [
+            "lists"
+          ]
+        }
+      }
+    },
+    "getListById": {
+      "title": "Get list by ID",
+      "description": "Get a list by its unique identifier",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "listId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          },
+          "required": [
+            "listId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "list": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            }
+          },
+          "required": [
+            "list"
+          ]
+        }
+      }
+    },
+    "getCardsByDisplayName": {
+      "title": "Find cards by name name",
+      "description": "Find all lists whose display name match this name",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "listId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "cardName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "listId",
+            "cardName"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "cards": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "listId": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "verticalPosition": {
+                    "type": "number"
+                  },
+                  "isClosed": {
+                    "type": "boolean"
+                  },
+                  "isCompleted": {
+                    "type": "boolean"
+                  },
+                  "dueDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                    "x-zui": {
+                      "precision": null,
+                      "offset": false
+                    }
+                  },
+                  "labelIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
+                  },
+                  "memberIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "description",
+                  "listId",
+                  "verticalPosition",
+                  "isClosed",
+                  "isCompleted",
+                  "labelIds",
+                  "memberIds"
+                ]
+              }
+            }
+          },
+          "required": [
+            "cards"
+          ]
+        }
+      }
+    },
+    "createCard": {
+      "title": "Create new card",
+      "description": "Create a card and add it to a list",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "listId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "cardName": {
+              "type": "string"
+            },
+            "cardBody": {
+              "type": "string"
+            },
+            "members": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              }
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              }
+            },
+            "dueDate": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                  "x-zui": {
+                    "precision": null,
+                    "offset": false
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "listId",
+            "cardName"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "newCardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          },
+          "required": [
+            "message",
+            "newCardId"
+          ]
+        }
+      }
+    },
+    "moveCardUp": {
+      "title": "Move card up",
+      "description": "Move a card n spaces up",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "cardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "moveUpByNSpaces": {
+              "default": 1,
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 1
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "cardId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "message"
+          ]
+        }
+      }
+    },
+    "moveCardDown": {
+      "title": "Move card down",
+      "description": "Move a card n spaces down",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "cardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "moveDownByNSpaces": {
+              "default": 1,
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 1
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "cardId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "message"
+          ]
+        }
+      }
+    },
+    "moveCardToList": {
+      "title": "Move card to another list",
+      "description": "Move a card to another list within the same board",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "cardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "newListId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          },
+          "required": [
+            "cardId",
+            "newListId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "message"
+          ]
+        }
+      }
+    },
+    "addCardComment": {
+      "title": "Add card comment",
+      "description": "Add a new comment to a card",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "cardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "commentBody": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "cardId",
+            "commentBody"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "newCommentId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          },
+          "required": [
+            "message",
+            "newCommentId"
+          ]
+        }
+      }
+    },
+    "updateCard": {
+      "title": "Update card",
+      "description": "Update the details of a card",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "cardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "name": {
+              "type": "string"
+            },
+            "bodyText": {
+              "type": "string"
+            },
+            "closedState": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "open",
+                    "archived"
+                  ]
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "completeState": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "incomplete"
+                  ]
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "membersToAdd": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              }
+            },
+            "membersToRemove": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              }
+            },
+            "labelsToAdd": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              }
+            },
+            "labelsToRemove": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              }
+            },
+            "dueDate": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                  "x-zui": {
+                    "precision": null,
+                    "offset": false
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "cardId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "message"
+          ]
+        }
+      }
+    },
+    "getBoardMembersByDisplayName": {
+      "title": "Get members by name",
+      "description": "Find all members whose display name match this name",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "boardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            },
+            "displayName": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "boardId",
+            "displayName"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "members": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "fullName": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "username",
+                  "fullName"
+                ]
+              }
+            }
+          },
+          "required": [
+            "members"
+          ]
+        }
+      }
+    },
+    "getAllBoardMembers": {
+      "title": "Get all board members",
+      "description": "Get all members of a board",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "boardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          },
+          "required": [
+            "boardId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "members": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "fullName": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "username",
+                  "fullName"
+                ]
+              }
+            }
+          },
+          "required": [
+            "members"
+          ]
+        }
+      }
+    },
+    "getAllBoards": {
+      "title": "Get all boards",
+      "description": "Get all boards managed by the authenticated user",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "boards": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              }
+            }
+          },
+          "required": [
+            "boards"
+          ]
+        }
+      }
+    },
+    "getBoardById": {
+      "title": "Get board by ID",
+      "description": "Get a board by its unique identifier",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "boardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          },
+          "required": [
+            "boardId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "board": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            }
+          },
+          "required": [
+            "board"
+          ]
+        }
+      }
+    },
+    "getListsInBoard": {
+      "title": "Get lists in board",
+      "description": "Get all lists in a board",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "boardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          },
+          "required": [
+            "boardId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "lists": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              }
+            }
+          },
+          "required": [
+            "lists"
+          ]
+        }
+      }
+    },
+    "getCardsInList": {
+      "title": "Get cards in list",
+      "description": "Get all cards in a list",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "listId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          },
+          "required": [
+            "listId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "cards": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "listId": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "verticalPosition": {
+                    "type": "number"
+                  },
+                  "isClosed": {
+                    "type": "boolean"
+                  },
+                  "isCompleted": {
+                    "type": "boolean"
+                  },
+                  "dueDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                    "x-zui": {
+                      "precision": null,
+                      "offset": false
+                    }
+                  },
+                  "labelIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
+                  },
+                  "memberIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "description",
+                  "listId",
+                  "verticalPosition",
+                  "isClosed",
+                  "isCompleted",
+                  "labelIds",
+                  "memberIds"
+                ]
+              }
+            }
+          },
+          "required": [
+            "cards"
+          ]
+        }
+      }
+    },
+    "getCardById": {
+      "title": "Get card by ID",
+      "description": "Get a card by its unique identifier",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "cardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          },
+          "required": [
+            "cardId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "card": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "listId": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$"
+                },
+                "verticalPosition": {
+                  "type": "number"
+                },
+                "isClosed": {
+                  "type": "boolean"
+                },
+                "isCompleted": {
+                  "type": "boolean"
+                },
+                "dueDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                  "x-zui": {
+                    "precision": null,
+                    "offset": false
+                  }
+                },
+                "labelIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  }
+                },
+                "memberIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "description",
+                "listId",
+                "verticalPosition",
+                "isClosed",
+                "isCompleted",
+                "labelIds",
+                "memberIds"
+              ]
+            }
+          },
+          "required": [
+            "card"
+          ]
+        }
+      }
+    },
+    "getMemberByIdOrUsername": {
+      "title": "Get member by ID or username",
+      "description": "Get a member by their unique identifier or username",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "memberIdOrUsername": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "required": [
+            "memberIdOrUsername"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "member": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$"
+                },
+                "username": {
+                  "type": "string"
+                },
+                "fullName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "username",
+                "fullName"
+              ]
+            }
+          },
+          "required": [
+            "member"
+          ]
+        }
+      }
+    },
+    "getAllCardMembers": {
+      "title": "Get all card members",
+      "description": "Get all members of a card",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "cardId": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          },
+          "required": [
+            "cardId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "members": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "fullName": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "username",
+                  "fullName"
+                ]
+              }
+            }
+          },
+          "required": [
+            "members"
+          ]
+        }
+      }
+    },
+    "cardList": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "listId": {
+                        "type": "string",
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      },
+                      "verticalPosition": {
+                        "type": "number"
+                      },
+                      "isClosed": {
+                        "type": "boolean"
+                      },
+                      "isCompleted": {
+                        "type": "boolean"
+                      },
+                      "dueDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                        "x-zui": {
+                          "precision": null,
+                          "offset": false
+                        }
+                      },
+                      "labelIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 24,
+                          "minLength": 24,
+                          "pattern": "^[0-9a-fA-F]{24}$"
+                        }
+                      },
+                      "memberIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 24,
+                          "minLength": 24,
+                          "pattern": "^[0-9a-fA-F]{24}$"
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "description",
+                      "listId",
+                      "verticalPosition",
+                      "isClosed",
+                      "isCompleted",
+                      "labelIds",
+                      "memberIds"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                ]
+              }
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "items",
+            "meta"
+          ]
+        }
+      },
+      "name": "cardList"
+    },
+    "cardRead": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "listId": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    },
+                    "verticalPosition": {
+                      "type": "number"
+                    },
+                    "isClosed": {
+                      "type": "boolean"
+                    },
+                    "isCompleted": {
+                      "type": "boolean"
+                    },
+                    "dueDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    "labelIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      }
+                    },
+                    "memberIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "listId",
+                    "verticalPosition",
+                    "isClosed",
+                    "isCompleted",
+                    "labelIds",
+                    "memberIds"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "name": "cardRead"
+    },
+    "cardCreate": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "listId": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$"
+                },
+                "verticalPosition": {
+                  "type": "number"
+                },
+                "isClosed": {
+                  "type": "boolean"
+                },
+                "isCompleted": {
+                  "type": "boolean"
+                },
+                "dueDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                  "x-zui": {
+                    "precision": null,
+                    "offset": false
+                  }
+                },
+                "labelIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  }
+                },
+                "memberIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "description",
+                "listId",
+                "verticalPosition",
+                "isClosed",
+                "isCompleted",
+                "labelIds",
+                "memberIds"
+              ]
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "listId": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    },
+                    "verticalPosition": {
+                      "type": "number"
+                    },
+                    "isClosed": {
+                      "type": "boolean"
+                    },
+                    "isCompleted": {
+                      "type": "boolean"
+                    },
+                    "dueDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    "labelIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      }
+                    },
+                    "memberIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "listId",
+                    "verticalPosition",
+                    "isClosed",
+                    "isCompleted",
+                    "labelIds",
+                    "memberIds"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "name": "cardCreate"
+    },
+    "cardUpdate": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "item": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "listId": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$"
+                },
+                "verticalPosition": {
+                  "type": "number"
+                },
+                "isClosed": {
+                  "type": "boolean"
+                },
+                "isCompleted": {
+                  "type": "boolean"
+                },
+                "dueDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                  "x-zui": {
+                    "precision": null,
+                    "offset": false
+                  }
+                },
+                "labelIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  }
+                },
+                "memberIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "description",
+                "listId",
+                "verticalPosition",
+                "isClosed",
+                "isCompleted",
+                "labelIds",
+                "memberIds"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "item"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "listId": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    },
+                    "verticalPosition": {
+                      "type": "number"
+                    },
+                    "isClosed": {
+                      "type": "boolean"
+                    },
+                    "isCompleted": {
+                      "type": "boolean"
+                    },
+                    "dueDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    "labelIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      }
+                    },
+                    "memberIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "listId",
+                    "verticalPosition",
+                    "isClosed",
+                    "isCompleted",
+                    "labelIds",
+                    "memberIds"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "name": "cardUpdate"
+    },
+    "cardDelete": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "name": "cardDelete"
+    },
+    "listList": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                ]
+              }
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "items",
+            "meta"
+          ]
+        }
+      },
+      "name": "listList"
+    },
+    "listRead": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "name": "listRead"
+    },
+    "boardList": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                ]
+              }
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "items",
+            "meta"
+          ]
+        }
+      },
+      "name": "boardList"
+    },
+    "boardRead": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "name": "boardRead"
+    },
+    "boardMemberList": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      },
+                      "username": {
+                        "type": "string"
+                      },
+                      "fullName": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "username",
+                      "fullName"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                ]
+              }
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "items",
+            "meta"
+          ]
+        }
+      },
+      "name": "boardMemberList"
+    },
+    "boardMemberRead": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "fullName": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "username",
+                    "fullName"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "name": "boardMemberRead"
+    },
+    "cardMemberList": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      },
+                      "username": {
+                        "type": "string"
+                      },
+                      "fullName": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "username",
+                      "fullName"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                ]
+              }
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "items",
+            "meta"
+          ]
+        }
+      },
+      "name": "cardMemberList"
+    },
+    "cardMemberRead": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    },
+                    "username": {
+                      "type": "string"
+                    },
+                    "fullName": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "username",
+                    "fullName"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      },
+      "name": "cardMemberRead"
+    }
+  },
+  "channels": {
+    "cardComments": {
+      "messages": {
+        "text": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "text"
+            ]
+          }
+        }
+      },
+      "message": {
+        "tags": {
+          "commentId": {
+            "title": "Comment ID",
+            "description": "unique identifier of the comment"
+          }
+        }
+      },
+      "conversation": {
+        "tags": {
+          "cardId": {
+            "title": "Card ID",
+            "description": "unique identifier of the card"
+          },
+          "cardName": {
+            "title": "Card name",
+            "description": "display name of the card"
+          },
+          "listId": {
+            "title": "List ID",
+            "description": "unique identifier of the list"
+          },
+          "listName": {
+            "title": "Card ID",
+            "description": "display name of the list"
+          },
+          "lastCommentId": {
+            "title": "Last comment ID",
+            "description": "unique identifier of the last comment sent by the integration in this conversation"
+          }
+        }
+      }
+    }
+  },
+  "states": {
+    "webhookState": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "trelloWebhookId": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  "entities": {
+    "card": {
+      "title": "Card",
+      "description": "A card in a Trello list",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "listId": {
+            "type": "string",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$"
+          },
+          "verticalPosition": {
+            "type": "number"
+          },
+          "isClosed": {
+            "type": "boolean"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+            "x-zui": {
+              "precision": null,
+              "offset": false
+            }
+          },
+          "labelIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          },
+          "memberIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "listId",
+          "verticalPosition",
+          "isClosed",
+          "isCompleted",
+          "labelIds",
+          "memberIds"
+        ]
+      }
+    },
+    "list": {
+      "title": "List",
+      "description": "A list in a Trello board",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      }
+    },
+    "board": {
+      "title": "Board",
+      "description": "A Trello board",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      }
+    },
+    "boardMember": {
+      "title": "Board Member",
+      "description": "A member of a Trello board",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$"
+          },
+          "username": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "fullName"
+        ]
+      }
+    },
+    "cardMember": {
+      "title": "Card Member",
+      "description": "A member assigned to a Trello card",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$"
+          },
+          "username": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "fullName"
+        ]
+      }
+    }
+  },
+  "interfaces": {
+    "listable<card>": {
+      "id": "",
+      "name": "listable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "card"
+        }
+      },
+      "actions": {
+        "list": {
+          "name": "cardList"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "readable<card>": {
+      "id": "",
+      "name": "readable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "card"
+        }
+      },
+      "actions": {
+        "read": {
+          "name": "cardRead"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "creatable<card>": {
+      "id": "",
+      "name": "creatable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "card"
+        }
+      },
+      "actions": {
+        "create": {
+          "name": "cardCreate"
+        }
+      },
+      "events": {
+        "created": {
+          "name": "cardCreated"
+        }
+      },
+      "channels": {}
+    },
+    "updatable<card>": {
+      "id": "",
+      "name": "updatable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "card"
+        }
+      },
+      "actions": {
+        "update": {
+          "name": "cardUpdate"
+        }
+      },
+      "events": {
+        "updated": {
+          "name": "cardUpdated"
+        }
+      },
+      "channels": {}
+    },
+    "deletable<card>": {
+      "id": "",
+      "name": "deletable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "card"
+        }
+      },
+      "actions": {
+        "delete": {
+          "name": "cardDelete"
+        }
+      },
+      "events": {
+        "deleted": {
+          "name": "cardDeleted"
+        }
+      },
+      "channels": {}
+    },
+    "listable<list>": {
+      "id": "",
+      "name": "listable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "list"
+        }
+      },
+      "actions": {
+        "list": {
+          "name": "listList"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "readable<list>": {
+      "id": "",
+      "name": "readable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "list"
+        }
+      },
+      "actions": {
+        "read": {
+          "name": "listRead"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "listable<board>": {
+      "id": "",
+      "name": "listable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "board"
+        }
+      },
+      "actions": {
+        "list": {
+          "name": "boardList"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "readable<board>": {
+      "id": "",
+      "name": "readable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "board"
+        }
+      },
+      "actions": {
+        "read": {
+          "name": "boardRead"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "listable<boardMember>": {
+      "id": "",
+      "name": "listable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "boardMember"
+        }
+      },
+      "actions": {
+        "list": {
+          "name": "boardMemberList"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "readable<boardMember>": {
+      "id": "",
+      "name": "readable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "boardMember"
+        }
+      },
+      "actions": {
+        "read": {
+          "name": "boardMemberRead"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "listable<cardMember>": {
+      "id": "",
+      "name": "listable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "cardMember"
+        }
+      },
+      "actions": {
+        "list": {
+          "name": "cardMemberList"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "readable<cardMember>": {
+      "id": "",
+      "name": "readable",
+      "version": "0.0.1",
+      "entities": {
+        "item": {
+          "name": "cardMember"
+        }
+      },
+      "actions": {
+        "read": {
+          "name": "cardMemberRead"
+        }
+      },
+      "events": {},
+      "channels": {}
+    }
+  }
+}

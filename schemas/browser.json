@@ -1,0 +1,287 @@
+{
+  "name": "browser",
+  "version": "0.4.1",
+  "title": "Browser",
+  "description": "Capture screenshots and retrieve web page content with metadata for automated browsing and data extraction.",
+  "actions": {
+    "captureScreenshot": {
+      "title": "Capture Screenshot",
+      "description": "Capture a screenshot of the specified page.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "imageUrl"
+          ]
+        }
+      },
+      "cacheable": true,
+      "billable": true
+    },
+    "browsePages": {
+      "title": "Browse Pages",
+      "description": "Extract the full content & the metadata of the specified pages as markdown.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "urls": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "waitFor": {
+              "default": 350,
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "urls"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "favicon": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "url",
+                  "content"
+                ]
+              }
+            }
+          },
+          "required": [
+            "results"
+          ]
+        }
+      },
+      "cacheable": true,
+      "billable": true
+    },
+    "webSearch": {
+      "title": "Web Search",
+      "description": "Search information on the web. You need to browse to that page to get the full content of the page.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            },
+            "includeSites": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
+                "minLength": 3,
+                "maxLength": 50
+              },
+              "maxItems": 20
+            },
+            "excludeSites": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
+                "minLength": 3,
+                "maxLength": 50
+              },
+              "maxItems": 20
+            },
+            "count": {
+              "default": 10,
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 20
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            },
+            "freshness": {
+              "type": "string",
+              "enum": [
+                "Day",
+                "Week",
+                "Month"
+              ]
+            },
+            "browsePages": {
+              "default": false,
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "query"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "snippet": {
+                    "type": "string"
+                  },
+                  "links": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "url"
+                      ]
+                    }
+                  },
+                  "page": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string"
+                      },
+                      "content": {
+                        "type": "string"
+                      },
+                      "favicon": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "url",
+                      "content"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "url",
+                  "snippet"
+                ]
+              }
+            }
+          },
+          "required": [
+            "results"
+          ]
+        }
+      },
+      "cacheable": true
+    }
+  },
+  "interfaces": {}
+}

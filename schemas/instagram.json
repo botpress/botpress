@@ -1,0 +1,727 @@
+{
+  "name": "instagram",
+  "version": "3.0.0",
+  "title": "Instagram",
+  "description": "Automate interactions, manage comments, and send/receive messages all in real-time.",
+  "user": {
+    "tags": {
+      "id": {
+        "title": "User ID",
+        "description": "The Instagram user ID"
+      }
+    }
+  },
+  "events": {},
+  "actions": {
+    "getOrCreateUser": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "pictureUrl": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "user": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "ID"
+                  }
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "x-zui": {
+                "title": "User"
+              }
+            }
+          },
+          "required": [
+            "user"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "userId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "userId"
+          ]
+        }
+      },
+      "title": "Get or Create a User",
+      "description": "Proactively create a user from a bot"
+    },
+    "getOrCreateConversationDm": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "conversation": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "User ID"
+                  }
+                }
+              },
+              "required": [
+                "id"
+              ],
+              "x-zui": {
+                "title": "Conversation"
+              }
+            }
+          },
+          "required": [
+            "conversation"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "conversationId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "conversationId"
+          ]
+        }
+      },
+      "name": "getOrCreateConversationDm"
+    }
+  },
+  "channels": {
+    "channel": {
+      "title": "Direct Message",
+      "description": "Direct message conversation between an Instagram user and the bot",
+      "messages": {
+        "text": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "text"
+            ]
+          }
+        },
+        "image": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "imageUrl": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "imageUrl"
+            ]
+          }
+        },
+        "audio": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "audioUrl": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "audioUrl"
+            ]
+          }
+        },
+        "video": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "videoUrl": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "videoUrl"
+            ]
+          }
+        },
+        "location": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              },
+              "address": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "latitude",
+              "longitude"
+            ]
+          }
+        },
+        "carousel": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "subtitle": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "actions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "postback",
+                              "url",
+                              "say"
+                            ]
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "action",
+                          "label",
+                          "value"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "actions"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "items"
+            ]
+          }
+        },
+        "card": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "subtitle": {
+                "type": "string",
+                "minLength": 1
+              },
+              "imageUrl": {
+                "type": "string",
+                "minLength": 1
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "postback",
+                        "url",
+                        "say"
+                      ]
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "action",
+                    "label",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "title",
+              "actions"
+            ]
+          }
+        },
+        "dropdown": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "options"
+            ]
+          }
+        },
+        "choice": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "options"
+            ]
+          }
+        },
+        "bloc": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "text"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "text"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "markdown"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "markdown": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "markdown"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "image"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "imageUrl": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "imageUrl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "audio"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "audioUrl": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "audioUrl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "video"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "videoUrl": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "videoUrl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "file"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "fileUrl": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "fileUrl"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "location"
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "latitude": {
+                              "type": "number"
+                            },
+                            "longitude": {
+                              "type": "number"
+                            },
+                            "address": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "latitude",
+                            "longitude"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "items"
+            ]
+          }
+        }
+      },
+      "message": {
+        "tags": {
+          "id": {
+            "title": "Message ID",
+            "description": "The Instagram message ID"
+          },
+          "senderId": {
+            "title": "Sender ID",
+            "description": "The Instagram user ID of the message sender"
+          },
+          "recipientId": {
+            "title": "Recipient ID",
+            "description": "The Instagram user ID of the message recipient"
+          }
+        }
+      },
+      "conversation": {
+        "tags": {
+          "id": {
+            "title": "Conversation ID",
+            "description": "The Instagram user ID of the user in the conversation"
+          }
+        }
+      }
+    }
+  },
+  "states": {
+    "oauth": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "x-zui": {
+              "title": "Access token"
+            }
+          },
+          "instagramId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Instagram account ID"
+            }
+          },
+          "expirationTime": {
+            "type": "number",
+            "x-zui": {
+              "title": "Expiration time"
+            }
+          }
+        },
+        "required": [
+          "accessToken",
+          "instagramId",
+          "expirationTime"
+        ]
+      }
+    }
+  },
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "An Instagram user",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "ID"
+            }
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "x-zui": {
+          "title": "User"
+        }
+      }
+    },
+    "dm": {
+      "title": "Direct Message",
+      "description": "An Instagram direct message conversation",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "User ID"
+            }
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "x-zui": {
+          "title": "Conversation"
+        }
+      }
+    }
+  },
+  "interfaces": {
+    "proactiveUser<user>": {
+      "id": "",
+      "name": "proactiveUser",
+      "version": "0.0.2",
+      "entities": {
+        "user": {
+          "name": "user"
+        }
+      },
+      "actions": {
+        "getOrCreateUser": {
+          "name": "getOrCreateUser"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "proactiveConversation<dm>": {
+      "id": "",
+      "name": "proactiveConversation",
+      "version": "0.0.2",
+      "entities": {
+        "conversation": {
+          "name": "dm"
+        }
+      },
+      "actions": {
+        "getOrCreateConversation": {
+          "name": "getOrCreateConversationDm"
+        }
+      },
+      "events": {},
+      "channels": {}
+    }
+  }
+}

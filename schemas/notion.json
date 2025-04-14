@@ -1,0 +1,899 @@
+{
+  "name": "notion",
+  "version": "2.0.0",
+  "title": "Notion",
+  "description": "Add pages and comments, manage databases, and engage in discussions — all within your chatbot.",
+  "user": {
+    "tags": {
+      "id": {
+        "title": "Notion User ID",
+        "description": "The ID of the user on Notion."
+      }
+    }
+  },
+  "events": {
+    "fileCreated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "file"
+              },
+              "name": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "absolutePath": {
+                "type": "string"
+              },
+              "sizeInBytes": {
+                "type": "number"
+              },
+              "lastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              },
+              "contentHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name",
+              "absolutePath"
+            ]
+          }
+        },
+        "required": [
+          "file"
+        ]
+      }
+    },
+    "fileUpdated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "file"
+              },
+              "name": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "absolutePath": {
+                "type": "string"
+              },
+              "sizeInBytes": {
+                "type": "number"
+              },
+              "lastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              },
+              "contentHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name",
+              "absolutePath"
+            ]
+          }
+        },
+        "required": [
+          "file"
+        ]
+      }
+    },
+    "fileDeleted": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "file"
+              },
+              "name": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "absolutePath": {
+                "type": "string"
+              },
+              "sizeInBytes": {
+                "type": "number"
+              },
+              "lastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              },
+              "contentHash": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name",
+              "absolutePath"
+            ]
+          }
+        },
+        "required": [
+          "file"
+        ]
+      }
+    },
+    "folderDeletedRecursive": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "folder": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "folder"
+              },
+              "name": {
+                "type": "string"
+              },
+              "parentId": {
+                "type": "string"
+              },
+              "absolutePath": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "name",
+              "absolutePath"
+            ]
+          }
+        },
+        "required": [
+          "folder"
+        ]
+      }
+    },
+    "aggregateFileChanges": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "modifiedItems": {
+            "type": "object",
+            "properties": {
+              "created": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "file"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parentId": {
+                      "type": "string"
+                    },
+                    "absolutePath": {
+                      "type": "string"
+                    },
+                    "sizeInBytes": {
+                      "type": "number"
+                    },
+                    "lastModifiedDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    "contentHash": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type",
+                    "name",
+                    "absolutePath"
+                  ]
+                }
+              },
+              "updated": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "file"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "parentId": {
+                      "type": "string"
+                    },
+                    "absolutePath": {
+                      "type": "string"
+                    },
+                    "sizeInBytes": {
+                      "type": "number"
+                    },
+                    "lastModifiedDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    "contentHash": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type",
+                    "name",
+                    "absolutePath"
+                  ]
+                }
+              },
+              "deleted": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "file"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "parentId": {
+                          "type": "string"
+                        },
+                        "absolutePath": {
+                          "type": "string"
+                        },
+                        "sizeInBytes": {
+                          "type": "number"
+                        },
+                        "lastModifiedDate": {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                          "x-zui": {
+                            "precision": null,
+                            "offset": false
+                          }
+                        },
+                        "contentHash": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "name",
+                        "absolutePath"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "folder"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "parentId": {
+                          "type": "string"
+                        },
+                        "absolutePath": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "type",
+                        "name",
+                        "absolutePath"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "created",
+              "updated",
+              "deleted"
+            ]
+          }
+        },
+        "required": [
+          "modifiedItems"
+        ]
+      }
+    }
+  },
+  "actions": {
+    "addPageToDb": {
+      "title": "Create Page in Database",
+      "description": "Add a new page to a database in Notion",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "databaseId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Database ID"
+              },
+              "minLength": 1
+            },
+            "pageProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": {}
+              },
+              "x-zui": {
+                "title": "Page Properties"
+              }
+            }
+          },
+          "required": [
+            "databaseId",
+            "pageProperties"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "addCommentToPage": {
+      "title": "Add Comment to Page",
+      "description": "Add a comment to a page in Notion",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "pageId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Page ID"
+              },
+              "minLength": 1
+            },
+            "commentBody": {
+              "type": "string",
+              "x-zui": {
+                "title": "Comment Body"
+              },
+              "minLength": 1
+            }
+          },
+          "required": [
+            "pageId",
+            "commentBody"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "deleteBlock": {
+      "title": "Delete Block",
+      "description": "Delete a block in Notion",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "blockId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Block ID"
+              },
+              "minLength": 1
+            }
+          },
+          "required": [
+            "blockId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "getDb": {
+      "title": "Get Database",
+      "description": "Get a database from Notion",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "databaseId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Database ID"
+              },
+              "minLength": 1
+            }
+          },
+          "required": [
+            "databaseId"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "object": {
+              "type": "string",
+              "x-zui": {
+                "title": "Database Object"
+              }
+            },
+            "properties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": {}
+              },
+              "x-zui": {
+                "title": "Database Properties"
+              }
+            },
+            "structure": {
+              "type": "string",
+              "x-zui": {
+                "title": "Database Structure"
+              }
+            }
+          },
+          "required": [
+            "object",
+            "properties",
+            "structure"
+          ]
+        }
+      }
+    },
+    "addCommentToDiscussion": {
+      "title": "Add Comment to Discussion",
+      "description": "Add a comment to a discussion in Notion",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "discussionId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Discussion ID"
+              },
+              "minLength": 1
+            },
+            "commentBody": {
+              "type": "string",
+              "x-zui": {
+                "title": "Comment Body"
+              },
+              "minLength": 1
+            }
+          },
+          "required": [
+            "discussionId",
+            "commentBody"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "filesReadonlyListItemsInFolder": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "folderId": {
+              "type": "string"
+            },
+            "filters": {
+              "type": "object",
+              "properties": {
+                "itemType": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "file"
+                    },
+                    {
+                      "type": "string",
+                      "const": "folder"
+                    }
+                  ]
+                },
+                "maxSizeInBytes": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                },
+                "modifiedAfter": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                }
+              },
+              "required": []
+            },
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "file"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "type": "string"
+                      },
+                      "absolutePath": {
+                        "type": "string"
+                      },
+                      "sizeInBytes": {
+                        "type": "number"
+                      },
+                      "lastModifiedDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                        "x-zui": {
+                          "precision": null,
+                          "offset": false
+                        }
+                      },
+                      "contentHash": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "type",
+                      "name"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "folder"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "type": "string"
+                      },
+                      "absolutePath": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "type",
+                      "name"
+                    ]
+                  }
+                ]
+              }
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "items",
+            "meta"
+          ]
+        }
+      },
+      "title": "List items in folder",
+      "description": "List the files and folders in a folder",
+      "name": "filesReadonlyListItemsInFolder"
+    },
+    "filesReadonlyTransferFileToBotpress": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "const": "file"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "parentId": {
+                  "type": "string"
+                },
+                "absolutePath": {
+                  "type": "string"
+                },
+                "sizeInBytes": {
+                  "type": "number"
+                },
+                "lastModifiedDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                  "x-zui": {
+                    "precision": null,
+                    "offset": false
+                  }
+                },
+                "contentHash": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "name"
+              ]
+            },
+            "fileKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "file",
+            "fileKey"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "botpressFileId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "botpressFileId"
+          ]
+        }
+      },
+      "title": "Transfer file to Botpress",
+      "description": "Transfer a file from an external service to Botpress",
+      "name": "filesReadonlyTransferFileToBotpress"
+    }
+  },
+  "channels": {},
+  "states": {
+    "oauth": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "authToken": {
+            "type": "string",
+            "x-zui": {
+              "title": "OAuth Authentication Token"
+            }
+          }
+        },
+        "required": [
+          "authToken"
+        ]
+      }
+    }
+  },
+  "interfaces": {
+    "files-readonly": {
+      "id": "",
+      "name": "files-readonly",
+      "version": "0.2.0",
+      "entities": {},
+      "actions": {
+        "listItemsInFolder": {
+          "name": "filesReadonlyListItemsInFolder"
+        },
+        "transferFileToBotpress": {
+          "name": "filesReadonlyTransferFileToBotpress"
+        }
+      },
+      "events": {
+        "fileCreated": {
+          "name": "fileCreated"
+        },
+        "fileUpdated": {
+          "name": "fileUpdated"
+        },
+        "fileDeleted": {
+          "name": "fileDeleted"
+        },
+        "folderDeletedRecursive": {
+          "name": "folderDeletedRecursive"
+        },
+        "aggregateFileChanges": {
+          "name": "aggregateFileChanges"
+        }
+      },
+      "channels": {}
+    }
+  }
+}

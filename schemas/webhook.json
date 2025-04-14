@@ -1,0 +1,54 @@
+{
+  "name": "webhook",
+  "version": "1.1.0",
+  "title": "Webhook",
+  "description": "Use webhooks to send and receive data from external systems and trigger workflows.",
+  "events": {
+    "event": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "body": {},
+          "query": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "path": {
+            "type": "string"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "POST"
+            ]
+          }
+        },
+        "required": [
+          "query",
+          "path",
+          "headers",
+          "method"
+        ],
+        "additionalProperties": {}
+      }
+    }
+  },
+  "interfaces": {}
+}

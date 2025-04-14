@@ -1,0 +1,45 @@
+{
+  "name": "analytics",
+  "version": "0.0.1",
+  "user": {
+    "tags": {}
+  },
+  "conversation": {
+    "tags": {}
+  },
+  "configuration": {
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "actions": {
+    "track": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "count": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "name",
+            "count"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    }
+  }
+}

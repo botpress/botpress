@@ -1,0 +1,99 @@
+{
+  "name": "updatable",
+  "version": "0.0.1",
+  "entities": {
+    "item": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    }
+  },
+  "events": {
+    "updated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "allOf": [
+              {
+                "$ref": "item"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "item"
+        ]
+      }
+    }
+  },
+  "actions": {
+    "update": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "item": {
+              "$ref": "item"
+            }
+          },
+          "required": [
+            "id",
+            "item"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "$ref": "item"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "item"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {}
+}

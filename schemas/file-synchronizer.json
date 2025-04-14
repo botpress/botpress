@@ -1,0 +1,376 @@
+{
+  "name": "file-synchronizer",
+  "version": "0.4.0",
+  "title": "File Synchronizer",
+  "description": "Synchronize files from external services to Botpress",
+  "user": {
+    "tags": {}
+  },
+  "conversation": {
+    "tags": {}
+  },
+  "configuration": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "enablePeriodicSync": {
+          "type": "object",
+          "properties": {
+            "everyNHours": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "everyNHours"
+          ]
+        },
+        "enableRealTimeSync": {
+          "default": true,
+          "type": "boolean"
+        },
+        "includeFiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pathGlobPattern": {
+                "type": "string"
+              },
+              "maxSizeInBytes": {
+                "type": "number"
+              },
+              "modifiedAfter": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                "x-zui": {
+                  "precision": null,
+                  "offset": false
+                }
+              }
+            },
+            "required": [
+              "pathGlobPattern"
+            ],
+            "x-zui": {
+              "title": "Include Criteria"
+            }
+          },
+          "x-zui": {
+            "title": "Include Rules Override"
+          }
+        },
+        "excludeFiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pathGlobPattern": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "pathGlobPattern"
+            ],
+            "x-zui": {
+              "title": "Exclude Criteria"
+            }
+          },
+          "x-zui": {
+            "title": "Exclude Rules Override"
+          }
+        }
+      },
+      "required": [
+        "includeFiles",
+        "excludeFiles"
+      ]
+    }
+  },
+  "events": {
+    "periodicSync": {
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  "actions": {
+    "syncFilesToBotpess": {
+      "title": "Sync files to Botpress",
+      "description": "Start synchronization of files from the external service to Botpress",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "includeFiles": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "pathGlobPattern": {
+                    "type": "string"
+                  },
+                  "maxSizeInBytes": {
+                    "type": "number"
+                  },
+                  "modifiedAfter": {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                    "x-zui": {
+                      "precision": null,
+                      "offset": false
+                    }
+                  }
+                },
+                "required": [
+                  "pathGlobPattern"
+                ],
+                "x-zui": {
+                  "title": "Include Criteria"
+                }
+              },
+              "x-zui": {
+                "title": "Include Rules Override"
+              }
+            },
+            "excludeFiles": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "pathGlobPattern": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "pathGlobPattern"
+                ],
+                "x-zui": {
+                  "title": "Exclude Criteria"
+                }
+              },
+              "x-zui": {
+                "title": "Exclude Rules Override"
+              }
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "queued",
+                "already-running",
+                "error"
+              ]
+            }
+          },
+          "required": [
+            "status"
+          ]
+        }
+      }
+    },
+    "listItemsInFolder": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "folderId": {
+              "type": "string"
+            },
+            "filters": {
+              "type": "object",
+              "properties": {
+                "itemType": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "const": "file"
+                    },
+                    {
+                      "type": "string",
+                      "const": "folder"
+                    }
+                  ]
+                },
+                "maxSizeInBytes": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                },
+                "modifiedAfter": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                      "x-zui": {
+                        "precision": null,
+                        "offset": false
+                      }
+                    },
+                    {
+                      "not": true,
+                      "x-zui": {
+                        "def": {
+                          "typeName": "ZodUndefined"
+                        }
+                      }
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodOptional"
+                    }
+                  }
+                }
+              },
+              "required": []
+            },
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "file"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "type": "string"
+                      },
+                      "absolutePath": {
+                        "type": "string"
+                      },
+                      "sizeInBytes": {
+                        "type": "number"
+                      },
+                      "lastModifiedDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+                        "x-zui": {
+                          "precision": null,
+                          "offset": false
+                        }
+                      },
+                      "contentHash": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "type",
+                      "name"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "folder"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "type": "string"
+                      },
+                      "absolutePath": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "type",
+                      "name"
+                    ]
+                  }
+                ]
+              }
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "items",
+            "meta"
+          ]
+        }
+      },
+      "title": "List items in folder",
+      "description": "List the files and folders in a folder"
+    }
+  },
+  "states": {
+    "periodicSync": {
+      "type": "bot",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "elapsedHoursSinceLastSync": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "elapsedHoursSinceLastSync"
+        ]
+      },
+      "expiry": 172800000
+    }
+  }
+}

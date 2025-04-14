@@ -1,0 +1,124 @@
+{
+  "name": "pdf-generator",
+  "version": "0.0.2",
+  "description": "Converts markdown content to PDF using PDFShift",
+  "actions": {
+    "fromMarkdown": {
+      "title": "Markdown to PDF",
+      "description": "Converts a markdown content to a PDF file",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "markdown": {
+              "type": "string",
+              "minLength": 1
+            },
+            "filename": {
+              "default": "generated.pdf",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\.pdf$"
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "markdown"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fileId": {
+              "type": "string"
+            },
+            "fileUrl": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "fileId",
+            "fileUrl"
+          ]
+        }
+      }
+    },
+    "fromHtml": {
+      "title": "HTML to PDF",
+      "description": "Converts an HTML document to a PDF file",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "html": {
+              "type": "string",
+              "minLength": 1
+            },
+            "filename": {
+              "default": "generated.pdf",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\.pdf$"
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "html"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fileId": {
+              "type": "string"
+            },
+            "fileUrl": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "fileId",
+            "fileUrl"
+          ]
+        }
+      }
+    }
+  },
+  "interfaces": {}
+}

@@ -1,0 +1,1317 @@
+{
+  "name": "todoist",
+  "version": "1.0.1",
+  "title": "Todoist",
+  "description": "Create and modify tasks, post comments and more.",
+  "user": {
+    "tags": {
+      "id": {
+        "title": "Todoist User ID",
+        "description": "The unique ID of the user on Todoist"
+      }
+    }
+  },
+  "events": {
+    "taskAdded": {
+      "title": "Task Added",
+      "description": "A task has been added",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "Parent Task ID (optional)"
+            }
+          },
+          "content": {
+            "type": "string",
+            "x-zui": {
+              "title": "Content"
+            }
+          },
+          "description": {
+            "type": "string",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "priority": {
+            "type": "number",
+            "x-zui": {
+              "title": "Old Priority"
+            },
+            "minimum": 1,
+            "maximum": 4
+          }
+        },
+        "required": [
+          "id",
+          "content",
+          "description",
+          "priority"
+        ]
+      }
+    },
+    "taskPriorityChanged": {
+      "title": "Task Priority Changed",
+      "description": "The priority of a task has been changed. The old priority is only available if the bot user is at the origin of the change",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "Parent Task ID (optional)"
+            }
+          },
+          "newPriority": {
+            "type": "number",
+            "x-zui": {
+              "title": "Old Priority"
+            },
+            "minimum": 1,
+            "maximum": 4
+          },
+          "oldPriority": {
+            "type": "number",
+            "x-zui": {
+              "title": "Old Priority"
+            },
+            "minimum": 1,
+            "maximum": 4
+          }
+        },
+        "required": [
+          "id",
+          "newPriority"
+        ]
+      }
+    },
+    "taskCompleted": {
+      "title": "Task Completed",
+      "description": "A task has been completed",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "x-zui": {
+              "title": "User ID"
+            }
+          },
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "Parent Task ID (optional)"
+            }
+          },
+          "content": {
+            "type": "string",
+            "x-zui": {
+              "title": "Content"
+            }
+          },
+          "description": {
+            "type": "string",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "priority": {
+            "type": "number",
+            "x-zui": {
+              "title": "Old Priority"
+            },
+            "minimum": 1,
+            "maximum": 4
+          }
+        },
+        "required": [
+          "user_id",
+          "id",
+          "content",
+          "description",
+          "priority"
+        ]
+      }
+    }
+  },
+  "actions": {
+    "changeTaskPriority": {
+      "title": "Change Task Priority",
+      "description": "Change the priority of a task",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "taskId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Parent Task ID (optional)"
+              }
+            },
+            "priority": {
+              "type": "number",
+              "x-zui": {
+                "title": "Old Priority"
+              },
+              "minimum": 1,
+              "maximum": 4
+            }
+          },
+          "required": [
+            "taskId",
+            "priority"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    "getTaskId": {
+      "title": "Get Task ID",
+      "description": "Get the ID of the first task matching the given name",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-zui": {
+                "title": "Name"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "taskId": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Parent Task ID (optional)"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "title": "ID",
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            }
+          },
+          "required": [
+            "taskId"
+          ]
+        }
+      }
+    },
+    "getProjectId": {
+      "title": "Get Project ID",
+      "description": "Get the ID of the project",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-zui": {
+                "title": "Name"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Project ID (optional)"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "title": "ID",
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            }
+          },
+          "required": [
+            "projectId"
+          ]
+        }
+      }
+    },
+    "getAllProjects": {
+      "title": "Get All Projects",
+      "description": "Get all projects",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "projects": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Project ID (optional)"
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Name"
+                    }
+                  },
+                  "color": {
+                    "type": "string",
+                    "enum": [
+                      "berry_red",
+                      "red",
+                      "orange",
+                      "yellow",
+                      "olive_green",
+                      "lime_green",
+                      "green",
+                      "mint_green",
+                      "teal",
+                      "sky_blue",
+                      "light_blue",
+                      "blue",
+                      "grape",
+                      "violet",
+                      "lavender",
+                      "magenta",
+                      "salmon",
+                      "charcoal",
+                      "gunmetal",
+                      "taupe"
+                    ],
+                    "x-zui": {
+                      "title": "Color Name"
+                    }
+                  },
+                  "parentProjectId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Parent Project ID"
+                    }
+                  },
+                  "positionWithinParent": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Position Within Parent"
+                    }
+                  },
+                  "numberOfComments": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Number of Comments"
+                    },
+                    "minimum": 0
+                  },
+                  "isShared": {
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Is Shared?"
+                    }
+                  },
+                  "isFavorite": {
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Is Favorite?"
+                    }
+                  },
+                  "isInboxProject": {
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Is Inbox Project?"
+                    }
+                  },
+                  "isTeamInbox": {
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Is Team Inbox?"
+                    }
+                  },
+                  "webUrl": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Web URL"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "color",
+                  "positionWithinParent",
+                  "numberOfComments",
+                  "isShared",
+                  "isFavorite",
+                  "isInboxProject",
+                  "isTeamInbox",
+                  "webUrl"
+                ]
+              },
+              "x-zui": {
+                "title": "Projects"
+              }
+            }
+          },
+          "required": [
+            "projects"
+          ]
+        }
+      }
+    },
+    "getAllSections": {
+      "title": "Get All Sections",
+      "description": "Get all sections in a project",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Project ID (optional)"
+              }
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Section ID (optional)"
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Name"
+                    }
+                  },
+                  "projectId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Project ID"
+                    }
+                  },
+                  "positionWithinParent": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Position Within Parent"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "positionWithinParent"
+                ]
+              },
+              "x-zui": {
+                "title": "Sections"
+              }
+            }
+          },
+          "required": [
+            "sections"
+          ]
+        }
+      }
+    },
+    "getAllTasks": {
+      "title": "Get All Tasks",
+      "description": "Find tasks using optional filters",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Project ID (optional)"
+              }
+            },
+            "sectionId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Section ID (optional)"
+              }
+            },
+            "labelName": {
+              "type": "string",
+              "x-zui": {
+                "title": "Filter by Label Name (optional)"
+              }
+            }
+          },
+          "required": []
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "tasks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Parent Task ID (optional)"
+                    }
+                  },
+                  "projectId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Project ID"
+                    }
+                  },
+                  "sectionId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Section ID"
+                    }
+                  },
+                  "content": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Content"
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Description"
+                    }
+                  },
+                  "isCompleted": {
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Is Completed?"
+                    }
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Label Name"
+                      }
+                    },
+                    "x-zui": {
+                      "title": "Labels"
+                    }
+                  },
+                  "parentTaskId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Parent Task ID"
+                    }
+                  },
+                  "positionWithinParent": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Position Within Parent"
+                    }
+                  },
+                  "priority": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Old Priority"
+                    },
+                    "minimum": 1,
+                    "maximum": 4
+                  },
+                  "dueDate": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Due Date"
+                    }
+                  },
+                  "isRecurringDueDate": {
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Is Recurring Due Date?"
+                    }
+                  },
+                  "webUrl": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Web URL"
+                    }
+                  },
+                  "numberOfComments": {
+                    "type": "number",
+                    "x-zui": {
+                      "title": "Number of Comments"
+                    },
+                    "minimum": 0
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Created At"
+                    }
+                  },
+                  "createdBy": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Created By ID"
+                    }
+                  },
+                  "assignee": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Assignee ID"
+                    }
+                  },
+                  "assigner": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Assigner ID"
+                    }
+                  },
+                  "duration": {
+                    "type": "object",
+                    "properties": {
+                      "amount": {
+                        "type": "number",
+                        "x-zui": {
+                          "title": "Amount"
+                        },
+                        "exclusiveMinimum": 0
+                      },
+                      "unit": {
+                        "type": "string",
+                        "enum": [
+                          "minute",
+                          "day"
+                        ],
+                        "x-zui": {
+                          "title": "Unit"
+                        }
+                      }
+                    },
+                    "required": [
+                      "amount",
+                      "unit"
+                    ],
+                    "x-zui": {
+                      "title": "Duration"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "projectId",
+                  "content",
+                  "description",
+                  "isCompleted",
+                  "labels",
+                  "positionWithinParent",
+                  "priority",
+                  "isRecurringDueDate",
+                  "webUrl",
+                  "numberOfComments",
+                  "createdAt",
+                  "createdBy"
+                ]
+              },
+              "x-zui": {
+                "title": "Tasks"
+              }
+            }
+          },
+          "required": [
+            "tasks"
+          ]
+        }
+      }
+    },
+    "createNewTask": {
+      "title": "Create New Task",
+      "description": "Create a new task",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string",
+              "x-zui": {
+                "title": "Content"
+              }
+            },
+            "description": {
+              "type": "string",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "projectId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Project ID (optional)"
+              }
+            },
+            "sectionId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Section ID (optional)"
+              }
+            },
+            "labelNames": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {
+                  "title": "Filter by Label Name (optional)"
+                }
+              },
+              "x-zui": {
+                "title": "Label Names (optional)"
+              }
+            },
+            "parentTaskId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Parent Task ID (optional)"
+              }
+            },
+            "priority": {
+              "type": "number",
+              "x-zui": {
+                "title": "Old Priority"
+              },
+              "minimum": 1,
+              "maximum": 4
+            },
+            "dueDate": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Due Date"
+                  }
+                },
+                {
+                  "not": true,
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodUndefined"
+                    }
+                  }
+                }
+              ],
+              "x-zui": {
+                "title": "Due Date",
+                "def": {
+                  "typeName": "ZodOptional"
+                }
+              }
+            }
+          },
+          "required": [
+            "content"
+          ]
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "taskId": {
+              "type": "string",
+              "x-zui": {
+                "title": "Parent Task ID (optional)"
+              }
+            }
+          },
+          "required": [
+            "taskId"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {
+    "comments": {
+      "title": "Task comments",
+      "description": "Comment thread on a task",
+      "messages": {
+        "text": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "text"
+            ]
+          }
+        }
+      },
+      "conversation": {
+        "tags": {
+          "id": {
+            "title": "Task ID",
+            "description": "The ID of the task"
+          }
+        }
+      },
+      "message": {
+        "tags": {
+          "id": {
+            "title": "Comment ID",
+            "description": "The ID of the comment"
+          }
+        }
+      }
+    }
+  },
+  "states": {
+    "credentials": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "x-zui": {
+              "title": "Access Token"
+            }
+          }
+        },
+        "required": [
+          "accessToken"
+        ]
+      }
+    },
+    "configuration": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "botUserId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Bot User ID"
+            }
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  "entities": {
+    "task": {
+      "title": "Task",
+      "description": "A task in Todoist",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "Parent Task ID (optional)"
+            }
+          },
+          "projectId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Project ID"
+            }
+          },
+          "sectionId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Section ID"
+            }
+          },
+          "content": {
+            "type": "string",
+            "x-zui": {
+              "title": "Content"
+            }
+          },
+          "description": {
+            "type": "string",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "isCompleted": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Completed?"
+            }
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-zui": {
+                "title": "Label Name"
+              }
+            },
+            "x-zui": {
+              "title": "Labels"
+            }
+          },
+          "parentTaskId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Parent Task ID"
+            }
+          },
+          "positionWithinParent": {
+            "type": "number",
+            "x-zui": {
+              "title": "Position Within Parent"
+            }
+          },
+          "priority": {
+            "type": "number",
+            "x-zui": {
+              "title": "Old Priority"
+            },
+            "minimum": 1,
+            "maximum": 4
+          },
+          "dueDate": {
+            "type": "string",
+            "x-zui": {
+              "title": "Due Date"
+            }
+          },
+          "isRecurringDueDate": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Recurring Due Date?"
+            }
+          },
+          "webUrl": {
+            "type": "string",
+            "x-zui": {
+              "title": "Web URL"
+            }
+          },
+          "numberOfComments": {
+            "type": "number",
+            "x-zui": {
+              "title": "Number of Comments"
+            },
+            "minimum": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Created At"
+            }
+          },
+          "createdBy": {
+            "type": "string",
+            "x-zui": {
+              "title": "Created By ID"
+            }
+          },
+          "assignee": {
+            "type": "string",
+            "x-zui": {
+              "title": "Assignee ID"
+            }
+          },
+          "assigner": {
+            "type": "string",
+            "x-zui": {
+              "title": "Assigner ID"
+            }
+          },
+          "duration": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number",
+                "x-zui": {
+                  "title": "Amount"
+                },
+                "exclusiveMinimum": 0
+              },
+              "unit": {
+                "type": "string",
+                "enum": [
+                  "minute",
+                  "day"
+                ],
+                "x-zui": {
+                  "title": "Unit"
+                }
+              }
+            },
+            "required": [
+              "amount",
+              "unit"
+            ],
+            "x-zui": {
+              "title": "Duration"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "content",
+          "description",
+          "isCompleted",
+          "labels",
+          "positionWithinParent",
+          "priority",
+          "isRecurringDueDate",
+          "webUrl",
+          "numberOfComments",
+          "createdAt",
+          "createdBy"
+        ]
+      }
+    },
+    "project": {
+      "title": "Project",
+      "description": "A project in Todoist",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "Project ID (optional)"
+            }
+          },
+          "name": {
+            "type": "string",
+            "x-zui": {
+              "title": "Name"
+            }
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "berry_red",
+              "red",
+              "orange",
+              "yellow",
+              "olive_green",
+              "lime_green",
+              "green",
+              "mint_green",
+              "teal",
+              "sky_blue",
+              "light_blue",
+              "blue",
+              "grape",
+              "violet",
+              "lavender",
+              "magenta",
+              "salmon",
+              "charcoal",
+              "gunmetal",
+              "taupe"
+            ],
+            "x-zui": {
+              "title": "Color Name"
+            }
+          },
+          "parentProjectId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Parent Project ID"
+            }
+          },
+          "positionWithinParent": {
+            "type": "number",
+            "x-zui": {
+              "title": "Position Within Parent"
+            }
+          },
+          "numberOfComments": {
+            "type": "number",
+            "x-zui": {
+              "title": "Number of Comments"
+            },
+            "minimum": 0
+          },
+          "isShared": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Shared?"
+            }
+          },
+          "isFavorite": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Favorite?"
+            }
+          },
+          "isInboxProject": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Inbox Project?"
+            }
+          },
+          "isTeamInbox": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Team Inbox?"
+            }
+          },
+          "webUrl": {
+            "type": "string",
+            "x-zui": {
+              "title": "Web URL"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "color",
+          "positionWithinParent",
+          "numberOfComments",
+          "isShared",
+          "isFavorite",
+          "isInboxProject",
+          "isTeamInbox",
+          "webUrl"
+        ]
+      }
+    },
+    "section": {
+      "title": "Section",
+      "description": "A section in a Todoist project",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "Section ID (optional)"
+            }
+          },
+          "name": {
+            "type": "string",
+            "x-zui": {
+              "title": "Name"
+            }
+          },
+          "projectId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Project ID"
+            }
+          },
+          "positionWithinParent": {
+            "type": "number",
+            "x-zui": {
+              "title": "Position Within Parent"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "positionWithinParent"
+        ]
+      }
+    },
+    "comment": {
+      "title": "Comment",
+      "description": "A comment on a Todoist task",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "ID"
+            }
+          },
+          "taskId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Task ID"
+            }
+          },
+          "projectId": {
+            "type": "string",
+            "x-zui": {
+              "title": "Project ID"
+            }
+          },
+          "postedAt": {
+            "type": "string",
+            "x-zui": {
+              "title": "Posted At"
+            }
+          },
+          "content": {
+            "type": "string",
+            "x-zui": {
+              "title": "Content"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "postedAt",
+          "content"
+        ]
+      }
+    },
+    "personalLabel": {
+      "title": "Personal Label",
+      "description": "A personal label in Todoist",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {
+              "title": "ID"
+            }
+          },
+          "name": {
+            "type": "string",
+            "x-zui": {
+              "title": "Name"
+            }
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "berry_red",
+              "red",
+              "orange",
+              "yellow",
+              "olive_green",
+              "lime_green",
+              "green",
+              "mint_green",
+              "teal",
+              "sky_blue",
+              "light_blue",
+              "blue",
+              "grape",
+              "violet",
+              "lavender",
+              "magenta",
+              "salmon",
+              "charcoal",
+              "gunmetal",
+              "taupe"
+            ],
+            "x-zui": {
+              "title": "Color Name"
+            }
+          },
+          "orderWithinList": {
+            "type": "number",
+            "x-zui": {
+              "title": "Order Within List"
+            },
+            "minimum": 0
+          },
+          "isFavorite": {
+            "type": "boolean",
+            "x-zui": {
+              "title": "Is Favorite?"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "color",
+          "orderWithinList",
+          "isFavorite"
+        ]
+      }
+    },
+    "sharedLabel": {
+      "title": "Shared Label",
+      "description": "A shared label in Todoist",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "x-zui": {
+              "title": "Filter by Label Name (optional)"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    }
+  },
+  "interfaces": {}
+}

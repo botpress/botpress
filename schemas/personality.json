@@ -1,0 +1,28 @@
+{
+  "name": "personality",
+  "version": "0.0.1",
+  "user": {
+    "tags": {}
+  },
+  "conversation": {
+    "tags": {}
+  },
+  "configuration": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "model": {
+          "type": "string"
+        },
+        "personality": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "required": [
+        "model",
+        "personality"
+      ]
+    }
+  }
+}
