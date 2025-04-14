@@ -70,6 +70,13 @@ const stripHtmlTags = (html: string | undefined): string => {
     .trim()
 }
 
+const getProductImageUrl = (images: BigCommerceProductImage[]): string => {
+  if (!images || images.length === 0) return ''
+  
+  const thumbnailImage = images.find((img) => img.is_thumbnail)
+  return thumbnailImage ? thumbnailImage.url_standard : (images[0]?.url_standard || '')
+}
+
 const handleProductCreateOrUpdate = async (
   productId: string,
   bigCommerceClient: BigCommerceClient,
@@ -114,12 +121,7 @@ const handleProductCreateOrUpdate = async (
 
   let imageUrl = ''
   if (product.images && product.images.length > 0) {
-    const thumbnailImage = product.images.find((img: BigCommerceProductImage) => img.is_thumbnail)
-    if (thumbnailImage) {
-      imageUrl = thumbnailImage.url_standard
-    } else {
-      imageUrl = product.images[0].url_standard
-    }
+    imageUrl = getProductImageUrl(product.images)
   }
 
   const productRow = {
