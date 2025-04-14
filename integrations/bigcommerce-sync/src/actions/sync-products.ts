@@ -181,11 +181,6 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
 
     while (processedRows < totalRows) {
       const batch = tableRows.slice(processedRows, processedRows + BATCH_SIZE)
-      logger
-        .forBot()
-        .info(
-          `Inserting batch ${Math.floor(processedRows / BATCH_SIZE) + 1}/${Math.ceil(totalRows / BATCH_SIZE)}, size: ${batch.length}`
-        )
 
       await botpressVanillaClient.createTableRows({
         table: tableName,
@@ -193,9 +188,6 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
       })
 
       processedRows += batch.length
-      logger
-        .forBot()
-        .info(`Progress: ${processedRows}/${totalRows} (${Math.round((processedRows / totalRows) * 100)}%)`)
     }
 
     return {
