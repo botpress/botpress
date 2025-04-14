@@ -35,21 +35,21 @@ const stripHtmlTags = (html: string | undefined): string => {
 }
 
 function processProductsPage(
-  products: BigCommerceProduct[] | undefined, 
-  allProducts: BigCommerceProduct[], 
-  currentPage: number, 
+  products: BigCommerceProduct[] | undefined,
+  allProducts: BigCommerceProduct[],
+  currentPage: number,
   PRODUCTS_PER_PAGE: number
 ): { hasMoreProducts: boolean; nextPage: number } {
   if (!products || products.length === 0) {
     return { hasMoreProducts: false, nextPage: currentPage }
   }
-  
+
   allProducts.push(...products)
-  
+
   if (products.length < PRODUCTS_PER_PAGE) {
     return { hasMoreProducts: false, nextPage: currentPage }
   }
-  
+
   return { hasMoreProducts: true, nextPage: currentPage + 1 }
 }
 
@@ -66,16 +66,16 @@ async function fetchAllProducts(bigCommerceClient: BigCommerceClient) {
     })
 
     const { hasMoreProducts: shouldContinue, nextPage } = processProductsPage(
-      response.data, 
-      allProducts, 
-      currentPage, 
+      response.data,
+      allProducts,
+      currentPage,
       PRODUCTS_PER_PAGE
     )
-    
+
     hasMoreProducts = shouldContinue
     currentPage = nextPage
   }
-  
+
   return allProducts
 }
 

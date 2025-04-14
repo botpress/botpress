@@ -6,7 +6,10 @@ import * as bp from '.botpress'
 
 // this client is necessary for table operations
 const getBotpressVanillaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
-
+type BigCommerceProductImage = {
+  is_thumbnail: boolean
+  url_standard: string
+}
 type WebhookType = 'created' | 'updated' | 'deleted'
 const determineWebhookTypeFromScope = (scope: string): WebhookType | undefined => {
   if (scope.includes('created')) {
@@ -109,7 +112,15 @@ const handleProductCreateOrUpdate = async (
 
   const brandName = product.brand_id ? brandById[product.brand_id] || product.brand_id.toString() : ''
 
-  const imageUrl = product.images && product.images.length > 0 ? product.images[0].url_standard : ''
+  let imageUrl = ''
+  if (product.images && product.images.length > 0) {
+    const thumbnailImage = product.images.find((img: BigCommerceProductImage) => img.is_thumbnail)
+    if (thumbnailImage) {
+      imageUrl = thumbnailImage.url_standard
+    } else {
+      imageUrl = product.images[0].url_standard
+    }
+  }
 
   const productRow = {
     product_id: product.id,
