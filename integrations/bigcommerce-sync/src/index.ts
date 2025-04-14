@@ -313,11 +313,11 @@ const handleBatchProductsUpdate = async (
   logger: bp.Logger
 ) => {
   logger.forBot().info(`Processing ${productIds.length} products in batch mode`)
-  
+
   const BATCH_SIZE = 50
   const totalProducts = productIds.length
   let processedProducts = 0
-  
+
   logger.forBot().info('Fetching categories to map IDs to names')
   const categoriesResponse = await bigCommerceClient.getCategories()
   const categoryById: Record<number, string> = {}
@@ -337,21 +337,25 @@ const handleBatchProductsUpdate = async (
       brandById[brand.id] = brand.name
     }
   }
-  
+
   while (processedProducts < totalProducts) {
     const batchIds = productIds.slice(processedProducts, processedProducts + BATCH_SIZE)
-    logger.forBot().info(`Processing batch ${Math.floor(processedProducts / BATCH_SIZE) + 1}/${Math.ceil(totalProducts / BATCH_SIZE)}, size: ${batchIds.length}`)
-    
+    logger
+      .forBot()
+      .info(
+        `Processing batch ${Math.floor(processedProducts / BATCH_SIZE) + 1}/${Math.ceil(totalProducts / BATCH_SIZE)}, size: ${batchIds.length}`
+      )
+
     const batchRows = []
     const batchRowsMap = new Map()
-    
+
     for (const productId of batchIds) {
       try {
         const productResponse = await bigCommerceClient.getProduct(productId.toString())
         const product = productResponse.data
-        
+
         if (!product) continue
-        
+
         const categoryNames =
           product.categories?.map((categoryId: number) => categoryById[categoryId] || categoryId.toString()) || []
 
@@ -381,33 +385,33 @@ const handleBatchProductsUpdate = async (
           image_url: imageUrl,
           url: product.custom_url?.url || '',
         }
-        
+
         batchRows.push(productRow)
         batchRowsMap.set(product.id, productRow)
       } catch (error) {
         logger.forBot().error(`Error fetching product ${productId}:`, error)
       }
     }
-    
+
     const productIds = Array.from(batchRowsMap.keys())
     if (productIds.length > 0) {
       const { rows } = await botpressVanillaClient.findTableRows({
         table: tableName,
         filter: { product_id: { $in: productIds } },
       })
-      
+
       const updates = []
       const inserts = []
-      
+
       for (const [productId, productRow] of batchRowsMap.entries()) {
-        const existingRow = rows.find(r => r.product_id === productId)
+        const existingRow = rows.find((r) => r.product_id === productId)
         if (existingRow && existingRow.id) {
           updates.push({ id: existingRow.id, ...productRow })
         } else {
           inserts.push(productRow)
         }
       }
-      
+
       if (updates.length > 0) {
         logger.forBot().info(`Updating ${updates.length} existing products`)
         for (let i = 0; i < updates.length; i += BATCH_SIZE) {
@@ -418,7 +422,7 @@ const handleBatchProductsUpdate = async (
           })
         }
       }
-      
+
       if (inserts.length > 0) {
         logger.forBot().info(`Creating ${inserts.length} new products`)
         for (let i = 0; i < inserts.length; i += BATCH_SIZE) {
@@ -430,10 +434,10 @@ const handleBatchProductsUpdate = async (
         }
       }
     }
-    
+
     processedProducts += batchIds.length
   }
-  
+
   return {
     success: true,
     message: `Products batch processed successfully (${totalProducts} products)`,
