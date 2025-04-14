@@ -10,7 +10,14 @@ const integrationIdEnvName = 'BP_INTEGRATION_ID'
 const workspaceIdEnvName = 'BP_WORKSPACE_ID'
 const tokenEnvName = 'BP_TOKEN'
 
-export function getClientConfig(clientProps: types.ClientProps): types.ClientConfig {
+type AnyClientProps = types.CommonClientProps & {
+  integrationId?: string
+  workspaceId?: string
+  botId?: string
+  token?: string
+}
+
+export function getClientConfig(clientProps: AnyClientProps): types.ClientConfig {
   const props = readEnvConfig(clientProps)
 
   let headers: Record<string, string | string[]> = {}
@@ -47,7 +54,7 @@ export function getClientConfig(clientProps: types.ClientProps): types.ClientCon
   }
 }
 
-function readEnvConfig(props: types.ClientProps): types.ClientProps {
+function readEnvConfig(props: AnyClientProps): AnyClientProps {
   if (isBrowser) {
     return getBrowserConfig(props)
   }
@@ -59,8 +66,8 @@ function readEnvConfig(props: types.ClientProps): types.ClientProps {
   return props
 }
 
-function getNodeConfig(props: types.ClientProps): types.ClientProps {
-  const config: types.ClientProps = {
+function getNodeConfig(props: AnyClientProps): AnyClientProps {
+  const config: AnyClientProps = {
     ...props,
     apiUrl: props.apiUrl ?? process.env[apiUrlEnvName],
     botId: props.botId ?? process.env[botIdEnvName],
@@ -77,6 +84,6 @@ function getNodeConfig(props: types.ClientProps): types.ClientProps {
   return config
 }
 
-function getBrowserConfig(props: types.ClientProps): types.ClientProps {
+function getBrowserConfig(props: AnyClientProps): AnyClientProps {
   return props
 }

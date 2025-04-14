@@ -4,7 +4,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'webhook',
-  version: '1.0.2',
+  version: '1.1.0',
   title: 'Webhook',
   description: 'Use webhooks to send and receive data from external systems and trigger workflows.',
   icon: 'icon.svg',
@@ -32,6 +32,7 @@ export default new IntegrationDefinition({
           body: z.any(),
           query: z.record(z.any()),
           path: z.string(),
+          headers: z.record(z.union([z.string(), z.string().array()])),
           method: z.enum(['GET', 'POST']),
         })
         .passthrough(),
