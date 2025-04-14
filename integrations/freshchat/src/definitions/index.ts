@@ -21,5 +21,6 @@ export const states = {
 export const user = {
   tags: {
     id: { description: 'Freshchat User Id', title: 'Freshchat User Id' },
+    email: { description: 'Freshchat User Email', title: 'Freshchat User Email' },
   },
 } satisfies IntegrationDefinitionProps['user']
