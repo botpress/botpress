@@ -30,6 +30,7 @@
           "articleId",
           "articleTitle"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "ui": {}
@@ -48,6 +49,7 @@
         "required": [
           "articleId"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "ui": {}
@@ -69,6 +71,7 @@
           "conversationId",
           "userId"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -84,6 +87,7 @@
         "required": [
           "conversationId"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -106,6 +110,7 @@
           "required": [
             "ticketId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -158,7 +163,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -178,7 +184,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -210,7 +217,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -240,12 +248,14 @@
                 "tags",
                 "externalId"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
           "required": [
             "ticket"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -268,6 +278,7 @@
           "required": [
             "query"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -304,7 +315,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -320,7 +332,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -336,7 +349,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -377,7 +391,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -405,6 +420,7 @@
                   "updatedAt",
                   "externalId"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -413,6 +429,7 @@
           "required": [
             "customers"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -455,6 +472,7 @@
             "requesterName",
             "requesterEmail"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -516,7 +534,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -536,7 +555,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -568,7 +588,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -598,12 +619,14 @@
                 "tags",
                 "externalId"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
           "required": [
             "ticket"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -623,6 +646,7 @@
             },
             "comment": {
               "type": "string",
+              "description": "Closing comment",
               "x-zui": {},
               "title": "Closing comment"
             }
@@ -630,6 +654,7 @@
           "required": [
             "ticketId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -685,7 +710,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -705,7 +731,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -737,7 +764,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -767,12 +795,14 @@
                 "tags",
                 "externalId"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
           "required": [
             "ticket"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -807,7 +837,7 @@
               "default": true
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -839,7 +869,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -855,7 +886,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -871,7 +903,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -912,7 +945,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -940,6 +974,7 @@
                   "updatedAt",
                   "externalId"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -948,6 +983,7 @@
           "required": [
             "agents"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -978,14 +1014,17 @@
             },
             "headers": {
               "type": "string",
+              "description": "Headers (JSON)",
               "x-zui": {}
             },
             "params": {
               "type": "string",
+              "description": "Query Params (JSON)",
               "x-zui": {}
             },
             "requestBody": {
               "type": "string",
+              "description": "Request Body (JSON)",
               "x-zui": {}
             }
           },
@@ -993,6 +1032,7 @@
             "method",
             "path"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1025,6 +1065,7 @@
             "headers",
             "data"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1045,6 +1086,7 @@
           "required": [
             "knowledgeBaseId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1060,6 +1102,7 @@
           "required": [
             "success"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1082,7 +1125,7 @@
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1098,6 +1141,7 @@
           "required": [
             "userId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1145,6 +1189,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -1159,6 +1204,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -1181,6 +1227,7 @@
                         "required": [
                           "text"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1189,6 +1236,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -1213,6 +1261,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -1227,6 +1276,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -1249,6 +1299,7 @@
                         "required": [
                           "imageUrl"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1257,6 +1308,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -1281,6 +1333,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -1295,6 +1348,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -1317,6 +1371,7 @@
                         "required": [
                           "audioUrl"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1325,6 +1380,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -1349,6 +1405,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -1363,6 +1420,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -1385,6 +1443,7 @@
                         "required": [
                           "videoUrl"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1393,6 +1452,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -1417,6 +1477,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -1431,6 +1492,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -1458,6 +1520,7 @@
                         "required": [
                           "fileUrl"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1466,6 +1529,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -1490,6 +1554,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -1504,6 +1569,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -1538,6 +1604,7 @@
                           "latitude",
                           "longitude"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1546,6 +1613,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -1570,6 +1638,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -1584,6 +1653,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -1647,6 +1717,7 @@
                                       "label",
                                       "value"
                                     ],
+                                    "additionalProperties": false,
                                     "x-zui": {}
                                   },
                                   "x-zui": {}
@@ -1656,6 +1727,7 @@
                                 "title",
                                 "actions"
                               ],
+                              "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
@@ -1664,6 +1736,7 @@
                         "required": [
                           "items"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1672,6 +1745,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -1696,6 +1770,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -1710,6 +1785,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -1768,6 +1844,7 @@
                                 "label",
                                 "value"
                               ],
+                              "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
@@ -1777,6 +1854,7 @@
                           "title",
                           "actions"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1785,6 +1863,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -1809,6 +1888,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -1823,6 +1903,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -1861,6 +1942,7 @@
                                 "label",
                                 "value"
                               ],
+                              "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
@@ -1870,6 +1952,7 @@
                           "text",
                           "options"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1878,6 +1961,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -1902,6 +1986,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -1916,6 +2001,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -1954,6 +2040,7 @@
                                 "label",
                                 "value"
                               ],
+                              "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
@@ -1963,6 +2050,7 @@
                           "text",
                           "options"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1971,6 +2059,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -1995,6 +2084,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -2009,6 +2099,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -2046,6 +2137,7 @@
                                       "required": [
                                         "text"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -2053,6 +2145,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 },
                                 {
@@ -2075,6 +2168,7 @@
                                       "required": [
                                         "markdown"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -2082,6 +2176,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 },
                                 {
@@ -2104,6 +2199,7 @@
                                       "required": [
                                         "imageUrl"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -2111,6 +2207,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 },
                                 {
@@ -2133,6 +2230,7 @@
                                       "required": [
                                         "audioUrl"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -2140,6 +2238,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 },
                                 {
@@ -2162,6 +2261,7 @@
                                       "required": [
                                         "videoUrl"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -2169,6 +2269,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 },
                                 {
@@ -2196,6 +2297,7 @@
                                       "required": [
                                         "fileUrl"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -2203,6 +2305,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 },
                                 {
@@ -2237,6 +2340,7 @@
                                         "latitude",
                                         "longitude"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -2244,6 +2348,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 }
                               ],
@@ -2255,6 +2360,7 @@
                         "required": [
                           "items"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -2263,6 +2369,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -2287,6 +2394,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -2301,6 +2409,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -2323,6 +2432,7 @@
                         "required": [
                           "markdown"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -2331,6 +2441,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   }
                 ],
@@ -2343,6 +2454,7 @@
             "userId",
             "title"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -2358,6 +2470,7 @@
           "required": [
             "conversationId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -2383,6 +2496,7 @@
           "required": [
             "conversationId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -2390,7 +2504,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -2416,6 +2530,7 @@
             "required": [
               "text"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         }
@@ -2461,6 +2576,7 @@
           "subscriptionId",
           "triggerIds"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

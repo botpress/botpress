@@ -20,6 +20,7 @@
           "required": [
             "data"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -40,7 +41,8 @@
                   "x-zui": {}
                 },
                 {
-                  "type": "null"
+                  "type": "null",
+                  "x-zui": {}
                 }
               ],
               "x-zui": {
@@ -53,6 +55,7 @@
           "required": [
             "success"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }

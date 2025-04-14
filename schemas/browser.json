@@ -19,6 +19,7 @@
           "required": [
             "url"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -34,6 +35,7 @@
           "required": [
             "imageUrl"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -81,6 +83,7 @@
           "required": [
             "urls"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -118,6 +121,7 @@
                   "url",
                   "content"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -126,6 +130,7 @@
           "required": [
             "results"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -148,6 +153,7 @@
             },
             "includeSites": {
               "type": "array",
+              "description": "Include only these domains in the search (max 20)",
               "items": {
                 "type": "string",
                 "x-zui": {},
@@ -160,6 +166,7 @@
             },
             "excludeSites": {
               "type": "array",
+              "description": "Exclude these domains from the search (max 20)",
               "items": {
                 "type": "string",
                 "x-zui": {},
@@ -196,6 +203,7 @@
             },
             "freshness": {
               "type": "string",
+              "description": "Only consider results from the last day, week or month",
               "enum": [
                 "Day",
                 "Week",
@@ -229,6 +237,7 @@
           "required": [
             "query"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -258,6 +267,7 @@
                   },
                   "links": {
                     "type": "array",
+                    "description": "Useful links on the page",
                     "items": {
                       "type": "object",
                       "properties": {
@@ -274,6 +284,7 @@
                         "name",
                         "url"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     "x-zui": {}
@@ -306,6 +317,7 @@
                       "url",
                       "content"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   }
                 },
@@ -314,6 +326,7 @@
                   "url",
                   "snippet"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -322,6 +335,7 @@
           "required": [
             "results"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },

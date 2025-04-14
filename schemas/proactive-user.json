@@ -9,7 +9,7 @@
         "type": "object",
         "description": "The user object fields",
         "properties": {},
-        "required": [],
+        "additionalProperties": false,
         "x-zui": {
           "title": "User"
         }
@@ -27,18 +27,21 @@
           "properties": {
             "name": {
               "type": "string",
+              "description": "The name of the user",
               "x-zui": {
                 "title": "Name"
               }
             },
             "pictureUrl": {
               "type": "string",
+              "description": "The URL of the user profile picture",
               "x-zui": {
                 "title": "Picture URL"
               }
             },
             "email": {
               "type": "string",
+              "description": "The email of the user",
               "x-zui": {
                 "title": "Email"
               }
@@ -54,6 +57,7 @@
           "required": [
             "user"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -72,6 +76,7 @@
           "required": [
             "userId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }

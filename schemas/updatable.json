@@ -14,6 +14,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -40,6 +41,7 @@
                 "required": [
                   "id"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               }
             ],
@@ -49,6 +51,7 @@
         "required": [
           "item"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -72,6 +75,7 @@
             "id",
             "item"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -96,6 +100,7 @@
                   "required": [
                     "id"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 }
               ],
@@ -105,6 +110,7 @@
           "required": [
             "item"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }

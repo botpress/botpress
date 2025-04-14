@@ -20,7 +20,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "The ID of the task",
+            "description": "The ID of the parent task. If omitted, the task will have no parent task.",
             "x-zui": {
               "title": "Parent Task ID (optional)"
             }
@@ -41,7 +41,7 @@
           },
           "priority": {
             "type": "number",
-            "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
+            "description": "The priority level of the task, from 1 (normal) to 4 (urgent).",
             "x-zui": {
               "title": "Old Priority"
             },
@@ -55,6 +55,7 @@
           "description",
           "priority"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -66,14 +67,14 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "The ID of the task",
+            "description": "The ID of the parent task. If omitted, the task will have no parent task.",
             "x-zui": {
               "title": "Parent Task ID (optional)"
             }
           },
           "newPriority": {
             "type": "number",
-            "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
+            "description": "The priority level of the task, from 1 (normal) to 4 (urgent).",
             "x-zui": {
               "title": "Old Priority"
             },
@@ -82,7 +83,7 @@
           },
           "oldPriority": {
             "type": "number",
-            "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
+            "description": "The priority level of the task, from 1 (normal) to 4 (urgent).",
             "x-zui": {
               "title": "Old Priority"
             },
@@ -94,6 +95,7 @@
           "id",
           "newPriority"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -112,7 +114,7 @@
           },
           "id": {
             "type": "string",
-            "description": "The ID of the task",
+            "description": "The ID of the parent task. If omitted, the task will have no parent task.",
             "x-zui": {
               "title": "Parent Task ID (optional)"
             }
@@ -133,7 +135,7 @@
           },
           "priority": {
             "type": "number",
-            "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
+            "description": "The priority level of the task, from 1 (normal) to 4 (urgent).",
             "x-zui": {
               "title": "Old Priority"
             },
@@ -148,6 +150,7 @@
           "description",
           "priority"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -162,14 +165,14 @@
           "properties": {
             "taskId": {
               "type": "string",
-              "description": "The ID of the task",
+              "description": "The ID of the parent task. If omitted, the task will have no parent task.",
               "x-zui": {
                 "title": "Parent Task ID (optional)"
               }
             },
             "priority": {
               "type": "number",
-              "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
+              "description": "The priority level of the task, from 1 (normal) to 4 (urgent).",
               "x-zui": {
                 "title": "Old Priority"
               },
@@ -181,6 +184,7 @@
             "taskId",
             "priority"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -188,7 +192,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -211,6 +215,7 @@
           "required": [
             "name"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -222,13 +227,14 @@
               "anyOf": [
                 {
                   "type": "string",
-                  "description": "The ID of the task",
+                  "description": "The ID of the parent task. If omitted, the task will have no parent task.",
                   "x-zui": {
                     "title": "Parent Task ID (optional)"
                   }
                 },
                 {
-                  "type": "null"
+                  "type": "null",
+                  "x-zui": {}
                 }
               ],
               "x-zui": {
@@ -242,6 +248,7 @@
           "required": [
             "taskId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -264,6 +271,7 @@
           "required": [
             "name"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -275,13 +283,14 @@
               "anyOf": [
                 {
                   "type": "string",
-                  "description": "The ID of the project.",
+                  "description": "The ID of the project. If omitted, the task will be added to the user's Inbox.",
                   "x-zui": {
                     "title": "Project ID (optional)"
                   }
                 },
                 {
-                  "type": "null"
+                  "type": "null",
+                  "x-zui": {}
                 }
               ],
               "x-zui": {
@@ -295,6 +304,7 @@
           "required": [
             "projectId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -306,7 +316,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -322,7 +332,7 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "The ID of the project.",
+                    "description": "The ID of the project. If omitted, the task will be added to the user's Inbox.",
                     "x-zui": {
                       "title": "Project ID (optional)"
                     }
@@ -365,6 +375,7 @@
                   },
                   "parentProjectId": {
                     "type": "string",
+                    "description": "The ID of the parent project. Omitted if the project has no parent project.",
                     "x-zui": {
                       "title": "Parent Project ID"
                     }
@@ -432,6 +443,7 @@
                   "isTeamInbox",
                   "webUrl"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {
@@ -442,6 +454,7 @@
           "required": [
             "projects"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -455,13 +468,13 @@
           "properties": {
             "projectId": {
               "type": "string",
-              "description": "The ID of the project.",
+              "description": "The ID of the project. If omitted, the task will be added to the user's Inbox.",
               "x-zui": {
                 "title": "Project ID (optional)"
               }
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -477,7 +490,7 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "The ID of the section.",
+                    "description": "The ID of section to put task into.",
                     "x-zui": {
                       "title": "Section ID (optional)"
                     }
@@ -491,6 +504,7 @@
                   },
                   "projectId": {
                     "type": "string",
+                    "description": "The ID of the project this section belongs to.",
                     "x-zui": {
                       "title": "Project ID"
                     }
@@ -508,6 +522,7 @@
                   "name",
                   "positionWithinParent"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {
@@ -518,6 +533,7 @@
           "required": [
             "sections"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -531,27 +547,27 @@
           "properties": {
             "projectId": {
               "type": "string",
-              "description": "The ID of the project.",
+              "description": "The ID of the project. If omitted, the task will be added to the user's Inbox.",
               "x-zui": {
                 "title": "Project ID (optional)"
               }
             },
             "sectionId": {
               "type": "string",
-              "description": "The ID of the section.",
+              "description": "The ID of section to put task into.",
               "x-zui": {
                 "title": "Section ID (optional)"
               }
             },
             "labelName": {
               "type": "string",
-              "description": "The name of the label.",
+              "description": "The name of the label. If omitted, tasks with any label will be included in the results.",
               "x-zui": {
                 "title": "Filter by Label Name (optional)"
               }
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -567,7 +583,7 @@
                 "properties": {
                   "id": {
                     "type": "string",
-                    "description": "The ID of the task",
+                    "description": "The ID of the parent task. If omitted, the task will have no parent task.",
                     "x-zui": {
                       "title": "Parent Task ID (optional)"
                     }
@@ -581,6 +597,7 @@
                   },
                   "sectionId": {
                     "type": "string",
+                    "description": "The ID of the section this task belongs to (read-only). Omitted if the task is not in a section.",
                     "x-zui": {
                       "title": "Section ID"
                     }
@@ -622,6 +639,7 @@
                   },
                   "parentTaskId": {
                     "type": "string",
+                    "description": "The ID of the parent task (read-only). Omitted if the task has no parent task.",
                     "x-zui": {
                       "title": "Parent Task ID"
                     }
@@ -635,7 +653,7 @@
                   },
                   "priority": {
                     "type": "number",
-                    "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
+                    "description": "The priority level of the task, from 1 (normal) to 4 (urgent).",
                     "x-zui": {
                       "title": "Old Priority"
                     },
@@ -644,6 +662,7 @@
                   },
                   "dueDate": {
                     "type": "string",
+                    "description": "The due date of the task. Must be in RFC3339 format in UTC. If omitted, the task will have no due date.",
                     "x-zui": {
                       "title": "Due Date"
                     }
@@ -686,18 +705,21 @@
                   },
                   "assignee": {
                     "type": "string",
+                    "description": "The ID of the user to whom the task is assigned. Omitted if the task is not assigned.",
                     "x-zui": {
                       "title": "Assignee ID"
                     }
                   },
                   "assigner": {
                     "type": "string",
+                    "description": "The ID of the user who assigned the task (read-only). Omitted if the task is not assigned.",
                     "x-zui": {
                       "title": "Assigner ID"
                     }
                   },
                   "duration": {
                     "type": "object",
+                    "description": "The duration of the task. Omitted if the task has no duration.",
                     "properties": {
                       "amount": {
                         "type": "number",
@@ -723,6 +745,7 @@
                       "amount",
                       "unit"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {
                       "title": "Duration"
                     }
@@ -743,6 +766,7 @@
                   "createdAt",
                   "createdBy"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {
@@ -753,6 +777,7 @@
           "required": [
             "tasks"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -780,23 +805,24 @@
             },
             "projectId": {
               "type": "string",
-              "description": "The ID of the project.",
+              "description": "The ID of the project. If omitted, the task will be added to the user's Inbox.",
               "x-zui": {
                 "title": "Project ID (optional)"
               }
             },
             "sectionId": {
               "type": "string",
-              "description": "The ID of the section.",
+              "description": "The ID of section to put task into.",
               "x-zui": {
                 "title": "Section ID (optional)"
               }
             },
             "labelNames": {
               "type": "array",
+              "description": "The names of the labels to add to the task. If omitted, no label will be added.",
               "items": {
                 "type": "string",
-                "description": "The name of the label.",
+                "description": "The name of the label. If omitted, tasks with any label will be included in the results.",
                 "x-zui": {
                   "title": "Filter by Label Name (optional)"
                 }
@@ -807,14 +833,14 @@
             },
             "parentTaskId": {
               "type": "string",
-              "description": "The ID of the task",
+              "description": "The ID of the parent task. If omitted, the task will have no parent task.",
               "x-zui": {
                 "title": "Parent Task ID (optional)"
               }
             },
             "priority": {
               "type": "number",
-              "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
+              "description": "The priority level of the task, from 1 (normal) to 4 (urgent).",
               "x-zui": {
                 "title": "Old Priority"
               },
@@ -822,10 +848,10 @@
               "maximum": 4
             },
             "dueDate": {
-              "description": "The due date of the task. Omitted if the task has no due date.",
               "anyOf": [
                 {
                   "type": "string",
+                  "description": "The due date of the task. Must be in RFC3339 format in UTC. If omitted, the task will have no due date.",
                   "x-zui": {
                     "title": "Due Date"
                   }
@@ -850,6 +876,7 @@
           "required": [
             "content"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -859,7 +886,7 @@
           "properties": {
             "taskId": {
               "type": "string",
-              "description": "The ID of the task",
+              "description": "The ID of the parent task. If omitted, the task will have no parent task.",
               "x-zui": {
                 "title": "Parent Task ID (optional)"
               }
@@ -868,6 +895,7 @@
           "required": [
             "taskId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -891,6 +919,7 @@
             "required": [
               "text"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         }
@@ -930,6 +959,7 @@
         "required": [
           "accessToken"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -940,12 +970,13 @@
         "properties": {
           "botUserId": {
             "type": "string",
+            "description": "The ID of the bot user in Todoist",
             "x-zui": {
               "title": "Bot User ID"
             }
           }
         },
-        "required": [],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -959,7 +990,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "The ID of the task",
+            "description": "The ID of the parent task. If omitted, the task will have no parent task.",
             "x-zui": {
               "title": "Parent Task ID (optional)"
             }
@@ -973,6 +1004,7 @@
           },
           "sectionId": {
             "type": "string",
+            "description": "The ID of the section this task belongs to (read-only). Omitted if the task is not in a section.",
             "x-zui": {
               "title": "Section ID"
             }
@@ -1014,6 +1046,7 @@
           },
           "parentTaskId": {
             "type": "string",
+            "description": "The ID of the parent task (read-only). Omitted if the task has no parent task.",
             "x-zui": {
               "title": "Parent Task ID"
             }
@@ -1027,7 +1060,7 @@
           },
           "priority": {
             "type": "number",
-            "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
+            "description": "The priority level of the task, from 1 (normal) to 4 (urgent).",
             "x-zui": {
               "title": "Old Priority"
             },
@@ -1036,6 +1069,7 @@
           },
           "dueDate": {
             "type": "string",
+            "description": "The due date of the task. Must be in RFC3339 format in UTC. If omitted, the task will have no due date.",
             "x-zui": {
               "title": "Due Date"
             }
@@ -1078,18 +1112,21 @@
           },
           "assignee": {
             "type": "string",
+            "description": "The ID of the user to whom the task is assigned. Omitted if the task is not assigned.",
             "x-zui": {
               "title": "Assignee ID"
             }
           },
           "assigner": {
             "type": "string",
+            "description": "The ID of the user who assigned the task (read-only). Omitted if the task is not assigned.",
             "x-zui": {
               "title": "Assigner ID"
             }
           },
           "duration": {
             "type": "object",
+            "description": "The duration of the task. Omitted if the task has no duration.",
             "properties": {
               "amount": {
                 "type": "number",
@@ -1115,6 +1152,7 @@
               "amount",
               "unit"
             ],
+            "additionalProperties": false,
             "x-zui": {
               "title": "Duration"
             }
@@ -1135,6 +1173,7 @@
           "createdAt",
           "createdBy"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -1146,7 +1185,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "The ID of the project.",
+            "description": "The ID of the project. If omitted, the task will be added to the user's Inbox.",
             "x-zui": {
               "title": "Project ID (optional)"
             }
@@ -1189,6 +1228,7 @@
           },
           "parentProjectId": {
             "type": "string",
+            "description": "The ID of the parent project. Omitted if the project has no parent project.",
             "x-zui": {
               "title": "Parent Project ID"
             }
@@ -1256,6 +1296,7 @@
           "isTeamInbox",
           "webUrl"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -1267,7 +1308,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "The ID of the section.",
+            "description": "The ID of section to put task into.",
             "x-zui": {
               "title": "Section ID (optional)"
             }
@@ -1281,6 +1322,7 @@
           },
           "projectId": {
             "type": "string",
+            "description": "The ID of the project this section belongs to.",
             "x-zui": {
               "title": "Project ID"
             }
@@ -1298,6 +1340,7 @@
           "name",
           "positionWithinParent"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -1316,12 +1359,14 @@
           },
           "taskId": {
             "type": "string",
+            "description": "The ID of the task this comment belongs to. Omitted if the comment belongs to a project.",
             "x-zui": {
               "title": "Task ID"
             }
           },
           "projectId": {
             "type": "string",
+            "description": "The ID of the project this comment belongs to. Omitted if the comment belongs to a task.",
             "x-zui": {
               "title": "Project ID"
             }
@@ -1346,6 +1391,7 @@
           "postedAt",
           "content"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -1421,6 +1467,7 @@
           "orderWithinList",
           "isFavorite"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -1432,7 +1479,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "The name of the label.",
+            "description": "The name of the label. If omitted, tasks with any label will be included in the results.",
             "x-zui": {
               "title": "Filter by Label Name (optional)"
             }
@@ -1441,6 +1488,7 @@
         "required": [
           "name"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

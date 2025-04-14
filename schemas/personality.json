@@ -27,6 +27,7 @@
         "model",
         "personality"
       ],
+      "additionalProperties": false,
       "x-zui": {}
     }
   }

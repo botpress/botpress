@@ -5,6 +5,7 @@
     "speechToTextModelRef": {
       "schema": {
         "type": "object",
+        "description": "Model to use for speech-to-text transcription (optional)",
         "properties": {
           "id": {
             "type": "string",
@@ -14,6 +15,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -29,6 +31,7 @@
           "properties": {
             "model": {
               "$ref": "speechToTextModelRef",
+              "description": "Model to use for speech-to-text transcription (optional)",
               "x-zui": {}
             },
             "fileUrl": {
@@ -39,10 +42,12 @@
             },
             "language": {
               "type": "string",
+              "description": "The language of the input audio (optional). Supplying the input language in ISO-639-1 format will improve accuracy and latency.",
               "x-zui": {}
             },
             "prompt": {
               "type": "string",
+              "description": "An optional text to guide the model's style or continue a previous audio segment. The prompt should match the audio language.",
               "x-zui": {}
             },
             "temperature": {
@@ -54,6 +59,7 @@
           "required": [
             "fileUrl"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -143,6 +149,7 @@
                   "compression_ratio",
                   "no_speech_prob"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -169,6 +176,7 @@
               "required": [
                 "cost"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
@@ -180,6 +188,7 @@
             "cost",
             "botpress"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -189,7 +198,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -223,10 +232,12 @@
                       "name",
                       "costPerMinute"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
                     "$ref": "speechToTextModelRef",
+                    "description": "Model to use for speech-to-text transcription (optional)",
                     "x-zui": {}
                   }
                 ],
@@ -238,6 +249,7 @@
           "required": [
             "models"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }

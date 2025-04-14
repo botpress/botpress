@@ -22,6 +22,7 @@
             },
             "notes": {
               "type": "string",
+              "description": "The description of the task (Optional) (e.g. \"This is my other task created using the Asana API\")",
               "x-zui": {},
               "title": "The description of the task (Optional) (e.g. \"This is my other task created using the Asana API\")"
             },
@@ -50,21 +51,25 @@
             },
             "projects": {
               "type": "string",
+              "description": "The project IDs should be strings separated by commas (Optional) (e.g. \"1205199808673678, 1215207282932839\").",
               "x-zui": {},
               "title": "The project IDs should be strings separated by commas (Optional) (e.g. \"1205199808673678, 1215207282932839\")."
             },
             "parent": {
               "type": "string",
+              "description": "The ID of the parent task (Optional) (e.g. \"1205206556256028\")",
               "x-zui": {},
               "title": "The ID of the parent task (Optional) (e.g. \"1205206556256028\")"
             },
             "start_on": {
               "type": "string",
+              "description": "The start date of the task in YYYY-MM-DD format (Optional) (e.g. \"2023-08-13\")",
               "x-zui": {},
               "title": "The start date of the task in YYYY-MM-DD format (Optional) (e.g. \"2023-08-13\")"
             },
             "due_on": {
               "type": "string",
+              "description": "The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. \"2023-08-15\")",
               "x-zui": {},
               "title": "The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. \"2023-08-15\")"
             }
@@ -72,6 +77,7 @@
           "required": [
             "name"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -110,6 +116,7 @@
           "required": [
             "permalink_url"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -123,26 +130,31 @@
           "properties": {
             "name": {
               "type": "string",
+              "description": "The name of the task (Optional) (e.g. \"My Test Task\")",
               "x-zui": {},
               "title": "The name of the task (Optional) (e.g. \"My Test Task\")"
             },
             "notes": {
               "type": "string",
+              "description": "The description of the task (Optional) (e.g. \"This is my other task created using the Asana API\")",
               "x-zui": {},
               "title": "The description of the task (Optional) (e.g. \"This is my other task created using the Asana API\")"
             },
             "assignee": {
               "type": "string",
+              "description": "The ID of the user who will be assigned to the task or \"me\" to assign to the current user (Optional) (e.g. \"1215207682932839\")",
               "x-zui": {},
               "title": "The ID of the user who will be assigned to the task or \"me\" to assign to the current user (Optional) (e.g. \"1215207682932839\")"
             },
             "start_on": {
               "type": "string",
+              "description": "The start date of the task in YYYY-MM-DD format (Optional) (e.g. \"2023-08-13\")",
               "x-zui": {},
               "title": "The start date of the task in YYYY-MM-DD format (Optional) (e.g. \"2023-08-13\")"
             },
             "due_on": {
               "type": "string",
+              "description": "The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. \"2023-08-15\")",
               "x-zui": {},
               "title": "The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. \"2023-08-15\")"
             },
@@ -154,6 +166,7 @@
             },
             "completed": {
               "type": "string",
+              "description": "If the task is completed, enter \"true\" (without quotes), otherwise it will keep its previous status. (Optional)",
               "x-zui": {},
               "title": "If the task is completed, enter \"true\" (without quotes), otherwise it will keep its previous status. (Optional)"
             }
@@ -161,6 +174,7 @@
           "required": [
             "taskId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -199,6 +213,7 @@
           "required": [
             "permalink_url"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -220,6 +235,7 @@
           "required": [
             "userEmail"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -277,10 +293,12 @@
                     "image_60x60",
                     "image_128x128"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 {
-                  "type": "null"
+                  "type": "null",
+                  "x-zui": {}
                 }
               ],
               "x-zui": {
@@ -316,12 +334,13 @@
                   "name",
                   "resource_type"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -350,6 +369,7 @@
             "taskId",
             "comment"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -373,6 +393,7 @@
           "required": [
             "text"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -394,6 +415,7 @@
             "required": [
               "text"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -410,6 +432,7 @@
             "required": [
               "imageUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -426,6 +449,7 @@
             "required": [
               "audioUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -442,6 +466,7 @@
             "required": [
               "videoUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -463,6 +488,7 @@
             "required": [
               "fileUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -491,6 +517,7 @@
               "latitude",
               "longitude"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -548,6 +575,7 @@
                           "label",
                           "value"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       },
                       "x-zui": {}
@@ -557,6 +585,7 @@
                     "title",
                     "actions"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -565,6 +594,7 @@
             "required": [
               "items"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -617,6 +647,7 @@
                     "label",
                     "value"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -626,6 +657,7 @@
               "title",
               "actions"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -658,6 +690,7 @@
                     "label",
                     "value"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -667,6 +700,7 @@
               "text",
               "options"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -699,6 +733,7 @@
                     "label",
                     "value"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -708,6 +743,7 @@
               "text",
               "options"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -739,6 +775,7 @@
                           "required": [
                             "text"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -746,6 +783,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -768,6 +806,7 @@
                           "required": [
                             "markdown"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -775,6 +814,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -797,6 +837,7 @@
                           "required": [
                             "imageUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -804,6 +845,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -826,6 +868,7 @@
                           "required": [
                             "audioUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -833,6 +876,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -855,6 +899,7 @@
                           "required": [
                             "videoUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -862,6 +907,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -889,6 +935,7 @@
                           "required": [
                             "fileUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -896,6 +943,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -930,6 +978,7 @@
                             "latitude",
                             "longitude"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -937,6 +986,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     }
                   ],
@@ -948,6 +998,7 @@
             "required": [
               "items"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -964,6 +1015,7 @@
             "required": [
               "markdown"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         }

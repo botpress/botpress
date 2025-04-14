@@ -11,7 +11,7 @@
     "schema": {
       "type": "object",
       "properties": {},
-      "required": [],
+      "additionalProperties": false,
       "x-zui": {}
     }
   }

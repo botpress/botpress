@@ -29,6 +29,7 @@
           "conversationId",
           "userId"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -44,6 +45,7 @@
         "required": [
           "conversationId"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -67,7 +69,7 @@
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -83,6 +85,7 @@
           "required": [
             "userId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -130,6 +133,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -144,6 +148,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -166,6 +171,7 @@
                         "required": [
                           "text"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -174,6 +180,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -198,6 +205,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -212,6 +220,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -234,6 +243,7 @@
                         "required": [
                           "imageUrl"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -242,6 +252,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -266,6 +277,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -280,6 +292,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -302,6 +315,7 @@
                         "required": [
                           "audioUrl"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -310,6 +324,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -334,6 +349,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -348,6 +364,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -370,6 +387,7 @@
                         "required": [
                           "videoUrl"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -378,6 +396,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -402,6 +421,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -416,6 +436,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -443,6 +464,7 @@
                         "required": [
                           "fileUrl"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -451,6 +473,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -475,6 +498,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -489,6 +513,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -523,6 +548,7 @@
                           "latitude",
                           "longitude"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -531,6 +557,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -555,6 +582,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -569,6 +597,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -632,6 +661,7 @@
                                       "label",
                                       "value"
                                     ],
+                                    "additionalProperties": false,
                                     "x-zui": {}
                                   },
                                   "x-zui": {}
@@ -641,6 +671,7 @@
                                 "title",
                                 "actions"
                               ],
+                              "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
@@ -649,6 +680,7 @@
                         "required": [
                           "items"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -657,6 +689,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -681,6 +714,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -695,6 +729,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -753,6 +788,7 @@
                                 "label",
                                 "value"
                               ],
+                              "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
@@ -762,6 +798,7 @@
                           "title",
                           "actions"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -770,6 +807,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -794,6 +832,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -808,6 +847,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -846,6 +886,7 @@
                                 "label",
                                 "value"
                               ],
+                              "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
@@ -855,6 +896,7 @@
                           "text",
                           "options"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -863,6 +905,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -887,6 +930,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -901,6 +945,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -939,6 +984,7 @@
                                 "label",
                                 "value"
                               ],
+                              "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
@@ -948,6 +994,7 @@
                           "text",
                           "options"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -956,6 +1003,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -980,6 +1028,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -994,6 +1043,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -1031,6 +1081,7 @@
                                       "required": [
                                         "text"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -1038,6 +1089,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 },
                                 {
@@ -1060,6 +1112,7 @@
                                       "required": [
                                         "markdown"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -1067,6 +1120,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 },
                                 {
@@ -1089,6 +1143,7 @@
                                       "required": [
                                         "imageUrl"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -1096,6 +1151,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 },
                                 {
@@ -1118,6 +1174,7 @@
                                       "required": [
                                         "audioUrl"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -1125,6 +1182,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 },
                                 {
@@ -1147,6 +1205,7 @@
                                       "required": [
                                         "videoUrl"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -1154,6 +1213,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 },
                                 {
@@ -1181,6 +1241,7 @@
                                       "required": [
                                         "fileUrl"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -1188,6 +1249,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 },
                                 {
@@ -1222,6 +1284,7 @@
                                         "latitude",
                                         "longitude"
                                       ],
+                                      "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
@@ -1229,6 +1292,7 @@
                                     "type",
                                     "payload"
                                   ],
+                                  "additionalProperties": false,
                                   "x-zui": {}
                                 }
                               ],
@@ -1240,6 +1304,7 @@
                         "required": [
                           "items"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1248,6 +1313,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -1272,6 +1338,7 @@
                               "type",
                               "userId"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           {
@@ -1286,6 +1353,7 @@
                             "required": [
                               "type"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           }
                         ],
@@ -1308,6 +1376,7 @@
                         "required": [
                           "markdown"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1316,6 +1385,7 @@
                       "type",
                       "payload"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   }
                 ],
@@ -1328,6 +1398,7 @@
             "userId",
             "title"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1343,6 +1414,7 @@
           "required": [
             "conversationId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1368,6 +1440,7 @@
           "required": [
             "conversationId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1375,7 +1448,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1401,6 +1474,7 @@
             "required": [
               "text"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         }
@@ -1437,6 +1511,7 @@
         "required": [
           "channelId"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

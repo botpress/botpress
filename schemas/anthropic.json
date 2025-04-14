@@ -32,6 +32,7 @@
               "required": [
                 "id"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             },
             "reasoningEffort": {
@@ -104,7 +105,8 @@
                                   "x-zui": {}
                                 },
                                 {
-                                  "type": "null"
+                                  "type": "null",
+                                  "x-zui": {}
                                 }
                               ],
                               "x-zui": {
@@ -118,6 +120,7 @@
                             "name",
                             "arguments"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -126,6 +129,7 @@
                         "type",
                         "function"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     "x-zui": {}
@@ -171,6 +175,7 @@
                               "required": [
                                 "type"
                               ],
+                              "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
@@ -179,7 +184,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -193,6 +199,7 @@
                   "role",
                   "content"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -256,16 +263,14 @@
                       "argumentsSchema": {
                         "type": "object",
                         "properties": {},
-                        "required": [],
-                        "additionalProperties": {
-                          "x-zui": {}
-                        },
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
                     "required": [
                       "name"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   }
                 },
@@ -273,6 +278,7 @@
                   "type",
                   "function"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -296,7 +302,7 @@
                   "x-zui": {}
                 }
               },
-              "required": [],
+              "additionalProperties": false,
               "x-zui": {}
             },
             "userId": {
@@ -323,13 +329,14 @@
                   "x-zui": {}
                 }
               },
-              "required": [],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
           "required": [
             "messages"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -398,7 +405,8 @@
                                   "x-zui": {}
                                 },
                                 {
-                                  "type": "null"
+                                  "type": "null",
+                                  "x-zui": {}
                                 }
                               ],
                               "x-zui": {
@@ -412,6 +420,7 @@
                             "name",
                             "arguments"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -420,6 +429,7 @@
                         "type",
                         "function"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     "x-zui": {}
@@ -465,6 +475,7 @@
                               "required": [
                                 "type"
                               ],
+                              "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
@@ -473,7 +484,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -509,6 +521,7 @@
                   "index",
                   "stopReason"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -539,6 +552,7 @@
                 "outputTokens",
                 "outputCost"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             },
             "botpress": {
@@ -552,6 +566,7 @@
               "required": [
                 "cost"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
@@ -563,6 +578,7 @@
             "usage",
             "botpress"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -574,7 +590,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -639,6 +655,7 @@
                           "maxTokens",
                           "costPer1MTokens"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       },
                       "output": {
@@ -657,6 +674,7 @@
                           "maxTokens",
                           "costPer1MTokens"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -668,6 +686,7 @@
                       "input",
                       "output"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -692,6 +711,7 @@
                     "required": [
                       "id"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   }
                 ],
@@ -703,6 +723,7 @@
           "required": [
             "models"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -733,6 +754,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

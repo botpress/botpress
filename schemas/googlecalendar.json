@@ -12,6 +12,7 @@
             "allOf": [
               {
                 "type": "object",
+                "description": "The data of the event.",
                 "properties": {
                   "id": {
                     "type": "string",
@@ -29,12 +30,14 @@
                   },
                   "description": {
                     "type": "string",
+                    "description": "Description of the event. Can contain HTML. Optional.",
                     "x-zui": {
                       "title": "Description"
                     }
                   },
                   "location": {
                     "type": "string",
+                    "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                     "x-zui": {
                       "title": "Location"
                     }
@@ -55,6 +58,7 @@
                   },
                   "colorId": {
                     "type": "string",
+                    "description": "The color ID of the event. Optional.",
                     "x-zui": {
                       "title": "Color ID"
                     }
@@ -133,6 +137,7 @@
                   },
                   "recurrence": {
                     "type": "array",
+                    "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                     "items": {
                       "type": "string",
                       "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -214,6 +219,7 @@
                   "eventType",
                   "htmlLink"
                 ],
+                "additionalProperties": false,
                 "x-zui": {
                   "title": "Updated Event"
                 }
@@ -229,6 +235,7 @@
                 "required": [
                   "id"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               }
             ],
@@ -238,6 +245,7 @@
         "required": [
           "item"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "name": "eventCreated"
@@ -250,6 +258,7 @@
             "allOf": [
               {
                 "type": "object",
+                "description": "The data of the event.",
                 "properties": {
                   "id": {
                     "type": "string",
@@ -267,12 +276,14 @@
                   },
                   "description": {
                     "type": "string",
+                    "description": "Description of the event. Can contain HTML. Optional.",
                     "x-zui": {
                       "title": "Description"
                     }
                   },
                   "location": {
                     "type": "string",
+                    "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                     "x-zui": {
                       "title": "Location"
                     }
@@ -293,6 +304,7 @@
                   },
                   "colorId": {
                     "type": "string",
+                    "description": "The color ID of the event. Optional.",
                     "x-zui": {
                       "title": "Color ID"
                     }
@@ -371,6 +383,7 @@
                   },
                   "recurrence": {
                     "type": "array",
+                    "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                     "items": {
                       "type": "string",
                       "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -452,6 +465,7 @@
                   "eventType",
                   "htmlLink"
                 ],
+                "additionalProperties": false,
                 "x-zui": {
                   "title": "Updated Event"
                 }
@@ -467,6 +481,7 @@
                 "required": [
                   "id"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               }
             ],
@@ -476,6 +491,7 @@
         "required": [
           "item"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "name": "eventUpdated"
@@ -492,6 +508,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "name": "eventDeleted"
@@ -514,18 +531,20 @@
             },
             "pageToken": {
               "type": "string",
+              "description": "Token specifying which result page to return.",
               "x-zui": {
                 "title": "Page token"
               }
             },
             "timeMin": {
               "type": "string",
+              "description": "Only return events occurring on or after this date. Must be in RFC3339 format. Defaults to now if not specified.",
               "x-zui": {
                 "title": "On or after"
               }
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -538,7 +557,7 @@
               "description": "The list of calendar events.",
               "items": {
                 "type": "object",
-                "description": "The calendar event data.",
+                "description": "The data of the event.",
                 "properties": {
                   "id": {
                     "type": "string",
@@ -556,12 +575,14 @@
                   },
                   "description": {
                     "type": "string",
+                    "description": "Description of the event. Can contain HTML. Optional.",
                     "x-zui": {
                       "title": "Description"
                     }
                   },
                   "location": {
                     "type": "string",
+                    "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                     "x-zui": {
                       "title": "Location"
                     }
@@ -582,6 +603,7 @@
                   },
                   "colorId": {
                     "type": "string",
+                    "description": "The color ID of the event. Optional.",
                     "x-zui": {
                       "title": "Color ID"
                     }
@@ -660,6 +682,7 @@
                   },
                   "recurrence": {
                     "type": "array",
+                    "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                     "items": {
                       "type": "string",
                       "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -741,8 +764,9 @@
                   "eventType",
                   "htmlLink"
                 ],
+                "additionalProperties": false,
                 "x-zui": {
-                  "title": "Event"
+                  "title": "Updated Event"
                 }
               },
               "x-zui": {
@@ -751,6 +775,7 @@
             },
             "nextPageToken": {
               "type": "string",
+              "description": "Token used to access the next page of this result. Omitted if no further results are available.",
               "x-zui": {
                 "title": "Next page token"
               }
@@ -759,6 +784,7 @@
           "required": [
             "events"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -780,12 +806,14 @@
             },
             "description": {
               "type": "string",
+              "description": "Description of the event. Can contain HTML. Optional.",
               "x-zui": {
                 "title": "Description"
               }
             },
             "location": {
               "type": "string",
+              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
               "x-zui": {
                 "title": "Location"
               }
@@ -806,6 +834,7 @@
             },
             "colorId": {
               "type": "string",
+              "description": "The color ID of the event. Optional.",
               "x-zui": {
                 "title": "Color ID"
               }
@@ -862,6 +891,7 @@
             },
             "recurrence": {
               "type": "array",
+              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
               "items": {
                 "type": "string",
                 "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -940,6 +970,7 @@
             "startDateTime",
             "endDateTime"
           ],
+          "additionalProperties": false,
           "x-zui": {
             "title": "New Event"
           }
@@ -948,7 +979,7 @@
       "output": {
         "schema": {
           "type": "object",
-          "description": "The data of the new event.",
+          "description": "The data of the event.",
           "properties": {
             "id": {
               "type": "string",
@@ -966,12 +997,14 @@
             },
             "description": {
               "type": "string",
+              "description": "Description of the event. Can contain HTML. Optional.",
               "x-zui": {
                 "title": "Description"
               }
             },
             "location": {
               "type": "string",
+              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
               "x-zui": {
                 "title": "Location"
               }
@@ -992,6 +1025,7 @@
             },
             "colorId": {
               "type": "string",
+              "description": "The color ID of the event. Optional.",
               "x-zui": {
                 "title": "Color ID"
               }
@@ -1070,6 +1104,7 @@
             },
             "recurrence": {
               "type": "array",
+              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
               "items": {
                 "type": "string",
                 "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -1151,8 +1186,9 @@
             "eventType",
             "htmlLink"
           ],
+          "additionalProperties": false,
           "x-zui": {
-            "title": "Created Event"
+            "title": "Updated Event"
           }
         }
       }
@@ -1163,6 +1199,7 @@
       "input": {
         "schema": {
           "type": "object",
+          "description": "The data of the new event.",
           "properties": {
             "id": {
               "type": "string",
@@ -1180,12 +1217,14 @@
             },
             "description": {
               "type": "string",
+              "description": "Description of the event. Can contain HTML. Optional.",
               "x-zui": {
                 "title": "Description"
               }
             },
             "location": {
               "type": "string",
+              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
               "x-zui": {
                 "title": "Location"
               }
@@ -1206,6 +1245,7 @@
             },
             "colorId": {
               "type": "string",
+              "description": "The color ID of the event. Optional.",
               "x-zui": {
                 "title": "Color ID"
               }
@@ -1262,6 +1302,7 @@
             },
             "recurrence": {
               "type": "array",
+              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
               "items": {
                 "type": "string",
                 "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -1341,6 +1382,7 @@
             "startDateTime",
             "endDateTime"
           ],
+          "additionalProperties": false,
           "x-zui": {
             "title": "Created Event"
           }
@@ -1367,12 +1409,14 @@
             },
             "description": {
               "type": "string",
+              "description": "Description of the event. Can contain HTML. Optional.",
               "x-zui": {
                 "title": "Description"
               }
             },
             "location": {
               "type": "string",
+              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
               "x-zui": {
                 "title": "Location"
               }
@@ -1393,6 +1437,7 @@
             },
             "colorId": {
               "type": "string",
+              "description": "The color ID of the event. Optional.",
               "x-zui": {
                 "title": "Color ID"
               }
@@ -1471,6 +1516,7 @@
             },
             "recurrence": {
               "type": "array",
+              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
               "items": {
                 "type": "string",
                 "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -1552,6 +1598,7 @@
             "eventType",
             "htmlLink"
           ],
+          "additionalProperties": false,
           "x-zui": {
             "title": "Updated Event"
           }
@@ -1576,6 +1623,7 @@
           "required": [
             "eventId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1583,7 +1631,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1598,7 +1646,7 @@
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1612,6 +1660,7 @@
                 "allOf": [
                   {
                     "type": "object",
+                    "description": "The data of the event.",
                     "properties": {
                       "id": {
                         "type": "string",
@@ -1629,12 +1678,14 @@
                       },
                       "description": {
                         "type": "string",
+                        "description": "Description of the event. Can contain HTML. Optional.",
                         "x-zui": {
                           "title": "Description"
                         }
                       },
                       "location": {
                         "type": "string",
+                        "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                         "x-zui": {
                           "title": "Location"
                         }
@@ -1655,6 +1706,7 @@
                       },
                       "colorId": {
                         "type": "string",
+                        "description": "The color ID of the event. Optional.",
                         "x-zui": {
                           "title": "Color ID"
                         }
@@ -1733,6 +1785,7 @@
                       },
                       "recurrence": {
                         "type": "array",
+                        "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                         "items": {
                           "type": "string",
                           "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -1814,6 +1867,7 @@
                       "eventType",
                       "htmlLink"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {
                       "title": "Updated Event"
                     }
@@ -1829,6 +1883,7 @@
                     "required": [
                       "id"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   }
                 ],
@@ -1844,7 +1899,7 @@
                   "x-zui": {}
                 }
               },
-              "required": [],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
@@ -1852,6 +1907,7 @@
             "items",
             "meta"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1864,6 +1920,7 @@
           "properties": {
             "item": {
               "type": "object",
+              "description": "The data of the event.",
               "properties": {
                 "id": {
                   "type": "string",
@@ -1881,12 +1938,14 @@
                 },
                 "description": {
                   "type": "string",
+                  "description": "Description of the event. Can contain HTML. Optional.",
                   "x-zui": {
                     "title": "Description"
                   }
                 },
                 "location": {
                   "type": "string",
+                  "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                   "x-zui": {
                     "title": "Location"
                   }
@@ -1907,6 +1966,7 @@
                 },
                 "colorId": {
                   "type": "string",
+                  "description": "The color ID of the event. Optional.",
                   "x-zui": {
                     "title": "Color ID"
                   }
@@ -1985,6 +2045,7 @@
                 },
                 "recurrence": {
                   "type": "array",
+                  "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                   "items": {
                     "type": "string",
                     "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -2066,6 +2127,7 @@
                 "eventType",
                 "htmlLink"
               ],
+              "additionalProperties": false,
               "x-zui": {
                 "title": "Updated Event"
               }
@@ -2074,6 +2136,7 @@
           "required": [
             "item"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -2085,6 +2148,7 @@
               "allOf": [
                 {
                   "type": "object",
+                  "description": "The data of the event.",
                   "properties": {
                     "id": {
                       "type": "string",
@@ -2102,12 +2166,14 @@
                     },
                     "description": {
                       "type": "string",
+                      "description": "Description of the event. Can contain HTML. Optional.",
                       "x-zui": {
                         "title": "Description"
                       }
                     },
                     "location": {
                       "type": "string",
+                      "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                       "x-zui": {
                         "title": "Location"
                       }
@@ -2128,6 +2194,7 @@
                     },
                     "colorId": {
                       "type": "string",
+                      "description": "The color ID of the event. Optional.",
                       "x-zui": {
                         "title": "Color ID"
                       }
@@ -2206,6 +2273,7 @@
                     },
                     "recurrence": {
                       "type": "array",
+                      "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                       "items": {
                         "type": "string",
                         "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -2287,6 +2355,7 @@
                     "eventType",
                     "htmlLink"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {
                     "title": "Updated Event"
                   }
@@ -2302,6 +2371,7 @@
                   "required": [
                     "id"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 }
               ],
@@ -2311,6 +2381,7 @@
           "required": [
             "item"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -2329,6 +2400,7 @@
           "required": [
             "id"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -2340,6 +2412,7 @@
               "allOf": [
                 {
                   "type": "object",
+                  "description": "The data of the event.",
                   "properties": {
                     "id": {
                       "type": "string",
@@ -2357,12 +2430,14 @@
                     },
                     "description": {
                       "type": "string",
+                      "description": "Description of the event. Can contain HTML. Optional.",
                       "x-zui": {
                         "title": "Description"
                       }
                     },
                     "location": {
                       "type": "string",
+                      "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                       "x-zui": {
                         "title": "Location"
                       }
@@ -2383,6 +2458,7 @@
                     },
                     "colorId": {
                       "type": "string",
+                      "description": "The color ID of the event. Optional.",
                       "x-zui": {
                         "title": "Color ID"
                       }
@@ -2461,6 +2537,7 @@
                     },
                     "recurrence": {
                       "type": "array",
+                      "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                       "items": {
                         "type": "string",
                         "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -2542,6 +2619,7 @@
                     "eventType",
                     "htmlLink"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {
                     "title": "Updated Event"
                   }
@@ -2557,6 +2635,7 @@
                   "required": [
                     "id"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 }
               ],
@@ -2566,6 +2645,7 @@
           "required": [
             "item"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -2582,6 +2662,7 @@
             },
             "item": {
               "type": "object",
+              "description": "The data of the event.",
               "properties": {
                 "id": {
                   "type": "string",
@@ -2599,12 +2680,14 @@
                 },
                 "description": {
                   "type": "string",
+                  "description": "Description of the event. Can contain HTML. Optional.",
                   "x-zui": {
                     "title": "Description"
                   }
                 },
                 "location": {
                   "type": "string",
+                  "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                   "x-zui": {
                     "title": "Location"
                   }
@@ -2625,6 +2708,7 @@
                 },
                 "colorId": {
                   "type": "string",
+                  "description": "The color ID of the event. Optional.",
                   "x-zui": {
                     "title": "Color ID"
                   }
@@ -2703,6 +2787,7 @@
                 },
                 "recurrence": {
                   "type": "array",
+                  "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                   "items": {
                     "type": "string",
                     "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -2784,6 +2869,7 @@
                 "eventType",
                 "htmlLink"
               ],
+              "additionalProperties": false,
               "x-zui": {
                 "title": "Updated Event"
               }
@@ -2793,6 +2879,7 @@
             "id",
             "item"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -2804,6 +2891,7 @@
               "allOf": [
                 {
                   "type": "object",
+                  "description": "The data of the event.",
                   "properties": {
                     "id": {
                       "type": "string",
@@ -2821,12 +2909,14 @@
                     },
                     "description": {
                       "type": "string",
+                      "description": "Description of the event. Can contain HTML. Optional.",
                       "x-zui": {
                         "title": "Description"
                       }
                     },
                     "location": {
                       "type": "string",
+                      "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                       "x-zui": {
                         "title": "Location"
                       }
@@ -2847,6 +2937,7 @@
                     },
                     "colorId": {
                       "type": "string",
+                      "description": "The color ID of the event. Optional.",
                       "x-zui": {
                         "title": "Color ID"
                       }
@@ -2925,6 +3016,7 @@
                     },
                     "recurrence": {
                       "type": "array",
+                      "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                       "items": {
                         "type": "string",
                         "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -3006,6 +3098,7 @@
                     "eventType",
                     "htmlLink"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {
                     "title": "Updated Event"
                   }
@@ -3021,6 +3114,7 @@
                   "required": [
                     "id"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 }
               ],
@@ -3030,6 +3124,7 @@
           "required": [
             "item"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -3048,6 +3143,7 @@
           "required": [
             "id"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -3055,7 +3151,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -3080,6 +3176,7 @@
         "required": [
           "refreshToken"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -3090,6 +3187,7 @@
       "description": "An event in a Google Calendar",
       "schema": {
         "type": "object",
+        "description": "The data of the event.",
         "properties": {
           "id": {
             "type": "string",
@@ -3107,12 +3205,14 @@
           },
           "description": {
             "type": "string",
+            "description": "Description of the event. Can contain HTML. Optional.",
             "x-zui": {
               "title": "Description"
             }
           },
           "location": {
             "type": "string",
+            "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
             "x-zui": {
               "title": "Location"
             }
@@ -3133,6 +3233,7 @@
           },
           "colorId": {
             "type": "string",
+            "description": "The color ID of the event. Optional.",
             "x-zui": {
               "title": "Color ID"
             }
@@ -3211,6 +3312,7 @@
           },
           "recurrence": {
             "type": "array",
+            "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
             "items": {
               "type": "string",
               "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -3292,6 +3394,7 @@
           "eventType",
           "htmlLink"
         ],
+        "additionalProperties": false,
         "x-zui": {
           "title": "Updated Event"
         }

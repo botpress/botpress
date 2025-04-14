@@ -1,1 +1,512 @@
-{}
+{
+  "name": "charts",
+  "version": "0.2.2",
+  "description": "Easily generate a variety of charts, including line, bar, pie, and scatter plots, etc.",
+  "actions": {
+    "generateLinePlot": {
+      "title": "Line Plot",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "xData": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  {
+                    "type": "number",
+                    "x-zui": {}
+                  }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "yData": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "xAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "yAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "xData",
+            "yData"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "imageUrl"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      }
+    },
+    "generateBarChart": {
+      "title": "Bar Chart",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "xData": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  {
+                    "type": "number",
+                    "x-zui": {}
+                  }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "yData": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "xAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "yAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "xData",
+            "yData"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "imageUrl"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      }
+    },
+    "generatePieChart": {
+      "title": "Pie Chart",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "labels",
+            "data"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "imageUrl"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      }
+    },
+    "generateScatterPlot": {
+      "title": "Scatter Plot",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "y": {
+                    "type": "number",
+                    "x-zui": {}
+                  }
+                },
+                "required": [
+                  "x",
+                  "y"
+                ],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "xAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "yAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "data"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "imageUrl"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      }
+    },
+    "generateDoughnutChart": {
+      "title": "Doughnut Chart",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "labels",
+            "data"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "imageUrl"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      }
+    },
+    "generateRadarChart": {
+      "title": "Radar Chart",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "axisTitle": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "labels",
+            "data"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "imageUrl"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      }
+    },
+    "generateBubbleChart": {
+      "title": "Bubble Chart",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "y": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "r": {
+                    "type": "number",
+                    "x-zui": {}
+                  }
+                },
+                "required": [
+                  "x",
+                  "y",
+                  "r"
+                ],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "xAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "yAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "data"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "imageUrl"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      }
+    },
+    "generateHorizontalBarChart": {
+      "title": "Horizontal Bar Chart",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "xData": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  {
+                    "type": "number",
+                    "x-zui": {}
+                  }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "yData": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "xAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "yAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "xData",
+            "yData"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "imageUrl"
+          ],
+          "additionalProperties": false,
+          "x-zui": {}
+        }
+      }
+    }
+  },
+  "interfaces": {}
+}

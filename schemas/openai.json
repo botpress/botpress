@@ -64,6 +64,7 @@
             },
             "expiration": {
               "type": "integer",
+              "description": "Expiration of the generated audio file in days, after which the file will be automatically deleted to free up storage space in your account. The default is to keep the file indefinitely (no expiration). The minimum is 30 days and the maximum is 90 days.",
               "x-zui": {},
               "minimum": 30,
               "maximum": 90
@@ -72,6 +73,7 @@
           "required": [
             "input"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -96,6 +98,7 @@
               "required": [
                 "cost"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
@@ -103,6 +106,7 @@
             "audioUrl",
             "botpress"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -137,6 +141,7 @@
               "required": [
                 "id"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             },
             "reasoningEffort": {
@@ -209,7 +214,8 @@
                                   "x-zui": {}
                                 },
                                 {
-                                  "type": "null"
+                                  "type": "null",
+                                  "x-zui": {}
                                 }
                               ],
                               "x-zui": {
@@ -223,6 +229,7 @@
                             "name",
                             "arguments"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -231,6 +238,7 @@
                         "type",
                         "function"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     "x-zui": {}
@@ -276,6 +284,7 @@
                               "required": [
                                 "type"
                               ],
+                              "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
@@ -284,7 +293,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -298,6 +308,7 @@
                   "role",
                   "content"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -361,16 +372,14 @@
                       "argumentsSchema": {
                         "type": "object",
                         "properties": {},
-                        "required": [],
-                        "additionalProperties": {
-                          "x-zui": {}
-                        },
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
                     "required": [
                       "name"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   }
                 },
@@ -378,6 +387,7 @@
                   "type",
                   "function"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -401,7 +411,7 @@
                   "x-zui": {}
                 }
               },
-              "required": [],
+              "additionalProperties": false,
               "x-zui": {}
             },
             "userId": {
@@ -428,13 +438,14 @@
                   "x-zui": {}
                 }
               },
-              "required": [],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
           "required": [
             "messages"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -503,7 +514,8 @@
                                   "x-zui": {}
                                 },
                                 {
-                                  "type": "null"
+                                  "type": "null",
+                                  "x-zui": {}
                                 }
                               ],
                               "x-zui": {
@@ -517,6 +529,7 @@
                             "name",
                             "arguments"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -525,6 +538,7 @@
                         "type",
                         "function"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     "x-zui": {}
@@ -570,6 +584,7 @@
                               "required": [
                                 "type"
                               ],
+                              "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
@@ -578,7 +593,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -614,6 +630,7 @@
                   "index",
                   "stopReason"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -644,6 +661,7 @@
                 "outputTokens",
                 "outputCost"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             },
             "botpress": {
@@ -657,6 +675,7 @@
               "required": [
                 "cost"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
@@ -668,6 +687,7 @@
             "usage",
             "botpress"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -679,7 +699,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -744,6 +764,7 @@
                           "maxTokens",
                           "costPer1MTokens"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       },
                       "output": {
@@ -762,6 +783,7 @@
                           "maxTokens",
                           "costPer1MTokens"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -773,6 +795,7 @@
                       "input",
                       "output"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -800,6 +823,7 @@
                     "required": [
                       "id"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   }
                 ],
@@ -811,6 +835,7 @@
           "required": [
             "models"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -831,6 +856,7 @@
               "required": [
                 "id"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             },
             "prompt": {
@@ -861,16 +887,18 @@
                 },
                 "user": {
                   "type": "string",
+                  "description": "User ID to associate with the image, for abuse detection purposes",
                   "x-zui": {}
                 }
               },
-              "required": [],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
           "required": [
             "prompt"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -901,6 +929,7 @@
               "required": [
                 "cost"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
@@ -910,6 +939,7 @@
             "cost",
             "botpress"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -921,7 +951,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -968,6 +998,7 @@
                       "sizes",
                       "defaultSize"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -981,6 +1012,7 @@
                     "required": [
                       "id"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   }
                 ],
@@ -992,6 +1024,7 @@
           "required": [
             "models"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1012,6 +1045,7 @@
               "required": [
                 "id"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             },
             "fileUrl": {
@@ -1036,6 +1070,7 @@
           "required": [
             "fileUrl"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1113,6 +1148,7 @@
                   "compression_ratio",
                   "no_speech_prob"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -1136,6 +1172,7 @@
               "required": [
                 "cost"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
@@ -1147,6 +1184,7 @@
             "cost",
             "botpress"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1158,7 +1196,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1191,6 +1229,7 @@
                       "name",
                       "costPerMinute"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -1204,6 +1243,7 @@
                     "required": [
                       "id"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   }
                 ],
@@ -1215,6 +1255,7 @@
           "required": [
             "models"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1248,6 +1289,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -1263,6 +1305,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -1278,6 +1321,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -1296,10 +1340,11 @@
           },
           "user": {
             "type": "string",
+            "description": "User ID to associate with the image, for abuse detection purposes",
             "x-zui": {}
           }
         },
-        "required": [],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

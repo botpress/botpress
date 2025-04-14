@@ -9,6 +9,7 @@
       "description": "Triggered when a file is created in Google Drive",
       "schema": {
         "type": "object",
+        "description": "The file updated in Google Drive",
         "properties": {
           "id": {
             "type": "string",
@@ -24,6 +25,7 @@
           },
           "parentId": {
             "type": "string",
+            "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
             "x-zui": {},
             "minLength": 1
           },
@@ -58,6 +60,7 @@
           "size",
           "path"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -77,6 +80,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -100,6 +104,7 @@
           },
           "parentId": {
             "type": "string",
+            "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
             "x-zui": {},
             "minLength": 1
           },
@@ -126,6 +131,7 @@
           "mimeType",
           "path"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -145,6 +151,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -159,10 +166,11 @@
           "properties": {
             "nextToken": {
               "type": "string",
+              "description": "The token to use to get the next page of results",
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -175,6 +183,7 @@
               "description": "The list of items listed in Google Drive. Results may be paginated. If set, use nextToken to get additional results",
               "items": {
                 "type": "object",
+                "description": "The file updated in Google Drive",
                 "properties": {
                   "id": {
                     "type": "string",
@@ -190,6 +199,7 @@
                   },
                   "parentId": {
                     "type": "string",
+                    "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                     "x-zui": {},
                     "minLength": 1
                   },
@@ -224,6 +234,7 @@
                   "size",
                   "path"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -233,10 +244,11 @@
               "properties": {
                 "nextToken": {
                   "type": "string",
+                  "description": "The token to pass as input to the next call of the list action to list additional items",
                   "x-zui": {}
                 }
               },
-              "required": [],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
@@ -244,6 +256,7 @@
             "items",
             "meta"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -257,10 +270,11 @@
           "properties": {
             "nextToken": {
               "type": "string",
+              "description": "The token to use to get the next page of results",
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -288,6 +302,7 @@
                   },
                   "parentId": {
                     "type": "string",
+                    "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                     "x-zui": {},
                     "minLength": 1
                   },
@@ -314,6 +329,7 @@
                   "mimeType",
                   "path"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -323,10 +339,11 @@
               "properties": {
                 "nextToken": {
                   "type": "string",
+                  "description": "The token to pass as input to the next call of the list action to list additional items",
                   "x-zui": {}
                 }
               },
-              "required": [],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
@@ -334,6 +351,7 @@
             "items",
             "meta"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -353,6 +371,7 @@
             },
             "parentId": {
               "type": "string",
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
               "x-zui": {},
               "minLength": 1
             },
@@ -367,13 +386,14 @@
             "name",
             "mimeType"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
-          "description": "The file created in Google Drive",
+          "description": "The file updated in Google Drive",
           "properties": {
             "id": {
               "type": "string",
@@ -389,6 +409,7 @@
             },
             "parentId": {
               "type": "string",
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
               "x-zui": {},
               "minLength": 1
             },
@@ -423,6 +444,7 @@
             "size",
             "path"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -444,13 +466,14 @@
           "required": [
             "id"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
-          "description": "The file read from Google Drive",
+          "description": "The file updated in Google Drive",
           "properties": {
             "id": {
               "type": "string",
@@ -466,6 +489,7 @@
             },
             "parentId": {
               "type": "string",
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
               "x-zui": {},
               "minLength": 1
             },
@@ -500,6 +524,7 @@
             "size",
             "path"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -525,6 +550,7 @@
             },
             "parentId": {
               "type": "string",
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
               "x-zui": {},
               "minLength": 1
             }
@@ -533,6 +559,7 @@
             "id",
             "name"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -555,6 +582,7 @@
             },
             "parentId": {
               "type": "string",
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
               "x-zui": {},
               "minLength": 1
             },
@@ -589,6 +617,7 @@
             "size",
             "path"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -610,6 +639,7 @@
           "required": [
             "id"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -617,7 +647,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -642,6 +672,7 @@
             },
             "mimeType": {
               "type": "string",
+              "description": "Media type of the uploaded content. This will override any previously set media type",
               "x-zui": {},
               "minLength": 1
             }
@@ -650,6 +681,7 @@
             "id",
             "url"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -657,7 +689,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -685,6 +717,7 @@
             "id",
             "index"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -702,6 +735,7 @@
           "required": [
             "bpFileId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -713,7 +747,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -721,7 +755,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -744,6 +778,7 @@
         "required": [
           "refreshToken"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -774,6 +809,7 @@
                     },
                     "parentId": {
                       "type": "string",
+                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                       "x-zui": {},
                       "minLength": 1
                     },
@@ -802,6 +838,7 @@
                     "size",
                     "type"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 {
@@ -821,6 +858,7 @@
                     },
                     "parentId": {
                       "type": "string",
+                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                       "x-zui": {},
                       "minLength": 1
                     },
@@ -841,6 +879,7 @@
                     "mimeType",
                     "type"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 {
@@ -860,6 +899,7 @@
                     },
                     "parentId": {
                       "type": "string",
+                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                       "x-zui": {},
                       "minLength": 1
                     },
@@ -880,6 +920,7 @@
                     "mimeType",
                     "type"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 }
               ],
@@ -898,6 +939,7 @@
         "required": [
           "filesCache"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -936,6 +978,7 @@
                 "resourceId",
                 "fileId"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             },
             "x-zui": {
@@ -946,6 +989,7 @@
         "required": [
           "filesChannelsCache"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

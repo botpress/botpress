@@ -21,61 +21,73 @@
             },
             "firstName": {
               "type": "string",
+              "description": "The first name of the customer (e.g. John)",
               "x-zui": {},
               "title": "The first name of the customer (e.g. John) (Optional)"
             },
             "lastName": {
               "type": "string",
+              "description": "The last name of the customer (e.g. Doe)",
               "x-zui": {},
               "title": "The last name of the customer (e.g. Doe) (Optional)"
             },
             "company": {
               "type": "string",
+              "description": "The company of the customer (e.g. Acme Inc.)",
               "x-zui": {},
               "title": "The company of the customer (e.g. Acme Inc.) (Optional)"
             },
             "birthday": {
               "type": "string",
+              "description": "The birthday of the customer (e.g. 01/01/2000)",
               "x-zui": {},
               "title": "The birthday of the customer (e.g. 01/01/2000) (Optional)"
             },
             "language": {
               "type": "string",
+              "description": "The language of the customer (e.g. en)",
               "x-zui": {},
               "title": "The language of the customer (e.g. en) (Optional)"
             },
             "address1": {
               "type": "string",
+              "description": "The first line of the address of the customer (e.g. 123 St Marie.)",
               "x-zui": {},
               "title": "The first line of the address of the customer (e.g. 123 St Marie.) (Optional)"
             },
             "address2": {
               "type": "string",
+              "description": "The second line of the address of the customer (e.g. Apt. 4B)",
               "x-zui": {},
               "title": "The second line of the address of the customer (e.g. Apt. 4B) (Optional)"
             },
             "city": {
               "type": "string",
+              "description": "The city of the customer (e.g. Anytown)",
               "x-zui": {},
               "title": "The city of the customer (e.g. Anytown) (Optional)"
             },
             "state": {
               "type": "string",
+              "description": "The state or province of the customer (e.g. CA)",
               "x-zui": {},
               "title": "The state or province of the customer (e.g. CA) (Optional)"
             },
             "zip": {
               "type": "string",
+              "description": "The zip or postal code of the customer (e.g. 12345)",
               "x-zui": {},
               "title": "The zip or postal code of the customer (e.g. 12345) (Optional)"
             },
             "country": {
               "type": "string",
+              "description": "The country of the customer (e.g. USA)",
               "x-zui": {},
               "title": "The country of the customer (e.g. USA) (Optional)"
             },
             "phone": {
               "type": "string",
+              "description": "The phone number of the customer (e.g. 555-1234)",
               "x-zui": {},
               "title": "The phone number of the customer (e.g. 555-1234) (Optional)"
             },
@@ -90,6 +102,7 @@
             "email",
             "campaignId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -164,6 +177,7 @@
             "status",
             "list_id"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -185,61 +199,73 @@
             },
             "firstName": {
               "type": "string",
+              "description": "The first name of the customer (e.g. John)",
               "x-zui": {},
               "title": "The first name of the customer (e.g. John) (Optional)"
             },
             "lastName": {
               "type": "string",
+              "description": "The last name of the customer (e.g. Doe)",
               "x-zui": {},
               "title": "The last name of the customer (e.g. Doe) (Optional)"
             },
             "company": {
               "type": "string",
+              "description": "The company of the customer (e.g. Acme Inc.)",
               "x-zui": {},
               "title": "The company of the customer (e.g. Acme Inc.) (Optional)"
             },
             "birthday": {
               "type": "string",
+              "description": "The birthday of the customer (e.g. 01/01/2000)",
               "x-zui": {},
               "title": "The birthday of the customer (e.g. 01/01/2000) (Optional)"
             },
             "language": {
               "type": "string",
+              "description": "The language of the customer (e.g. en)",
               "x-zui": {},
               "title": "The language of the customer (e.g. en) (Optional)"
             },
             "address1": {
               "type": "string",
+              "description": "The first line of the address of the customer (e.g. 123 St Marie.)",
               "x-zui": {},
               "title": "The first line of the address of the customer (e.g. 123 St Marie.) (Optional)"
             },
             "address2": {
               "type": "string",
+              "description": "The second line of the address of the customer (e.g. Apt. 4B)",
               "x-zui": {},
               "title": "The second line of the address of the customer (e.g. Apt. 4B) (Optional)"
             },
             "city": {
               "type": "string",
+              "description": "The city of the customer (e.g. Anytown)",
               "x-zui": {},
               "title": "The city of the customer (e.g. Anytown) (Optional)"
             },
             "state": {
               "type": "string",
+              "description": "The state or province of the customer (e.g. CA)",
               "x-zui": {},
               "title": "The state or province of the customer (e.g. CA) (Optional)"
             },
             "zip": {
               "type": "string",
+              "description": "The zip or postal code of the customer (e.g. 12345)",
               "x-zui": {},
               "title": "The zip or postal code of the customer (e.g. 12345) (Optional)"
             },
             "country": {
               "type": "string",
+              "description": "The country of the customer (e.g. USA)",
               "x-zui": {},
               "title": "The country of the customer (e.g. USA) (Optional)"
             },
             "phone": {
               "type": "string",
+              "description": "The phone number of the customer (e.g. 555-1234)",
               "x-zui": {},
               "title": "The phone number of the customer (e.g. 555-1234) (Optional)"
             },
@@ -254,6 +280,7 @@
             "email",
             "listId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -328,6 +355,7 @@
             "status",
             "list_id"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -349,6 +377,7 @@
           "required": [
             "campaignIds"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -461,13 +490,13 @@
                     "x-zui": {}
                   }
                 },
-                "required": [],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -503,7 +532,7 @@
               "title": "List count to retrieve"
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -587,6 +616,7 @@
                       "country",
                       "phone"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   "permission_reminder": {
@@ -629,6 +659,7 @@
                       "subject",
                       "language"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   "notify_on_subscribe": {
@@ -788,6 +819,7 @@
                       "last_sub_date",
                       "last_unsub_date"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   "_links": {
@@ -852,7 +884,7 @@
                           "x-zui": {}
                         }
                       },
-                      "required": [],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     "x-zui": {}
@@ -882,6 +914,7 @@
                   "stats",
                   "_links"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -910,6 +943,7 @@
                 "max_instances",
                 "current_total_instances"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             },
             "_links": {
@@ -974,7 +1008,7 @@
                     "x-zui": {}
                   }
                 },
-                "required": [],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -985,6 +1019,7 @@
             "constraints",
             "_links"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1020,7 +1055,7 @@
               "title": "List count to retrieve"
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
@@ -1150,7 +1185,7 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1162,9 +1197,7 @@
                       "recipient_count",
                       "segment_opts"
                     ],
-                    "additionalProperties": {
-                      "x-zui": {}
-                    },
+                    "additionalProperties": true,
                     "x-zui": {}
                   },
                   "settings": {
@@ -1233,6 +1266,7 @@
                       },
                       "auto_fb_post": {
                         "type": "array",
+                        "description": "Array of Facebook post strings",
                         "items": {
                           "type": "string",
                           "x-zui": {}
@@ -1278,9 +1312,7 @@
                       "template_id",
                       "drag_and_drop"
                     ],
-                    "additionalProperties": {
-                      "x-zui": {}
-                    },
+                    "additionalProperties": true,
                     "x-zui": {}
                   },
                   "variate_settings": {
@@ -1407,6 +1439,7 @@
                             "content_description",
                             "recipients"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         },
                         "x-zui": {}
@@ -1425,9 +1458,7 @@
                       "contents",
                       "combinations"
                     ],
-                    "additionalProperties": {
-                      "x-zui": {}
-                    },
+                    "additionalProperties": true,
                     "x-zui": {}
                   },
                   "tracking": {
@@ -1470,6 +1501,7 @@
                       },
                       "salesforce": {
                         "type": "object",
+                        "description": "Salesforce tracking options",
                         "properties": {
                           "campaign": {
                             "type": "boolean",
@@ -1486,10 +1518,12 @@
                           "campaign",
                           "notes"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       },
                       "capsule": {
                         "type": "object",
+                        "description": "Capsule tracking options",
                         "properties": {
                           "notes": {
                             "type": "boolean",
@@ -1500,6 +1534,7 @@
                         "required": [
                           "notes"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1512,9 +1547,7 @@
                       "google_analytics",
                       "clicktale"
                     ],
-                    "additionalProperties": {
-                      "x-zui": {}
-                    },
+                    "additionalProperties": true,
                     "x-zui": {}
                   },
                   "rss_opts": {
@@ -1580,6 +1613,7 @@
                               "friday",
                               "saturday"
                             ],
+                            "additionalProperties": false,
                             "x-zui": {}
                           },
                           "weekly_send_day": {
@@ -1599,6 +1633,7 @@
                           "weekly_send_day",
                           "monthly_send_date"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       },
                       "last_sent": {
@@ -1619,9 +1654,7 @@
                       "last_sent",
                       "constrain_rss_img"
                     ],
-                    "additionalProperties": {
-                      "x-zui": {}
-                    },
+                    "additionalProperties": true,
                     "x-zui": {}
                   },
                   "ab_split_opts": {
@@ -1714,9 +1747,7 @@
                       "send_time_b",
                       "send_time_winner"
                     ],
-                    "additionalProperties": {
-                      "x-zui": {}
-                    },
+                    "additionalProperties": true,
                     "x-zui": {}
                   },
                   "social_card": {
@@ -1743,6 +1774,7 @@
                       "description",
                       "title"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   "report_summary": {
@@ -1802,6 +1834,7 @@
                           "total_spent",
                           "total_revenue"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
@@ -1814,9 +1847,7 @@
                       "click_rate",
                       "ecommerce"
                     ],
-                    "additionalProperties": {
-                      "x-zui": {}
-                    },
+                    "additionalProperties": true,
                     "x-zui": {}
                   },
                   "delivery_status": {
@@ -1858,6 +1889,7 @@
                           "emails_sent",
                           "emails_canceled"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       },
                       {
@@ -1872,6 +1904,7 @@
                         "required": [
                           "enabled"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       }
                     ],
@@ -1939,7 +1972,7 @@
                           "x-zui": {}
                         }
                       },
-                      "required": [],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     "x-zui": {}
@@ -1963,6 +1996,7 @@
                   "delivery_status",
                   "_links"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -2034,7 +2068,7 @@
                     "x-zui": {}
                   }
                 },
-                "required": [],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -2045,6 +2079,7 @@
             "total_items",
             "_links"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }

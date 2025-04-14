@@ -58,9 +58,7 @@
           "headers",
           "method"
         ],
-        "additionalProperties": {
-          "x-zui": {}
-        },
+        "additionalProperties": true,
         "x-zui": {}
       }
     }

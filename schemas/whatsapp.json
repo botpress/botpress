@@ -30,14 +30,17 @@
             },
             "templateLanguage": {
               "type": "string",
+              "description": "Language of the Whatsapp Message Template to start the conversation with. Defaults to \"en_US\" (U.S. English).",
               "x-zui": {}
             },
             "templateVariablesJson": {
               "type": "string",
+              "description": "JSON array representation of variable values to pass to the Whatsapp Message Template.",
               "x-zui": {}
             },
             "senderPhoneNumberId": {
               "type": "string",
+              "description": "Whatsapp Phone Number ID to use as sender. If not provided it defaults to the one set in the configuration.",
               "x-zui": {}
             }
           },
@@ -45,6 +48,7 @@
             "userPhone",
             "templateName"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -60,6 +64,7 @@
           "required": [
             "conversationId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -86,6 +91,7 @@
             "conversationId",
             "messageId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -93,7 +99,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -116,6 +122,7 @@
             "conversationId",
             "messageId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -123,7 +130,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -145,6 +152,7 @@
             "required": [
               "text"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -161,6 +169,7 @@
             "required": [
               "imageUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -177,6 +186,7 @@
             "required": [
               "audioUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -193,6 +203,7 @@
             "required": [
               "videoUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -218,6 +229,7 @@
             "required": [
               "fileUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -246,6 +258,7 @@
               "latitude",
               "longitude"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -303,6 +316,7 @@
                           "label",
                           "value"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       },
                       "x-zui": {}
@@ -312,6 +326,7 @@
                     "title",
                     "actions"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -320,6 +335,7 @@
             "required": [
               "items"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -372,6 +388,7 @@
                     "label",
                     "value"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -381,6 +398,7 @@
               "title",
               "actions"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -413,6 +431,7 @@
                     "label",
                     "value"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -422,6 +441,7 @@
               "text",
               "options"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -454,6 +474,7 @@
                     "label",
                     "value"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -463,6 +484,7 @@
               "text",
               "options"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -494,6 +516,7 @@
                           "required": [
                             "text"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -501,6 +524,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -523,6 +547,7 @@
                           "required": [
                             "markdown"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -530,6 +555,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -552,6 +578,7 @@
                           "required": [
                             "imageUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -559,6 +586,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -581,6 +609,7 @@
                           "required": [
                             "audioUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -588,6 +617,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -610,6 +640,7 @@
                           "required": [
                             "videoUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -617,6 +648,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -644,6 +676,7 @@
                           "required": [
                             "fileUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -651,6 +684,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -685,6 +719,7 @@
                             "latitude",
                             "longitude"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -692,6 +727,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     }
                   ],
@@ -703,6 +739,7 @@
             "required": [
               "items"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -719,6 +756,7 @@
             "required": [
               "markdown"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         }
@@ -773,7 +811,7 @@
             "x-zui": {}
           }
         },
-        "required": [],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

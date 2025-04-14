@@ -31,6 +31,7 @@
             "required": [
               "text"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -45,6 +46,7 @@
               },
               "title": {
                 "type": "string",
+                "description": "Alt text for the image",
                 "x-zui": {
                   "title": "Alt text"
                 }
@@ -53,6 +55,7 @@
             "required": [
               "imageUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -67,6 +70,7 @@
               },
               "title": {
                 "type": "string",
+                "description": "Title for the audio file",
                 "x-zui": {
                   "title": "Title"
                 }
@@ -75,6 +79,7 @@
             "required": [
               "audioUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -89,6 +94,7 @@
               },
               "title": {
                 "type": "string",
+                "description": "Title for the video file",
                 "x-zui": {
                   "title": "Title"
                 }
@@ -97,6 +103,7 @@
             "required": [
               "videoUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -111,6 +118,7 @@
               },
               "title": {
                 "type": "string",
+                "description": "Title for the file",
                 "x-zui": {
                   "title": "Title"
                 }
@@ -119,6 +127,7 @@
             "required": [
               "fileUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -147,6 +156,7 @@
               "latitude",
               "longitude"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -204,6 +214,7 @@
                           "label",
                           "value"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       },
                       "x-zui": {}
@@ -213,6 +224,7 @@
                     "title",
                     "actions"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -221,6 +233,7 @@
             "required": [
               "items"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -273,6 +286,7 @@
                     "label",
                     "value"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -282,6 +296,7 @@
               "title",
               "actions"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -314,6 +329,7 @@
                     "label",
                     "value"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -323,6 +339,7 @@
               "text",
               "options"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -355,6 +372,7 @@
                     "label",
                     "value"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -364,6 +382,7 @@
               "text",
               "options"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -395,6 +414,7 @@
                           "required": [
                             "text"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -402,6 +422,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -424,6 +445,7 @@
                           "required": [
                             "markdown"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -431,6 +453,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -453,6 +476,7 @@
                           "required": [
                             "imageUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -460,6 +484,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -482,6 +507,7 @@
                           "required": [
                             "audioUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -489,6 +515,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -511,6 +538,7 @@
                           "required": [
                             "videoUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -518,6 +546,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -545,6 +574,7 @@
                           "required": [
                             "fileUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -552,6 +582,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -586,6 +617,7 @@
                             "latitude",
                             "longitude"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -593,6 +625,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     }
                   ],
@@ -604,6 +637,7 @@
             "required": [
               "items"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -620,6 +654,7 @@
             "required": [
               "markdown"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         }
@@ -666,12 +701,13 @@
         "properties": {
           "inReplyTo": {
             "type": "string",
+            "description": "The ID of the message this message is a reply to",
             "x-zui": {
               "title": "In reply to"
             }
           }
         },
-        "required": [],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -689,6 +725,7 @@
           },
           "lastHistoryId": {
             "type": "string",
+            "description": "The last history ID processed by the integration",
             "x-zui": {
               "title": "History cursor"
             }
@@ -697,6 +734,7 @@
         "required": [
           "refreshToken"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -716,6 +754,7 @@
         "required": [
           "certificates"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

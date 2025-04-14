@@ -35,12 +35,14 @@
             },
             "data": {
               "type": "string",
+              "description": "The data to send with the request as a string JSON object.",
               "x-zui": {
                 "title": "Date"
               }
             },
             "params": {
               "type": "string",
+              "description": "The params to send with the request as a string JSON object if required.",
               "x-zui": {
                 "title": "Params"
               }
@@ -50,6 +52,7 @@
             "endpoint",
             "method"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -82,6 +85,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -112,6 +116,7 @@
             "module",
             "data"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -144,6 +149,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -182,6 +188,7 @@
             "recordId",
             "data"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -214,6 +221,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -244,6 +252,7 @@
             "module",
             "recordId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -276,6 +285,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -306,6 +316,7 @@
             "module",
             "criteria"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -338,6 +349,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -368,6 +380,7 @@
             "module",
             "recordId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -400,6 +413,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -420,6 +434,7 @@
             },
             "params": {
               "type": "string",
+              "description": "Optional query parameters as a JSON string (e.g., pagination, sorting)",
               "x-zui": {
                 "title": "Params"
               }
@@ -428,6 +443,7 @@
           "required": [
             "module"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -460,6 +476,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -471,7 +488,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -504,6 +521,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -517,12 +535,13 @@
           "properties": {
             "params": {
               "type": "string",
+              "description": "Optional query parameters as a JSON string for filtering users (e.g., role, status)",
               "x-zui": {
                 "title": "Params"
               }
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -555,6 +574,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -568,12 +588,13 @@
           "properties": {
             "params": {
               "type": "string",
+              "description": "Optional query parameters as a JSON string (e.g., date range, filters)",
               "x-zui": {
                 "title": "Params"
               }
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -606,6 +627,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -628,6 +650,7 @@
           "required": [
             "appointmentId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -660,6 +683,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -682,6 +706,7 @@
           "required": [
             "data"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -714,6 +739,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -744,6 +770,7 @@
             "appointmentId",
             "data"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -776,6 +803,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -798,6 +826,7 @@
           "required": [
             "appointmentId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -830,6 +859,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -868,6 +898,7 @@
             "recordId",
             "data"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -900,6 +931,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -922,6 +954,7 @@
           "required": [
             "fileUrl"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -954,6 +987,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -976,6 +1010,7 @@
           "required": [
             "fileId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1008,6 +1043,7 @@
             "success",
             "message"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1030,6 +1066,7 @@
         "required": [
           "accessToken"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

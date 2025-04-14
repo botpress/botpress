@@ -64,12 +64,14 @@
               "name",
               "absolutePath"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
         "required": [
           "file"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -125,12 +127,14 @@
               "name",
               "absolutePath"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
         "required": [
           "file"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -186,12 +190,14 @@
               "name",
               "absolutePath"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
         "required": [
           "file"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -230,12 +236,14 @@
               "name",
               "absolutePath"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
         "required": [
           "folder"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -296,6 +304,7 @@
                     "name",
                     "absolutePath"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -350,6 +359,7 @@
                     "name",
                     "absolutePath"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -406,6 +416,7 @@
                         "name",
                         "absolutePath"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -439,6 +450,7 @@
                         "name",
                         "absolutePath"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     }
                   ],
@@ -452,12 +464,14 @@
               "updated",
               "deleted"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
         "required": [
           "modifiedItems"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -484,10 +498,7 @@
               "additionalProperties": {
                 "type": "object",
                 "properties": {},
-                "required": [],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               },
               "x-zui": {
@@ -499,6 +510,7 @@
             "databaseId",
             "pageProperties"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -506,7 +518,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -539,6 +551,7 @@
             "pageId",
             "commentBody"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -546,7 +559,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -570,6 +583,7 @@
           "required": [
             "blockId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -577,7 +591,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -601,6 +615,7 @@
           "required": [
             "databaseId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -621,10 +636,7 @@
               "additionalProperties": {
                 "type": "object",
                 "properties": {},
-                "required": [],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               },
               "x-zui": {
@@ -644,6 +656,7 @@
             "properties",
             "structure"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -676,6 +689,7 @@
             "discussionId",
             "commentBody"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -683,7 +697,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -763,7 +777,7 @@
                   }
                 }
               },
-              "required": [],
+              "additionalProperties": false,
               "x-zui": {}
             },
             "nextToken": {
@@ -771,7 +785,7 @@
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -830,6 +844,7 @@
                       "type",
                       "name"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
@@ -862,6 +877,7 @@
                       "type",
                       "name"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   }
                 ],
@@ -877,7 +893,7 @@
                   "x-zui": {}
                 }
               },
-              "required": [],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
@@ -885,6 +901,7 @@
             "items",
             "meta"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -944,6 +961,7 @@
                 "type",
                 "name"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             },
             "fileKey": {
@@ -955,6 +973,7 @@
             "file",
             "fileKey"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -970,6 +989,7 @@
           "required": [
             "botpressFileId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -996,6 +1016,7 @@
         "required": [
           "authToken"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

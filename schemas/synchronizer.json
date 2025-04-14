@@ -22,6 +22,7 @@
       "required": [
         "tableName"
       ],
+      "additionalProperties": false,
       "x-zui": {}
     }
   },
@@ -30,7 +31,7 @@
       "schema": {
         "type": "object",
         "properties": {},
-        "required": [],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -49,12 +50,14 @@
             "required": [
               "id"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
         "required": [
           "row"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -73,12 +76,14 @@
             "required": [
               "id"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
         "required": [
           "row"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -97,12 +102,14 @@
             "required": [
               "id"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
         "required": [
           "row"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -115,7 +122,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -131,6 +138,7 @@
           "required": [
             "itemsLeft"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -142,7 +150,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -150,7 +158,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -164,12 +172,13 @@
         "properties": {
           "tableCreated": {
             "type": "boolean",
+            "description": "Whether the table has been created",
             "x-zui": {
               "title": "Table Created"
             }
           }
         },
-        "required": [],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -180,12 +189,13 @@
         "properties": {
           "nextToken": {
             "type": "string",
+            "description": "The token to use to get the next page of items",
             "x-zui": {
               "title": "Next Token"
             }
           }
         },
-        "required": [],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

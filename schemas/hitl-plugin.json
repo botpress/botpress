@@ -125,7 +125,7 @@
           "minimum": 0
         }
       },
-      "required": [],
+      "additionalProperties": false,
       "x-zui": {}
     }
   },
@@ -153,6 +153,7 @@
           "sessionStartedAt",
           "downstreamConversationId"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -174,6 +175,7 @@
             },
             "description": {
               "type": "string",
+              "description": "Description of the HITL ticket",
               "x-zui": {
                 "title": "Ticket Description"
               }
@@ -188,6 +190,7 @@
             },
             "userEmail": {
               "type": "string",
+              "description": "Email of the user that starts the HITL mode. If this value is unset, the agent will try to use the email provided by the channel.",
               "x-zui": {
                 "title": "User Email"
               }
@@ -206,6 +209,7 @@
             "userId",
             "conversationId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -213,7 +217,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -236,6 +240,7 @@
           "required": [
             "conversationId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -243,7 +248,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -266,6 +271,7 @@
         "required": [
           "hitlActive"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

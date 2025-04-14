@@ -23,6 +23,7 @@
           "required": [
             "tableIdOrName"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -38,10 +39,7 @@
                   "_rawJson": {
                     "type": "object",
                     "properties": {},
-                    "required": [],
-                    "additionalProperties": {
-                      "x-zui": {}
-                    },
+                    "additionalProperties": true,
                     "x-zui": {}
                   },
                   "id": {
@@ -53,6 +51,7 @@
                   "_rawJson",
                   "id"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -61,9 +60,7 @@
           "required": [
             "records"
           ],
-          "additionalProperties": {
-            "x-zui": {}
-          },
+          "additionalProperties": true,
           "x-zui": {}
         }
       }
@@ -86,6 +83,7 @@
             },
             "description": {
               "type": "string",
+              "description": "Description of the Table (e.g. This is my table) (Optional)",
               "x-zui": {}
             }
           },
@@ -93,6 +91,7 @@
             "name",
             "fields"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -122,9 +121,7 @@
                   "name",
                   "type"
                 ],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -164,9 +161,7 @@
                   "name",
                   "type"
                 ],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -179,9 +174,7 @@
             "primaryFieldId",
             "views"
           ],
-          "additionalProperties": {
-            "x-zui": {}
-          },
+          "additionalProperties": true,
           "x-zui": {}
         }
       }
@@ -199,16 +192,19 @@
             },
             "name": {
               "type": "string",
+              "description": "Name of the Table (e.g. MyTable) (Optional)",
               "x-zui": {}
             },
             "description": {
               "type": "string",
+              "description": "Description of the Table (e.g. This is my table) (Optional)",
               "x-zui": {}
             }
           },
           "required": [
             "tableIdOrName"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -238,9 +234,7 @@
                   "name",
                   "type"
                 ],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -280,9 +274,7 @@
                   "name",
                   "type"
                 ],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               },
               "x-zui": {}
@@ -295,9 +287,7 @@
             "primaryFieldId",
             "views"
           ],
-          "additionalProperties": {
-            "x-zui": {}
-          },
+          "additionalProperties": true,
           "x-zui": {}
         }
       }
@@ -323,6 +313,7 @@
             "tableIdOrName",
             "fields"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -333,10 +324,7 @@
             "_rawJson": {
               "type": "object",
               "properties": {},
-              "required": [],
-              "additionalProperties": {
-                "x-zui": {}
-              },
+              "additionalProperties": true,
               "x-zui": {}
             },
             "id": {
@@ -348,9 +336,7 @@
             "_rawJson",
             "id"
           ],
-          "additionalProperties": {
-            "x-zui": {}
-          },
+          "additionalProperties": true,
           "x-zui": {}
         }
       }
@@ -382,6 +368,7 @@
             "recordId",
             "fields"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -392,10 +379,7 @@
             "_rawJson": {
               "type": "object",
               "properties": {},
-              "required": [],
-              "additionalProperties": {
-                "x-zui": {}
-              },
+              "additionalProperties": true,
               "x-zui": {}
             },
             "id": {
@@ -407,9 +391,7 @@
             "_rawJson",
             "id"
           ],
-          "additionalProperties": {
-            "x-zui": {}
-          },
+          "additionalProperties": true,
           "x-zui": {}
         }
       }
@@ -427,16 +409,19 @@
             },
             "nextToken": {
               "type": "string",
+              "description": "The next page token (Optional)",
               "x-zui": {}
             },
             "filterByFormula": {
               "type": "string",
+              "description": "filter to apply to the list records (See https://support.airtable.com/docs/formula-field-reference)",
               "x-zui": {}
             }
           },
           "required": [
             "tableIdOrName"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -452,10 +437,7 @@
                   "_rawJson": {
                     "type": "object",
                     "properties": {},
-                    "required": [],
-                    "additionalProperties": {
-                      "x-zui": {}
-                    },
+                    "additionalProperties": true,
                     "x-zui": {}
                   },
                   "id": {
@@ -467,21 +449,21 @@
                   "_rawJson",
                   "id"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
             },
             "nextToken": {
               "type": "string",
+              "description": "The next page token (Optional)",
               "x-zui": {}
             }
           },
           "required": [
             "records"
           ],
-          "additionalProperties": {
-            "x-zui": {}
-          },
+          "additionalProperties": true,
           "x-zui": {}
         }
       }

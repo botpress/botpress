@@ -29,6 +29,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -49,6 +50,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -69,6 +71,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -97,18 +100,21 @@
             },
             "description": {
               "type": "string",
+              "description": "Description of the task to be created",
               "x-zui": {
                 "title": "Description"
               }
             },
             "status": {
               "type": "string",
+              "description": "Status of the task to be created",
               "x-zui": {
                 "title": "Status"
               }
             },
             "assignees": {
               "type": "array",
+              "description": "IDs of the assignees of the task to be created",
               "items": {
                 "type": "number",
                 "x-zui": {}
@@ -119,6 +125,7 @@
             },
             "dueDate": {
               "type": "string",
+              "description": "Due date of the task to be created",
               "x-zui": {
                 "title": "Due date",
                 "precision": null,
@@ -129,6 +136,7 @@
             },
             "tags": {
               "type": "array",
+              "description": "Tags of the task to be created",
               "items": {
                 "type": "string",
                 "x-zui": {}
@@ -142,6 +150,7 @@
             "listId",
             "name"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -160,6 +169,7 @@
           "required": [
             "taskId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -180,30 +190,35 @@
             },
             "name": {
               "type": "string",
+              "description": "New name of the task",
               "x-zui": {
                 "title": "Name"
               }
             },
             "description": {
               "type": "string",
+              "description": "New description of the task",
               "x-zui": {
                 "title": "Description"
               }
             },
             "status": {
               "type": "string",
+              "description": "New status of the task",
               "x-zui": {
                 "title": "Status"
               }
             },
             "archived": {
               "type": "boolean",
+              "description": "New archived status of the task",
               "x-zui": {
                 "title": "Archived"
               }
             },
             "assigneesToAdd": {
               "type": "array",
+              "description": "Members to add to the task",
               "items": {
                 "type": "number",
                 "x-zui": {}
@@ -214,6 +229,7 @@
             },
             "assigneesToRemove": {
               "type": "array",
+              "description": "Members to remove from the task",
               "items": {
                 "type": "number",
                 "x-zui": {}
@@ -224,6 +240,7 @@
             },
             "dueDate": {
               "type": "string",
+              "description": "New due date of the task",
               "x-zui": {
                 "title": "Due date",
                 "precision": null,
@@ -236,6 +253,7 @@
           "required": [
             "taskId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -254,6 +272,7 @@
           "required": [
             "taskId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -276,6 +295,7 @@
           "required": [
             "taskId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -283,7 +303,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -306,6 +326,7 @@
           "required": [
             "listId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -346,6 +367,7 @@
                   "username",
                   "email"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {
@@ -356,6 +378,7 @@
           "required": [
             "members"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -381,6 +404,7 @@
             "required": [
               "text"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         }

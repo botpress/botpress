@@ -46,6 +46,7 @@
           "required": [
             "markdown"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -68,6 +69,7 @@
             "fileId",
             "fileUrl"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -115,6 +117,7 @@
           "required": [
             "html"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -137,6 +140,7 @@
             "fileId",
             "fileUrl"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }

@@ -35,6 +35,7 @@
             "conversationId",
             "messageId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -42,7 +43,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -65,6 +66,7 @@
             "conversationId",
             "messageId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -72,7 +74,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -96,6 +98,7 @@
             "required": [
               "text"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -112,6 +115,7 @@
             "required": [
               "imageUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -128,6 +132,7 @@
             "required": [
               "audioUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -144,6 +149,7 @@
             "required": [
               "videoUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -165,6 +171,7 @@
             "required": [
               "fileUrl"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -193,6 +200,7 @@
               "latitude",
               "longitude"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -250,6 +258,7 @@
                           "label",
                           "value"
                         ],
+                        "additionalProperties": false,
                         "x-zui": {}
                       },
                       "x-zui": {}
@@ -259,6 +268,7 @@
                     "title",
                     "actions"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -267,6 +277,7 @@
             "required": [
               "items"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -319,6 +330,7 @@
                     "label",
                     "value"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -328,6 +340,7 @@
               "title",
               "actions"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -360,6 +373,7 @@
                     "label",
                     "value"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -369,6 +383,7 @@
               "text",
               "options"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -401,6 +416,7 @@
                     "label",
                     "value"
                   ],
+                  "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -410,6 +426,7 @@
               "text",
               "options"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -441,6 +458,7 @@
                           "required": [
                             "text"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -448,6 +466,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -470,6 +489,7 @@
                           "required": [
                             "markdown"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -477,6 +497,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -499,6 +520,7 @@
                           "required": [
                             "imageUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -506,6 +528,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -528,6 +551,7 @@
                           "required": [
                             "audioUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -535,6 +559,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -557,6 +582,7 @@
                           "required": [
                             "videoUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -564,6 +590,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -591,6 +618,7 @@
                           "required": [
                             "fileUrl"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -598,6 +626,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
@@ -632,6 +661,7 @@
                             "latitude",
                             "longitude"
                           ],
+                          "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
@@ -639,6 +669,7 @@
                         "type",
                         "payload"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     }
                   ],
@@ -650,6 +681,7 @@
             "required": [
               "items"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -666,6 +698,7 @@
             "required": [
               "markdown"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         }
@@ -695,10 +728,10 @@
         "type": "object",
         "properties": {
           "activityId": {
-            "description": "The activity ID",
             "anyOf": [
               {
                 "type": "string",
+                "description": "The activity ID",
                 "x-zui": {
                   "title": "Activity ID"
                 }
@@ -719,10 +752,10 @@
             }
           },
           "user": {
-            "description": "User account of the user conversing with the bot",
             "anyOf": [
               {
                 "type": "object",
+                "description": "Bot account of the bot",
                 "properties": {
                   "id": {
                     "type": "string",
@@ -737,6 +770,7 @@
                   "id",
                   "name"
                 ],
+                "additionalProperties": false,
                 "x-zui": {
                   "title": "Bot"
                 }
@@ -757,10 +791,10 @@
             }
           },
           "locale": {
-            "description": "The locale of the conversation",
             "anyOf": [
               {
                 "type": "string",
+                "description": "The locale of the conversation",
                 "x-zui": {
                   "title": "Locale"
                 }
@@ -797,6 +831,7 @@
               "id",
               "name"
             ],
+            "additionalProperties": false,
             "x-zui": {
               "title": "Bot"
             }
@@ -822,7 +857,7 @@
             }
           }
         },
-        "required": [],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }

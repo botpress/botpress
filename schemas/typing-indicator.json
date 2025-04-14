@@ -20,6 +20,7 @@
             },
             "timeout": {
               "type": "number",
+              "description": "The timeout in milliseconds after which the typing indicator should stop",
               "x-zui": {}
             }
           },
@@ -27,6 +28,7 @@
             "conversationId",
             "messageId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -34,7 +36,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -58,6 +60,7 @@
             "conversationId",
             "messageId"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -65,7 +68,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }

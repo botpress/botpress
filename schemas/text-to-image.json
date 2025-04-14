@@ -5,6 +5,7 @@
     "imageModelRef": {
       "schema": {
         "type": "object",
+        "description": "Model to use for image generation",
         "properties": {
           "id": {
             "type": "string",
@@ -14,6 +15,7 @@
         "required": [
           "id"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     },
@@ -22,7 +24,7 @@
         "type": "object",
         "description": "Model-specific parameters for image generation",
         "properties": {},
-        "required": [],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
@@ -38,6 +40,7 @@
           "properties": {
             "model": {
               "$ref": "imageModelRef",
+              "description": "Model to use for image generation",
               "x-zui": {}
             },
             "prompt": {
@@ -50,18 +53,21 @@
             },
             "expiration": {
               "type": "integer",
+              "description": "Expiration of the generated image in days, after which the image will be automatically deleted to free up storage space in your account. The default is to keep the image indefinitely (no expiration). The minimum is 30 days and the maximum is 90 days.",
               "x-zui": {},
               "minimum": 30,
               "maximum": 90
             },
             "params": {
               "$ref": "imageGenerationParams",
+              "description": "Model-specific parameters for image generation",
               "x-zui": {}
             }
           },
           "required": [
             "prompt"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -96,6 +102,7 @@
               "required": [
                 "cost"
               ],
+              "additionalProperties": false,
               "x-zui": {}
             }
           },
@@ -105,6 +112,7 @@
             "cost",
             "botpress"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -114,7 +122,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -164,10 +172,12 @@
                       "sizes",
                       "defaultSize"
                     ],
+                    "additionalProperties": false,
                     "x-zui": {}
                   },
                   {
                     "$ref": "imageModelRef",
+                    "description": "Model to use for image generation",
                     "x-zui": {}
                   }
                 ],
@@ -179,6 +189,7 @@
           "required": [
             "models"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }

@@ -39,16 +39,14 @@
                 "type": "object",
                 "description": "The object of the failed charge",
                 "properties": {},
-                "required": [],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               }
             },
             "required": [
               "object"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -57,6 +55,7 @@
           "userId",
           "data"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "title": "Charge Failed",
@@ -90,16 +89,14 @@
                 "type": "object",
                 "description": "The object of the deleted subscription",
                 "properties": {},
-                "required": [],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               }
             },
             "required": [
               "object"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -108,6 +105,7 @@
           "userId",
           "data"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "title": "Subscription Deleted",
@@ -141,16 +139,14 @@
                 "type": "object",
                 "description": "The object of the updated subscription",
                 "properties": {},
-                "required": [],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               }
             },
             "required": [
               "object"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -159,6 +155,7 @@
           "userId",
           "data"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "title": "Subscription Updated",
@@ -192,16 +189,14 @@
                 "type": "object",
                 "description": "The object of the created subscription",
                 "properties": {},
-                "required": [],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               }
             },
             "required": [
               "object"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -210,6 +205,7 @@
           "userId",
           "data"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "title": "Subscription Created",
@@ -243,16 +239,14 @@
                 "type": "object",
                 "description": "The object of the invoice whose payment failed",
                 "properties": {},
-                "required": [],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               }
             },
             "required": [
               "object"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -261,6 +255,7 @@
           "userId",
           "data"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "title": "Invoice Payment Failed",
@@ -294,16 +289,14 @@
                 "type": "object",
                 "description": "The object of the payment intent that failed",
                 "properties": {},
-                "required": [],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               }
             },
             "required": [
               "object"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -312,6 +305,7 @@
           "userId",
           "data"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "title": "Payment Intent Failed",
@@ -345,16 +339,14 @@
                 "type": "object",
                 "description": "The object of the created subscription schedule",
                 "properties": {},
-                "required": [],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               }
             },
             "required": [
               "object"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -363,6 +355,7 @@
           "userId",
           "data"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "title": "Subscription Schedule Created",
@@ -396,16 +389,14 @@
                 "type": "object",
                 "description": "The object of the updated subscription schedule",
                 "properties": {},
-                "required": [],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               }
             },
             "required": [
               "object"
             ],
+            "additionalProperties": false,
             "x-zui": {}
           }
         },
@@ -414,6 +405,7 @@
           "userId",
           "data"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       },
       "title": "Subscription Schedule Updated",
@@ -583,6 +575,7 @@
           "required": [
             "productName"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -599,7 +592,7 @@
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -610,7 +603,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -639,7 +632,8 @@
                               "x-zui": {}
                             },
                             {
-                              "type": "null"
+                              "type": "null",
+                              "x-zui": {}
                             }
                           ],
                           "x-zui": {
@@ -657,14 +651,12 @@
                             {
                               "type": "object",
                               "properties": {},
-                              "required": [],
-                              "additionalProperties": {
-                                "x-zui": {}
-                              },
+                              "additionalProperties": true,
                               "x-zui": {}
                             },
                             {
-                              "type": "null"
+                              "type": "null",
+                              "x-zui": {}
                             }
                           ],
                           "x-zui": {
@@ -678,6 +670,7 @@
                         "unit_amount",
                         "currency"
                       ],
+                      "additionalProperties": false,
                       "x-zui": {}
                     },
                     "x-zui": {}
@@ -687,12 +680,13 @@
                   "name",
                   "prices"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -877,17 +871,20 @@
             },
             "trial_period_days": {
               "type": "number",
+              "description": "The number of free trial days for the subscription",
               "x-zui": {},
               "minimum": 1
             },
             "description": {
               "type": "string",
+              "description": "A description of the subscription product",
               "x-zui": {}
             }
           },
           "required": [
             "productName"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -904,7 +901,7 @@
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -915,7 +912,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -941,12 +938,13 @@
                   "id",
                   "url"
                 ],
+                "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -969,6 +967,7 @@
           "required": [
             "url"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -981,7 +980,7 @@
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1003,6 +1002,7 @@
           "required": [
             "id"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1023,7 +1023,7 @@
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1036,13 +1036,14 @@
           "properties": {
             "email": {
               "type": "string",
+              "description": "The e-mail of the customer to search for",
               "x-zui": {},
               "format": "email",
               "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
               "maxLength": 512
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1068,7 +1069,8 @@
                           "x-zui": {}
                         },
                         {
-                          "type": "null"
+                          "type": "null",
+                          "x-zui": {}
                         }
                       ],
                       "x-zui": {
@@ -1084,7 +1086,8 @@
                           "x-zui": {}
                         },
                         {
-                          "type": "null"
+                          "type": "null",
+                          "x-zui": {}
                         }
                       ],
                       "x-zui": {
@@ -1100,7 +1103,8 @@
                           "x-zui": {}
                         },
                         {
-                          "type": "null"
+                          "type": "null",
+                          "x-zui": {}
                         }
                       ],
                       "x-zui": {
@@ -1116,7 +1120,8 @@
                           "x-zui": {}
                         },
                         {
-                          "type": "null"
+                          "type": "null",
+                          "x-zui": {}
                         }
                       ],
                       "x-zui": {
@@ -1130,14 +1135,12 @@
                         {
                           "type": "object",
                           "properties": {},
-                          "required": [],
-                          "additionalProperties": {
-                            "x-zui": {}
-                          },
+                          "additionalProperties": true,
                           "x-zui": {}
                         },
                         {
-                          "type": "null"
+                          "type": "null",
+                          "x-zui": {}
                         }
                       ],
                       "x-zui": {
@@ -1157,7 +1160,8 @@
                           "x-zui": {}
                         },
                         {
-                          "type": "null"
+                          "type": "null",
+                          "x-zui": {}
                         }
                       ],
                       "x-zui": {
@@ -1173,9 +1177,7 @@
                     "description",
                     "created"
                   ],
-                  "additionalProperties": {
-                    "x-zui": {}
-                  },
+                  "additionalProperties": true,
                   "x-zui": {}
                 },
                 "x-zui": {}
@@ -1183,7 +1185,7 @@
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1196,19 +1198,22 @@
           "properties": {
             "email": {
               "type": "string",
+              "description": "Search by query on customer emails",
               "x-zui": {},
               "maxLength": 512
             },
             "name": {
               "type": "string",
+              "description": "Search by query on customer name",
               "x-zui": {}
             },
             "phone": {
               "type": "string",
+              "description": "Search by query on customer phone number",
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1232,7 +1237,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -1248,7 +1254,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -1264,7 +1271,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -1280,7 +1288,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -1294,14 +1303,12 @@
                       {
                         "type": "object",
                         "properties": {},
-                        "required": [],
-                        "additionalProperties": {
-                          "x-zui": {}
-                        },
+                        "additionalProperties": true,
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -1321,7 +1328,8 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null"
+                        "type": "null",
+                        "x-zui": {}
                       }
                     ],
                     "x-zui": {
@@ -1337,15 +1345,13 @@
                   "description",
                   "created"
                 ],
-                "additionalProperties": {
-                  "x-zui": {}
-                },
+                "additionalProperties": true,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1368,30 +1374,35 @@
             },
             "name": {
               "type": "string",
+              "description": "The name of the customer",
               "x-zui": {
                 "placeholder": "John Doe"
               }
             },
             "phone": {
               "type": "string",
+              "description": "The phone number of the customer",
               "x-zui": {
                 "placeholder": "+1234567890"
               }
             },
             "description": {
               "type": "string",
+              "description": "A description for the customer",
               "x-zui": {
                 "placeholder": "Customer Description"
               }
             },
             "paymentMethodId": {
               "type": "string",
+              "description": "The ID of the payment method to attach to the customer",
               "x-zui": {
                 "placeholder": "payment-method-id"
               }
             },
             "address": {
               "type": "string",
+              "description": "The address of the customer",
               "x-zui": {
                 "placeholder": "123 Bot Street, Bot City, Botland, 12345"
               }
@@ -1400,6 +1411,7 @@
           "required": [
             "email"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1421,7 +1433,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -1437,7 +1450,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -1453,7 +1467,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -1469,7 +1484,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -1483,14 +1499,12 @@
                     {
                       "type": "object",
                       "properties": {},
-                      "required": [],
-                      "additionalProperties": {
-                        "x-zui": {}
-                      },
+                      "additionalProperties": true,
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -1510,7 +1524,8 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null"
+                      "type": "null",
+                      "x-zui": {}
                     }
                   ],
                   "x-zui": {
@@ -1526,13 +1541,11 @@
                 "description",
                 "created"
               ],
-              "additionalProperties": {
-                "x-zui": {}
-              },
+              "additionalProperties": true,
               "x-zui": {}
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1555,30 +1568,35 @@
             },
             "name": {
               "type": "string",
+              "description": "The name of the customer",
               "x-zui": {
                 "placeholder": "John Doe"
               }
             },
             "phone": {
               "type": "string",
+              "description": "The phone number of the customer",
               "x-zui": {
                 "placeholder": "+1234567890"
               }
             },
             "description": {
               "type": "string",
+              "description": "A description for the customer",
               "x-zui": {
                 "placeholder": "Customer Description"
               }
             },
             "paymentMethodId": {
               "type": "string",
+              "description": "The ID of the payment method to attach to the customer",
               "x-zui": {
                 "placeholder": "payment-method-id"
               }
             },
             "address": {
               "type": "string",
+              "description": "The address of the customer",
               "x-zui": {
                 "placeholder": "123 Bot Street, Bot City, Botland, 12345"
               }
@@ -1587,6 +1605,7 @@
           "required": [
             "email"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1610,7 +1629,8 @@
                           "x-zui": {}
                         },
                         {
-                          "type": "null"
+                          "type": "null",
+                          "x-zui": {}
                         }
                       ],
                       "x-zui": {
@@ -1626,7 +1646,8 @@
                           "x-zui": {}
                         },
                         {
-                          "type": "null"
+                          "type": "null",
+                          "x-zui": {}
                         }
                       ],
                       "x-zui": {
@@ -1642,7 +1663,8 @@
                           "x-zui": {}
                         },
                         {
-                          "type": "null"
+                          "type": "null",
+                          "x-zui": {}
                         }
                       ],
                       "x-zui": {
@@ -1658,7 +1680,8 @@
                           "x-zui": {}
                         },
                         {
-                          "type": "null"
+                          "type": "null",
+                          "x-zui": {}
                         }
                       ],
                       "x-zui": {
@@ -1672,14 +1695,12 @@
                         {
                           "type": "object",
                           "properties": {},
-                          "required": [],
-                          "additionalProperties": {
-                            "x-zui": {}
-                          },
+                          "additionalProperties": true,
                           "x-zui": {}
                         },
                         {
-                          "type": "null"
+                          "type": "null",
+                          "x-zui": {}
                         }
                       ],
                       "x-zui": {
@@ -1699,7 +1720,8 @@
                           "x-zui": {}
                         },
                         {
-                          "type": "null"
+                          "type": "null",
+                          "x-zui": {}
                         }
                       ],
                       "x-zui": {
@@ -1715,9 +1737,7 @@
                     "description",
                     "created"
                   ],
-                  "additionalProperties": {
-                    "x-zui": {}
-                  },
+                  "additionalProperties": true,
                   "x-zui": {}
                 },
                 {
@@ -1753,7 +1773,8 @@
                             "x-zui": {}
                           },
                           {
-                            "type": "null"
+                            "type": "null",
+                            "x-zui": {}
                           }
                         ],
                         "x-zui": {
@@ -1769,7 +1790,8 @@
                             "x-zui": {}
                           },
                           {
-                            "type": "null"
+                            "type": "null",
+                            "x-zui": {}
                           }
                         ],
                         "x-zui": {
@@ -1785,7 +1807,8 @@
                             "x-zui": {}
                           },
                           {
-                            "type": "null"
+                            "type": "null",
+                            "x-zui": {}
                           }
                         ],
                         "x-zui": {
@@ -1801,7 +1824,8 @@
                             "x-zui": {}
                           },
                           {
-                            "type": "null"
+                            "type": "null",
+                            "x-zui": {}
                           }
                         ],
                         "x-zui": {
@@ -1815,14 +1839,12 @@
                           {
                             "type": "object",
                             "properties": {},
-                            "required": [],
-                            "additionalProperties": {
-                              "x-zui": {}
-                            },
+                            "additionalProperties": true,
                             "x-zui": {}
                           },
                           {
-                            "type": "null"
+                            "type": "null",
+                            "x-zui": {}
                           }
                         ],
                         "x-zui": {
@@ -1842,7 +1864,8 @@
                             "x-zui": {}
                           },
                           {
-                            "type": "null"
+                            "type": "null",
+                            "x-zui": {}
                           }
                         ],
                         "x-zui": {
@@ -1858,9 +1881,7 @@
                       "description",
                       "created"
                     ],
-                    "additionalProperties": {
-                      "x-zui": {}
-                    },
+                    "additionalProperties": true,
                     "x-zui": {}
                   },
                   "x-zui": {}
@@ -1881,7 +1902,7 @@
               }
             }
           },
-          "required": [],
+          "additionalProperties": false,
           "x-zui": {}
         }
       }
@@ -1903,6 +1924,7 @@
           "required": [
             "id"
           ],
+          "additionalProperties": false,
           "x-zui": {}
         }
       },
@@ -1921,7 +1943,8 @@
                   "x-zui": {}
                 },
                 {
-                  "type": "null"
+                  "type": "null",
+                  "x-zui": {}
                 }
               ],
               "x-zui": {
@@ -1937,7 +1960,8 @@
                   "x-zui": {}
                 },
                 {
-                  "type": "null"
+                  "type": "null",
+                  "x-zui": {}
                 }
               ],
               "x-zui": {
@@ -1951,10 +1975,7 @@
               "x-zui": {}
             }
           },
-          "required": [],
-          "additionalProperties": {
-            "x-zui": {}
-          },
+          "additionalProperties": true,
           "x-zui": {}
         }
       }
@@ -1975,6 +1996,7 @@
         "required": [
           "stripeWebhookId"
         ],
+        "additionalProperties": false,
         "x-zui": {}
       }
     }
