@@ -20,6 +20,7 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "ID of the created task",
             "x-zui": {
               "title": "Task ID"
             }
@@ -38,6 +39,7 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "ID of the updated task",
             "x-zui": {
               "title": "Task ID"
             }
@@ -56,6 +58,7 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "ID of the deleted task",
             "x-zui": {
               "title": "Task ID"
             }
@@ -77,12 +80,14 @@
           "properties": {
             "listId": {
               "type": "string",
+              "description": "ID of the list to create the task in",
               "x-zui": {
                 "title": "List ID"
               }
             },
             "name": {
               "type": "string",
+              "description": "Name of the task to be created",
               "x-zui": {
                 "title": "Name"
               }
@@ -140,6 +145,7 @@
           "properties": {
             "taskId": {
               "type": "string",
+              "description": "Id of the task created",
               "x-zui": {
                 "title": "Task ID"
               }
@@ -160,6 +166,7 @@
           "properties": {
             "taskId": {
               "type": "string",
+              "description": "ID of the task to be updated",
               "x-zui": {
                 "title": "Task ID"
               }
@@ -228,6 +235,7 @@
           "properties": {
             "taskId": {
               "type": "string",
+              "description": "Id of the task updated",
               "x-zui": {
                 "title": "Task ID"
               }
@@ -248,6 +256,7 @@
           "properties": {
             "taskId": {
               "type": "string",
+              "description": "ID of the task to be deleted",
               "x-zui": {
                 "title": "Task ID"
               }
@@ -275,6 +284,7 @@
           "properties": {
             "listId": {
               "type": "string",
+              "description": "ID of the list to get the members of",
               "x-zui": {
                 "title": "List ID"
               }
@@ -291,23 +301,27 @@
           "properties": {
             "members": {
               "type": "array",
+              "description": "Members of the list",
               "items": {
                 "type": "object",
                 "properties": {
                   "id": {
                     "type": "number",
+                    "description": "ID of the member",
                     "x-zui": {
                       "title": "Member ID"
                     }
                   },
                   "username": {
                     "type": "string",
+                    "description": "Username of the member",
                     "x-zui": {
                       "title": "Username"
                     }
                   },
                   "email": {
                     "type": "string",
+                    "description": "Email of the member",
                     "x-zui": {
                       "title": "Email"
                     }
@@ -342,6 +356,7 @@
             "properties": {
               "text": {
                 "type": "string",
+                "description": "Content of the comment",
                 "x-zui": {
                   "title": "Text"
                 }

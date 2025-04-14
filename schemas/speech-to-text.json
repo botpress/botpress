@@ -30,6 +30,7 @@
             },
             "fileUrl": {
               "type": "string",
+              "description": "URL of the audio file to transcribe. The URL should return a content-type header in order to detect the audio format. Supported audio formats supported are: mp3, mp4, mpeg, mpga, m4a, wav, webm",
               "format": "uri"
             },
             "language": {
@@ -39,8 +40,8 @@
               "type": "string"
             },
             "temperature": {
-              "default": 0,
-              "type": "number"
+              "type": "number",
+              "default": 0
             }
           },
           "required": [
@@ -53,10 +54,12 @@
           "type": "object",
           "properties": {
             "language": {
-              "type": "string"
+              "type": "string",
+              "description": "Detected language of the audio"
             },
             "duration": {
-              "type": "number"
+              "type": "number",
+              "description": "Duration of the audio file, in seconds"
             },
             "segments": {
               "type": "array",
@@ -64,37 +67,47 @@
                 "type": "object",
                 "properties": {
                   "text": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Text content of the segment."
                   },
                   "id": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "Unique identifier of the segment"
                   },
                   "seek": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "Seek offset of the segment"
                   },
                   "start": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "Start time of the segment in seconds."
                   },
                   "end": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "End time of the segment in seconds."
                   },
                   "tokens": {
                     "type": "array",
+                    "description": "Array of token IDs for the text content.",
                     "items": {
                       "type": "number"
                     }
                   },
                   "temperature": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "Temperature parameter used for generating the segment."
                   },
                   "avg_logprob": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "Average logprob of the segment. If the value is lower than -1, consider the logprobs failed."
                   },
                   "compression_ratio": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "Compression ratio of the segment. If the value is greater than 2.4, consider the compression failed."
                   },
                   "no_speech_prob": {
-                    "type": "number"
+                    "type": "number",
+                    "description": "Probability of no speech in the segment. If the value is higher than 1.0 and the avg_logprob is below -1, consider this segment silent."
                   }
                 },
                 "required": [
@@ -112,16 +125,19 @@
               }
             },
             "model": {
-              "type": "string"
+              "type": "string",
+              "description": "Model name used"
             },
             "cost": {
-              "type": "number"
+              "type": "number",
+              "description": "Total cost of the transcription, in U.S. dollars (DEPRECATED)"
             },
             "botpress": {
               "type": "object",
               "properties": {
                 "cost": {
-                  "type": "number"
+                  "type": "number",
+                  "description": "Total cost of the transcription, in U.S. dollars"
                 }
               },
               "required": [
@@ -166,7 +182,8 @@
                         "type": "string"
                       },
                       "costPerMinute": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Cost per minute of speech transcription, in U.S. dollars"
                       }
                     },
                     "required": [

@@ -53,6 +53,7 @@
       "properties": {
         "onHitlHandoffMessage": {
           "type": "string",
+          "description": "The message to send to the user when transferring to a human agent",
           "x-zui": {
             "title": "Escalation Started Message",
             "placeholder": "I have escalated this conversation to a human agent. They should be with you shortly."
@@ -60,6 +61,7 @@
         },
         "onHumanAgentAssignedMessage": {
           "type": "string",
+          "description": "The message to send to the user when a human agent is assigned",
           "x-zui": {
             "title": "Human Agent Assigned Message",
             "placeholder": "A human agent has joined the conversation."
@@ -67,6 +69,7 @@
         },
         "onHitlStoppedMessage": {
           "type": "string",
+          "description": "The message to send to the user when the hitl session stops and control is tranfered back to bot",
           "x-zui": {
             "title": "Escalation Terminated Message",
             "placeholder": "The human agent closed the conversation. I will continue assisting you."
@@ -74,6 +77,7 @@
         },
         "onUserHitlCancelledMessage": {
           "type": "string",
+          "description": "The message to send to the human agent when the user abruptly ends the hitl session",
           "x-zui": {
             "title": "Escalation Aborted Message",
             "placeholder": "( The user has ended the session. )"
@@ -81,6 +85,7 @@
         },
         "onIncompatibleMsgTypeMessage": {
           "type": "string",
+          "description": "The warning to send to the human agent when they send a message that is not supported by the hitl session",
           "x-zui": {
             "title": "Incompatible Message Type Warning",
             "placeholder": "Sorry, the user can only receive text messages. Please resend your message as a text message."
@@ -88,6 +93,7 @@
         },
         "userHitlCloseCommand": {
           "type": "string",
+          "description": "Users may send this command to end the hitl session at any time. It is case-insensitive, so it works regardless of letter casing.",
           "x-zui": {
             "title": "Termination Command",
             "placeholder": "/end"
@@ -95,6 +101,7 @@
         },
         "onUserHitlCloseMessage": {
           "type": "string",
+          "description": "The message to send to the user when they end the hitl session using the termination command",
           "x-zui": {
             "title": "Termination Command Message",
             "placeholder": "You have ended the session with the human agent. I will continue assisting you."
@@ -102,6 +109,7 @@
         },
         "onAgentAssignedTimeoutMessage": {
           "type": "string",
+          "description": "The message to send to the user when no human agent is assigned within the timeout period",
           "x-zui": {
             "title": "Agent Assigned Timeout Message",
             "placeholder": "No human agent is available at the moment. Please try again later. I will continue assisting you for the time being."
@@ -109,6 +117,7 @@
         },
         "agentAssignedTimeoutSeconds": {
           "type": "number",
+          "description": "The time in seconds to wait before giving up and telling the user that no human agent is available. Set to 0 to disable",
           "x-zui": {
             "title": "Agent Assigned Timeout",
             "placeholder": "0"
@@ -126,12 +135,14 @@
         "properties": {
           "sessionStartedAt": {
             "type": "string",
+            "description": "Timestamp of when the HITL session started",
             "x-zui": {
               "title": "Session Started At"
             }
           },
           "downstreamConversationId": {
             "type": "string",
+            "description": "ID of the downstream conversation",
             "x-zui": {
               "title": "Downstream Conversation ID"
             }
@@ -154,6 +165,7 @@
           "properties": {
             "title": {
               "type": "string",
+              "description": "Title of the HITL ticket",
               "x-zui": {
                 "title": "Ticket Title"
               }
@@ -166,6 +178,7 @@
             },
             "userId": {
               "type": "string",
+              "description": "ID of the user that starts the HITL mode",
               "x-zui": {
                 "title": "User ID",
                 "placeholder": "{{ event.userId }}"
@@ -179,6 +192,7 @@
             },
             "conversationId": {
               "type": "string",
+              "description": "ID of the conversation on which to start the HITL mode",
               "x-zui": {
                 "title": "Conversation ID",
                 "placeholder": "{{ event.conversationId }}"
@@ -209,6 +223,7 @@
           "properties": {
             "conversationId": {
               "type": "string",
+              "description": "ID of the conversation on which to stop the HITL mode",
               "x-zui": {
                 "placeholder": "{{ event.conversationId }}"
               }
@@ -236,6 +251,7 @@
         "properties": {
           "hitlActive": {
             "type": "boolean",
+            "description": "Whether the conversation is in HITL mode",
             "x-zui": {
               "title": "Is HITL Enabled?"
             }

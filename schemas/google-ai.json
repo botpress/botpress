@@ -15,6 +15,7 @@
               "properties": {
                 "id": {
                   "type": "string",
+                  "description": "Model to use for content generation",
                   "enum": [
                     "models/gemini-2.0-flash",
                     "models/gemini-1.5-flash-8b-001",
@@ -54,14 +55,14 @@
                     ]
                   },
                   "type": {
-                    "default": "text",
                     "type": "string",
                     "enum": [
                       "text",
                       "tool_calls",
                       "tool_result",
                       "multipart"
-                    ]
+                    ],
+                    "default": "text"
                   },
                   "toolCalls": {
                     "type": "array",
@@ -180,16 +181,16 @@
               "type": "number"
             },
             "temperature": {
-              "default": 1,
               "type": "number",
               "minimum": 0,
-              "maximum": 2
+              "maximum": 2,
+              "default": 1
             },
             "topP": {
-              "default": 1,
               "type": "number",
               "minimum": 0,
-              "maximum": 1
+              "maximum": 1,
+              "default": 1
             },
             "stopSequences": {
               "type": "array",
@@ -299,14 +300,14 @@
                 "type": "object",
                 "properties": {
                   "type": {
-                    "default": "text",
                     "type": "string",
                     "enum": [
                       "text",
                       "tool_calls",
                       "tool_result",
                       "multipart"
-                    ]
+                    ],
+                    "default": "text"
                   },
                   "toolCalls": {
                     "type": "array",
@@ -574,6 +575,7 @@
                     "properties": {
                       "id": {
                         "type": "string",
+                        "description": "Model to use for content generation",
                         "enum": [
                           "models/gemini-2.0-flash",
                           "models/gemini-1.5-flash-8b-001",
@@ -608,6 +610,7 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Model to use for content generation",
             "enum": [
               "models/gemini-2.0-flash",
               "models/gemini-1.5-flash-8b-001",

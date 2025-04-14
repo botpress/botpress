@@ -12,13 +12,15 @@
           "properties": {
             "markdown": {
               "type": "string",
+              "description": "The markdown content to convert to PDF",
               "minLength": 1
             },
             "filename": {
-              "default": "generated.pdf",
+              "description": "The filename of the PDF",
               "anyOf": [
                 {
                   "type": "string",
+                  "description": "The filename of the PDF",
                   "minLength": 1,
                   "pattern": "\\.pdf$"
                 },
@@ -35,7 +37,8 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": "generated.pdf"
             }
           },
           "required": [
@@ -48,10 +51,12 @@
           "type": "object",
           "properties": {
             "fileId": {
-              "type": "string"
+              "type": "string",
+              "description": "The generated PDF file ID"
             },
             "fileUrl": {
-              "type": "string"
+              "type": "string",
+              "description": "The public URL to download the PDF"
             }
           },
           "required": [
@@ -70,13 +75,15 @@
           "properties": {
             "html": {
               "type": "string",
+              "description": "The HTML content to convert to PDF",
               "minLength": 1
             },
             "filename": {
-              "default": "generated.pdf",
+              "description": "The filename of the PDF",
               "anyOf": [
                 {
                   "type": "string",
+                  "description": "The filename of the PDF",
                   "minLength": 1,
                   "pattern": "\\.pdf$"
                 },
@@ -93,7 +100,8 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": "generated.pdf"
             }
           },
           "required": [
@@ -106,10 +114,12 @@
           "type": "object",
           "properties": {
             "fileId": {
-              "type": "string"
+              "type": "string",
+              "description": "The generated PDF file ID"
             },
             "fileUrl": {
-              "type": "string"
+              "type": "string",
+              "description": "The public URL to download the PDF"
             }
           },
           "required": [

@@ -40,12 +40,12 @@
               },
               "lastModifiedDate": {
                 "type": "string",
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                 "x-zui": {
                   "precision": null,
                   "offset": false
-                }
+                },
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
                 "type": "string"
@@ -92,12 +92,12 @@
               },
               "lastModifiedDate": {
                 "type": "string",
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                 "x-zui": {
                   "precision": null,
                   "offset": false
-                }
+                },
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
                 "type": "string"
@@ -144,12 +144,12 @@
               },
               "lastModifiedDate": {
                 "type": "string",
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                 "x-zui": {
                   "precision": null,
                   "offset": false
-                }
+                },
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
                 "type": "string"
@@ -238,12 +238,12 @@
                     },
                     "lastModifiedDate": {
                       "type": "string",
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                       "x-zui": {
                         "precision": null,
                         "offset": false
-                      }
+                      },
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     "contentHash": {
                       "type": "string"
@@ -283,12 +283,12 @@
                     },
                     "lastModifiedDate": {
                       "type": "string",
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                       "x-zui": {
                         "precision": null,
                         "offset": false
-                      }
+                      },
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     "contentHash": {
                       "type": "string"
@@ -330,12 +330,12 @@
                         },
                         "lastModifiedDate": {
                           "type": "string",
-                          "format": "date-time",
-                          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                           "x-zui": {
                             "precision": null,
                             "offset": false
-                          }
+                          },
+                          "format": "date-time",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                         },
                         "contentHash": {
                           "type": "string"
@@ -402,6 +402,7 @@
           "properties": {
             "databaseId": {
               "type": "string",
+              "description": "The ID of the database to add the page to. Can be found in the URL of the database",
               "x-zui": {
                 "title": "Database ID"
               },
@@ -409,6 +410,7 @@
             },
             "pageProperties": {
               "type": "object",
+              "description": "The values of the page's properties. Must match the parent database's properties",
               "additionalProperties": {
                 "type": "object",
                 "properties": {},
@@ -443,6 +445,7 @@
           "properties": {
             "pageId": {
               "type": "string",
+              "description": "The ID of the page to add the comment to. Can be found in the URL of the page",
               "x-zui": {
                 "title": "Page ID"
               },
@@ -450,6 +453,7 @@
             },
             "commentBody": {
               "type": "string",
+              "description": "Must be plain text",
               "x-zui": {
                 "title": "Comment Body"
               },
@@ -479,6 +483,7 @@
           "properties": {
             "blockId": {
               "type": "string",
+              "description": "The ID of the block to delete. Can be found in the URL of the block",
               "x-zui": {
                 "title": "Block ID"
               },
@@ -507,6 +512,7 @@
           "properties": {
             "databaseId": {
               "type": "string",
+              "description": "The ID of the database to fetch. Can be found in the URL of the database",
               "x-zui": {
                 "title": "Database ID"
               },
@@ -524,12 +530,14 @@
           "properties": {
             "object": {
               "type": "string",
+              "description": "A stringified representation of the database",
               "x-zui": {
                 "title": "Database Object"
               }
             },
             "properties": {
               "type": "object",
+              "description": "Schema of properties for the database as they appear in Notion",
               "additionalProperties": {
                 "type": "object",
                 "properties": {},
@@ -542,6 +550,7 @@
             },
             "structure": {
               "type": "string",
+              "description": "A stringified representation of the database structure",
               "x-zui": {
                 "title": "Database Structure"
               }
@@ -564,6 +573,7 @@
           "properties": {
             "discussionId": {
               "type": "string",
+              "description": "The ID of the discussion to add the comment to. Can be found in the URL of the discussion",
               "x-zui": {
                 "title": "Discussion ID"
               },
@@ -571,6 +581,7 @@
             },
             "commentBody": {
               "type": "string",
+              "description": "Must be plain text",
               "x-zui": {
                 "title": "Comment Body"
               },
@@ -638,12 +649,12 @@
                   "anyOf": [
                     {
                       "type": "string",
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                       "x-zui": {
                         "precision": null,
                         "offset": false
-                      }
+                      },
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     {
                       "not": true,
@@ -702,12 +713,12 @@
                       },
                       "lastModifiedDate": {
                         "type": "string",
-                        "format": "date-time",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                         "x-zui": {
                           "precision": null,
                           "offset": false
-                        }
+                        },
+                        "format": "date-time",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                       },
                       "contentHash": {
                         "type": "string"
@@ -797,12 +808,12 @@
                 },
                 "lastModifiedDate": {
                   "type": "string",
-                  "format": "date-time",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                   "x-zui": {
                     "precision": null,
                     "offset": false
-                  }
+                  },
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                 },
                 "contentHash": {
                   "type": "string"
@@ -851,6 +862,7 @@
         "properties": {
           "authToken": {
             "type": "string",
+            "description": "The token used to authenticate with Notion. Currently, these tokens never expire",
             "x-zui": {
               "title": "OAuth Authentication Token"
             }

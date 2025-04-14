@@ -601,6 +601,7 @@
         "type": "object",
         "properties": {
           "activityId": {
+            "description": "The activity ID",
             "anyOf": [
               {
                 "type": "string",
@@ -624,6 +625,7 @@
             }
           },
           "user": {
+            "description": "User account of the user conversing with the bot",
             "anyOf": [
               {
                 "type": "object",
@@ -659,6 +661,7 @@
             }
           },
           "locale": {
+            "description": "The locale of the conversation",
             "anyOf": [
               {
                 "type": "string",
@@ -683,6 +686,7 @@
           },
           "bot": {
             "type": "object",
+            "description": "Bot account of the bot",
             "properties": {
               "id": {
                 "type": "string"
@@ -700,18 +704,21 @@
             }
           },
           "conversation": {
+            "description": "Conversation reference",
             "x-zui": {
               "title": "Conversation"
             }
           },
           "channelId": {
             "type": "string",
+            "description": "The channel ID of the conversation",
             "x-zui": {
               "title": "Channel ID"
             }
           },
           "serviceUrl": {
             "type": "string",
+            "description": "Service endpoint where the operations concerning the conversation are performed",
             "x-zui": {
               "title": "Service URL"
             }

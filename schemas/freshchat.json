@@ -1221,6 +1221,7 @@
         "properties": {
           "channelId": {
             "type": "string",
+            "description": "Id from the channel topic",
             "x-zui": {
               "title": "Channel Id"
             }

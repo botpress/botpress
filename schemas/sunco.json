@@ -81,9 +81,11 @@
             },
             "user": {
               "type": "object",
+              "description": "The user object fields",
               "properties": {
                 "id": {
                   "type": "string",
+                  "description": "The Sunshine Conversations user ID",
                   "x-zui": {
                     "title": "ID"
                   }
@@ -125,9 +127,11 @@
           "properties": {
             "conversation": {
               "type": "object",
+              "description": "The conversation object fields",
               "properties": {
                 "id": {
                   "type": "string",
+                  "description": "The Sunshine Conversations conversation ID",
                   "x-zui": {
                     "title": "ID"
                   }
@@ -684,9 +688,11 @@
       "description": "A Sunshine Conversations user",
       "schema": {
         "type": "object",
+        "description": "The user object fields",
         "properties": {
           "id": {
             "type": "string",
+            "description": "The Sunshine Conversations user ID",
             "x-zui": {
               "title": "ID"
             }
@@ -705,9 +711,11 @@
       "description": "A Sunshine Conversations conversation",
       "schema": {
         "type": "object",
+        "description": "The conversation object fields",
         "properties": {
           "id": {
             "type": "string",
+            "description": "The Sunshine Conversations conversation ID",
             "x-zui": {
               "title": "ID"
             }

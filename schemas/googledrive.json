@@ -12,10 +12,12 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The ID of the Google Drive file",
             "minLength": 1
           },
           "name": {
             "type": "string",
+            "description": "The name of the file",
             "minLength": 1
           },
           "parentId": {
@@ -24,16 +26,20 @@
           },
           "mimeType": {
             "type": "string",
+            "description": "The media type of the file",
             "minLength": 1
           },
           "size": {
             "type": "number",
+            "description": "The size in bytes of the file",
             "minimum": 0
           },
           "path": {
             "type": "array",
+            "description": "An array of the path's components sorted by level (root to leaf)",
             "items": {
               "type": "string",
+              "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
               "minLength": 1
             }
           }
@@ -55,6 +61,7 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The ID of the Google Drive file",
             "minLength": 1
           }
         },
@@ -71,10 +78,12 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The ID of the Google Drive file",
             "minLength": 1
           },
           "name": {
             "type": "string",
+            "description": "The name of the file",
             "minLength": 1
           },
           "parentId": {
@@ -87,8 +96,10 @@
           },
           "path": {
             "type": "array",
+            "description": "An array of the path's components sorted by level (root to leaf)",
             "items": {
               "type": "string",
+              "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
               "minLength": 1
             }
           }
@@ -109,6 +120,7 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The ID of the Google Drive file",
             "minLength": 1
           }
         },
@@ -139,15 +151,18 @@
           "properties": {
             "items": {
               "type": "array",
+              "description": "The list of items listed in Google Drive. Results may be paginated. If set, use nextToken to get additional results",
               "items": {
                 "type": "object",
                 "properties": {
                   "id": {
                     "type": "string",
+                    "description": "The ID of the Google Drive file",
                     "minLength": 1
                   },
                   "name": {
                     "type": "string",
+                    "description": "The name of the file",
                     "minLength": 1
                   },
                   "parentId": {
@@ -156,16 +171,20 @@
                   },
                   "mimeType": {
                     "type": "string",
+                    "description": "The media type of the file",
                     "minLength": 1
                   },
                   "size": {
                     "type": "number",
+                    "description": "The size in bytes of the file",
                     "minimum": 0
                   },
                   "path": {
                     "type": "array",
+                    "description": "An array of the path's components sorted by level (root to leaf)",
                     "items": {
                       "type": "string",
+                      "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
                       "minLength": 1
                     }
                   }
@@ -216,15 +235,18 @@
           "properties": {
             "items": {
               "type": "array",
+              "description": "The list of items listed in Google Drive. Results may be paginated. If set, use nextToken to get additional results",
               "items": {
                 "type": "object",
                 "properties": {
                   "id": {
                     "type": "string",
+                    "description": "The ID of the Google Drive file",
                     "minLength": 1
                   },
                   "name": {
                     "type": "string",
+                    "description": "The name of the file",
                     "minLength": 1
                   },
                   "parentId": {
@@ -237,8 +259,10 @@
                   },
                   "path": {
                     "type": "array",
+                    "description": "An array of the path's components sorted by level (root to leaf)",
                     "items": {
                       "type": "string",
+                      "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
                       "minLength": 1
                     }
                   }
@@ -277,6 +301,7 @@
           "properties": {
             "name": {
               "type": "string",
+              "description": "The name of the file",
               "minLength": 1
             },
             "parentId": {
@@ -285,6 +310,7 @@
             },
             "mimeType": {
               "type": "string",
+              "description": "The media type of the file",
               "minLength": 1
             }
           },
@@ -297,13 +323,16 @@
       "output": {
         "schema": {
           "type": "object",
+          "description": "The file created in Google Drive",
           "properties": {
             "id": {
               "type": "string",
+              "description": "The ID of the Google Drive file",
               "minLength": 1
             },
             "name": {
               "type": "string",
+              "description": "The name of the file",
               "minLength": 1
             },
             "parentId": {
@@ -312,16 +341,20 @@
             },
             "mimeType": {
               "type": "string",
+              "description": "The media type of the file",
               "minLength": 1
             },
             "size": {
               "type": "number",
+              "description": "The size in bytes of the file",
               "minimum": 0
             },
             "path": {
               "type": "array",
+              "description": "An array of the path's components sorted by level (root to leaf)",
               "items": {
                 "type": "string",
+                "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
                 "minLength": 1
               }
             }
@@ -345,6 +378,7 @@
           "properties": {
             "id": {
               "type": "string",
+              "description": "The ID of the Google Drive file",
               "minLength": 1
             }
           },
@@ -356,13 +390,16 @@
       "output": {
         "schema": {
           "type": "object",
+          "description": "The file read from Google Drive",
           "properties": {
             "id": {
               "type": "string",
+              "description": "The ID of the Google Drive file",
               "minLength": 1
             },
             "name": {
               "type": "string",
+              "description": "The name of the file",
               "minLength": 1
             },
             "parentId": {
@@ -371,16 +408,20 @@
             },
             "mimeType": {
               "type": "string",
+              "description": "The media type of the file",
               "minLength": 1
             },
             "size": {
               "type": "number",
+              "description": "The size in bytes of the file",
               "minimum": 0
             },
             "path": {
               "type": "array",
+              "description": "An array of the path's components sorted by level (root to leaf)",
               "items": {
                 "type": "string",
+                "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
                 "minLength": 1
               }
             }
@@ -404,10 +445,12 @@
           "properties": {
             "id": {
               "type": "string",
+              "description": "The ID of the Google Drive file",
               "minLength": 1
             },
             "name": {
               "type": "string",
+              "description": "The name of the file",
               "minLength": 1
             },
             "parentId": {
@@ -424,13 +467,16 @@
       "output": {
         "schema": {
           "type": "object",
+          "description": "The file updated in Google Drive",
           "properties": {
             "id": {
               "type": "string",
+              "description": "The ID of the Google Drive file",
               "minLength": 1
             },
             "name": {
               "type": "string",
+              "description": "The name of the file",
               "minLength": 1
             },
             "parentId": {
@@ -439,16 +485,20 @@
             },
             "mimeType": {
               "type": "string",
+              "description": "The media type of the file",
               "minLength": 1
             },
             "size": {
               "type": "number",
+              "description": "The size in bytes of the file",
               "minimum": 0
             },
             "path": {
               "type": "array",
+              "description": "An array of the path's components sorted by level (root to leaf)",
               "items": {
                 "type": "string",
+                "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
                 "minLength": 1
               }
             }
@@ -472,6 +522,7 @@
           "properties": {
             "id": {
               "type": "string",
+              "description": "The ID of the Google Drive file",
               "minLength": 1
             }
           },
@@ -501,6 +552,7 @@
             },
             "url": {
               "type": "string",
+              "description": "The URL used to access the file whose content will be uploaded to Google Drive",
               "minLength": 1
             },
             "mimeType": {
@@ -531,10 +583,12 @@
           "properties": {
             "id": {
               "type": "string",
+              "description": "The ID of the Google Drive file whose content will be downloaded",
               "minLength": 1
             },
             "index": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Indicates if the file is to be indexed or not"
             }
           },
           "required": [
@@ -549,6 +603,7 @@
           "properties": {
             "bpFileId": {
               "type": "string",
+              "description": "The Botpress file ID corresponding to the file that was uploaded from Google Drive to the Files API",
               "minLength": 1
             }
           },
@@ -585,6 +640,7 @@
         "properties": {
           "refreshToken": {
             "type": "string",
+            "description": "The refresh token to use to authenticate with Google. It gets exchanged for a bearer token",
             "x-zui": {
               "title": "Refresh token"
             }
@@ -602,6 +658,7 @@
         "properties": {
           "filesCache": {
             "type": "object",
+            "description": "Map of known files",
             "additionalProperties": {
               "anyOf": [
                 {
@@ -609,10 +666,12 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "description": "The ID of the Google Drive file",
                       "minLength": 1
                     },
                     "name": {
                       "type": "string",
+                      "description": "The name of the file",
                       "minLength": 1
                     },
                     "parentId": {
@@ -621,10 +680,12 @@
                     },
                     "mimeType": {
                       "type": "string",
+                      "description": "The media type of the file",
                       "minLength": 1
                     },
                     "size": {
                       "type": "number",
+                      "description": "The size in bytes of the file",
                       "minimum": 0
                     },
                     "type": {
@@ -645,10 +706,12 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "description": "The ID of the Google Drive file",
                       "minLength": 1
                     },
                     "name": {
                       "type": "string",
+                      "description": "The name of the file",
                       "minLength": 1
                     },
                     "parentId": {
@@ -676,10 +739,12 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "description": "The ID of the Google Drive file",
                       "minLength": 1
                     },
                     "name": {
                       "type": "string",
+                      "description": "The name of the file",
                       "minLength": 1
                     },
                     "parentId": {
@@ -727,19 +792,23 @@
         "properties": {
           "filesChannelsCache": {
             "type": "object",
+            "description": "Serialized set of channels for file change subscriptions",
             "additionalProperties": {
               "type": "object",
               "properties": {
                 "id": {
                   "type": "string",
+                  "description": "The ID of the channel",
                   "minLength": 1
                 },
                 "resourceId": {
                   "type": "string",
+                  "description": "The ID of the watched resource (different from the file ID)",
                   "minLength": 1
                 },
                 "fileId": {
                   "type": "string",
+                  "description": "The ID of the Google Drive file",
                   "minLength": 1
                 }
               },

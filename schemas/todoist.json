@@ -20,24 +20,28 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The ID of the task",
             "x-zui": {
               "title": "Parent Task ID (optional)"
             }
           },
           "content": {
             "type": "string",
+            "description": "The text of the task. This value may contain markdown-formatted text and hyperlinks.",
             "x-zui": {
               "title": "Content"
             }
           },
           "description": {
             "type": "string",
+            "description": "A description for the task. This value may contain markdown-formatted text and hyperlinks.",
             "x-zui": {
               "title": "Description"
             }
           },
           "priority": {
             "type": "number",
+            "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
             "x-zui": {
               "title": "Old Priority"
             },
@@ -61,12 +65,14 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The ID of the task",
             "x-zui": {
               "title": "Parent Task ID (optional)"
             }
           },
           "newPriority": {
             "type": "number",
+            "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
             "x-zui": {
               "title": "Old Priority"
             },
@@ -75,6 +81,7 @@
           },
           "oldPriority": {
             "type": "number",
+            "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
             "x-zui": {
               "title": "Old Priority"
             },
@@ -96,30 +103,35 @@
         "properties": {
           "user_id": {
             "type": "string",
+            "description": "The ID of the user who completed the task",
             "x-zui": {
               "title": "User ID"
             }
           },
           "id": {
             "type": "string",
+            "description": "The ID of the task",
             "x-zui": {
               "title": "Parent Task ID (optional)"
             }
           },
           "content": {
             "type": "string",
+            "description": "The text of the task. This value may contain markdown-formatted text and hyperlinks.",
             "x-zui": {
               "title": "Content"
             }
           },
           "description": {
             "type": "string",
+            "description": "A description for the task. This value may contain markdown-formatted text and hyperlinks.",
             "x-zui": {
               "title": "Description"
             }
           },
           "priority": {
             "type": "number",
+            "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
             "x-zui": {
               "title": "Old Priority"
             },
@@ -147,12 +159,14 @@
           "properties": {
             "taskId": {
               "type": "string",
+              "description": "The ID of the task",
               "x-zui": {
                 "title": "Parent Task ID (optional)"
               }
             },
             "priority": {
               "type": "number",
+              "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
               "x-zui": {
                 "title": "Old Priority"
               },
@@ -183,6 +197,7 @@
           "properties": {
             "name": {
               "type": "string",
+              "description": "The name of the task to search for",
               "x-zui": {
                 "title": "Name"
               }
@@ -201,6 +216,7 @@
               "anyOf": [
                 {
                   "type": "string",
+                  "description": "The ID of the task",
                   "x-zui": {
                     "title": "Parent Task ID (optional)"
                   }
@@ -232,6 +248,7 @@
           "properties": {
             "name": {
               "type": "string",
+              "description": "The name of the project.",
               "x-zui": {
                 "title": "Name"
               }
@@ -250,6 +267,7 @@
               "anyOf": [
                 {
                   "type": "string",
+                  "description": "The ID of the project.",
                   "x-zui": {
                     "title": "Project ID (optional)"
                   }
@@ -288,23 +306,27 @@
           "properties": {
             "projects": {
               "type": "array",
+              "description": "All projects that are available to the user",
               "items": {
                 "type": "object",
                 "properties": {
                   "id": {
                     "type": "string",
+                    "description": "The ID of the project.",
                     "x-zui": {
                       "title": "Project ID (optional)"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "The name of the project.",
                     "x-zui": {
                       "title": "Name"
                     }
                   },
                   "color": {
                     "type": "string",
+                    "description": "The color of the project.",
                     "enum": [
                       "berry_red",
                       "red",
@@ -339,12 +361,14 @@
                   },
                   "positionWithinParent": {
                     "type": "number",
+                    "description": "Numerical index indicating project's order within its parent project (read-only). Will be 0 for inbox projects.",
                     "x-zui": {
                       "title": "Position Within Parent"
                     }
                   },
                   "numberOfComments": {
                     "type": "number",
+                    "description": "The number of comments on the project.",
                     "x-zui": {
                       "title": "Number of Comments"
                     },
@@ -352,30 +376,35 @@
                   },
                   "isShared": {
                     "type": "boolean",
+                    "description": "Whether the project is shared or not.",
                     "x-zui": {
                       "title": "Is Shared?"
                     }
                   },
                   "isFavorite": {
                     "type": "boolean",
+                    "description": "Whether the project is marked as favorite or not.",
                     "x-zui": {
                       "title": "Is Favorite?"
                     }
                   },
                   "isInboxProject": {
                     "type": "boolean",
+                    "description": "Whether the project is the user's inbox.",
                     "x-zui": {
                       "title": "Is Inbox Project?"
                     }
                   },
                   "isTeamInbox": {
                     "type": "boolean",
+                    "description": "Whether the project is a team inbox.",
                     "x-zui": {
                       "title": "Is Team Inbox?"
                     }
                   },
                   "webUrl": {
                     "type": "string",
+                    "description": "The URL of the project in the Todoist web app.",
                     "x-zui": {
                       "title": "Web URL"
                     }
@@ -414,6 +443,7 @@
           "properties": {
             "projectId": {
               "type": "string",
+              "description": "The ID of the project.",
               "x-zui": {
                 "title": "Project ID (optional)"
               }
@@ -428,17 +458,20 @@
           "properties": {
             "sections": {
               "type": "array",
+              "description": "All sections in the project, or all sections in all projects if projectId is omitted",
               "items": {
                 "type": "object",
                 "properties": {
                   "id": {
                     "type": "string",
+                    "description": "The ID of the section.",
                     "x-zui": {
                       "title": "Section ID (optional)"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "The name of the section.",
                     "x-zui": {
                       "title": "Name"
                     }
@@ -451,6 +484,7 @@
                   },
                   "positionWithinParent": {
                     "type": "number",
+                    "description": "Numerical index indicating section's order within its parent project.",
                     "x-zui": {
                       "title": "Position Within Parent"
                     }
@@ -482,18 +516,21 @@
           "properties": {
             "projectId": {
               "type": "string",
+              "description": "The ID of the project.",
               "x-zui": {
                 "title": "Project ID (optional)"
               }
             },
             "sectionId": {
               "type": "string",
+              "description": "The ID of the section.",
               "x-zui": {
                 "title": "Section ID (optional)"
               }
             },
             "labelName": {
               "type": "string",
+              "description": "The name of the label.",
               "x-zui": {
                 "title": "Filter by Label Name (optional)"
               }
@@ -508,17 +545,20 @@
           "properties": {
             "tasks": {
               "type": "array",
+              "description": "All matching tasks",
               "items": {
                 "type": "object",
                 "properties": {
                   "id": {
                     "type": "string",
+                    "description": "The ID of the task",
                     "x-zui": {
                       "title": "Parent Task ID (optional)"
                     }
                   },
                   "projectId": {
                     "type": "string",
+                    "description": "The ID of the project this task belongs to (read-only).",
                     "x-zui": {
                       "title": "Project ID"
                     }
@@ -531,26 +571,31 @@
                   },
                   "content": {
                     "type": "string",
+                    "description": "The text of the task. This value may contain markdown-formatted text and hyperlinks.",
                     "x-zui": {
                       "title": "Content"
                     }
                   },
                   "description": {
                     "type": "string",
+                    "description": "A description for the task. This value may contain markdown-formatted text and hyperlinks.",
                     "x-zui": {
                       "title": "Description"
                     }
                   },
                   "isCompleted": {
                     "type": "boolean",
+                    "description": "Whether the task is completed or not.",
                     "x-zui": {
                       "title": "Is Completed?"
                     }
                   },
                   "labels": {
                     "type": "array",
+                    "description": "The labels associated with the task. This is a list of names that may represent either personal or shared labels.",
                     "items": {
                       "type": "string",
+                      "description": "The name of a label associated with the task.",
                       "x-zui": {
                         "title": "Label Name"
                       }
@@ -567,12 +612,14 @@
                   },
                   "positionWithinParent": {
                     "type": "number",
+                    "description": "Numerical index indicating task's order within its parent (task, or project for top-level tasks) (read-only).",
                     "x-zui": {
                       "title": "Position Within Parent"
                     }
                   },
                   "priority": {
                     "type": "number",
+                    "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
                     "x-zui": {
                       "title": "Old Priority"
                     },
@@ -587,18 +634,21 @@
                   },
                   "isRecurringDueDate": {
                     "type": "boolean",
+                    "description": "Whether the due date is recurring or not.",
                     "x-zui": {
                       "title": "Is Recurring Due Date?"
                     }
                   },
                   "webUrl": {
                     "type": "string",
+                    "description": "URL to access this task in the Todoist web or mobile applications (read-only).",
                     "x-zui": {
                       "title": "Web URL"
                     }
                   },
                   "numberOfComments": {
                     "type": "number",
+                    "description": "The number of comments associated with the task (read-only).",
                     "x-zui": {
                       "title": "Number of Comments"
                     },
@@ -606,12 +656,14 @@
                   },
                   "createdAt": {
                     "type": "string",
+                    "description": "The date when the task was created (read-only).",
                     "x-zui": {
                       "title": "Created At"
                     }
                   },
                   "createdBy": {
                     "type": "string",
+                    "description": "The ID of the user who created the task (read-only).",
                     "x-zui": {
                       "title": "Created By ID"
                     }
@@ -633,6 +685,7 @@
                     "properties": {
                       "amount": {
                         "type": "number",
+                        "description": "The amount of time.",
                         "x-zui": {
                           "title": "Amount"
                         },
@@ -640,6 +693,7 @@
                       },
                       "unit": {
                         "type": "string",
+                        "description": "The unit of time.",
                         "enum": [
                           "minute",
                           "day"
@@ -694,24 +748,28 @@
           "properties": {
             "content": {
               "type": "string",
+              "description": "The text of the task. This value may contain markdown-formatted text and hyperlinks.",
               "x-zui": {
                 "title": "Content"
               }
             },
             "description": {
               "type": "string",
+              "description": "A description for the task. This value may contain markdown-formatted text and hyperlinks.",
               "x-zui": {
                 "title": "Description"
               }
             },
             "projectId": {
               "type": "string",
+              "description": "The ID of the project.",
               "x-zui": {
                 "title": "Project ID (optional)"
               }
             },
             "sectionId": {
               "type": "string",
+              "description": "The ID of the section.",
               "x-zui": {
                 "title": "Section ID (optional)"
               }
@@ -720,6 +778,7 @@
               "type": "array",
               "items": {
                 "type": "string",
+                "description": "The name of the label.",
                 "x-zui": {
                   "title": "Filter by Label Name (optional)"
                 }
@@ -730,12 +789,14 @@
             },
             "parentTaskId": {
               "type": "string",
+              "description": "The ID of the task",
               "x-zui": {
                 "title": "Parent Task ID (optional)"
               }
             },
             "priority": {
               "type": "number",
+              "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
               "x-zui": {
                 "title": "Old Priority"
               },
@@ -743,6 +804,7 @@
               "maximum": 4
             },
             "dueDate": {
+              "description": "The due date of the task. Omitted if the task has no due date.",
               "anyOf": [
                 {
                   "type": "string",
@@ -778,6 +840,7 @@
           "properties": {
             "taskId": {
               "type": "string",
+              "description": "The ID of the task",
               "x-zui": {
                 "title": "Parent Task ID (optional)"
               }
@@ -836,6 +899,7 @@
         "properties": {
           "accessToken": {
             "type": "string",
+            "description": "The access token used to communicate with the Todoist API",
             "x-zui": {
               "title": "Access Token"
             }
@@ -871,12 +935,14 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The ID of the task",
             "x-zui": {
               "title": "Parent Task ID (optional)"
             }
           },
           "projectId": {
             "type": "string",
+            "description": "The ID of the project this task belongs to (read-only).",
             "x-zui": {
               "title": "Project ID"
             }
@@ -889,26 +955,31 @@
           },
           "content": {
             "type": "string",
+            "description": "The text of the task. This value may contain markdown-formatted text and hyperlinks.",
             "x-zui": {
               "title": "Content"
             }
           },
           "description": {
             "type": "string",
+            "description": "A description for the task. This value may contain markdown-formatted text and hyperlinks.",
             "x-zui": {
               "title": "Description"
             }
           },
           "isCompleted": {
             "type": "boolean",
+            "description": "Whether the task is completed or not.",
             "x-zui": {
               "title": "Is Completed?"
             }
           },
           "labels": {
             "type": "array",
+            "description": "The labels associated with the task. This is a list of names that may represent either personal or shared labels.",
             "items": {
               "type": "string",
+              "description": "The name of a label associated with the task.",
               "x-zui": {
                 "title": "Label Name"
               }
@@ -925,12 +996,14 @@
           },
           "positionWithinParent": {
             "type": "number",
+            "description": "Numerical index indicating task's order within its parent (task, or project for top-level tasks) (read-only).",
             "x-zui": {
               "title": "Position Within Parent"
             }
           },
           "priority": {
             "type": "number",
+            "description": "Task priority from 1 (urgent) to 4 (lowest, default value).",
             "x-zui": {
               "title": "Old Priority"
             },
@@ -945,18 +1018,21 @@
           },
           "isRecurringDueDate": {
             "type": "boolean",
+            "description": "Whether the due date is recurring or not.",
             "x-zui": {
               "title": "Is Recurring Due Date?"
             }
           },
           "webUrl": {
             "type": "string",
+            "description": "URL to access this task in the Todoist web or mobile applications (read-only).",
             "x-zui": {
               "title": "Web URL"
             }
           },
           "numberOfComments": {
             "type": "number",
+            "description": "The number of comments associated with the task (read-only).",
             "x-zui": {
               "title": "Number of Comments"
             },
@@ -964,12 +1040,14 @@
           },
           "createdAt": {
             "type": "string",
+            "description": "The date when the task was created (read-only).",
             "x-zui": {
               "title": "Created At"
             }
           },
           "createdBy": {
             "type": "string",
+            "description": "The ID of the user who created the task (read-only).",
             "x-zui": {
               "title": "Created By ID"
             }
@@ -991,6 +1069,7 @@
             "properties": {
               "amount": {
                 "type": "number",
+                "description": "The amount of time.",
                 "x-zui": {
                   "title": "Amount"
                 },
@@ -998,6 +1077,7 @@
               },
               "unit": {
                 "type": "string",
+                "description": "The unit of time.",
                 "enum": [
                   "minute",
                   "day"
@@ -1041,18 +1121,21 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The ID of the project.",
             "x-zui": {
               "title": "Project ID (optional)"
             }
           },
           "name": {
             "type": "string",
+            "description": "The name of the project.",
             "x-zui": {
               "title": "Name"
             }
           },
           "color": {
             "type": "string",
+            "description": "The color of the project.",
             "enum": [
               "berry_red",
               "red",
@@ -1087,12 +1170,14 @@
           },
           "positionWithinParent": {
             "type": "number",
+            "description": "Numerical index indicating project's order within its parent project (read-only). Will be 0 for inbox projects.",
             "x-zui": {
               "title": "Position Within Parent"
             }
           },
           "numberOfComments": {
             "type": "number",
+            "description": "The number of comments on the project.",
             "x-zui": {
               "title": "Number of Comments"
             },
@@ -1100,30 +1185,35 @@
           },
           "isShared": {
             "type": "boolean",
+            "description": "Whether the project is shared or not.",
             "x-zui": {
               "title": "Is Shared?"
             }
           },
           "isFavorite": {
             "type": "boolean",
+            "description": "Whether the project is marked as favorite or not.",
             "x-zui": {
               "title": "Is Favorite?"
             }
           },
           "isInboxProject": {
             "type": "boolean",
+            "description": "Whether the project is the user's inbox.",
             "x-zui": {
               "title": "Is Inbox Project?"
             }
           },
           "isTeamInbox": {
             "type": "boolean",
+            "description": "Whether the project is a team inbox.",
             "x-zui": {
               "title": "Is Team Inbox?"
             }
           },
           "webUrl": {
             "type": "string",
+            "description": "The URL of the project in the Todoist web app.",
             "x-zui": {
               "title": "Web URL"
             }
@@ -1151,12 +1241,14 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The ID of the section.",
             "x-zui": {
               "title": "Section ID (optional)"
             }
           },
           "name": {
             "type": "string",
+            "description": "The name of the section.",
             "x-zui": {
               "title": "Name"
             }
@@ -1169,6 +1261,7 @@
           },
           "positionWithinParent": {
             "type": "number",
+            "description": "Numerical index indicating section's order within its parent project.",
             "x-zui": {
               "title": "Position Within Parent"
             }
@@ -1189,6 +1282,7 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The ID of the comment",
             "x-zui": {
               "title": "ID"
             }
@@ -1207,12 +1301,14 @@
           },
           "postedAt": {
             "type": "string",
+            "description": "Date and time when comment was added, RFC3339 format in UTC.",
             "x-zui": {
               "title": "Posted At"
             }
           },
           "content": {
             "type": "string",
+            "description": "The text of the comment. This value may contain markdown-formatted text and hyperlinks.",
             "x-zui": {
               "title": "Content"
             }
@@ -1233,18 +1329,21 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "The ID of the label.",
             "x-zui": {
               "title": "ID"
             }
           },
           "name": {
             "type": "string",
+            "description": "The name of the label.",
             "x-zui": {
               "title": "Name"
             }
           },
           "color": {
             "type": "string",
+            "description": "The color of the label.",
             "enum": [
               "berry_red",
               "red",
@@ -1273,6 +1372,7 @@
           },
           "orderWithinList": {
             "type": "number",
+            "description": "Numerical index indicating label's order within the user's label list.",
             "x-zui": {
               "title": "Order Within List"
             },
@@ -1280,6 +1380,7 @@
           },
           "isFavorite": {
             "type": "boolean",
+            "description": "Whether the label is marked as favorite or not.",
             "x-zui": {
               "title": "Is Favorite?"
             }
@@ -1302,6 +1403,7 @@
         "properties": {
           "name": {
             "type": "string",
+            "description": "The name of the label.",
             "x-zui": {
               "title": "Filter by Label Name (optional)"
             }

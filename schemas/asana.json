@@ -16,6 +16,7 @@
           "properties": {
             "name": {
               "type": "string",
+              "description": "The name of the task (e.g. \"My Test Task\")",
               "title": "The name of the task (e.g. \"My Test Task\")"
             },
             "notes": {
@@ -23,7 +24,6 @@
               "title": "The description of the task (Optional) (e.g. \"This is my other task created using the Asana API\")"
             },
             "assignee": {
-              "default": "me",
               "anyOf": [
                 {
                   "type": "string"
@@ -42,6 +42,7 @@
                   "typeName": "ZodOptional"
                 }
               },
+              "default": "me",
               "title": "The ID of the user who will be assigned to the task or \"me\" to assign to the current user (Optional) (e.g. \"1215207682932839\") (Default: \"me\")"
             },
             "projects": {
@@ -132,6 +133,7 @@
             },
             "taskId": {
               "type": "string",
+              "description": "Task ID to update",
               "title": "Task ID to update"
             },
             "completed": {
@@ -190,6 +192,7 @@
           "properties": {
             "userEmail": {
               "type": "string",
+              "description": "User Email (e.g. \"mrsomebody@example.com\")",
               "title": "User Email (e.g. \"mrsomebody@example.com\")"
             }
           },
@@ -294,10 +297,12 @@
           "properties": {
             "taskId": {
               "type": "string",
+              "description": "Task ID to comment",
               "title": "Task ID to comment"
             },
             "comment": {
               "type": "string",
+              "description": "Content of the comment to be added",
               "title": "Content of the comment to be added"
             }
           },

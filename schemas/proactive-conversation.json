@@ -7,6 +7,7 @@
       "description": "The conversation object fields",
       "schema": {
         "type": "object",
+        "description": "The conversation object fields",
         "properties": {},
         "required": [],
         "x-zui": {
@@ -24,6 +25,7 @@
           "properties": {
             "conversation": {
               "$ref": "conversation",
+              "description": "The conversation object fields",
               "x-zui": {
                 "title": "Conversation"
               }
@@ -40,6 +42,7 @@
           "properties": {
             "conversationId": {
               "type": "string",
+              "description": "The Botpress ID of the created conversation",
               "x-zui": {
                 "title": "Conversation ID"
               }

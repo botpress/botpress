@@ -15,7 +15,8 @@
           "type": "object",
           "properties": {
             "tableIdOrName": {
-              "type": "string"
+              "type": "string",
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
             }
           },
           "required": [
@@ -63,10 +64,12 @@
           "type": "object",
           "properties": {
             "name": {
-              "type": "string"
+              "type": "string",
+              "description": "Name of the Table (e.g. MyTable)"
             },
             "fields": {
-              "type": "string"
+              "type": "string",
+              "description": "The Table's fields, separated by commas. Each field should be in the format \"type_name\" (e.g. \"phoneNumber_Customer Phone, singleLineText_Address\")."
             },
             "description": {
               "type": "string"
@@ -155,7 +158,8 @@
           "type": "object",
           "properties": {
             "tableIdOrName": {
-              "type": "string"
+              "type": "string",
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
             },
             "name": {
               "type": "string"
@@ -246,10 +250,12 @@
           "type": "object",
           "properties": {
             "tableIdOrName": {
-              "type": "string"
+              "type": "string",
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
             },
             "fields": {
-              "type": "string"
+              "type": "string",
+              "description": "The fields and their values for the new record, in a JSON format (e.g. {\"Name\":\"John Doe\",\"City\":\"In the moon\",\"Verify\":true})"
             }
           },
           "required": [
@@ -287,13 +293,16 @@
           "type": "object",
           "properties": {
             "tableIdOrName": {
-              "type": "string"
+              "type": "string",
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
             },
             "recordId": {
-              "type": "string"
+              "type": "string",
+              "description": "The ID of the Record to be updated"
             },
             "fields": {
-              "type": "string"
+              "type": "string",
+              "description": "The fields and their values for the record to be updated, in a JSON format (e.g. {\"Name\":\"John Doe\",\"Verify\":true})"
             }
           },
           "required": [
@@ -332,7 +341,8 @@
           "type": "object",
           "properties": {
             "tableIdOrName": {
-              "type": "string"
+              "type": "string",
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
             },
             "nextToken": {
               "type": "string"

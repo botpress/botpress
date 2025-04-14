@@ -10,7 +10,8 @@
           "type": "object",
           "properties": {
             "prompt": {
-              "type": "string"
+              "type": "string",
+              "description": "Prompt for image generation."
             },
             "size": {
               "type": "string"

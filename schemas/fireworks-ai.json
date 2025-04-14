@@ -15,6 +15,7 @@
               "properties": {
                 "id": {
                   "type": "string",
+                  "description": "Model to use for content generation",
                   "enum": [
                     "accounts/fireworks/models/deepseek-r1",
                     "accounts/fireworks/models/deepseek-r1-basic",
@@ -65,14 +66,14 @@
                     ]
                   },
                   "type": {
-                    "default": "text",
                     "type": "string",
                     "enum": [
                       "text",
                       "tool_calls",
                       "tool_result",
                       "multipart"
-                    ]
+                    ],
+                    "default": "text"
                   },
                   "toolCalls": {
                     "type": "array",
@@ -191,16 +192,16 @@
               "type": "number"
             },
             "temperature": {
-              "default": 1,
               "type": "number",
               "minimum": 0,
-              "maximum": 2
+              "maximum": 2,
+              "default": 1
             },
             "topP": {
-              "default": 1,
               "type": "number",
               "minimum": 0,
-              "maximum": 1
+              "maximum": 1,
+              "default": 1
             },
             "stopSequences": {
               "type": "array",
@@ -310,14 +311,14 @@
                 "type": "object",
                 "properties": {
                   "type": {
-                    "default": "text",
                     "type": "string",
                     "enum": [
                       "text",
                       "tool_calls",
                       "tool_result",
                       "multipart"
-                    ]
+                    ],
+                    "default": "text"
                   },
                   "toolCalls": {
                     "type": "array",
@@ -585,6 +586,7 @@
                     "properties": {
                       "id": {
                         "type": "string",
+                        "description": "Model to use for content generation",
                         "enum": [
                           "accounts/fireworks/models/deepseek-r1",
                           "accounts/fireworks/models/deepseek-r1-basic",
@@ -648,8 +650,8 @@
               "type": "string"
             },
             "temperature": {
-              "default": 0,
-              "type": "number"
+              "type": "number",
+              "default": 0
             }
           },
           "required": [
@@ -816,6 +818,7 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Model to use for content generation",
             "enum": [
               "accounts/fireworks/models/deepseek-r1",
               "accounts/fireworks/models/deepseek-r1-basic",

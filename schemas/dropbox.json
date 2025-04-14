@@ -32,12 +32,12 @@
               },
               "lastModifiedDate": {
                 "type": "string",
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                 "x-zui": {
                   "precision": null,
                   "offset": false
-                }
+                },
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
                 "type": "string"
@@ -84,12 +84,12 @@
               },
               "lastModifiedDate": {
                 "type": "string",
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                 "x-zui": {
                   "precision": null,
                   "offset": false
-                }
+                },
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
                 "type": "string"
@@ -136,12 +136,12 @@
               },
               "lastModifiedDate": {
                 "type": "string",
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                 "x-zui": {
                   "precision": null,
                   "offset": false
-                }
+                },
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
                 "type": "string"
@@ -230,12 +230,12 @@
                     },
                     "lastModifiedDate": {
                       "type": "string",
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                       "x-zui": {
                         "precision": null,
                         "offset": false
-                      }
+                      },
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     "contentHash": {
                       "type": "string"
@@ -275,12 +275,12 @@
                     },
                     "lastModifiedDate": {
                       "type": "string",
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                       "x-zui": {
                         "precision": null,
                         "offset": false
-                      }
+                      },
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     "contentHash": {
                       "type": "string"
@@ -322,12 +322,12 @@
                         },
                         "lastModifiedDate": {
                           "type": "string",
-                          "format": "date-time",
-                          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                           "x-zui": {
                             "precision": null,
                             "offset": false
-                          }
+                          },
+                          "format": "date-time",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                         },
                         "contentHash": {
                           "type": "string"
@@ -399,7 +399,6 @@
               }
             },
             "recursive": {
-              "default": false,
               "anyOf": [
                 {
                   "type": "boolean",
@@ -421,7 +420,8 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": false
             },
             "nextToken": {
               "type": "string",
@@ -440,6 +440,7 @@
           "properties": {
             "items": {
               "type": "array",
+              "description": "The list of files and folders in the folder",
               "items": {
                 "anyOf": [
                   {
@@ -447,12 +448,14 @@
                     "properties": {
                       "id": {
                         "type": "string",
+                        "description": "Unique identifier of the item.",
                         "x-zui": {
                           "title": "ID"
                         }
                       },
                       "itemType": {
                         "type": "string",
+                        "description": "The type of the item.",
                         "const": "file",
                         "x-zui": {
                           "title": "Item Type"
@@ -460,12 +463,14 @@
                       },
                       "name": {
                         "type": "string",
+                        "description": "The name of the item, including extension.",
                         "x-zui": {
                           "title": "Name"
                         }
                       },
                       "path": {
                         "type": "string",
+                        "description": "The path to the item in the user's Dropbox.",
                         "x-zui": {
                           "title": "Path"
                         }
@@ -478,18 +483,21 @@
                       },
                       "isDeleted": {
                         "type": "boolean",
+                        "description": "Whether the item has been deleted.",
                         "x-zui": {
                           "title": "Is Deleted?"
                         }
                       },
                       "isShared": {
                         "type": "boolean",
+                        "description": "Whether the item is shared with other users.",
                         "x-zui": {
                           "title": "Is Shared?"
                         }
                       },
                       "revision": {
                         "type": "string",
+                        "description": "The file's revision",
                         "x-zui": {
                           "title": "Revision"
                         },
@@ -497,12 +505,14 @@
                       },
                       "size": {
                         "type": "number",
+                        "description": "The file's size in bytes",
                         "x-zui": {
                           "title": "Size"
                         }
                       },
                       "fileHash": {
                         "type": "string",
+                        "description": "The file's validation hash",
                         "x-zui": {
                           "title": "Checksum"
                         },
@@ -510,6 +520,7 @@
                       },
                       "isDownloadable": {
                         "type": "boolean",
+                        "description": "Whether the file is downloadable",
                         "x-zui": {
                           "title": "Is Downloadable?"
                         }
@@ -522,6 +533,7 @@
                       },
                       "modifiedAt": {
                         "type": "string",
+                        "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
                         "x-zui": {
                           "title": "Modified At"
                         }
@@ -549,12 +561,14 @@
                     "properties": {
                       "id": {
                         "type": "string",
+                        "description": "Unique identifier of the item.",
                         "x-zui": {
                           "title": "ID"
                         }
                       },
                       "itemType": {
                         "type": "string",
+                        "description": "The type of the item.",
                         "const": "folder",
                         "x-zui": {
                           "title": "Item Type"
@@ -562,12 +576,14 @@
                       },
                       "name": {
                         "type": "string",
+                        "description": "The name of the item, including extension.",
                         "x-zui": {
                           "title": "Name"
                         }
                       },
                       "path": {
                         "type": "string",
+                        "description": "The path to the item in the user's Dropbox.",
                         "x-zui": {
                           "title": "Path"
                         }
@@ -580,12 +596,14 @@
                       },
                       "isDeleted": {
                         "type": "boolean",
+                        "description": "Whether the item has been deleted.",
                         "x-zui": {
                           "title": "Is Deleted?"
                         }
                       },
                       "isShared": {
                         "type": "boolean",
+                        "description": "Whether the item is shared with other users.",
                         "x-zui": {
                           "title": "Is Shared?"
                         }
@@ -631,6 +649,7 @@
           "properties": {
             "contents": {
               "type": "string",
+              "description": "The file's contents",
               "x-zui": {
                 "title": "Contents"
               },
@@ -638,6 +657,7 @@
             },
             "path": {
               "type": "string",
+              "description": "The file's path, including the file name and extension",
               "x-zui": {
                 "title": "Path"
               },
@@ -656,15 +676,18 @@
           "properties": {
             "newFile": {
               "type": "object",
+              "description": "The newly-uploaded file",
               "properties": {
                 "id": {
                   "type": "string",
+                  "description": "Unique identifier of the item.",
                   "x-zui": {
                     "title": "ID"
                   }
                 },
                 "itemType": {
                   "type": "string",
+                  "description": "The type of the item.",
                   "const": "file",
                   "x-zui": {
                     "title": "Item Type"
@@ -672,12 +695,14 @@
                 },
                 "name": {
                   "type": "string",
+                  "description": "The name of the item, including extension.",
                   "x-zui": {
                     "title": "Name"
                   }
                 },
                 "path": {
                   "type": "string",
+                  "description": "The path to the item in the user's Dropbox.",
                   "x-zui": {
                     "title": "Path"
                   }
@@ -690,18 +715,21 @@
                 },
                 "isDeleted": {
                   "type": "boolean",
+                  "description": "Whether the item has been deleted.",
                   "x-zui": {
                     "title": "Is Deleted?"
                   }
                 },
                 "isShared": {
                   "type": "boolean",
+                  "description": "Whether the item is shared with other users.",
                   "x-zui": {
                     "title": "Is Shared?"
                   }
                 },
                 "revision": {
                   "type": "string",
+                  "description": "The file's revision",
                   "x-zui": {
                     "title": "Revision"
                   },
@@ -709,12 +737,14 @@
                 },
                 "size": {
                   "type": "number",
+                  "description": "The file's size in bytes",
                   "x-zui": {
                     "title": "Size"
                   }
                 },
                 "fileHash": {
                   "type": "string",
+                  "description": "The file's validation hash",
                   "x-zui": {
                     "title": "Checksum"
                   },
@@ -722,6 +752,7 @@
                 },
                 "isDownloadable": {
                   "type": "boolean",
+                  "description": "Whether the file is downloadable",
                   "x-zui": {
                     "title": "Is Downloadable?"
                   }
@@ -734,6 +765,7 @@
                 },
                 "modifiedAt": {
                   "type": "string",
+                  "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
                   "x-zui": {
                     "title": "Modified At"
                   }
@@ -772,6 +804,7 @@
           "properties": {
             "path": {
               "type": "string",
+              "description": "The folder's path",
               "x-zui": {
                 "title": "Path"
               },
@@ -789,15 +822,18 @@
           "properties": {
             "newFolder": {
               "type": "object",
+              "description": "The newly-created folder",
               "properties": {
                 "id": {
                   "type": "string",
+                  "description": "Unique identifier of the item.",
                   "x-zui": {
                     "title": "ID"
                   }
                 },
                 "itemType": {
                   "type": "string",
+                  "description": "The type of the item.",
                   "const": "folder",
                   "x-zui": {
                     "title": "Item Type"
@@ -805,12 +841,14 @@
                 },
                 "name": {
                   "type": "string",
+                  "description": "The name of the item, including extension.",
                   "x-zui": {
                     "title": "Name"
                   }
                 },
                 "path": {
                   "type": "string",
+                  "description": "The path to the item in the user's Dropbox.",
                   "x-zui": {
                     "title": "Path"
                   }
@@ -823,12 +861,14 @@
                 },
                 "isDeleted": {
                   "type": "boolean",
+                  "description": "Whether the item has been deleted.",
                   "x-zui": {
                     "title": "Is Deleted?"
                   }
                 },
                 "isShared": {
                   "type": "boolean",
+                  "description": "Whether the item is shared with other users.",
                   "x-zui": {
                     "title": "Is Shared?"
                   }
@@ -862,6 +902,7 @@
           "properties": {
             "path": {
               "type": "string",
+              "description": "The path of the item to delete",
               "x-zui": {
                 "title": "Path"
               },
@@ -890,6 +931,7 @@
           "properties": {
             "path": {
               "type": "string",
+              "description": "The file's path on Dropbox",
               "x-zui": {
                 "title": "Path"
               },
@@ -907,6 +949,7 @@
           "properties": {
             "fileUrl": {
               "type": "string",
+              "description": "The url to download the file from",
               "x-zui": {
                 "title": "Download URL"
               }
@@ -927,6 +970,7 @@
           "properties": {
             "path": {
               "type": "string",
+              "description": "The folder's path on Dropbox",
               "x-zui": {
                 "title": "Path"
               },
@@ -944,6 +988,7 @@
           "properties": {
             "zipUrl": {
               "type": "string",
+              "description": "The url to download the folder from, compressed as a zip archive.",
               "x-zui": {
                 "title": "Download URL"
               }
@@ -964,6 +1009,7 @@
           "properties": {
             "fromPath": {
               "type": "string",
+              "description": "The item's source path",
               "x-zui": {
                 "title": "Source Path"
               },
@@ -971,6 +1017,7 @@
             },
             "toPath": {
               "type": "string",
+              "description": "The item's destination path",
               "x-zui": {
                 "title": "Destination Path"
               },
@@ -988,18 +1035,21 @@
           "type": "object",
           "properties": {
             "newItem": {
+              "description": "The newly-created item",
               "anyOf": [
                 {
                   "type": "object",
                   "properties": {
                     "id": {
                       "type": "string",
+                      "description": "Unique identifier of the item.",
                       "x-zui": {
                         "title": "ID"
                       }
                     },
                     "itemType": {
                       "type": "string",
+                      "description": "The type of the item.",
                       "const": "file",
                       "x-zui": {
                         "title": "Item Type"
@@ -1007,12 +1057,14 @@
                     },
                     "name": {
                       "type": "string",
+                      "description": "The name of the item, including extension.",
                       "x-zui": {
                         "title": "Name"
                       }
                     },
                     "path": {
                       "type": "string",
+                      "description": "The path to the item in the user's Dropbox.",
                       "x-zui": {
                         "title": "Path"
                       }
@@ -1025,18 +1077,21 @@
                     },
                     "isDeleted": {
                       "type": "boolean",
+                      "description": "Whether the item has been deleted.",
                       "x-zui": {
                         "title": "Is Deleted?"
                       }
                     },
                     "isShared": {
                       "type": "boolean",
+                      "description": "Whether the item is shared with other users.",
                       "x-zui": {
                         "title": "Is Shared?"
                       }
                     },
                     "revision": {
                       "type": "string",
+                      "description": "The file's revision",
                       "x-zui": {
                         "title": "Revision"
                       },
@@ -1044,12 +1099,14 @@
                     },
                     "size": {
                       "type": "number",
+                      "description": "The file's size in bytes",
                       "x-zui": {
                         "title": "Size"
                       }
                     },
                     "fileHash": {
                       "type": "string",
+                      "description": "The file's validation hash",
                       "x-zui": {
                         "title": "Checksum"
                       },
@@ -1057,6 +1114,7 @@
                     },
                     "isDownloadable": {
                       "type": "boolean",
+                      "description": "Whether the file is downloadable",
                       "x-zui": {
                         "title": "Is Downloadable?"
                       }
@@ -1069,6 +1127,7 @@
                     },
                     "modifiedAt": {
                       "type": "string",
+                      "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
                       "x-zui": {
                         "title": "Modified At"
                       }
@@ -1096,12 +1155,14 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "description": "Unique identifier of the item.",
                       "x-zui": {
                         "title": "ID"
                       }
                     },
                     "itemType": {
                       "type": "string",
+                      "description": "The type of the item.",
                       "const": "folder",
                       "x-zui": {
                         "title": "Item Type"
@@ -1109,12 +1170,14 @@
                     },
                     "name": {
                       "type": "string",
+                      "description": "The name of the item, including extension.",
                       "x-zui": {
                         "title": "Name"
                       }
                     },
                     "path": {
                       "type": "string",
+                      "description": "The path to the item in the user's Dropbox.",
                       "x-zui": {
                         "title": "Path"
                       }
@@ -1127,12 +1190,14 @@
                     },
                     "isDeleted": {
                       "type": "boolean",
+                      "description": "Whether the item has been deleted.",
                       "x-zui": {
                         "title": "Is Deleted?"
                       }
                     },
                     "isShared": {
                       "type": "boolean",
+                      "description": "Whether the item is shared with other users.",
                       "x-zui": {
                         "title": "Is Shared?"
                       }
@@ -1171,6 +1236,7 @@
           "properties": {
             "fromPath": {
               "type": "string",
+              "description": "The item's source path",
               "x-zui": {
                 "title": "Source Path"
               },
@@ -1178,6 +1244,7 @@
             },
             "toPath": {
               "type": "string",
+              "description": "The item's destination path",
               "x-zui": {
                 "title": "Destination Path"
               },
@@ -1195,18 +1262,21 @@
           "type": "object",
           "properties": {
             "newItem": {
+              "description": "The item that was moved",
               "anyOf": [
                 {
                   "type": "object",
                   "properties": {
                     "id": {
                       "type": "string",
+                      "description": "Unique identifier of the item.",
                       "x-zui": {
                         "title": "ID"
                       }
                     },
                     "itemType": {
                       "type": "string",
+                      "description": "The type of the item.",
                       "const": "file",
                       "x-zui": {
                         "title": "Item Type"
@@ -1214,12 +1284,14 @@
                     },
                     "name": {
                       "type": "string",
+                      "description": "The name of the item, including extension.",
                       "x-zui": {
                         "title": "Name"
                       }
                     },
                     "path": {
                       "type": "string",
+                      "description": "The path to the item in the user's Dropbox.",
                       "x-zui": {
                         "title": "Path"
                       }
@@ -1232,18 +1304,21 @@
                     },
                     "isDeleted": {
                       "type": "boolean",
+                      "description": "Whether the item has been deleted.",
                       "x-zui": {
                         "title": "Is Deleted?"
                       }
                     },
                     "isShared": {
                       "type": "boolean",
+                      "description": "Whether the item is shared with other users.",
                       "x-zui": {
                         "title": "Is Shared?"
                       }
                     },
                     "revision": {
                       "type": "string",
+                      "description": "The file's revision",
                       "x-zui": {
                         "title": "Revision"
                       },
@@ -1251,12 +1326,14 @@
                     },
                     "size": {
                       "type": "number",
+                      "description": "The file's size in bytes",
                       "x-zui": {
                         "title": "Size"
                       }
                     },
                     "fileHash": {
                       "type": "string",
+                      "description": "The file's validation hash",
                       "x-zui": {
                         "title": "Checksum"
                       },
@@ -1264,6 +1341,7 @@
                     },
                     "isDownloadable": {
                       "type": "boolean",
+                      "description": "Whether the file is downloadable",
                       "x-zui": {
                         "title": "Is Downloadable?"
                       }
@@ -1276,6 +1354,7 @@
                     },
                     "modifiedAt": {
                       "type": "string",
+                      "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
                       "x-zui": {
                         "title": "Modified At"
                       }
@@ -1303,12 +1382,14 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "description": "Unique identifier of the item.",
                       "x-zui": {
                         "title": "ID"
                       }
                     },
                     "itemType": {
                       "type": "string",
+                      "description": "The type of the item.",
                       "const": "folder",
                       "x-zui": {
                         "title": "Item Type"
@@ -1316,12 +1397,14 @@
                     },
                     "name": {
                       "type": "string",
+                      "description": "The name of the item, including extension.",
                       "x-zui": {
                         "title": "Name"
                       }
                     },
                     "path": {
                       "type": "string",
+                      "description": "The path to the item in the user's Dropbox.",
                       "x-zui": {
                         "title": "Path"
                       }
@@ -1334,12 +1417,14 @@
                     },
                     "isDeleted": {
                       "type": "boolean",
+                      "description": "Whether the item has been deleted.",
                       "x-zui": {
                         "title": "Is Deleted?"
                       }
                     },
                     "isShared": {
                       "type": "boolean",
+                      "description": "Whether the item is shared with other users.",
                       "x-zui": {
                         "title": "Is Shared?"
                       }
@@ -1378,6 +1463,7 @@
           "properties": {
             "query": {
               "type": "string",
+              "description": "Keywords to search for",
               "x-zui": {
                 "title": "Search query"
               },
@@ -1400,7 +1486,6 @@
               }
             },
             "fileNameOnly": {
-              "default": false,
               "anyOf": [
                 {
                   "type": "boolean",
@@ -1422,12 +1507,14 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": false
             },
             "fileExtensions": {
               "type": "array",
               "items": {
                 "type": "string",
+                "description": "The file extension to search for",
                 "x-zui": {
                   "title": "File extension"
                 }
@@ -1476,22 +1563,26 @@
           "properties": {
             "results": {
               "type": "array",
+              "description": "A list of matches for the query",
               "items": {
                 "type": "object",
                 "properties": {
                   "item": {
+                    "description": "The matched item",
                     "anyOf": [
                       {
                         "type": "object",
                         "properties": {
                           "id": {
                             "type": "string",
+                            "description": "Unique identifier of the item.",
                             "x-zui": {
                               "title": "ID"
                             }
                           },
                           "itemType": {
                             "type": "string",
+                            "description": "The type of the item.",
                             "const": "file",
                             "x-zui": {
                               "title": "Item Type"
@@ -1499,12 +1590,14 @@
                           },
                           "name": {
                             "type": "string",
+                            "description": "The name of the item, including extension.",
                             "x-zui": {
                               "title": "Name"
                             }
                           },
                           "path": {
                             "type": "string",
+                            "description": "The path to the item in the user's Dropbox.",
                             "x-zui": {
                               "title": "Path"
                             }
@@ -1517,18 +1610,21 @@
                           },
                           "isDeleted": {
                             "type": "boolean",
+                            "description": "Whether the item has been deleted.",
                             "x-zui": {
                               "title": "Is Deleted?"
                             }
                           },
                           "isShared": {
                             "type": "boolean",
+                            "description": "Whether the item is shared with other users.",
                             "x-zui": {
                               "title": "Is Shared?"
                             }
                           },
                           "revision": {
                             "type": "string",
+                            "description": "The file's revision",
                             "x-zui": {
                               "title": "Revision"
                             },
@@ -1536,12 +1632,14 @@
                           },
                           "size": {
                             "type": "number",
+                            "description": "The file's size in bytes",
                             "x-zui": {
                               "title": "Size"
                             }
                           },
                           "fileHash": {
                             "type": "string",
+                            "description": "The file's validation hash",
                             "x-zui": {
                               "title": "Checksum"
                             },
@@ -1549,6 +1647,7 @@
                           },
                           "isDownloadable": {
                             "type": "boolean",
+                            "description": "Whether the file is downloadable",
                             "x-zui": {
                               "title": "Is Downloadable?"
                             }
@@ -1561,6 +1660,7 @@
                           },
                           "modifiedAt": {
                             "type": "string",
+                            "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
                             "x-zui": {
                               "title": "Modified At"
                             }
@@ -1588,12 +1688,14 @@
                         "properties": {
                           "id": {
                             "type": "string",
+                            "description": "Unique identifier of the item.",
                             "x-zui": {
                               "title": "ID"
                             }
                           },
                           "itemType": {
                             "type": "string",
+                            "description": "The type of the item.",
                             "const": "folder",
                             "x-zui": {
                               "title": "Item Type"
@@ -1601,12 +1703,14 @@
                           },
                           "name": {
                             "type": "string",
+                            "description": "The name of the item, including extension.",
                             "x-zui": {
                               "title": "Name"
                             }
                           },
                           "path": {
                             "type": "string",
+                            "description": "The path to the item in the user's Dropbox.",
                             "x-zui": {
                               "title": "Path"
                             }
@@ -1619,12 +1723,14 @@
                           },
                           "isDeleted": {
                             "type": "boolean",
+                            "description": "Whether the item has been deleted.",
                             "x-zui": {
                               "title": "Is Deleted?"
                             }
                           },
                           "isShared": {
                             "type": "boolean",
+                            "description": "Whether the item is shared with other users.",
                             "x-zui": {
                               "title": "Is Shared?"
                             }
@@ -1649,6 +1755,7 @@
                   },
                   "matchType": {
                     "type": "string",
+                    "description": "The type of match",
                     "enum": [
                       "filename",
                       "file_content",
@@ -1730,12 +1837,12 @@
                   "anyOf": [
                     {
                       "type": "string",
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                       "x-zui": {
                         "precision": null,
                         "offset": false
-                      }
+                      },
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     {
                       "not": true,
@@ -1794,12 +1901,12 @@
                       },
                       "lastModifiedDate": {
                         "type": "string",
-                        "format": "date-time",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                         "x-zui": {
                           "precision": null,
                           "offset": false
-                        }
+                        },
+                        "format": "date-time",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                       },
                       "contentHash": {
                         "type": "string"
@@ -1889,12 +1996,12 @@
                 },
                 "lastModifiedDate": {
                   "type": "string",
-                  "format": "date-time",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                   "x-zui": {
                     "precision": null,
                     "offset": false
-                  }
+                  },
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                 },
                 "contentHash": {
                   "type": "string"
@@ -1943,21 +2050,25 @@
         "properties": {
           "refreshToken": {
             "type": "string",
+            "description": "Refresh token used to generate a new access token",
             "x-zui": {
               "secret": true
             }
           },
           "grantedScopes": {
             "type": "array",
+            "description": "Scopes granted by the user",
             "items": {
               "type": "string"
             }
           },
           "accountId": {
-            "type": "string"
+            "type": "string",
+            "description": "User ID of the authenticated user"
           },
           "authorizationCode": {
             "type": "string",
+            "description": "The Access Code that was exchanged for the refresh token",
             "x-zui": {
               "title": "Access Code",
               "secret": true
@@ -1979,12 +2090,14 @@
         "properties": {
           "syncCursor": {
             "type": "string",
+            "description": "The cursor used to track the sync state of the tracked Dropbox account.",
             "x-zui": {
               "title": "Sync Cursor"
             }
           },
           "fileTreeJson": {
             "type": "string",
+            "description": "The JSON representation of the file tree.",
             "x-zui": {
               "title": "File Tree JSON"
             }
@@ -2003,6 +2116,7 @@
         "properties": {
           "integrationRegisteredAt": {
             "type": "string",
+            "description": "Date and time when the user configured the integration",
             "x-zui": {
               "title": "Registered At",
               "precision": null,
@@ -2027,12 +2141,14 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique identifier of the item.",
             "x-zui": {
               "title": "ID"
             }
           },
           "itemType": {
             "type": "string",
+            "description": "The type of the item.",
             "const": "file",
             "x-zui": {
               "title": "Item Type"
@@ -2040,12 +2156,14 @@
           },
           "name": {
             "type": "string",
+            "description": "The name of the item, including extension.",
             "x-zui": {
               "title": "Name"
             }
           },
           "path": {
             "type": "string",
+            "description": "The path to the item in the user's Dropbox.",
             "x-zui": {
               "title": "Path"
             }
@@ -2058,18 +2176,21 @@
           },
           "isDeleted": {
             "type": "boolean",
+            "description": "Whether the item has been deleted.",
             "x-zui": {
               "title": "Is Deleted?"
             }
           },
           "isShared": {
             "type": "boolean",
+            "description": "Whether the item is shared with other users.",
             "x-zui": {
               "title": "Is Shared?"
             }
           },
           "revision": {
             "type": "string",
+            "description": "The file's revision",
             "x-zui": {
               "title": "Revision"
             },
@@ -2077,12 +2198,14 @@
           },
           "size": {
             "type": "number",
+            "description": "The file's size in bytes",
             "x-zui": {
               "title": "Size"
             }
           },
           "fileHash": {
             "type": "string",
+            "description": "The file's validation hash",
             "x-zui": {
               "title": "Checksum"
             },
@@ -2090,6 +2213,7 @@
           },
           "isDownloadable": {
             "type": "boolean",
+            "description": "Whether the file is downloadable",
             "x-zui": {
               "title": "Is Downloadable?"
             }
@@ -2102,6 +2226,7 @@
           },
           "modifiedAt": {
             "type": "string",
+            "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
             "x-zui": {
               "title": "Modified At"
             }
@@ -2133,12 +2258,14 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Unique identifier of the item.",
             "x-zui": {
               "title": "ID"
             }
           },
           "itemType": {
             "type": "string",
+            "description": "The type of the item.",
             "const": "folder",
             "x-zui": {
               "title": "Item Type"
@@ -2146,12 +2273,14 @@
           },
           "name": {
             "type": "string",
+            "description": "The name of the item, including extension.",
             "x-zui": {
               "title": "Name"
             }
           },
           "path": {
             "type": "string",
+            "description": "The path to the item in the user's Dropbox.",
             "x-zui": {
               "title": "Path"
             }
@@ -2164,12 +2293,14 @@
           },
           "isDeleted": {
             "type": "boolean",
+            "description": "Whether the item has been deleted.",
             "x-zui": {
               "title": "Is Deleted?"
             }
           },
           "isShared": {
             "type": "boolean",
+            "description": "Whether the item is shared with other users.",
             "x-zui": {
               "title": "Is Shared?"
             }

@@ -77,13 +77,15 @@
           "type": "object",
           "properties": {
             "audioUrl": {
-              "type": "string"
+              "type": "string",
+              "description": "URL to the audio file with the generated speech"
             },
             "botpress": {
               "type": "object",
               "properties": {
                 "cost": {
-                  "type": "number"
+                  "type": "number",
+                  "description": "Cost of the speech generation, in U.S. dollars"
                 }
               },
               "required": [
@@ -108,6 +110,7 @@
               "properties": {
                 "id": {
                   "type": "string",
+                  "description": "Model to use for content generation",
                   "enum": [
                     "o3-mini-2025-01-31",
                     "o1-2024-12-17",
@@ -152,14 +155,14 @@
                     ]
                   },
                   "type": {
-                    "default": "text",
                     "type": "string",
                     "enum": [
                       "text",
                       "tool_calls",
                       "tool_result",
                       "multipart"
-                    ]
+                    ],
+                    "default": "text"
                   },
                   "toolCalls": {
                     "type": "array",
@@ -278,16 +281,16 @@
               "type": "number"
             },
             "temperature": {
-              "default": 1,
               "type": "number",
               "minimum": 0,
-              "maximum": 2
+              "maximum": 2,
+              "default": 1
             },
             "topP": {
-              "default": 1,
               "type": "number",
               "minimum": 0,
-              "maximum": 1
+              "maximum": 1,
+              "default": 1
             },
             "stopSequences": {
               "type": "array",
@@ -397,14 +400,14 @@
                 "type": "object",
                 "properties": {
                   "type": {
-                    "default": "text",
                     "type": "string",
                     "enum": [
                       "text",
                       "tool_calls",
                       "tool_result",
                       "multipart"
-                    ]
+                    ],
+                    "default": "text"
                   },
                   "toolCalls": {
                     "type": "array",
@@ -672,6 +675,7 @@
                     "properties": {
                       "id": {
                         "type": "string",
+                        "description": "Model to use for content generation",
                         "enum": [
                           "o3-mini-2025-01-31",
                           "o1-2024-12-17",
@@ -733,12 +737,12 @@
               "type": "object",
               "properties": {
                 "style": {
-                  "default": "vivid",
                   "type": "string",
                   "enum": [
                     "natural",
                     "vivid"
-                  ]
+                  ],
+                  "default": "vivid"
                 },
                 "user": {
                   "type": "string"
@@ -882,8 +886,8 @@
               "type": "string"
             },
             "temperature": {
-              "default": 0,
-              "type": "number"
+              "type": "number",
+              "default": 0
             }
           },
           "required": [
@@ -1050,6 +1054,7 @@
         "properties": {
           "id": {
             "type": "string",
+            "description": "Model to use for content generation",
             "enum": [
               "o3-mini-2025-01-31",
               "o1-2024-12-17",
@@ -1102,12 +1107,12 @@
         "type": "object",
         "properties": {
           "style": {
-            "default": "vivid",
             "type": "string",
             "enum": [
               "natural",
               "vivid"
-            ]
+            ],
+            "default": "vivid"
           },
           "user": {
             "type": "string"

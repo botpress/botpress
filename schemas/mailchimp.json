@@ -13,6 +13,7 @@
           "properties": {
             "email": {
               "type": "string",
+              "description": "The email address of the customer (e.g. example@example.com)",
               "format": "email",
               "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
               "title": "The email address of the customer (e.g. example@example.com)"
@@ -67,6 +68,7 @@
             },
             "campaignId": {
               "type": "string",
+              "description": "The ID of the Mailchimp campaign (e.g. f6g7h8i9j0)",
               "title": "The ID of the Mailchimp campaign (e.g. f6g7h8i9j0)"
             }
           },
@@ -155,6 +157,7 @@
           "properties": {
             "email": {
               "type": "string",
+              "description": "The email address of the customer (e.g. example@example.com)",
               "format": "email",
               "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
               "title": "The email address of the customer (e.g. example@example.com)"
@@ -209,6 +212,7 @@
             },
             "listId": {
               "type": "string",
+              "description": "The ID of the Mailchimp list or audience (e.g. a1b2c3d4e5)",
               "title": "The ID of the Mailchimp list or audience (e.g. a1b2c3d4e5)"
             }
           },
@@ -297,6 +301,7 @@
           "properties": {
             "campaignIds": {
               "type": "string",
+              "description": "The Campaign IDs (Can be either a string with comma-separated IDs)",
               "title": "The Campaign IDs (Can be either a string with comma-separated IDs)"
             }
           },
@@ -410,7 +415,6 @@
           "type": "object",
           "properties": {
             "count": {
-              "default": 100,
               "anyOf": [
                 {
                   "type": "number"
@@ -429,6 +433,7 @@
                   "typeName": "ZodOptional"
                 }
               },
+              "default": 100,
               "title": "List count to retrieve"
             }
           },
@@ -462,28 +467,36 @@
                     "type": "object",
                     "properties": {
                       "company": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Company name"
                       },
                       "address1": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Address line 1"
                       },
                       "address2": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Address line 2"
                       },
                       "city": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "City"
                       },
                       "state": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "State"
                       },
                       "zip": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "ZIP code"
                       },
                       "country": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Country"
                       },
                       "phone": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Phone number"
                       }
                     },
                     "required": [
@@ -507,18 +520,22 @@
                     "type": "object",
                     "properties": {
                       "from_name": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Default sender name"
                       },
                       "from_email": {
                         "type": "string",
+                        "description": "Default sender email",
                         "format": "email",
                         "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$"
                       },
                       "subject": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Default email subject"
                       },
                       "language": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Default email language"
                       }
                     },
                     "required": [
@@ -572,52 +589,68 @@
                     "type": "object",
                     "properties": {
                       "member_count": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Member count"
                       },
                       "unsubscribe_count": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Unsubscribe count"
                       },
                       "cleaned_count": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Cleaned count"
                       },
                       "member_count_since_send": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Member count since last send"
                       },
                       "unsubscribe_count_since_send": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Unsubscribe count since last send"
                       },
                       "cleaned_count_since_send": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Cleaned count since last send"
                       },
                       "campaign_count": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Campaign count"
                       },
                       "campaign_last_sent": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Last campaign sent date"
                       },
                       "merge_field_count": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Merge field count"
                       },
                       "avg_sub_rate": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Average subscription rate"
                       },
                       "avg_unsub_rate": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Average unsubscribe rate"
                       },
                       "target_sub_rate": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Target subscription rate"
                       },
                       "open_rate": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Open rate"
                       },
                       "click_rate": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Click rate"
                       },
                       "last_sub_date": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Last subscription date"
                       },
                       "last_unsub_date": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Last unsubscribe date"
                       }
                     },
                     "required": [
@@ -723,13 +756,16 @@
               "type": "object",
               "properties": {
                 "may_create": {
-                  "type": "boolean"
+                  "type": "boolean",
+                  "description": "May create flag"
                 },
                 "max_instances": {
-                  "type": "number"
+                  "type": "number",
+                  "description": "Maximum instances allowed"
                 },
                 "current_total_instances": {
-                  "type": "number"
+                  "type": "number",
+                  "description": "Current total instances"
                 }
               },
               "required": [
@@ -808,7 +844,6 @@
           "type": "object",
           "properties": {
             "count": {
-              "default": 100,
               "anyOf": [
                 {
                   "type": "number"
@@ -827,6 +862,7 @@
                   "typeName": "ZodOptional"
                 }
               },
+              "default": 100,
               "title": "List count to retrieve"
             }
           },
@@ -888,36 +924,46 @@
                   },
                   "recipients": {
                     "type": "object",
+                    "description": "Recipients information",
                     "properties": {
                       "list_id": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "ID of the list"
                       },
                       "list_is_active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether the list is active"
                       },
                       "list_name": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Name of the list"
                       },
                       "segment_text": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Text description of the segment"
                       },
                       "recipient_count": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Count of recipients"
                       },
                       "segment_opts": {
                         "type": "object",
                         "properties": {
                           "saved_segment_id": {
-                            "type": "number"
+                            "type": "number",
+                            "description": "ID of the saved segment"
                           },
                           "prebuilt_segment_id": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "ID of the prebuilt segment"
                           },
                           "match": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Match condition"
                           },
                           "conditions": {
                             "type": "array",
+                            "description": "Array of conditions",
                             "items": {
                               "x-zui": {
                                 "def": {
@@ -942,42 +988,55 @@
                   },
                   "settings": {
                     "type": "object",
+                    "description": "Settings for the campaign",
                     "properties": {
                       "subject_line": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Subject line of the campaign"
                       },
                       "preview_text": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Preview text of the campaign"
                       },
                       "title": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Title of the campaign"
                       },
                       "from_name": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Sender's name"
                       },
                       "reply_to": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Reply-to email address"
                       },
                       "use_conversation": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether to use conversation view"
                       },
                       "to_name": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Recipient's name"
                       },
                       "folder_id": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "ID of the folder"
                       },
                       "authenticate": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether authentication is enabled"
                       },
                       "auto_footer": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether auto-footer is enabled"
                       },
                       "inline_css": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether inline CSS is enabled"
                       },
                       "auto_tweet": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether auto-tweet is enabled"
                       },
                       "auto_fb_post": {
                         "type": "array",
@@ -986,16 +1045,20 @@
                         }
                       },
                       "fb_comments": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether Facebook comments are enabled"
                       },
                       "timewarp": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether timewarp is enabled"
                       },
                       "template_id": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "ID of the template"
                       },
                       "drag_and_drop": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether drag-and-drop is enabled"
                       }
                     },
                     "required": [
@@ -1022,75 +1085,93 @@
                     "type": "object",
                     "properties": {
                       "winning_combination_id": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "ID of the winning combination"
                       },
                       "winning_campaign_id": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "ID of the winning campaign"
                       },
                       "winner_criteria": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Criteria for choosing the winner"
                       },
                       "wait_time": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Wait time"
                       },
                       "test_size": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Size of the test"
                       },
                       "subject_lines": {
                         "type": "array",
+                        "description": "Array of subject lines",
                         "items": {
                           "type": "string"
                         }
                       },
                       "send_times": {
                         "type": "array",
+                        "description": "Array of send times",
                         "items": {
                           "type": "string"
                         }
                       },
                       "from_names": {
                         "type": "array",
+                        "description": "Array of sender names",
                         "items": {
                           "type": "string"
                         }
                       },
                       "reply_to_addresses": {
                         "type": "array",
+                        "description": "Array of reply-to email addresses",
                         "items": {
                           "type": "string"
                         }
                       },
                       "contents": {
                         "type": "array",
+                        "description": "Array of content strings",
                         "items": {
                           "type": "string"
                         }
                       },
                       "combinations": {
                         "type": "array",
+                        "description": "Array of combinations",
                         "items": {
                           "type": "object",
                           "properties": {
                             "id": {
-                              "type": "string"
+                              "type": "string",
+                              "description": "ID of the combination"
                             },
                             "subject_line": {
-                              "type": "number"
+                              "type": "number",
+                              "description": "Subject line"
                             },
                             "send_time": {
-                              "type": "number"
+                              "type": "number",
+                              "description": "Send time"
                             },
                             "from_name": {
-                              "type": "number"
+                              "type": "number",
+                              "description": "Sender's name"
                             },
                             "reply_to": {
-                              "type": "number"
+                              "type": "number",
+                              "description": "Reply-to"
                             },
                             "content_description": {
-                              "type": "number"
+                              "type": "number",
+                              "description": "Content description"
                             },
                             "recipients": {
-                              "type": "number"
+                              "type": "number",
+                              "description": "Recipients"
                             }
                           },
                           "required": [
@@ -1124,34 +1205,43 @@
                     "type": "object",
                     "properties": {
                       "opens": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether opens tracking is enabled"
                       },
                       "html_clicks": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether HTML clicks tracking is enabled"
                       },
                       "text_clicks": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether text clicks tracking is enabled"
                       },
                       "goal_tracking": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether goal tracking is enabled"
                       },
                       "ecomm360": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether Ecomm360 is enabled"
                       },
                       "google_analytics": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Google Analytics tracking code"
                       },
                       "clicktale": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Clicktale tracking code"
                       },
                       "salesforce": {
                         "type": "object",
                         "properties": {
                           "campaign": {
-                            "type": "boolean"
+                            "type": "boolean",
+                            "description": "Indicates whether Salesforce campaign tracking is enabled"
                           },
                           "notes": {
-                            "type": "boolean"
+                            "type": "boolean",
+                            "description": "Indicates whether Salesforce notes tracking is enabled"
                           }
                         },
                         "required": [
@@ -1163,7 +1253,8 @@
                         "type": "object",
                         "properties": {
                           "notes": {
-                            "type": "boolean"
+                            "type": "boolean",
+                            "description": "Indicates whether Capsule notes tracking is enabled"
                           }
                         },
                         "required": [
@@ -1186,19 +1277,23 @@
                     "type": "object",
                     "properties": {
                       "feed_url": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "URL of the RSS feed"
                       },
                       "frequency": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Frequency of sending (e.g., \"daily\")"
                       },
                       "schedule": {
                         "type": "object",
                         "properties": {
                           "hour": {
-                            "type": "number"
+                            "type": "number",
+                            "description": "Hour of the day for sending"
                           },
                           "daily_send": {
                             "type": "object",
+                            "description": "Daily send options",
                             "properties": {
                               "sunday": {
                                 "type": "boolean"
@@ -1233,10 +1328,12 @@
                             ]
                           },
                           "weekly_send_day": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Day of the week for weekly sending"
                           },
                           "monthly_send_date": {
-                            "type": "number"
+                            "type": "number",
+                            "description": "Date of the month for monthly sending"
                           }
                         },
                         "required": [
@@ -1247,10 +1344,12 @@
                         ]
                       },
                       "last_sent": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Last time the RSS feed was sent"
                       },
                       "constrain_rss_img": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicates whether to constrain RSS images"
                       }
                     },
                     "required": [
@@ -1266,46 +1365,60 @@
                     "type": "object",
                     "properties": {
                       "split_test": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Type of split test (e.g., \"subject\")"
                       },
                       "pick_winner": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Criteria for picking the winner"
                       },
                       "wait_units": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Units for waiting (e.g., \"hours\")"
                       },
                       "wait_time": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Wait time"
                       },
                       "split_size": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Size of the split"
                       },
                       "from_name_a": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Sender's name for variation A"
                       },
                       "from_name_b": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Sender's name for variation B"
                       },
                       "reply_email_a": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Reply-to email address for variation A"
                       },
                       "reply_email_b": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Reply-to email address for variation B"
                       },
                       "subject_a": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Subject line for variation A"
                       },
                       "subject_b": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Subject line for variation B"
                       },
                       "send_time_a": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Send time for variation A"
                       },
                       "send_time_b": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Send time for variation B"
                       },
                       "send_time_winner": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Send time for the winner"
                       }
                     },
                     "required": [
@@ -1330,13 +1443,16 @@
                     "type": "object",
                     "properties": {
                       "image_url": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "URL of the social card image"
                       },
                       "description": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Description of the social card"
                       },
                       "title": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Title of the social card"
                       }
                     },
                     "required": [
@@ -1349,34 +1465,43 @@
                     "type": "object",
                     "properties": {
                       "opens": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Total opens"
                       },
                       "unique_opens": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Unique opens"
                       },
                       "open_rate": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Open rate"
                       },
                       "clicks": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Total clicks"
                       },
                       "subscriber_clicks": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Subscriber clicks"
                       },
                       "click_rate": {
-                        "type": "number"
+                        "type": "number",
+                        "description": "Click rate"
                       },
                       "ecommerce": {
                         "type": "object",
                         "properties": {
                           "total_orders": {
-                            "type": "number"
+                            "type": "number",
+                            "description": "Total ecommerce orders"
                           },
                           "total_spent": {
-                            "type": "number"
+                            "type": "number",
+                            "description": "Total amount spent in ecommerce"
                           },
                           "total_revenue": {
-                            "type": "number"
+                            "type": "number",
+                            "description": "Total ecommerce revenue"
                           }
                         },
                         "required": [
@@ -1404,19 +1529,24 @@
                         "properties": {
                           "enabled": {
                             "type": "boolean",
+                            "description": "Indicates whether delivery status tracking is enabled",
                             "const": true
                           },
                           "can_cancel": {
-                            "type": "boolean"
+                            "type": "boolean",
+                            "description": "Indicates whether the campaign can be canceled"
                           },
                           "status": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Current delivery status"
                           },
                           "emails_sent": {
-                            "type": "number"
+                            "type": "number",
+                            "description": "Total emails sent"
                           },
                           "emails_canceled": {
-                            "type": "number"
+                            "type": "number",
+                            "description": "Total emails canceled"
                           }
                         },
                         "required": [
@@ -1516,7 +1646,8 @@
               }
             },
             "total_items": {
-              "type": "number"
+              "type": "number",
+              "description": "Total number of items"
             },
             "_links": {
               "type": "array",

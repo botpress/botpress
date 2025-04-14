@@ -50,7 +50,6 @@
               }
             },
             "waitFor": {
-              "default": 350,
               "anyOf": [
                 {
                   "type": "number"
@@ -68,7 +67,8 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": 350
             }
           },
           "required": [
@@ -125,6 +125,7 @@
           "properties": {
             "query": {
               "type": "string",
+              "description": "What are we searching for?",
               "minLength": 1,
               "maxLength": 1000
             },
@@ -149,7 +150,6 @@
               "maxItems": 20
             },
             "count": {
-              "default": 10,
               "anyOf": [
                 {
                   "type": "number",
@@ -169,7 +169,8 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": 10
             },
             "freshness": {
               "type": "string",
@@ -180,7 +181,6 @@
               ]
             },
             "browsePages": {
-              "default": false,
               "anyOf": [
                 {
                   "type": "boolean"
@@ -198,7 +198,8 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": false
             }
           },
           "required": [
@@ -216,13 +217,16 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Title of the page"
                   },
                   "url": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "URL of the page"
                   },
                   "snippet": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "A short summary of the page"
                   },
                   "links": {
                     "type": "array",

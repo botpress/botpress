@@ -32,93 +32,110 @@
         "properties": {
           "issue": {
             "type": "object",
+            "description": "The issue that was opened",
             "properties": {
               "id": {
                 "type": "number",
+                "description": "Unique identifier of the issue",
                 "x-zui": {
                   "title": "ID"
                 }
               },
               "nodeId": {
                 "type": "string",
+                "description": "Node ID for GraphQL",
                 "x-zui": {
                   "title": "Global Node ID"
                 }
               },
               "url": {
                 "type": "string",
+                "description": "URL of the issue",
                 "x-zui": {
                   "title": "URL"
                 }
               },
               "name": {
                 "type": "string",
+                "description": "Name of the issue",
                 "x-zui": {
                   "title": "Name"
                 }
               },
               "repository": {
                 "type": "object",
+                "description": "The repository the issue belongs to",
                 "properties": {
                   "id": {
                     "type": "number",
+                    "description": "Unique identifier of the repository",
                     "x-zui": {
                       "title": "ID"
                     }
                   },
                   "nodeId": {
                     "type": "string",
+                    "description": "Node ID for GraphQL",
                     "x-zui": {
                       "title": "Global Node ID"
                     }
                   },
                   "url": {
                     "type": "string",
+                    "description": "URL of the repository",
                     "x-zui": {
                       "title": "URL"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "Name of the repository",
                     "x-zui": {
                       "title": "Name"
                     }
                   },
                   "owner": {
                     "type": "object",
+                    "description": "The owner of the repository",
                     "properties": {
                       "id": {
                         "type": "number",
+                        "description": "Unique identifier of the repository owner",
                         "x-zui": {
                           "title": "ID"
                         }
                       },
                       "nodeId": {
                         "type": "string",
+                        "description": "Node ID for GraphQL",
                         "x-zui": {
                           "title": "Global Node ID"
                         }
                       },
                       "url": {
                         "type": "string",
+                        "description": "URL of the repository owner",
                         "x-zui": {
                           "title": "URL"
                         }
                       },
                       "name": {
                         "type": "string",
+                        "description": "Name of the repository owner",
                         "x-zui": {
                           "title": "Name"
                         }
                       },
                       "handle": {
                         "type": "string",
+                        "description": "The handle of the repository owner",
                         "x-zui": {
                           "title": "Handle"
                         }
                       },
                       "botpressUser": {
                         "type": "string",
+                        "description": "The ID of the Botpress user corresponding to this repository owner",
                         "x-zui": {
                           "title": "Botpress User ID"
                         }
@@ -150,41 +167,48 @@
               },
               "body": {
                 "type": "string",
+                "description": "The body of the issue",
                 "x-zui": {
                   "title": "Body"
                 }
               },
               "number": {
                 "type": "number",
+                "description": "The issue number",
                 "x-zui": {
                   "title": "Number"
                 }
               },
               "labels": {
                 "type": "array",
+                "description": "The labels associated with the issue",
                 "items": {
                   "type": "object",
                   "properties": {
                     "id": {
                       "type": "number",
+                      "description": "Unique identifier of the label",
                       "x-zui": {
                         "title": "ID"
                       }
                     },
                     "nodeId": {
                       "type": "string",
+                      "description": "Node ID for GraphQL",
                       "x-zui": {
                         "title": "Global Node ID"
                       }
                     },
                     "url": {
                       "type": "string",
+                      "description": "URL of the label",
                       "x-zui": {
                         "title": "URL"
                       }
                     },
                     "name": {
                       "type": "string",
+                      "description": "Name of the label",
                       "x-zui": {
                         "title": "Name"
                       }
@@ -203,39 +227,46 @@
               },
               "author": {
                 "type": "object",
+                "description": "The author of the issue",
                 "properties": {
                   "id": {
                     "type": "number",
+                    "description": "Unique identifier of the author",
                     "x-zui": {
                       "title": "ID"
                     }
                   },
                   "nodeId": {
                     "type": "string",
+                    "description": "Node ID for GraphQL",
                     "x-zui": {
                       "title": "Global Node ID"
                     }
                   },
                   "url": {
                     "type": "string",
+                    "description": "URL of the author",
                     "x-zui": {
                       "title": "URL"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "Name of the author",
                     "x-zui": {
                       "title": "Name"
                     }
                   },
                   "handle": {
                     "type": "string",
+                    "description": "The handle of the author",
                     "x-zui": {
                       "title": "Handle"
                     }
                   },
                   "botpressUser": {
                     "type": "string",
+                    "description": "The ID of the Botpress user corresponding to this author",
                     "x-zui": {
                       "title": "Botpress User ID"
                     }
@@ -255,41 +286,48 @@
               },
               "assignees": {
                 "type": "array",
+                "description": "The assignees of the issue",
                 "items": {
                   "type": "object",
                   "properties": {
                     "id": {
                       "type": "number",
+                      "description": "Unique identifier of the assignee",
                       "x-zui": {
                         "title": "ID"
                       }
                     },
                     "nodeId": {
                       "type": "string",
+                      "description": "Node ID for GraphQL",
                       "x-zui": {
                         "title": "Global Node ID"
                       }
                     },
                     "url": {
                       "type": "string",
+                      "description": "URL of the assignee",
                       "x-zui": {
                         "title": "URL"
                       }
                     },
                     "name": {
                       "type": "string",
+                      "description": "Name of the assignee",
                       "x-zui": {
                         "title": "Name"
                       }
                     },
                     "handle": {
                       "type": "string",
+                      "description": "The handle of the assignee",
                       "x-zui": {
                         "title": "Handle"
                       }
                     },
                     "botpressUser": {
                       "type": "string",
+                      "description": "The ID of the Botpress user corresponding to this assignee",
                       "x-zui": {
                         "title": "Botpress User ID"
                       }
@@ -327,39 +365,46 @@
           },
           "eventSender": {
             "type": "object",
+            "description": "The user who triggered the event",
             "properties": {
               "id": {
                 "type": "number",
+                "description": "Unique identifier of the user",
                 "x-zui": {
                   "title": "ID"
                 }
               },
               "nodeId": {
                 "type": "string",
+                "description": "Node ID for GraphQL",
                 "x-zui": {
                   "title": "Global Node ID"
                 }
               },
               "url": {
                 "type": "string",
+                "description": "URL of the user",
                 "x-zui": {
                   "title": "URL"
                 }
               },
               "name": {
                 "type": "string",
+                "description": "Name of the user",
                 "x-zui": {
                   "title": "Name"
                 }
               },
               "handle": {
                 "type": "string",
+                "description": "The handle of the user",
                 "x-zui": {
                   "title": "Handle"
                 }
               },
               "botpressUser": {
                 "type": "string",
+                "description": "The ID of the Botpress user corresponding to this user",
                 "x-zui": {
                   "title": "Botpress User ID"
                 }
@@ -379,30 +424,35 @@
           },
           "id": {
             "type": "number",
+            "description": "use issue.id instead",
             "x-zui": {
               "title": "DEPRECATED: id"
             }
           },
           "issueUrl": {
             "type": "string",
+            "description": "use issue.url instead",
             "x-zui": {
               "title": "DEPRECATED: issueUrl"
             }
           },
           "repoUrl": {
             "type": "string",
+            "description": "use issue.repository.url instead",
             "x-zui": {
               "title": "DEPRECATED: repoUrl"
             }
           },
           "number": {
             "type": "number",
+            "description": "use issue.number instead",
             "x-zui": {
               "title": "DEPRECATED: number"
             }
           },
           "title": {
             "type": "string",
+            "description": "use issue.name instead",
             "x-zui": {
               "title": "DEPRECATED: title"
             }
@@ -427,12 +477,14 @@
           },
           "repositoryName": {
             "type": "string",
+            "description": "use issue.repository.name instead",
             "x-zui": {
               "title": "DEPRECATED: repositoryName"
             }
           },
           "repositoryOwner": {
             "type": "string",
+            "description": "use issue.repository.owner.handle instead",
             "x-zui": {
               "title": "DEPRECATED: repositoryOwner"
             }
@@ -460,93 +512,110 @@
         "properties": {
           "pullRequest": {
             "type": "object",
+            "description": "The pull request that was merged",
             "properties": {
               "id": {
                 "type": "number",
+                "description": "Unique identifier of the pull request",
                 "x-zui": {
                   "title": "ID"
                 }
               },
               "nodeId": {
                 "type": "string",
+                "description": "Node ID for GraphQL",
                 "x-zui": {
                   "title": "Global Node ID"
                 }
               },
               "url": {
                 "type": "string",
+                "description": "URL of the pull request",
                 "x-zui": {
                   "title": "URL"
                 }
               },
               "name": {
                 "type": "string",
+                "description": "Name of the pull request",
                 "x-zui": {
                   "title": "Name"
                 }
               },
               "repository": {
                 "type": "object",
+                "description": "The repository the pull request belongs to",
                 "properties": {
                   "id": {
                     "type": "number",
+                    "description": "Unique identifier of the repository",
                     "x-zui": {
                       "title": "ID"
                     }
                   },
                   "nodeId": {
                     "type": "string",
+                    "description": "Node ID for GraphQL",
                     "x-zui": {
                       "title": "Global Node ID"
                     }
                   },
                   "url": {
                     "type": "string",
+                    "description": "URL of the repository",
                     "x-zui": {
                       "title": "URL"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "Name of the repository",
                     "x-zui": {
                       "title": "Name"
                     }
                   },
                   "owner": {
                     "type": "object",
+                    "description": "The owner of the repository",
                     "properties": {
                       "id": {
                         "type": "number",
+                        "description": "Unique identifier of the repository owner",
                         "x-zui": {
                           "title": "ID"
                         }
                       },
                       "nodeId": {
                         "type": "string",
+                        "description": "Node ID for GraphQL",
                         "x-zui": {
                           "title": "Global Node ID"
                         }
                       },
                       "url": {
                         "type": "string",
+                        "description": "URL of the repository owner",
                         "x-zui": {
                           "title": "URL"
                         }
                       },
                       "name": {
                         "type": "string",
+                        "description": "Name of the repository owner",
                         "x-zui": {
                           "title": "Name"
                         }
                       },
                       "handle": {
                         "type": "string",
+                        "description": "The handle of the repository owner",
                         "x-zui": {
                           "title": "Handle"
                         }
                       },
                       "botpressUser": {
                         "type": "string",
+                        "description": "The ID of the Botpress user corresponding to this repository owner",
                         "x-zui": {
                           "title": "Botpress User ID"
                         }
@@ -578,41 +647,48 @@
               },
               "body": {
                 "type": "string",
+                "description": "The body of the pull request",
                 "x-zui": {
                   "title": "Body"
                 }
               },
               "number": {
                 "type": "number",
+                "description": "The pull request number",
                 "x-zui": {
                   "title": "Number"
                 }
               },
               "labels": {
                 "type": "array",
+                "description": "The labels associated with the pull request",
                 "items": {
                   "type": "object",
                   "properties": {
                     "id": {
                       "type": "number",
+                      "description": "Unique identifier of the label",
                       "x-zui": {
                         "title": "ID"
                       }
                     },
                     "nodeId": {
                       "type": "string",
+                      "description": "Node ID for GraphQL",
                       "x-zui": {
                         "title": "Global Node ID"
                       }
                     },
                     "url": {
                       "type": "string",
+                      "description": "URL of the label",
                       "x-zui": {
                         "title": "URL"
                       }
                     },
                     "name": {
                       "type": "string",
+                      "description": "Name of the label",
                       "x-zui": {
                         "title": "Name"
                       }
@@ -631,39 +707,46 @@
               },
               "author": {
                 "type": "object",
+                "description": "The author of the pull request",
                 "properties": {
                   "id": {
                     "type": "number",
+                    "description": "Unique identifier of the author",
                     "x-zui": {
                       "title": "ID"
                     }
                   },
                   "nodeId": {
                     "type": "string",
+                    "description": "Node ID for GraphQL",
                     "x-zui": {
                       "title": "Global Node ID"
                     }
                   },
                   "url": {
                     "type": "string",
+                    "description": "URL of the author",
                     "x-zui": {
                       "title": "URL"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "Name of the author",
                     "x-zui": {
                       "title": "Name"
                     }
                   },
                   "handle": {
                     "type": "string",
+                    "description": "The handle of the author",
                     "x-zui": {
                       "title": "Handle"
                     }
                   },
                   "botpressUser": {
                     "type": "string",
+                    "description": "The ID of the Botpress user corresponding to this author",
                     "x-zui": {
                       "title": "Botpress User ID"
                     }
@@ -683,41 +766,48 @@
               },
               "assignees": {
                 "type": "array",
+                "description": "The assignees of the pull request",
                 "items": {
                   "type": "object",
                   "properties": {
                     "id": {
                       "type": "number",
+                      "description": "Unique identifier of the assignee",
                       "x-zui": {
                         "title": "ID"
                       }
                     },
                     "nodeId": {
                       "type": "string",
+                      "description": "Node ID for GraphQL",
                       "x-zui": {
                         "title": "Global Node ID"
                       }
                     },
                     "url": {
                       "type": "string",
+                      "description": "URL of the assignee",
                       "x-zui": {
                         "title": "URL"
                       }
                     },
                     "name": {
                       "type": "string",
+                      "description": "Name of the assignee",
                       "x-zui": {
                         "title": "Name"
                       }
                     },
                     "handle": {
                       "type": "string",
+                      "description": "The handle of the assignee",
                       "x-zui": {
                         "title": "Handle"
                       }
                     },
                     "botpressUser": {
                       "type": "string",
+                      "description": "The ID of the Botpress user corresponding to this assignee",
                       "x-zui": {
                         "title": "Botpress User ID"
                       }
@@ -738,81 +828,96 @@
               },
               "target": {
                 "type": "object",
+                "description": "The target repository and branch of the pull request",
                 "properties": {
                   "ref": {
                     "type": "string",
+                    "description": "The name of the branch",
                     "x-zui": {
                       "title": "Branch name"
                     }
                   },
                   "label": {
                     "type": "string",
+                    "description": "The display label of the branch",
                     "x-zui": {
                       "title": "Branch label"
                     }
                   },
                   "repository": {
                     "type": "object",
+                    "description": "The repository the branch belongs to",
                     "properties": {
                       "id": {
                         "type": "number",
+                        "description": "Unique identifier of the repository",
                         "x-zui": {
                           "title": "ID"
                         }
                       },
                       "nodeId": {
                         "type": "string",
+                        "description": "Node ID for GraphQL",
                         "x-zui": {
                           "title": "Global Node ID"
                         }
                       },
                       "url": {
                         "type": "string",
+                        "description": "URL of the repository",
                         "x-zui": {
                           "title": "URL"
                         }
                       },
                       "name": {
                         "type": "string",
+                        "description": "Name of the repository",
                         "x-zui": {
                           "title": "Name"
                         }
                       },
                       "owner": {
                         "type": "object",
+                        "description": "The owner of the repository",
                         "properties": {
                           "id": {
                             "type": "number",
+                            "description": "Unique identifier of the repository owner",
                             "x-zui": {
                               "title": "ID"
                             }
                           },
                           "nodeId": {
                             "type": "string",
+                            "description": "Node ID for GraphQL",
                             "x-zui": {
                               "title": "Global Node ID"
                             }
                           },
                           "url": {
                             "type": "string",
+                            "description": "URL of the repository owner",
                             "x-zui": {
                               "title": "URL"
                             }
                           },
                           "name": {
                             "type": "string",
+                            "description": "Name of the repository owner",
                             "x-zui": {
                               "title": "Name"
                             }
                           },
                           "handle": {
                             "type": "string",
+                            "description": "The handle of the repository owner",
                             "x-zui": {
                               "title": "Handle"
                             }
                           },
                           "botpressUser": {
                             "type": "string",
+                            "description": "The ID of the Botpress user corresponding to this repository owner",
                             "x-zui": {
                               "title": "Botpress User ID"
                             }
@@ -854,81 +959,96 @@
               },
               "source": {
                 "type": "object",
+                "description": "The source repository and branch of the pull request",
                 "properties": {
                   "ref": {
                     "type": "string",
+                    "description": "The name of the branch",
                     "x-zui": {
                       "title": "Branch name"
                     }
                   },
                   "label": {
                     "type": "string",
+                    "description": "The display label of the branch",
                     "x-zui": {
                       "title": "Branch label"
                     }
                   },
                   "repository": {
                     "type": "object",
+                    "description": "The repository the branch belongs to",
                     "properties": {
                       "id": {
                         "type": "number",
+                        "description": "Unique identifier of the repository",
                         "x-zui": {
                           "title": "ID"
                         }
                       },
                       "nodeId": {
                         "type": "string",
+                        "description": "Node ID for GraphQL",
                         "x-zui": {
                           "title": "Global Node ID"
                         }
                       },
                       "url": {
                         "type": "string",
+                        "description": "URL of the repository",
                         "x-zui": {
                           "title": "URL"
                         }
                       },
                       "name": {
                         "type": "string",
+                        "description": "Name of the repository",
                         "x-zui": {
                           "title": "Name"
                         }
                       },
                       "owner": {
                         "type": "object",
+                        "description": "The owner of the repository",
                         "properties": {
                           "id": {
                             "type": "number",
+                            "description": "Unique identifier of the repository owner",
                             "x-zui": {
                               "title": "ID"
                             }
                           },
                           "nodeId": {
                             "type": "string",
+                            "description": "Node ID for GraphQL",
                             "x-zui": {
                               "title": "Global Node ID"
                             }
                           },
                           "url": {
                             "type": "string",
+                            "description": "URL of the repository owner",
                             "x-zui": {
                               "title": "URL"
                             }
                           },
                           "name": {
                             "type": "string",
+                            "description": "Name of the repository owner",
                             "x-zui": {
                               "title": "Name"
                             }
                           },
                           "handle": {
                             "type": "string",
+                            "description": "The handle of the repository owner",
                             "x-zui": {
                               "title": "Handle"
                             }
                           },
                           "botpressUser": {
                             "type": "string",
+                            "description": "The ID of the Botpress user corresponding to this repository owner",
                             "x-zui": {
                               "title": "Botpress User ID"
                             }
@@ -989,39 +1109,46 @@
           },
           "eventSender": {
             "type": "object",
+            "description": "The user who triggered the event",
             "properties": {
               "id": {
                 "type": "number",
+                "description": "Unique identifier of the user",
                 "x-zui": {
                   "title": "ID"
                 }
               },
               "nodeId": {
                 "type": "string",
+                "description": "Node ID for GraphQL",
                 "x-zui": {
                   "title": "Global Node ID"
                 }
               },
               "url": {
                 "type": "string",
+                "description": "URL of the user",
                 "x-zui": {
                   "title": "URL"
                 }
               },
               "name": {
                 "type": "string",
+                "description": "Name of the user",
                 "x-zui": {
                   "title": "Name"
                 }
               },
               "handle": {
                 "type": "string",
+                "description": "The handle of the user",
                 "x-zui": {
                   "title": "Handle"
                 }
               },
               "botpressUser": {
                 "type": "string",
+                "description": "The ID of the Botpress user corresponding to this user",
                 "x-zui": {
                   "title": "Botpress User ID"
                 }
@@ -1048,18 +1175,21 @@
           },
           "id": {
             "type": "number",
+            "description": "use pullRequest.id instead",
             "x-zui": {
               "title": "DEPRECATED: id"
             }
           },
           "title": {
             "type": "string",
+            "description": "use pullRequest.name instead",
             "x-zui": {
               "title": "DEPRECATED: title"
             }
           },
           "content": {
             "type": "string",
+            "description": "use pullRequest.body instead",
             "x-zui": {
               "title": "DEPRECATED: content"
             }
@@ -1128,93 +1258,110 @@
         "properties": {
           "pullRequest": {
             "type": "object",
+            "description": "The pull request that was opened",
             "properties": {
               "id": {
                 "type": "number",
+                "description": "Unique identifier of the pull request",
                 "x-zui": {
                   "title": "ID"
                 }
               },
               "nodeId": {
                 "type": "string",
+                "description": "Node ID for GraphQL",
                 "x-zui": {
                   "title": "Global Node ID"
                 }
               },
               "url": {
                 "type": "string",
+                "description": "URL of the pull request",
                 "x-zui": {
                   "title": "URL"
                 }
               },
               "name": {
                 "type": "string",
+                "description": "Name of the pull request",
                 "x-zui": {
                   "title": "Name"
                 }
               },
               "repository": {
                 "type": "object",
+                "description": "The repository the pull request belongs to",
                 "properties": {
                   "id": {
                     "type": "number",
+                    "description": "Unique identifier of the repository",
                     "x-zui": {
                       "title": "ID"
                     }
                   },
                   "nodeId": {
                     "type": "string",
+                    "description": "Node ID for GraphQL",
                     "x-zui": {
                       "title": "Global Node ID"
                     }
                   },
                   "url": {
                     "type": "string",
+                    "description": "URL of the repository",
                     "x-zui": {
                       "title": "URL"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "Name of the repository",
                     "x-zui": {
                       "title": "Name"
                     }
                   },
                   "owner": {
                     "type": "object",
+                    "description": "The owner of the repository",
                     "properties": {
                       "id": {
                         "type": "number",
+                        "description": "Unique identifier of the repository owner",
                         "x-zui": {
                           "title": "ID"
                         }
                       },
                       "nodeId": {
                         "type": "string",
+                        "description": "Node ID for GraphQL",
                         "x-zui": {
                           "title": "Global Node ID"
                         }
                       },
                       "url": {
                         "type": "string",
+                        "description": "URL of the repository owner",
                         "x-zui": {
                           "title": "URL"
                         }
                       },
                       "name": {
                         "type": "string",
+                        "description": "Name of the repository owner",
                         "x-zui": {
                           "title": "Name"
                         }
                       },
                       "handle": {
                         "type": "string",
+                        "description": "The handle of the repository owner",
                         "x-zui": {
                           "title": "Handle"
                         }
                       },
                       "botpressUser": {
                         "type": "string",
+                        "description": "The ID of the Botpress user corresponding to this repository owner",
                         "x-zui": {
                           "title": "Botpress User ID"
                         }
@@ -1246,41 +1393,48 @@
               },
               "body": {
                 "type": "string",
+                "description": "The body of the pull request",
                 "x-zui": {
                   "title": "Body"
                 }
               },
               "number": {
                 "type": "number",
+                "description": "The pull request number",
                 "x-zui": {
                   "title": "Number"
                 }
               },
               "labels": {
                 "type": "array",
+                "description": "The labels associated with the pull request",
                 "items": {
                   "type": "object",
                   "properties": {
                     "id": {
                       "type": "number",
+                      "description": "Unique identifier of the label",
                       "x-zui": {
                         "title": "ID"
                       }
                     },
                     "nodeId": {
                       "type": "string",
+                      "description": "Node ID for GraphQL",
                       "x-zui": {
                         "title": "Global Node ID"
                       }
                     },
                     "url": {
                       "type": "string",
+                      "description": "URL of the label",
                       "x-zui": {
                         "title": "URL"
                       }
                     },
                     "name": {
                       "type": "string",
+                      "description": "Name of the label",
                       "x-zui": {
                         "title": "Name"
                       }
@@ -1299,39 +1453,46 @@
               },
               "author": {
                 "type": "object",
+                "description": "The author of the pull request",
                 "properties": {
                   "id": {
                     "type": "number",
+                    "description": "Unique identifier of the author",
                     "x-zui": {
                       "title": "ID"
                     }
                   },
                   "nodeId": {
                     "type": "string",
+                    "description": "Node ID for GraphQL",
                     "x-zui": {
                       "title": "Global Node ID"
                     }
                   },
                   "url": {
                     "type": "string",
+                    "description": "URL of the author",
                     "x-zui": {
                       "title": "URL"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "Name of the author",
                     "x-zui": {
                       "title": "Name"
                     }
                   },
                   "handle": {
                     "type": "string",
+                    "description": "The handle of the author",
                     "x-zui": {
                       "title": "Handle"
                     }
                   },
                   "botpressUser": {
                     "type": "string",
+                    "description": "The ID of the Botpress user corresponding to this author",
                     "x-zui": {
                       "title": "Botpress User ID"
                     }
@@ -1351,41 +1512,48 @@
               },
               "assignees": {
                 "type": "array",
+                "description": "The assignees of the pull request",
                 "items": {
                   "type": "object",
                   "properties": {
                     "id": {
                       "type": "number",
+                      "description": "Unique identifier of the assignee",
                       "x-zui": {
                         "title": "ID"
                       }
                     },
                     "nodeId": {
                       "type": "string",
+                      "description": "Node ID for GraphQL",
                       "x-zui": {
                         "title": "Global Node ID"
                       }
                     },
                     "url": {
                       "type": "string",
+                      "description": "URL of the assignee",
                       "x-zui": {
                         "title": "URL"
                       }
                     },
                     "name": {
                       "type": "string",
+                      "description": "Name of the assignee",
                       "x-zui": {
                         "title": "Name"
                       }
                     },
                     "handle": {
                       "type": "string",
+                      "description": "The handle of the assignee",
                       "x-zui": {
                         "title": "Handle"
                       }
                     },
                     "botpressUser": {
                       "type": "string",
+                      "description": "The ID of the Botpress user corresponding to this assignee",
                       "x-zui": {
                         "title": "Botpress User ID"
                       }
@@ -1406,81 +1574,96 @@
               },
               "target": {
                 "type": "object",
+                "description": "The target repository and branch of the pull request",
                 "properties": {
                   "ref": {
                     "type": "string",
+                    "description": "The name of the branch",
                     "x-zui": {
                       "title": "Branch name"
                     }
                   },
                   "label": {
                     "type": "string",
+                    "description": "The display label of the branch",
                     "x-zui": {
                       "title": "Branch label"
                     }
                   },
                   "repository": {
                     "type": "object",
+                    "description": "The repository the branch belongs to",
                     "properties": {
                       "id": {
                         "type": "number",
+                        "description": "Unique identifier of the repository",
                         "x-zui": {
                           "title": "ID"
                         }
                       },
                       "nodeId": {
                         "type": "string",
+                        "description": "Node ID for GraphQL",
                         "x-zui": {
                           "title": "Global Node ID"
                         }
                       },
                       "url": {
                         "type": "string",
+                        "description": "URL of the repository",
                         "x-zui": {
                           "title": "URL"
                         }
                       },
                       "name": {
                         "type": "string",
+                        "description": "Name of the repository",
                         "x-zui": {
                           "title": "Name"
                         }
                       },
                       "owner": {
                         "type": "object",
+                        "description": "The owner of the repository",
                         "properties": {
                           "id": {
                             "type": "number",
+                            "description": "Unique identifier of the repository owner",
                             "x-zui": {
                               "title": "ID"
                             }
                           },
                           "nodeId": {
                             "type": "string",
+                            "description": "Node ID for GraphQL",
                             "x-zui": {
                               "title": "Global Node ID"
                             }
                           },
                           "url": {
                             "type": "string",
+                            "description": "URL of the repository owner",
                             "x-zui": {
                               "title": "URL"
                             }
                           },
                           "name": {
                             "type": "string",
+                            "description": "Name of the repository owner",
                             "x-zui": {
                               "title": "Name"
                             }
                           },
                           "handle": {
                             "type": "string",
+                            "description": "The handle of the repository owner",
                             "x-zui": {
                               "title": "Handle"
                             }
                           },
                           "botpressUser": {
                             "type": "string",
+                            "description": "The ID of the Botpress user corresponding to this repository owner",
                             "x-zui": {
                               "title": "Botpress User ID"
                             }
@@ -1522,81 +1705,96 @@
               },
               "source": {
                 "type": "object",
+                "description": "The source repository and branch of the pull request",
                 "properties": {
                   "ref": {
                     "type": "string",
+                    "description": "The name of the branch",
                     "x-zui": {
                       "title": "Branch name"
                     }
                   },
                   "label": {
                     "type": "string",
+                    "description": "The display label of the branch",
                     "x-zui": {
                       "title": "Branch label"
                     }
                   },
                   "repository": {
                     "type": "object",
+                    "description": "The repository the branch belongs to",
                     "properties": {
                       "id": {
                         "type": "number",
+                        "description": "Unique identifier of the repository",
                         "x-zui": {
                           "title": "ID"
                         }
                       },
                       "nodeId": {
                         "type": "string",
+                        "description": "Node ID for GraphQL",
                         "x-zui": {
                           "title": "Global Node ID"
                         }
                       },
                       "url": {
                         "type": "string",
+                        "description": "URL of the repository",
                         "x-zui": {
                           "title": "URL"
                         }
                       },
                       "name": {
                         "type": "string",
+                        "description": "Name of the repository",
                         "x-zui": {
                           "title": "Name"
                         }
                       },
                       "owner": {
                         "type": "object",
+                        "description": "The owner of the repository",
                         "properties": {
                           "id": {
                             "type": "number",
+                            "description": "Unique identifier of the repository owner",
                             "x-zui": {
                               "title": "ID"
                             }
                           },
                           "nodeId": {
                             "type": "string",
+                            "description": "Node ID for GraphQL",
                             "x-zui": {
                               "title": "Global Node ID"
                             }
                           },
                           "url": {
                             "type": "string",
+                            "description": "URL of the repository owner",
                             "x-zui": {
                               "title": "URL"
                             }
                           },
                           "name": {
                             "type": "string",
+                            "description": "Name of the repository owner",
                             "x-zui": {
                               "title": "Name"
                             }
                           },
                           "handle": {
                             "type": "string",
+                            "description": "The handle of the repository owner",
                             "x-zui": {
                               "title": "Handle"
                             }
                           },
                           "botpressUser": {
                             "type": "string",
+                            "description": "The ID of the Botpress user corresponding to this repository owner",
                             "x-zui": {
                               "title": "Botpress User ID"
                             }
@@ -1657,39 +1855,46 @@
           },
           "eventSender": {
             "type": "object",
+            "description": "The user who triggered the event",
             "properties": {
               "id": {
                 "type": "number",
+                "description": "Unique identifier of the user",
                 "x-zui": {
                   "title": "ID"
                 }
               },
               "nodeId": {
                 "type": "string",
+                "description": "Node ID for GraphQL",
                 "x-zui": {
                   "title": "Global Node ID"
                 }
               },
               "url": {
                 "type": "string",
+                "description": "URL of the user",
                 "x-zui": {
                   "title": "URL"
                 }
               },
               "name": {
                 "type": "string",
+                "description": "Name of the user",
                 "x-zui": {
                   "title": "Name"
                 }
               },
               "handle": {
                 "type": "string",
+                "description": "The handle of the user",
                 "x-zui": {
                   "title": "Handle"
                 }
               },
               "botpressUser": {
                 "type": "string",
+                "description": "The ID of the Botpress user corresponding to this user",
                 "x-zui": {
                   "title": "Botpress User ID"
                 }
@@ -1716,18 +1921,21 @@
           },
           "id": {
             "type": "number",
+            "description": "use pullRequest.id instead",
             "x-zui": {
               "title": "DEPRECATED: id"
             }
           },
           "title": {
             "type": "string",
+            "description": "use pullRequest.name instead",
             "x-zui": {
               "title": "DEPRECATED: title"
             }
           },
           "content": {
             "type": "string",
+            "description": "use pullRequest.body instead",
             "x-zui": {
               "title": "DEPRECATED: content"
             }
@@ -1796,114 +2004,135 @@
         "properties": {
           "review": {
             "type": "object",
+            "description": "The review that was submitted",
             "properties": {
               "id": {
                 "type": "number",
+                "description": "Unique identifier of the pull request review",
                 "x-zui": {
                   "title": "ID"
                 }
               },
               "nodeId": {
                 "type": "string",
+                "description": "Node ID for GraphQL",
                 "x-zui": {
                   "title": "Global Node ID"
                 }
               },
               "url": {
                 "type": "string",
+                "description": "URL of the pull request review",
                 "x-zui": {
                   "title": "URL"
                 }
               },
               "pullRequest": {
                 "type": "object",
+                "description": "The pull request being reviewed",
                 "properties": {
                   "id": {
                     "type": "number",
+                    "description": "Unique identifier of the pull request",
                     "x-zui": {
                       "title": "ID"
                     }
                   },
                   "nodeId": {
                     "type": "string",
+                    "description": "Node ID for GraphQL",
                     "x-zui": {
                       "title": "Global Node ID"
                     }
                   },
                   "url": {
                     "type": "string",
+                    "description": "URL of the pull request",
                     "x-zui": {
                       "title": "URL"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "Name of the pull request",
                     "x-zui": {
                       "title": "Name"
                     }
                   },
                   "repository": {
                     "type": "object",
+                    "description": "The repository the pull request belongs to",
                     "properties": {
                       "id": {
                         "type": "number",
+                        "description": "Unique identifier of the repository",
                         "x-zui": {
                           "title": "ID"
                         }
                       },
                       "nodeId": {
                         "type": "string",
+                        "description": "Node ID for GraphQL",
                         "x-zui": {
                           "title": "Global Node ID"
                         }
                       },
                       "url": {
                         "type": "string",
+                        "description": "URL of the repository",
                         "x-zui": {
                           "title": "URL"
                         }
                       },
                       "name": {
                         "type": "string",
+                        "description": "Name of the repository",
                         "x-zui": {
                           "title": "Name"
                         }
                       },
                       "owner": {
                         "type": "object",
+                        "description": "The owner of the repository",
                         "properties": {
                           "id": {
                             "type": "number",
+                            "description": "Unique identifier of the repository owner",
                             "x-zui": {
                               "title": "ID"
                             }
                           },
                           "nodeId": {
                             "type": "string",
+                            "description": "Node ID for GraphQL",
                             "x-zui": {
                               "title": "Global Node ID"
                             }
                           },
                           "url": {
                             "type": "string",
+                            "description": "URL of the repository owner",
                             "x-zui": {
                               "title": "URL"
                             }
                           },
                           "name": {
                             "type": "string",
+                            "description": "Name of the repository owner",
                             "x-zui": {
                               "title": "Name"
                             }
                           },
                           "handle": {
                             "type": "string",
+                            "description": "The handle of the repository owner",
                             "x-zui": {
                               "title": "Handle"
                             }
                           },
                           "botpressUser": {
                             "type": "string",
+                            "description": "The ID of the Botpress user corresponding to this repository owner",
                             "x-zui": {
                               "title": "Botpress User ID"
                             }
@@ -1935,41 +2164,48 @@
                   },
                   "body": {
                     "type": "string",
+                    "description": "The body of the pull request",
                     "x-zui": {
                       "title": "Body"
                     }
                   },
                   "number": {
                     "type": "number",
+                    "description": "The pull request number",
                     "x-zui": {
                       "title": "Number"
                     }
                   },
                   "labels": {
                     "type": "array",
+                    "description": "The labels associated with the pull request",
                     "items": {
                       "type": "object",
                       "properties": {
                         "id": {
                           "type": "number",
+                          "description": "Unique identifier of the label",
                           "x-zui": {
                             "title": "ID"
                           }
                         },
                         "nodeId": {
                           "type": "string",
+                          "description": "Node ID for GraphQL",
                           "x-zui": {
                             "title": "Global Node ID"
                           }
                         },
                         "url": {
                           "type": "string",
+                          "description": "URL of the label",
                           "x-zui": {
                             "title": "URL"
                           }
                         },
                         "name": {
                           "type": "string",
+                          "description": "Name of the label",
                           "x-zui": {
                             "title": "Name"
                           }
@@ -1988,39 +2224,46 @@
                   },
                   "author": {
                     "type": "object",
+                    "description": "The author of the pull request",
                     "properties": {
                       "id": {
                         "type": "number",
+                        "description": "Unique identifier of the author",
                         "x-zui": {
                           "title": "ID"
                         }
                       },
                       "nodeId": {
                         "type": "string",
+                        "description": "Node ID for GraphQL",
                         "x-zui": {
                           "title": "Global Node ID"
                         }
                       },
                       "url": {
                         "type": "string",
+                        "description": "URL of the author",
                         "x-zui": {
                           "title": "URL"
                         }
                       },
                       "name": {
                         "type": "string",
+                        "description": "Name of the author",
                         "x-zui": {
                           "title": "Name"
                         }
                       },
                       "handle": {
                         "type": "string",
+                        "description": "The handle of the author",
                         "x-zui": {
                           "title": "Handle"
                         }
                       },
                       "botpressUser": {
                         "type": "string",
+                        "description": "The ID of the Botpress user corresponding to this author",
                         "x-zui": {
                           "title": "Botpress User ID"
                         }
@@ -2040,41 +2283,48 @@
                   },
                   "assignees": {
                     "type": "array",
+                    "description": "The assignees of the pull request",
                     "items": {
                       "type": "object",
                       "properties": {
                         "id": {
                           "type": "number",
+                          "description": "Unique identifier of the assignee",
                           "x-zui": {
                             "title": "ID"
                           }
                         },
                         "nodeId": {
                           "type": "string",
+                          "description": "Node ID for GraphQL",
                           "x-zui": {
                             "title": "Global Node ID"
                           }
                         },
                         "url": {
                           "type": "string",
+                          "description": "URL of the assignee",
                           "x-zui": {
                             "title": "URL"
                           }
                         },
                         "name": {
                           "type": "string",
+                          "description": "Name of the assignee",
                           "x-zui": {
                             "title": "Name"
                           }
                         },
                         "handle": {
                           "type": "string",
+                          "description": "The handle of the assignee",
                           "x-zui": {
                             "title": "Handle"
                           }
                         },
                         "botpressUser": {
                           "type": "string",
+                          "description": "The ID of the Botpress user corresponding to this assignee",
                           "x-zui": {
                             "title": "Botpress User ID"
                           }
@@ -2095,81 +2345,96 @@
                   },
                   "target": {
                     "type": "object",
+                    "description": "The target repository and branch of the pull request",
                     "properties": {
                       "ref": {
                         "type": "string",
+                        "description": "The name of the branch",
                         "x-zui": {
                           "title": "Branch name"
                         }
                       },
                       "label": {
                         "type": "string",
+                        "description": "The display label of the branch",
                         "x-zui": {
                           "title": "Branch label"
                         }
                       },
                       "repository": {
                         "type": "object",
+                        "description": "The repository the branch belongs to",
                         "properties": {
                           "id": {
                             "type": "number",
+                            "description": "Unique identifier of the repository",
                             "x-zui": {
                               "title": "ID"
                             }
                           },
                           "nodeId": {
                             "type": "string",
+                            "description": "Node ID for GraphQL",
                             "x-zui": {
                               "title": "Global Node ID"
                             }
                           },
                           "url": {
                             "type": "string",
+                            "description": "URL of the repository",
                             "x-zui": {
                               "title": "URL"
                             }
                           },
                           "name": {
                             "type": "string",
+                            "description": "Name of the repository",
                             "x-zui": {
                               "title": "Name"
                             }
                           },
                           "owner": {
                             "type": "object",
+                            "description": "The owner of the repository",
                             "properties": {
                               "id": {
                                 "type": "number",
+                                "description": "Unique identifier of the repository owner",
                                 "x-zui": {
                                   "title": "ID"
                                 }
                               },
                               "nodeId": {
                                 "type": "string",
+                                "description": "Node ID for GraphQL",
                                 "x-zui": {
                                   "title": "Global Node ID"
                                 }
                               },
                               "url": {
                                 "type": "string",
+                                "description": "URL of the repository owner",
                                 "x-zui": {
                                   "title": "URL"
                                 }
                               },
                               "name": {
                                 "type": "string",
+                                "description": "Name of the repository owner",
                                 "x-zui": {
                                   "title": "Name"
                                 }
                               },
                               "handle": {
                                 "type": "string",
+                                "description": "The handle of the repository owner",
                                 "x-zui": {
                                   "title": "Handle"
                                 }
                               },
                               "botpressUser": {
                                 "type": "string",
+                                "description": "The ID of the Botpress user corresponding to this repository owner",
                                 "x-zui": {
                                   "title": "Botpress User ID"
                                 }
@@ -2211,81 +2476,96 @@
                   },
                   "source": {
                     "type": "object",
+                    "description": "The source repository and branch of the pull request",
                     "properties": {
                       "ref": {
                         "type": "string",
+                        "description": "The name of the branch",
                         "x-zui": {
                           "title": "Branch name"
                         }
                       },
                       "label": {
                         "type": "string",
+                        "description": "The display label of the branch",
                         "x-zui": {
                           "title": "Branch label"
                         }
                       },
                       "repository": {
                         "type": "object",
+                        "description": "The repository the branch belongs to",
                         "properties": {
                           "id": {
                             "type": "number",
+                            "description": "Unique identifier of the repository",
                             "x-zui": {
                               "title": "ID"
                             }
                           },
                           "nodeId": {
                             "type": "string",
+                            "description": "Node ID for GraphQL",
                             "x-zui": {
                               "title": "Global Node ID"
                             }
                           },
                           "url": {
                             "type": "string",
+                            "description": "URL of the repository",
                             "x-zui": {
                               "title": "URL"
                             }
                           },
                           "name": {
                             "type": "string",
+                            "description": "Name of the repository",
                             "x-zui": {
                               "title": "Name"
                             }
                           },
                           "owner": {
                             "type": "object",
+                            "description": "The owner of the repository",
                             "properties": {
                               "id": {
                                 "type": "number",
+                                "description": "Unique identifier of the repository owner",
                                 "x-zui": {
                                   "title": "ID"
                                 }
                               },
                               "nodeId": {
                                 "type": "string",
+                                "description": "Node ID for GraphQL",
                                 "x-zui": {
                                   "title": "Global Node ID"
                                 }
                               },
                               "url": {
                                 "type": "string",
+                                "description": "URL of the repository owner",
                                 "x-zui": {
                                   "title": "URL"
                                 }
                               },
                               "name": {
                                 "type": "string",
+                                "description": "Name of the repository owner",
                                 "x-zui": {
                                   "title": "Name"
                                 }
                               },
                               "handle": {
                                 "type": "string",
+                                "description": "The handle of the repository owner",
                                 "x-zui": {
                                   "title": "Handle"
                                 }
                               },
                               "botpressUser": {
                                 "type": "string",
+                                "description": "The ID of the Botpress user corresponding to this repository owner",
                                 "x-zui": {
                                   "title": "Botpress User ID"
                                 }
@@ -2346,12 +2626,14 @@
               },
               "commitId": {
                 "type": "string",
+                "description": "The commit ID of the review",
                 "x-zui": {
                   "title": "Commit ID"
                 }
               },
               "state": {
                 "type": "string",
+                "description": "The state of the review",
                 "enum": [
                   "APPROVED",
                   "CHANGES_REQUESTED",
@@ -2364,39 +2646,46 @@
               },
               "author": {
                 "type": "object",
+                "description": "The author of the review",
                 "properties": {
                   "id": {
                     "type": "number",
+                    "description": "Unique identifier of the review author",
                     "x-zui": {
                       "title": "ID"
                     }
                   },
                   "nodeId": {
                     "type": "string",
+                    "description": "Node ID for GraphQL",
                     "x-zui": {
                       "title": "Global Node ID"
                     }
                   },
                   "url": {
                     "type": "string",
+                    "description": "URL of the review author",
                     "x-zui": {
                       "title": "URL"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "Name of the review author",
                     "x-zui": {
                       "title": "Name"
                     }
                   },
                   "handle": {
                     "type": "string",
+                    "description": "The handle of the review author",
                     "x-zui": {
                       "title": "Handle"
                     }
                   },
                   "botpressUser": {
                     "type": "string",
+                    "description": "The ID of the Botpress user corresponding to this review author",
                     "x-zui": {
                       "title": "Botpress User ID"
                     }
@@ -2416,6 +2705,7 @@
               },
               "body": {
                 "type": "string",
+                "description": "The body of the review",
                 "x-zui": {
                   "title": "Body"
                 }
@@ -2437,39 +2727,46 @@
           },
           "eventSender": {
             "type": "object",
+            "description": "The user who triggered the event",
             "properties": {
               "id": {
                 "type": "number",
+                "description": "Unique identifier of the user",
                 "x-zui": {
                   "title": "ID"
                 }
               },
               "nodeId": {
                 "type": "string",
+                "description": "Node ID for GraphQL",
                 "x-zui": {
                   "title": "Global Node ID"
                 }
               },
               "url": {
                 "type": "string",
+                "description": "URL of the user",
                 "x-zui": {
                   "title": "URL"
                 }
               },
               "name": {
                 "type": "string",
+                "description": "Name of the user",
                 "x-zui": {
                   "title": "Name"
                 }
               },
               "handle": {
                 "type": "string",
+                "description": "The handle of the user",
                 "x-zui": {
                   "title": "Handle"
                 }
               },
               "botpressUser": {
                 "type": "string",
+                "description": "The ID of the Botpress user corresponding to this user",
                 "x-zui": {
                   "title": "Botpress User ID"
                 }
@@ -2513,6 +2810,7 @@
             },
             "repo": {
               "type": "string",
+              "description": "The repository name",
               "x-zui": {
                 "title": "Repository"
               }

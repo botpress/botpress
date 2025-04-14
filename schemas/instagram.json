@@ -29,9 +29,11 @@
             },
             "user": {
               "type": "object",
+              "description": "The user object fields",
               "properties": {
                 "id": {
                   "type": "string",
+                  "description": "The Instagram user ID",
                   "x-zui": {
                     "title": "ID"
                   }
@@ -73,9 +75,11 @@
           "properties": {
             "conversation": {
               "type": "object",
+              "description": "The conversation object fields",
               "properties": {
                 "id": {
                   "type": "string",
+                  "description": "The Instagram user ID of the user in the conversation",
                   "x-zui": {
                     "title": "User ID"
                   }
@@ -619,18 +623,21 @@
         "properties": {
           "accessToken": {
             "type": "string",
+            "description": "Access token used to authenticate requests to the Instagram API",
             "x-zui": {
               "title": "Access token"
             }
           },
           "instagramId": {
             "type": "string",
+            "description": "The Instagram account ID associated with the access token",
             "x-zui": {
               "title": "Instagram account ID"
             }
           },
           "expirationTime": {
             "type": "number",
+            "description": "The time when the access token expires, expressed as a Unix timestamp (epoch) in milliseconds",
             "x-zui": {
               "title": "Expiration time"
             }
@@ -650,9 +657,11 @@
       "description": "An Instagram user",
       "schema": {
         "type": "object",
+        "description": "The user object fields",
         "properties": {
           "id": {
             "type": "string",
+            "description": "The Instagram user ID",
             "x-zui": {
               "title": "ID"
             }
@@ -671,9 +680,11 @@
       "description": "An Instagram direct message conversation",
       "schema": {
         "type": "object",
+        "description": "The conversation object fields",
         "properties": {
           "id": {
             "type": "string",
+            "description": "The Instagram user ID of the user in the conversation",
             "x-zui": {
               "title": "User ID"
             }

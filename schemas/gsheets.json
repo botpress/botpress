@@ -15,6 +15,7 @@
           "properties": {
             "title": {
               "type": "string",
+              "description": "The title of the new sheet to add to the spreadsheet.",
               "x-zui": {
                 "title": "Title"
               }
@@ -31,33 +32,39 @@
           "properties": {
             "spreadsheetId": {
               "type": "string",
+              "description": "The spreadsheet ID of the new sheet.",
               "x-zui": {
                 "title": "Spreadsheet ID"
               }
             },
             "newSheet": {
               "type": "object",
+              "description": "The new sheet that was added to the spreadsheet.",
               "properties": {
                 "sheetId": {
                   "type": "number",
+                  "description": "The ID of the new sheet.",
                   "x-zui": {
                     "title": "Sheet ID"
                   }
                 },
                 "title": {
                   "type": "string",
+                  "description": "The title of the new sheet.",
                   "x-zui": {
                     "title": "Title"
                   }
                 },
                 "index": {
                   "type": "number",
+                  "description": "The index of the new sheet within the spreadsheet.",
                   "x-zui": {
                     "title": "Index"
                   }
                 },
                 "isHidden": {
                   "type": "boolean",
+                  "description": "Whether the new sheet is hidden.",
                   "x-zui": {
                     "title": "Is Hidden"
                   }
@@ -90,13 +97,13 @@
           "properties": {
             "range": {
               "type": "string",
+              "description": "The A1 notation of a range to search for a logical table of data. Values are appended after the last row of the table. (e.g. \"Sheet1!A1:B2\")",
               "x-zui": {
                 "title": "Range",
                 "placeholder": "'Sheet name'!A1:F8"
               }
             },
             "majorDimension": {
-              "default": "ROWS",
               "type": "string",
               "enum": [
                 "ROWS",
@@ -104,14 +111,18 @@
               ],
               "x-zui": {
                 "title": "Major Dimension"
-              }
+              },
+              "default": "ROWS"
             },
             "values": {
               "type": "array",
+              "description": "The values to write to the range. This is an array of arrays, where each inner array represents a major dimension (a row or column) of data. (e.g. [[\"a\", \"b\"], [\"c\", \"d\"]])",
               "items": {
                 "type": "array",
+                "description": "Represents a major dimension (a row or column) of a values range",
                 "items": {
                   "type": "string",
+                  "description": "Represents the value of a single cell. This is a stringified number, string or boolean value",
                   "x-zui": {
                     "title": "Stringified value"
                   }
@@ -137,6 +148,7 @@
           "properties": {
             "spreadsheetId": {
               "type": "string",
+              "description": "The spreadsheet the updates were applied to.",
               "x-zui": {
                 "title": "Spreadsheet ID"
               }
@@ -157,6 +169,7 @@
           "properties": {
             "range": {
               "type": "string",
+              "description": "The A1 notation of the range to clear. (e.g. \"Sheet1!A1:B2\")",
               "x-zui": {
                 "title": "Range",
                 "placeholder": "'Sheet name'!A1:F8"
@@ -174,12 +187,14 @@
           "properties": {
             "spreadsheetId": {
               "type": "string",
+              "description": "The spreadsheet the updates were applied to.",
               "x-zui": {
                 "title": "Spreadsheet ID"
               }
             },
             "clearedRange": {
               "type": "string",
+              "description": "The range (in A1 notation) that was cleared.",
               "x-zui": {
                 "title": "Cleared Range"
               }
@@ -201,18 +216,21 @@
           "properties": {
             "sheetId": {
               "type": "number",
+              "description": "The ID of the sheet to create the named range in.",
               "x-zui": {
                 "title": "Sheet ID"
               }
             },
             "rangeName": {
               "type": "string",
+              "description": "The name of the named range.",
               "x-zui": {
                 "title": "Name"
               }
             },
             "rangeA1": {
               "type": "string",
+              "description": "The A1 notation of the range to associate with the named range. (e.g. \"Sheet1!A1:B2\")",
               "x-zui": {
                 "title": "Range",
                 "placeholder": "'Sheet name'!A1:F8"
@@ -232,6 +250,7 @@
           "properties": {
             "namedRangeId": {
               "type": "string",
+              "description": "The ID of the new named range.",
               "x-zui": {
                 "title": "Named Range ID"
               }
@@ -252,6 +271,7 @@
           "properties": {
             "sheetId": {
               "type": "number",
+              "description": "The ID of the sheet to delete.",
               "x-zui": {
                 "title": "Sheet ID"
               }
@@ -286,41 +306,48 @@
           "properties": {
             "sheets": {
               "type": "array",
+              "description": "The sheets present in the spreadsheet.",
               "items": {
                 "type": "object",
                 "properties": {
                   "sheetId": {
                     "type": "number",
+                    "description": "The ID of the sheet.",
                     "x-zui": {
                       "title": "Sheet ID"
                     }
                   },
                   "title": {
                     "type": "string",
+                    "description": "The name of the sheet.",
                     "x-zui": {
                       "title": "Title"
                     }
                   },
                   "index": {
                     "type": "number",
+                    "description": "The index of the sheet within the spreadsheet.",
                     "x-zui": {
                       "title": "Index"
                     }
                   },
                   "isHidden": {
                     "type": "boolean",
+                    "description": "Whether the sheet is hidden.",
                     "x-zui": {
                       "title": "Is Hidden"
                     }
                   },
                   "hasProtectedRanges": {
                     "type": "boolean",
+                    "description": "Whether the sheet has protected ranges.",
                     "x-zui": {
                       "title": "Has Protected Ranges"
                     }
                   },
                   "isFullyProtected": {
                     "type": "boolean",
+                    "description": "Whether the entire sheet is protected.",
                     "x-zui": {
                       "title": "Is Protected"
                     }
@@ -355,8 +382,10 @@
           "properties": {
             "fields": {
               "type": "array",
+              "description": "The fields to include in the response when retrieving spreadsheet properties and metadata. This is a list of field names. (eg. spreadsheetId, properties.title, sheets.properties.sheetId, sheets.properties.title)",
               "items": {
                 "type": "string",
+                "description": "The field to include in the response",
                 "x-zui": {
                   "title": "Field name"
                 }
@@ -415,6 +444,7 @@
             },
             "dataSources": {
               "type": "array",
+              "description": "The data sources connected to the spreadsheet.",
               "items": {},
               "x-zui": {
                 "title": "Data Sources"
@@ -422,6 +452,7 @@
             },
             "dataSourceSchedules": {
               "type": "array",
+              "description": "The schedules of the data sources.",
               "items": {},
               "x-zui": {
                 "title": "Data Source Schedules"
@@ -429,6 +460,7 @@
             },
             "developerMetadata": {
               "type": "array",
+              "description": "The developer metadata associated with the spreadsheet.",
               "items": {},
               "x-zui": {
                 "title": "Developer Metadata"
@@ -436,18 +468,21 @@
             },
             "namedRanges": {
               "type": "array",
+              "description": "The named ranges defined in the spreadsheet.",
               "items": {},
               "x-zui": {
                 "title": "Named Ranges"
               }
             },
             "properties": {
+              "description": "The properties of the spreadsheet.",
               "x-zui": {
                 "title": "Properties"
               }
             },
             "sheets": {
               "type": "array",
+              "description": "The sheets present in the spreadsheet.",
               "items": {},
               "x-zui": {
                 "title": "Sheets"
@@ -474,23 +509,27 @@
           "properties": {
             "namedRanges": {
               "type": "array",
+              "description": "The named ranges defined in the spreadsheet.",
               "items": {
                 "type": "object",
                 "properties": {
                   "namedRangeId": {
                     "type": "string",
+                    "description": "The ID of the named range.",
                     "x-zui": {
                       "title": "Named Range ID"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "The name of the named range.",
                     "x-zui": {
                       "title": "Name"
                     }
                   },
                   "range": {
                     "type": "string",
+                    "description": "The range of the named range in A1 notation. (e.g. \"A1:B2\")",
                     "x-zui": {
                       "title": "Range",
                       "placeholder": "'Sheet name'!A1:F8"
@@ -498,6 +537,7 @@
                   },
                   "sheetId": {
                     "type": "number",
+                    "description": "The ID of the sheet the named range applies to.",
                     "x-zui": {
                       "title": "Sheet ID"
                     }
@@ -537,23 +577,27 @@
           "properties": {
             "protectedRanges": {
               "type": "array",
+              "description": "The protected ranges defined in the spreadsheet.",
               "items": {
                 "type": "object",
                 "properties": {
                   "protectedRangeId": {
                     "type": "number",
+                    "description": "The ID of the protected range.",
                     "x-zui": {
                       "title": "Protected Range ID"
                     }
                   },
                   "namedRangeId": {
                     "type": "string",
+                    "description": "The ID of the named range, if the protected range is backed by a named range.",
                     "x-zui": {
                       "title": "Named Range ID"
                     }
                   },
                   "range": {
                     "type": "string",
+                    "description": "The range of the protected range in A1 notation. (e.g. \"A1:B2\")",
                     "x-zui": {
                       "title": "Range",
                       "placeholder": "'Sheet name'!A1:F8"
@@ -561,24 +605,28 @@
                   },
                   "sheetId": {
                     "type": "number",
+                    "description": "The ID of the sheet the protected range applies to.",
                     "x-zui": {
                       "title": "Sheet ID"
                     }
                   },
                   "description": {
                     "type": "string",
+                    "description": "The description of the protected range.",
                     "x-zui": {
                       "title": "Description"
                     }
                   },
                   "warningOnly": {
                     "type": "boolean",
+                    "description": "Whether the protection displays a warning but still allows editing.",
                     "x-zui": {
                       "title": "Warning Only"
                     }
                   },
                   "requestingUserCanEdit": {
                     "type": "boolean",
+                    "description": "Whether the user adding the protection can edit the protected range.",
                     "x-zui": {
                       "title": "Requesting User Can Edit"
                     }
@@ -614,13 +662,13 @@
           "properties": {
             "range": {
               "type": "string",
+              "description": "The A1 notation of the range to retrieve. (e.g. \"Sheet1!A1:B2\")",
               "x-zui": {
                 "title": "Range",
                 "placeholder": "'Sheet name'!A1:F8"
               }
             },
             "majorDimension": {
-              "default": "ROWS",
               "type": "string",
               "enum": [
                 "ROWS",
@@ -628,7 +676,8 @@
               ],
               "x-zui": {
                 "title": "Major Dimension"
-              }
+              },
+              "default": "ROWS"
             }
           },
           "required": [
@@ -642,13 +691,13 @@
           "properties": {
             "range": {
               "type": "string",
+              "description": "The range the values cover, in A1 notation. This range indicates the entire requested range, even though the values will exclude trailing rows and columns. (e.g. \"Sheet1!A1:B2\")",
               "x-zui": {
                 "title": "Range",
                 "placeholder": "'Sheet name'!A1:F8"
               }
             },
             "majorDimension": {
-              "default": "ROWS",
               "type": "string",
               "enum": [
                 "ROWS",
@@ -656,14 +705,18 @@
               ],
               "x-zui": {
                 "title": "Major Dimension"
-              }
+              },
+              "default": "ROWS"
             },
             "values": {
               "type": "array",
+              "description": "The data that was read. This is an array of arrays, the outer array representing all the data and each inner array representing a major dimension (a row or column). Each item in the inner array corresponds with one cell. (e.g. [[\"a\", \"b\"], [\"c\", \"d\"]])",
               "items": {
                 "type": "array",
+                "description": "Represents a major dimension (a row or column) of a values range",
                 "items": {
                   "type": "string",
+                  "description": "Represents the value of a single cell. This is a stringified number, string or boolean value",
                   "x-zui": {
                     "title": "Stringified value"
                   }
@@ -693,12 +746,14 @@
           "properties": {
             "sheetId": {
               "type": "number",
+              "description": "The ID of the sheet to move.",
               "x-zui": {
                 "title": "Sheet ID"
               }
             },
             "newIndex": {
               "type": "number",
+              "description": "The new index of the sheet within the spreadsheet.",
               "x-zui": {
                 "title": "New Index"
               }
@@ -727,6 +782,7 @@
           "properties": {
             "namedRangeId": {
               "type": "string",
+              "description": "The ID of the named range to protect.",
               "x-zui": {
                 "title": "Named Range ID"
               }
@@ -755,6 +811,7 @@
           "properties": {
             "protectedRangeId": {
               "type": "number",
+              "description": "The ID of the new protected range.",
               "x-zui": {
                 "title": "Protected Range ID"
               }
@@ -775,12 +832,14 @@
           "properties": {
             "sheetId": {
               "type": "number",
+              "description": "The ID of the sheet to rename.",
               "x-zui": {
                 "title": "Sheet ID"
               }
             },
             "newTitle": {
               "type": "string",
+              "description": "The new title of the sheet.",
               "x-zui": {
                 "title": "New Title"
               }
@@ -809,12 +868,14 @@
           "properties": {
             "sheetId": {
               "type": "number",
+              "description": "The ID of the sheet to set visibility.",
               "x-zui": {
                 "title": "Sheet ID"
               }
             },
             "isHidden": {
               "type": "boolean",
+              "description": "Whether the sheet is hidden.",
               "x-zui": {
                 "title": "Is Hidden"
               }
@@ -843,6 +904,7 @@
           "properties": {
             "protectedRangeId": {
               "type": "number",
+              "description": "The ID of the protected range to unprotect.",
               "x-zui": {
                 "title": "Protected Range ID"
               }
@@ -870,13 +932,13 @@
           "properties": {
             "range": {
               "type": "string",
+              "description": "The A1 notation of the range to update. (e.g. \"Sheet1!A1:B2\")",
               "x-zui": {
                 "title": "Range",
                 "placeholder": "'Sheet name'!A1:F8"
               }
             },
             "majorDimension": {
-              "default": "ROWS",
               "type": "string",
               "enum": [
                 "ROWS",
@@ -884,14 +946,18 @@
               ],
               "x-zui": {
                 "title": "Major Dimension"
-              }
+              },
+              "default": "ROWS"
             },
             "values": {
               "type": "array",
+              "description": "The values to write to the range. This is an array of arrays, where each inner array represents a major dimension (a row or column) of data. (e.g. [[\"a\", \"b\"], [\"c\", \"d\"]])",
               "items": {
                 "type": "array",
+                "description": "Represents a major dimension (a row or column) of a values range",
                 "items": {
                   "type": "string",
+                  "description": "Represents the value of a single cell. This is a stringified number, string or boolean value",
                   "x-zui": {
                     "title": "Stringified value"
                   }
@@ -917,30 +983,35 @@
           "properties": {
             "spreadsheetId": {
               "type": "string",
+              "description": "The spreadsheet the updates were applied to.",
               "x-zui": {
                 "title": "Spreadsheet ID"
               }
             },
             "updatedRange": {
               "type": "string",
+              "description": "The range (in A1 notation) that updates were applied to.",
               "x-zui": {
                 "title": "Updated Range"
               }
             },
             "updatedRows": {
               "type": "number",
+              "description": "The number of rows where at least one cell in the row was updated.",
               "x-zui": {
                 "title": "Updated Rows"
               }
             },
             "updatedColumns": {
               "type": "number",
+              "description": "The number of columns where at least one cell in the column was updated.",
               "x-zui": {
                 "title": "Updated Columns"
               }
             },
             "updatedCells": {
               "type": "number",
+              "description": "The number of cells updated.",
               "x-zui": {
                 "title": "Updated Cells"
               }
@@ -966,6 +1037,7 @@
         "properties": {
           "refreshToken": {
             "type": "string",
+            "description": "The refresh token to use to authenticate with Google APIs. It gets exchanged for a bearer token",
             "x-zui": {
               "title": "Refresh token"
             }

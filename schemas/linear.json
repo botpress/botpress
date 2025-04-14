@@ -20,18 +20,21 @@
         "properties": {
           "title": {
             "type": "string",
+            "description": "The issue title on Linear, such as \"Fix the bug",
             "x-zui": {
               "title": "Title"
             }
           },
           "number": {
             "type": "number",
+            "description": "The issue number on Linear, such as \"123\" in XXX-123",
             "x-zui": {
               "title": "Number"
             }
           },
           "createdAt": {
             "type": "string",
+            "description": "The ISO date the issue was created",
             "x-zui": {
               "title": "Created At",
               "precision": null,
@@ -42,6 +45,7 @@
           },
           "updatedAt": {
             "type": "string",
+            "description": "The ISO date the issue was last updated",
             "x-zui": {
               "title": "Updated At",
               "precision": null,
@@ -52,6 +56,7 @@
           },
           "priority": {
             "type": "number",
+            "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
             "x-zui": {
               "title": "Priority"
             }
@@ -76,6 +81,7 @@
           },
           "status": {
             "type": "string",
+            "description": "The issue State name (such as \"In Progress\"",
             "x-zui": {
               "title": "Status"
             }
@@ -84,6 +90,7 @@
             "type": "array",
             "items": {
               "type": "string",
+              "description": "The name of the label",
               "x-zui": {
                 "title": "Label Name"
               }
@@ -112,6 +119,7 @@
               },
               "issueId": {
                 "type": "string",
+                "description": "The internal Linear Issue ID",
                 "x-zui": {
                   "title": "Issue ID"
                 }
@@ -159,17 +167,20 @@
           },
           "conversationId": {
             "type": "string",
+            "description": "Botpress Conversation ID of the issue",
             "x-zui": {
               "title": "Botpress Conversation ID"
             }
           },
           "targets": {
             "type": "object",
+            "description": "The issue that was created",
             "properties": {
               "issue": {
                 "type": "object",
                 "additionalProperties": {
                   "type": "string",
+                  "description": "The issue",
                   "x-zui": {
                     "title": "Issue"
                   }
@@ -205,18 +216,21 @@
         "properties": {
           "title": {
             "type": "string",
+            "description": "The issue title on Linear, such as \"Fix the bug",
             "x-zui": {
               "title": "Title"
             }
           },
           "number": {
             "type": "number",
+            "description": "The issue number on Linear, such as \"123\" in XXX-123",
             "x-zui": {
               "title": "Number"
             }
           },
           "createdAt": {
             "type": "string",
+            "description": "The ISO date the issue was created",
             "x-zui": {
               "title": "Created At",
               "precision": null,
@@ -227,6 +241,7 @@
           },
           "updatedAt": {
             "type": "string",
+            "description": "The ISO date the issue was last updated",
             "x-zui": {
               "title": "Updated At",
               "precision": null,
@@ -237,6 +252,7 @@
           },
           "priority": {
             "type": "number",
+            "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
             "x-zui": {
               "title": "Priority"
             }
@@ -261,6 +277,7 @@
           },
           "status": {
             "type": "string",
+            "description": "The issue State name (such as \"In Progress\"",
             "x-zui": {
               "title": "Status"
             }
@@ -269,6 +286,7 @@
             "type": "array",
             "items": {
               "type": "string",
+              "description": "The name of the label",
               "x-zui": {
                 "title": "Label Name"
               }
@@ -297,6 +315,7 @@
               },
               "issueId": {
                 "type": "string",
+                "description": "The internal Linear Issue ID",
                 "x-zui": {
                   "title": "Issue ID"
                 }
@@ -344,17 +363,20 @@
           },
           "conversationId": {
             "type": "string",
+            "description": "Botpress Conversation ID of the issue",
             "x-zui": {
               "title": "Botpress Conversation ID"
             }
           },
           "targets": {
             "type": "object",
+            "description": "The issue that was updated",
             "properties": {
               "issue": {
                 "type": "object",
                 "additionalProperties": {
                   "type": "string",
+                  "description": "The issue",
                   "x-zui": {
                     "title": "Issue"
                   }
@@ -407,6 +429,7 @@
           "properties": {
             "query": {
               "type": "string",
+              "description": "Issue title, description, or number",
               "x-zui": {
                 "title": "Search query"
               },
@@ -414,6 +437,7 @@
             },
             "channel": {
               "type": "string",
+              "description": "The channel to search in",
               "enum": [
                 "issue"
               ],
@@ -434,17 +458,20 @@
           "properties": {
             "targets": {
               "type": "array",
+              "description": "The list of issues found",
               "items": {
                 "type": "object",
                 "properties": {
                   "displayName": {
                     "type": "string",
+                    "description": "The name of the issue",
                     "x-zui": {
                       "title": "Display Name"
                     }
                   },
                   "tags": {
                     "type": "object",
+                    "description": "The tags applied to the issue",
                     "additionalProperties": {
                       "type": "string"
                     },
@@ -454,6 +481,7 @@
                   },
                   "channel": {
                     "type": "string",
+                    "description": "The channel of the search result",
                     "enum": [
                       "issue"
                     ],
@@ -487,7 +515,6 @@
           "type": "object",
           "properties": {
             "count": {
-              "default": 10,
               "anyOf": [
                 {
                   "type": "number"
@@ -505,7 +532,8 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": 10
             },
             "startCursor": {
               "type": "string",
@@ -535,23 +563,27 @@
           "properties": {
             "issues": {
               "type": "array",
+              "description": "The list of matching issues",
               "items": {
                 "type": "object",
                 "properties": {
                   "title": {
                     "type": "string",
+                    "description": "The issue title on Linear, such as \"Fix the bug",
                     "x-zui": {
                       "title": "Title"
                     }
                   },
                   "number": {
                     "type": "number",
+                    "description": "The issue number on Linear, such as \"123\" in XXX-123",
                     "x-zui": {
                       "title": "Number"
                     }
                   },
                   "createdAt": {
                     "type": "string",
+                    "description": "The ISO date the issue was created",
                     "x-zui": {
                       "title": "Created At",
                       "precision": null,
@@ -562,6 +594,7 @@
                   },
                   "updatedAt": {
                     "type": "string",
+                    "description": "The ISO date the issue was last updated",
                     "x-zui": {
                       "title": "Updated At",
                       "precision": null,
@@ -572,6 +605,7 @@
                   },
                   "priority": {
                     "type": "number",
+                    "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
                     "x-zui": {
                       "title": "Priority"
                     }
@@ -584,12 +618,14 @@
                   },
                   "id": {
                     "type": "string",
+                    "description": "The issue ID on Linear",
                     "x-zui": {
                       "title": "Issue ID"
                     }
                   },
                   "identifier": {
                     "type": "string",
+                    "description": "Issue's human readable identifier (e.g. XXX-123)",
                     "x-zui": {
                       "title": "Identifier"
                     }
@@ -602,6 +638,7 @@
                   },
                   "url": {
                     "type": "string",
+                    "description": "The URL of the issue on Linear",
                     "x-zui": {
                       "title": "Issue URL"
                     }
@@ -626,6 +663,7 @@
                       },
                       "issueId": {
                         "type": "string",
+                        "description": "The internal Linear Issue ID",
                         "x-zui": {
                           "title": "Issue ID"
                         }
@@ -713,17 +751,20 @@
           "properties": {
             "teams": {
               "type": "array",
+              "description": "The list of teams",
               "items": {
                 "type": "object",
                 "properties": {
                   "id": {
                     "type": "string",
+                    "description": "The unique identifier of the entity",
                     "x-zui": {
                       "title": "ID"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "The team's name",
                     "x-zui": {
                       "title": "Name"
                     }
@@ -765,7 +806,6 @@
           "type": "object",
           "properties": {
             "count": {
-              "default": 10,
               "anyOf": [
                 {
                   "type": "number"
@@ -783,7 +823,8 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": 10
             },
             "startCursor": {
               "type": "string",
@@ -801,29 +842,34 @@
           "properties": {
             "users": {
               "type": "array",
+              "description": "The list of matching users",
               "items": {
                 "type": "object",
                 "properties": {
                   "id": {
                     "type": "string",
+                    "description": "The user ID on Linear",
                     "x-zui": {
                       "title": "ID"
                     }
                   },
                   "email": {
                     "type": "string",
+                    "description": "The user's email address",
                     "x-zui": {
                       "title": "Email"
                     }
                   },
                   "name": {
                     "type": "string",
+                    "description": "The user's nickname",
                     "x-zui": {
                       "title": "Name"
                     }
                   },
                   "displayName": {
                     "type": "string",
+                    "description": "The user's display name",
                     "x-zui": {
                       "title": "Display Name"
                     }
@@ -848,6 +894,7 @@
                   },
                   "updatedAt": {
                     "type": "string",
+                    "description": "The last time the user was updated",
                     "x-zui": {
                       "title": "Updated At",
                       "precision": null,
@@ -891,12 +938,14 @@
           "properties": {
             "issueId": {
               "type": "string",
+              "description": "The issue ID on Linear. Ex: {{event.payload.linearIds.issueId}}",
               "x-zui": {
                 "title": "Issue ID"
               }
             },
             "relatedIssueId": {
               "type": "string",
+              "description": "The ID of the existing issue on Linear",
               "x-zui": {
                 "title": "Related Issue ID"
               }
@@ -925,6 +974,7 @@
           "properties": {
             "issueId": {
               "type": "string",
+              "description": "The issue ID on Linear. Ex: {{event.payload.linearIds.issueId}}",
               "x-zui": {
                 "title": "Issue ID"
               }
@@ -938,21 +988,25 @@
       "output": {
         "schema": {
           "type": "object",
+          "description": "The issue found",
           "properties": {
             "title": {
               "type": "string",
+              "description": "The issue title on Linear, such as \"Fix the bug",
               "x-zui": {
                 "title": "Title"
               }
             },
             "number": {
               "type": "number",
+              "description": "The issue number on Linear, such as \"123\" in XXX-123",
               "x-zui": {
                 "title": "Number"
               }
             },
             "createdAt": {
               "type": "string",
+              "description": "The ISO date the issue was created",
               "x-zui": {
                 "title": "Created At",
                 "precision": null,
@@ -963,6 +1017,7 @@
             },
             "updatedAt": {
               "type": "string",
+              "description": "The ISO date the issue was last updated",
               "x-zui": {
                 "title": "Updated At",
                 "precision": null,
@@ -973,6 +1028,7 @@
             },
             "priority": {
               "type": "number",
+              "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
               "x-zui": {
                 "title": "Priority"
               }
@@ -985,12 +1041,14 @@
             },
             "id": {
               "type": "string",
+              "description": "The issue ID on Linear",
               "x-zui": {
                 "title": "Issue ID"
               }
             },
             "identifier": {
               "type": "string",
+              "description": "Issue's human readable identifier (e.g. XXX-123)",
               "x-zui": {
                 "title": "Identifier"
               }
@@ -1003,6 +1061,7 @@
             },
             "url": {
               "type": "string",
+              "description": "The URL of the issue on Linear",
               "x-zui": {
                 "title": "Issue URL"
               }
@@ -1033,6 +1092,7 @@
           "properties": {
             "linearUserId": {
               "type": "string",
+              "description": "The user's ID on Linear. Ex: {{event.payload.linearIds.creatorId}}",
               "x-zui": {
                 "title": "User ID"
               }
@@ -1046,15 +1106,18 @@
       "output": {
         "schema": {
           "type": "object",
+          "description": "The user profile",
           "properties": {
             "linearId": {
               "type": "string",
+              "description": "Linear User ID",
               "x-zui": {
                 "title": "User ID"
               }
             },
             "admin": {
               "type": "boolean",
+              "description": "Indicates if the user is an admin of the organization",
               "x-zui": {
                 "title": "Is Admin?"
               }
@@ -1078,6 +1141,7 @@
             },
             "createdAt": {
               "type": "string",
+              "description": "Date when the user was created",
               "x-zui": {
                 "title": "Creation Date",
                 "precision": null,
@@ -1094,30 +1158,35 @@
             },
             "displayName": {
               "type": "string",
+              "description": "The user's display (nick) name. Unique within each organization",
               "x-zui": {
                 "title": "Display Name"
               }
             },
             "guest": {
               "type": "boolean",
+              "description": "Whether the user is a guest in the workspace and limited to accessing a subset of teams",
               "x-zui": {
                 "title": "Is Guest?"
               }
             },
             "email": {
               "type": "string",
+              "description": "The user's email address",
               "x-zui": {
                 "title": "Email"
               }
             },
             "isMe": {
               "type": "boolean",
+              "description": "Whether the user is the currently authenticated user",
               "x-zui": {
                 "title": "Is Self?"
               }
             },
             "url": {
               "type": "string",
+              "description": "User's profile URL",
               "x-zui": {
                 "title": "Profile URL"
               }
@@ -1130,6 +1199,7 @@
             },
             "name": {
               "type": "string",
+              "description": "The user's full name",
               "x-zui": {
                 "title": "Full Name"
               }
@@ -1161,6 +1231,7 @@
           "properties": {
             "issueId": {
               "type": "string",
+              "description": "The issue ID on Linear. Example: {{event.payload.id}}",
               "x-zui": {
                 "title": "Issue ID"
               }
@@ -1207,18 +1278,21 @@
               "properties": {
                 "title": {
                   "type": "string",
+                  "description": "The issue title on Linear, such as \"Fix the bug",
                   "x-zui": {
                     "title": "Title"
                   }
                 },
                 "number": {
                   "type": "number",
+                  "description": "The issue number on Linear, such as \"123\" in XXX-123",
                   "x-zui": {
                     "title": "Number"
                   }
                 },
                 "createdAt": {
                   "type": "string",
+                  "description": "The ISO date the issue was created",
                   "x-zui": {
                     "title": "Created At",
                     "precision": null,
@@ -1229,6 +1303,7 @@
                 },
                 "updatedAt": {
                   "type": "string",
+                  "description": "The ISO date the issue was last updated",
                   "x-zui": {
                     "title": "Updated At",
                     "precision": null,
@@ -1239,6 +1314,7 @@
                 },
                 "priority": {
                   "type": "number",
+                  "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
                   "x-zui": {
                     "title": "Priority"
                   }
@@ -1251,12 +1327,14 @@
                 },
                 "id": {
                   "type": "string",
+                  "description": "The issue ID on Linear",
                   "x-zui": {
                     "title": "Issue ID"
                   }
                 },
                 "identifier": {
                   "type": "string",
+                  "description": "Issue's human readable identifier (e.g. XXX-123)",
                   "x-zui": {
                     "title": "Identifier"
                   }
@@ -1269,6 +1347,7 @@
                 },
                 "url": {
                   "type": "string",
+                  "description": "The URL of the issue on Linear",
                   "x-zui": {
                     "title": "Issue URL"
                   }
@@ -1302,6 +1381,7 @@
           "properties": {
             "title": {
               "type": "string",
+              "description": "The issue's title",
               "x-zui": {
                 "title": "Title"
               },
@@ -1309,6 +1389,7 @@
             },
             "description": {
               "type": "string",
+              "description": "The content of the issue",
               "x-zui": {
                 "title": "Description"
               }
@@ -1321,6 +1402,7 @@
             },
             "teamName": {
               "type": "string",
+              "description": "Name of the team to assign the issue to",
               "x-zui": {
                 "title": "Team Name"
               }
@@ -1354,21 +1436,25 @@
           "properties": {
             "issue": {
               "type": "object",
+              "description": "The created issue",
               "properties": {
                 "title": {
                   "type": "string",
+                  "description": "The issue title on Linear, such as \"Fix the bug",
                   "x-zui": {
                     "title": "Title"
                   }
                 },
                 "number": {
                   "type": "number",
+                  "description": "The issue number on Linear, such as \"123\" in XXX-123",
                   "x-zui": {
                     "title": "Number"
                   }
                 },
                 "createdAt": {
                   "type": "string",
+                  "description": "The ISO date the issue was created",
                   "x-zui": {
                     "title": "Created At",
                     "precision": null,
@@ -1379,6 +1465,7 @@
                 },
                 "updatedAt": {
                   "type": "string",
+                  "description": "The ISO date the issue was last updated",
                   "x-zui": {
                     "title": "Updated At",
                     "precision": null,
@@ -1389,6 +1476,7 @@
                 },
                 "priority": {
                   "type": "number",
+                  "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
                   "x-zui": {
                     "title": "Priority"
                   }
@@ -1401,12 +1489,14 @@
                 },
                 "id": {
                   "type": "string",
+                  "description": "The issue ID on Linear",
                   "x-zui": {
                     "title": "Issue ID"
                   }
                 },
                 "identifier": {
                   "type": "string",
+                  "description": "Issue's human readable identifier (e.g. XXX-123)",
                   "x-zui": {
                     "title": "Identifier"
                   }
@@ -1419,6 +1509,7 @@
                 },
                 "url": {
                   "type": "string",
+                  "description": "The URL of the issue on Linear",
                   "x-zui": {
                     "title": "Issue URL"
                   }
@@ -1454,6 +1545,7 @@
           "properties": {
             "id": {
               "type": "string",
+              "description": "The issue ID on Linear. Ex: {{event.payload.linearIds.issueId}}",
               "x-zui": {
                 "title": "Issue ID"
               }
@@ -1497,18 +1589,21 @@
                     "properties": {
                       "title": {
                         "type": "string",
+                        "description": "The issue title on Linear, such as \"Fix the bug",
                         "x-zui": {
                           "title": "Title"
                         }
                       },
                       "number": {
                         "type": "number",
+                        "description": "The issue number on Linear, such as \"123\" in XXX-123",
                         "x-zui": {
                           "title": "Number"
                         }
                       },
                       "createdAt": {
                         "type": "string",
+                        "description": "The ISO date the issue was created",
                         "x-zui": {
                           "title": "Created At",
                           "precision": null,
@@ -1519,6 +1614,7 @@
                       },
                       "updatedAt": {
                         "type": "string",
+                        "description": "The ISO date the issue was last updated",
                         "x-zui": {
                           "title": "Updated At",
                           "precision": null,
@@ -1529,6 +1625,7 @@
                       },
                       "priority": {
                         "type": "number",
+                        "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
                         "x-zui": {
                           "title": "Priority"
                         }
@@ -1541,12 +1638,14 @@
                       },
                       "id": {
                         "type": "string",
+                        "description": "The issue ID on Linear",
                         "x-zui": {
                           "title": "Issue ID"
                         }
                       },
                       "identifier": {
                         "type": "string",
+                        "description": "Issue's human readable identifier (e.g. XXX-123)",
                         "x-zui": {
                           "title": "Identifier"
                         }
@@ -1559,6 +1658,7 @@
                       },
                       "url": {
                         "type": "string",
+                        "description": "The URL of the issue on Linear",
                         "x-zui": {
                           "title": "Issue URL"
                         }
@@ -2187,12 +2287,14 @@
         "properties": {
           "accessToken": {
             "type": "string",
+            "description": "The access token for Linear",
             "x-zui": {
               "title": "Access Token"
             }
           },
           "expiresAt": {
             "type": "string",
+            "description": "The time when the access token expires",
             "x-zui": {
               "title": "Expires At"
             }
@@ -2226,12 +2328,14 @@
         "properties": {
           "linearId": {
             "type": "string",
+            "description": "Linear User ID",
             "x-zui": {
               "title": "User ID"
             }
           },
           "admin": {
             "type": "boolean",
+            "description": "Indicates if the user is an admin of the organization",
             "x-zui": {
               "title": "Is Admin?"
             }
@@ -2255,6 +2359,7 @@
           },
           "createdAt": {
             "type": "string",
+            "description": "Date when the user was created",
             "x-zui": {
               "title": "Creation Date",
               "precision": null,
@@ -2271,30 +2376,35 @@
           },
           "displayName": {
             "type": "string",
+            "description": "The user's display (nick) name. Unique within each organization",
             "x-zui": {
               "title": "Display Name"
             }
           },
           "guest": {
             "type": "boolean",
+            "description": "Whether the user is a guest in the workspace and limited to accessing a subset of teams",
             "x-zui": {
               "title": "Is Guest?"
             }
           },
           "email": {
             "type": "string",
+            "description": "The user's email address",
             "x-zui": {
               "title": "Email"
             }
           },
           "isMe": {
             "type": "boolean",
+            "description": "Whether the user is the currently authenticated user",
             "x-zui": {
               "title": "Is Self?"
             }
           },
           "url": {
             "type": "string",
+            "description": "User's profile URL",
             "x-zui": {
               "title": "Profile URL"
             }
@@ -2307,6 +2417,7 @@
           },
           "name": {
             "type": "string",
+            "description": "The user's full name",
             "x-zui": {
               "title": "Full Name"
             }
@@ -2338,18 +2449,21 @@
         "properties": {
           "title": {
             "type": "string",
+            "description": "The issue title on Linear, such as \"Fix the bug",
             "x-zui": {
               "title": "Title"
             }
           },
           "number": {
             "type": "number",
+            "description": "The issue number on Linear, such as \"123\" in XXX-123",
             "x-zui": {
               "title": "Number"
             }
           },
           "createdAt": {
             "type": "string",
+            "description": "The ISO date the issue was created",
             "x-zui": {
               "title": "Created At",
               "precision": null,
@@ -2360,6 +2474,7 @@
           },
           "updatedAt": {
             "type": "string",
+            "description": "The ISO date the issue was last updated",
             "x-zui": {
               "title": "Updated At",
               "precision": null,
@@ -2370,6 +2485,7 @@
           },
           "priority": {
             "type": "number",
+            "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
             "x-zui": {
               "title": "Priority"
             }
@@ -2382,12 +2498,14 @@
           },
           "id": {
             "type": "string",
+            "description": "The issue ID on Linear",
             "x-zui": {
               "title": "Issue ID"
             }
           },
           "identifier": {
             "type": "string",
+            "description": "Issue's human readable identifier (e.g. XXX-123)",
             "x-zui": {
               "title": "Identifier"
             }
@@ -2400,6 +2518,7 @@
           },
           "url": {
             "type": "string",
+            "description": "The URL of the issue on Linear",
             "x-zui": {
               "title": "Issue URL"
             }

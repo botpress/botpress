@@ -19,10 +19,12 @@
           "type": "object",
           "properties": {
             "userPhone": {
-              "type": "string"
+              "type": "string",
+              "description": "Phone number of the Whatsapp user to start the conversation with."
             },
             "templateName": {
-              "type": "string"
+              "type": "string",
+              "description": "Name of the Whatsapp Message Template to start the conversation with."
             },
             "templateLanguage": {
               "type": "string"

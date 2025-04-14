@@ -88,6 +88,7 @@
           "properties": {
             "ticketId": {
               "type": "string",
+              "description": "The ID of the ticket",
               "title": "Ticket id"
             }
           },
@@ -229,6 +230,7 @@
           "properties": {
             "query": {
               "type": "string",
+              "description": "partial or full value of any user property, including name, email address, notes, or phone.",
               "minLength": 2,
               "title": "Search Query"
             }
@@ -376,18 +378,22 @@
           "properties": {
             "subject": {
               "type": "string",
+              "description": "Subject for the ticket",
               "title": "Ticket subject"
             },
             "comment": {
               "type": "string",
+              "description": "Comment for the ticket",
               "title": "Ticket comment"
             },
             "requesterName": {
               "type": "string",
+              "description": "Requester name",
               "title": "Requester name"
             },
             "requesterEmail": {
               "type": "string",
+              "description": "Requester email",
               "title": "Requester email"
             }
           },
@@ -541,6 +547,7 @@
           "properties": {
             "ticketId": {
               "type": "string",
+              "description": "ID of the ticket to close",
               "title": "Ticket ID"
             },
             "comment": {
@@ -688,7 +695,6 @@
           "type": "object",
           "properties": {
             "isOnline": {
-              "default": true,
               "anyOf": [
                 {
                   "type": "boolean"
@@ -706,7 +712,8 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": true
             }
           },
           "required": []
@@ -845,6 +852,7 @@
           "properties": {
             "method": {
               "type": "string",
+              "description": "HTTP Method",
               "enum": [
                 "GET",
                 "POST",
@@ -854,7 +862,8 @@
               ]
             },
             "path": {
-              "type": "string"
+              "type": "string",
+              "description": "URL Path (https://<subdomain>.zendesk.com/api/v2/PATH)"
             },
             "headers": {
               "type": "string"
@@ -906,7 +915,8 @@
           "type": "object",
           "properties": {
             "knowledgeBaseId": {
-              "type": "string"
+              "type": "string",
+              "description": "ID of the bot knowledge base you want to sync with"
             }
           },
           "required": [

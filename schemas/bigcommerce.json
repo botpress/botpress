@@ -19,13 +19,16 @@
           "type": "object",
           "properties": {
             "success": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "Whether the sync was successful"
             },
             "message": {
-              "type": "string"
+              "type": "string",
+              "description": "Status message"
             },
             "productsCount": {
-              "type": "number"
+              "type": "number",
+              "description": "Number of products synced"
             }
           },
           "required": [

@@ -17,7 +17,8 @@
           "type": "object",
           "properties": {
             "everyNHours": {
-              "type": "number"
+              "type": "number",
+              "description": "The interval (in hours) at which to synchronize files."
             }
           },
           "required": [
@@ -25,28 +26,31 @@
           ]
         },
         "enableRealTimeSync": {
-          "default": true,
-          "type": "boolean"
+          "type": "boolean",
+          "default": true
         },
         "includeFiles": {
           "type": "array",
+          "description": "A list of rules to include files. Only files that match one or more rules will be synchronized.",
           "items": {
             "type": "object",
+            "description": "A file must match all criteria to be synchronized.",
             "properties": {
               "pathGlobPattern": {
-                "type": "string"
+                "type": "string",
+                "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported."
               },
               "maxSizeInBytes": {
                 "type": "number"
               },
               "modifiedAfter": {
                 "type": "string",
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                 "x-zui": {
                   "precision": null,
                   "offset": false
-                }
+                },
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               }
             },
             "required": [
@@ -62,11 +66,14 @@
         },
         "excludeFiles": {
           "type": "array",
+          "description": "A list of rules to exclude files. Files that match one or more rules will be ignored. This takes precedence over Include Rules.",
           "items": {
             "type": "object",
+            "description": "A file must match all exclude criteria to be ignored.",
             "properties": {
               "pathGlobPattern": {
-                "type": "string"
+                "type": "string",
+                "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration."
               }
             },
             "required": [
@@ -106,23 +113,26 @@
           "properties": {
             "includeFiles": {
               "type": "array",
+              "description": "If omitted, the global Include Rules will be used.",
               "items": {
                 "type": "object",
+                "description": "A file must match all criteria to be synchronized.",
                 "properties": {
                   "pathGlobPattern": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported."
                   },
                   "maxSizeInBytes": {
                     "type": "number"
                   },
                   "modifiedAfter": {
                     "type": "string",
-                    "format": "date-time",
-                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                     "x-zui": {
                       "precision": null,
                       "offset": false
-                    }
+                    },
+                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                   }
                 },
                 "required": [
@@ -138,11 +148,14 @@
             },
             "excludeFiles": {
               "type": "array",
+              "description": "If omitted, the global Exclude Rules will be used",
               "items": {
                 "type": "object",
+                "description": "A file must match all exclude criteria to be ignored.",
                 "properties": {
                   "pathGlobPattern": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration."
                   }
                 },
                 "required": [
@@ -226,12 +239,12 @@
                   "anyOf": [
                     {
                       "type": "string",
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                       "x-zui": {
                         "precision": null,
                         "offset": false
-                      }
+                      },
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     {
                       "not": true,
@@ -290,12 +303,12 @@
                       },
                       "lastModifiedDate": {
                         "type": "string",
-                        "format": "date-time",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                         "x-zui": {
                           "precision": null,
                           "offset": false
-                        }
+                        },
+                        "format": "date-time",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                       },
                       "contentHash": {
                         "type": "string"

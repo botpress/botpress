@@ -13,6 +13,7 @@
       "properties": {
         "tableName": {
           "type": "string",
+          "description": "The name of the table to store items",
           "x-zui": {
             "title": "Table Name"
           }

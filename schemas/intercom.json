@@ -548,6 +548,7 @@
         "properties": {
           "accessToken": {
             "type": "string",
+            "description": "The access token obtained from OAuth",
             "minLength": 1
           }
         },

@@ -9,34 +9,38 @@
         "properties": {
           "file": {
             "type": "object",
+            "description": "The created file",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
               },
               "type": {
                 "type": "string",
                 "const": "file"
               },
               "name": {
-                "type": "string"
+                "type": "string",
+                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
               },
               "parentId": {
                 "type": "string"
               },
               "absolutePath": {
-                "type": "string"
+                "type": "string",
+                "description": "The full path of the file"
               },
               "sizeInBytes": {
                 "type": "number"
               },
               "lastModifiedDate": {
                 "type": "string",
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                 "x-zui": {
                   "precision": null,
                   "offset": false
-                }
+                },
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
                 "type": "string"
@@ -61,34 +65,38 @@
         "properties": {
           "file": {
             "type": "object",
+            "description": "The updated file",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
               },
               "type": {
                 "type": "string",
                 "const": "file"
               },
               "name": {
-                "type": "string"
+                "type": "string",
+                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
               },
               "parentId": {
                 "type": "string"
               },
               "absolutePath": {
-                "type": "string"
+                "type": "string",
+                "description": "The full path of the file"
               },
               "sizeInBytes": {
                 "type": "number"
               },
               "lastModifiedDate": {
                 "type": "string",
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                 "x-zui": {
                   "precision": null,
                   "offset": false
-                }
+                },
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
                 "type": "string"
@@ -113,34 +121,38 @@
         "properties": {
           "file": {
             "type": "object",
+            "description": "The deleted file",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
               },
               "type": {
                 "type": "string",
                 "const": "file"
               },
               "name": {
-                "type": "string"
+                "type": "string",
+                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
               },
               "parentId": {
                 "type": "string"
               },
               "absolutePath": {
-                "type": "string"
+                "type": "string",
+                "description": "The full path of the file"
               },
               "sizeInBytes": {
                 "type": "number"
               },
               "lastModifiedDate": {
                 "type": "string",
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                 "x-zui": {
                   "precision": null,
                   "offset": false
-                }
+                },
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
               },
               "contentHash": {
                 "type": "string"
@@ -165,22 +177,26 @@
         "properties": {
           "folder": {
             "type": "object",
+            "description": "The deleted folder",
             "properties": {
               "id": {
-                "type": "string"
+                "type": "string",
+                "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
               },
               "type": {
                 "type": "string",
                 "const": "folder"
               },
               "name": {
-                "type": "string"
+                "type": "string",
+                "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\""
               },
               "parentId": {
                 "type": "string"
               },
               "absolutePath": {
-                "type": "string"
+                "type": "string",
+                "description": "The full path of the folder"
               }
             },
             "required": [
@@ -202,39 +218,44 @@
         "properties": {
           "modifiedItems": {
             "type": "object",
+            "description": "The modified items",
             "properties": {
               "created": {
                 "type": "array",
+                "description": "The files created",
                 "items": {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
                     },
                     "type": {
                       "type": "string",
                       "const": "file"
                     },
                     "name": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
                     },
                     "parentId": {
                       "type": "string"
                     },
                     "absolutePath": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "The full path of the file"
                     },
                     "sizeInBytes": {
                       "type": "number"
                     },
                     "lastModifiedDate": {
                       "type": "string",
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                       "x-zui": {
                         "precision": null,
                         "offset": false
-                      }
+                      },
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     "contentHash": {
                       "type": "string"
@@ -250,36 +271,40 @@
               },
               "updated": {
                 "type": "array",
+                "description": "The files updated",
                 "items": {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
                     },
                     "type": {
                       "type": "string",
                       "const": "file"
                     },
                     "name": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
                     },
                     "parentId": {
                       "type": "string"
                     },
                     "absolutePath": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "The full path of the file"
                     },
                     "sizeInBytes": {
                       "type": "number"
                     },
                     "lastModifiedDate": {
                       "type": "string",
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                       "x-zui": {
                         "precision": null,
                         "offset": false
-                      }
+                      },
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     "contentHash": {
                       "type": "string"
@@ -295,38 +320,42 @@
               },
               "deleted": {
                 "type": "array",
+                "description": "The files and folders deleted",
                 "items": {
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
                         },
                         "type": {
                           "type": "string",
                           "const": "file"
                         },
                         "name": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
                         },
                         "parentId": {
                           "type": "string"
                         },
                         "absolutePath": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "The full path of the file"
                         },
                         "sizeInBytes": {
                           "type": "number"
                         },
                         "lastModifiedDate": {
                           "type": "string",
-                          "format": "date-time",
-                          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                           "x-zui": {
                             "precision": null,
                             "offset": false
-                          }
+                          },
+                          "format": "date-time",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                         },
                         "contentHash": {
                           "type": "string"
@@ -343,20 +372,23 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
                         },
                         "type": {
                           "type": "string",
                           "const": "folder"
                         },
                         "name": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\""
                         },
                         "parentId": {
                           "type": "string"
                         },
                         "absolutePath": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "The full path of the folder"
                         }
                       },
                       "required": [
@@ -392,12 +424,14 @@
           "type": "object",
           "properties": {
             "folderId": {
-              "type": "string"
+              "type": "string",
+              "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
             },
             "filters": {
               "type": "object",
               "properties": {
                 "itemType": {
+                  "description": "The entity type",
                   "anyOf": [
                     {
                       "type": "string",
@@ -410,6 +444,7 @@
                   ]
                 },
                 "maxSizeInBytes": {
+                  "description": "The file size in bytes, if available",
                   "anyOf": [
                     {
                       "type": "number"
@@ -430,15 +465,16 @@
                   }
                 },
                 "modifiedAfter": {
+                  "description": "The last modified date of the file, if available",
                   "anyOf": [
                     {
                       "type": "string",
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                       "x-zui": {
                         "precision": null,
                         "offset": false
-                      }
+                      },
+                      "format": "date-time",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                     },
                     {
                       "not": true,
@@ -471,20 +507,23 @@
           "properties": {
             "items": {
               "type": "array",
+              "description": "The files and folders in the folder",
               "items": {
                 "anyOf": [
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
                       },
                       "type": {
                         "type": "string",
                         "const": "file"
                       },
                       "name": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
                       },
                       "parentId": {
                         "type": "string"
@@ -497,12 +536,12 @@
                       },
                       "lastModifiedDate": {
                         "type": "string",
-                        "format": "date-time",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                         "x-zui": {
                           "precision": null,
                           "offset": false
-                        }
+                        },
+                        "format": "date-time",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                       },
                       "contentHash": {
                         "type": "string"
@@ -521,14 +560,16 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
                       },
                       "type": {
                         "type": "string",
                         "const": "folder"
                       },
                       "name": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\""
                       },
                       "parentId": {
                         "type": "string"
@@ -572,16 +613,19 @@
           "properties": {
             "file": {
               "type": "object",
+              "description": "The file to transfer",
               "properties": {
                 "id": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
                 },
                 "type": {
                   "type": "string",
                   "const": "file"
                 },
                 "name": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
                 },
                 "parentId": {
                   "type": "string"
@@ -594,12 +638,12 @@
                 },
                 "lastModifiedDate": {
                   "type": "string",
-                  "format": "date-time",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                   "x-zui": {
                     "precision": null,
                     "offset": false
-                  }
+                  },
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
                 },
                 "contentHash": {
                   "type": "string"
@@ -616,6 +660,7 @@
             },
             "fileKey": {
               "type": "string",
+              "description": "The file key to use in Botpress",
               "x-zui": {
                 "title": "File key"
               }
@@ -632,7 +677,8 @@
           "type": "object",
           "properties": {
             "botpressFileId": {
-              "type": "string"
+              "type": "string",
+              "description": "The file ID of the uploaded file on Botpress"
             }
           },
           "required": [

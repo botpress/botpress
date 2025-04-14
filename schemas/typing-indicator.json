@@ -13,7 +13,8 @@
               "type": "string"
             },
             "messageId": {
-              "type": "string"
+              "type": "string",
+              "description": "The message ID to which the typing indicator should be attached"
             },
             "timeout": {
               "type": "number"
@@ -42,7 +43,8 @@
               "type": "string"
             },
             "messageId": {
-              "type": "string"
+              "type": "string",
+              "description": "The message ID from which the typing indicator should be removed"
             }
           },
           "required": [

@@ -597,6 +597,7 @@
         "properties": {
           "refreshToken": {
             "type": "string",
+            "description": "The refresh token to use to authenticate with Gmail. It gets exchanged for a bearer token",
             "x-zui": {
               "title": "Refresh token"
             }
@@ -620,6 +621,7 @@
         "properties": {
           "certificates": {
             "type": "string",
+            "description": "The certs used by Google for federated sign-on, stringified as JSON",
             "x-zui": {
               "title": "Certificates JSON"
             }

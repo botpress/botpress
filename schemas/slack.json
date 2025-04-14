@@ -100,6 +100,7 @@
         "properties": {
           "reaction": {
             "type": "string",
+            "description": "The reaction that was added",
             "x-zui": {
               "title": "Reaction"
             }
@@ -118,6 +119,7 @@
           },
           "targets": {
             "type": "object",
+            "description": "The targets of the reaction",
             "properties": {
               "dm": {
                 "type": "object",
@@ -167,6 +169,7 @@
         "properties": {
           "reaction": {
             "type": "string",
+            "description": "The reaction that was removed",
             "x-zui": {
               "title": "Reaction"
             }
@@ -185,6 +188,7 @@
           },
           "targets": {
             "type": "object",
+            "description": "The targets of the reaction",
             "properties": {
               "dm": {
                 "type": "object",
@@ -225,33 +229,39 @@
         "properties": {
           "userId": {
             "type": "string",
+            "description": "The Botpress ID of the user who joined the workspace",
             "x-zui": {
               "title": "Botpress ID"
             }
           },
           "target": {
             "type": "object",
+            "description": "Slack user who joined the workspace",
             "properties": {
               "userId": {
                 "type": "string",
+                "description": "The Slack ID of the user who joined the workspace",
                 "x-zui": {
                   "title": "Slack ID"
                 }
               },
               "userName": {
                 "type": "string",
+                "description": "The username of the user who joined the workspace",
                 "x-zui": {
                   "title": "Username"
                 }
               },
               "userRealName": {
                 "type": "string",
+                "description": "The real name of the user who joined the workspace",
                 "x-zui": {
                   "title": "Real name"
                 }
               },
               "userDisplayName": {
                 "type": "string",
+                "description": "The display name of the user who joined the workspace",
                 "x-zui": {
                   "title": "Display name"
                 }
@@ -282,12 +292,14 @@
         "properties": {
           "botpressUserId": {
             "type": "string",
+            "description": "The Botpress ID of the user who joined the channel",
             "x-zui": {
               "title": "Botpress user ID"
             }
           },
           "botpressConversationId": {
             "type": "string",
+            "description": "The Botpress ID of the channel the user joined",
             "x-zui": {
               "title": "Botpress Channel ID"
             }
@@ -300,15 +312,18 @@
           },
           "targets": {
             "type": "object",
+            "description": "Slack IDs of the user, channel and inviter",
             "properties": {
               "slackUserId": {
                 "type": "string",
+                "description": "The Slack ID of the user who joined the channel",
                 "x-zui": {
                   "title": "Slack User ID"
                 }
               },
               "slackChannelId": {
                 "type": "string",
+                "description": "The Slack ID of the channel the user joined",
                 "x-zui": {
                   "title": "Slack Channel ID"
                 }
@@ -344,27 +359,32 @@
         "properties": {
           "botpressUserId": {
             "type": "string",
+            "description": "The Botpress ID of the user who left the channel",
             "x-zui": {
               "title": "Botpress user ID"
             }
           },
           "botpressConversationId": {
             "type": "string",
+            "description": "The Botpress ID of the channel the user left",
             "x-zui": {
               "title": "Botpress Channel ID"
             }
           },
           "targets": {
             "type": "object",
+            "description": "Slack IDs of the user and channel",
             "properties": {
               "slackUserId": {
                 "type": "string",
+                "description": "The Slack ID of the user who left the channel",
                 "x-zui": {
                   "title": "Slack User ID"
                 }
               },
               "slackChannelId": {
                 "type": "string",
+                "description": "The Slack ID of the channel the user left",
                 "x-zui": {
                   "title": "Slack Channel ID"
                 }
@@ -397,6 +417,7 @@
           "properties": {
             "name": {
               "type": "string",
+              "description": "The name of the reaction to add, ex: thumbsup",
               "x-zui": {
                 "title": "Reaction name",
                 "placeholder": "thumbsup"
@@ -404,6 +425,7 @@
             },
             "messageId": {
               "type": "string",
+              "description": "The ID of the message, ex: {{event.messageId}}",
               "x-zui": {
                 "title": "Message ID"
               }
@@ -432,6 +454,7 @@
           "properties": {
             "query": {
               "type": "string",
+              "description": "What to search for, ex name of a channel, a user, etc.",
               "x-zui": {
                 "title": "Search Query"
               },
@@ -439,6 +462,7 @@
             },
             "channel": {
               "type": "string",
+              "description": "Which channel to look into, ex: dm, channel",
               "enum": [
                 "dm",
                 "channel"
@@ -460,17 +484,20 @@
           "properties": {
             "targets": {
               "type": "array",
+              "description": "The matching targets",
               "items": {
                 "type": "object",
                 "properties": {
                   "displayName": {
                     "type": "string",
+                    "description": "The display name of the target",
                     "x-zui": {
                       "title": "Display Name"
                     }
                   },
                   "tags": {
                     "type": "object",
+                    "description": "The tags of the target",
                     "additionalProperties": {
                       "type": "string"
                     },
@@ -480,6 +507,7 @@
                   },
                   "channel": {
                     "type": "string",
+                    "description": "The type of channel of the target",
                     "enum": [
                       "dm",
                       "channel"
@@ -515,12 +543,14 @@
           "properties": {
             "ts": {
               "type": "string",
+              "description": "The timestamp of the message to retrieve",
               "x-zui": {
                 "title": "Timestamp"
               }
             },
             "channel": {
               "type": "string",
+              "description": "The channel of the message to retrieve",
               "x-zui": {
                 "title": "Channel"
               }
@@ -538,24 +568,28 @@
           "properties": {
             "type": {
               "type": "string",
+              "description": "The type of the message",
               "x-zui": {
                 "title": "Type"
               }
             },
             "user": {
               "type": "string",
+              "description": "The user who sent the message",
               "x-zui": {
                 "title": "User"
               }
             },
             "ts": {
               "type": "string",
+              "description": "The timestamp of the message",
               "x-zui": {
                 "title": "Timestamp"
               }
             },
             "text": {
               "type": "string",
+              "description": "The text of the message",
               "x-zui": {
                 "title": "Text"
               }
@@ -586,6 +620,7 @@
           "properties": {
             "syncedCount": {
               "type": "number",
+              "description": "The number of members synced",
               "x-zui": {
                 "title": "Synced Count"
               }
@@ -606,6 +641,7 @@
           "properties": {
             "slackUserId": {
               "type": "string",
+              "description": "The ID of the user to initiate the conversation with",
               "x-zui": {
                 "title": "User ID"
               }
@@ -622,12 +658,14 @@
           "properties": {
             "userId": {
               "type": "string",
+              "description": "The ID of the user",
               "x-zui": {
                 "title": "User ID"
               }
             },
             "conversationId": {
               "type": "string",
+              "description": "The ID of the new conversation",
               "x-zui": {
                 "title": "Conversation ID"
               }
@@ -649,12 +687,14 @@
           "properties": {
             "topic": {
               "type": "string",
+              "description": "The new topic of the channel",
               "x-zui": {
                 "title": "New Topic"
               }
             },
             "channelId": {
               "type": "string",
+              "description": "The channel id of the target channel",
               "x-zui": {
                 "title": "Channel ID"
               }
@@ -740,7 +780,8 @@
             "type": "object",
             "properties": {
               "text": {
-                "type": "string"
+                "type": "string",
+                "description": "Field text must be defined but it is ignored if blocks are provided. In this situation, the text must be provided in the blocks array"
               },
               "blocks": {
                 "type": "array",
@@ -748,6 +789,7 @@
                   "anyOf": [
                     {
                       "type": "object",
+                      "description": "Display multiple elements in a group",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -759,13 +801,15 @@
                             "anyOf": [
                               {
                                 "type": "object",
+                                "description": "Button Block. Display a button",
                                 "properties": {
                                   "type": {
                                     "type": "string",
                                     "const": "button"
                                   },
                                   "action_id": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "A unique identifier for the button"
                                   },
                                   "text": {
                                     "type": "object",
@@ -811,6 +855,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A checkboxes block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -865,6 +910,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A date picker block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -872,6 +918,7 @@
                                   },
                                   "action_id": {
                                     "type": "string",
+                                    "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                     "maxLength": 255
                                   },
                                   "placeholder": {
@@ -907,6 +954,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A date picker block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -914,10 +962,12 @@
                                   },
                                   "action_id": {
                                     "type": "string",
+                                    "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                     "maxLength": 255
                                   },
                                   "initial_date_time": {
-                                    "type": "number"
+                                    "type": "number",
+                                    "description": "The initial date and time that is selected when the element is loaded, represented as a UNUIX timestamp in seconds. This should be in the format of 10 digits, for example 1628633820 represents the date and time August 10th, 2021 at 03:17pm PST"
                                   },
                                   "focus_on_load": {
                                     "type": "boolean"
@@ -933,6 +983,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "An overflow block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -1014,6 +1065,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A radio buttons block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -1148,6 +1200,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "An external select menu block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -1187,6 +1240,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A users select menu block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -1226,6 +1280,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A conversations select menu block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -1265,6 +1320,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A channels select menu block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -1304,6 +1360,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A time picker block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -1311,6 +1368,7 @@
                                   },
                                   "action_id": {
                                     "type": "string",
+                                    "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                     "maxLength": 255
                                   },
                                   "placeholder": {
@@ -1365,6 +1423,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "Display multiple elements in a group",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -1376,16 +1435,19 @@
                             "anyOf": [
                               {
                                 "type": "object",
+                                "description": "Display an image to a user",
                                 "properties": {
                                   "type": {
                                     "type": "string",
                                     "const": "image"
                                   },
                                   "image_url": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "The full URL to the image file"
                                   },
                                   "alt_text": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "Plain text summary of the image"
                                   }
                                 },
                                 "required": [
@@ -1456,6 +1518,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "A simple divider block",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -1468,6 +1531,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "A file block",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -1492,6 +1556,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "A header is a plain-text block that displays in a larger, bold font. Use it to delineate between different groups of content in your app surface",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -1527,16 +1592,19 @@
                     },
                     {
                       "type": "object",
+                      "description": "Display an image to a user",
                       "properties": {
                         "type": {
                           "type": "string",
                           "const": "image"
                         },
                         "image_url": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "The full URL to the image file"
                         },
                         "alt_text": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Plain text summary of the image"
                         },
                         "title": {
                           "type": "object",
@@ -1569,6 +1637,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "An input block",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -1604,10 +1673,12 @@
                                 },
                                 "action_id": {
                                   "type": "string",
+                                  "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block.",
                                   "maxLength": 255
                                 },
                                 "initial_value": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "The initial value in the plain-text input when it is loaded."
                                 },
                                 "multiline": {
                                   "type": "boolean"
@@ -1655,6 +1726,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A checkboxes block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -1709,6 +1781,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A radio buttons block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -1843,6 +1916,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An external select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -1882,6 +1956,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A users select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -1921,6 +1996,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A conversations select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -1960,6 +2036,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A channels select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -2146,6 +2223,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An external multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -2185,6 +2263,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A users multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -2224,6 +2303,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A conversations multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -2263,6 +2343,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A channels multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -2302,6 +2383,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A date picker block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -2309,6 +2391,7 @@
                                 },
                                 "action_id": {
                                   "type": "string",
+                                  "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                   "maxLength": 255
                                 },
                                 "placeholder": {
@@ -2391,6 +2474,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "Show a message using markdown",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -2501,13 +2585,15 @@
                           "anyOf": [
                             {
                               "type": "object",
+                              "description": "Button Block. Display a button",
                               "properties": {
                                 "type": {
                                   "type": "string",
                                   "const": "button"
                                 },
                                 "action_id": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "A unique identifier for the button"
                                 },
                                 "text": {
                                   "type": "object",
@@ -2553,6 +2639,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A checkboxes block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -2607,6 +2694,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A date picker block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -2614,6 +2702,7 @@
                                 },
                                 "action_id": {
                                   "type": "string",
+                                  "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                   "maxLength": 255
                                 },
                                 "placeholder": {
@@ -2649,16 +2738,19 @@
                             },
                             {
                               "type": "object",
+                              "description": "Display an image to a user",
                               "properties": {
                                 "type": {
                                   "type": "string",
                                   "const": "image"
                                 },
                                 "image_url": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "The full URL to the image file"
                                 },
                                 "alt_text": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "Plain text summary of the image"
                                 }
                               },
                               "required": [
@@ -2672,6 +2764,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An overflow block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -2753,6 +2846,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A radio buttons block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -2957,6 +3051,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An external multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -2996,6 +3091,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A users multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -3035,6 +3131,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A conversations multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -3074,6 +3171,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A channels multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -3190,6 +3288,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An external select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -3229,6 +3328,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A users select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -3268,6 +3368,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A conversations select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -3307,6 +3408,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A channels select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -3346,6 +3448,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A time picker block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -3353,6 +3456,7 @@
                                 },
                                 "action_id": {
                                   "type": "string",
+                                  "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                   "maxLength": 255
                                 },
                                 "placeholder": {
@@ -3945,7 +4049,8 @@
             "type": "object",
             "properties": {
               "text": {
-                "type": "string"
+                "type": "string",
+                "description": "Field text must be defined but it is ignored if blocks are provided. In this situation, the text must be provided in the blocks array"
               },
               "blocks": {
                 "type": "array",
@@ -3953,6 +4058,7 @@
                   "anyOf": [
                     {
                       "type": "object",
+                      "description": "Display multiple elements in a group",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -3964,13 +4070,15 @@
                             "anyOf": [
                               {
                                 "type": "object",
+                                "description": "Button Block. Display a button",
                                 "properties": {
                                   "type": {
                                     "type": "string",
                                     "const": "button"
                                   },
                                   "action_id": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "A unique identifier for the button"
                                   },
                                   "text": {
                                     "type": "object",
@@ -4016,6 +4124,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A checkboxes block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -4070,6 +4179,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A date picker block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -4077,6 +4187,7 @@
                                   },
                                   "action_id": {
                                     "type": "string",
+                                    "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                     "maxLength": 255
                                   },
                                   "placeholder": {
@@ -4112,6 +4223,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A date picker block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -4119,10 +4231,12 @@
                                   },
                                   "action_id": {
                                     "type": "string",
+                                    "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                     "maxLength": 255
                                   },
                                   "initial_date_time": {
-                                    "type": "number"
+                                    "type": "number",
+                                    "description": "The initial date and time that is selected when the element is loaded, represented as a UNUIX timestamp in seconds. This should be in the format of 10 digits, for example 1628633820 represents the date and time August 10th, 2021 at 03:17pm PST"
                                   },
                                   "focus_on_load": {
                                     "type": "boolean"
@@ -4138,6 +4252,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "An overflow block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -4219,6 +4334,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A radio buttons block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -4353,6 +4469,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "An external select menu block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -4392,6 +4509,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A users select menu block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -4431,6 +4549,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A conversations select menu block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -4470,6 +4589,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A channels select menu block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -4509,6 +4629,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A time picker block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -4516,6 +4637,7 @@
                                   },
                                   "action_id": {
                                     "type": "string",
+                                    "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                     "maxLength": 255
                                   },
                                   "placeholder": {
@@ -4570,6 +4692,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "Display multiple elements in a group",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -4581,16 +4704,19 @@
                             "anyOf": [
                               {
                                 "type": "object",
+                                "description": "Display an image to a user",
                                 "properties": {
                                   "type": {
                                     "type": "string",
                                     "const": "image"
                                   },
                                   "image_url": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "The full URL to the image file"
                                   },
                                   "alt_text": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "Plain text summary of the image"
                                   }
                                 },
                                 "required": [
@@ -4661,6 +4787,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "A simple divider block",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -4673,6 +4800,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "A file block",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -4697,6 +4825,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "A header is a plain-text block that displays in a larger, bold font. Use it to delineate between different groups of content in your app surface",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -4732,16 +4861,19 @@
                     },
                     {
                       "type": "object",
+                      "description": "Display an image to a user",
                       "properties": {
                         "type": {
                           "type": "string",
                           "const": "image"
                         },
                         "image_url": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "The full URL to the image file"
                         },
                         "alt_text": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Plain text summary of the image"
                         },
                         "title": {
                           "type": "object",
@@ -4774,6 +4906,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "An input block",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -4809,10 +4942,12 @@
                                 },
                                 "action_id": {
                                   "type": "string",
+                                  "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block.",
                                   "maxLength": 255
                                 },
                                 "initial_value": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "The initial value in the plain-text input when it is loaded."
                                 },
                                 "multiline": {
                                   "type": "boolean"
@@ -4860,6 +4995,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A checkboxes block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -4914,6 +5050,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A radio buttons block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5048,6 +5185,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An external select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5087,6 +5225,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A users select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5126,6 +5265,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A conversations select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5165,6 +5305,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A channels select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5351,6 +5492,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An external multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5390,6 +5532,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A users multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5429,6 +5572,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A conversations multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5468,6 +5612,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A channels multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5507,6 +5652,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A date picker block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5514,6 +5660,7 @@
                                 },
                                 "action_id": {
                                   "type": "string",
+                                  "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                   "maxLength": 255
                                 },
                                 "placeholder": {
@@ -5596,6 +5743,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "Show a message using markdown",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -5706,13 +5854,15 @@
                           "anyOf": [
                             {
                               "type": "object",
+                              "description": "Button Block. Display a button",
                               "properties": {
                                 "type": {
                                   "type": "string",
                                   "const": "button"
                                 },
                                 "action_id": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "A unique identifier for the button"
                                 },
                                 "text": {
                                   "type": "object",
@@ -5758,6 +5908,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A checkboxes block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5812,6 +5963,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A date picker block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5819,6 +5971,7 @@
                                 },
                                 "action_id": {
                                   "type": "string",
+                                  "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                   "maxLength": 255
                                 },
                                 "placeholder": {
@@ -5854,16 +6007,19 @@
                             },
                             {
                               "type": "object",
+                              "description": "Display an image to a user",
                               "properties": {
                                 "type": {
                                   "type": "string",
                                   "const": "image"
                                 },
                                 "image_url": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "The full URL to the image file"
                                 },
                                 "alt_text": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "Plain text summary of the image"
                                 }
                               },
                               "required": [
@@ -5877,6 +6033,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An overflow block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -5958,6 +6115,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A radio buttons block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -6162,6 +6320,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An external multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -6201,6 +6360,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A users multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -6240,6 +6400,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A conversations multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -6279,6 +6440,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A channels multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -6395,6 +6557,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An external select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -6434,6 +6597,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A users select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -6473,6 +6637,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A conversations select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -6512,6 +6677,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A channels select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -6551,6 +6717,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A time picker block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -6558,6 +6725,7 @@
                                 },
                                 "action_id": {
                                   "type": "string",
+                                  "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                   "maxLength": 255
                                 },
                                 "placeholder": {
@@ -7150,7 +7318,8 @@
             "type": "object",
             "properties": {
               "text": {
-                "type": "string"
+                "type": "string",
+                "description": "Field text must be defined but it is ignored if blocks are provided. In this situation, the text must be provided in the blocks array"
               },
               "blocks": {
                 "type": "array",
@@ -7158,6 +7327,7 @@
                   "anyOf": [
                     {
                       "type": "object",
+                      "description": "Display multiple elements in a group",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -7169,13 +7339,15 @@
                             "anyOf": [
                               {
                                 "type": "object",
+                                "description": "Button Block. Display a button",
                                 "properties": {
                                   "type": {
                                     "type": "string",
                                     "const": "button"
                                   },
                                   "action_id": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "A unique identifier for the button"
                                   },
                                   "text": {
                                     "type": "object",
@@ -7221,6 +7393,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A checkboxes block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -7275,6 +7448,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A date picker block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -7282,6 +7456,7 @@
                                   },
                                   "action_id": {
                                     "type": "string",
+                                    "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                     "maxLength": 255
                                   },
                                   "placeholder": {
@@ -7317,6 +7492,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A date picker block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -7324,10 +7500,12 @@
                                   },
                                   "action_id": {
                                     "type": "string",
+                                    "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                     "maxLength": 255
                                   },
                                   "initial_date_time": {
-                                    "type": "number"
+                                    "type": "number",
+                                    "description": "The initial date and time that is selected when the element is loaded, represented as a UNUIX timestamp in seconds. This should be in the format of 10 digits, for example 1628633820 represents the date and time August 10th, 2021 at 03:17pm PST"
                                   },
                                   "focus_on_load": {
                                     "type": "boolean"
@@ -7343,6 +7521,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "An overflow block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -7424,6 +7603,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A radio buttons block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -7558,6 +7738,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "An external select menu block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -7597,6 +7778,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A users select menu block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -7636,6 +7818,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A conversations select menu block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -7675,6 +7858,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A channels select menu block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -7714,6 +7898,7 @@
                               },
                               {
                                 "type": "object",
+                                "description": "A time picker block",
                                 "properties": {
                                   "type": {
                                     "type": "string",
@@ -7721,6 +7906,7 @@
                                   },
                                   "action_id": {
                                     "type": "string",
+                                    "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                     "maxLength": 255
                                   },
                                   "placeholder": {
@@ -7775,6 +7961,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "Display multiple elements in a group",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -7786,16 +7973,19 @@
                             "anyOf": [
                               {
                                 "type": "object",
+                                "description": "Display an image to a user",
                                 "properties": {
                                   "type": {
                                     "type": "string",
                                     "const": "image"
                                   },
                                   "image_url": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "The full URL to the image file"
                                   },
                                   "alt_text": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "Plain text summary of the image"
                                   }
                                 },
                                 "required": [
@@ -7866,6 +8056,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "A simple divider block",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -7878,6 +8069,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "A file block",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -7902,6 +8094,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "A header is a plain-text block that displays in a larger, bold font. Use it to delineate between different groups of content in your app surface",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -7937,16 +8130,19 @@
                     },
                     {
                       "type": "object",
+                      "description": "Display an image to a user",
                       "properties": {
                         "type": {
                           "type": "string",
                           "const": "image"
                         },
                         "image_url": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "The full URL to the image file"
                         },
                         "alt_text": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Plain text summary of the image"
                         },
                         "title": {
                           "type": "object",
@@ -7979,6 +8175,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "An input block",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -8014,10 +8211,12 @@
                                 },
                                 "action_id": {
                                   "type": "string",
+                                  "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block.",
                                   "maxLength": 255
                                 },
                                 "initial_value": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "The initial value in the plain-text input when it is loaded."
                                 },
                                 "multiline": {
                                   "type": "boolean"
@@ -8065,6 +8264,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A checkboxes block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -8119,6 +8319,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A radio buttons block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -8253,6 +8454,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An external select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -8292,6 +8494,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A users select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -8331,6 +8534,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A conversations select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -8370,6 +8574,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A channels select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -8556,6 +8761,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An external multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -8595,6 +8801,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A users multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -8634,6 +8841,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A conversations multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -8673,6 +8881,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A channels multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -8712,6 +8921,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A date picker block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -8719,6 +8929,7 @@
                                 },
                                 "action_id": {
                                   "type": "string",
+                                  "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                   "maxLength": 255
                                 },
                                 "placeholder": {
@@ -8801,6 +9012,7 @@
                     },
                     {
                       "type": "object",
+                      "description": "Show a message using markdown",
                       "properties": {
                         "type": {
                           "type": "string",
@@ -8911,13 +9123,15 @@
                           "anyOf": [
                             {
                               "type": "object",
+                              "description": "Button Block. Display a button",
                               "properties": {
                                 "type": {
                                   "type": "string",
                                   "const": "button"
                                 },
                                 "action_id": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "A unique identifier for the button"
                                 },
                                 "text": {
                                   "type": "object",
@@ -8963,6 +9177,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A checkboxes block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9017,6 +9232,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A date picker block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9024,6 +9240,7 @@
                                 },
                                 "action_id": {
                                   "type": "string",
+                                  "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                   "maxLength": 255
                                 },
                                 "placeholder": {
@@ -9059,16 +9276,19 @@
                             },
                             {
                               "type": "object",
+                              "description": "Display an image to a user",
                               "properties": {
                                 "type": {
                                   "type": "string",
                                   "const": "image"
                                 },
                                 "image_url": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "The full URL to the image file"
                                 },
                                 "alt_text": {
-                                  "type": "string"
+                                  "type": "string",
+                                  "description": "Plain text summary of the image"
                                 }
                               },
                               "required": [
@@ -9082,6 +9302,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An overflow block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9163,6 +9384,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A radio buttons block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9367,6 +9589,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An external multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9406,6 +9629,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A users multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9445,6 +9669,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A conversations multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9484,6 +9709,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A channels multi-select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9600,6 +9826,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "An external select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9639,6 +9866,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A users select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9678,6 +9906,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A conversations select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9717,6 +9946,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A channels select menu block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9756,6 +9986,7 @@
                             },
                             {
                               "type": "object",
+                              "description": "A time picker block",
                               "properties": {
                                 "type": {
                                   "type": "string",
@@ -9763,6 +9994,7 @@
                                 },
                                 "action_id": {
                                   "type": "string",
+                                  "description": "An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. ",
                                   "maxLength": 255
                                 },
                                 "placeholder": {
@@ -10389,12 +10621,14 @@
         "properties": {
           "accessToken": {
             "type": "string",
+            "description": "The Bot User OAuth Token",
             "x-zui": {
               "secret": true
             }
           },
           "signingSecret": {
             "type": "string",
+            "description": "The Slack Signing Secret",
             "x-zui": {
               "secret": true
             }
@@ -10413,6 +10647,7 @@
         "properties": {
           "scopes": {
             "type": "array",
+            "description": "The scopes granted to the token",
             "items": {
               "type": "string"
             },
@@ -10422,6 +10657,7 @@
           },
           "lastRefresh": {
             "type": "string",
+            "description": "The timestamp of the last token refresh",
             "x-zui": {
               "title": "Last Refresh",
               "precision": null,

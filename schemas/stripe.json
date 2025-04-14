@@ -17,20 +17,24 @@
         "properties": {
           "origin": {
             "type": "string",
+            "description": "The origin of the event trigger",
             "const": "stripe"
           },
           "userId": {
-            "type": "string"
+            "type": "string",
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
+            "description": "The data to send with the event",
             "properties": {
               "type": {
-                "default": "charge.failed",
-                "type": "string"
+                "type": "string",
+                "default": "charge.failed"
               },
               "object": {
                 "type": "object",
+                "description": "The object of the failed charge",
                 "properties": {},
                 "required": [],
                 "additionalProperties": {}
@@ -56,20 +60,24 @@
         "properties": {
           "origin": {
             "type": "string",
+            "description": "The origin of the event trigger",
             "const": "stripe"
           },
           "userId": {
-            "type": "string"
+            "type": "string",
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
+            "description": "The data to send with the event",
             "properties": {
               "type": {
-                "default": "customer.subscription.deleted",
-                "type": "string"
+                "type": "string",
+                "default": "customer.subscription.deleted"
               },
               "object": {
                 "type": "object",
+                "description": "The object of the deleted subscription",
                 "properties": {},
                 "required": [],
                 "additionalProperties": {}
@@ -95,20 +103,24 @@
         "properties": {
           "origin": {
             "type": "string",
+            "description": "The origin of the event trigger",
             "const": "stripe"
           },
           "userId": {
-            "type": "string"
+            "type": "string",
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
+            "description": "The data to send with the event",
             "properties": {
               "type": {
-                "default": "customer.subscription.updated",
-                "type": "string"
+                "type": "string",
+                "default": "customer.subscription.updated"
               },
               "object": {
                 "type": "object",
+                "description": "The object of the updated subscription",
                 "properties": {},
                 "required": [],
                 "additionalProperties": {}
@@ -134,20 +146,24 @@
         "properties": {
           "origin": {
             "type": "string",
+            "description": "The origin of the event trigger",
             "const": "stripe"
           },
           "userId": {
-            "type": "string"
+            "type": "string",
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
+            "description": "The data to send with the event",
             "properties": {
               "type": {
-                "default": "customer.subscription.created",
-                "type": "string"
+                "type": "string",
+                "default": "customer.subscription.created"
               },
               "object": {
                 "type": "object",
+                "description": "The object of the created subscription",
                 "properties": {},
                 "required": [],
                 "additionalProperties": {}
@@ -173,20 +189,24 @@
         "properties": {
           "origin": {
             "type": "string",
+            "description": "The origin of the event trigger",
             "const": "stripe"
           },
           "userId": {
-            "type": "string"
+            "type": "string",
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
+            "description": "The data to send with the event",
             "properties": {
               "type": {
-                "default": "invoice.payment_failed",
-                "type": "string"
+                "type": "string",
+                "default": "invoice.payment_failed"
               },
               "object": {
                 "type": "object",
+                "description": "The object of the invoice whose payment failed",
                 "properties": {},
                 "required": [],
                 "additionalProperties": {}
@@ -212,20 +232,24 @@
         "properties": {
           "origin": {
             "type": "string",
+            "description": "The origin of the event trigger",
             "const": "stripe"
           },
           "userId": {
-            "type": "string"
+            "type": "string",
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
+            "description": "The data to send with the event",
             "properties": {
               "type": {
-                "default": "payment_intent.payment_failed",
-                "type": "string"
+                "type": "string",
+                "default": "payment_intent.payment_failed"
               },
               "object": {
                 "type": "object",
+                "description": "The object of the payment intent that failed",
                 "properties": {},
                 "required": [],
                 "additionalProperties": {}
@@ -251,20 +275,24 @@
         "properties": {
           "origin": {
             "type": "string",
+            "description": "The origin of the event trigger",
             "const": "stripe"
           },
           "userId": {
-            "type": "string"
+            "type": "string",
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
+            "description": "The data to send with the event",
             "properties": {
               "type": {
-                "default": "subscription_schedule.created",
-                "type": "string"
+                "type": "string",
+                "default": "subscription_schedule.created"
               },
               "object": {
                 "type": "object",
+                "description": "The object of the created subscription schedule",
                 "properties": {},
                 "required": [],
                 "additionalProperties": {}
@@ -290,20 +318,24 @@
         "properties": {
           "origin": {
             "type": "string",
+            "description": "The origin of the event trigger",
             "const": "stripe"
           },
           "userId": {
-            "type": "string"
+            "type": "string",
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
+            "description": "The data to send with the event",
             "properties": {
               "type": {
-                "default": "subscription_schedule.updated",
-                "type": "string"
+                "type": "string",
+                "default": "subscription_schedule.updated"
               },
               "object": {
                 "type": "object",
+                "description": "The object of the updated subscription schedule",
                 "properties": {},
                 "required": [],
                 "additionalProperties": {}
@@ -333,12 +365,12 @@
           "properties": {
             "productName": {
               "type": "string",
+              "description": "The name of the product to be sold",
               "x-zui": {
                 "placeholder": "ex: T-Shirt"
               }
             },
             "unit_amount": {
-              "default": 0,
               "anyOf": [
                 {
                   "type": "number",
@@ -360,10 +392,10 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": 0
             },
             "currency": {
-              "default": "usd",
               "anyOf": [
                 {
                   "type": "string"
@@ -381,10 +413,10 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": "usd"
             },
             "quantity": {
-              "default": 1,
               "anyOf": [
                 {
                   "type": "number"
@@ -402,10 +434,10 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": 1
             },
             "adjustableQuantity": {
-              "default": false,
               "anyOf": [
                 {
                   "type": "boolean"
@@ -423,10 +455,10 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": false
             },
             "adjustableQuantityMaximum": {
-              "default": 99,
               "anyOf": [
                 {
                   "type": "number",
@@ -450,10 +482,10 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": 99
             },
             "adjustableQuantityMinimum": {
-              "default": 1,
               "anyOf": [
                 {
                   "type": "number",
@@ -477,7 +509,8 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": 1
             }
           },
           "required": [
@@ -588,10 +621,10 @@
           "type": "object",
           "properties": {
             "productName": {
-              "type": "string"
+              "type": "string",
+              "description": "The name of the subscription product"
             },
             "unit_amount": {
-              "default": 0,
               "anyOf": [
                 {
                   "type": "number"
@@ -609,10 +642,10 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": 0
             },
             "currency": {
-              "default": "usd",
               "anyOf": [
                 {
                   "type": "string"
@@ -630,10 +663,10 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": "usd"
             },
             "quantity": {
-              "default": 1,
               "anyOf": [
                 {
                   "type": "number"
@@ -651,10 +684,10 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": 1
             },
             "adjustableQuantity": {
-              "default": false,
               "anyOf": [
                 {
                   "type": "boolean"
@@ -672,10 +705,10 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": false
             },
             "adjustableQuantityMaximum": {
-              "default": 99,
               "anyOf": [
                 {
                   "type": "number",
@@ -699,10 +732,10 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": 99
             },
             "adjustableQuantityMinimum": {
-              "default": 1,
               "anyOf": [
                 {
                   "type": "number",
@@ -726,10 +759,10 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": 1
             },
             "chargingInterval": {
-              "default": "month",
               "anyOf": [
                 {
                   "type": "string",
@@ -751,7 +784,8 @@
                 "def": {
                   "typeName": "ZodOptional"
                 }
-              }
+              },
+              "default": "month"
             },
             "trial_period_days": {
               "type": "number",
@@ -825,6 +859,7 @@
           "properties": {
             "url": {
               "type": "string",
+              "description": "The URL of the payment link",
               "x-zui": {
                 "title": "Payment link",
                 "placeholder": "ex: https://buy.stripe.com/test_b0tPr3sS5w3sOm3"
@@ -856,6 +891,7 @@
           "properties": {
             "id": {
               "type": "string",
+              "description": "The payment link ID to deactivate",
               "x-zui": {
                 "placeholder": "ex: test_aEUdTEdRP95RdvaaEJ"
               }
@@ -1177,6 +1213,7 @@
           "properties": {
             "email": {
               "type": "string",
+              "description": "The email of the customer",
               "x-zui": {
                 "placeholder": "johndoe@botpress.com"
               },
@@ -1348,6 +1385,7 @@
           "properties": {
             "email": {
               "type": "string",
+              "description": "The email of the customer",
               "x-zui": {
                 "placeholder": "johndoe@botpress.com"
               },
@@ -1667,6 +1705,7 @@
           "properties": {
             "id": {
               "type": "string",
+              "description": "The ID of the customer to retrieve",
               "x-zui": {
                 "placeholder": "cus_1234567890"
               }

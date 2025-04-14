@@ -17,13 +17,15 @@
         "properties": {
           "data": {
             "type": "string",
+            "description": "The data the Zapier action sent. Can be any string including JSON.",
             "title": "Event Data received from Zapier",
             "examples": [
               "{ \"message\": \"Hello Botpress!\" }"
             ]
           },
           "correlationId": {
-            "type": "string"
+            "type": "string",
+            "description": "Can be used to correlate the response from Zapier when used with an `action.correlationId`"
           }
         },
         "required": [
@@ -50,13 +52,15 @@
           "properties": {
             "data": {
               "type": "string",
+              "description": "The data you want to send to Zapier trigger. Can be any string including JSON.",
               "title": "Trigger Data to send to Zapier",
               "examples": [
                 "{ \"message\": \"Hello Zapier!\" }"
               ]
             },
             "correlationId": {
-              "type": "string"
+              "type": "string",
+              "description": "Can be used to receive a response back from Zapier by listening for an `event.correlationId`"
             }
           },
           "required": [

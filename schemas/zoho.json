@@ -21,12 +21,14 @@
           "properties": {
             "endpoint": {
               "type": "string",
+              "description": "The API endpoint to call",
               "x-zui": {
                 "title": "Endpoint"
               }
             },
             "method": {
               "type": "string",
+              "description": "The HTTP method to use ['GET', 'POST', 'PUT', 'DELETE']",
               "x-zui": {
                 "title": "Method"
               }
@@ -56,17 +58,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the API call was successful",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "The data returned from the API call",
               "x-zui": {
                 "title": "Data"
               }
@@ -88,12 +93,14 @@
           "properties": {
             "module": {
               "type": "string",
+              "description": "The Zoho CRM module to insert the records into (e.g., Leads, Contacts, Deals)",
               "x-zui": {
                 "title": "Module"
               }
             },
             "data": {
               "type": "string",
+              "description": "The raw JSON string containing the records to insert",
               "x-zui": {
                 "title": "Data"
               }
@@ -111,17 +118,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the records were inserted successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "Details of the inserted records",
               "x-zui": {
                 "title": "Data"
               }
@@ -143,18 +153,21 @@
           "properties": {
             "module": {
               "type": "string",
+              "description": "The Zoho CRM module where the record exists",
               "x-zui": {
                 "title": "Module"
               }
             },
             "recordId": {
               "type": "string",
+              "description": "The unique ID of the record to update",
               "x-zui": {
                 "title": "Record ID"
               }
             },
             "data": {
               "type": "string",
+              "description": "The raw JSON string containing the updated data",
               "x-zui": {
                 "title": "Data"
               }
@@ -173,17 +186,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the record was updated successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "Details of the updated record",
               "x-zui": {
                 "title": "Data"
               }
@@ -205,12 +221,14 @@
           "properties": {
             "module": {
               "type": "string",
+              "description": "The Zoho CRM module where the record exists",
               "x-zui": {
                 "title": "Module"
               }
             },
             "recordId": {
               "type": "string",
+              "description": "The unique ID of the record to delete",
               "x-zui": {
                 "title": "Record ID"
               }
@@ -228,17 +246,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the record was deleted successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "Response from Zoho confirming the record deletion",
               "x-zui": {
                 "title": "Data"
               }
@@ -260,12 +281,14 @@
           "properties": {
             "module": {
               "type": "string",
+              "description": "The Zoho CRM module to search within",
               "x-zui": {
                 "title": "Module"
               }
             },
             "criteria": {
               "type": "string",
+              "description": "The search criteria using Zoho CRM query syntax",
               "x-zui": {
                 "title": "Criteria"
               }
@@ -283,17 +306,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the search was successful",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "List of records matching the search criteria",
               "x-zui": {
                 "title": "Data"
               }
@@ -315,12 +341,14 @@
           "properties": {
             "module": {
               "type": "string",
+              "description": "The Zoho CRM module to retrieve the record from (e.g., Leads, Contacts, Deals)",
               "x-zui": {
                 "title": "Module"
               }
             },
             "recordId": {
               "type": "string",
+              "description": "The unique ID of the record to retrieve",
               "x-zui": {
                 "title": "Record ID"
               }
@@ -338,17 +366,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the record was retrieved successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "The retrieved record data from Zoho CRM",
               "x-zui": {
                 "title": "Data"
               }
@@ -370,6 +401,7 @@
           "properties": {
             "module": {
               "type": "string",
+              "description": "The Zoho CRM module to retrieve records from (e.g., Leads, Contacts, Deals)",
               "x-zui": {
                 "title": "Module"
               }
@@ -392,17 +424,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the records were retrieved successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "List of retrieved records",
               "x-zui": {
                 "title": "Data"
               }
@@ -431,17 +466,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the organization details were retrieved successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "Details of the organization retrieved from Zoho CRM",
               "x-zui": {
                 "title": "Data"
               }
@@ -477,17 +515,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the users were retrieved successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "List of users retrieved from Zoho CRM",
               "x-zui": {
                 "title": "Data"
               }
@@ -523,17 +564,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the appointments were retrieved successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "List of retrieved appointments",
               "x-zui": {
                 "title": "Data"
               }
@@ -555,6 +599,7 @@
           "properties": {
             "appointmentId": {
               "type": "string",
+              "description": "The unique ID of the appointment to retrieve",
               "x-zui": {
                 "title": "Appointment ID"
               }
@@ -571,17 +616,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the appointment was retrieved successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "The retrieved appointment data from Zoho CRM",
               "x-zui": {
                 "title": "Data"
               }
@@ -603,6 +651,7 @@
           "properties": {
             "data": {
               "type": "string",
+              "description": "The raw JSON string containing the appointment details",
               "x-zui": {
                 "title": "Data"
               }
@@ -619,17 +668,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the appointment was created successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "Details of the created appointment",
               "x-zui": {
                 "title": "Data"
               }
@@ -651,12 +703,14 @@
           "properties": {
             "appointmentId": {
               "type": "string",
+              "description": "The unique ID of the appointment to update",
               "x-zui": {
                 "title": "Appointment ID"
               }
             },
             "data": {
               "type": "string",
+              "description": "The raw JSON string containing the updated appointment details",
               "x-zui": {
                 "title": "Data"
               }
@@ -674,17 +728,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the appointment was updated successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "Details of the updated appointment",
               "x-zui": {
                 "title": "Data"
               }
@@ -706,6 +763,7 @@
           "properties": {
             "appointmentId": {
               "type": "string",
+              "description": "The unique ID of the appointment to delete",
               "x-zui": {
                 "title": "Appointment ID"
               }
@@ -722,17 +780,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the appointment was deleted successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "Response from Zoho confirming the appointment deletion",
               "x-zui": {
                 "title": "Data"
               }
@@ -754,18 +815,21 @@
           "properties": {
             "module": {
               "type": "string",
+              "description": "The Zoho CRM module to send mail to",
               "x-zui": {
                 "title": "Module"
               }
             },
             "recordId": {
               "type": "string",
+              "description": "The unique ID of the record to attach the file to",
               "x-zui": {
                 "title": "Record ID"
               }
             },
             "data": {
               "type": "string",
+              "description": "The raw JSON string containing email details including recipient, subject, and body",
               "x-zui": {
                 "title": "Data"
               }
@@ -784,17 +848,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the email was sent successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "Response from Zoho after sending the email",
               "x-zui": {
                 "title": "Data"
               }
@@ -816,6 +883,7 @@
           "properties": {
             "fileUrl": {
               "type": "string",
+              "description": "The url of the file being uploaded.",
               "x-zui": {
                 "title": "File URL"
               }
@@ -832,17 +900,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the file was uploaded successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "Details of the uploaded file, including its Zoho file ID.",
               "x-zui": {
                 "title": "Data"
               }
@@ -864,6 +935,7 @@
           "properties": {
             "fileId": {
               "type": "string",
+              "description": "The encrypted ID of the file to retrieve",
               "x-zui": {
                 "title": "File ID"
               }
@@ -880,17 +952,20 @@
           "properties": {
             "success": {
               "type": "boolean",
+              "description": "Whether the file was retrieved successfully",
               "x-zui": {
                 "title": "Success"
               }
             },
             "message": {
               "type": "string",
+              "description": "The message from the API call",
               "x-zui": {
                 "title": "Message"
               }
             },
             "data": {
+              "description": "The retrieved file data from Zoho",
               "x-zui": {
                 "title": "Data"
               }
@@ -912,6 +987,7 @@
         "properties": {
           "accessToken": {
             "type": "string",
+            "description": "Your Zoho Access Token",
             "x-zui": {
               "title": "Access Token"
             }
