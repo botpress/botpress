@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import axiosRetry from 'axios-retry'
 import type { ZendeskUser, ZendeskTicket, ZendeskWebhook } from './definitions/schemas'
@@ -132,22 +133,46 @@ class ZendeskApi {
     await this._client.delete(`/api/v2/webhooks/${subscriptionId}`).catch(summarizeAxiosError)
   }
 
-  public async createComment(ticketId: string, authorId: string, content: string): Promise<void> {
-    await this.updateTicket(ticketId, {
+  public async createPlaintextComment(ticketId: string, authorId: string, content: string) {
+    const response = await this.updateTicket(ticketId, {
       comment: {
         body: content,
         author_id: authorId,
       },
     }).catch(summarizeAxiosError)
+
+    const zendeskCommentId = this._extractCommentId(response)
+    return { zendeskCommentId }
   }
 
-  public async updateTicket(ticketId: string | number, updateFields: Partial<ZendeskTicket>): Promise<ZendeskTicket> {
-    const { data } = await this._client
-      .put<{ ticket: ZendeskTicket }>(`/api/v2/tickets/${ticketId}.json`, {
+  private _extractCommentId(response: Awaited<ReturnType<typeof this.updateTicket>>) {
+    const commentId = response.audit.events.find((event) => event.type === 'Comment' && 'id' in event)?.id
+
+    if (!commentId) {
+      throw new sdk.RuntimeError('Failed to retrieve comment ID')
+    }
+
+    return commentId
+  }
+
+  public async updateTicket(ticketId: string | number, updateFields: Partial<ZendeskTicket>) {
+    const response = await this._client
+      .put<{
+        ticket: ZendeskTicket
+        audit: {
+          events: (
+            | {
+                id: number
+                type: 'Comment'
+              }
+            | { type: string }
+          )[]
+        }
+      }>(`/api/v2/tickets/${ticketId}.json`, {
         ticket: updateFields,
       })
       .catch(summarizeAxiosError)
-    return data.ticket
+    return response.data
   }
 
   public async getAgents(online?: boolean): Promise<ZendeskUser[]> {
