@@ -6,7 +6,7 @@ import * as bp from '.botpress'
 
 // this client is necessary for table operations
 const getBotpressVanillaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
-type BigCommerceProductImage = {
+export type BigCommerceProductImage = {
   is_thumbnail: boolean
   url_standard: string
 }
@@ -62,7 +62,7 @@ const extractProductId = (webhookData: WebhookData): string | undefined => {
   return undefined
 }
 
-const stripHtmlTags = (html: string | undefined): string => {
+export const stripHtmlTags = (html: string | undefined): string => {
   if (!html) return ''
   return html
     .replace(/<[^>]*>/g, ' ')
@@ -70,7 +70,7 @@ const stripHtmlTags = (html: string | undefined): string => {
     .trim()
 }
 
-const getProductImageUrl = (images: BigCommerceProductImage[]): string => {
+export const getProductImageUrl = (images: BigCommerceProductImage[]): string => {
   if (!images || images.length === 0) return ''
 
   const thumbnailImage = images.find((img) => img.is_thumbnail)

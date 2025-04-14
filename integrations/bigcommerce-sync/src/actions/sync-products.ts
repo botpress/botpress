@@ -1,6 +1,7 @@
 import { Client } from '@botpress/client'
 import { getBigCommerceClient, BigCommerceClient } from '../client'
 import { PRODUCT_TABLE_SCHEMA, PRODUCTS_TABLE_NAME as PRODUCT_TABLE } from '../schemas/products'
+import { getProductImageUrl, BigCommerceProductImage, stripHtmlTags } from '../index'
 import * as bp from '.botpress'
 
 type BigCommerceProduct = {
@@ -22,16 +23,8 @@ type BigCommerceProduct = {
   is_visible?: boolean
   sort_order?: number
   description?: string
-  images?: Array<{ url_standard: string }>
+  images?: Array<BigCommerceProductImage>
   custom_url?: { url: string }
-}
-
-const stripHtmlTags = (html: string | undefined): string => {
-  if (!html) return ''
-  return html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
 }
 
 function processProductsPage(
@@ -135,7 +128,7 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
 
       const categories = categoryNames.join(',')
       const brandName = product.brand_id ? brandById[product.brand_id] || product.brand_id.toString() : ''
-      const imageUrl = product.images && product.images.length > 0 ? product.images[0]?.url_standard || '' : ''
+      const imageUrl = product.images && product.images.length > 0 ? getProductImageUrl(product.images) : ''
 
       return {
         product_id: product.id,
