@@ -5,11 +5,6 @@ type HitlState = bp.states.hitl.Hitl['payload']
 
 const DEFAULT_STATE: HitlState = { hitlActive: false }
 
-export type RespondProps = {
-  text: string
-  userId?: string
-}
-
 export const HITL_END_REASON = {
   // PATIENT_LEFT: 'patient-left',
   PATIENT_USED_TERMINATION_COMMAND: 'patient-used-termination-command',
@@ -71,19 +66,19 @@ export class ConversationManager {
     })
   }
 
-  public async respond({ text, userId }: RespondProps): Promise<void> {
+  public async respond(messagePayload: types.MessagePayload): Promise<void> {
     await this._props.client.createMessage({
       userId: this._props.ctx.botId,
       conversationId: this._convId,
-      type: 'text',
-      payload: { text, userId },
+      type: messagePayload.type,
+      payload: { ...messagePayload },
       tags: {},
     })
   }
 
   public async abortHitlSession(errorMessage: string): Promise<void> {
     await this.setHitlInactive(HITL_END_REASON.INTERNAL_ERROR)
-    await this.respond({ text: errorMessage })
+    await this.respond({ type: 'text', text: errorMessage })
   }
 
   private async _getHitlState(): Promise<bp.states.hitl.Hitl['payload']> {

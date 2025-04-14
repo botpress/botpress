@@ -69,6 +69,7 @@ const _handleTimeout = async (
 ) => {
   await downstreamCm.respond({
     // TODO: We might want to add a custom message for the human agent.
+    type: 'text',
     text: props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   })
 
@@ -86,6 +87,7 @@ const _handleTimeout = async (
   await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
 
   await upstreamCm.respond({
+    type: 'text',
     text: props.configuration.onAgentAssignedTimeoutMessage ?? DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE,
   })
 }

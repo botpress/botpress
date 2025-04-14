@@ -66,9 +66,7 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
 }
 
 const _sendHandoffMessage = (props: Props, upstreamCm: conv.ConversationManager): Promise<void> =>
-  upstreamCm.respond({
-    text: props.configuration.onHitlHandoffMessage ?? DEFAULT_HITL_HANDOFF_MESSAGE,
-  })
+  upstreamCm.respond({ type: 'text', text: props.configuration.onHitlHandoffMessage ?? DEFAULT_HITL_HANDOFF_MESSAGE })
 
 const _buildMessageHistory = async (
   props: Props,
@@ -103,7 +101,7 @@ const _buildMessageHistory = async (
 const _createDownstreamConversation = async (
   props: Props,
   downstreamUserId: string,
-  input: StartHitlInput,
+  input: Omit<StartHitlInput, 'messageHistory'>,
   messageHistory: MessageHistoryElement[]
 ): Promise<string> => {
   // Call startHitl in the hitl integration (zendesk, etc.):

@@ -28,6 +28,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
 
   await Promise.all([
     upstreamCm.respond({
+      type: 'text',
       text: props.configuration.onHumanAgentAssignedMessage ?? DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE,
     }),
     downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
