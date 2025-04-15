@@ -86,7 +86,7 @@ const _handleUpstreamMessage = async (
     return consts.STOP_EVENT_HANDLING
   }
 
-  const { user: upstreamUser } = await props.client.getUser({ id: props.data.userId })
+  const { user: patientUpstreamUser } = await props.client.getUser({ id: props.data.userId })
 
   const downstreamConversationId = upstreamConversation.tags['downstream']
   if (!downstreamConversationId) {
@@ -98,8 +98,8 @@ const _handleUpstreamMessage = async (
     })
   }
 
-  const downstreamUserId = upstreamUser.tags['downstream']
-  if (!downstreamUserId) {
+  const patientDownstreamUserId = patientUpstreamUser.tags['downstream']
+  if (!patientDownstreamUserId) {
     return await _abortHitlSession({
       cm: upstreamCm,
       internalReason: 'Upstream user was not bound to downstream user',
@@ -122,7 +122,7 @@ const _handleUpstreamMessage = async (
   }
 
   props.logger.withConversationId(upstreamConversation.id).info('Sending message to downstream')
-  await downstreamCm.respond({ ...messagePayload, userId: downstreamUserId })
+  await downstreamCm.respond({ ...messagePayload, userId: patientDownstreamUserId })
 
   return consts.STOP_EVENT_HANDLING
 }
