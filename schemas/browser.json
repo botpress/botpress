@@ -12,13 +12,11 @@
           "type": "object",
           "properties": {
             "url": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["url"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -26,13 +24,11 @@
           "type": "object",
           "properties": {
             "imageUrl": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["imageUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "cacheable": true,
@@ -48,21 +44,18 @@
             "urls": {
               "type": "array",
               "items": {
-                "type": "string",
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": "string"
+              }
             },
             "waitFor": {
               "type": "number",
-              "x-zui": {},
+
               "default": 350,
               "description": "Time to wait before extracting the content (in milliseconds). Set this value higher for dynamic pages."
             }
           },
           "required": ["urls"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -75,36 +68,28 @@
                 "type": "object",
                 "properties": {
                   "url": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "content": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "favicon": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "title": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "description": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["url", "content"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["results"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "cacheable": true,
@@ -121,8 +106,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 1000,
-              "description": "What are we searching for?",
-              "x-zui": {}
+              "description": "What are we searching for?"
             },
             "includeSites": {
               "type": "array",
@@ -130,11 +114,10 @@
                 "type": "string",
                 "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
                 "minLength": 3,
-                "maxLength": 50,
-                "x-zui": {}
+                "maxLength": 50
               },
               "maxItems": 20,
-              "x-zui": {},
+
               "description": "Include only these domains in the search (max 20)"
             },
             "excludeSites": {
@@ -143,37 +126,35 @@
                 "type": "string",
                 "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
                 "minLength": 3,
-                "maxLength": 50,
-                "x-zui": {}
+                "maxLength": 50
               },
               "maxItems": 20,
-              "x-zui": {},
+
               "description": "Exclude these domains from the search (max 20)"
             },
             "count": {
               "type": "number",
               "minimum": 1,
               "maximum": 20,
-              "x-zui": {},
+
               "default": 10,
               "description": "Number of search results to return (default: 10)"
             },
             "freshness": {
               "type": "string",
               "enum": ["Day", "Week", "Month"],
-              "x-zui": {},
+
               "description": "Only consider results from the last day, week or month"
             },
             "browsePages": {
               "type": "boolean",
-              "x-zui": {},
+
               "default": false,
               "description": "Whether to browse to the pages to get the full content"
             }
           },
           "required": ["query"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -187,18 +168,15 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "description": "Title of the page",
-                    "x-zui": {}
+                    "description": "Title of the page"
                   },
                   "url": {
                     "type": "string",
-                    "description": "URL of the page",
-                    "x-zui": {}
+                    "description": "URL of the page"
                   },
                   "snippet": {
                     "type": "string",
-                    "description": "A short summary of the page",
-                    "x-zui": {}
+                    "description": "A short summary of the page"
                   },
                   "links": {
                     "type": "array",
@@ -206,60 +184,48 @@
                       "type": "object",
                       "properties": {
                         "name": {
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "url": {
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["name", "url"],
-                      "additionalProperties": false,
-                      "x-zui": {}
+                      "additionalProperties": false
                     },
-                    "x-zui": {},
+
                     "description": "Useful links on the page"
                   },
                   "page": {
                     "type": "object",
                     "properties": {
                       "url": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "content": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "favicon": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "title": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "description": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["url", "content"],
-                    "additionalProperties": false,
-                    "x-zui": {}
+                    "additionalProperties": false
                   }
                 },
                 "required": ["name", "url", "snippet"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["results"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "cacheable": true

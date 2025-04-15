@@ -7,13 +7,11 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },
@@ -28,18 +26,17 @@
           "properties": {
             "model": {
               "$ref": "modelRef",
-              "description": "Model to use for content generation",
-              "x-zui": {}
+              "description": "Model to use for content generation"
             },
             "reasoningEffort": {
               "type": "string",
               "enum": ["low", "medium", "high"],
-              "x-zui": {},
+
               "description": "Reasoning effort level to use for models that support reasoning"
             },
             "systemPrompt": {
               "type": "string",
-              "x-zui": {},
+
               "description": "Optional system prompt to guide the model"
             },
             "messages": {
@@ -49,13 +46,12 @@
                 "properties": {
                   "role": {
                     "type": "string",
-                    "enum": ["user", "assistant"],
-                    "x-zui": {}
+                    "enum": ["user", "assistant"]
                   },
                   "type": {
                     "type": "string",
                     "enum": ["text", "tool_calls", "tool_result", "multipart"],
-                    "x-zui": {},
+
                     "default": "text"
                   },
                   "toolCalls": {
@@ -64,53 +60,44 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "type": {
                           "type": "string",
-                          "enum": ["function"],
-                          "x-zui": {}
+                          "enum": ["function"]
                         },
                         "function": {
                           "type": "object",
                           "properties": {
                             "name": {
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             },
                             "arguments": {
                               "anyOf": [
                                 {
                                   "type": "object",
-                                  "additionalProperties": {
-                                    "x-zui": {}
-                                  },
-                                  "x-zui": {}
+                                  "additionalProperties": {}
                                 },
                                 {
                                   "type": "null"
                                 }
                               ],
-                              "description": "Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens.",
-                              "x-zui": {}
+                              "description": "Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens."
                             }
                           },
                           "required": ["name", "arguments"],
-                          "additionalProperties": false,
-                          "x-zui": {}
+                          "additionalProperties": false
                         }
                       },
                       "required": ["id", "type", "function"],
-                      "additionalProperties": false,
-                      "x-zui": {}
+                      "additionalProperties": false
                     },
-                    "x-zui": {},
+
                     "description": "Required if `type` is \"tool_calls\""
                   },
                   "toolResultCallId": {
                     "type": "string",
-                    "x-zui": {},
+
                     "description": "Required if `type` is \"tool_result\""
                   },
                   "content": {
@@ -118,8 +105,7 @@
                       {
                         "anyOf": [
                           {
-                            "type": "string",
-                            "x-zui": {}
+                            "type": "string"
                           },
                           {
                             "type": "array",
@@ -128,58 +114,51 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": ["text", "image"],
-                                  "x-zui": {}
+                                  "enum": ["text", "image"]
                                 },
                                 "mimeType": {
                                   "type": "string",
-                                  "x-zui": {},
+
                                   "description": "Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL."
                                 },
                                 "text": {
                                   "type": "string",
-                                  "x-zui": {},
+
                                   "description": "Required if part type is \"text\" "
                                 },
                                 "url": {
                                   "type": "string",
-                                  "x-zui": {},
+
                                   "description": "Required if part type is \"image\""
                                 }
                               },
                               "required": ["type"],
-                              "additionalProperties": false,
-                              "x-zui": {}
-                            },
-                            "x-zui": {}
+                              "additionalProperties": false
+                            }
                           }
-                        ],
-                        "x-zui": {}
+                        ]
                       },
                       {
                         "type": "null"
                       }
                     ],
-                    "description": "Required unless `type` is \"tool_call\". If `type` is \"multipart\", this field must be an array of content objects. If `type` is \"tool_result\" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is \"tool_call\" then the `toolCalls` field should be used instead.",
-                    "x-zui": {}
+                    "description": "Required unless `type` is \"tool_call\". If `type` is \"multipart\", this field must be an array of content objects. If `type` is \"tool_result\" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is \"tool_call\" then the `toolCalls` field should be used instead."
                   }
                 },
                 "required": ["role", "content"],
-                "additionalProperties": false,
-                "x-zui": {}
+                "additionalProperties": false
               },
-              "description": "Array of messages for the model to process",
-              "x-zui": {}
+              "description": "Array of messages for the model to process"
             },
             "responseFormat": {
               "type": "string",
               "enum": ["text", "json_object"],
-              "x-zui": {},
+
               "description": "Response format expected from the model. If \"json_object\" is chosen, you must instruct the model to generate JSON either via the system prompt or a user message."
             },
             "maxTokens": {
               "type": "number",
-              "x-zui": {},
+
               "description": "Maximum number of tokens allowed in the generated response"
             },
             "temperature": {
@@ -217,11 +196,10 @@
             "stopSequences": {
               "type": "array",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "maxItems": 4,
-              "x-zui": {},
+
               "description": "Sequences where the model should stop generating further tokens."
             },
             "tools": {
@@ -231,60 +209,51 @@
                 "properties": {
                   "type": {
                     "type": "string",
-                    "const": "function",
-                    "x-zui": {}
+                    "const": "function"
                   },
                   "function": {
                     "type": "object",
                     "properties": {
                       "name": {
                         "type": "string",
-                        "description": "Function name",
-                        "x-zui": {}
+                        "description": "Function name"
                       },
                       "description": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "argumentsSchema": {
                         "type": "object",
                         "properties": {},
                         "additionalProperties": true,
-                        "x-zui": {},
+
                         "description": "JSON schema of the function arguments"
                       }
                     },
                     "required": ["name"],
-                    "additionalProperties": false,
-                    "x-zui": {}
+                    "additionalProperties": false
                   }
                 },
                 "required": ["type", "function"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             },
             "toolChoice": {
               "type": "object",
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": ["auto", "specific", "any", "none", ""],
-                  "x-zui": {}
+                  "enum": ["auto", "specific", "any", "none", ""]
                 },
                 "functionName": {
                   "type": "string",
-                  "x-zui": {},
+
                   "description": "Required if `type` is \"specific\""
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             },
             "userId": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "debug": {
               "type": "boolean",
@@ -298,16 +267,15 @@
               "properties": {
                 "promptSource": {
                   "type": "string",
-                  "x-zui": {},
+
                   "description": "Source of the prompt, e.g. agent/:id/:version cards/ai-generate, cards/ai-task, nodes/autonomous, etc."
                 },
                 "promptCategory": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "integrationName": {
                   "type": "string",
-                  "x-zui": {},
+
                   "description": "Name of the integration that originally received the message that initiated this action"
                 }
               },
@@ -318,8 +286,7 @@
             }
           },
           "required": ["messages"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -328,18 +295,15 @@
           "properties": {
             "id": {
               "type": "string",
-              "description": "Response ID from LLM provider",
-              "x-zui": {}
+              "description": "Response ID from LLM provider"
             },
             "provider": {
               "type": "string",
-              "description": "LLM provider name",
-              "x-zui": {}
+              "description": "LLM provider name"
             },
             "model": {
               "type": "string",
-              "description": "Model name",
-              "x-zui": {}
+              "description": "Model name"
             },
             "choices": {
               "type": "array",
@@ -349,7 +313,7 @@
                   "type": {
                     "type": "string",
                     "enum": ["text", "tool_calls", "tool_result", "multipart"],
-                    "x-zui": {},
+
                     "default": "text"
                   },
                   "toolCalls": {
@@ -358,53 +322,44 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "type": {
                           "type": "string",
-                          "enum": ["function"],
-                          "x-zui": {}
+                          "enum": ["function"]
                         },
                         "function": {
                           "type": "object",
                           "properties": {
                             "name": {
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             },
                             "arguments": {
                               "anyOf": [
                                 {
                                   "type": "object",
-                                  "additionalProperties": {
-                                    "x-zui": {}
-                                  },
-                                  "x-zui": {}
+                                  "additionalProperties": {}
                                 },
                                 {
                                   "type": "null"
                                 }
                               ],
-                              "description": "Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens.",
-                              "x-zui": {}
+                              "description": "Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens."
                             }
                           },
                           "required": ["name", "arguments"],
-                          "additionalProperties": false,
-                          "x-zui": {}
+                          "additionalProperties": false
                         }
                       },
                       "required": ["id", "type", "function"],
-                      "additionalProperties": false,
-                      "x-zui": {}
+                      "additionalProperties": false
                     },
-                    "x-zui": {},
+
                     "description": "Required if `type` is \"tool_calls\""
                   },
                   "toolResultCallId": {
                     "type": "string",
-                    "x-zui": {},
+
                     "description": "Required if `type` is \"tool_result\""
                   },
                   "content": {
@@ -412,8 +367,7 @@
                       {
                         "anyOf": [
                           {
-                            "type": "string",
-                            "x-zui": {}
+                            "type": "string"
                           },
                           {
                             "type": "array",
@@ -422,107 +376,89 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": ["text", "image"],
-                                  "x-zui": {}
+                                  "enum": ["text", "image"]
                                 },
                                 "mimeType": {
                                   "type": "string",
-                                  "x-zui": {},
+
                                   "description": "Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL."
                                 },
                                 "text": {
                                   "type": "string",
-                                  "x-zui": {},
+
                                   "description": "Required if part type is \"text\" "
                                 },
                                 "url": {
                                   "type": "string",
-                                  "x-zui": {},
+
                                   "description": "Required if part type is \"image\""
                                 }
                               },
                               "required": ["type"],
-                              "additionalProperties": false,
-                              "x-zui": {}
-                            },
-                            "x-zui": {}
+                              "additionalProperties": false
+                            }
                           }
-                        ],
-                        "x-zui": {}
+                        ]
                       },
                       {
                         "type": "null"
                       }
                     ],
-                    "description": "Required unless `type` is \"tool_call\". If `type` is \"multipart\", this field must be an array of content objects. If `type` is \"tool_result\" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is \"tool_call\" then the `toolCalls` field should be used instead.",
-                    "x-zui": {}
+                    "description": "Required unless `type` is \"tool_call\". If `type` is \"multipart\", this field must be an array of content objects. If `type` is \"tool_result\" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is \"tool_call\" then the `toolCalls` field should be used instead."
                   },
                   "role": {
                     "type": "string",
-                    "const": "assistant",
-                    "x-zui": {}
+                    "const": "assistant"
                   },
                   "index": {
-                    "type": "integer",
-                    "x-zui": {}
+                    "type": "integer"
                   },
                   "stopReason": {
                     "type": "string",
-                    "enum": ["stop", "max_tokens", "tool_calls", "content_filter", "other"],
-                    "x-zui": {}
+                    "enum": ["stop", "max_tokens", "tool_calls", "content_filter", "other"]
                   }
                 },
                 "required": ["content", "role", "index", "stopReason"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             },
             "usage": {
               "type": "object",
               "properties": {
                 "inputTokens": {
                   "type": "integer",
-                  "description": "Number of input tokens used by the model",
-                  "x-zui": {}
+                  "description": "Number of input tokens used by the model"
                 },
                 "inputCost": {
                   "type": "number",
-                  "description": "Cost of the input tokens received by the model, in U.S. dollars",
-                  "x-zui": {}
+                  "description": "Cost of the input tokens received by the model, in U.S. dollars"
                 },
                 "outputTokens": {
                   "type": "integer",
-                  "description": "Number of output tokens used by the model",
-                  "x-zui": {}
+                  "description": "Number of output tokens used by the model"
                 },
                 "outputCost": {
                   "type": "number",
-                  "description": "Cost of the output tokens generated by the model, in U.S. dollars",
-                  "x-zui": {}
+                  "description": "Cost of the output tokens generated by the model, in U.S. dollars"
                 }
               },
               "required": ["inputTokens", "inputCost", "outputTokens", "outputCost"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             },
             "botpress": {
               "type": "object",
               "properties": {
                 "cost": {
                   "type": "number",
-                  "description": "Total cost of the content generation, in U.S. dollars",
-                  "x-zui": {}
+                  "description": "Total cost of the content generation, in U.S. dollars"
                 }
               },
               "required": ["cost"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["id", "provider", "model", "choices", "usage", "botpress"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -531,8 +467,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -547,16 +482,13 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "description": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "tags": {
                         "type": "array",
@@ -575,62 +507,49 @@
                             "storytelling",
                             "reasoning",
                             "preview"
-                          ],
-                          "x-zui": {}
-                        },
-                        "x-zui": {}
+                          ]
+                        }
                       },
                       "input": {
                         "type": "object",
                         "properties": {
                           "maxTokens": {
-                            "type": "integer",
-                            "x-zui": {}
+                            "type": "integer"
                           },
                           "costPer1MTokens": {
                             "type": "number",
-                            "description": "Cost per 1 million tokens, in U.S. dollars",
-                            "x-zui": {}
+                            "description": "Cost per 1 million tokens, in U.S. dollars"
                           }
                         },
                         "required": ["maxTokens", "costPer1MTokens"],
-                        "additionalProperties": false,
-                        "x-zui": {}
+                        "additionalProperties": false
                       },
                       "output": {
                         "type": "object",
                         "properties": {
                           "maxTokens": {
-                            "type": "integer",
-                            "x-zui": {}
+                            "type": "integer"
                           },
                           "costPer1MTokens": {
                             "type": "number",
-                            "description": "Cost per 1 million tokens, in U.S. dollars",
-                            "x-zui": {}
+                            "description": "Cost per 1 million tokens, in U.S. dollars"
                           }
                         },
                         "required": ["maxTokens", "costPer1MTokens"],
-                        "additionalProperties": false,
-                        "x-zui": {}
+                        "additionalProperties": false
                       }
                     },
-                    "required": ["id", "name", "description", "tags", "input", "output"],
-                    "x-zui": {}
+                    "required": ["id", "name", "description", "tags", "input", "output"]
                   },
                   {
-                    "$ref": "modelRef",
-                    "x-zui": {}
+                    "$ref": "modelRef"
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             }
           },
           "required": ["models"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }

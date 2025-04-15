@@ -18,39 +18,34 @@
           "origin": {
             "type": "string",
             "const": "stripe",
-            "description": "The origin of the event trigger",
-            "x-zui": {}
+            "description": "The origin of the event trigger"
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID",
-            "x-zui": {}
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
             "properties": {
               "type": {
                 "type": "string",
-                "x-zui": {},
+
                 "default": "charge.failed"
               },
               "object": {
                 "type": "object",
                 "properties": {},
                 "additionalProperties": true,
-                "description": "The object of the failed charge",
-                "x-zui": {}
+                "description": "The object of the failed charge"
               }
             },
             "required": ["object"],
             "additionalProperties": false,
-            "description": "The data to send with the event",
-            "x-zui": {}
+            "description": "The data to send with the event"
           }
         },
         "required": ["origin", "userId", "data"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "title": "Charge Failed",
       "description": "This event occurs when a charge fails in Stripe."
@@ -62,39 +57,34 @@
           "origin": {
             "type": "string",
             "const": "stripe",
-            "description": "The origin of the event trigger",
-            "x-zui": {}
+            "description": "The origin of the event trigger"
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID",
-            "x-zui": {}
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
             "properties": {
               "type": {
                 "type": "string",
-                "x-zui": {},
+
                 "default": "customer.subscription.deleted"
               },
               "object": {
                 "type": "object",
                 "properties": {},
                 "additionalProperties": true,
-                "description": "The object of the deleted subscription",
-                "x-zui": {}
+                "description": "The object of the deleted subscription"
               }
             },
             "required": ["object"],
             "additionalProperties": false,
-            "description": "The data to send with the event",
-            "x-zui": {}
+            "description": "The data to send with the event"
           }
         },
         "required": ["origin", "userId", "data"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "title": "Subscription Deleted",
       "description": "This event occurs when a subscription is canceled/deleted in Stripe."
@@ -106,39 +96,34 @@
           "origin": {
             "type": "string",
             "const": "stripe",
-            "description": "The origin of the event trigger",
-            "x-zui": {}
+            "description": "The origin of the event trigger"
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID",
-            "x-zui": {}
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
             "properties": {
               "type": {
                 "type": "string",
-                "x-zui": {},
+
                 "default": "customer.subscription.updated"
               },
               "object": {
                 "type": "object",
                 "properties": {},
                 "additionalProperties": true,
-                "description": "The object of the updated subscription",
-                "x-zui": {}
+                "description": "The object of the updated subscription"
               }
             },
             "required": ["object"],
             "additionalProperties": false,
-            "description": "The data to send with the event",
-            "x-zui": {}
+            "description": "The data to send with the event"
           }
         },
         "required": ["origin", "userId", "data"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "title": "Subscription Updated",
       "description": "This event occurs when a subscription is updated in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true."
@@ -150,39 +135,34 @@
           "origin": {
             "type": "string",
             "const": "stripe",
-            "description": "The origin of the event trigger",
-            "x-zui": {}
+            "description": "The origin of the event trigger"
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID",
-            "x-zui": {}
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
             "properties": {
               "type": {
                 "type": "string",
-                "x-zui": {},
+
                 "default": "customer.subscription.created"
               },
               "object": {
                 "type": "object",
                 "properties": {},
                 "additionalProperties": true,
-                "description": "The object of the created subscription",
-                "x-zui": {}
+                "description": "The object of the created subscription"
               }
             },
             "required": ["object"],
             "additionalProperties": false,
-            "description": "The data to send with the event",
-            "x-zui": {}
+            "description": "The data to send with the event"
           }
         },
         "required": ["origin", "userId", "data"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "title": "Subscription Created",
       "description": "This event occurs when a subscription is created in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true."
@@ -194,39 +174,34 @@
           "origin": {
             "type": "string",
             "const": "stripe",
-            "description": "The origin of the event trigger",
-            "x-zui": {}
+            "description": "The origin of the event trigger"
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID",
-            "x-zui": {}
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
             "properties": {
               "type": {
                 "type": "string",
-                "x-zui": {},
+
                 "default": "invoice.payment_failed"
               },
               "object": {
                 "type": "object",
                 "properties": {},
                 "additionalProperties": true,
-                "description": "The object of the invoice whose payment failed",
-                "x-zui": {}
+                "description": "The object of the invoice whose payment failed"
               }
             },
             "required": ["object"],
             "additionalProperties": false,
-            "description": "The data to send with the event",
-            "x-zui": {}
+            "description": "The data to send with the event"
           }
         },
         "required": ["origin", "userId", "data"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "title": "Invoice Payment Failed",
       "description": "This event occurs when an invoice payment fails in Stripe."
@@ -238,39 +213,34 @@
           "origin": {
             "type": "string",
             "const": "stripe",
-            "description": "The origin of the event trigger",
-            "x-zui": {}
+            "description": "The origin of the event trigger"
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID",
-            "x-zui": {}
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
             "properties": {
               "type": {
                 "type": "string",
-                "x-zui": {},
+
                 "default": "payment_intent.payment_failed"
               },
               "object": {
                 "type": "object",
                 "properties": {},
                 "additionalProperties": true,
-                "description": "The object of the payment intent that failed",
-                "x-zui": {}
+                "description": "The object of the payment intent that failed"
               }
             },
             "required": ["object"],
             "additionalProperties": false,
-            "description": "The data to send with the event",
-            "x-zui": {}
+            "description": "The data to send with the event"
           }
         },
         "required": ["origin", "userId", "data"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "title": "Payment Intent Failed",
       "description": "This event occurs when a payment intent fails in Stripe."
@@ -282,39 +252,34 @@
           "origin": {
             "type": "string",
             "const": "stripe",
-            "description": "The origin of the event trigger",
-            "x-zui": {}
+            "description": "The origin of the event trigger"
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID",
-            "x-zui": {}
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
             "properties": {
               "type": {
                 "type": "string",
-                "x-zui": {},
+
                 "default": "subscription_schedule.created"
               },
               "object": {
                 "type": "object",
                 "properties": {},
                 "additionalProperties": true,
-                "description": "The object of the created subscription schedule",
-                "x-zui": {}
+                "description": "The object of the created subscription schedule"
               }
             },
             "required": ["object"],
             "additionalProperties": false,
-            "description": "The data to send with the event",
-            "x-zui": {}
+            "description": "The data to send with the event"
           }
         },
         "required": ["origin", "userId", "data"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "title": "Subscription Schedule Created",
       "description": "This event occurs when a subscription schedule is created in Stripe."
@@ -326,39 +291,34 @@
           "origin": {
             "type": "string",
             "const": "stripe",
-            "description": "The origin of the event trigger",
-            "x-zui": {}
+            "description": "The origin of the event trigger"
           },
           "userId": {
             "type": "string",
-            "description": "Botpress User ID",
-            "x-zui": {}
+            "description": "Botpress User ID"
           },
           "data": {
             "type": "object",
             "properties": {
               "type": {
                 "type": "string",
-                "x-zui": {},
+
                 "default": "subscription_schedule.updated"
               },
               "object": {
                 "type": "object",
                 "properties": {},
                 "additionalProperties": true,
-                "description": "The object of the updated subscription schedule",
-                "x-zui": {}
+                "description": "The object of the updated subscription schedule"
               }
             },
             "required": ["object"],
             "additionalProperties": false,
-            "description": "The data to send with the event",
-            "x-zui": {}
+            "description": "The data to send with the event"
           }
         },
         "required": ["origin", "userId", "data"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "title": "Subscription Schedule Updated",
       "description": "This event occurs when a subscription schedule is updated in Stripe."
@@ -388,19 +348,19 @@
             },
             "currency": {
               "type": "string",
-              "x-zui": {},
+
               "default": "usd",
               "description": "The currency in which the price will be expressed"
             },
             "quantity": {
               "type": "number",
-              "x-zui": {},
+
               "default": 1,
               "description": "The quantity of the product being purchased"
             },
             "adjustableQuantity": {
               "type": "boolean",
-              "x-zui": {},
+
               "default": false,
               "description": "Whether or not the quantity can be adjusted"
             },
@@ -426,8 +386,7 @@
             }
           },
           "required": ["productName"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -435,16 +394,13 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "url": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -454,8 +410,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -468,8 +423,7 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "prices": {
                     "type": "array",
@@ -477,44 +431,35 @@
                       "type": "object",
                       "properties": {
                         "unit_amount": {
-                          "type": ["number", "null"],
-                          "x-zui": {}
+                          "type": ["number", "null"]
                         },
                         "currency": {
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "recurring": {
                           "anyOf": [
                             {
                               "type": "object",
                               "properties": {},
-                              "additionalProperties": true,
-                              "x-zui": {}
+                              "additionalProperties": true
                             },
                             {
                               "type": "null"
                             }
-                          ],
-                          "x-zui": {}
+                          ]
                         }
                       },
                       "required": ["unit_amount", "currency"],
-                      "additionalProperties": false,
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "additionalProperties": false
+                    }
                   }
                 },
                 "required": ["name", "prices"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -526,30 +471,29 @@
           "properties": {
             "productName": {
               "type": "string",
-              "description": "The name of the subscription product",
-              "x-zui": {}
+              "description": "The name of the subscription product"
             },
             "unit_amount": {
               "type": "number",
-              "x-zui": {},
+
               "default": 0,
               "description": "The unit price in cents"
             },
             "currency": {
               "type": "string",
-              "x-zui": {},
+
               "default": "usd",
               "description": "The currency in which the price is expressed"
             },
             "quantity": {
               "type": "number",
-              "x-zui": {},
+
               "default": 1,
               "description": "The quantity of the subscription being purchased"
             },
             "adjustableQuantity": {
               "type": "boolean",
-              "x-zui": {},
+
               "default": false,
               "description": "Whether or not the quantity can be adjusted"
             },
@@ -584,18 +528,17 @@
             "trial_period_days": {
               "type": "number",
               "minimum": 1,
-              "x-zui": {},
+
               "description": "The number of free trial days for the subscription"
             },
             "description": {
               "type": "string",
-              "x-zui": {},
+
               "description": "A description of the subscription product"
             }
           },
           "required": ["productName"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -603,16 +546,13 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "url": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -622,8 +562,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -636,23 +575,18 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "url": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["id", "url"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -672,8 +606,7 @@
             }
           },
           "required": ["url"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -681,12 +614,10 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -705,8 +636,7 @@
             }
           },
           "required": ["id"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -714,20 +644,16 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "url": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "active": {
-              "type": "boolean",
-              "x-zui": {}
+              "type": "boolean"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -741,12 +667,11 @@
               "type": "string",
               "format": "email",
               "maxLength": 512,
-              "x-zui": {},
+
               "description": "The e-mail of the customer to search for"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -761,59 +686,46 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "email": {
-                      "type": ["string", "null"],
-                      "x-zui": {}
+                      "type": ["string", "null"]
                     },
                     "name": {
-                      "type": ["string", "null"],
-                      "x-zui": {}
+                      "type": ["string", "null"]
                     },
                     "description": {
-                      "type": ["string", "null"],
-                      "x-zui": {}
+                      "type": ["string", "null"]
                     },
                     "phone": {
-                      "type": ["string", "null"],
-                      "x-zui": {}
+                      "type": ["string", "null"]
                     },
                     "address": {
                       "anyOf": [
                         {
                           "type": "object",
                           "properties": {},
-                          "additionalProperties": true,
-                          "x-zui": {}
+                          "additionalProperties": true
                         },
                         {
                           "type": "null"
                         }
-                      ],
-                      "x-zui": {}
+                      ]
                     },
                     "created": {
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
                     "delinquent": {
-                      "type": ["boolean", "null"],
-                      "x-zui": {}
+                      "type": ["boolean", "null"]
                     }
                   },
                   "required": ["id", "email", "description", "created"],
-                  "additionalProperties": true,
-                  "x-zui": {}
-                },
-                "x-zui": {}
-              },
-              "x-zui": {}
+                  "additionalProperties": true
+                }
+              }
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -826,22 +738,21 @@
             "email": {
               "type": "string",
               "maxLength": 512,
-              "x-zui": {},
+
               "description": "Search by query on customer emails"
             },
             "name": {
               "type": "string",
-              "x-zui": {},
+
               "description": "Search by query on customer name"
             },
             "phone": {
               "type": "string",
-              "x-zui": {},
+
               "description": "Search by query on customer phone number"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -854,57 +765,45 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "email": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "name": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "phone": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "address": {
                     "anyOf": [
                       {
                         "type": "object",
                         "properties": {},
-                        "additionalProperties": true,
-                        "x-zui": {}
+                        "additionalProperties": true
                       },
                       {
                         "type": "null"
                       }
-                    ],
-                    "x-zui": {}
+                    ]
                   },
                   "created": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "delinquent": {
-                    "type": ["boolean", "null"],
-                    "x-zui": {}
+                    "type": ["boolean", "null"]
                   }
                 },
                 "required": ["id", "email", "description", "created"],
-                "additionalProperties": true,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": true
+              }
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -960,8 +859,7 @@
             }
           },
           "required": ["email"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -972,55 +870,44 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "email": {
-                  "type": ["string", "null"],
-                  "x-zui": {}
+                  "type": ["string", "null"]
                 },
                 "name": {
-                  "type": ["string", "null"],
-                  "x-zui": {}
+                  "type": ["string", "null"]
                 },
                 "description": {
-                  "type": ["string", "null"],
-                  "x-zui": {}
+                  "type": ["string", "null"]
                 },
                 "phone": {
-                  "type": ["string", "null"],
-                  "x-zui": {}
+                  "type": ["string", "null"]
                 },
                 "address": {
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {},
-                      "additionalProperties": true,
-                      "x-zui": {}
+                      "additionalProperties": true
                     },
                     {
                       "type": "null"
                     }
-                  ],
-                  "x-zui": {}
+                  ]
                 },
                 "created": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "delinquent": {
-                  "type": ["boolean", "null"],
-                  "x-zui": {}
+                  "type": ["boolean", "null"]
                 }
               },
               "required": ["id", "email", "description", "created"],
-              "additionalProperties": true,
-              "x-zui": {}
+              "additionalProperties": true
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -1076,8 +963,7 @@
             }
           },
           "required": ["email"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -1088,51 +974,41 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "email": {
-                  "type": ["string", "null"],
-                  "x-zui": {}
+                  "type": ["string", "null"]
                 },
                 "name": {
-                  "type": ["string", "null"],
-                  "x-zui": {}
+                  "type": ["string", "null"]
                 },
                 "description": {
-                  "type": ["string", "null"],
-                  "x-zui": {}
+                  "type": ["string", "null"]
                 },
                 "phone": {
-                  "type": ["string", "null"],
-                  "x-zui": {}
+                  "type": ["string", "null"]
                 },
                 "address": {
                   "anyOf": [
                     {
                       "type": "object",
                       "properties": {},
-                      "additionalProperties": true,
-                      "x-zui": {}
+                      "additionalProperties": true
                     },
                     {
                       "type": "null"
                     }
-                  ],
-                  "x-zui": {}
+                  ]
                 },
                 "created": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "delinquent": {
-                  "type": ["boolean", "null"],
-                  "x-zui": {}
+                  "type": ["boolean", "null"]
                 }
               },
               "required": ["id", "email", "description", "created"],
-              "additionalProperties": true,
-              "x-zui": {}
+              "additionalProperties": true
             },
             "customers": {
               "type": "array",
@@ -1140,57 +1016,45 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "email": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "name": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "phone": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "address": {
                     "anyOf": [
                       {
                         "type": "object",
                         "properties": {},
-                        "additionalProperties": true,
-                        "x-zui": {}
+                        "additionalProperties": true
                       },
                       {
                         "type": "null"
                       }
-                    ],
-                    "x-zui": {}
+                    ]
                   },
                   "created": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "delinquent": {
-                    "type": ["boolean", "null"],
-                    "x-zui": {}
+                    "type": ["boolean", "null"]
                   }
                 },
                 "required": ["id", "email", "description", "created"],
-                "additionalProperties": true,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": true
+              }
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -1209,8 +1073,7 @@
             }
           },
           "required": ["id"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -1218,24 +1081,19 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "email": {
-              "type": ["string", "null"],
-              "x-zui": {}
+              "type": ["string", "null"]
             },
             "description": {
-              "type": ["string", "null"],
-              "x-zui": {}
+              "type": ["string", "null"]
             },
             "created": {
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             }
           },
-          "additionalProperties": true,
-          "x-zui": {}
+          "additionalProperties": true
         }
       }
     }
@@ -1248,13 +1106,11 @@
         "type": "object",
         "properties": {
           "stripeWebhookId": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["stripeWebhookId"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },

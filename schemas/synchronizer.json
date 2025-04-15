@@ -20,8 +20,7 @@
         }
       },
       "required": ["tableName"],
-      "additionalProperties": false,
-      "x-zui": {}
+      "additionalProperties": false
     }
   },
   "events": {
@@ -29,8 +28,7 @@
       "schema": {
         "type": "object",
         "properties": {},
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "rowInserted": {
@@ -41,18 +39,15 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "required": ["row"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "rowUpdated": {
@@ -63,18 +58,15 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "required": ["row"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "rowDeleted": {
@@ -85,18 +77,15 @@
             "type": "object",
             "properties": {
               "id": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "required": ["row"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },
@@ -108,8 +97,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -117,13 +105,11 @@
           "type": "object",
           "properties": {
             "itemsLeft": {
-              "type": "boolean",
-              "x-zui": {}
+              "type": "boolean"
             }
           },
           "required": ["itemsLeft"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -134,16 +120,14 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }
@@ -162,8 +146,7 @@
             "description": "Whether the table has been created"
           }
         },
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "job": {
@@ -179,8 +162,7 @@
             "description": "The token to use to get the next page of items"
           }
         },
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   }

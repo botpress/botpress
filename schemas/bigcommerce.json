@@ -11,8 +11,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -21,23 +20,19 @@
           "properties": {
             "success": {
               "type": "boolean",
-              "description": "Whether the sync was successful",
-              "x-zui": {}
+              "description": "Whether the sync was successful"
             },
             "message": {
               "type": "string",
-              "description": "Status message",
-              "x-zui": {}
+              "description": "Status message"
             },
             "productsCount": {
               "type": "number",
-              "description": "Number of products synced",
-              "x-zui": {}
+              "description": "Number of products synced"
             }
           },
           "required": ["success", "message", "productsCount"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }

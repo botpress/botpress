@@ -26,18 +26,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -48,19 +46,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was updated",
-            "x-zui": {}
+            "description": "Card that was updated"
           },
           "member": {
             "type": "object",
@@ -70,24 +65,20 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the member",
-                "x-zui": {}
+                "description": "Unique identifier of the member"
               },
               "name": {
                 "type": "string",
-                "description": "Full name of the member",
-                "x-zui": {}
+                "description": "Full name of the member"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Member that was added to the card",
-            "x-zui": {}
+            "description": "Member that was added to the card"
           }
         },
         "required": ["card", "member"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "commentCard": {
@@ -104,18 +95,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -126,19 +115,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was updated",
-            "x-zui": {}
+            "description": "Card that was updated"
           },
           "list": {
             "type": "object",
@@ -148,29 +134,25 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the list",
-                "x-zui": {}
+                "description": "Unique identifier of the list"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list",
-                "x-zui": {}
+                "description": "Name of the list"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "List where the card was updated"
           },
           "text": {
             "type": "string",
-            "description": "Text of the comment",
-            "x-zui": {}
+            "description": "Text of the comment"
           }
         },
         "required": ["card", "text"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "createCard": {
@@ -187,18 +169,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was created"
           },
           "card": {
@@ -209,19 +189,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was created",
-            "x-zui": {}
+            "description": "Card that was created"
           },
           "list": {
             "type": "object",
@@ -231,24 +208,21 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the list",
-                "x-zui": {}
+                "description": "Unique identifier of the list"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list",
-                "x-zui": {}
+                "description": "Name of the list"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "List where the card was created"
           }
         },
         "required": ["card"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "deleteCard": {
@@ -265,18 +239,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was deleted"
           },
           "card": {
@@ -287,14 +259,12 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               }
             },
             "required": ["id"],
             "additionalProperties": false,
-            "description": "Card that was deleted",
-            "x-zui": {}
+            "description": "Card that was deleted"
           },
           "list": {
             "type": "object",
@@ -304,24 +274,21 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the list",
-                "x-zui": {}
+                "description": "Unique identifier of the list"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list",
-                "x-zui": {}
+                "description": "Name of the list"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "List where the card was deleted"
           }
         },
         "required": ["card"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "removeMemberFromCard": {
@@ -338,18 +305,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -360,19 +325,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was updated",
-            "x-zui": {}
+            "description": "Card that was updated"
           },
           "member": {
             "type": "object",
@@ -382,24 +344,20 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the member",
-                "x-zui": {}
+                "description": "Unique identifier of the member"
               },
               "name": {
                 "type": "string",
-                "description": "Full name of the member",
-                "x-zui": {}
+                "description": "Full name of the member"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Member that was removed from the card",
-            "x-zui": {}
+            "description": "Member that was removed from the card"
           }
         },
         "required": ["card", "member"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "updateCard": {
@@ -416,18 +374,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -438,25 +394,23 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               },
               "idList": {
                 "type": "string",
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "x-zui": {},
+
                 "description": "Unique identifier of the list where the card is located"
               },
               "desc": {
                 "type": "string",
-                "x-zui": {},
+
                 "description": "Description of the card"
               },
               "idLabels": {
@@ -466,94 +420,85 @@
                   "minLength": 24,
                   "maxLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$",
-                  "x-zui": {},
+
                   "description": "Unique identifier of the list where the card is located"
                 },
-                "x-zui": {},
+
                 "description": "Labels attached to the card"
               },
               "pos": {
                 "type": "number",
-                "x-zui": {},
+
                 "description": "Position of the card"
               },
               "start": {
                 "anyOf": [
                   {
                     "type": "string",
-                    "format": "date-time",
-                    "x-zui": {}
+                    "format": "date-time"
                   },
                   {
-                    "type": "null",
-                    "x-zui": {}
+                    "type": "null"
                   }
                 ],
-                "x-zui": {},
+
                 "description": "Start date of the card"
               },
               "due": {
                 "anyOf": [
                   {
                     "type": "string",
-                    "format": "date-time",
-                    "x-zui": {}
+                    "format": "date-time"
                   },
                   {
-                    "type": "null",
-                    "x-zui": {}
+                    "type": "null"
                   }
                 ],
-                "x-zui": {},
+
                 "description": "Due date of the card"
               },
               "dueReminder": {
                 "anyOf": [
                   {
                     "type": "number",
-                    "const": -1,
-                    "x-zui": {}
+                    "const": -1
                   },
                   {
-                    "type": "null",
-                    "x-zui": {}
+                    "type": "null"
                   },
                   {
                     "type": "number",
-                    "minimum": 0,
-                    "x-zui": {}
+                    "minimum": 0
                   }
                 ],
-                "x-zui": {},
+
                 "description": "Due reminder of the card"
               },
               "dueComplete": {
                 "type": "boolean",
-                "x-zui": {},
+
                 "description": "Whether the card is completed"
               },
               "closed": {
                 "type": "boolean",
-                "x-zui": {},
+
                 "description": "Whether the card is archived"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was updated",
-            "x-zui": {}
+            "description": "Card that was updated"
           },
           "old": {
             "type": "object",
             "properties": {
               "name": {
                 "type": "string",
-                "description": "Previous name of the card",
-                "x-zui": {}
+                "description": "Previous name of the card"
               },
               "desc": {
                 "type": ["string", "null"],
-                "x-zui": {},
+
                 "description": "Previous description of the card"
               },
               "idList": {
@@ -561,7 +506,7 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "x-zui": {},
+
                 "description": "Unique identifier of the list where the card is located"
               },
               "idLabels": {
@@ -571,82 +516,74 @@
                   "minLength": 24,
                   "maxLength": 24,
                   "pattern": "^[0-9a-fA-F]{24}$",
-                  "x-zui": {},
+
                   "description": "Unique identifier of the list where the card is located"
                 },
-                "x-zui": {},
+
                 "description": "Previous labels attached to the card"
               },
               "pos": {
                 "type": "number",
-                "x-zui": {},
+
                 "description": "Previous position of the card"
               },
               "start": {
                 "anyOf": [
                   {
                     "type": "string",
-                    "format": "date-time",
-                    "x-zui": {}
+                    "format": "date-time"
                   },
                   {
-                    "type": "null",
-                    "x-zui": {}
+                    "type": "null"
                   }
                 ],
-                "x-zui": {},
+
                 "description": "Previous start date of the card"
               },
               "due": {
                 "anyOf": [
                   {
                     "type": "string",
-                    "format": "date-time",
-                    "x-zui": {}
+                    "format": "date-time"
                   },
                   {
-                    "type": "null",
-                    "x-zui": {}
+                    "type": "null"
                   }
                 ],
-                "x-zui": {},
+
                 "description": "Previous due date of the card"
               },
               "dueReminder": {
                 "anyOf": [
                   {
                     "type": "number",
-                    "const": -1,
-                    "x-zui": {}
+                    "const": -1
                   },
                   {
-                    "type": "null",
-                    "x-zui": {}
+                    "type": "null"
                   },
                   {
                     "type": "number",
-                    "minimum": 0,
-                    "x-zui": {}
+                    "minimum": 0
                   }
                 ],
-                "x-zui": {},
+
                 "description": "Previous due reminder of the card"
               },
               "dueComplete": {
                 "type": "boolean",
-                "x-zui": {},
+
                 "description": "Previous completion state of the card"
               },
               "closed": {
                 "type": "boolean",
-                "x-zui": {},
+
                 "description": "Previous archive state of the card"
               }
             },
             "required": ["name"],
             "additionalProperties": false,
-            "description": "Previous state of the card",
-            "x-zui": {}
+            "description": "Previous state of the card"
           },
           "list": {
             "type": "object",
@@ -656,18 +593,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the list",
-                "x-zui": {}
+                "description": "Unique identifier of the list"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list",
-                "x-zui": {}
+                "description": "Name of the list"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "List where the card was updated"
           },
           "listBefore": {
@@ -678,18 +613,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the previous list",
-                "x-zui": {}
+                "description": "Unique identifier of the previous list"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the previous list",
-                "x-zui": {}
+                "description": "Name of the previous list"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Previous list where the card was located"
           },
           "listAfter": {
@@ -700,24 +633,21 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the new list",
-                "x-zui": {}
+                "description": "Unique identifier of the new list"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the new list",
-                "x-zui": {}
+                "description": "Name of the new list"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "New list where the card is now located"
           }
         },
         "required": ["card", "old"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "updateCheckItemStateOnCard": {
@@ -734,18 +664,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -756,19 +684,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was updated",
-            "x-zui": {}
+            "description": "Card that was updated"
           },
           "checklist": {
             "type": "object",
@@ -778,19 +703,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the checklist",
-                "x-zui": {}
+                "description": "Unique identifier of the checklist"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the checklist",
-                "x-zui": {}
+                "description": "Name of the checklist"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Checklist where the item was updated",
-            "x-zui": {}
+            "description": "Checklist where the item was updated"
           },
           "checkItem": {
             "type": "object",
@@ -800,19 +722,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the check item",
-                "x-zui": {}
+                "description": "Unique identifier of the check item"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the check item",
-                "x-zui": {}
+                "description": "Name of the check item"
               },
               "state": {
                 "type": "string",
                 "enum": ["complete", "incomplete"],
-                "description": "State of the check item",
-                "x-zui": {}
+                "description": "State of the check item"
               },
               "textData": {
                 "type": "object",
@@ -821,30 +740,26 @@
                     "type": "object",
                     "properties": {},
                     "additionalProperties": false,
-                    "description": "Emoji of the check item",
-                    "x-zui": {}
+                    "description": "Emoji of the check item"
                   }
                 },
                 "required": ["emoji"],
-                "additionalProperties": false,
-                "x-zui": {}
+                "additionalProperties": false
               },
               "due": {
                 "type": "string",
                 "format": "date-time",
-                "x-zui": {},
+
                 "description": "Due date of the check item"
               }
             },
             "required": ["id", "name", "state", "textData"],
             "additionalProperties": false,
-            "description": "Check item that was updated",
-            "x-zui": {}
+            "description": "Check item that was updated"
           }
         },
         "required": ["card", "checklist", "checkItem"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "addLabelToCard": {
@@ -861,18 +776,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was modified"
           },
           "card": {
@@ -883,19 +796,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was modified",
-            "x-zui": {}
+            "description": "Card that was modified"
           },
           "label": {
             "type": "object",
@@ -905,29 +815,24 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the label",
-                "x-zui": {}
+                "description": "Unique identifier of the label"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the label",
-                "x-zui": {}
+                "description": "Name of the label"
               },
               "color": {
                 "type": "string",
-                "description": "Color of the label",
-                "x-zui": {}
+                "description": "Color of the label"
               }
             },
             "required": ["id", "name", "color"],
             "additionalProperties": false,
-            "description": "Label that was added to the card",
-            "x-zui": {}
+            "description": "Label that was added to the card"
           }
         },
         "required": ["card", "label"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "createCheckItem": {
@@ -944,18 +849,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -966,19 +869,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was updated",
-            "x-zui": {}
+            "description": "Card that was updated"
           },
           "checklist": {
             "type": "object",
@@ -988,19 +888,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the checklist",
-                "x-zui": {}
+                "description": "Unique identifier of the checklist"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the checklist",
-                "x-zui": {}
+                "description": "Name of the checklist"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Checklist where the item was added",
-            "x-zui": {}
+            "description": "Checklist where the item was added"
           },
           "checkItem": {
             "type": "object",
@@ -1010,19 +907,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the check item",
-                "x-zui": {}
+                "description": "Unique identifier of the check item"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the check item",
-                "x-zui": {}
+                "description": "Name of the check item"
               },
               "state": {
                 "type": "string",
                 "enum": ["complete", "incomplete"],
-                "description": "State of the check item",
-                "x-zui": {}
+                "description": "State of the check item"
               },
               "textData": {
                 "type": "object",
@@ -1031,30 +925,26 @@
                     "type": "object",
                     "properties": {},
                     "additionalProperties": false,
-                    "description": "Emoji of the check item",
-                    "x-zui": {}
+                    "description": "Emoji of the check item"
                   }
                 },
                 "required": ["emoji"],
-                "additionalProperties": false,
-                "x-zui": {}
+                "additionalProperties": false
               },
               "due": {
                 "type": "string",
                 "format": "date-time",
-                "x-zui": {},
+
                 "description": "Due date of the check item"
               }
             },
             "required": ["id", "name", "state", "textData"],
             "additionalProperties": false,
-            "description": "Check item that was added to the checklist",
-            "x-zui": {}
+            "description": "Check item that was added to the checklist"
           }
         },
         "required": ["card", "checklist", "checkItem"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "deleteCheckItem": {
@@ -1071,18 +961,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -1093,19 +981,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was updated",
-            "x-zui": {}
+            "description": "Card that was updated"
           },
           "checklist": {
             "type": "object",
@@ -1115,19 +1000,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the checklist",
-                "x-zui": {}
+                "description": "Unique identifier of the checklist"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the checklist",
-                "x-zui": {}
+                "description": "Name of the checklist"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Checklist where the item was removed",
-            "x-zui": {}
+            "description": "Checklist where the item was removed"
           },
           "checkItem": {
             "type": "object",
@@ -1137,19 +1019,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the check item",
-                "x-zui": {}
+                "description": "Unique identifier of the check item"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the check item",
-                "x-zui": {}
+                "description": "Name of the check item"
               },
               "state": {
                 "type": "string",
                 "enum": ["complete", "incomplete"],
-                "description": "State of the check item",
-                "x-zui": {}
+                "description": "State of the check item"
               },
               "textData": {
                 "type": "object",
@@ -1158,30 +1037,26 @@
                     "type": "object",
                     "properties": {},
                     "additionalProperties": false,
-                    "description": "Emoji of the check item",
-                    "x-zui": {}
+                    "description": "Emoji of the check item"
                   }
                 },
                 "required": ["emoji"],
-                "additionalProperties": false,
-                "x-zui": {}
+                "additionalProperties": false
               },
               "due": {
                 "type": "string",
                 "format": "date-time",
-                "x-zui": {},
+
                 "description": "Due date of the check item"
               }
             },
             "required": ["id", "name", "state", "textData"],
             "additionalProperties": false,
-            "description": "Check item that was removed from the checklist",
-            "x-zui": {}
+            "description": "Check item that was removed from the checklist"
           }
         },
         "required": ["card", "checklist", "checkItem"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "deleteComment": {
@@ -1198,18 +1073,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -1220,19 +1093,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was updated",
-            "x-zui": {}
+            "description": "Card that was updated"
           },
           "list": {
             "type": "object",
@@ -1242,18 +1112,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the list",
-                "x-zui": {}
+                "description": "Unique identifier of the list"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list",
-                "x-zui": {}
+                "description": "Name of the list"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "List where the card was updated"
           },
           "action": {
@@ -1264,18 +1132,15 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the comment that was deleted",
-                "x-zui": {}
+                "description": "Unique identifier of the comment that was deleted"
               }
             },
             "required": ["id"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "required": ["card", "action"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "removeLabelFromCard": {
@@ -1292,18 +1157,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was modified"
           },
           "card": {
@@ -1314,19 +1177,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was modified",
-            "x-zui": {}
+            "description": "Card that was modified"
           },
           "label": {
             "type": "object",
@@ -1336,29 +1196,24 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the label",
-                "x-zui": {}
+                "description": "Unique identifier of the label"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the label",
-                "x-zui": {}
+                "description": "Name of the label"
               },
               "color": {
                 "type": "string",
-                "description": "Color of the label",
-                "x-zui": {}
+                "description": "Color of the label"
               }
             },
             "required": ["id", "name", "color"],
             "additionalProperties": false,
-            "description": "Label that was removed from the card",
-            "x-zui": {}
+            "description": "Label that was removed from the card"
           }
         },
         "required": ["card", "label"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "updateCheckItem": {
@@ -1375,18 +1230,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -1397,19 +1250,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was updated",
-            "x-zui": {}
+            "description": "Card that was updated"
           },
           "checklist": {
             "type": "object",
@@ -1419,19 +1269,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the checklist",
-                "x-zui": {}
+                "description": "Unique identifier of the checklist"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the checklist",
-                "x-zui": {}
+                "description": "Name of the checklist"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Checklist where the item was updated",
-            "x-zui": {}
+            "description": "Checklist where the item was updated"
           },
           "checkItem": {
             "type": "object",
@@ -1441,62 +1288,54 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the check item",
-                "x-zui": {}
+                "description": "Unique identifier of the check item"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the check item",
-                "x-zui": {}
+                "description": "Name of the check item"
               },
               "state": {
                 "type": "string",
                 "enum": ["complete", "incomplete"],
-                "description": "State of the check item",
-                "x-zui": {}
+                "description": "State of the check item"
               },
               "due": {
                 "type": "string",
                 "format": "date-time",
-                "x-zui": {},
+
                 "description": "Due date of the check item"
               }
             },
             "required": ["id", "name", "state"],
             "additionalProperties": false,
-            "description": "Check item that was updated",
-            "x-zui": {}
+            "description": "Check item that was updated"
           },
           "old": {
             "type": "object",
             "properties": {
               "name": {
                 "type": "string",
-                "description": "Old name of the check item",
-                "x-zui": {}
+                "description": "Old name of the check item"
               },
               "state": {
                 "type": "string",
                 "enum": ["complete", "incomplete"],
-                "description": "Old state of the check item",
-                "x-zui": {}
+                "description": "Old state of the check item"
               },
               "due": {
                 "type": "string",
                 "format": "date-time",
-                "x-zui": {},
+
                 "description": "Old due date of the check item"
               }
             },
             "required": ["name", "state"],
             "additionalProperties": false,
-            "description": "Old check item data",
-            "x-zui": {}
+            "description": "Old check item data"
           }
         },
         "required": ["card", "checklist", "checkItem", "old"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "updateComment": {
@@ -1513,18 +1352,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -1535,19 +1372,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was updated",
-            "x-zui": {}
+            "description": "Card that was updated"
           },
           "list": {
             "type": "object",
@@ -1557,18 +1391,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the list",
-                "x-zui": {}
+                "description": "Unique identifier of the list"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list",
-                "x-zui": {}
+                "description": "Name of the list"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "List where the card was updated"
           },
           "action": {
@@ -1579,37 +1411,31 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the comment that was updated",
-                "x-zui": {}
+                "description": "Unique identifier of the comment that was updated"
               },
               "text": {
                 "type": "string",
-                "description": "New text of the comment",
-                "x-zui": {}
+                "description": "New text of the comment"
               }
             },
             "required": ["id", "text"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           },
           "old": {
             "type": "object",
             "properties": {
               "text": {
                 "type": "string",
-                "description": "Old text of the comment",
-                "x-zui": {}
+                "description": "Old text of the comment"
               }
             },
             "required": ["text"],
             "additionalProperties": false,
-            "description": "Old comment data",
-            "x-zui": {}
+            "description": "Old comment data"
           }
         },
         "required": ["card", "action", "old"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "voteOnCard": {
@@ -1626,18 +1452,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -1648,29 +1472,25 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Card that was updated"
           },
           "voted": {
             "type": "boolean",
-            "description": "Whether the user voted on the card",
-            "x-zui": {}
+            "description": "Whether the user voted on the card"
           }
         },
         "required": ["voted"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "addAttachmentToCard": {
@@ -1687,18 +1507,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -1709,19 +1527,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was updated",
-            "x-zui": {}
+            "description": "Card that was updated"
           },
           "list": {
             "type": "object",
@@ -1731,18 +1546,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the list",
-                "x-zui": {}
+                "description": "Unique identifier of the list"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list",
-                "x-zui": {}
+                "description": "Name of the list"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "List where the card was updated"
           },
           "attachment": {
@@ -1753,42 +1566,38 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the attachment",
-                "x-zui": {}
+                "description": "Unique identifier of the attachment"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the attachment",
-                "x-zui": {}
+                "description": "Name of the attachment"
               },
               "url": {
                 "type": "string",
                 "format": "uri",
-                "x-zui": {},
+
                 "description": "URL of the attachment"
               },
               "previewUrl": {
                 "type": "string",
                 "format": "uri",
-                "x-zui": {},
+
                 "description": "URL of the attachment preview"
               },
               "previewUrl2x": {
                 "type": "string",
                 "format": "uri",
-                "x-zui": {},
+
                 "description": "URL of the attachment preview in 2x"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Attachment that was added to the card",
-            "x-zui": {}
+            "description": "Attachment that was added to the card"
           }
         },
         "required": ["card", "attachment"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "deleteAttachmentFromCard": {
@@ -1805,18 +1614,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the board",
-                "x-zui": {}
+                "description": "Unique identifier of the board"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the board",
-                "x-zui": {}
+                "description": "Name of the board"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "Board where the card was updated"
           },
           "card": {
@@ -1827,19 +1634,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the card",
-                "x-zui": {}
+                "description": "Unique identifier of the card"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the card",
-                "x-zui": {}
+                "description": "Name of the card"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Card that was updated",
-            "x-zui": {}
+            "description": "Card that was updated"
           },
           "list": {
             "type": "object",
@@ -1849,18 +1653,16 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the list",
-                "x-zui": {}
+                "description": "Unique identifier of the list"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the list",
-                "x-zui": {}
+                "description": "Name of the list"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "x-zui": {},
+
             "description": "List where the card was updated"
           },
           "attachment": {
@@ -1871,24 +1673,20 @@
                 "minLength": 24,
                 "maxLength": 24,
                 "pattern": "^[0-9a-fA-F]{24}$",
-                "description": "Unique identifier of the attachment",
-                "x-zui": {}
+                "description": "Unique identifier of the attachment"
               },
               "name": {
                 "type": "string",
-                "description": "Name of the attachment",
-                "x-zui": {}
+                "description": "Name of the attachment"
               }
             },
             "required": ["id", "name"],
             "additionalProperties": false,
-            "description": "Attachment that was deleted from the card",
-            "x-zui": {}
+            "description": "Attachment that was deleted from the card"
           }
         },
         "required": ["card", "attachment"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "cardCreated": {
@@ -1904,40 +1702,32 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "description": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "listId": {
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "verticalPosition": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "isClosed": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "isCompleted": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "dueDate": {
                     "type": "string",
-                    "format": "date-time",
-                    "x-zui": {}
+                    "format": "date-time"
                   },
                   "labelIds": {
                     "type": "array",
@@ -1945,10 +1735,8 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
                   },
                   "memberIds": {
                     "type": "array",
@@ -1956,10 +1744,8 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
                   }
                 },
                 "required": [
@@ -1972,27 +1758,22 @@
                   "isCompleted",
                   "labelIds",
                   "memberIds"
-                ],
-                "x-zui": {}
+                ]
               },
               {
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
-                "required": ["id"],
-                "x-zui": {}
+                "required": ["id"]
               }
-            ],
-            "x-zui": {}
+            ]
           }
         },
         "required": ["item"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "name": "cardCreated"
     },
@@ -2009,40 +1790,32 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "description": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "listId": {
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "verticalPosition": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "isClosed": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "isCompleted": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "dueDate": {
                     "type": "string",
-                    "format": "date-time",
-                    "x-zui": {}
+                    "format": "date-time"
                   },
                   "labelIds": {
                     "type": "array",
@@ -2050,10 +1823,8 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
                   },
                   "memberIds": {
                     "type": "array",
@@ -2061,10 +1832,8 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
                   }
                 },
                 "required": [
@@ -2077,27 +1846,22 @@
                   "isCompleted",
                   "labelIds",
                   "memberIds"
-                ],
-                "x-zui": {}
+                ]
               },
               {
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
-                "required": ["id"],
-                "x-zui": {}
+                "required": ["id"]
               }
-            ],
-            "x-zui": {}
+            ]
           }
         },
         "required": ["item"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "name": "cardUpdated"
     },
@@ -2106,13 +1870,11 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "name": "cardDeleted"
     }
@@ -2127,14 +1889,12 @@
           "properties": {
             "boardName": {
               "type": "string",
-              "description": "Display name of the board",
-              "x-zui": {}
+              "description": "Display name of the board"
             }
           },
           "required": ["boardName"],
           "additionalProperties": false,
-          "description": "Input schema for getting a board ID from its name",
-          "x-zui": {}
+          "description": "Input schema for getting a board ID from its name"
         }
       },
       "output": {
@@ -2150,25 +1910,20 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["id", "name"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["boards"],
           "additionalProperties": false,
-          "description": "Output schema for getting a board from its name",
-          "x-zui": {}
+          "description": "Output schema for getting a board from its name"
         }
       }
     },
@@ -2184,19 +1939,16 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the board",
-              "x-zui": {}
+              "description": "Unique identifier of the board"
             },
             "listName": {
               "type": "string",
-              "description": "Display name of the list",
-              "x-zui": {}
+              "description": "Display name of the list"
             }
           },
           "required": ["boardId", "listName"],
           "additionalProperties": false,
-          "description": "Input schema for getting a list ID from its name",
-          "x-zui": {}
+          "description": "Input schema for getting a list ID from its name"
         }
       },
       "output": {
@@ -2212,25 +1964,20 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["id", "name"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["lists"],
           "additionalProperties": false,
-          "description": "Output schema for getting a list ID from its name",
-          "x-zui": {}
+          "description": "Output schema for getting a list ID from its name"
         }
       }
     },
@@ -2246,14 +1993,12 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the list",
-              "x-zui": {}
+              "description": "Unique identifier of the list"
             }
           },
           "required": ["listId"],
           "additionalProperties": false,
-          "description": "Input schema for getting a list from its ID",
-          "x-zui": {}
+          "description": "Input schema for getting a list from its ID"
         }
       },
       "output": {
@@ -2267,23 +2012,19 @@
                   "type": "string",
                   "minLength": 24,
                   "maxLength": 24,
-                  "pattern": "^[0-9a-fA-F]{24}$",
-                  "x-zui": {}
+                  "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["id", "name"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["list"],
           "additionalProperties": false,
-          "description": "Output schema for getting a list from its ID",
-          "x-zui": {}
+          "description": "Output schema for getting a list from its ID"
         }
       }
     },
@@ -2299,19 +2040,16 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the list",
-              "x-zui": {}
+              "description": "Unique identifier of the list"
             },
             "cardName": {
               "type": "string",
-              "description": "Display name of the card",
-              "x-zui": {}
+              "description": "Display name of the card"
             }
           },
           "required": ["listId", "cardName"],
           "additionalProperties": false,
-          "description": "Input schema for getting a card ID from its name",
-          "x-zui": {}
+          "description": "Input schema for getting a card ID from its name"
         }
       },
       "output": {
@@ -2327,40 +2065,32 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "description": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "listId": {
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "verticalPosition": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "isClosed": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "isCompleted": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "dueDate": {
                     "type": "string",
-                    "format": "date-time",
-                    "x-zui": {}
+                    "format": "date-time"
                   },
                   "labelIds": {
                     "type": "array",
@@ -2368,10 +2098,8 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
                   },
                   "memberIds": {
                     "type": "array",
@@ -2379,10 +2107,8 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
                   }
                 },
                 "required": [
@@ -2396,16 +2122,13 @@
                   "labelIds",
                   "memberIds"
                 ],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["cards"],
           "additionalProperties": false,
-          "description": "Output schema for getting a card ID from its name",
-          "x-zui": {}
+          "description": "Output schema for getting a card ID from its name"
         }
       }
     },
@@ -2421,17 +2144,15 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "ID of the list in which to insert the new card",
-              "x-zui": {}
+              "description": "ID of the list in which to insert the new card"
             },
             "cardName": {
               "type": "string",
-              "description": "Name of the new card",
-              "x-zui": {}
+              "description": "Name of the new card"
             },
             "cardBody": {
               "type": "string",
-              "x-zui": {},
+
               "description": "Body text of the new card"
             },
             "members": {
@@ -2440,10 +2161,9 @@
                 "type": "string",
                 "minLength": 24,
                 "maxLength": 24,
-                "pattern": "^[0-9a-fA-F]{24}$",
-                "x-zui": {}
+                "pattern": "^[0-9a-fA-F]{24}$"
               },
-              "x-zui": {},
+
               "description": "Members to add to the card (Optional). This should be a list of member IDs."
             },
             "labels": {
@@ -2452,23 +2172,21 @@
                 "type": "string",
                 "minLength": 24,
                 "maxLength": 24,
-                "pattern": "^[0-9a-fA-F]{24}$",
-                "x-zui": {}
+                "pattern": "^[0-9a-fA-F]{24}$"
               },
-              "x-zui": {},
+
               "description": "Labels to add to the card (Optional). This should be a list of label IDs."
             },
             "dueDate": {
               "type": "string",
               "format": "date-time",
-              "x-zui": {},
+
               "description": "The due date of the card in ISO 8601 format (Optional)."
             }
           },
           "required": ["listId", "cardName"],
           "additionalProperties": false,
-          "description": "Input schema for creating a new card",
-          "x-zui": {}
+          "description": "Input schema for creating a new card"
         }
       },
       "output": {
@@ -2477,22 +2195,19 @@
           "properties": {
             "message": {
               "type": "string",
-              "description": "Output message",
-              "x-zui": {}
+              "description": "Output message"
             },
             "newCardId": {
               "type": "string",
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the new card",
-              "x-zui": {}
+              "description": "Unique identifier of the new card"
             }
           },
           "required": ["message", "newCardId"],
           "additionalProperties": false,
-          "description": "Output schema for creating a card",
-          "x-zui": {}
+          "description": "Output schema for creating a card"
         }
       }
     },
@@ -2508,20 +2223,18 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the card",
-              "x-zui": {}
+              "description": "Unique identifier of the card"
             },
             "moveUpByNSpaces": {
               "type": "number",
               "minimum": 1,
-              "x-zui": {},
+
               "default": 1,
               "description": "Number of spaces by which to move the card up"
             }
           },
           "required": ["cardId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -2530,14 +2243,12 @@
           "properties": {
             "message": {
               "type": "string",
-              "description": "Output message",
-              "x-zui": {}
+              "description": "Output message"
             }
           },
           "required": ["message"],
           "additionalProperties": false,
-          "description": "Output schema for moving a card up",
-          "x-zui": {}
+          "description": "Output schema for moving a card up"
         }
       }
     },
@@ -2553,20 +2264,18 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the card",
-              "x-zui": {}
+              "description": "Unique identifier of the card"
             },
             "moveDownByNSpaces": {
               "type": "number",
               "minimum": 1,
-              "x-zui": {},
+
               "default": 1,
               "description": "Number of spaces by which to move the card down"
             }
           },
           "required": ["cardId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -2575,14 +2284,12 @@
           "properties": {
             "message": {
               "type": "string",
-              "description": "Output message",
-              "x-zui": {}
+              "description": "Output message"
             }
           },
           "required": ["message"],
           "additionalProperties": false,
-          "description": "Output schema for moving a card down",
-          "x-zui": {}
+          "description": "Output schema for moving a card down"
         }
       }
     },
@@ -2598,21 +2305,18 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the card",
-              "x-zui": {}
+              "description": "Unique identifier of the card"
             },
             "newListId": {
               "type": "string",
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the list in which the card will be moved",
-              "x-zui": {}
+              "description": "Unique identifier of the list in which the card will be moved"
             }
           },
           "required": ["cardId", "newListId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -2621,14 +2325,12 @@
           "properties": {
             "message": {
               "type": "string",
-              "description": "Output message",
-              "x-zui": {}
+              "description": "Output message"
             }
           },
           "required": ["message"],
           "additionalProperties": false,
-          "description": "Output schema for moving a card to a list",
-          "x-zui": {}
+          "description": "Output schema for moving a card to a list"
         }
       }
     },
@@ -2644,19 +2346,16 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the card to which a comment will be added",
-              "x-zui": {}
+              "description": "Unique identifier of the card to which a comment will be added"
             },
             "commentBody": {
               "type": "string",
-              "description": "The body text of the comment",
-              "x-zui": {}
+              "description": "The body text of the comment"
             }
           },
           "required": ["cardId", "commentBody"],
           "additionalProperties": false,
-          "description": "Input schema for adding a comment to a card",
-          "x-zui": {}
+          "description": "Input schema for adding a comment to a card"
         }
       },
       "output": {
@@ -2665,22 +2364,19 @@
           "properties": {
             "message": {
               "type": "string",
-              "description": "Output message",
-              "x-zui": {}
+              "description": "Output message"
             },
             "newCommentId": {
               "type": "string",
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the newly created comment",
-              "x-zui": {}
+              "description": "Unique identifier of the newly created comment"
             }
           },
           "required": ["message", "newCommentId"],
           "additionalProperties": false,
-          "description": "Output schema for adding a comment to a card",
-          "x-zui": {}
+          "description": "Output schema for adding a comment to a card"
         }
       }
     },
@@ -2696,29 +2392,28 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the card",
-              "x-zui": {}
+              "description": "Unique identifier of the card"
             },
             "name": {
               "type": "string",
-              "x-zui": {},
+
               "description": "The name of the card (Optional) (e.g. \"My Test Card\"). Leave empty to keep the current name."
             },
             "bodyText": {
               "type": "string",
-              "x-zui": {},
+
               "description": "Body text of the new card (Optional). Leave empty to keep the current body."
             },
             "closedState": {
               "type": "string",
               "enum": ["open", "archived"],
-              "x-zui": {},
+
               "description": "Whether the card should be archived (Optional). Enter \"open\", \"archived\" (without quotes), or leave empty to keep the previous status."
             },
             "completeState": {
               "type": "string",
               "enum": ["complete", "incomplete"],
-              "x-zui": {},
+
               "description": "Whether the card should be marked as complete (Optional). Enter \"complete\", \"incomplete\" (without quotes), or leave empty to keep the previous status."
             },
             "membersToAdd": {
@@ -2727,10 +2422,9 @@
                 "type": "string",
                 "minLength": 24,
                 "maxLength": 24,
-                "pattern": "^[0-9a-fA-F]{24}$",
-                "x-zui": {}
+                "pattern": "^[0-9a-fA-F]{24}$"
               },
-              "x-zui": {},
+
               "description": "Members to add to the card (Optional). This should be a list of member IDs. Leave empty to keep the current members."
             },
             "membersToRemove": {
@@ -2739,10 +2433,9 @@
                 "type": "string",
                 "minLength": 24,
                 "maxLength": 24,
-                "pattern": "^[0-9a-fA-F]{24}$",
-                "x-zui": {}
+                "pattern": "^[0-9a-fA-F]{24}$"
               },
-              "x-zui": {},
+
               "description": "Members to remove from the card (Optional). This should be a list of member IDs. Leave empty to keep the current members."
             },
             "labelsToAdd": {
@@ -2751,10 +2444,9 @@
                 "type": "string",
                 "minLength": 24,
                 "maxLength": 24,
-                "pattern": "^[0-9a-fA-F]{24}$",
-                "x-zui": {}
+                "pattern": "^[0-9a-fA-F]{24}$"
               },
-              "x-zui": {},
+
               "description": "Labels to add to the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels."
             },
             "labelsToRemove": {
@@ -2763,23 +2455,21 @@
                 "type": "string",
                 "minLength": 24,
                 "maxLength": 24,
-                "pattern": "^[0-9a-fA-F]{24}$",
-                "x-zui": {}
+                "pattern": "^[0-9a-fA-F]{24}$"
               },
-              "x-zui": {},
+
               "description": "Labels to remove from the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels."
             },
             "dueDate": {
               "type": "string",
               "format": "date-time",
-              "x-zui": {},
+
               "description": "The due date of the card in ISO 8601 format (Optional). Leave empty to keep the current due date."
             }
           },
           "required": ["cardId"],
           "additionalProperties": false,
-          "description": "Input schema for creating a new card",
-          "x-zui": {}
+          "description": "Input schema for creating a new card"
         }
       },
       "output": {
@@ -2788,14 +2478,12 @@
           "properties": {
             "message": {
               "type": "string",
-              "description": "Output message",
-              "x-zui": {}
+              "description": "Output message"
             }
           },
           "required": ["message"],
           "additionalProperties": false,
-          "description": "Output schema for updating a card",
-          "x-zui": {}
+          "description": "Output schema for updating a card"
         }
       }
     },
@@ -2811,19 +2499,16 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the board",
-              "x-zui": {}
+              "description": "Unique identifier of the board"
             },
             "displayName": {
               "type": "string",
-              "description": "Display name of the member",
-              "x-zui": {}
+              "description": "Display name of the member"
             }
           },
           "required": ["boardId", "displayName"],
           "additionalProperties": false,
-          "description": "Input schema for getting a member from its name",
-          "x-zui": {}
+          "description": "Input schema for getting a member from its name"
         }
       },
       "output": {
@@ -2839,29 +2524,23 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "username": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "fullName": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["id", "username", "fullName"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["members"],
           "additionalProperties": false,
-          "description": "Output schema for getting a member from its name",
-          "x-zui": {}
+          "description": "Output schema for getting a member from its name"
         }
       }
     },
@@ -2877,14 +2556,12 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the board",
-              "x-zui": {}
+              "description": "Unique identifier of the board"
             }
           },
           "required": ["boardId"],
           "additionalProperties": false,
-          "description": "Input schema for getting all members of a board",
-          "x-zui": {}
+          "description": "Input schema for getting all members of a board"
         }
       },
       "output": {
@@ -2900,29 +2577,23 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "username": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "fullName": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["id", "username", "fullName"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["members"],
           "additionalProperties": false,
-          "description": "Output schema for getting all members of a board",
-          "x-zui": {}
+          "description": "Output schema for getting all members of a board"
         }
       }
     },
@@ -2934,8 +2605,7 @@
           "type": "object",
           "properties": {},
           "additionalProperties": false,
-          "description": "Input schema for getting all boards",
-          "x-zui": {}
+          "description": "Input schema for getting all boards"
         }
       },
       "output": {
@@ -2951,25 +2621,20 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["id", "name"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["boards"],
           "additionalProperties": false,
-          "description": "Output schema for getting all boards",
-          "x-zui": {}
+          "description": "Output schema for getting all boards"
         }
       }
     },
@@ -2985,14 +2650,12 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the board",
-              "x-zui": {}
+              "description": "Unique identifier of the board"
             }
           },
           "required": ["boardId"],
           "additionalProperties": false,
-          "description": "Input schema for getting a board from its ID",
-          "x-zui": {}
+          "description": "Input schema for getting a board from its ID"
         }
       },
       "output": {
@@ -3006,23 +2669,19 @@
                   "type": "string",
                   "minLength": 24,
                   "maxLength": 24,
-                  "pattern": "^[0-9a-fA-F]{24}$",
-                  "x-zui": {}
+                  "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["id", "name"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["board"],
           "additionalProperties": false,
-          "description": "Output schema for getting a board from its ID",
-          "x-zui": {}
+          "description": "Output schema for getting a board from its ID"
         }
       }
     },
@@ -3038,14 +2697,12 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the board",
-              "x-zui": {}
+              "description": "Unique identifier of the board"
             }
           },
           "required": ["boardId"],
           "additionalProperties": false,
-          "description": "Input schema for getting all lists in a board",
-          "x-zui": {}
+          "description": "Input schema for getting all lists in a board"
         }
       },
       "output": {
@@ -3061,25 +2718,20 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["id", "name"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["lists"],
           "additionalProperties": false,
-          "description": "Output schema for getting all lists in a board",
-          "x-zui": {}
+          "description": "Output schema for getting all lists in a board"
         }
       }
     },
@@ -3095,14 +2747,12 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the list",
-              "x-zui": {}
+              "description": "Unique identifier of the list"
             }
           },
           "required": ["listId"],
           "additionalProperties": false,
-          "description": "Input schema for getting all cards in a list",
-          "x-zui": {}
+          "description": "Input schema for getting all cards in a list"
         }
       },
       "output": {
@@ -3118,40 +2768,32 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "description": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "listId": {
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "verticalPosition": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "isClosed": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "isCompleted": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "dueDate": {
                     "type": "string",
-                    "format": "date-time",
-                    "x-zui": {}
+                    "format": "date-time"
                   },
                   "labelIds": {
                     "type": "array",
@@ -3159,10 +2801,8 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
                   },
                   "memberIds": {
                     "type": "array",
@@ -3170,10 +2810,8 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
+                    }
                   }
                 },
                 "required": [
@@ -3187,16 +2825,13 @@
                   "labelIds",
                   "memberIds"
                 ],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["cards"],
           "additionalProperties": false,
-          "description": "Output schema for getting all cards in a list",
-          "x-zui": {}
+          "description": "Output schema for getting all cards in a list"
         }
       }
     },
@@ -3212,14 +2847,12 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the card",
-              "x-zui": {}
+              "description": "Unique identifier of the card"
             }
           },
           "required": ["cardId"],
           "additionalProperties": false,
-          "description": "Input schema for getting a card from its ID",
-          "x-zui": {}
+          "description": "Input schema for getting a card from its ID"
         }
       },
       "output": {
@@ -3233,40 +2866,32 @@
                   "type": "string",
                   "minLength": 24,
                   "maxLength": 24,
-                  "pattern": "^[0-9a-fA-F]{24}$",
-                  "x-zui": {}
+                  "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "description": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "listId": {
                   "type": "string",
                   "minLength": 24,
                   "maxLength": 24,
-                  "pattern": "^[0-9a-fA-F]{24}$",
-                  "x-zui": {}
+                  "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "verticalPosition": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "isClosed": {
-                  "type": "boolean",
-                  "x-zui": {}
+                  "type": "boolean"
                 },
                 "isCompleted": {
-                  "type": "boolean",
-                  "x-zui": {}
+                  "type": "boolean"
                 },
                 "dueDate": {
                   "type": "string",
-                  "format": "date-time",
-                  "x-zui": {}
+                  "format": "date-time"
                 },
                 "labelIds": {
                   "type": "array",
@@ -3274,10 +2899,8 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
-                  },
-                  "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  }
                 },
                 "memberIds": {
                   "type": "array",
@@ -3285,10 +2908,8 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
-                  },
-                  "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  }
                 }
               },
               "required": [
@@ -3302,14 +2923,12 @@
                 "labelIds",
                 "memberIds"
               ],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["card"],
           "additionalProperties": false,
-          "description": "Output schema for getting a card from its ID",
-          "x-zui": {}
+          "description": "Output schema for getting a card from its ID"
         }
       }
     },
@@ -3326,22 +2945,18 @@
                   "type": "string",
                   "minLength": 24,
                   "maxLength": 24,
-                  "pattern": "^[0-9a-fA-F]{24}$",
-                  "x-zui": {}
+                  "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               ],
-              "description": "ID or username of the member to get",
-              "x-zui": {}
+              "description": "ID or username of the member to get"
             }
           },
           "required": ["memberIdOrUsername"],
           "additionalProperties": false,
-          "description": "Input schema for getting a member from its ID or username",
-          "x-zui": {}
+          "description": "Input schema for getting a member from its ID or username"
         }
       },
       "output": {
@@ -3355,27 +2970,22 @@
                   "type": "string",
                   "minLength": 24,
                   "maxLength": 24,
-                  "pattern": "^[0-9a-fA-F]{24}$",
-                  "x-zui": {}
+                  "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "username": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "fullName": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["id", "username", "fullName"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["member"],
           "additionalProperties": false,
-          "description": "Output schema for getting a member by its ID or username",
-          "x-zui": {}
+          "description": "Output schema for getting a member by its ID or username"
         }
       }
     },
@@ -3391,14 +3001,12 @@
               "minLength": 24,
               "maxLength": 24,
               "pattern": "^[0-9a-fA-F]{24}$",
-              "description": "Unique identifier of the card",
-              "x-zui": {}
+              "description": "Unique identifier of the card"
             }
           },
           "required": ["cardId"],
           "additionalProperties": false,
-          "description": "Input schema for getting all members of a card",
-          "x-zui": {}
+          "description": "Input schema for getting all members of a card"
         }
       },
       "output": {
@@ -3414,29 +3022,23 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
                   },
                   "username": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "fullName": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["id", "username", "fullName"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["members"],
           "additionalProperties": false,
-          "description": "Output schema for getting all members of a card",
-          "x-zui": {}
+          "description": "Output schema for getting all members of a card"
         }
       }
     },
@@ -3446,12 +3048,10 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -3469,40 +3069,32 @@
                         "type": "string",
                         "minLength": 24,
                         "maxLength": 24,
-                        "pattern": "^[0-9a-fA-F]{24}$",
-                        "x-zui": {}
+                        "pattern": "^[0-9a-fA-F]{24}$"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "description": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "listId": {
                         "type": "string",
                         "minLength": 24,
                         "maxLength": 24,
-                        "pattern": "^[0-9a-fA-F]{24}$",
-                        "x-zui": {}
+                        "pattern": "^[0-9a-fA-F]{24}$"
                       },
                       "verticalPosition": {
-                        "type": "number",
-                        "x-zui": {}
+                        "type": "number"
                       },
                       "isClosed": {
-                        "type": "boolean",
-                        "x-zui": {}
+                        "type": "boolean"
                       },
                       "isCompleted": {
-                        "type": "boolean",
-                        "x-zui": {}
+                        "type": "boolean"
                       },
                       "dueDate": {
                         "type": "string",
-                        "format": "date-time",
-                        "x-zui": {}
+                        "format": "date-time"
                       },
                       "labelIds": {
                         "type": "array",
@@ -3510,10 +3102,8 @@
                           "type": "string",
                           "minLength": 24,
                           "maxLength": 24,
-                          "pattern": "^[0-9a-fA-F]{24}$",
-                          "x-zui": {}
-                        },
-                        "x-zui": {}
+                          "pattern": "^[0-9a-fA-F]{24}$"
+                        }
                       },
                       "memberIds": {
                         "type": "array",
@@ -3521,10 +3111,8 @@
                           "type": "string",
                           "minLength": 24,
                           "maxLength": 24,
-                          "pattern": "^[0-9a-fA-F]{24}$",
-                          "x-zui": {}
-                        },
-                        "x-zui": {}
+                          "pattern": "^[0-9a-fA-F]{24}$"
+                        }
                       }
                     },
                     "required": [
@@ -3537,40 +3125,32 @@
                       "isCompleted",
                       "labelIds",
                       "memberIds"
-                    ],
-                    "x-zui": {}
+                    ]
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id"],
-                    "x-zui": {}
+                    "required": ["id"]
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["items", "meta"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "cardList"
@@ -3581,13 +3161,11 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -3603,40 +3181,32 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "name": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "listId": {
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "verticalPosition": {
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
                     "isClosed": {
-                      "type": "boolean",
-                      "x-zui": {}
+                      "type": "boolean"
                     },
                     "isCompleted": {
-                      "type": "boolean",
-                      "x-zui": {}
+                      "type": "boolean"
                     },
                     "dueDate": {
                       "type": "string",
-                      "format": "date-time",
-                      "x-zui": {}
+                      "format": "date-time"
                     },
                     "labelIds": {
                       "type": "array",
@@ -3644,10 +3214,8 @@
                         "type": "string",
                         "minLength": 24,
                         "maxLength": 24,
-                        "pattern": "^[0-9a-fA-F]{24}$",
-                        "x-zui": {}
-                      },
-                      "x-zui": {}
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      }
                     },
                     "memberIds": {
                       "type": "array",
@@ -3655,10 +3223,8 @@
                         "type": "string",
                         "minLength": 24,
                         "maxLength": 24,
-                        "pattern": "^[0-9a-fA-F]{24}$",
-                        "x-zui": {}
-                      },
-                      "x-zui": {}
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      }
                     }
                   },
                   "required": [
@@ -3671,27 +3237,22 @@
                     "isCompleted",
                     "labelIds",
                     "memberIds"
-                  ],
-                  "x-zui": {}
+                  ]
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
-                  "required": ["id"],
-                  "x-zui": {}
+                  "required": ["id"]
                 }
-              ],
-              "x-zui": {}
+              ]
             }
           },
           "required": ["item"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "cardRead"
@@ -3708,40 +3269,32 @@
                   "type": "string",
                   "minLength": 24,
                   "maxLength": 24,
-                  "pattern": "^[0-9a-fA-F]{24}$",
-                  "x-zui": {}
+                  "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "description": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "listId": {
                   "type": "string",
                   "minLength": 24,
                   "maxLength": 24,
-                  "pattern": "^[0-9a-fA-F]{24}$",
-                  "x-zui": {}
+                  "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "verticalPosition": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "isClosed": {
-                  "type": "boolean",
-                  "x-zui": {}
+                  "type": "boolean"
                 },
                 "isCompleted": {
-                  "type": "boolean",
-                  "x-zui": {}
+                  "type": "boolean"
                 },
                 "dueDate": {
                   "type": "string",
-                  "format": "date-time",
-                  "x-zui": {}
+                  "format": "date-time"
                 },
                 "labelIds": {
                   "type": "array",
@@ -3749,10 +3302,8 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
-                  },
-                  "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  }
                 },
                 "memberIds": {
                   "type": "array",
@@ -3760,10 +3311,8 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
-                  },
-                  "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  }
                 }
               },
               "required": [
@@ -3777,13 +3326,11 @@
                 "labelIds",
                 "memberIds"
               ],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["item"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -3799,40 +3346,32 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "name": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "listId": {
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "verticalPosition": {
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
                     "isClosed": {
-                      "type": "boolean",
-                      "x-zui": {}
+                      "type": "boolean"
                     },
                     "isCompleted": {
-                      "type": "boolean",
-                      "x-zui": {}
+                      "type": "boolean"
                     },
                     "dueDate": {
                       "type": "string",
-                      "format": "date-time",
-                      "x-zui": {}
+                      "format": "date-time"
                     },
                     "labelIds": {
                       "type": "array",
@@ -3840,10 +3379,8 @@
                         "type": "string",
                         "minLength": 24,
                         "maxLength": 24,
-                        "pattern": "^[0-9a-fA-F]{24}$",
-                        "x-zui": {}
-                      },
-                      "x-zui": {}
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      }
                     },
                     "memberIds": {
                       "type": "array",
@@ -3851,10 +3388,8 @@
                         "type": "string",
                         "minLength": 24,
                         "maxLength": 24,
-                        "pattern": "^[0-9a-fA-F]{24}$",
-                        "x-zui": {}
-                      },
-                      "x-zui": {}
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      }
                     }
                   },
                   "required": [
@@ -3867,27 +3402,22 @@
                     "isCompleted",
                     "labelIds",
                     "memberIds"
-                  ],
-                  "x-zui": {}
+                  ]
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
-                  "required": ["id"],
-                  "x-zui": {}
+                  "required": ["id"]
                 }
-              ],
-              "x-zui": {}
+              ]
             }
           },
           "required": ["item"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "cardCreate"
@@ -3898,8 +3428,7 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "item": {
               "type": "object",
@@ -3908,40 +3437,32 @@
                   "type": "string",
                   "minLength": 24,
                   "maxLength": 24,
-                  "pattern": "^[0-9a-fA-F]{24}$",
-                  "x-zui": {}
+                  "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "description": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "listId": {
                   "type": "string",
                   "minLength": 24,
                   "maxLength": 24,
-                  "pattern": "^[0-9a-fA-F]{24}$",
-                  "x-zui": {}
+                  "pattern": "^[0-9a-fA-F]{24}$"
                 },
                 "verticalPosition": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "isClosed": {
-                  "type": "boolean",
-                  "x-zui": {}
+                  "type": "boolean"
                 },
                 "isCompleted": {
-                  "type": "boolean",
-                  "x-zui": {}
+                  "type": "boolean"
                 },
                 "dueDate": {
                   "type": "string",
-                  "format": "date-time",
-                  "x-zui": {}
+                  "format": "date-time"
                 },
                 "labelIds": {
                   "type": "array",
@@ -3949,10 +3470,8 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
-                  },
-                  "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  }
                 },
                 "memberIds": {
                   "type": "array",
@@ -3960,10 +3479,8 @@
                     "type": "string",
                     "minLength": 24,
                     "maxLength": 24,
-                    "pattern": "^[0-9a-fA-F]{24}$",
-                    "x-zui": {}
-                  },
-                  "x-zui": {}
+                    "pattern": "^[0-9a-fA-F]{24}$"
+                  }
                 }
               },
               "required": [
@@ -3977,13 +3494,11 @@
                 "labelIds",
                 "memberIds"
               ],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["id", "item"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -3999,40 +3514,32 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "name": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "listId": {
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "verticalPosition": {
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
                     "isClosed": {
-                      "type": "boolean",
-                      "x-zui": {}
+                      "type": "boolean"
                     },
                     "isCompleted": {
-                      "type": "boolean",
-                      "x-zui": {}
+                      "type": "boolean"
                     },
                     "dueDate": {
                       "type": "string",
-                      "format": "date-time",
-                      "x-zui": {}
+                      "format": "date-time"
                     },
                     "labelIds": {
                       "type": "array",
@@ -4040,10 +3547,8 @@
                         "type": "string",
                         "minLength": 24,
                         "maxLength": 24,
-                        "pattern": "^[0-9a-fA-F]{24}$",
-                        "x-zui": {}
-                      },
-                      "x-zui": {}
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      }
                     },
                     "memberIds": {
                       "type": "array",
@@ -4051,10 +3556,8 @@
                         "type": "string",
                         "minLength": 24,
                         "maxLength": 24,
-                        "pattern": "^[0-9a-fA-F]{24}$",
-                        "x-zui": {}
-                      },
-                      "x-zui": {}
+                        "pattern": "^[0-9a-fA-F]{24}$"
+                      }
                     }
                   },
                   "required": [
@@ -4067,27 +3570,22 @@
                     "isCompleted",
                     "labelIds",
                     "memberIds"
-                  ],
-                  "x-zui": {}
+                  ]
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
-                  "required": ["id"],
-                  "x-zui": {}
+                  "required": ["id"]
                 }
-              ],
-              "x-zui": {}
+              ]
             }
           },
           "required": ["item"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "cardUpdate"
@@ -4098,21 +3596,18 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "cardDelete"
@@ -4123,12 +3618,10 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -4146,48 +3639,38 @@
                         "type": "string",
                         "minLength": 24,
                         "maxLength": 24,
-                        "pattern": "^[0-9a-fA-F]{24}$",
-                        "x-zui": {}
+                        "pattern": "^[0-9a-fA-F]{24}$"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id", "name"],
-                    "x-zui": {}
+                    "required": ["id", "name"]
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id"],
-                    "x-zui": {}
+                    "required": ["id"]
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["items", "meta"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "listList"
@@ -4198,13 +3681,11 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -4220,35 +3701,28 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "name": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
-                  "required": ["id", "name"],
-                  "x-zui": {}
+                  "required": ["id", "name"]
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
-                  "required": ["id"],
-                  "x-zui": {}
+                  "required": ["id"]
                 }
-              ],
-              "x-zui": {}
+              ]
             }
           },
           "required": ["item"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "listRead"
@@ -4259,12 +3733,10 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -4282,48 +3754,38 @@
                         "type": "string",
                         "minLength": 24,
                         "maxLength": 24,
-                        "pattern": "^[0-9a-fA-F]{24}$",
-                        "x-zui": {}
+                        "pattern": "^[0-9a-fA-F]{24}$"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id", "name"],
-                    "x-zui": {}
+                    "required": ["id", "name"]
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id"],
-                    "x-zui": {}
+                    "required": ["id"]
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["items", "meta"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "boardList"
@@ -4334,13 +3796,11 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -4356,35 +3816,28 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "name": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
-                  "required": ["id", "name"],
-                  "x-zui": {}
+                  "required": ["id", "name"]
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
-                  "required": ["id"],
-                  "x-zui": {}
+                  "required": ["id"]
                 }
-              ],
-              "x-zui": {}
+              ]
             }
           },
           "required": ["item"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "boardRead"
@@ -4395,12 +3848,10 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -4418,52 +3869,41 @@
                         "type": "string",
                         "minLength": 24,
                         "maxLength": 24,
-                        "pattern": "^[0-9a-fA-F]{24}$",
-                        "x-zui": {}
+                        "pattern": "^[0-9a-fA-F]{24}$"
                       },
                       "username": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "fullName": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id", "username", "fullName"],
-                    "x-zui": {}
+                    "required": ["id", "username", "fullName"]
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id"],
-                    "x-zui": {}
+                    "required": ["id"]
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["items", "meta"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "boardMemberList"
@@ -4474,13 +3914,11 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -4496,39 +3934,31 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "username": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "fullName": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
-                  "required": ["id", "username", "fullName"],
-                  "x-zui": {}
+                  "required": ["id", "username", "fullName"]
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
-                  "required": ["id"],
-                  "x-zui": {}
+                  "required": ["id"]
                 }
-              ],
-              "x-zui": {}
+              ]
             }
           },
           "required": ["item"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "boardMemberRead"
@@ -4539,12 +3969,10 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -4562,52 +3990,41 @@
                         "type": "string",
                         "minLength": 24,
                         "maxLength": 24,
-                        "pattern": "^[0-9a-fA-F]{24}$",
-                        "x-zui": {}
+                        "pattern": "^[0-9a-fA-F]{24}$"
                       },
                       "username": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "fullName": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id", "username", "fullName"],
-                    "x-zui": {}
+                    "required": ["id", "username", "fullName"]
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id"],
-                    "x-zui": {}
+                    "required": ["id"]
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["items", "meta"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "cardMemberList"
@@ -4618,13 +4035,11 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -4640,39 +4055,31 @@
                       "type": "string",
                       "minLength": 24,
                       "maxLength": 24,
-                      "pattern": "^[0-9a-fA-F]{24}$",
-                      "x-zui": {}
+                      "pattern": "^[0-9a-fA-F]{24}$"
                     },
                     "username": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "fullName": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
-                  "required": ["id", "username", "fullName"],
-                  "x-zui": {}
+                  "required": ["id", "username", "fullName"]
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
-                  "required": ["id"],
-                  "x-zui": {}
+                  "required": ["id"]
                 }
-              ],
-              "x-zui": {}
+              ]
             }
           },
           "required": ["item"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "cardMemberRead"
@@ -4687,13 +4094,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               }
             },
             "required": ["text"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         }
       },
@@ -4743,22 +4148,19 @@
                 "type": "string",
                 "minLength": 24,
                 "maxLength": 24,
-                "pattern": "^[0-9a-fA-F]{24}$",
-                "x-zui": {}
+                "pattern": "^[0-9a-fA-F]{24}$"
               },
               {
-                "type": "null",
-                "x-zui": {}
+                "type": "null"
               }
             ],
             "description": "Unique id of the webhook that is created upon integration registration",
-            "x-zui": {},
+
             "default": null
           }
         },
         "additionalProperties": false,
-        "description": "State that stores the webhook id for the Trello integration",
-        "x-zui": {}
+        "description": "State that stores the webhook id for the Trello integration"
       }
     }
   },
@@ -4773,40 +4175,32 @@
             "type": "string",
             "minLength": 24,
             "maxLength": 24,
-            "pattern": "^[0-9a-fA-F]{24}$",
-            "x-zui": {}
+            "pattern": "^[0-9a-fA-F]{24}$"
           },
           "name": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "description": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "listId": {
             "type": "string",
             "minLength": 24,
             "maxLength": 24,
-            "pattern": "^[0-9a-fA-F]{24}$",
-            "x-zui": {}
+            "pattern": "^[0-9a-fA-F]{24}$"
           },
           "verticalPosition": {
-            "type": "number",
-            "x-zui": {}
+            "type": "number"
           },
           "isClosed": {
-            "type": "boolean",
-            "x-zui": {}
+            "type": "boolean"
           },
           "isCompleted": {
-            "type": "boolean",
-            "x-zui": {}
+            "type": "boolean"
           },
           "dueDate": {
             "type": "string",
-            "format": "date-time",
-            "x-zui": {}
+            "format": "date-time"
           },
           "labelIds": {
             "type": "array",
@@ -4814,10 +4208,8 @@
               "type": "string",
               "minLength": 24,
               "maxLength": 24,
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "x-zui": {}
-            },
-            "x-zui": {}
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
           },
           "memberIds": {
             "type": "array",
@@ -4825,10 +4217,8 @@
               "type": "string",
               "minLength": 24,
               "maxLength": 24,
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "x-zui": {}
-            },
-            "x-zui": {}
+              "pattern": "^[0-9a-fA-F]{24}$"
+            }
           }
         },
         "required": [
@@ -4842,8 +4232,7 @@
           "labelIds",
           "memberIds"
         ],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "list": {
@@ -4856,17 +4245,14 @@
             "type": "string",
             "minLength": 24,
             "maxLength": 24,
-            "pattern": "^[0-9a-fA-F]{24}$",
-            "x-zui": {}
+            "pattern": "^[0-9a-fA-F]{24}$"
           },
           "name": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id", "name"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "board": {
@@ -4879,17 +4265,14 @@
             "type": "string",
             "minLength": 24,
             "maxLength": 24,
-            "pattern": "^[0-9a-fA-F]{24}$",
-            "x-zui": {}
+            "pattern": "^[0-9a-fA-F]{24}$"
           },
           "name": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id", "name"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "boardMember": {
@@ -4902,21 +4285,17 @@
             "type": "string",
             "minLength": 24,
             "maxLength": 24,
-            "pattern": "^[0-9a-fA-F]{24}$",
-            "x-zui": {}
+            "pattern": "^[0-9a-fA-F]{24}$"
           },
           "username": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "fullName": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id", "username", "fullName"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "cardMember": {
@@ -4929,21 +4308,17 @@
             "type": "string",
             "minLength": 24,
             "maxLength": 24,
-            "pattern": "^[0-9a-fA-F]{24}$",
-            "x-zui": {}
+            "pattern": "^[0-9a-fA-F]{24}$"
           },
           "username": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "fullName": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id", "username", "fullName"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },

@@ -55,8 +55,7 @@
             }
           },
           "required": ["user"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -72,8 +71,7 @@
             }
           },
           "required": ["userId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }

@@ -18,18 +18,17 @@
           "properties": {
             "everyNHours": {
               "type": "number",
-              "description": "The interval (in hours) at which to synchronize files.",
-              "x-zui": {}
+              "description": "The interval (in hours) at which to synchronize files."
             }
           },
           "required": ["everyNHours"],
           "additionalProperties": false,
-          "x-zui": {},
+
           "description": "Enable synchronisation using the provided schedule. Leave empty to disable periodic synchronization."
         },
         "enableRealTimeSync": {
           "type": "boolean",
-          "x-zui": {},
+
           "default": true,
           "description": "Enable real-time synchronization. Whever a file is created, updated, or deleted, synchronize it to Botpress immediately. This does not work with every integration."
         },
@@ -40,18 +39,17 @@
             "properties": {
               "pathGlobPattern": {
                 "type": "string",
-                "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported.",
-                "x-zui": {}
+                "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported."
               },
               "maxSizeInBytes": {
                 "type": "number",
-                "x-zui": {},
+
                 "description": "Filter by maximum size (in bytes). Only files smaller than the specified size will be synchronized."
               },
               "modifiedAfter": {
                 "type": "string",
                 "format": "date-time",
-                "x-zui": {},
+
                 "description": "Filter the items by modified date. Only files modified after the specified date will be synchronized."
               }
             },
@@ -74,8 +72,7 @@
             "properties": {
               "pathGlobPattern": {
                 "type": "string",
-                "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration.",
-                "x-zui": {}
+                "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration."
               }
             },
             "required": ["pathGlobPattern"],
@@ -92,8 +89,7 @@
         }
       },
       "required": ["includeFiles", "excludeFiles"],
-      "additionalProperties": false,
-      "x-zui": {}
+      "additionalProperties": false
     }
   },
   "events": {
@@ -101,8 +97,7 @@
       "schema": {
         "type": "object",
         "properties": {},
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },
@@ -121,18 +116,17 @@
                 "properties": {
                   "pathGlobPattern": {
                     "type": "string",
-                    "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported.",
-                    "x-zui": {}
+                    "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported."
                   },
                   "maxSizeInBytes": {
                     "type": "number",
-                    "x-zui": {},
+
                     "description": "Filter by maximum size (in bytes). Only files smaller than the specified size will be synchronized."
                   },
                   "modifiedAfter": {
                     "type": "string",
                     "format": "date-time",
-                    "x-zui": {},
+
                     "description": "Filter the items by modified date. Only files modified after the specified date will be synchronized."
                   }
                 },
@@ -155,8 +149,7 @@
                 "properties": {
                   "pathGlobPattern": {
                     "type": "string",
-                    "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration.",
-                    "x-zui": {}
+                    "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration."
                   }
                 },
                 "required": ["pathGlobPattern"],
@@ -172,8 +165,7 @@
               }
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -182,13 +174,11 @@
           "properties": {
             "status": {
               "type": "string",
-              "enum": ["queued", "already-running", "error"],
-              "x-zui": {}
+              "enum": ["queued", "already-running", "error"]
             }
           },
           "required": ["status"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -198,36 +188,29 @@
           "type": "object",
           "properties": {
             "folderId": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "filters": {
               "type": "object",
               "properties": {
                 "itemType": {
                   "type": "string",
-                  "enum": ["file", "folder"],
-                  "x-zui": {}
+                  "enum": ["file", "folder"]
                 },
                 "maxSizeInBytes": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "modifiedAfter": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             },
             "nextToken": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -242,92 +225,72 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "type": {
                         "type": "string",
-                        "const": "file",
-                        "x-zui": {}
+                        "const": "file"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "parentId": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "absolutePath": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "sizeInBytes": {
-                        "type": "number",
-                        "x-zui": {}
+                        "type": "number"
                       },
                       "lastModifiedDate": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "contentHash": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["id", "type", "name"],
-                    "additionalProperties": false,
-                    "x-zui": {}
+                    "additionalProperties": false
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "type": {
                         "type": "string",
-                        "const": "folder",
-                        "x-zui": {}
+                        "const": "folder"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "parentId": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "absolutePath": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["id", "type", "name"],
-                    "additionalProperties": false,
-                    "x-zui": {}
+                    "additionalProperties": false
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["items", "meta"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "title": "List items in folder",
@@ -341,13 +304,11 @@
         "type": "object",
         "properties": {
           "elapsedHoursSinceLastSync": {
-            "type": "number",
-            "x-zui": {}
+            "type": "number"
           }
         },
         "required": ["elapsedHoursSinceLastSync"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "expiry": 172800000
     }

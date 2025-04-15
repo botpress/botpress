@@ -7,13 +7,11 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },
@@ -25,12 +23,10 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -42,40 +38,32 @@
               "items": {
                 "allOf": [
                   {
-                    "$ref": "item",
-                    "x-zui": {}
+                    "$ref": "item"
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id"],
-                    "x-zui": {}
+                    "required": ["id"]
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["items", "meta"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }

@@ -110,8 +110,7 @@
               "labelIds": {
                 "type": "array",
                 "items": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "x-zui": {
                   "title": "Label IDs"
@@ -149,8 +148,7 @@
               "subscriberIds": {
                 "type": "array",
                 "items": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "x-zui": {
                   "title": "Subscriber IDs"
@@ -205,8 +203,7 @@
           }
         },
         "required": ["title", "number", "createdAt", "updatedAt", "priority", "status", "conversationId", "targets"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "issueUpdated": {
@@ -307,8 +304,7 @@
               "labelIds": {
                 "type": "array",
                 "items": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "x-zui": {
                   "title": "Label IDs"
@@ -346,8 +342,7 @@
               "subscriberIds": {
                 "type": "array",
                 "items": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "x-zui": {
                   "title": "Subscriber IDs"
@@ -402,8 +397,7 @@
           }
         },
         "required": ["title", "number", "createdAt", "updatedAt", "priority", "status", "conversationId", "targets"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "issueDeleted": {
@@ -411,13 +405,11 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       },
       "name": "issueDeleted"
     }
@@ -448,8 +440,7 @@
             }
           },
           "required": ["query", "channel"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -471,8 +462,7 @@
                   "tags": {
                     "type": "object",
                     "additionalProperties": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "description": "The tags applied to the issue",
                     "x-zui": {
@@ -489,8 +479,7 @@
                   }
                 },
                 "required": ["displayName", "tags", "channel"],
-                "additionalProperties": false,
-                "x-zui": {}
+                "additionalProperties": false
               },
               "description": "The list of issues found",
               "x-zui": {
@@ -499,8 +488,7 @@
             }
           },
           "required": ["targets"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -541,8 +529,7 @@
               "description": "Ignore issues created before this date"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -639,8 +626,7 @@
                       "labelIds": {
                         "type": "array",
                         "items": {
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "x-zui": {
                           "title": "Label IDs"
@@ -678,8 +664,7 @@
                       "subscriberIds": {
                         "type": "array",
                         "items": {
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "x-zui": {
                           "title": "Subscriber IDs"
@@ -715,8 +700,7 @@
             }
           },
           "required": ["issues"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -727,8 +711,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -770,8 +753,7 @@
                   }
                 },
                 "required": ["id", "name"],
-                "additionalProperties": false,
-                "x-zui": {}
+                "additionalProperties": false
               },
               "description": "The list of teams",
               "x-zui": {
@@ -780,8 +762,7 @@
             }
           },
           "required": ["teams"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -808,8 +789,7 @@
               "description": "The cursor to start from"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -880,8 +860,7 @@
                   }
                 },
                 "required": ["id", "email", "name", "displayName", "updatedAt"],
-                "additionalProperties": false,
-                "x-zui": {}
+                "additionalProperties": false
               },
               "description": "The list of matching users",
               "x-zui": {
@@ -897,8 +876,7 @@
             }
           },
           "required": ["users"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -925,16 +903,14 @@
             }
           },
           "required": ["issueId", "relatedIssueId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -954,8 +930,7 @@
             }
           },
           "required": ["issueId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -1060,8 +1035,7 @@
             }
           },
           "required": ["linearUserId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -1203,8 +1177,7 @@
             "labels": {
               "type": "array",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "x-zui": {
                 "title": "Set labels"
@@ -1220,8 +1193,7 @@
             }
           },
           "required": ["issueId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -1312,8 +1284,7 @@
               "description": "The updated issue"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -1356,8 +1327,7 @@
             "labels": {
               "type": "array",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "x-zui": {
                 "title": "Labels"
@@ -1373,8 +1343,7 @@
             }
           },
           "required": ["title", "description", "teamName"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -1466,8 +1435,7 @@
             }
           },
           "required": ["issue"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -1487,16 +1455,14 @@
             }
           },
           "required": ["id"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -1506,12 +1472,10 @@
           "type": "object",
           "properties": {
             "nextToken": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -1607,33 +1571,26 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id"],
-                    "x-zui": {}
+                    "required": ["id"]
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             },
             "meta": {
               "type": "object",
               "properties": {
                 "nextToken": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["items", "meta"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "issueList"
@@ -1644,21 +1601,18 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "name": "issueDelete"
@@ -1675,13 +1629,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               }
             },
             "required": ["text"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "image": {
@@ -1690,13 +1642,11 @@
             "properties": {
               "imageUrl": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               }
             },
             "required": ["imageUrl"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "audio": {
@@ -1705,13 +1655,11 @@
             "properties": {
               "audioUrl": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               }
             },
             "required": ["audioUrl"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "video": {
@@ -1720,13 +1668,11 @@
             "properties": {
               "videoUrl": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               }
             },
             "required": ["videoUrl"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "file": {
@@ -1735,18 +1681,15 @@
             "properties": {
               "fileUrl": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               },
               "title": {
-                "x-zui": {},
                 "type": "string",
                 "minLength": 1
               }
             },
             "required": ["fileUrl"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "location": {
@@ -1754,25 +1697,20 @@
             "type": "object",
             "properties": {
               "latitude": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "longitude": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "address": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "title": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["latitude", "longitude"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "carousel": {
@@ -1786,16 +1724,13 @@
                   "properties": {
                     "title": {
                       "type": "string",
-                      "minLength": 1,
-                      "x-zui": {}
+                      "minLength": 1
                     },
                     "subtitle": {
-                      "x-zui": {},
                       "type": "string",
                       "minLength": 1
                     },
                     "imageUrl": {
-                      "x-zui": {},
                       "type": "string",
                       "minLength": 1
                     },
@@ -1806,37 +1741,29 @@
                         "properties": {
                           "action": {
                             "type": "string",
-                            "enum": ["postback", "url", "say"],
-                            "x-zui": {}
+                            "enum": ["postback", "url", "say"]
                           },
                           "label": {
                             "type": "string",
-                            "minLength": 1,
-                            "x-zui": {}
+                            "minLength": 1
                           },
                           "value": {
                             "type": "string",
-                            "minLength": 1,
-                            "x-zui": {}
+                            "minLength": 1
                           }
                         },
                         "required": ["action", "label", "value"],
-                        "additionalProperties": false,
-                        "x-zui": {}
-                      },
-                      "x-zui": {}
+                        "additionalProperties": false
+                      }
                     }
                   },
                   "required": ["title", "actions"],
-                  "additionalProperties": false,
-                  "x-zui": {}
-                },
-                "x-zui": {}
+                  "additionalProperties": false
+                }
               }
             },
             "required": ["items"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "card": {
@@ -1845,16 +1772,13 @@
             "properties": {
               "title": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               },
               "subtitle": {
-                "x-zui": {},
                 "type": "string",
                 "minLength": 1
               },
               "imageUrl": {
-                "x-zui": {},
                 "type": "string",
                 "minLength": 1
               },
@@ -1865,30 +1789,24 @@
                   "properties": {
                     "action": {
                       "type": "string",
-                      "enum": ["postback", "url", "say"],
-                      "x-zui": {}
+                      "enum": ["postback", "url", "say"]
                     },
                     "label": {
                       "type": "string",
-                      "minLength": 1,
-                      "x-zui": {}
+                      "minLength": 1
                     },
                     "value": {
                       "type": "string",
-                      "minLength": 1,
-                      "x-zui": {}
+                      "minLength": 1
                     }
                   },
                   "required": ["action", "label", "value"],
-                  "additionalProperties": false,
-                  "x-zui": {}
-                },
-                "x-zui": {}
+                  "additionalProperties": false
+                }
               }
             },
             "required": ["title", "actions"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "dropdown": {
@@ -1897,8 +1815,7 @@
             "properties": {
               "text": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               },
               "options": {
                 "type": "array",
@@ -1907,25 +1824,20 @@
                   "properties": {
                     "label": {
                       "type": "string",
-                      "minLength": 1,
-                      "x-zui": {}
+                      "minLength": 1
                     },
                     "value": {
                       "type": "string",
-                      "minLength": 1,
-                      "x-zui": {}
+                      "minLength": 1
                     }
                   },
                   "required": ["label", "value"],
-                  "additionalProperties": false,
-                  "x-zui": {}
-                },
-                "x-zui": {}
+                  "additionalProperties": false
+                }
               }
             },
             "required": ["text", "options"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "choice": {
@@ -1934,8 +1846,7 @@
             "properties": {
               "text": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               },
               "options": {
                 "type": "array",
@@ -1944,25 +1855,20 @@
                   "properties": {
                     "label": {
                       "type": "string",
-                      "minLength": 1,
-                      "x-zui": {}
+                      "minLength": 1
                     },
                     "value": {
                       "type": "string",
-                      "minLength": 1,
-                      "x-zui": {}
+                      "minLength": 1
                     }
                   },
                   "required": ["label", "value"],
-                  "additionalProperties": false,
-                  "x-zui": {}
-                },
-                "x-zui": {}
+                  "additionalProperties": false
+                }
               }
             },
             "required": ["text", "options"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "bloc": {
@@ -1978,208 +1884,173 @@
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "text",
-                          "x-zui": {}
+                          "const": "text"
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "text": {
                               "type": "string",
-                              "minLength": 1,
-                              "x-zui": {}
+                              "minLength": 1
                             }
                           },
                           "required": ["text"],
-                          "additionalProperties": false,
-                          "x-zui": {}
+                          "additionalProperties": false
                         }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false,
-                      "x-zui": {}
+                      "additionalProperties": false
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "markdown",
-                          "x-zui": {}
+                          "const": "markdown"
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "markdown": {
                               "type": "string",
-                              "minLength": 1,
-                              "x-zui": {}
+                              "minLength": 1
                             }
                           },
                           "required": ["markdown"],
-                          "additionalProperties": false,
-                          "x-zui": {}
+                          "additionalProperties": false
                         }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false,
-                      "x-zui": {}
+                      "additionalProperties": false
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "image",
-                          "x-zui": {}
+                          "const": "image"
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "imageUrl": {
                               "type": "string",
-                              "minLength": 1,
-                              "x-zui": {}
+                              "minLength": 1
                             }
                           },
                           "required": ["imageUrl"],
-                          "additionalProperties": false,
-                          "x-zui": {}
+                          "additionalProperties": false
                         }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false,
-                      "x-zui": {}
+                      "additionalProperties": false
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "audio",
-                          "x-zui": {}
+                          "const": "audio"
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "audioUrl": {
                               "type": "string",
-                              "minLength": 1,
-                              "x-zui": {}
+                              "minLength": 1
                             }
                           },
                           "required": ["audioUrl"],
-                          "additionalProperties": false,
-                          "x-zui": {}
+                          "additionalProperties": false
                         }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false,
-                      "x-zui": {}
+                      "additionalProperties": false
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "video",
-                          "x-zui": {}
+                          "const": "video"
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "videoUrl": {
                               "type": "string",
-                              "minLength": 1,
-                              "x-zui": {}
+                              "minLength": 1
                             }
                           },
                           "required": ["videoUrl"],
-                          "additionalProperties": false,
-                          "x-zui": {}
+                          "additionalProperties": false
                         }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false,
-                      "x-zui": {}
+                      "additionalProperties": false
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "file",
-                          "x-zui": {}
+                          "const": "file"
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "fileUrl": {
                               "type": "string",
-                              "minLength": 1,
-                              "x-zui": {}
+                              "minLength": 1
                             },
                             "title": {
                               "type": "string",
-                              "minLength": 1,
-                              "x-zui": {}
+                              "minLength": 1
                             }
                           },
                           "required": ["fileUrl"],
-                          "additionalProperties": false,
-                          "x-zui": {}
+                          "additionalProperties": false
                         }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false,
-                      "x-zui": {}
+                      "additionalProperties": false
                     },
                     {
                       "type": "object",
                       "properties": {
                         "type": {
                           "type": "string",
-                          "const": "location",
-                          "x-zui": {}
+                          "const": "location"
                         },
                         "payload": {
                           "type": "object",
                           "properties": {
                             "latitude": {
-                              "type": "number",
-                              "x-zui": {}
+                              "type": "number"
                             },
                             "longitude": {
-                              "type": "number",
-                              "x-zui": {}
+                              "type": "number"
                             },
                             "address": {
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             },
                             "title": {
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             }
                           },
                           "required": ["latitude", "longitude"],
-                          "additionalProperties": false,
-                          "x-zui": {}
+                          "additionalProperties": false
                         }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false,
-                      "x-zui": {}
+                      "additionalProperties": false
                     }
-                  ],
-                  "x-zui": {}
-                },
-                "x-zui": {}
+                  ]
+                }
               }
             },
             "required": ["items"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         },
         "markdown": {
@@ -2188,13 +2059,11 @@
             "properties": {
               "markdown": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               }
             },
             "required": ["markdown"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         }
       },
@@ -2258,8 +2127,7 @@
           }
         },
         "required": ["accessToken", "expiresAt"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "configuration": {
@@ -2275,8 +2143,7 @@
             "description": "The ID of the bot user"
           }
         },
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "profile": {

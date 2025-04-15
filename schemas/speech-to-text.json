@@ -7,13 +7,11 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },
@@ -28,35 +26,33 @@
           "properties": {
             "model": {
               "$ref": "speechToTextModelRef",
-              "x-zui": {},
+
               "description": "Model to use for speech-to-text transcription (optional)"
             },
             "fileUrl": {
               "type": "string",
               "format": "uri",
-              "description": "URL of the audio file to transcribe. The URL should return a content-type header in order to detect the audio format. Supported audio formats supported are: mp3, mp4, mpeg, mpga, m4a, wav, webm",
-              "x-zui": {}
+              "description": "URL of the audio file to transcribe. The URL should return a content-type header in order to detect the audio format. Supported audio formats supported are: mp3, mp4, mpeg, mpga, m4a, wav, webm"
             },
             "language": {
               "type": "string",
-              "x-zui": {},
+
               "description": "The language of the input audio (optional). Supplying the input language in ISO-639-1 format will improve accuracy and latency."
             },
             "prompt": {
               "type": "string",
-              "x-zui": {},
+
               "description": "An optional text to guide the model's style or continue a previous audio segment. The prompt should match the audio language."
             },
             "temperature": {
               "type": "number",
-              "x-zui": {},
+
               "default": 0,
               "description": "The sampling temperature (optional), between 0 and 1. Defaults to 0 (automatic). Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic."
             }
           },
           "required": ["fileUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -65,13 +61,11 @@
           "properties": {
             "language": {
               "type": "string",
-              "description": "Detected language of the audio",
-              "x-zui": {}
+              "description": "Detected language of the audio"
             },
             "duration": {
               "type": "number",
-              "description": "Duration of the audio file, in seconds",
-              "x-zui": {}
+              "description": "Duration of the audio file, in seconds"
             },
             "segments": {
               "type": "array",
@@ -80,57 +74,46 @@
                 "properties": {
                   "text": {
                     "type": "string",
-                    "description": "Text content of the segment.",
-                    "x-zui": {}
+                    "description": "Text content of the segment."
                   },
                   "id": {
                     "type": "number",
-                    "description": "Unique identifier of the segment",
-                    "x-zui": {}
+                    "description": "Unique identifier of the segment"
                   },
                   "seek": {
                     "type": "number",
-                    "description": "Seek offset of the segment",
-                    "x-zui": {}
+                    "description": "Seek offset of the segment"
                   },
                   "start": {
                     "type": "number",
-                    "description": "Start time of the segment in seconds.",
-                    "x-zui": {}
+                    "description": "Start time of the segment in seconds."
                   },
                   "end": {
                     "type": "number",
-                    "description": "End time of the segment in seconds.",
-                    "x-zui": {}
+                    "description": "End time of the segment in seconds."
                   },
                   "tokens": {
                     "type": "array",
                     "items": {
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
-                    "description": "Array of token IDs for the text content.",
-                    "x-zui": {}
+                    "description": "Array of token IDs for the text content."
                   },
                   "temperature": {
                     "type": "number",
-                    "description": "Temperature parameter used for generating the segment.",
-                    "x-zui": {}
+                    "description": "Temperature parameter used for generating the segment."
                   },
                   "avg_logprob": {
                     "type": "number",
-                    "description": "Average logprob of the segment. If the value is lower than -1, consider the logprobs failed.",
-                    "x-zui": {}
+                    "description": "Average logprob of the segment. If the value is lower than -1, consider the logprobs failed."
                   },
                   "compression_ratio": {
                     "type": "number",
-                    "description": "Compression ratio of the segment. If the value is greater than 2.4, consider the compression failed.",
-                    "x-zui": {}
+                    "description": "Compression ratio of the segment. If the value is greater than 2.4, consider the compression failed."
                   },
                   "no_speech_prob": {
                     "type": "number",
-                    "description": "Probability of no speech in the segment. If the value is higher than 1.0 and the avg_logprob is below -1, consider this segment silent.",
-                    "x-zui": {}
+                    "description": "Probability of no speech in the segment. If the value is higher than 1.0 and the avg_logprob is below -1, consider this segment silent."
                   }
                 },
                 "required": [
@@ -145,38 +128,31 @@
                   "compression_ratio",
                   "no_speech_prob"
                 ],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             },
             "model": {
               "type": "string",
-              "description": "Model name used",
-              "x-zui": {}
+              "description": "Model name used"
             },
             "cost": {
               "type": "number",
-              "description": "Total cost of the transcription, in U.S. dollars (DEPRECATED)",
-              "x-zui": {}
+              "description": "Total cost of the transcription, in U.S. dollars (DEPRECATED)"
             },
             "botpress": {
               "type": "object",
               "properties": {
                 "cost": {
                   "type": "number",
-                  "description": "Total cost of the transcription, in U.S. dollars",
-                  "x-zui": {}
+                  "description": "Total cost of the transcription, in U.S. dollars"
                 }
               },
               "required": ["cost"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["language", "duration", "segments", "model", "cost", "botpress"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -185,8 +161,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -201,35 +176,27 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "costPerMinute": {
                         "type": "number",
-                        "description": "Cost per minute of speech transcription, in U.S. dollars",
-                        "x-zui": {}
+                        "description": "Cost per minute of speech transcription, in U.S. dollars"
                       }
                     },
-                    "required": ["id", "name", "costPerMinute"],
-                    "x-zui": {}
+                    "required": ["id", "name", "costPerMinute"]
                   },
                   {
-                    "$ref": "speechToTextModelRef",
-                    "x-zui": {}
+                    "$ref": "speechToTextModelRef"
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             }
           },
           "required": ["models"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }

@@ -16,13 +16,11 @@
           "properties": {
             "tableIdOrName": {
               "type": "string",
-              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
-              "x-zui": {}
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
             }
           },
           "required": ["tableIdOrName"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -37,24 +35,19 @@
                   "_rawJson": {
                     "type": "object",
                     "properties": {},
-                    "additionalProperties": true,
-                    "x-zui": {}
+                    "additionalProperties": true
                   },
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["_rawJson", "id"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["records"],
-          "additionalProperties": true,
-          "x-zui": {}
+          "additionalProperties": true
         }
       }
     },
@@ -66,23 +59,20 @@
           "properties": {
             "name": {
               "type": "string",
-              "description": "Name of the Table (e.g. MyTable)",
-              "x-zui": {}
+              "description": "Name of the Table (e.g. MyTable)"
             },
             "fields": {
               "type": "string",
-              "description": "The Table's fields, separated by commas. Each field should be in the format \"type_name\" (e.g. \"phoneNumber_Customer Phone, singleLineText_Address\").",
-              "x-zui": {}
+              "description": "The Table's fields, separated by commas. Each field should be in the format \"type_name\" (e.g. \"phoneNumber_Customer Phone, singleLineText_Address\")."
             },
             "description": {
               "type": "string",
-              "x-zui": {},
+
               "description": "Description of the Table (e.g. This is my table) (Optional)"
             }
           },
           "required": ["name", "fields"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -90,8 +80,7 @@
           "type": "object",
           "properties": {
             "description": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "fields": {
               "type": "array",
@@ -99,31 +88,24 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "type": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["name", "type"],
-                "additionalProperties": true,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": true
+              }
             },
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "name": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "primaryFieldId": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "views": {
               "type": "array",
@@ -131,28 +113,22 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "type": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["id", "name", "type"],
-                "additionalProperties": true,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": true
+              }
             }
           },
           "required": ["fields", "id", "name", "primaryFieldId", "views"],
-          "additionalProperties": true,
-          "x-zui": {}
+          "additionalProperties": true
         }
       }
     },
@@ -164,23 +140,21 @@
           "properties": {
             "tableIdOrName": {
               "type": "string",
-              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
-              "x-zui": {}
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
             },
             "name": {
               "type": "string",
-              "x-zui": {},
+
               "description": "Name of the Table (e.g. MyTable) (Optional)"
             },
             "description": {
               "type": "string",
-              "x-zui": {},
+
               "description": "Description of the Table (e.g. This is my table) (Optional)"
             }
           },
           "required": ["tableIdOrName"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -188,8 +162,7 @@
           "type": "object",
           "properties": {
             "description": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "fields": {
               "type": "array",
@@ -197,31 +170,24 @@
                 "type": "object",
                 "properties": {
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "type": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["name", "type"],
-                "additionalProperties": true,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": true
+              }
             },
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "name": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "primaryFieldId": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "views": {
               "type": "array",
@@ -229,28 +195,22 @@
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "name": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "type": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["id", "name", "type"],
-                "additionalProperties": true,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": true
+              }
             }
           },
           "required": ["fields", "id", "name", "primaryFieldId", "views"],
-          "additionalProperties": true,
-          "x-zui": {}
+          "additionalProperties": true
         }
       }
     },
@@ -262,18 +222,15 @@
           "properties": {
             "tableIdOrName": {
               "type": "string",
-              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
-              "x-zui": {}
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
             },
             "fields": {
               "type": "string",
-              "description": "The fields and their values for the new record, in a JSON format (e.g. {\"Name\":\"John Doe\",\"City\":\"In the moon\",\"Verify\":true})",
-              "x-zui": {}
+              "description": "The fields and their values for the new record, in a JSON format (e.g. {\"Name\":\"John Doe\",\"City\":\"In the moon\",\"Verify\":true})"
             }
           },
           "required": ["tableIdOrName", "fields"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -283,17 +240,14 @@
             "_rawJson": {
               "type": "object",
               "properties": {},
-              "additionalProperties": true,
-              "x-zui": {}
+              "additionalProperties": true
             },
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["_rawJson", "id"],
-          "additionalProperties": true,
-          "x-zui": {}
+          "additionalProperties": true
         }
       }
     },
@@ -305,23 +259,19 @@
           "properties": {
             "tableIdOrName": {
               "type": "string",
-              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
-              "x-zui": {}
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
             },
             "recordId": {
               "type": "string",
-              "description": "The ID of the Record to be updated",
-              "x-zui": {}
+              "description": "The ID of the Record to be updated"
             },
             "fields": {
               "type": "string",
-              "description": "The fields and their values for the record to be updated, in a JSON format (e.g. {\"Name\":\"John Doe\",\"Verify\":true})",
-              "x-zui": {}
+              "description": "The fields and their values for the record to be updated, in a JSON format (e.g. {\"Name\":\"John Doe\",\"Verify\":true})"
             }
           },
           "required": ["tableIdOrName", "recordId", "fields"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -331,17 +281,14 @@
             "_rawJson": {
               "type": "object",
               "properties": {},
-              "additionalProperties": true,
-              "x-zui": {}
+              "additionalProperties": true
             },
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["_rawJson", "id"],
-          "additionalProperties": true,
-          "x-zui": {}
+          "additionalProperties": true
         }
       }
     },
@@ -353,23 +300,21 @@
           "properties": {
             "tableIdOrName": {
               "type": "string",
-              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
-              "x-zui": {}
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
             },
             "nextToken": {
               "type": "string",
-              "x-zui": {},
+
               "description": "The next page token (Optional)"
             },
             "filterByFormula": {
               "type": "string",
-              "x-zui": {},
+
               "description": "filter to apply to the list records (See https://support.airtable.com/docs/formula-field-reference)"
             }
           },
           "required": ["tableIdOrName"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -384,29 +329,24 @@
                   "_rawJson": {
                     "type": "object",
                     "properties": {},
-                    "additionalProperties": true,
-                    "x-zui": {}
+                    "additionalProperties": true
                   },
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["_rawJson", "id"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             },
             "nextToken": {
               "type": "string",
-              "x-zui": {},
+
               "description": "The next page token (Optional)"
             }
           },
           "required": ["records"],
-          "additionalProperties": true,
-          "x-zui": {}
+          "additionalProperties": true
         }
       }
     }

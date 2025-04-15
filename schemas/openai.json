@@ -20,8 +20,7 @@
               }
             },
             "input": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "voice": {
               "type": "string",
@@ -49,13 +48,12 @@
               "type": "integer",
               "minimum": 30,
               "maximum": 90,
-              "x-zui": {},
+
               "description": "Expiration of the generated audio file in days, after which the file will be automatically deleted to free up storage space in your account. The default is to keep the file indefinitely (no expiration). The minimum is 30 days and the maximum is 90 days."
             }
           },
           "required": ["input"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -64,26 +62,22 @@
           "properties": {
             "audioUrl": {
               "type": "string",
-              "description": "URL to the audio file with the generated speech",
-              "x-zui": {}
+              "description": "URL to the audio file with the generated speech"
             },
             "botpress": {
               "type": "object",
               "properties": {
                 "cost": {
                   "type": "number",
-                  "description": "Cost of the speech generation, in U.S. dollars",
-                  "x-zui": {}
+                  "description": "Cost of the speech generation, in U.S. dollars"
                 }
               },
               "required": ["cost"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["audioUrl", "botpress"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -115,17 +109,14 @@
                 }
               },
               "required": ["id"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             },
             "reasoningEffort": {
               "type": "string",
-              "enum": ["low", "medium", "high"],
-              "x-zui": {}
+              "enum": ["low", "medium", "high"]
             },
             "systemPrompt": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "messages": {
               "type": "array",
@@ -134,13 +125,12 @@
                 "properties": {
                   "role": {
                     "type": "string",
-                    "enum": ["user", "assistant"],
-                    "x-zui": {}
+                    "enum": ["user", "assistant"]
                   },
                   "type": {
                     "type": "string",
                     "enum": ["text", "tool_calls", "tool_result", "multipart"],
-                    "x-zui": {},
+
                     "default": "text"
                   },
                   "toolCalls": {
@@ -149,60 +139,47 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "type": {
                           "type": "string",
-                          "const": "function",
-                          "x-zui": {}
+                          "const": "function"
                         },
                         "function": {
                           "type": "object",
                           "properties": {
                             "name": {
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             },
                             "arguments": {
                               "anyOf": [
                                 {
                                   "type": "object",
-                                  "additionalProperties": {
-                                    "x-zui": {}
-                                  },
-                                  "x-zui": {}
+                                  "additionalProperties": {}
                                 },
                                 {
-                                  "type": "null",
-                                  "x-zui": {}
+                                  "type": "null"
                                 }
-                              ],
-                              "x-zui": {}
+                              ]
                             }
                           },
                           "required": ["name", "arguments"],
-                          "additionalProperties": false,
-                          "x-zui": {}
+                          "additionalProperties": false
                         }
                       },
                       "required": ["id", "type", "function"],
-                      "additionalProperties": false,
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "additionalProperties": false
+                    }
                   },
                   "toolResultCallId": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "content": {
                     "anyOf": [
                       {
                         "anyOf": [
                           {
-                            "type": "string",
-                            "x-zui": {}
+                            "type": "string"
                           },
                           {
                             "type": "array",
@@ -211,71 +188,56 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": ["text", "image"],
-                                  "x-zui": {}
+                                  "enum": ["text", "image"]
                                 },
                                 "mimeType": {
-                                  "type": "string",
-                                  "x-zui": {}
+                                  "type": "string"
                                 },
                                 "text": {
-                                  "type": "string",
-                                  "x-zui": {}
+                                  "type": "string"
                                 },
                                 "url": {
-                                  "type": "string",
-                                  "x-zui": {}
+                                  "type": "string"
                                 }
                               },
                               "required": ["type"],
-                              "additionalProperties": false,
-                              "x-zui": {}
-                            },
-                            "x-zui": {}
+                              "additionalProperties": false
+                            }
                           }
-                        ],
-                        "x-zui": {}
+                        ]
                       },
                       {
-                        "type": "null",
-                        "x-zui": {}
+                        "type": "null"
                       }
-                    ],
-                    "x-zui": {}
+                    ]
                   }
                 },
                 "required": ["role", "content"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             },
             "responseFormat": {
               "type": "string",
-              "enum": ["text", "json_object"],
-              "x-zui": {}
+              "enum": ["text", "json_object"]
             },
             "maxTokens": {
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             },
             "temperature": {
               "type": "number",
-              "x-zui": {},
+
               "default": 1
             },
             "topP": {
               "type": "number",
-              "x-zui": {},
+
               "default": 1
             },
             "stopSequences": {
               "type": "array",
               "items": {
-                "type": "string",
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": "string"
+              }
             },
             "tools": {
               "type": "array",
@@ -284,85 +246,68 @@
                 "properties": {
                   "type": {
                     "type": "string",
-                    "const": "function",
-                    "x-zui": {}
+                    "const": "function"
                   },
                   "function": {
                     "type": "object",
                     "properties": {
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "description": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "argumentsSchema": {
                         "type": "object",
                         "properties": {},
-                        "additionalProperties": false,
-                        "x-zui": {}
+                        "additionalProperties": false
                       }
                     },
                     "required": ["name"],
-                    "additionalProperties": false,
-                    "x-zui": {}
+                    "additionalProperties": false
                   }
                 },
                 "required": ["type", "function"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             },
             "toolChoice": {
               "type": "object",
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": ["auto", "specific", "any", "none", ""],
-                  "x-zui": {}
+                  "enum": ["auto", "specific", "any", "none", ""]
                 },
                 "functionName": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             },
             "userId": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "debug": {
-              "type": "boolean",
-              "x-zui": {}
+              "type": "boolean"
             },
             "meta": {
               "type": "object",
               "properties": {
                 "promptSource": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "promptCategory": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "integrationName": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["messages"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -370,16 +315,13 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "provider": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "model": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "choices": {
               "type": "array",
@@ -389,7 +331,7 @@
                   "type": {
                     "type": "string",
                     "enum": ["text", "tool_calls", "tool_result", "multipart"],
-                    "x-zui": {},
+
                     "default": "text"
                   },
                   "toolCalls": {
@@ -398,60 +340,47 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "type": {
                           "type": "string",
-                          "const": "function",
-                          "x-zui": {}
+                          "const": "function"
                         },
                         "function": {
                           "type": "object",
                           "properties": {
                             "name": {
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             },
                             "arguments": {
                               "anyOf": [
                                 {
                                   "type": "object",
-                                  "additionalProperties": {
-                                    "x-zui": {}
-                                  },
-                                  "x-zui": {}
+                                  "additionalProperties": {}
                                 },
                                 {
-                                  "type": "null",
-                                  "x-zui": {}
+                                  "type": "null"
                                 }
-                              ],
-                              "x-zui": {}
+                              ]
                             }
                           },
                           "required": ["name", "arguments"],
-                          "additionalProperties": false,
-                          "x-zui": {}
+                          "additionalProperties": false
                         }
                       },
                       "required": ["id", "type", "function"],
-                      "additionalProperties": false,
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "additionalProperties": false
+                    }
                   },
                   "toolResultCallId": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "content": {
                     "anyOf": [
                       {
                         "anyOf": [
                           {
-                            "type": "string",
-                            "x-zui": {}
+                            "type": "string"
                           },
                           {
                             "type": "array",
@@ -460,99 +389,77 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": ["text", "image"],
-                                  "x-zui": {}
+                                  "enum": ["text", "image"]
                                 },
                                 "mimeType": {
-                                  "type": "string",
-                                  "x-zui": {}
+                                  "type": "string"
                                 },
                                 "text": {
-                                  "type": "string",
-                                  "x-zui": {}
+                                  "type": "string"
                                 },
                                 "url": {
-                                  "type": "string",
-                                  "x-zui": {}
+                                  "type": "string"
                                 }
                               },
                               "required": ["type"],
-                              "additionalProperties": false,
-                              "x-zui": {}
-                            },
-                            "x-zui": {}
+                              "additionalProperties": false
+                            }
                           }
-                        ],
-                        "x-zui": {}
+                        ]
                       },
                       {
-                        "type": "null",
-                        "x-zui": {}
+                        "type": "null"
                       }
-                    ],
-                    "x-zui": {}
+                    ]
                   },
                   "role": {
                     "type": "string",
-                    "const": "assistant",
-                    "x-zui": {}
+                    "const": "assistant"
                   },
                   "index": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "stopReason": {
                     "type": "string",
-                    "enum": ["stop", "max_tokens", "tool_calls", "content_filter", "other"],
-                    "x-zui": {}
+                    "enum": ["stop", "max_tokens", "tool_calls", "content_filter", "other"]
                   }
                 },
                 "required": ["content", "role", "index", "stopReason"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             },
             "usage": {
               "type": "object",
               "properties": {
                 "inputTokens": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "inputCost": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "outputTokens": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "outputCost": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 }
               },
               "required": ["inputTokens", "inputCost", "outputTokens", "outputCost"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             },
             "botpress": {
               "type": "object",
               "properties": {
                 "cost": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 }
               },
               "required": ["cost"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["id", "provider", "model", "choices", "usage", "botpress"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "billable": true,
@@ -563,8 +470,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -579,16 +485,13 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "description": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "tags": {
                         "type": "array",
@@ -607,46 +510,37 @@
                             "storytelling",
                             "reasoning",
                             "preview"
-                          ],
-                          "x-zui": {}
-                        },
-                        "x-zui": {}
+                          ]
+                        }
                       },
                       "input": {
                         "type": "object",
                         "properties": {
                           "maxTokens": {
-                            "type": "number",
-                            "x-zui": {}
+                            "type": "number"
                           },
                           "costPer1MTokens": {
-                            "type": "number",
-                            "x-zui": {}
+                            "type": "number"
                           }
                         },
                         "required": ["maxTokens", "costPer1MTokens"],
-                        "additionalProperties": false,
-                        "x-zui": {}
+                        "additionalProperties": false
                       },
                       "output": {
                         "type": "object",
                         "properties": {
                           "maxTokens": {
-                            "type": "number",
-                            "x-zui": {}
+                            "type": "number"
                           },
                           "costPer1MTokens": {
-                            "type": "number",
-                            "x-zui": {}
+                            "type": "number"
                           }
                         },
                         "required": ["maxTokens", "costPer1MTokens"],
-                        "additionalProperties": false,
-                        "x-zui": {}
+                        "additionalProperties": false
                       }
                     },
-                    "required": ["id", "name", "description", "tags", "input", "output"],
-                    "x-zui": {}
+                    "required": ["id", "name", "description", "tags", "input", "output"]
                   },
                   {
                     "type": "object",
@@ -670,18 +564,14 @@
                         }
                       }
                     },
-                    "required": ["id"],
-                    "x-zui": {}
+                    "required": ["id"]
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             }
           },
           "required": ["models"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -694,25 +584,20 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["id"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             },
             "prompt": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "size": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "expiration": {
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             },
             "params": {
               "type": "object",
@@ -720,23 +605,21 @@
                 "style": {
                   "type": "string",
                   "enum": ["natural", "vivid"],
-                  "x-zui": {},
+
                   "default": "vivid",
                   "description": "Image style - Only supported by DALL-E 3 models"
                 },
                 "user": {
                   "type": "string",
-                  "x-zui": {},
+
                   "description": "User ID to associate with the image, for abuse detection purposes"
                 }
               },
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["prompt"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -744,33 +627,27 @@
           "type": "object",
           "properties": {
             "model": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "imageUrl": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "cost": {
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             },
             "botpress": {
               "type": "object",
               "properties": {
                 "cost": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 }
               },
               "required": ["cost"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["model", "imageUrl", "cost", "botpress"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "billable": true,
@@ -781,8 +658,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -797,53 +673,41 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "costPerImage": {
-                        "type": "number",
-                        "x-zui": {}
+                        "type": "number"
                       },
                       "sizes": {
                         "type": "array",
                         "items": {
-                          "type": "string",
-                          "x-zui": {}
-                        },
-                        "x-zui": {}
+                          "type": "string"
+                        }
                       },
                       "defaultSize": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id", "name", "costPerImage", "sizes", "defaultSize"],
-                    "x-zui": {}
+                    "required": ["id", "name", "costPerImage", "sizes", "defaultSize"]
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id"],
-                    "x-zui": {}
+                    "required": ["id"]
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             }
           },
           "required": ["models"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -856,35 +720,29 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["id"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             },
             "fileUrl": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "language": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "prompt": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "temperature": {
               "type": "number",
-              "x-zui": {},
+
               "default": 0
             }
           },
           "required": ["fileUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -892,12 +750,10 @@
           "type": "object",
           "properties": {
             "language": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "duration": {
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             },
             "segments": {
               "type": "array",
@@ -905,48 +761,37 @@
                 "type": "object",
                 "properties": {
                   "text": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "id": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "seek": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "start": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "end": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "tokens": {
                     "type": "array",
                     "items": {
-                      "type": "number",
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "type": "number"
+                    }
                   },
                   "temperature": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "avg_logprob": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "compression_ratio": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "no_speech_prob": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   }
                 },
                 "required": [
@@ -961,35 +806,28 @@
                   "compression_ratio",
                   "no_speech_prob"
                 ],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             },
             "model": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "cost": {
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             },
             "botpress": {
               "type": "object",
               "properties": {
                 "cost": {
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 }
               },
               "required": ["cost"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["language", "duration", "segments", "model", "cost", "botpress"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "billable": true,
@@ -1000,8 +838,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -1016,41 +853,32 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "costPerMinute": {
-                        "type": "number",
-                        "x-zui": {}
+                        "type": "number"
                       }
                     },
-                    "required": ["id", "name", "costPerMinute"],
-                    "x-zui": {}
+                    "required": ["id", "name", "costPerMinute"]
                   },
                   {
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
-                    "required": ["id"],
-                    "x-zui": {}
+                    "required": ["id"]
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             }
           },
           "required": ["models"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }
@@ -1081,8 +909,7 @@
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "imageModelRef": {
@@ -1090,13 +917,11 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "speechToTextModelRef": {
@@ -1104,13 +929,11 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "imageGenerationParams": {
@@ -1120,18 +943,17 @@
           "style": {
             "type": "string",
             "enum": ["natural", "vivid"],
-            "x-zui": {},
+
             "default": "vivid",
             "description": "Image style - Only supported by DALL-E 3 models"
           },
           "user": {
             "type": "string",
-            "x-zui": {},
+
             "description": "User ID to associate with the image, for abuse detection purposes"
           }
         },
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },

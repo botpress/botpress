@@ -12,14 +12,12 @@
             "data": {
               "type": "string",
               "minLength": 1,
-              "description": "JSON string of data to send",
-              "x-zui": {}
+              "description": "JSON string of data to send"
             }
           },
           "required": ["data"],
           "additionalProperties": false,
-          "description": "Input schema for sending data",
-          "x-zui": {}
+          "description": "Input schema for sending data"
         }
       },
       "output": {
@@ -28,27 +26,23 @@
           "properties": {
             "success": {
               "type": "boolean",
-              "description": "True if the data was sent successfully",
-              "x-zui": {}
+              "description": "True if the data was sent successfully"
             },
             "response": {
               "anyOf": [
                 {
-                  "description": "Data received from Make.com, will be the string `Accepted` if successful and no data is returned",
-                  "x-zui": {}
+                  "description": "Data received from Make.com, will be the string `Accepted` if successful and no data is returned"
                 },
                 {
                   "type": "null"
                 }
               ],
-              "description": "Data received from Make.com, will be the string `Accepted` if successful and no data is returned",
-              "x-zui": {}
+              "description": "Data received from Make.com, will be the string `Accepted` if successful and no data is returned"
             }
           },
           "required": ["success"],
           "additionalProperties": false,
-          "description": "Output schema after sending data, expecting any JSON structure",
-          "x-zui": {}
+          "description": "Output schema after sending data, expecting any JSON structure"
         }
       }
     }

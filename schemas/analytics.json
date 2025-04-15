@@ -11,8 +11,7 @@
     "schema": {
       "type": "object",
       "properties": {},
-      "additionalProperties": false,
-      "x-zui": {}
+      "additionalProperties": false
     }
   },
   "actions": {
@@ -22,25 +21,21 @@
           "type": "object",
           "properties": {
             "name": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "count": {
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             }
           },
           "required": ["name", "count"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }

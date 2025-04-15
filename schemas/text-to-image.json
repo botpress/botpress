@@ -7,13 +7,11 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "imageGenerationParams": {
@@ -21,8 +19,7 @@
         "type": "object",
         "properties": {},
         "additionalProperties": false,
-        "description": "Model-specific parameters for image generation",
-        "x-zui": {}
+        "description": "Model-specific parameters for image generation"
       }
     }
   },
@@ -37,32 +34,28 @@
           "properties": {
             "model": {
               "$ref": "imageModelRef",
-              "x-zui": {},
+
               "description": "Model to use for image generation"
             },
             "prompt": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "size": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "expiration": {
               "type": "integer",
               "minimum": 30,
               "maximum": 90,
-              "x-zui": {},
+
               "description": "Expiration of the generated image in days, after which the image will be automatically deleted to free up storage space in your account. The default is to keep the image indefinitely (no expiration). The minimum is 30 days and the maximum is 90 days."
             },
             "params": {
-              "$ref": "imageGenerationParams",
-              "x-zui": {}
+              "$ref": "imageGenerationParams"
             }
           },
           "required": ["prompt"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -71,36 +64,30 @@
           "properties": {
             "model": {
               "type": "string",
-              "description": "Model name used",
-              "x-zui": {}
+              "description": "Model name used"
             },
             "imageUrl": {
               "type": "string",
-              "description": "Temporary URL of generated image",
-              "x-zui": {}
+              "description": "Temporary URL of generated image"
             },
             "cost": {
               "type": "number",
-              "description": "Cost of the image generation, in U.S. dollars (DEPRECATED)",
-              "x-zui": {}
+              "description": "Cost of the image generation, in U.S. dollars (DEPRECATED)"
             },
             "botpress": {
               "type": "object",
               "properties": {
                 "cost": {
                   "type": "number",
-                  "description": "Cost of the image generation, in U.S. dollars",
-                  "x-zui": {}
+                  "description": "Cost of the image generation, in U.S. dollars"
                 }
               },
               "required": ["cost"],
-              "additionalProperties": false,
-              "x-zui": {}
+              "additionalProperties": false
             }
           },
           "required": ["model", "imageUrl", "cost", "botpress"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -109,8 +96,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -125,49 +111,38 @@
                     "type": "object",
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "costPerImage": {
                         "type": "number",
-                        "description": "Cost per image generation, in U.S. dollars",
-                        "x-zui": {}
+                        "description": "Cost per image generation, in U.S. dollars"
                       },
                       "sizes": {
                         "type": "array",
                         "items": {
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
-                        "description": "Available image sizes",
-                        "x-zui": {}
+                        "description": "Available image sizes"
                       },
                       "defaultSize": {
                         "type": "string",
-                        "description": "Default image size generated by model",
-                        "x-zui": {}
+                        "description": "Default image size generated by model"
                       }
                     },
-                    "required": ["id", "name", "costPerImage", "sizes", "defaultSize"],
-                    "x-zui": {}
+                    "required": ["id", "name", "costPerImage", "sizes", "defaultSize"]
                   },
                   {
-                    "$ref": "imageModelRef",
-                    "x-zui": {}
+                    "$ref": "imageModelRef"
                   }
-                ],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                ]
+              }
             }
           },
           "required": ["models"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }

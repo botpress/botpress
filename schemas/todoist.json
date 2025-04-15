@@ -50,8 +50,7 @@
           }
         },
         "required": ["id", "content", "description", "priority"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "taskPriorityChanged": {
@@ -87,8 +86,7 @@
           }
         },
         "required": ["id", "newPriority"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "taskCompleted": {
@@ -136,8 +134,7 @@
           }
         },
         "required": ["user_id", "id", "content", "description", "priority"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },
@@ -167,16 +164,14 @@
             }
           },
           "required": ["taskId", "priority"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -196,8 +191,7 @@
             }
           },
           "required": ["name"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -213,8 +207,7 @@
             }
           },
           "required": ["taskId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -234,8 +227,7 @@
             }
           },
           "required": ["name"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -251,8 +243,7 @@
             }
           },
           "required": ["projectId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -263,8 +254,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -389,8 +379,7 @@
                   "isTeamInbox",
                   "webUrl"
                 ],
-                "additionalProperties": false,
-                "x-zui": {}
+                "additionalProperties": false
               },
               "description": "All projects that are available to the user",
               "x-zui": {
@@ -399,8 +388,7 @@
             }
           },
           "required": ["projects"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -419,8 +407,7 @@
               }
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -462,8 +449,7 @@
                   }
                 },
                 "required": ["id", "name", "positionWithinParent"],
-                "additionalProperties": false,
-                "x-zui": {}
+                "additionalProperties": false
               },
               "description": "All sections in the project, or all sections in all projects if projectId is omitted",
               "x-zui": {
@@ -472,8 +458,7 @@
             }
           },
           "required": ["sections"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -506,8 +491,7 @@
               }
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -698,8 +682,7 @@
                   "createdAt",
                   "createdBy"
                 ],
-                "additionalProperties": false,
-                "x-zui": {}
+                "additionalProperties": false
               },
               "description": "All matching tasks",
               "x-zui": {
@@ -708,8 +691,7 @@
             }
           },
           "required": ["tasks"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -787,8 +769,7 @@
             }
           },
           "required": ["content"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -804,8 +785,7 @@
             }
           },
           "required": ["taskId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }
@@ -821,13 +801,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               }
             },
             "required": ["text"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         }
       },
@@ -864,8 +842,7 @@
           }
         },
         "required": ["accessToken"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "configuration": {
@@ -881,8 +858,7 @@
             "description": "The ID of the bot user in Todoist"
           }
         },
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },
@@ -1072,8 +1048,7 @@
           "createdAt",
           "createdBy"
         ],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "project": {
@@ -1195,8 +1170,7 @@
           "isTeamInbox",
           "webUrl"
         ],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "section": {
@@ -1235,8 +1209,7 @@
           }
         },
         "required": ["id", "name", "positionWithinParent"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "comment": {
@@ -1282,8 +1255,7 @@
           }
         },
         "required": ["id", "postedAt", "content"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "personalLabel": {
@@ -1352,8 +1324,7 @@
           }
         },
         "required": ["id", "name", "color", "orderWithinList", "isFavorite"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "sharedLabel": {
@@ -1371,8 +1342,7 @@
           }
         },
         "required": ["name"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },

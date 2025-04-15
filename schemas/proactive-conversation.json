@@ -32,8 +32,7 @@
             }
           },
           "required": ["conversation"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -49,8 +48,7 @@
             }
           },
           "required": ["conversationId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }

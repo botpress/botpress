@@ -49,8 +49,7 @@
             }
           },
           "required": ["endpoint", "method"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -79,8 +78,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -107,8 +105,7 @@
             }
           },
           "required": ["module", "data"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -137,8 +134,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -172,8 +168,7 @@
             }
           },
           "required": ["module", "recordId", "data"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -202,8 +197,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -230,8 +224,7 @@
             }
           },
           "required": ["module", "recordId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -260,8 +253,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -288,8 +280,7 @@
             }
           },
           "required": ["module", "criteria"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -318,8 +309,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -346,8 +336,7 @@
             }
           },
           "required": ["module", "recordId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -376,8 +365,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -404,8 +392,7 @@
             }
           },
           "required": ["module"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -434,8 +421,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -446,8 +432,7 @@
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -476,8 +461,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -496,8 +480,7 @@
               "description": "Optional query parameters as a JSON string for filtering users (e.g., role, status)"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -526,8 +509,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -546,8 +528,7 @@
               "description": "Optional query parameters as a JSON string (e.g., date range, filters)"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -576,8 +557,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -597,8 +577,7 @@
             }
           },
           "required": ["appointmentId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -627,8 +606,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -648,8 +626,7 @@
             }
           },
           "required": ["data"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -678,8 +655,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -706,8 +682,7 @@
             }
           },
           "required": ["appointmentId", "data"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -736,8 +711,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -757,8 +731,7 @@
             }
           },
           "required": ["appointmentId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -787,8 +760,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -822,8 +794,7 @@
             }
           },
           "required": ["module", "recordId", "data"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -852,8 +823,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -873,8 +843,7 @@
             }
           },
           "required": ["fileUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -903,8 +872,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -924,8 +892,7 @@
             }
           },
           "required": ["fileId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -954,8 +921,7 @@
             }
           },
           "required": ["success", "message"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }
@@ -975,8 +941,7 @@
           }
         },
         "required": ["accessToken"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },

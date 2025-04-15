@@ -27,8 +27,7 @@
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "taskUpdated": {
@@ -46,8 +45,7 @@
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "taskDeleted": {
@@ -65,8 +63,7 @@
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },
@@ -109,8 +106,7 @@
             "assignees": {
               "type": "array",
               "items": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "x-zui": {
                 "title": "Assignees"
@@ -128,8 +124,7 @@
             "tags": {
               "type": "array",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "x-zui": {
                 "title": "Tags"
@@ -138,8 +133,7 @@
             }
           },
           "required": ["listId", "name"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -155,8 +149,7 @@
             }
           },
           "required": ["taskId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -205,8 +198,7 @@
             "assigneesToAdd": {
               "type": "array",
               "items": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "x-zui": {
                 "title": "Assignees to add"
@@ -216,8 +208,7 @@
             "assigneesToRemove": {
               "type": "array",
               "items": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "x-zui": {
                 "title": "Assignees to remove"
@@ -234,8 +225,7 @@
             }
           },
           "required": ["taskId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -251,8 +241,7 @@
             }
           },
           "required": ["taskId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -272,16 +261,14 @@
             }
           },
           "required": ["taskId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -301,8 +288,7 @@
             }
           },
           "required": ["listId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -337,8 +323,7 @@
                   }
                 },
                 "required": ["id", "username", "email"],
-                "additionalProperties": false,
-                "x-zui": {}
+                "additionalProperties": false
               },
               "description": "Members of the list",
               "x-zui": {
@@ -347,8 +332,7 @@
             }
           },
           "required": ["members"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }
@@ -371,8 +355,7 @@
               }
             },
             "required": ["text"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         }
       },

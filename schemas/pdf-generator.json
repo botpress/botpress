@@ -13,21 +13,19 @@
             "markdown": {
               "type": "string",
               "minLength": 1,
-              "description": "The markdown content to convert to PDF",
-              "x-zui": {}
+              "description": "The markdown content to convert to PDF"
             },
             "filename": {
               "type": "string",
               "minLength": 1,
               "pattern": "\\.pdf$",
               "description": "The filename of the PDF",
-              "x-zui": {},
+
               "default": "generated.pdf"
             }
           },
           "required": ["markdown"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -36,18 +34,15 @@
           "properties": {
             "fileId": {
               "type": "string",
-              "description": "The generated PDF file ID",
-              "x-zui": {}
+              "description": "The generated PDF file ID"
             },
             "fileUrl": {
               "type": "string",
-              "description": "The public URL to download the PDF",
-              "x-zui": {}
+              "description": "The public URL to download the PDF"
             }
           },
           "required": ["fileId", "fileUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -61,21 +56,19 @@
             "html": {
               "type": "string",
               "minLength": 1,
-              "description": "The HTML content to convert to PDF",
-              "x-zui": {}
+              "description": "The HTML content to convert to PDF"
             },
             "filename": {
               "type": "string",
               "minLength": 1,
               "pattern": "\\.pdf$",
               "description": "The filename of the PDF",
-              "x-zui": {},
+
               "default": "generated.pdf"
             }
           },
           "required": ["html"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -84,18 +77,15 @@
           "properties": {
             "fileId": {
               "type": "string",
-              "description": "The generated PDF file ID",
-              "x-zui": {}
+              "description": "The generated PDF file ID"
             },
             "fileUrl": {
               "type": "string",
-              "description": "The public URL to download the PDF",
-              "x-zui": {}
+              "description": "The public URL to download the PDF"
             }
           },
           "required": ["fileId", "fileUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }

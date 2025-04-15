@@ -202,8 +202,7 @@
                     }
                   },
                   "required": ["id", "nodeId", "url", "name"],
-                  "additionalProperties": false,
-                  "x-zui": {}
+                  "additionalProperties": false
                 },
                 "description": "The labels associated with the issue",
                 "x-zui": {
@@ -312,8 +311,7 @@
                     }
                   },
                   "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
-                  "additionalProperties": false,
-                  "x-zui": {}
+                  "additionalProperties": false
                 },
                 "description": "The assignees of the issue",
                 "x-zui": {
@@ -429,8 +427,7 @@
           },
           "content": {
             "type": ["string", "null"],
-            "description": "use issue.body instead",
-            "x-zui": {}
+            "description": "use issue.body instead"
           },
           "repositoryName": {
             "type": "string",
@@ -459,8 +456,7 @@
           "repositoryName",
           "repositoryOwner"
         ],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "pullRequestMerged": {
@@ -641,8 +637,7 @@
                     }
                   },
                   "required": ["id", "nodeId", "url", "name"],
-                  "additionalProperties": false,
-                  "x-zui": {}
+                  "additionalProperties": false
                 },
                 "description": "The labels associated with the pull request",
                 "x-zui": {
@@ -751,8 +746,7 @@
                     }
                   },
                   "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
-                  "additionalProperties": false,
-                  "x-zui": {}
+                  "additionalProperties": false
                 },
                 "description": "The assignees of the pull request",
                 "x-zui": {
@@ -1146,8 +1140,7 @@
           }
         },
         "required": ["pullRequest", "eventSender", "id", "title", "content", "targets"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "pullRequestOpened": {
@@ -1328,8 +1321,7 @@
                     }
                   },
                   "required": ["id", "nodeId", "url", "name"],
-                  "additionalProperties": false,
-                  "x-zui": {}
+                  "additionalProperties": false
                 },
                 "description": "The labels associated with the pull request",
                 "x-zui": {
@@ -1438,8 +1430,7 @@
                     }
                   },
                   "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
-                  "additionalProperties": false,
-                  "x-zui": {}
+                  "additionalProperties": false
                 },
                 "description": "The assignees of the pull request",
                 "x-zui": {
@@ -1833,8 +1824,7 @@
           }
         },
         "required": ["pullRequest", "eventSender", "id", "title", "content", "targets"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "pullRequestReviewSubmitted": {
@@ -2039,8 +2029,7 @@
                         }
                       },
                       "required": ["id", "nodeId", "url", "name"],
-                      "additionalProperties": false,
-                      "x-zui": {}
+                      "additionalProperties": false
                     },
                     "description": "The labels associated with the pull request",
                     "x-zui": {
@@ -2149,8 +2138,7 @@
                         }
                       },
                       "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
-                      "additionalProperties": false,
-                      "x-zui": {}
+                      "additionalProperties": false
                     },
                     "description": "The assignees of the pull request",
                     "x-zui": {
@@ -2550,8 +2538,7 @@
           }
         },
         "required": ["review", "eventSender"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },
@@ -2562,13 +2549,11 @@
           "type": "object",
           "properties": {
             "query": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "channel": {
               "type": "string",
-              "enum": ["pullRequest", "issue"],
-              "x-zui": {}
+              "enum": ["pullRequest", "issue"]
             },
             "repo": {
               "type": "string",
@@ -2579,8 +2564,7 @@
             }
           },
           "required": ["query", "channel", "repo"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -2593,33 +2577,26 @@
                 "type": "object",
                 "properties": {
                   "displayName": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "tags": {
                     "type": "object",
                     "additionalProperties": {
-                      "type": "string",
-                      "x-zui": {}
-                    },
-                    "x-zui": {}
+                      "type": "string"
+                    }
                   },
                   "channel": {
                     "type": "string",
-                    "enum": ["pullRequest", "issue"],
-                    "x-zui": {}
+                    "enum": ["pullRequest", "issue"]
                   }
                 },
                 "required": ["displayName", "tags", "channel"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             }
           },
           "required": ["targets"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }
@@ -2699,13 +2676,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               }
             },
             "required": ["text"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         }
       }
@@ -2800,13 +2775,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               }
             },
             "required": ["text"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         }
       }
@@ -2881,13 +2854,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               }
             },
             "required": ["text"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         }
       }
@@ -2982,13 +2953,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               }
             },
             "required": ["text"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         }
       }
@@ -3083,13 +3052,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "minLength": 1,
-                "x-zui": {}
+                "minLength": 1
               }
             },
             "required": ["text"],
-            "additionalProperties": false,
-            "x-zui": {}
+            "additionalProperties": false
           }
         }
       }
@@ -3117,8 +3084,7 @@
             "description": "The handle of the organization that owns the repositories"
           }
         },
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },

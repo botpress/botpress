@@ -12,34 +12,26 @@
             "xData": {
               "type": "array",
               "items": {
-                "type": ["string", "number"],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": ["string", "number"]
+              }
             },
             "yData": {
               "type": "array",
               "items": {
-                "type": "number",
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": "number"
+              }
             },
             "title": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "xAxisTitle": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "yAxisTitle": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -47,13 +39,11 @@
           "type": "object",
           "properties": {
             "imageUrl": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["imageUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -66,34 +56,26 @@
             "xData": {
               "type": "array",
               "items": {
-                "type": ["string", "number"],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": ["string", "number"]
+              }
             },
             "yData": {
               "type": "array",
               "items": {
-                "type": "number",
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": "number"
+              }
             },
             "title": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "xAxisTitle": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "yAxisTitle": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -101,13 +83,11 @@
           "type": "object",
           "properties": {
             "imageUrl": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["imageUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -120,26 +100,20 @@
             "labels": {
               "type": "array",
               "items": {
-                "type": "string",
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": "string"
+              }
             },
             "data": {
               "type": "array",
               "items": {
-                "type": "number",
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": "number"
+              }
             },
             "title": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -147,13 +121,11 @@
           "type": "object",
           "properties": {
             "imageUrl": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["imageUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -169,35 +141,27 @@
                 "type": "object",
                 "properties": {
                   "x": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "y": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   }
                 },
                 "required": ["x", "y"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             },
             "title": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "xAxisTitle": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "yAxisTitle": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -205,13 +169,11 @@
           "type": "object",
           "properties": {
             "imageUrl": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["imageUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -224,26 +186,20 @@
             "labels": {
               "type": "array",
               "items": {
-                "type": "string",
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": "string"
+              }
             },
             "data": {
               "type": "array",
               "items": {
-                "type": "number",
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": "number"
+              }
             },
             "title": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -251,13 +207,11 @@
           "type": "object",
           "properties": {
             "imageUrl": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["imageUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -270,30 +224,23 @@
             "labels": {
               "type": "array",
               "items": {
-                "type": "string",
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": "string"
+              }
             },
             "data": {
               "type": "array",
               "items": {
-                "type": "number",
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": "number"
+              }
             },
             "title": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "axisTitle": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -301,13 +248,11 @@
           "type": "object",
           "properties": {
             "imageUrl": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["imageUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -323,39 +268,30 @@
                 "type": "object",
                 "properties": {
                   "x": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "y": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "r": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   }
                 },
                 "required": ["x", "y", "r"],
-                "additionalProperties": false,
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "additionalProperties": false
+              }
             },
             "title": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "xAxisTitle": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "yAxisTitle": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -363,13 +299,11 @@
           "type": "object",
           "properties": {
             "imageUrl": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["imageUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -382,34 +316,26 @@
             "xData": {
               "type": "array",
               "items": {
-                "type": ["string", "number"],
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": ["string", "number"]
+              }
             },
             "yData": {
               "type": "array",
               "items": {
-                "type": "number",
-                "x-zui": {}
-              },
-              "x-zui": {}
+                "type": "number"
+              }
             },
             "title": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "xAxisTitle": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "yAxisTitle": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -417,13 +343,11 @@
           "type": "object",
           "properties": {
             "imageUrl": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["imageUrl"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }

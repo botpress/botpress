@@ -133,8 +133,7 @@
           "description": "Weither to wait for the user to respond to continue the flow after the hitl session"
         }
       },
-      "additionalProperties": false,
-      "x-zui": {}
+      "additionalProperties": false
     }
   },
   "events": {
@@ -158,8 +157,7 @@
           }
         },
         "required": ["sessionStartedAt", "downstreamConversationId"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     },
     "continueWorkflow": {
@@ -175,8 +173,7 @@
           }
         },
         "required": ["conversationId"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },
@@ -227,16 +224,14 @@
             }
           },
           "required": ["title", "userId", "conversationId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -256,16 +251,14 @@
             }
           },
           "required": ["conversationId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }
@@ -285,8 +278,7 @@
           }
         },
         "required": ["hitlActive"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   }

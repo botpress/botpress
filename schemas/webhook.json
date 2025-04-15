@@ -8,50 +8,37 @@
       "schema": {
         "type": "object",
         "properties": {
-          "body": {
-            "x-zui": {}
-          },
+          "body": {},
           "query": {
             "type": "object",
-            "additionalProperties": {
-              "x-zui": {}
-            },
-            "x-zui": {}
+            "additionalProperties": {}
           },
           "path": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "headers": {
             "type": "object",
             "additionalProperties": {
               "anyOf": [
                 {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 {
                   "type": "array",
                   "items": {
-                    "type": "string",
-                    "x-zui": {}
-                  },
-                  "x-zui": {}
+                    "type": "string"
+                  }
                 }
-              ],
-              "x-zui": {}
-            },
-            "x-zui": {}
+              ]
+            }
           },
           "method": {
             "type": "string",
-            "enum": ["GET", "POST"],
-            "x-zui": {}
+            "enum": ["GET", "POST"]
           }
         },
         "required": ["query", "path", "headers", "method"],
-        "additionalProperties": true,
-        "x-zui": {}
+        "additionalProperties": true
       }
     }
   },

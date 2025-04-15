@@ -7,13 +7,11 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },
@@ -25,27 +23,22 @@
           "item": {
             "allOf": [
               {
-                "$ref": "item",
-                "x-zui": {}
+                "$ref": "item"
               },
               {
                 "type": "object",
                 "properties": {
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
-                "required": ["id"],
-                "x-zui": {}
+                "required": ["id"]
               }
-            ],
-            "x-zui": {}
+            ]
           }
         },
         "required": ["item"],
-        "additionalProperties": false,
-        "x-zui": {}
+        "additionalProperties": false
       }
     }
   },
@@ -56,13 +49,11 @@
           "type": "object",
           "properties": {
             "item": {
-              "$ref": "item",
-              "x-zui": {}
+              "$ref": "item"
             }
           },
           "required": ["item"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
@@ -72,27 +63,22 @@
             "item": {
               "allOf": [
                 {
-                  "$ref": "item",
-                  "x-zui": {}
+                  "$ref": "item"
                 },
                 {
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
-                  "required": ["id"],
-                  "x-zui": {}
+                  "required": ["id"]
                 }
-              ],
-              "x-zui": {}
+              ]
             }
           },
           "required": ["item"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }

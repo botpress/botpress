@@ -10,31 +10,27 @@
           "type": "object",
           "properties": {
             "conversationId": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "messageId": {
               "type": "string",
-              "description": "The message ID to which the typing indicator should be attached",
-              "x-zui": {}
+              "description": "The message ID to which the typing indicator should be attached"
             },
             "timeout": {
               "type": "number",
-              "x-zui": {},
+
               "description": "The timeout in milliseconds after which the typing indicator should stop"
             }
           },
           "required": ["conversationId", "messageId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     },
@@ -44,26 +40,22 @@
           "type": "object",
           "properties": {
             "conversationId": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "messageId": {
               "type": "string",
-              "description": "The message ID from which the typing indicator should be removed",
-              "x-zui": {}
+              "description": "The message ID from which the typing indicator should be removed"
             }
           },
           "required": ["conversationId", "messageId"],
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       },
       "output": {
         "schema": {
           "type": "object",
           "properties": {},
-          "additionalProperties": false,
-          "x-zui": {}
+          "additionalProperties": false
         }
       }
     }
