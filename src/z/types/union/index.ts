@@ -16,6 +16,8 @@ import {
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
+  ZodUndefined,
+  ZodNever,
 } from '../index'
 import { CustomSet } from '../utils/custom-set'
 
@@ -169,5 +171,22 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
     const thatOptions = new CustomSet<ZodType>([...schema._def.options], { compare })
 
     return thisOptions.isEqual(thatOptions)
+  }
+
+  mandatory(): ZodType {
+    const options = this._def.options.filter((o) => !(o instanceof ZodUndefined)).map((option) => option.mandatory())
+    const [first, second, ...others] = options
+    if (!first) {
+      return ZodNever.create({
+        ...this._def,
+      })
+    }
+    if (!second) {
+      return first
+    }
+    return new ZodUnion({
+      ...this._def,
+      options: [first, second, ...others],
+    })
   }
 }

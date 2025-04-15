@@ -70,6 +70,17 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   }
 
   unwrap() {
+    return this._def.innerType
+  }
+
+  naked() {
     return this._def.innerType.naked()
+  }
+
+  mandatory(): ZodDefault<ZodTypeAny> {
+    return new ZodDefault({
+      ...this._def,
+      innerType: this._def.innerType.mandatory(),
+    })
   }
 }

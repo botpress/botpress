@@ -81,4 +81,11 @@ export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   naked() {
     return this._def.innerType.naked()
   }
+
+  mandatory(): ZodReadonly<ZodTypeAny> {
+    return new ZodReadonly({
+      ...this._def,
+      innerType: this._def.innerType.mandatory(),
+    })
+  }
 }

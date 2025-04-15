@@ -81,7 +81,7 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
       const requiredProperties = shape.filter(([_, value]) => !value.isOptional())
       const required = requiredProperties.length ? requiredProperties.map(([key]) => key) : undefined
       const properties = shape
-        .map(([key, value]) => [key, _toRequired(value)] satisfies [string, z.ZodType])
+        .map(([key, value]) => [key, value.mandatory()] satisfies [string, z.ZodType])
         .map(([key, value]) => [key, toJsonSchema(value)] satisfies [string, json.ZuiJsonSchema])
 
       let additionalProperties: json.ObjectSchema['additionalProperties'] = undefined
@@ -254,35 +254,6 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
     default:
       z.util.assertNever(def)
   }
-}
-
-/**
- * Make the schema required.
- * If this schema is already non-optional, it will return itself.
- * If this schema is optional, it will try to remove all optional constraints from the schema
- */
-const _toRequired = (schema: z.ZodType): z.ZodType => {
-  if (!schema.isOptional()) {
-    return schema
-  }
-
-  let newSchema = schema as z.ZodFirstPartySchemaTypes
-  const def = newSchema._def
-  if (def.typeName === z.ZodFirstPartyTypeKind.ZodOptional) {
-    newSchema = def.innerType
-  }
-
-  if (def.typeName === z.ZodFirstPartyTypeKind.ZodUnion) {
-    const newOptions = def.options.filter((x) => x._def.typeName !== z.ZodFirstPartyTypeKind.ZodUndefined)
-    if (newOptions.length === 1) {
-      newSchema = newOptions[0] as z.ZodFirstPartySchemaTypes
-    } else {
-      type Options = [z.ZodType, z.ZodType, ...z.ZodType[]]
-      newSchema = z.ZodUnion.create(newOptions as Options, def)
-    }
-  }
-
-  return newSchema
 }
 
 const undefinedSchema = (def?: z.ZodTypeDef): json.UndefinedSchema => ({

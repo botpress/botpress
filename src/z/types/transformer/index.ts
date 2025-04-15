@@ -242,5 +242,12 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
   naked() {
     return this._def.schema.naked()
   }
+
+  mandatory(): ZodEffects<ZodTypeAny> {
+    return new ZodEffects({
+      ...this._def,
+      schema: this._def.schema.mandatory(),
+    })
+  }
 }
 export { ZodEffects as ZodTransformer }

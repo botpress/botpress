@@ -11,6 +11,7 @@ import {
   OK,
   ParseInput,
   ParseReturnType,
+  ZodNever,
 } from '../index'
 
 export interface ZodUndefinedDef extends ZodTypeDef {
@@ -42,5 +43,11 @@ export class ZodUndefined extends ZodType<undefined, ZodUndefinedDef> {
 
   isEqual(schema: ZodType): boolean {
     return schema instanceof ZodUndefined
+  }
+
+  mandatory(): ZodNever {
+    return ZodNever.create({
+      ...this._def,
+    })
   }
 }
