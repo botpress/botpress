@@ -46,31 +46,19 @@
               },
               "lastModifiedDate": {
                 "type": "string",
-                "x-zui": {
-                  "precision": null,
-                  "offset": false
-                },
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                "x-zui": {}
               },
               "contentHash": {
                 "type": "string",
                 "x-zui": {}
               }
             },
-            "required": [
-              "id",
-              "type",
-              "name",
-              "absolutePath"
-            ],
+            "required": ["id", "type", "name", "absolutePath"],
             "additionalProperties": false,
             "x-zui": {}
           }
         },
-        "required": [
-          "file"
-        ],
+        "required": ["file"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -109,31 +97,19 @@
               },
               "lastModifiedDate": {
                 "type": "string",
-                "x-zui": {
-                  "precision": null,
-                  "offset": false
-                },
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                "x-zui": {}
               },
               "contentHash": {
                 "type": "string",
                 "x-zui": {}
               }
             },
-            "required": [
-              "id",
-              "type",
-              "name",
-              "absolutePath"
-            ],
+            "required": ["id", "type", "name", "absolutePath"],
             "additionalProperties": false,
             "x-zui": {}
           }
         },
-        "required": [
-          "file"
-        ],
+        "required": ["file"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -172,31 +148,19 @@
               },
               "lastModifiedDate": {
                 "type": "string",
-                "x-zui": {
-                  "precision": null,
-                  "offset": false
-                },
-                "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                "x-zui": {}
               },
               "contentHash": {
                 "type": "string",
                 "x-zui": {}
               }
             },
-            "required": [
-              "id",
-              "type",
-              "name",
-              "absolutePath"
-            ],
+            "required": ["id", "type", "name", "absolutePath"],
             "additionalProperties": false,
             "x-zui": {}
           }
         },
-        "required": [
-          "file"
-        ],
+        "required": ["file"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -230,19 +194,12 @@
                 "x-zui": {}
               }
             },
-            "required": [
-              "id",
-              "type",
-              "name",
-              "absolutePath"
-            ],
+            "required": ["id", "type", "name", "absolutePath"],
             "additionalProperties": false,
             "x-zui": {}
           }
         },
-        "required": [
-          "folder"
-        ],
+        "required": ["folder"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -286,24 +243,14 @@
                     },
                     "lastModifiedDate": {
                       "type": "string",
-                      "x-zui": {
-                        "precision": null,
-                        "offset": false
-                      },
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                      "x-zui": {}
                     },
                     "contentHash": {
                       "type": "string",
                       "x-zui": {}
                     }
                   },
-                  "required": [
-                    "id",
-                    "type",
-                    "name",
-                    "absolutePath"
-                  ],
+                  "required": ["id", "type", "name", "absolutePath"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
@@ -341,24 +288,14 @@
                     },
                     "lastModifiedDate": {
                       "type": "string",
-                      "x-zui": {
-                        "precision": null,
-                        "offset": false
-                      },
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                      "x-zui": {}
                     },
                     "contentHash": {
                       "type": "string",
                       "x-zui": {}
                     }
                   },
-                  "required": [
-                    "id",
-                    "type",
-                    "name",
-                    "absolutePath"
-                  ],
+                  "required": ["id", "type", "name", "absolutePath"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
@@ -398,24 +335,14 @@
                         },
                         "lastModifiedDate": {
                           "type": "string",
-                          "x-zui": {
-                            "precision": null,
-                            "offset": false
-                          },
-                          "format": "date-time",
-                          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                          "x-zui": {}
                         },
                         "contentHash": {
                           "type": "string",
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "id",
-                        "type",
-                        "name",
-                        "absolutePath"
-                      ],
+                      "required": ["id", "type", "name", "absolutePath"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -444,12 +371,7 @@
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "id",
-                        "type",
-                        "name",
-                        "absolutePath"
-                      ],
+                      "required": ["id", "type", "name", "absolutePath"],
                       "additionalProperties": false,
                       "x-zui": {}
                     }
@@ -459,18 +381,12 @@
                 "x-zui": {}
               }
             },
-            "required": [
-              "created",
-              "updated",
-              "deleted"
-            ],
+            "required": ["created", "updated", "deleted"],
             "additionalProperties": false,
             "x-zui": {}
           }
         },
-        "required": [
-          "modifiedItems"
-        ],
+        "required": ["modifiedItems"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -486,30 +402,27 @@
           "properties": {
             "databaseId": {
               "type": "string",
+              "minLength": 1,
               "description": "The ID of the database to add the page to. Can be found in the URL of the database",
               "x-zui": {
                 "title": "Database ID"
-              },
-              "minLength": 1
+              }
             },
             "pageProperties": {
               "type": "object",
-              "description": "The values of the page's properties. Must match the parent database's properties",
               "additionalProperties": {
                 "type": "object",
                 "properties": {},
                 "additionalProperties": true,
                 "x-zui": {}
               },
+              "description": "The values of the page's properties. Must match the parent database's properties",
               "x-zui": {
                 "title": "Page Properties"
               }
             }
           },
-          "required": [
-            "databaseId",
-            "pageProperties"
-          ],
+          "required": ["databaseId", "pageProperties"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -532,25 +445,22 @@
           "properties": {
             "pageId": {
               "type": "string",
+              "minLength": 1,
               "description": "The ID of the page to add the comment to. Can be found in the URL of the page",
               "x-zui": {
                 "title": "Page ID"
-              },
-              "minLength": 1
+              }
             },
             "commentBody": {
               "type": "string",
+              "minLength": 1,
               "description": "Must be plain text",
               "x-zui": {
                 "title": "Comment Body"
-              },
-              "minLength": 1
+              }
             }
           },
-          "required": [
-            "pageId",
-            "commentBody"
-          ],
+          "required": ["pageId", "commentBody"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -573,16 +483,14 @@
           "properties": {
             "blockId": {
               "type": "string",
+              "minLength": 1,
               "description": "The ID of the block to delete. Can be found in the URL of the block",
               "x-zui": {
                 "title": "Block ID"
-              },
-              "minLength": 1
+              }
             }
           },
-          "required": [
-            "blockId"
-          ],
+          "required": ["blockId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -605,16 +513,14 @@
           "properties": {
             "databaseId": {
               "type": "string",
+              "minLength": 1,
               "description": "The ID of the database to fetch. Can be found in the URL of the database",
               "x-zui": {
                 "title": "Database ID"
-              },
-              "minLength": 1
+              }
             }
           },
-          "required": [
-            "databaseId"
-          ],
+          "required": ["databaseId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -632,13 +538,13 @@
             },
             "properties": {
               "type": "object",
-              "description": "Schema of properties for the database as they appear in Notion",
               "additionalProperties": {
                 "type": "object",
                 "properties": {},
                 "additionalProperties": true,
                 "x-zui": {}
               },
+              "description": "Schema of properties for the database as they appear in Notion",
               "x-zui": {
                 "title": "Database Properties"
               }
@@ -651,11 +557,7 @@
               }
             }
           },
-          "required": [
-            "object",
-            "properties",
-            "structure"
-          ],
+          "required": ["object", "properties", "structure"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -670,25 +572,22 @@
           "properties": {
             "discussionId": {
               "type": "string",
+              "minLength": 1,
               "description": "The ID of the discussion to add the comment to. Can be found in the URL of the discussion",
               "x-zui": {
                 "title": "Discussion ID"
-              },
-              "minLength": 1
+              }
             },
             "commentBody": {
               "type": "string",
+              "minLength": 1,
               "description": "Must be plain text",
               "x-zui": {
                 "title": "Comment Body"
-              },
-              "minLength": 1
+              }
             }
           },
-          "required": [
-            "discussionId",
-            "commentBody"
-          ],
+          "required": ["discussionId", "commentBody"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -715,66 +614,17 @@
               "type": "object",
               "properties": {
                 "itemType": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "const": "file",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "string",
-                      "const": "folder",
-                      "x-zui": {}
-                    }
-                  ],
+                  "type": "string",
+                  "enum": ["file", "folder"],
                   "x-zui": {}
                 },
                 "maxSizeInBytes": {
-                  "anyOf": [
-                    {
-                      "type": "number",
-                      "x-zui": {}
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
-                  }
+                  "type": "number",
+                  "x-zui": {}
                 },
                 "modifiedAfter": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "x-zui": {
-                        "precision": null,
-                        "offset": false
-                      },
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
-                  }
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
               "additionalProperties": false,
@@ -827,23 +677,14 @@
                       },
                       "lastModifiedDate": {
                         "type": "string",
-                        "x-zui": {
-                          "precision": null,
-                          "offset": false
-                        },
-                        "format": "date-time",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                        "x-zui": {}
                       },
                       "contentHash": {
                         "type": "string",
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id",
-                      "type",
-                      "name"
-                    ],
+                    "required": ["id", "type", "name"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -872,11 +713,7 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id",
-                      "type",
-                      "name"
-                    ],
+                    "required": ["id", "type", "name"],
                     "additionalProperties": false,
                     "x-zui": {}
                   }
@@ -897,10 +734,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "items",
-            "meta"
-          ],
+          "required": ["items", "meta"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -944,23 +778,14 @@
                 },
                 "lastModifiedDate": {
                   "type": "string",
-                  "x-zui": {
-                    "precision": null,
-                    "offset": false
-                  },
-                  "format": "date-time",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                  "x-zui": {}
                 },
                 "contentHash": {
                   "type": "string",
                   "x-zui": {}
                 }
               },
-              "required": [
-                "id",
-                "type",
-                "name"
-              ],
+              "required": ["id", "type", "name"],
               "additionalProperties": false,
               "x-zui": {}
             },
@@ -969,10 +794,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "file",
-            "fileKey"
-          ],
+          "required": ["file", "fileKey"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -986,9 +808,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "botpressFileId"
-          ],
+          "required": ["botpressFileId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1013,9 +833,7 @@
             }
           }
         },
-        "required": [
-          "authToken"
-        ],
+        "required": ["authToken"],
         "additionalProperties": false,
         "x-zui": {}
       }

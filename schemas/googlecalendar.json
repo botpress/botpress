@@ -12,7 +12,6 @@
             "allOf": [
               {
                 "type": "object",
-                "description": "The data of the event.",
                 "properties": {
                   "id": {
                     "type": "string",
@@ -30,17 +29,17 @@
                   },
                   "description": {
                     "type": "string",
-                    "description": "Description of the event. Can contain HTML. Optional.",
                     "x-zui": {
                       "title": "Description"
-                    }
+                    },
+                    "description": "Description of the event. Can contain HTML. Optional."
                   },
                   "location": {
                     "type": "string",
-                    "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                     "x-zui": {
                       "title": "Location"
-                    }
+                    },
+                    "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
                   },
                   "startDateTime": {
                     "type": "string",
@@ -58,75 +57,34 @@
                   },
                   "colorId": {
                     "type": "string",
-                    "description": "The color ID of the event. Optional.",
                     "x-zui": {
                       "title": "Color ID"
-                    }
+                    },
+                    "description": "The color ID of the event. Optional."
                   },
                   "eventType": {
                     "type": "string",
+                    "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
                     "description": "Specific type of the event. This cannot be modified after the event is created.",
-                    "enum": [
-                      "default",
-                      "birthday",
-                      "focusTime",
-                      "fromGmail",
-                      "outOfOffice",
-                      "workingLocation"
-                    ],
                     "x-zui": {
                       "title": "Event Type"
                     }
                   },
                   "guestsCanInviteOthers": {
-                    "anyOf": [
-                      {
-                        "type": "boolean",
-                        "x-zui": {
-                          "title": "Guests Can Invite Others"
-                        }
-                      },
-                      {
-                        "not": true,
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodUndefined"
-                          }
-                        }
-                      }
-                    ],
+                    "type": "boolean",
                     "x-zui": {
-                      "title": "Guests Can Invite Others",
-                      "def": {
-                        "typeName": "ZodOptional"
-                      }
+                      "title": "Guests Can Invite Others"
                     },
-                    "default": true
+                    "default": true,
+                    "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
                   },
                   "guestsCanSeeOtherGuests": {
-                    "anyOf": [
-                      {
-                        "type": "boolean",
-                        "x-zui": {
-                          "title": "Guests Can See Other Guests"
-                        }
-                      },
-                      {
-                        "not": true,
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodUndefined"
-                          }
-                        }
-                      }
-                    ],
+                    "type": "boolean",
                     "x-zui": {
-                      "title": "Guests Can See Other Guests",
-                      "def": {
-                        "typeName": "ZodOptional"
-                      }
+                      "title": "Guests Can See Other Guests"
                     },
-                    "default": true
+                    "default": true,
+                    "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
                   },
                   "htmlLink": {
                     "type": "string",
@@ -137,7 +95,6 @@
                   },
                   "recurrence": {
                     "type": "array",
-                    "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                     "items": {
                       "type": "string",
                       "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -147,79 +104,29 @@
                     },
                     "x-zui": {
                       "title": "Recurrence"
-                    }
+                    },
+                    "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
                   },
                   "status": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "confirmed",
-                          "tentative",
-                          "cancelled"
-                        ],
-                        "x-zui": {
-                          "title": "Event Status"
-                        }
-                      },
-                      {
-                        "not": true,
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodUndefined"
-                          }
-                        }
-                      }
-                    ],
+                    "type": "string",
+                    "enum": ["confirmed", "tentative", "cancelled"],
                     "x-zui": {
-                      "title": "Event Status",
-                      "def": {
-                        "typeName": "ZodOptional"
-                      }
+                      "title": "Event Status"
                     },
-                    "default": "confirmed"
+                    "default": "confirmed",
+                    "description": "Status of the event. Optional. The default value is \"confirmed\"."
                   },
                   "visibility": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "default",
-                          "public",
-                          "private",
-                          "confidential"
-                        ],
-                        "x-zui": {
-                          "title": "Event Visibility"
-                        }
-                      },
-                      {
-                        "not": true,
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodUndefined"
-                          }
-                        }
-                      }
-                    ],
+                    "type": "string",
+                    "enum": ["default", "public", "private", "confidential"],
                     "x-zui": {
-                      "title": "Event Visibility",
-                      "def": {
-                        "typeName": "ZodOptional"
-                      }
+                      "title": "Event Visibility"
                     },
-                    "default": "default"
+                    "default": "default",
+                    "description": "Visibility of the event. Optional. The default value is \"default\"."
                   }
                 },
-                "required": [
-                  "id",
-                  "summary",
-                  "startDateTime",
-                  "endDateTime",
-                  "eventType",
-                  "htmlLink"
-                ],
-                "additionalProperties": false,
+                "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
                 "x-zui": {
                   "title": "Updated Event"
                 }
@@ -232,19 +139,14 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "id"
-                ],
-                "additionalProperties": false,
+                "required": ["id"],
                 "x-zui": {}
               }
             ],
             "x-zui": {}
           }
         },
-        "required": [
-          "item"
-        ],
+        "required": ["item"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -258,7 +160,6 @@
             "allOf": [
               {
                 "type": "object",
-                "description": "The data of the event.",
                 "properties": {
                   "id": {
                     "type": "string",
@@ -276,17 +177,17 @@
                   },
                   "description": {
                     "type": "string",
-                    "description": "Description of the event. Can contain HTML. Optional.",
                     "x-zui": {
                       "title": "Description"
-                    }
+                    },
+                    "description": "Description of the event. Can contain HTML. Optional."
                   },
                   "location": {
                     "type": "string",
-                    "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                     "x-zui": {
                       "title": "Location"
-                    }
+                    },
+                    "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
                   },
                   "startDateTime": {
                     "type": "string",
@@ -304,75 +205,34 @@
                   },
                   "colorId": {
                     "type": "string",
-                    "description": "The color ID of the event. Optional.",
                     "x-zui": {
                       "title": "Color ID"
-                    }
+                    },
+                    "description": "The color ID of the event. Optional."
                   },
                   "eventType": {
                     "type": "string",
+                    "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
                     "description": "Specific type of the event. This cannot be modified after the event is created.",
-                    "enum": [
-                      "default",
-                      "birthday",
-                      "focusTime",
-                      "fromGmail",
-                      "outOfOffice",
-                      "workingLocation"
-                    ],
                     "x-zui": {
                       "title": "Event Type"
                     }
                   },
                   "guestsCanInviteOthers": {
-                    "anyOf": [
-                      {
-                        "type": "boolean",
-                        "x-zui": {
-                          "title": "Guests Can Invite Others"
-                        }
-                      },
-                      {
-                        "not": true,
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodUndefined"
-                          }
-                        }
-                      }
-                    ],
+                    "type": "boolean",
                     "x-zui": {
-                      "title": "Guests Can Invite Others",
-                      "def": {
-                        "typeName": "ZodOptional"
-                      }
+                      "title": "Guests Can Invite Others"
                     },
-                    "default": true
+                    "default": true,
+                    "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
                   },
                   "guestsCanSeeOtherGuests": {
-                    "anyOf": [
-                      {
-                        "type": "boolean",
-                        "x-zui": {
-                          "title": "Guests Can See Other Guests"
-                        }
-                      },
-                      {
-                        "not": true,
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodUndefined"
-                          }
-                        }
-                      }
-                    ],
+                    "type": "boolean",
                     "x-zui": {
-                      "title": "Guests Can See Other Guests",
-                      "def": {
-                        "typeName": "ZodOptional"
-                      }
+                      "title": "Guests Can See Other Guests"
                     },
-                    "default": true
+                    "default": true,
+                    "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
                   },
                   "htmlLink": {
                     "type": "string",
@@ -383,7 +243,6 @@
                   },
                   "recurrence": {
                     "type": "array",
-                    "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                     "items": {
                       "type": "string",
                       "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -393,79 +252,29 @@
                     },
                     "x-zui": {
                       "title": "Recurrence"
-                    }
+                    },
+                    "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
                   },
                   "status": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "confirmed",
-                          "tentative",
-                          "cancelled"
-                        ],
-                        "x-zui": {
-                          "title": "Event Status"
-                        }
-                      },
-                      {
-                        "not": true,
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodUndefined"
-                          }
-                        }
-                      }
-                    ],
+                    "type": "string",
+                    "enum": ["confirmed", "tentative", "cancelled"],
                     "x-zui": {
-                      "title": "Event Status",
-                      "def": {
-                        "typeName": "ZodOptional"
-                      }
+                      "title": "Event Status"
                     },
-                    "default": "confirmed"
+                    "default": "confirmed",
+                    "description": "Status of the event. Optional. The default value is \"confirmed\"."
                   },
                   "visibility": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "default",
-                          "public",
-                          "private",
-                          "confidential"
-                        ],
-                        "x-zui": {
-                          "title": "Event Visibility"
-                        }
-                      },
-                      {
-                        "not": true,
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodUndefined"
-                          }
-                        }
-                      }
-                    ],
+                    "type": "string",
+                    "enum": ["default", "public", "private", "confidential"],
                     "x-zui": {
-                      "title": "Event Visibility",
-                      "def": {
-                        "typeName": "ZodOptional"
-                      }
+                      "title": "Event Visibility"
                     },
-                    "default": "default"
+                    "default": "default",
+                    "description": "Visibility of the event. Optional. The default value is \"default\"."
                   }
                 },
-                "required": [
-                  "id",
-                  "summary",
-                  "startDateTime",
-                  "endDateTime",
-                  "eventType",
-                  "htmlLink"
-                ],
-                "additionalProperties": false,
+                "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
                 "x-zui": {
                   "title": "Updated Event"
                 }
@@ -478,19 +287,14 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "id"
-                ],
-                "additionalProperties": false,
+                "required": ["id"],
                 "x-zui": {}
               }
             ],
             "x-zui": {}
           }
         },
-        "required": [
-          "item"
-        ],
+        "required": ["item"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -505,9 +309,7 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -524,24 +326,27 @@
           "properties": {
             "count": {
               "type": "number",
-              "x-zui": {},
               "minimum": 1,
               "maximum": 2500,
-              "default": 100
+              "x-zui": {
+                "title": "Number of events to retrieve"
+              },
+              "default": 100,
+              "description": "The maximum number of events to return. Defaults to 100."
             },
             "pageToken": {
               "type": "string",
-              "description": "Token specifying which result page to return.",
               "x-zui": {
                 "title": "Page token"
-              }
+              },
+              "description": "Token specifying which result page to return."
             },
             "timeMin": {
               "type": "string",
-              "description": "Only return events occurring on or after this date. Must be in RFC3339 format. Defaults to now if not specified.",
               "x-zui": {
                 "title": "On or after"
-              }
+              },
+              "description": "Only return events occurring on or after this date. Must be in RFC3339 format. Defaults to now if not specified."
             }
           },
           "additionalProperties": false,
@@ -554,10 +359,8 @@
           "properties": {
             "events": {
               "type": "array",
-              "description": "The list of calendar events.",
               "items": {
                 "type": "object",
-                "description": "The data of the event.",
                 "properties": {
                   "id": {
                     "type": "string",
@@ -575,17 +378,17 @@
                   },
                   "description": {
                     "type": "string",
-                    "description": "Description of the event. Can contain HTML. Optional.",
                     "x-zui": {
                       "title": "Description"
-                    }
+                    },
+                    "description": "Description of the event. Can contain HTML. Optional."
                   },
                   "location": {
                     "type": "string",
-                    "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                     "x-zui": {
                       "title": "Location"
-                    }
+                    },
+                    "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
                   },
                   "startDateTime": {
                     "type": "string",
@@ -603,75 +406,34 @@
                   },
                   "colorId": {
                     "type": "string",
-                    "description": "The color ID of the event. Optional.",
                     "x-zui": {
                       "title": "Color ID"
-                    }
+                    },
+                    "description": "The color ID of the event. Optional."
                   },
                   "eventType": {
                     "type": "string",
+                    "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
                     "description": "Specific type of the event. This cannot be modified after the event is created.",
-                    "enum": [
-                      "default",
-                      "birthday",
-                      "focusTime",
-                      "fromGmail",
-                      "outOfOffice",
-                      "workingLocation"
-                    ],
                     "x-zui": {
                       "title": "Event Type"
                     }
                   },
                   "guestsCanInviteOthers": {
-                    "anyOf": [
-                      {
-                        "type": "boolean",
-                        "x-zui": {
-                          "title": "Guests Can Invite Others"
-                        }
-                      },
-                      {
-                        "not": true,
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodUndefined"
-                          }
-                        }
-                      }
-                    ],
+                    "type": "boolean",
                     "x-zui": {
-                      "title": "Guests Can Invite Others",
-                      "def": {
-                        "typeName": "ZodOptional"
-                      }
+                      "title": "Guests Can Invite Others"
                     },
-                    "default": true
+                    "default": true,
+                    "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
                   },
                   "guestsCanSeeOtherGuests": {
-                    "anyOf": [
-                      {
-                        "type": "boolean",
-                        "x-zui": {
-                          "title": "Guests Can See Other Guests"
-                        }
-                      },
-                      {
-                        "not": true,
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodUndefined"
-                          }
-                        }
-                      }
-                    ],
+                    "type": "boolean",
                     "x-zui": {
-                      "title": "Guests Can See Other Guests",
-                      "def": {
-                        "typeName": "ZodOptional"
-                      }
+                      "title": "Guests Can See Other Guests"
                     },
-                    "default": true
+                    "default": true,
+                    "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
                   },
                   "htmlLink": {
                     "type": "string",
@@ -682,7 +444,6 @@
                   },
                   "recurrence": {
                     "type": "array",
-                    "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                     "items": {
                       "type": "string",
                       "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -692,98 +453,49 @@
                     },
                     "x-zui": {
                       "title": "Recurrence"
-                    }
+                    },
+                    "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
                   },
                   "status": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "confirmed",
-                          "tentative",
-                          "cancelled"
-                        ],
-                        "x-zui": {
-                          "title": "Event Status"
-                        }
-                      },
-                      {
-                        "not": true,
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodUndefined"
-                          }
-                        }
-                      }
-                    ],
+                    "type": "string",
+                    "enum": ["confirmed", "tentative", "cancelled"],
                     "x-zui": {
-                      "title": "Event Status",
-                      "def": {
-                        "typeName": "ZodOptional"
-                      }
+                      "title": "Event Status"
                     },
-                    "default": "confirmed"
+                    "default": "confirmed",
+                    "description": "Status of the event. Optional. The default value is \"confirmed\"."
                   },
                   "visibility": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "default",
-                          "public",
-                          "private",
-                          "confidential"
-                        ],
-                        "x-zui": {
-                          "title": "Event Visibility"
-                        }
-                      },
-                      {
-                        "not": true,
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodUndefined"
-                          }
-                        }
-                      }
-                    ],
+                    "type": "string",
+                    "enum": ["default", "public", "private", "confidential"],
                     "x-zui": {
-                      "title": "Event Visibility",
-                      "def": {
-                        "typeName": "ZodOptional"
-                      }
+                      "title": "Event Visibility"
                     },
-                    "default": "default"
+                    "default": "default",
+                    "description": "Visibility of the event. Optional. The default value is \"default\"."
                   }
                 },
-                "required": [
-                  "id",
-                  "summary",
-                  "startDateTime",
-                  "endDateTime",
-                  "eventType",
-                  "htmlLink"
-                ],
+                "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
                 "additionalProperties": false,
+                "description": "The calendar event data.",
                 "x-zui": {
-                  "title": "Updated Event"
+                  "title": "Event"
                 }
               },
+              "description": "The list of calendar events.",
               "x-zui": {
                 "title": "Events"
               }
             },
             "nextPageToken": {
               "type": "string",
-              "description": "Token used to access the next page of this result. Omitted if no further results are available.",
               "x-zui": {
                 "title": "Next page token"
-              }
+              },
+              "description": "Token used to access the next page of this result. Omitted if no further results are available."
             }
           },
-          "required": [
-            "events"
-          ],
+          "required": ["events"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -795,7 +507,6 @@
       "input": {
         "schema": {
           "type": "object",
-          "description": "The definition of the new event.",
           "properties": {
             "summary": {
               "type": "string",
@@ -806,17 +517,17 @@
             },
             "description": {
               "type": "string",
-              "description": "Description of the event. Can contain HTML. Optional.",
               "x-zui": {
                 "title": "Description"
-              }
+              },
+              "description": "Description of the event. Can contain HTML. Optional."
             },
             "location": {
               "type": "string",
-              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
               "x-zui": {
                 "title": "Location"
-              }
+              },
+              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
             },
             "startDateTime": {
               "type": "string",
@@ -834,64 +545,29 @@
             },
             "colorId": {
               "type": "string",
-              "description": "The color ID of the event. Optional.",
               "x-zui": {
                 "title": "Color ID"
-              }
+              },
+              "description": "The color ID of the event. Optional."
             },
             "guestsCanInviteOthers": {
-              "anyOf": [
-                {
-                  "type": "boolean",
-                  "x-zui": {
-                    "title": "Guests Can Invite Others"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "boolean",
               "x-zui": {
-                "title": "Guests Can Invite Others",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Guests Can Invite Others"
               },
-              "default": true
+              "default": true,
+              "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
             },
             "guestsCanSeeOtherGuests": {
-              "anyOf": [
-                {
-                  "type": "boolean",
-                  "x-zui": {
-                    "title": "Guests Can See Other Guests"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "boolean",
               "x-zui": {
-                "title": "Guests Can See Other Guests",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Guests Can See Other Guests"
               },
-              "default": true
+              "default": true,
+              "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
             },
             "recurrence": {
               "type": "array",
-              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
               "items": {
                 "type": "string",
                 "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -901,76 +577,31 @@
               },
               "x-zui": {
                 "title": "Recurrence"
-              }
+              },
+              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
             },
             "status": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "confirmed",
-                    "tentative",
-                    "cancelled"
-                  ],
-                  "x-zui": {
-                    "title": "Event Status"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "string",
+              "enum": ["confirmed", "tentative", "cancelled"],
               "x-zui": {
-                "title": "Event Status",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Event Status"
               },
-              "default": "confirmed"
+              "default": "confirmed",
+              "description": "Status of the event. Optional. The default value is \"confirmed\"."
             },
             "visibility": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "default",
-                    "public",
-                    "private",
-                    "confidential"
-                  ],
-                  "x-zui": {
-                    "title": "Event Visibility"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "string",
+              "enum": ["default", "public", "private", "confidential"],
               "x-zui": {
-                "title": "Event Visibility",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Event Visibility"
               },
-              "default": "default"
+              "default": "default",
+              "description": "Visibility of the event. Optional. The default value is \"default\"."
             }
           },
-          "required": [
-            "summary",
-            "startDateTime",
-            "endDateTime"
-          ],
+          "required": ["summary", "startDateTime", "endDateTime"],
           "additionalProperties": false,
+          "description": "The definition of the new event.",
           "x-zui": {
             "title": "New Event"
           }
@@ -979,7 +610,6 @@
       "output": {
         "schema": {
           "type": "object",
-          "description": "The data of the event.",
           "properties": {
             "id": {
               "type": "string",
@@ -997,17 +627,17 @@
             },
             "description": {
               "type": "string",
-              "description": "Description of the event. Can contain HTML. Optional.",
               "x-zui": {
                 "title": "Description"
-              }
+              },
+              "description": "Description of the event. Can contain HTML. Optional."
             },
             "location": {
               "type": "string",
-              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
               "x-zui": {
                 "title": "Location"
-              }
+              },
+              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
             },
             "startDateTime": {
               "type": "string",
@@ -1025,75 +655,34 @@
             },
             "colorId": {
               "type": "string",
-              "description": "The color ID of the event. Optional.",
               "x-zui": {
                 "title": "Color ID"
-              }
+              },
+              "description": "The color ID of the event. Optional."
             },
             "eventType": {
               "type": "string",
+              "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
               "description": "Specific type of the event. This cannot be modified after the event is created.",
-              "enum": [
-                "default",
-                "birthday",
-                "focusTime",
-                "fromGmail",
-                "outOfOffice",
-                "workingLocation"
-              ],
               "x-zui": {
                 "title": "Event Type"
               }
             },
             "guestsCanInviteOthers": {
-              "anyOf": [
-                {
-                  "type": "boolean",
-                  "x-zui": {
-                    "title": "Guests Can Invite Others"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "boolean",
               "x-zui": {
-                "title": "Guests Can Invite Others",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Guests Can Invite Others"
               },
-              "default": true
+              "default": true,
+              "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
             },
             "guestsCanSeeOtherGuests": {
-              "anyOf": [
-                {
-                  "type": "boolean",
-                  "x-zui": {
-                    "title": "Guests Can See Other Guests"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "boolean",
               "x-zui": {
-                "title": "Guests Can See Other Guests",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Guests Can See Other Guests"
               },
-              "default": true
+              "default": true,
+              "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
             },
             "htmlLink": {
               "type": "string",
@@ -1104,7 +693,6 @@
             },
             "recurrence": {
               "type": "array",
-              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
               "items": {
                 "type": "string",
                 "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -1114,81 +702,33 @@
               },
               "x-zui": {
                 "title": "Recurrence"
-              }
+              },
+              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
             },
             "status": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "confirmed",
-                    "tentative",
-                    "cancelled"
-                  ],
-                  "x-zui": {
-                    "title": "Event Status"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "string",
+              "enum": ["confirmed", "tentative", "cancelled"],
               "x-zui": {
-                "title": "Event Status",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Event Status"
               },
-              "default": "confirmed"
+              "default": "confirmed",
+              "description": "Status of the event. Optional. The default value is \"confirmed\"."
             },
             "visibility": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "default",
-                    "public",
-                    "private",
-                    "confidential"
-                  ],
-                  "x-zui": {
-                    "title": "Event Visibility"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "string",
+              "enum": ["default", "public", "private", "confidential"],
               "x-zui": {
-                "title": "Event Visibility",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Event Visibility"
               },
-              "default": "default"
+              "default": "default",
+              "description": "Visibility of the event. Optional. The default value is \"default\"."
             }
           },
-          "required": [
-            "id",
-            "summary",
-            "startDateTime",
-            "endDateTime",
-            "eventType",
-            "htmlLink"
-          ],
+          "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
           "additionalProperties": false,
+          "description": "The data of the new event.",
           "x-zui": {
-            "title": "Updated Event"
+            "title": "Created Event"
           }
         }
       }
@@ -1199,7 +739,6 @@
       "input": {
         "schema": {
           "type": "object",
-          "description": "The data of the new event.",
           "properties": {
             "id": {
               "type": "string",
@@ -1217,17 +756,17 @@
             },
             "description": {
               "type": "string",
-              "description": "Description of the event. Can contain HTML. Optional.",
               "x-zui": {
                 "title": "Description"
-              }
+              },
+              "description": "Description of the event. Can contain HTML. Optional."
             },
             "location": {
               "type": "string",
-              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
               "x-zui": {
                 "title": "Location"
-              }
+              },
+              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
             },
             "startDateTime": {
               "type": "string",
@@ -1245,64 +784,29 @@
             },
             "colorId": {
               "type": "string",
-              "description": "The color ID of the event. Optional.",
               "x-zui": {
                 "title": "Color ID"
-              }
+              },
+              "description": "The color ID of the event. Optional."
             },
             "guestsCanInviteOthers": {
-              "anyOf": [
-                {
-                  "type": "boolean",
-                  "x-zui": {
-                    "title": "Guests Can Invite Others"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "boolean",
               "x-zui": {
-                "title": "Guests Can Invite Others",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Guests Can Invite Others"
               },
-              "default": true
+              "default": true,
+              "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
             },
             "guestsCanSeeOtherGuests": {
-              "anyOf": [
-                {
-                  "type": "boolean",
-                  "x-zui": {
-                    "title": "Guests Can See Other Guests"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "boolean",
               "x-zui": {
-                "title": "Guests Can See Other Guests",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Guests Can See Other Guests"
               },
-              "default": true
+              "default": true,
+              "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
             },
             "recurrence": {
               "type": "array",
-              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
               "items": {
                 "type": "string",
                 "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -1312,76 +816,29 @@
               },
               "x-zui": {
                 "title": "Recurrence"
-              }
+              },
+              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
             },
             "status": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "confirmed",
-                    "tentative",
-                    "cancelled"
-                  ],
-                  "x-zui": {
-                    "title": "Event Status"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "string",
+              "enum": ["confirmed", "tentative", "cancelled"],
               "x-zui": {
-                "title": "Event Status",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Event Status"
               },
-              "default": "confirmed"
+              "default": "confirmed",
+              "description": "Status of the event. Optional. The default value is \"confirmed\"."
             },
             "visibility": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "default",
-                    "public",
-                    "private",
-                    "confidential"
-                  ],
-                  "x-zui": {
-                    "title": "Event Visibility"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "string",
+              "enum": ["default", "public", "private", "confidential"],
               "x-zui": {
-                "title": "Event Visibility",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Event Visibility"
               },
-              "default": "default"
+              "default": "default",
+              "description": "Visibility of the event. Optional. The default value is \"default\"."
             }
           },
-          "required": [
-            "id",
-            "summary",
-            "startDateTime",
-            "endDateTime"
-          ],
+          "required": ["id", "summary", "startDateTime", "endDateTime"],
           "additionalProperties": false,
           "x-zui": {
             "title": "Created Event"
@@ -1391,7 +848,6 @@
       "output": {
         "schema": {
           "type": "object",
-          "description": "The data of the event.",
           "properties": {
             "id": {
               "type": "string",
@@ -1409,17 +865,17 @@
             },
             "description": {
               "type": "string",
-              "description": "Description of the event. Can contain HTML. Optional.",
               "x-zui": {
                 "title": "Description"
-              }
+              },
+              "description": "Description of the event. Can contain HTML. Optional."
             },
             "location": {
               "type": "string",
-              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
               "x-zui": {
                 "title": "Location"
-              }
+              },
+              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
             },
             "startDateTime": {
               "type": "string",
@@ -1437,75 +893,34 @@
             },
             "colorId": {
               "type": "string",
-              "description": "The color ID of the event. Optional.",
               "x-zui": {
                 "title": "Color ID"
-              }
+              },
+              "description": "The color ID of the event. Optional."
             },
             "eventType": {
               "type": "string",
+              "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
               "description": "Specific type of the event. This cannot be modified after the event is created.",
-              "enum": [
-                "default",
-                "birthday",
-                "focusTime",
-                "fromGmail",
-                "outOfOffice",
-                "workingLocation"
-              ],
               "x-zui": {
                 "title": "Event Type"
               }
             },
             "guestsCanInviteOthers": {
-              "anyOf": [
-                {
-                  "type": "boolean",
-                  "x-zui": {
-                    "title": "Guests Can Invite Others"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "boolean",
               "x-zui": {
-                "title": "Guests Can Invite Others",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Guests Can Invite Others"
               },
-              "default": true
+              "default": true,
+              "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
             },
             "guestsCanSeeOtherGuests": {
-              "anyOf": [
-                {
-                  "type": "boolean",
-                  "x-zui": {
-                    "title": "Guests Can See Other Guests"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "boolean",
               "x-zui": {
-                "title": "Guests Can See Other Guests",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Guests Can See Other Guests"
               },
-              "default": true
+              "default": true,
+              "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
             },
             "htmlLink": {
               "type": "string",
@@ -1516,7 +931,6 @@
             },
             "recurrence": {
               "type": "array",
-              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
               "items": {
                 "type": "string",
                 "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -1526,79 +940,31 @@
               },
               "x-zui": {
                 "title": "Recurrence"
-              }
+              },
+              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
             },
             "status": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "confirmed",
-                    "tentative",
-                    "cancelled"
-                  ],
-                  "x-zui": {
-                    "title": "Event Status"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "string",
+              "enum": ["confirmed", "tentative", "cancelled"],
               "x-zui": {
-                "title": "Event Status",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Event Status"
               },
-              "default": "confirmed"
+              "default": "confirmed",
+              "description": "Status of the event. Optional. The default value is \"confirmed\"."
             },
             "visibility": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "default",
-                    "public",
-                    "private",
-                    "confidential"
-                  ],
-                  "x-zui": {
-                    "title": "Event Visibility"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "string",
+              "enum": ["default", "public", "private", "confidential"],
               "x-zui": {
-                "title": "Event Visibility",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Event Visibility"
               },
-              "default": "default"
+              "default": "default",
+              "description": "Visibility of the event. Optional. The default value is \"default\"."
             }
           },
-          "required": [
-            "id",
-            "summary",
-            "startDateTime",
-            "endDateTime",
-            "eventType",
-            "htmlLink"
-          ],
+          "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
           "additionalProperties": false,
+          "description": "The data of the event.",
           "x-zui": {
             "title": "Updated Event"
           }
@@ -1620,9 +986,7 @@
               }
             }
           },
-          "required": [
-            "eventId"
-          ],
+          "required": ["eventId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1660,7 +1024,6 @@
                 "allOf": [
                   {
                     "type": "object",
-                    "description": "The data of the event.",
                     "properties": {
                       "id": {
                         "type": "string",
@@ -1678,17 +1041,17 @@
                       },
                       "description": {
                         "type": "string",
-                        "description": "Description of the event. Can contain HTML. Optional.",
                         "x-zui": {
                           "title": "Description"
-                        }
+                        },
+                        "description": "Description of the event. Can contain HTML. Optional."
                       },
                       "location": {
                         "type": "string",
-                        "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                         "x-zui": {
                           "title": "Location"
-                        }
+                        },
+                        "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
                       },
                       "startDateTime": {
                         "type": "string",
@@ -1706,75 +1069,34 @@
                       },
                       "colorId": {
                         "type": "string",
-                        "description": "The color ID of the event. Optional.",
                         "x-zui": {
                           "title": "Color ID"
-                        }
+                        },
+                        "description": "The color ID of the event. Optional."
                       },
                       "eventType": {
                         "type": "string",
+                        "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
                         "description": "Specific type of the event. This cannot be modified after the event is created.",
-                        "enum": [
-                          "default",
-                          "birthday",
-                          "focusTime",
-                          "fromGmail",
-                          "outOfOffice",
-                          "workingLocation"
-                        ],
                         "x-zui": {
                           "title": "Event Type"
                         }
                       },
                       "guestsCanInviteOthers": {
-                        "anyOf": [
-                          {
-                            "type": "boolean",
-                            "x-zui": {
-                              "title": "Guests Can Invite Others"
-                            }
-                          },
-                          {
-                            "not": true,
-                            "x-zui": {
-                              "def": {
-                                "typeName": "ZodUndefined"
-                              }
-                            }
-                          }
-                        ],
+                        "type": "boolean",
                         "x-zui": {
-                          "title": "Guests Can Invite Others",
-                          "def": {
-                            "typeName": "ZodOptional"
-                          }
+                          "title": "Guests Can Invite Others"
                         },
-                        "default": true
+                        "default": true,
+                        "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
                       },
                       "guestsCanSeeOtherGuests": {
-                        "anyOf": [
-                          {
-                            "type": "boolean",
-                            "x-zui": {
-                              "title": "Guests Can See Other Guests"
-                            }
-                          },
-                          {
-                            "not": true,
-                            "x-zui": {
-                              "def": {
-                                "typeName": "ZodUndefined"
-                              }
-                            }
-                          }
-                        ],
+                        "type": "boolean",
                         "x-zui": {
-                          "title": "Guests Can See Other Guests",
-                          "def": {
-                            "typeName": "ZodOptional"
-                          }
+                          "title": "Guests Can See Other Guests"
                         },
-                        "default": true
+                        "default": true,
+                        "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
                       },
                       "htmlLink": {
                         "type": "string",
@@ -1785,7 +1107,6 @@
                       },
                       "recurrence": {
                         "type": "array",
-                        "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                         "items": {
                           "type": "string",
                           "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -1795,79 +1116,29 @@
                         },
                         "x-zui": {
                           "title": "Recurrence"
-                        }
+                        },
+                        "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
                       },
                       "status": {
-                        "anyOf": [
-                          {
-                            "type": "string",
-                            "enum": [
-                              "confirmed",
-                              "tentative",
-                              "cancelled"
-                            ],
-                            "x-zui": {
-                              "title": "Event Status"
-                            }
-                          },
-                          {
-                            "not": true,
-                            "x-zui": {
-                              "def": {
-                                "typeName": "ZodUndefined"
-                              }
-                            }
-                          }
-                        ],
+                        "type": "string",
+                        "enum": ["confirmed", "tentative", "cancelled"],
                         "x-zui": {
-                          "title": "Event Status",
-                          "def": {
-                            "typeName": "ZodOptional"
-                          }
+                          "title": "Event Status"
                         },
-                        "default": "confirmed"
+                        "default": "confirmed",
+                        "description": "Status of the event. Optional. The default value is \"confirmed\"."
                       },
                       "visibility": {
-                        "anyOf": [
-                          {
-                            "type": "string",
-                            "enum": [
-                              "default",
-                              "public",
-                              "private",
-                              "confidential"
-                            ],
-                            "x-zui": {
-                              "title": "Event Visibility"
-                            }
-                          },
-                          {
-                            "not": true,
-                            "x-zui": {
-                              "def": {
-                                "typeName": "ZodUndefined"
-                              }
-                            }
-                          }
-                        ],
+                        "type": "string",
+                        "enum": ["default", "public", "private", "confidential"],
                         "x-zui": {
-                          "title": "Event Visibility",
-                          "def": {
-                            "typeName": "ZodOptional"
-                          }
+                          "title": "Event Visibility"
                         },
-                        "default": "default"
+                        "default": "default",
+                        "description": "Visibility of the event. Optional. The default value is \"default\"."
                       }
                     },
-                    "required": [
-                      "id",
-                      "summary",
-                      "startDateTime",
-                      "endDateTime",
-                      "eventType",
-                      "htmlLink"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
                     "x-zui": {
                       "title": "Updated Event"
                     }
@@ -1880,10 +1151,7 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id"],
                     "x-zui": {}
                   }
                 ],
@@ -1903,10 +1171,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "items",
-            "meta"
-          ],
+          "required": ["items", "meta"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1920,7 +1185,6 @@
           "properties": {
             "item": {
               "type": "object",
-              "description": "The data of the event.",
               "properties": {
                 "id": {
                   "type": "string",
@@ -1938,17 +1202,17 @@
                 },
                 "description": {
                   "type": "string",
-                  "description": "Description of the event. Can contain HTML. Optional.",
                   "x-zui": {
                     "title": "Description"
-                  }
+                  },
+                  "description": "Description of the event. Can contain HTML. Optional."
                 },
                 "location": {
                   "type": "string",
-                  "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                   "x-zui": {
                     "title": "Location"
-                  }
+                  },
+                  "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
                 },
                 "startDateTime": {
                   "type": "string",
@@ -1966,75 +1230,34 @@
                 },
                 "colorId": {
                   "type": "string",
-                  "description": "The color ID of the event. Optional.",
                   "x-zui": {
                     "title": "Color ID"
-                  }
+                  },
+                  "description": "The color ID of the event. Optional."
                 },
                 "eventType": {
                   "type": "string",
+                  "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
                   "description": "Specific type of the event. This cannot be modified after the event is created.",
-                  "enum": [
-                    "default",
-                    "birthday",
-                    "focusTime",
-                    "fromGmail",
-                    "outOfOffice",
-                    "workingLocation"
-                  ],
                   "x-zui": {
                     "title": "Event Type"
                   }
                 },
                 "guestsCanInviteOthers": {
-                  "anyOf": [
-                    {
-                      "type": "boolean",
-                      "x-zui": {
-                        "title": "Guests Can Invite Others"
-                      }
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
+                  "type": "boolean",
                   "x-zui": {
-                    "title": "Guests Can Invite Others",
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
+                    "title": "Guests Can Invite Others"
                   },
-                  "default": true
+                  "default": true,
+                  "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
                 },
                 "guestsCanSeeOtherGuests": {
-                  "anyOf": [
-                    {
-                      "type": "boolean",
-                      "x-zui": {
-                        "title": "Guests Can See Other Guests"
-                      }
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
+                  "type": "boolean",
                   "x-zui": {
-                    "title": "Guests Can See Other Guests",
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
+                    "title": "Guests Can See Other Guests"
                   },
-                  "default": true
+                  "default": true,
+                  "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
                 },
                 "htmlLink": {
                   "type": "string",
@@ -2045,7 +1268,6 @@
                 },
                 "recurrence": {
                   "type": "array",
-                  "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                   "items": {
                     "type": "string",
                     "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -2055,87 +1277,36 @@
                   },
                   "x-zui": {
                     "title": "Recurrence"
-                  }
+                  },
+                  "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
                 },
                 "status": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "enum": [
-                        "confirmed",
-                        "tentative",
-                        "cancelled"
-                      ],
-                      "x-zui": {
-                        "title": "Event Status"
-                      }
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
+                  "type": "string",
+                  "enum": ["confirmed", "tentative", "cancelled"],
                   "x-zui": {
-                    "title": "Event Status",
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
+                    "title": "Event Status"
                   },
-                  "default": "confirmed"
+                  "default": "confirmed",
+                  "description": "Status of the event. Optional. The default value is \"confirmed\"."
                 },
                 "visibility": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "enum": [
-                        "default",
-                        "public",
-                        "private",
-                        "confidential"
-                      ],
-                      "x-zui": {
-                        "title": "Event Visibility"
-                      }
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
+                  "type": "string",
+                  "enum": ["default", "public", "private", "confidential"],
                   "x-zui": {
-                    "title": "Event Visibility",
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
+                    "title": "Event Visibility"
                   },
-                  "default": "default"
+                  "default": "default",
+                  "description": "Visibility of the event. Optional. The default value is \"default\"."
                 }
               },
-              "required": [
-                "id",
-                "summary",
-                "startDateTime",
-                "endDateTime",
-                "eventType",
-                "htmlLink"
-              ],
+              "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
               "additionalProperties": false,
               "x-zui": {
                 "title": "Updated Event"
               }
             }
           },
-          "required": [
-            "item"
-          ],
+          "required": ["item"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -2148,7 +1319,6 @@
               "allOf": [
                 {
                   "type": "object",
-                  "description": "The data of the event.",
                   "properties": {
                     "id": {
                       "type": "string",
@@ -2166,17 +1336,17 @@
                     },
                     "description": {
                       "type": "string",
-                      "description": "Description of the event. Can contain HTML. Optional.",
                       "x-zui": {
                         "title": "Description"
-                      }
+                      },
+                      "description": "Description of the event. Can contain HTML. Optional."
                     },
                     "location": {
                       "type": "string",
-                      "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                       "x-zui": {
                         "title": "Location"
-                      }
+                      },
+                      "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
                     },
                     "startDateTime": {
                       "type": "string",
@@ -2194,75 +1364,34 @@
                     },
                     "colorId": {
                       "type": "string",
-                      "description": "The color ID of the event. Optional.",
                       "x-zui": {
                         "title": "Color ID"
-                      }
+                      },
+                      "description": "The color ID of the event. Optional."
                     },
                     "eventType": {
                       "type": "string",
+                      "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
                       "description": "Specific type of the event. This cannot be modified after the event is created.",
-                      "enum": [
-                        "default",
-                        "birthday",
-                        "focusTime",
-                        "fromGmail",
-                        "outOfOffice",
-                        "workingLocation"
-                      ],
                       "x-zui": {
                         "title": "Event Type"
                       }
                     },
                     "guestsCanInviteOthers": {
-                      "anyOf": [
-                        {
-                          "type": "boolean",
-                          "x-zui": {
-                            "title": "Guests Can Invite Others"
-                          }
-                        },
-                        {
-                          "not": true,
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodUndefined"
-                            }
-                          }
-                        }
-                      ],
+                      "type": "boolean",
                       "x-zui": {
-                        "title": "Guests Can Invite Others",
-                        "def": {
-                          "typeName": "ZodOptional"
-                        }
+                        "title": "Guests Can Invite Others"
                       },
-                      "default": true
+                      "default": true,
+                      "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
                     },
                     "guestsCanSeeOtherGuests": {
-                      "anyOf": [
-                        {
-                          "type": "boolean",
-                          "x-zui": {
-                            "title": "Guests Can See Other Guests"
-                          }
-                        },
-                        {
-                          "not": true,
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodUndefined"
-                            }
-                          }
-                        }
-                      ],
+                      "type": "boolean",
                       "x-zui": {
-                        "title": "Guests Can See Other Guests",
-                        "def": {
-                          "typeName": "ZodOptional"
-                        }
+                        "title": "Guests Can See Other Guests"
                       },
-                      "default": true
+                      "default": true,
+                      "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
                     },
                     "htmlLink": {
                       "type": "string",
@@ -2273,7 +1402,6 @@
                     },
                     "recurrence": {
                       "type": "array",
-                      "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                       "items": {
                         "type": "string",
                         "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -2283,79 +1411,29 @@
                       },
                       "x-zui": {
                         "title": "Recurrence"
-                      }
+                      },
+                      "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
                     },
                     "status": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "confirmed",
-                            "tentative",
-                            "cancelled"
-                          ],
-                          "x-zui": {
-                            "title": "Event Status"
-                          }
-                        },
-                        {
-                          "not": true,
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodUndefined"
-                            }
-                          }
-                        }
-                      ],
+                      "type": "string",
+                      "enum": ["confirmed", "tentative", "cancelled"],
                       "x-zui": {
-                        "title": "Event Status",
-                        "def": {
-                          "typeName": "ZodOptional"
-                        }
+                        "title": "Event Status"
                       },
-                      "default": "confirmed"
+                      "default": "confirmed",
+                      "description": "Status of the event. Optional. The default value is \"confirmed\"."
                     },
                     "visibility": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "default",
-                            "public",
-                            "private",
-                            "confidential"
-                          ],
-                          "x-zui": {
-                            "title": "Event Visibility"
-                          }
-                        },
-                        {
-                          "not": true,
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodUndefined"
-                            }
-                          }
-                        }
-                      ],
+                      "type": "string",
+                      "enum": ["default", "public", "private", "confidential"],
                       "x-zui": {
-                        "title": "Event Visibility",
-                        "def": {
-                          "typeName": "ZodOptional"
-                        }
+                        "title": "Event Visibility"
                       },
-                      "default": "default"
+                      "default": "default",
+                      "description": "Visibility of the event. Optional. The default value is \"default\"."
                     }
                   },
-                  "required": [
-                    "id",
-                    "summary",
-                    "startDateTime",
-                    "endDateTime",
-                    "eventType",
-                    "htmlLink"
-                  ],
-                  "additionalProperties": false,
+                  "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
                   "x-zui": {
                     "title": "Updated Event"
                   }
@@ -2368,19 +1446,14 @@
                       "x-zui": {}
                     }
                   },
-                  "required": [
-                    "id"
-                  ],
-                  "additionalProperties": false,
+                  "required": ["id"],
                   "x-zui": {}
                 }
               ],
               "x-zui": {}
             }
           },
-          "required": [
-            "item"
-          ],
+          "required": ["item"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -2397,9 +1470,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -2412,7 +1483,6 @@
               "allOf": [
                 {
                   "type": "object",
-                  "description": "The data of the event.",
                   "properties": {
                     "id": {
                       "type": "string",
@@ -2430,17 +1500,17 @@
                     },
                     "description": {
                       "type": "string",
-                      "description": "Description of the event. Can contain HTML. Optional.",
                       "x-zui": {
                         "title": "Description"
-                      }
+                      },
+                      "description": "Description of the event. Can contain HTML. Optional."
                     },
                     "location": {
                       "type": "string",
-                      "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                       "x-zui": {
                         "title": "Location"
-                      }
+                      },
+                      "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
                     },
                     "startDateTime": {
                       "type": "string",
@@ -2458,75 +1528,34 @@
                     },
                     "colorId": {
                       "type": "string",
-                      "description": "The color ID of the event. Optional.",
                       "x-zui": {
                         "title": "Color ID"
-                      }
+                      },
+                      "description": "The color ID of the event. Optional."
                     },
                     "eventType": {
                       "type": "string",
+                      "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
                       "description": "Specific type of the event. This cannot be modified after the event is created.",
-                      "enum": [
-                        "default",
-                        "birthday",
-                        "focusTime",
-                        "fromGmail",
-                        "outOfOffice",
-                        "workingLocation"
-                      ],
                       "x-zui": {
                         "title": "Event Type"
                       }
                     },
                     "guestsCanInviteOthers": {
-                      "anyOf": [
-                        {
-                          "type": "boolean",
-                          "x-zui": {
-                            "title": "Guests Can Invite Others"
-                          }
-                        },
-                        {
-                          "not": true,
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodUndefined"
-                            }
-                          }
-                        }
-                      ],
+                      "type": "boolean",
                       "x-zui": {
-                        "title": "Guests Can Invite Others",
-                        "def": {
-                          "typeName": "ZodOptional"
-                        }
+                        "title": "Guests Can Invite Others"
                       },
-                      "default": true
+                      "default": true,
+                      "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
                     },
                     "guestsCanSeeOtherGuests": {
-                      "anyOf": [
-                        {
-                          "type": "boolean",
-                          "x-zui": {
-                            "title": "Guests Can See Other Guests"
-                          }
-                        },
-                        {
-                          "not": true,
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodUndefined"
-                            }
-                          }
-                        }
-                      ],
+                      "type": "boolean",
                       "x-zui": {
-                        "title": "Guests Can See Other Guests",
-                        "def": {
-                          "typeName": "ZodOptional"
-                        }
+                        "title": "Guests Can See Other Guests"
                       },
-                      "default": true
+                      "default": true,
+                      "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
                     },
                     "htmlLink": {
                       "type": "string",
@@ -2537,7 +1566,6 @@
                     },
                     "recurrence": {
                       "type": "array",
-                      "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                       "items": {
                         "type": "string",
                         "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -2547,79 +1575,29 @@
                       },
                       "x-zui": {
                         "title": "Recurrence"
-                      }
+                      },
+                      "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
                     },
                     "status": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "confirmed",
-                            "tentative",
-                            "cancelled"
-                          ],
-                          "x-zui": {
-                            "title": "Event Status"
-                          }
-                        },
-                        {
-                          "not": true,
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodUndefined"
-                            }
-                          }
-                        }
-                      ],
+                      "type": "string",
+                      "enum": ["confirmed", "tentative", "cancelled"],
                       "x-zui": {
-                        "title": "Event Status",
-                        "def": {
-                          "typeName": "ZodOptional"
-                        }
+                        "title": "Event Status"
                       },
-                      "default": "confirmed"
+                      "default": "confirmed",
+                      "description": "Status of the event. Optional. The default value is \"confirmed\"."
                     },
                     "visibility": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "default",
-                            "public",
-                            "private",
-                            "confidential"
-                          ],
-                          "x-zui": {
-                            "title": "Event Visibility"
-                          }
-                        },
-                        {
-                          "not": true,
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodUndefined"
-                            }
-                          }
-                        }
-                      ],
+                      "type": "string",
+                      "enum": ["default", "public", "private", "confidential"],
                       "x-zui": {
-                        "title": "Event Visibility",
-                        "def": {
-                          "typeName": "ZodOptional"
-                        }
+                        "title": "Event Visibility"
                       },
-                      "default": "default"
+                      "default": "default",
+                      "description": "Visibility of the event. Optional. The default value is \"default\"."
                     }
                   },
-                  "required": [
-                    "id",
-                    "summary",
-                    "startDateTime",
-                    "endDateTime",
-                    "eventType",
-                    "htmlLink"
-                  ],
-                  "additionalProperties": false,
+                  "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
                   "x-zui": {
                     "title": "Updated Event"
                   }
@@ -2632,19 +1610,14 @@
                       "x-zui": {}
                     }
                   },
-                  "required": [
-                    "id"
-                  ],
-                  "additionalProperties": false,
+                  "required": ["id"],
                   "x-zui": {}
                 }
               ],
               "x-zui": {}
             }
           },
-          "required": [
-            "item"
-          ],
+          "required": ["item"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -2662,7 +1635,6 @@
             },
             "item": {
               "type": "object",
-              "description": "The data of the event.",
               "properties": {
                 "id": {
                   "type": "string",
@@ -2680,17 +1652,17 @@
                 },
                 "description": {
                   "type": "string",
-                  "description": "Description of the event. Can contain HTML. Optional.",
                   "x-zui": {
                     "title": "Description"
-                  }
+                  },
+                  "description": "Description of the event. Can contain HTML. Optional."
                 },
                 "location": {
                   "type": "string",
-                  "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                   "x-zui": {
                     "title": "Location"
-                  }
+                  },
+                  "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
                 },
                 "startDateTime": {
                   "type": "string",
@@ -2708,75 +1680,34 @@
                 },
                 "colorId": {
                   "type": "string",
-                  "description": "The color ID of the event. Optional.",
                   "x-zui": {
                     "title": "Color ID"
-                  }
+                  },
+                  "description": "The color ID of the event. Optional."
                 },
                 "eventType": {
                   "type": "string",
+                  "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
                   "description": "Specific type of the event. This cannot be modified after the event is created.",
-                  "enum": [
-                    "default",
-                    "birthday",
-                    "focusTime",
-                    "fromGmail",
-                    "outOfOffice",
-                    "workingLocation"
-                  ],
                   "x-zui": {
                     "title": "Event Type"
                   }
                 },
                 "guestsCanInviteOthers": {
-                  "anyOf": [
-                    {
-                      "type": "boolean",
-                      "x-zui": {
-                        "title": "Guests Can Invite Others"
-                      }
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
+                  "type": "boolean",
                   "x-zui": {
-                    "title": "Guests Can Invite Others",
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
+                    "title": "Guests Can Invite Others"
                   },
-                  "default": true
+                  "default": true,
+                  "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
                 },
                 "guestsCanSeeOtherGuests": {
-                  "anyOf": [
-                    {
-                      "type": "boolean",
-                      "x-zui": {
-                        "title": "Guests Can See Other Guests"
-                      }
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
+                  "type": "boolean",
                   "x-zui": {
-                    "title": "Guests Can See Other Guests",
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
+                    "title": "Guests Can See Other Guests"
                   },
-                  "default": true
+                  "default": true,
+                  "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
                 },
                 "htmlLink": {
                   "type": "string",
@@ -2787,7 +1718,6 @@
                 },
                 "recurrence": {
                   "type": "array",
-                  "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                   "items": {
                     "type": "string",
                     "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -2797,88 +1727,36 @@
                   },
                   "x-zui": {
                     "title": "Recurrence"
-                  }
+                  },
+                  "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
                 },
                 "status": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "enum": [
-                        "confirmed",
-                        "tentative",
-                        "cancelled"
-                      ],
-                      "x-zui": {
-                        "title": "Event Status"
-                      }
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
+                  "type": "string",
+                  "enum": ["confirmed", "tentative", "cancelled"],
                   "x-zui": {
-                    "title": "Event Status",
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
+                    "title": "Event Status"
                   },
-                  "default": "confirmed"
+                  "default": "confirmed",
+                  "description": "Status of the event. Optional. The default value is \"confirmed\"."
                 },
                 "visibility": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "enum": [
-                        "default",
-                        "public",
-                        "private",
-                        "confidential"
-                      ],
-                      "x-zui": {
-                        "title": "Event Visibility"
-                      }
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
+                  "type": "string",
+                  "enum": ["default", "public", "private", "confidential"],
                   "x-zui": {
-                    "title": "Event Visibility",
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
+                    "title": "Event Visibility"
                   },
-                  "default": "default"
+                  "default": "default",
+                  "description": "Visibility of the event. Optional. The default value is \"default\"."
                 }
               },
-              "required": [
-                "id",
-                "summary",
-                "startDateTime",
-                "endDateTime",
-                "eventType",
-                "htmlLink"
-              ],
+              "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
               "additionalProperties": false,
               "x-zui": {
                 "title": "Updated Event"
               }
             }
           },
-          "required": [
-            "id",
-            "item"
-          ],
+          "required": ["id", "item"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -2891,7 +1769,6 @@
               "allOf": [
                 {
                   "type": "object",
-                  "description": "The data of the event.",
                   "properties": {
                     "id": {
                       "type": "string",
@@ -2909,17 +1786,17 @@
                     },
                     "description": {
                       "type": "string",
-                      "description": "Description of the event. Can contain HTML. Optional.",
                       "x-zui": {
                         "title": "Description"
-                      }
+                      },
+                      "description": "Description of the event. Can contain HTML. Optional."
                     },
                     "location": {
                       "type": "string",
-                      "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
                       "x-zui": {
                         "title": "Location"
-                      }
+                      },
+                      "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
                     },
                     "startDateTime": {
                       "type": "string",
@@ -2937,75 +1814,34 @@
                     },
                     "colorId": {
                       "type": "string",
-                      "description": "The color ID of the event. Optional.",
                       "x-zui": {
                         "title": "Color ID"
-                      }
+                      },
+                      "description": "The color ID of the event. Optional."
                     },
                     "eventType": {
                       "type": "string",
+                      "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
                       "description": "Specific type of the event. This cannot be modified after the event is created.",
-                      "enum": [
-                        "default",
-                        "birthday",
-                        "focusTime",
-                        "fromGmail",
-                        "outOfOffice",
-                        "workingLocation"
-                      ],
                       "x-zui": {
                         "title": "Event Type"
                       }
                     },
                     "guestsCanInviteOthers": {
-                      "anyOf": [
-                        {
-                          "type": "boolean",
-                          "x-zui": {
-                            "title": "Guests Can Invite Others"
-                          }
-                        },
-                        {
-                          "not": true,
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodUndefined"
-                            }
-                          }
-                        }
-                      ],
+                      "type": "boolean",
                       "x-zui": {
-                        "title": "Guests Can Invite Others",
-                        "def": {
-                          "typeName": "ZodOptional"
-                        }
+                        "title": "Guests Can Invite Others"
                       },
-                      "default": true
+                      "default": true,
+                      "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
                     },
                     "guestsCanSeeOtherGuests": {
-                      "anyOf": [
-                        {
-                          "type": "boolean",
-                          "x-zui": {
-                            "title": "Guests Can See Other Guests"
-                          }
-                        },
-                        {
-                          "not": true,
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodUndefined"
-                            }
-                          }
-                        }
-                      ],
+                      "type": "boolean",
                       "x-zui": {
-                        "title": "Guests Can See Other Guests",
-                        "def": {
-                          "typeName": "ZodOptional"
-                        }
+                        "title": "Guests Can See Other Guests"
                       },
-                      "default": true
+                      "default": true,
+                      "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
                     },
                     "htmlLink": {
                       "type": "string",
@@ -3016,7 +1852,6 @@
                     },
                     "recurrence": {
                       "type": "array",
-                      "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
                       "items": {
                         "type": "string",
                         "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -3026,79 +1861,29 @@
                       },
                       "x-zui": {
                         "title": "Recurrence"
-                      }
+                      },
+                      "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
                     },
                     "status": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "confirmed",
-                            "tentative",
-                            "cancelled"
-                          ],
-                          "x-zui": {
-                            "title": "Event Status"
-                          }
-                        },
-                        {
-                          "not": true,
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodUndefined"
-                            }
-                          }
-                        }
-                      ],
+                      "type": "string",
+                      "enum": ["confirmed", "tentative", "cancelled"],
                       "x-zui": {
-                        "title": "Event Status",
-                        "def": {
-                          "typeName": "ZodOptional"
-                        }
+                        "title": "Event Status"
                       },
-                      "default": "confirmed"
+                      "default": "confirmed",
+                      "description": "Status of the event. Optional. The default value is \"confirmed\"."
                     },
                     "visibility": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "default",
-                            "public",
-                            "private",
-                            "confidential"
-                          ],
-                          "x-zui": {
-                            "title": "Event Visibility"
-                          }
-                        },
-                        {
-                          "not": true,
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodUndefined"
-                            }
-                          }
-                        }
-                      ],
+                      "type": "string",
+                      "enum": ["default", "public", "private", "confidential"],
                       "x-zui": {
-                        "title": "Event Visibility",
-                        "def": {
-                          "typeName": "ZodOptional"
-                        }
+                        "title": "Event Visibility"
                       },
-                      "default": "default"
+                      "default": "default",
+                      "description": "Visibility of the event. Optional. The default value is \"default\"."
                     }
                   },
-                  "required": [
-                    "id",
-                    "summary",
-                    "startDateTime",
-                    "endDateTime",
-                    "eventType",
-                    "htmlLink"
-                  ],
-                  "additionalProperties": false,
+                  "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
                   "x-zui": {
                     "title": "Updated Event"
                   }
@@ -3111,19 +1896,14 @@
                       "x-zui": {}
                     }
                   },
-                  "required": [
-                    "id"
-                  ],
-                  "additionalProperties": false,
+                  "required": ["id"],
                   "x-zui": {}
                 }
               ],
               "x-zui": {}
             }
           },
-          "required": [
-            "item"
-          ],
+          "required": ["item"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -3140,9 +1920,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -3173,9 +1951,7 @@
             }
           }
         },
-        "required": [
-          "refreshToken"
-        ],
+        "required": ["refreshToken"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -3187,7 +1963,6 @@
       "description": "An event in a Google Calendar",
       "schema": {
         "type": "object",
-        "description": "The data of the event.",
         "properties": {
           "id": {
             "type": "string",
@@ -3205,17 +1980,17 @@
           },
           "description": {
             "type": "string",
-            "description": "Description of the event. Can contain HTML. Optional.",
             "x-zui": {
               "title": "Description"
-            }
+            },
+            "description": "Description of the event. Can contain HTML. Optional."
           },
           "location": {
             "type": "string",
-            "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
             "x-zui": {
               "title": "Location"
-            }
+            },
+            "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\")."
           },
           "startDateTime": {
             "type": "string",
@@ -3233,75 +2008,34 @@
           },
           "colorId": {
             "type": "string",
-            "description": "The color ID of the event. Optional.",
             "x-zui": {
               "title": "Color ID"
-            }
+            },
+            "description": "The color ID of the event. Optional."
           },
           "eventType": {
             "type": "string",
+            "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
             "description": "Specific type of the event. This cannot be modified after the event is created.",
-            "enum": [
-              "default",
-              "birthday",
-              "focusTime",
-              "fromGmail",
-              "outOfOffice",
-              "workingLocation"
-            ],
             "x-zui": {
               "title": "Event Type"
             }
           },
           "guestsCanInviteOthers": {
-            "anyOf": [
-              {
-                "type": "boolean",
-                "x-zui": {
-                  "title": "Guests Can Invite Others"
-                }
-              },
-              {
-                "not": true,
-                "x-zui": {
-                  "def": {
-                    "typeName": "ZodUndefined"
-                  }
-                }
-              }
-            ],
+            "type": "boolean",
             "x-zui": {
-              "title": "Guests Can Invite Others",
-              "def": {
-                "typeName": "ZodOptional"
-              }
+              "title": "Guests Can Invite Others"
             },
-            "default": true
+            "default": true,
+            "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True."
           },
           "guestsCanSeeOtherGuests": {
-            "anyOf": [
-              {
-                "type": "boolean",
-                "x-zui": {
-                  "title": "Guests Can See Other Guests"
-                }
-              },
-              {
-                "not": true,
-                "x-zui": {
-                  "def": {
-                    "typeName": "ZodUndefined"
-                  }
-                }
-              }
-            ],
+            "type": "boolean",
             "x-zui": {
-              "title": "Guests Can See Other Guests",
-              "def": {
-                "typeName": "ZodOptional"
-              }
+              "title": "Guests Can See Other Guests"
             },
-            "default": true
+            "default": true,
+            "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True."
           },
           "htmlLink": {
             "type": "string",
@@ -3312,7 +2046,6 @@
           },
           "recurrence": {
             "type": "array",
-            "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
             "items": {
               "type": "string",
               "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
@@ -3322,78 +2055,29 @@
             },
             "x-zui": {
               "title": "Recurrence"
-            }
+            },
+            "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events."
           },
           "status": {
-            "anyOf": [
-              {
-                "type": "string",
-                "enum": [
-                  "confirmed",
-                  "tentative",
-                  "cancelled"
-                ],
-                "x-zui": {
-                  "title": "Event Status"
-                }
-              },
-              {
-                "not": true,
-                "x-zui": {
-                  "def": {
-                    "typeName": "ZodUndefined"
-                  }
-                }
-              }
-            ],
+            "type": "string",
+            "enum": ["confirmed", "tentative", "cancelled"],
             "x-zui": {
-              "title": "Event Status",
-              "def": {
-                "typeName": "ZodOptional"
-              }
+              "title": "Event Status"
             },
-            "default": "confirmed"
+            "default": "confirmed",
+            "description": "Status of the event. Optional. The default value is \"confirmed\"."
           },
           "visibility": {
-            "anyOf": [
-              {
-                "type": "string",
-                "enum": [
-                  "default",
-                  "public",
-                  "private",
-                  "confidential"
-                ],
-                "x-zui": {
-                  "title": "Event Visibility"
-                }
-              },
-              {
-                "not": true,
-                "x-zui": {
-                  "def": {
-                    "typeName": "ZodUndefined"
-                  }
-                }
-              }
-            ],
+            "type": "string",
+            "enum": ["default", "public", "private", "confidential"],
             "x-zui": {
-              "title": "Event Visibility",
-              "def": {
-                "typeName": "ZodOptional"
-              }
+              "title": "Event Visibility"
             },
-            "default": "default"
+            "default": "default",
+            "description": "Visibility of the event. Optional. The default value is \"default\"."
           }
         },
-        "required": [
-          "id",
-          "summary",
-          "startDateTime",
-          "endDateTime",
-          "eventType",
-          "htmlLink"
-        ],
+        "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
         "additionalProperties": false,
         "x-zui": {
           "title": "Updated Event"

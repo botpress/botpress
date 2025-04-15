@@ -9,7 +9,6 @@
         "properties": {
           "file": {
             "type": "object",
-            "description": "The deleted file",
             "properties": {
               "id": {
                 "type": "string",
@@ -28,8 +27,8 @@
               },
               "parentId": {
                 "type": "string",
-                "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                "x-zui": {}
+                "x-zui": {},
+                "description": "The parent folder ID. Leave empty if the file is in the root folder."
               },
               "absolutePath": {
                 "type": "string",
@@ -38,38 +37,28 @@
               },
               "sizeInBytes": {
                 "type": "number",
-                "description": "Filter the items by maximum size (in bytes)",
-                "x-zui": {}
+                "x-zui": {},
+                "description": "The file size in bytes, if available"
               },
               "lastModifiedDate": {
                 "type": "string",
-                "description": "Filter the items modified after the given date",
-                "x-zui": {
-                  "precision": null,
-                  "offset": false
-                },
                 "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                "x-zui": {},
+                "description": "The last modified date of the file, if available"
               },
               "contentHash": {
                 "type": "string",
-                "description": "The hash of the file content, or version/revision number, if available",
-                "x-zui": {}
+                "x-zui": {},
+                "description": "The hash of the file content, or version/revision number, if available"
               }
             },
-            "required": [
-              "id",
-              "type",
-              "name",
-              "absolutePath"
-            ],
+            "required": ["id", "type", "name", "absolutePath"],
             "additionalProperties": false,
+            "description": "The created file",
             "x-zui": {}
           }
         },
-        "required": [
-          "file"
-        ],
+        "required": ["file"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -80,7 +69,6 @@
         "properties": {
           "file": {
             "type": "object",
-            "description": "The deleted file",
             "properties": {
               "id": {
                 "type": "string",
@@ -99,8 +87,8 @@
               },
               "parentId": {
                 "type": "string",
-                "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                "x-zui": {}
+                "x-zui": {},
+                "description": "The parent folder ID. Leave empty if the file is in the root folder."
               },
               "absolutePath": {
                 "type": "string",
@@ -109,38 +97,28 @@
               },
               "sizeInBytes": {
                 "type": "number",
-                "description": "Filter the items by maximum size (in bytes)",
-                "x-zui": {}
+                "x-zui": {},
+                "description": "The file size in bytes, if available"
               },
               "lastModifiedDate": {
                 "type": "string",
-                "description": "Filter the items modified after the given date",
-                "x-zui": {
-                  "precision": null,
-                  "offset": false
-                },
                 "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                "x-zui": {},
+                "description": "The last modified date of the file, if available"
               },
               "contentHash": {
                 "type": "string",
-                "description": "The hash of the file content, or version/revision number, if available",
-                "x-zui": {}
+                "x-zui": {},
+                "description": "The hash of the file content, or version/revision number, if available"
               }
             },
-            "required": [
-              "id",
-              "type",
-              "name",
-              "absolutePath"
-            ],
+            "required": ["id", "type", "name", "absolutePath"],
             "additionalProperties": false,
+            "description": "The updated file",
             "x-zui": {}
           }
         },
-        "required": [
-          "file"
-        ],
+        "required": ["file"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -151,7 +129,6 @@
         "properties": {
           "file": {
             "type": "object",
-            "description": "The deleted file",
             "properties": {
               "id": {
                 "type": "string",
@@ -170,8 +147,8 @@
               },
               "parentId": {
                 "type": "string",
-                "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                "x-zui": {}
+                "x-zui": {},
+                "description": "The parent folder ID. Leave empty if the file is in the root folder."
               },
               "absolutePath": {
                 "type": "string",
@@ -180,38 +157,28 @@
               },
               "sizeInBytes": {
                 "type": "number",
-                "description": "Filter the items by maximum size (in bytes)",
-                "x-zui": {}
+                "x-zui": {},
+                "description": "The file size in bytes, if available"
               },
               "lastModifiedDate": {
                 "type": "string",
-                "description": "Filter the items modified after the given date",
-                "x-zui": {
-                  "precision": null,
-                  "offset": false
-                },
                 "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                "x-zui": {},
+                "description": "The last modified date of the file, if available"
               },
               "contentHash": {
                 "type": "string",
-                "description": "The hash of the file content, or version/revision number, if available",
-                "x-zui": {}
+                "x-zui": {},
+                "description": "The hash of the file content, or version/revision number, if available"
               }
             },
-            "required": [
-              "id",
-              "type",
-              "name",
-              "absolutePath"
-            ],
+            "required": ["id", "type", "name", "absolutePath"],
             "additionalProperties": false,
+            "description": "The deleted file",
             "x-zui": {}
           }
         },
-        "required": [
-          "file"
-        ],
+        "required": ["file"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -222,11 +189,10 @@
         "properties": {
           "folder": {
             "type": "object",
-            "description": "The deleted folder",
             "properties": {
               "id": {
                 "type": "string",
-                "description": "The folder ID to list the items from. Leave empty to list items from the root folder.",
+                "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
                 "x-zui": {}
               },
               "type": {
@@ -241,8 +207,8 @@
               },
               "parentId": {
                 "type": "string",
-                "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
-                "x-zui": {}
+                "x-zui": {},
+                "description": "The parent folder ID. Leave empty if the folder is in the root folder."
               },
               "absolutePath": {
                 "type": "string",
@@ -250,19 +216,13 @@
                 "x-zui": {}
               }
             },
-            "required": [
-              "id",
-              "type",
-              "name",
-              "absolutePath"
-            ],
+            "required": ["id", "type", "name", "absolutePath"],
             "additionalProperties": false,
+            "description": "The deleted folder",
             "x-zui": {}
           }
         },
-        "required": [
-          "folder"
-        ],
+        "required": ["folder"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -273,14 +233,11 @@
         "properties": {
           "modifiedItems": {
             "type": "object",
-            "description": "The modified items",
             "properties": {
               "created": {
                 "type": "array",
-                "description": "The files created",
                 "items": {
                   "type": "object",
-                  "description": "The deleted file",
                   "properties": {
                     "id": {
                       "type": "string",
@@ -299,8 +256,8 @@
                     },
                     "parentId": {
                       "type": "string",
-                      "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                      "x-zui": {}
+                      "x-zui": {},
+                      "description": "The parent folder ID. Leave empty if the file is in the root folder."
                     },
                     "absolutePath": {
                       "type": "string",
@@ -309,42 +266,32 @@
                     },
                     "sizeInBytes": {
                       "type": "number",
-                      "description": "Filter the items by maximum size (in bytes)",
-                      "x-zui": {}
+                      "x-zui": {},
+                      "description": "The file size in bytes, if available"
                     },
                     "lastModifiedDate": {
                       "type": "string",
-                      "description": "Filter the items modified after the given date",
-                      "x-zui": {
-                        "precision": null,
-                        "offset": false
-                      },
                       "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                      "x-zui": {},
+                      "description": "The last modified date of the file, if available"
                     },
                     "contentHash": {
                       "type": "string",
-                      "description": "The hash of the file content, or version/revision number, if available",
-                      "x-zui": {}
+                      "x-zui": {},
+                      "description": "The hash of the file content, or version/revision number, if available"
                     }
                   },
-                  "required": [
-                    "id",
-                    "type",
-                    "name",
-                    "absolutePath"
-                  ],
+                  "required": ["id", "type", "name", "absolutePath"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
+                "description": "The files created",
                 "x-zui": {}
               },
               "updated": {
                 "type": "array",
-                "description": "The files updated",
                 "items": {
                   "type": "object",
-                  "description": "The deleted file",
                   "properties": {
                     "id": {
                       "type": "string",
@@ -363,8 +310,8 @@
                     },
                     "parentId": {
                       "type": "string",
-                      "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                      "x-zui": {}
+                      "x-zui": {},
+                      "description": "The parent folder ID. Leave empty if the file is in the root folder."
                     },
                     "absolutePath": {
                       "type": "string",
@@ -373,44 +320,34 @@
                     },
                     "sizeInBytes": {
                       "type": "number",
-                      "description": "Filter the items by maximum size (in bytes)",
-                      "x-zui": {}
+                      "x-zui": {},
+                      "description": "The file size in bytes, if available"
                     },
                     "lastModifiedDate": {
                       "type": "string",
-                      "description": "Filter the items modified after the given date",
-                      "x-zui": {
-                        "precision": null,
-                        "offset": false
-                      },
                       "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                      "x-zui": {},
+                      "description": "The last modified date of the file, if available"
                     },
                     "contentHash": {
                       "type": "string",
-                      "description": "The hash of the file content, or version/revision number, if available",
-                      "x-zui": {}
+                      "x-zui": {},
+                      "description": "The hash of the file content, or version/revision number, if available"
                     }
                   },
-                  "required": [
-                    "id",
-                    "type",
-                    "name",
-                    "absolutePath"
-                  ],
+                  "required": ["id", "type", "name", "absolutePath"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
+                "description": "The files updated",
                 "x-zui": {}
               },
               "deleted": {
                 "type": "array",
-                "description": "The files and folders deleted",
                 "items": {
                   "anyOf": [
                     {
                       "type": "object",
-                      "description": "The deleted file",
                       "properties": {
                         "id": {
                           "type": "string",
@@ -429,8 +366,8 @@
                         },
                         "parentId": {
                           "type": "string",
-                          "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                          "x-zui": {}
+                          "x-zui": {},
+                          "description": "The parent folder ID. Leave empty if the file is in the root folder."
                         },
                         "absolutePath": {
                           "type": "string",
@@ -439,41 +376,31 @@
                         },
                         "sizeInBytes": {
                           "type": "number",
-                          "description": "Filter the items by maximum size (in bytes)",
-                          "x-zui": {}
+                          "x-zui": {},
+                          "description": "The file size in bytes, if available"
                         },
                         "lastModifiedDate": {
                           "type": "string",
-                          "description": "Filter the items modified after the given date",
-                          "x-zui": {
-                            "precision": null,
-                            "offset": false
-                          },
                           "format": "date-time",
-                          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                          "x-zui": {},
+                          "description": "The last modified date of the file, if available"
                         },
                         "contentHash": {
                           "type": "string",
-                          "description": "The hash of the file content, or version/revision number, if available",
-                          "x-zui": {}
+                          "x-zui": {},
+                          "description": "The hash of the file content, or version/revision number, if available"
                         }
                       },
-                      "required": [
-                        "id",
-                        "type",
-                        "name",
-                        "absolutePath"
-                      ],
+                      "required": ["id", "type", "name", "absolutePath"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
                     {
                       "type": "object",
-                      "description": "The deleted folder",
                       "properties": {
                         "id": {
                           "type": "string",
-                          "description": "The folder ID to list the items from. Leave empty to list items from the root folder.",
+                          "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
                           "x-zui": {}
                         },
                         "type": {
@@ -488,8 +415,8 @@
                         },
                         "parentId": {
                           "type": "string",
-                          "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
-                          "x-zui": {}
+                          "x-zui": {},
+                          "description": "The parent folder ID. Leave empty if the folder is in the root folder."
                         },
                         "absolutePath": {
                           "type": "string",
@@ -497,33 +424,24 @@
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "id",
-                        "type",
-                        "name",
-                        "absolutePath"
-                      ],
+                      "required": ["id", "type", "name", "absolutePath"],
                       "additionalProperties": false,
                       "x-zui": {}
                     }
                   ],
                   "x-zui": {}
                 },
+                "description": "The files and folders deleted",
                 "x-zui": {}
               }
             },
-            "required": [
-              "created",
-              "updated",
-              "deleted"
-            ],
+            "required": ["created", "updated", "deleted"],
             "additionalProperties": false,
+            "description": "The modified items",
             "x-zui": {}
           }
         },
-        "required": [
-          "modifiedItems"
-        ],
+        "required": ["modifiedItems"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -544,81 +462,33 @@
             },
             "filters": {
               "type": "object",
-              "description": "Optional search filters",
               "properties": {
                 "itemType": {
+                  "type": "string",
+                  "enum": ["file", "folder"],
                   "description": "Filter the items by type",
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "const": "file",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "string",
-                      "const": "folder",
-                      "x-zui": {}
-                    }
-                  ],
                   "x-zui": {}
                 },
                 "maxSizeInBytes": {
-                  "anyOf": [
-                    {
-                      "type": "number",
-                      "description": "Filter the items by maximum size (in bytes)",
-                      "x-zui": {}
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
-                  }
+                  "type": "number",
+                  "x-zui": {},
+                  "description": "Filter the items by maximum size (in bytes)"
                 },
                 "modifiedAfter": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "description": "Filter the items modified after the given date",
-                      "x-zui": {
-                        "precision": null,
-                        "offset": false
-                      },
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
-                  }
+                  "type": "string",
+                  "format": "date-time",
+                  "x-zui": {},
+                  "description": "Filter the items modified after the given date"
                 }
               },
               "additionalProperties": false,
-              "x-zui": {}
+              "x-zui": {},
+              "description": "Optional search filters"
             },
             "nextToken": {
               "type": "string",
-              "description": "The token to get the next page of items. Leave empty to get the first page.",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "The token to get the next page of items. Leave empty to get the first page."
             }
           },
           "additionalProperties": false,
@@ -631,12 +501,10 @@
           "properties": {
             "items": {
               "type": "array",
-              "description": "The files and folders in the folder",
               "items": {
                 "anyOf": [
                   {
                     "type": "object",
-                    "description": "The file to transfer",
                     "properties": {
                       "id": {
                         "type": "string",
@@ -655,40 +523,32 @@
                       },
                       "parentId": {
                         "type": "string",
-                        "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                        "x-zui": {}
+                        "x-zui": {},
+                        "description": "The parent folder ID. Leave empty if the file is in the root folder."
                       },
                       "absolutePath": {
                         "type": "string",
-                        "description": "The absolute path of the file. Leave empty if not available.",
-                        "x-zui": {}
+                        "x-zui": {},
+                        "description": "The absolute path of the file. Leave empty if not available."
                       },
                       "sizeInBytes": {
                         "type": "number",
-                        "description": "Filter the items by maximum size (in bytes)",
-                        "x-zui": {}
+                        "x-zui": {},
+                        "description": "The file size in bytes, if available"
                       },
                       "lastModifiedDate": {
                         "type": "string",
-                        "description": "Filter the items modified after the given date",
-                        "x-zui": {
-                          "precision": null,
-                          "offset": false
-                        },
                         "format": "date-time",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                        "x-zui": {},
+                        "description": "The last modified date of the file, if available"
                       },
                       "contentHash": {
                         "type": "string",
-                        "description": "The hash of the file content, or version/revision number, if available",
-                        "x-zui": {}
+                        "x-zui": {},
+                        "description": "The hash of the file content, or version/revision number, if available"
                       }
                     },
-                    "required": [
-                      "id",
-                      "type",
-                      "name"
-                    ],
+                    "required": ["id", "type", "name"],
                     "additionalProperties": false,
                     "x-zui": {
                       "title": "File to transfer"
@@ -699,7 +559,7 @@
                     "properties": {
                       "id": {
                         "type": "string",
-                        "description": "The folder ID to list the items from. Leave empty to list items from the root folder.",
+                        "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
                         "x-zui": {}
                       },
                       "type": {
@@ -714,26 +574,23 @@
                       },
                       "parentId": {
                         "type": "string",
-                        "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
-                        "x-zui": {}
+                        "x-zui": {},
+                        "description": "The parent folder ID. Leave empty if the folder is in the root folder."
                       },
                       "absolutePath": {
                         "type": "string",
-                        "description": "The absolute path of the folder. Leave empty if not available.",
-                        "x-zui": {}
+                        "x-zui": {},
+                        "description": "The absolute path of the folder. Leave empty if not available."
                       }
                     },
-                    "required": [
-                      "id",
-                      "type",
-                      "name"
-                    ],
+                    "required": ["id", "type", "name"],
                     "additionalProperties": false,
                     "x-zui": {}
                   }
                 ],
                 "x-zui": {}
               },
+              "description": "The files and folders in the folder",
               "x-zui": {}
             },
             "meta": {
@@ -741,18 +598,15 @@
               "properties": {
                 "nextToken": {
                   "type": "string",
-                  "description": "The token to get the next page of items. Leave empty to get the first page.",
-                  "x-zui": {}
+                  "x-zui": {},
+                  "description": "The token to get the next page of items."
                 }
               },
               "additionalProperties": false,
               "x-zui": {}
             }
           },
-          "required": [
-            "items",
-            "meta"
-          ],
+          "required": ["items", "meta"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -767,7 +621,6 @@
           "properties": {
             "file": {
               "type": "object",
-              "description": "The file to transfer",
               "properties": {
                 "id": {
                   "type": "string",
@@ -786,41 +639,34 @@
                 },
                 "parentId": {
                   "type": "string",
-                  "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                  "x-zui": {}
+                  "x-zui": {},
+                  "description": "The parent folder ID. Leave empty if the file is in the root folder."
                 },
                 "absolutePath": {
                   "type": "string",
-                  "description": "The absolute path of the file. Leave empty if not available.",
-                  "x-zui": {}
+                  "x-zui": {},
+                  "description": "The absolute path of the file. Leave empty if not available."
                 },
                 "sizeInBytes": {
                   "type": "number",
-                  "description": "Filter the items by maximum size (in bytes)",
-                  "x-zui": {}
+                  "x-zui": {},
+                  "description": "The file size in bytes, if available"
                 },
                 "lastModifiedDate": {
                   "type": "string",
-                  "description": "Filter the items modified after the given date",
-                  "x-zui": {
-                    "precision": null,
-                    "offset": false
-                  },
                   "format": "date-time",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                  "x-zui": {},
+                  "description": "The last modified date of the file, if available"
                 },
                 "contentHash": {
                   "type": "string",
-                  "description": "The hash of the file content, or version/revision number, if available",
-                  "x-zui": {}
+                  "x-zui": {},
+                  "description": "The hash of the file content, or version/revision number, if available"
                 }
               },
-              "required": [
-                "id",
-                "type",
-                "name"
-              ],
+              "required": ["id", "type", "name"],
               "additionalProperties": false,
+              "description": "The file to transfer",
               "x-zui": {
                 "title": "File to transfer"
               }
@@ -833,10 +679,7 @@
               }
             }
           },
-          "required": [
-            "file",
-            "fileKey"
-          ],
+          "required": ["file", "fileKey"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -851,9 +694,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "botpressFileId"
-          ],
+          "required": ["botpressFileId"],
           "additionalProperties": false,
           "x-zui": {}
         }

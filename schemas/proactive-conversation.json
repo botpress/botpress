@@ -7,9 +7,9 @@
       "description": "The conversation object fields",
       "schema": {
         "type": "object",
-        "description": "The conversation object fields",
         "properties": {},
         "additionalProperties": false,
+        "description": "The conversation object fields",
         "x-zui": {
           "title": "Conversation"
         }
@@ -31,9 +31,7 @@
               }
             }
           },
-          "required": [
-            "conversation"
-          ],
+          "required": ["conversation"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -50,9 +48,7 @@
               }
             }
           },
-          "required": [
-            "conversationId"
-          ],
+          "required": ["conversationId"],
           "additionalProperties": false,
           "x-zui": {}
         }

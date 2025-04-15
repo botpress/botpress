@@ -11,9 +11,7 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -38,19 +36,14 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "id"
-                ],
-                "additionalProperties": false,
+                "required": ["id"],
                 "x-zui": {}
               }
             ],
             "x-zui": {}
           }
         },
-        "required": [
-          "item"
-        ],
+        "required": ["item"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -71,10 +64,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "id",
-            "item"
-          ],
+          "required": ["id", "item"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -97,19 +87,14 @@
                       "x-zui": {}
                     }
                   },
-                  "required": [
-                    "id"
-                  ],
-                  "additionalProperties": false,
+                  "required": ["id"],
                   "x-zui": {}
                 }
               ],
               "x-zui": {}
             }
           },
-          "required": [
-            "item"
-          ],
+          "required": ["item"],
           "additionalProperties": false,
           "x-zui": {}
         }

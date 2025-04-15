@@ -9,57 +9,50 @@
       "description": "Triggered when a file is created in Google Drive",
       "schema": {
         "type": "object",
-        "description": "The file updated in Google Drive",
         "properties": {
           "id": {
             "type": "string",
+            "minLength": 1,
             "description": "The ID of the Google Drive file",
-            "x-zui": {},
-            "minLength": 1
+            "x-zui": {}
           },
           "name": {
             "type": "string",
+            "minLength": 1,
             "description": "The name of the file",
-            "x-zui": {},
-            "minLength": 1
+            "x-zui": {}
           },
           "parentId": {
             "type": "string",
-            "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+            "minLength": 1,
             "x-zui": {},
-            "minLength": 1
+            "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
           },
           "mimeType": {
             "type": "string",
+            "minLength": 1,
             "description": "The media type of the file",
-            "x-zui": {},
-            "minLength": 1
+            "x-zui": {}
           },
           "size": {
             "type": "number",
+            "minimum": 0,
             "description": "The size in bytes of the file",
-            "x-zui": {},
-            "minimum": 0
+            "x-zui": {}
           },
           "path": {
             "type": "array",
-            "description": "An array of the path's components sorted by level (root to leaf)",
             "items": {
               "type": "string",
+              "minLength": 1,
               "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
+            "description": "An array of the path's components sorted by level (root to leaf)",
             "x-zui": {}
           }
         },
-        "required": [
-          "id",
-          "name",
-          "mimeType",
-          "size",
-          "path"
-        ],
+        "required": ["id", "name", "mimeType", "size", "path"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -72,14 +65,12 @@
         "properties": {
           "id": {
             "type": "string",
+            "minLength": 1,
             "description": "The ID of the Google Drive file",
-            "x-zui": {},
-            "minLength": 1
+            "x-zui": {}
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -92,21 +83,21 @@
         "properties": {
           "id": {
             "type": "string",
+            "minLength": 1,
             "description": "The ID of the Google Drive file",
-            "x-zui": {},
-            "minLength": 1
+            "x-zui": {}
           },
           "name": {
             "type": "string",
+            "minLength": 1,
             "description": "The name of the file",
-            "x-zui": {},
-            "minLength": 1
+            "x-zui": {}
           },
           "parentId": {
             "type": "string",
-            "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+            "minLength": 1,
             "x-zui": {},
-            "minLength": 1
+            "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
           },
           "mimeType": {
             "type": "string",
@@ -115,22 +106,17 @@
           },
           "path": {
             "type": "array",
-            "description": "An array of the path's components sorted by level (root to leaf)",
             "items": {
               "type": "string",
+              "minLength": 1,
               "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
+            "description": "An array of the path's components sorted by level (root to leaf)",
             "x-zui": {}
           }
         },
-        "required": [
-          "id",
-          "name",
-          "mimeType",
-          "path"
-        ],
+        "required": ["id", "name", "mimeType", "path"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -143,14 +129,12 @@
         "properties": {
           "id": {
             "type": "string",
+            "minLength": 1,
             "description": "The ID of the Google Drive file",
-            "x-zui": {},
-            "minLength": 1
+            "x-zui": {}
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -166,8 +150,8 @@
           "properties": {
             "nextToken": {
               "type": "string",
-              "description": "The token to use to get the next page of results",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "The token to use to get the next page of results"
             }
           },
           "additionalProperties": false,
@@ -180,63 +164,56 @@
           "properties": {
             "items": {
               "type": "array",
-              "description": "The list of items listed in Google Drive. Results may be paginated. If set, use nextToken to get additional results",
               "items": {
                 "type": "object",
-                "description": "The file updated in Google Drive",
                 "properties": {
                   "id": {
                     "type": "string",
+                    "minLength": 1,
                     "description": "The ID of the Google Drive file",
-                    "x-zui": {},
-                    "minLength": 1
+                    "x-zui": {}
                   },
                   "name": {
                     "type": "string",
+                    "minLength": 1,
                     "description": "The name of the file",
-                    "x-zui": {},
-                    "minLength": 1
+                    "x-zui": {}
                   },
                   "parentId": {
                     "type": "string",
-                    "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+                    "minLength": 1,
                     "x-zui": {},
-                    "minLength": 1
+                    "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
                   },
                   "mimeType": {
                     "type": "string",
+                    "minLength": 1,
                     "description": "The media type of the file",
-                    "x-zui": {},
-                    "minLength": 1
+                    "x-zui": {}
                   },
                   "size": {
                     "type": "number",
+                    "minimum": 0,
                     "description": "The size in bytes of the file",
-                    "x-zui": {},
-                    "minimum": 0
+                    "x-zui": {}
                   },
                   "path": {
                     "type": "array",
-                    "description": "An array of the path's components sorted by level (root to leaf)",
                     "items": {
                       "type": "string",
+                      "minLength": 1,
                       "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
-                      "x-zui": {},
-                      "minLength": 1
+                      "x-zui": {}
                     },
+                    "description": "An array of the path's components sorted by level (root to leaf)",
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "id",
-                  "name",
-                  "mimeType",
-                  "size",
-                  "path"
-                ],
+                "required": ["id", "name", "mimeType", "size", "path"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
+              "description": "The list of items listed in Google Drive. Results may be paginated. If set, use nextToken to get additional results",
               "x-zui": {}
             },
             "meta": {
@@ -244,18 +221,15 @@
               "properties": {
                 "nextToken": {
                   "type": "string",
-                  "description": "The token to pass as input to the next call of the list action to list additional items",
-                  "x-zui": {}
+                  "x-zui": {},
+                  "description": "The token to pass as input to the next call of the list action to list additional items"
                 }
               },
               "additionalProperties": false,
               "x-zui": {}
             }
           },
-          "required": [
-            "items",
-            "meta"
-          ],
+          "required": ["items", "meta"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -270,8 +244,8 @@
           "properties": {
             "nextToken": {
               "type": "string",
-              "description": "The token to use to get the next page of results",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "The token to use to get the next page of results"
             }
           },
           "additionalProperties": false,
@@ -284,27 +258,26 @@
           "properties": {
             "items": {
               "type": "array",
-              "description": "The list of items listed in Google Drive. Results may be paginated. If set, use nextToken to get additional results",
               "items": {
                 "type": "object",
                 "properties": {
                   "id": {
                     "type": "string",
+                    "minLength": 1,
                     "description": "The ID of the Google Drive file",
-                    "x-zui": {},
-                    "minLength": 1
+                    "x-zui": {}
                   },
                   "name": {
                     "type": "string",
+                    "minLength": 1,
                     "description": "The name of the file",
-                    "x-zui": {},
-                    "minLength": 1
+                    "x-zui": {}
                   },
                   "parentId": {
                     "type": "string",
-                    "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+                    "minLength": 1,
                     "x-zui": {},
-                    "minLength": 1
+                    "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
                   },
                   "mimeType": {
                     "type": "string",
@@ -313,25 +286,21 @@
                   },
                   "path": {
                     "type": "array",
-                    "description": "An array of the path's components sorted by level (root to leaf)",
                     "items": {
                       "type": "string",
+                      "minLength": 1,
                       "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
-                      "x-zui": {},
-                      "minLength": 1
+                      "x-zui": {}
                     },
+                    "description": "An array of the path's components sorted by level (root to leaf)",
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "id",
-                  "name",
-                  "mimeType",
-                  "path"
-                ],
+                "required": ["id", "name", "mimeType", "path"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
+              "description": "The list of items listed in Google Drive. Results may be paginated. If set, use nextToken to get additional results",
               "x-zui": {}
             },
             "meta": {
@@ -339,18 +308,15 @@
               "properties": {
                 "nextToken": {
                   "type": "string",
-                  "description": "The token to pass as input to the next call of the list action to list additional items",
-                  "x-zui": {}
+                  "x-zui": {},
+                  "description": "The token to pass as input to the next call of the list action to list additional items"
                 }
               },
               "additionalProperties": false,
               "x-zui": {}
             }
           },
-          "required": [
-            "items",
-            "meta"
-          ],
+          "required": ["items", "meta"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -365,27 +331,24 @@
           "properties": {
             "name": {
               "type": "string",
+              "minLength": 1,
               "description": "The name of the file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "parentId": {
               "type": "string",
-              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+              "minLength": 1,
               "x-zui": {},
-              "minLength": 1
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
             },
             "mimeType": {
               "type": "string",
+              "minLength": 1,
               "description": "The media type of the file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             }
           },
-          "required": [
-            "name",
-            "mimeType"
-          ],
+          "required": ["name", "mimeType"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -393,58 +356,52 @@
       "output": {
         "schema": {
           "type": "object",
-          "description": "The file updated in Google Drive",
           "properties": {
             "id": {
               "type": "string",
+              "minLength": 1,
               "description": "The ID of the Google Drive file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "name": {
               "type": "string",
+              "minLength": 1,
               "description": "The name of the file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "parentId": {
               "type": "string",
-              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+              "minLength": 1,
               "x-zui": {},
-              "minLength": 1
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
             },
             "mimeType": {
               "type": "string",
+              "minLength": 1,
               "description": "The media type of the file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "size": {
               "type": "number",
+              "minimum": 0,
               "description": "The size in bytes of the file",
-              "x-zui": {},
-              "minimum": 0
+              "x-zui": {}
             },
             "path": {
               "type": "array",
-              "description": "An array of the path's components sorted by level (root to leaf)",
               "items": {
                 "type": "string",
+                "minLength": 1,
                 "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
-                "x-zui": {},
-                "minLength": 1
+                "x-zui": {}
               },
+              "description": "An array of the path's components sorted by level (root to leaf)",
               "x-zui": {}
             }
           },
-          "required": [
-            "id",
-            "name",
-            "mimeType",
-            "size",
-            "path"
-          ],
+          "required": ["id", "name", "mimeType", "size", "path"],
           "additionalProperties": false,
+          "description": "The file created in Google Drive",
           "x-zui": {}
         }
       }
@@ -458,14 +415,12 @@
           "properties": {
             "id": {
               "type": "string",
+              "minLength": 1,
               "description": "The ID of the Google Drive file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -473,58 +428,52 @@
       "output": {
         "schema": {
           "type": "object",
-          "description": "The file updated in Google Drive",
           "properties": {
             "id": {
               "type": "string",
+              "minLength": 1,
               "description": "The ID of the Google Drive file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "name": {
               "type": "string",
+              "minLength": 1,
               "description": "The name of the file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "parentId": {
               "type": "string",
-              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+              "minLength": 1,
               "x-zui": {},
-              "minLength": 1
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
             },
             "mimeType": {
               "type": "string",
+              "minLength": 1,
               "description": "The media type of the file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "size": {
               "type": "number",
+              "minimum": 0,
               "description": "The size in bytes of the file",
-              "x-zui": {},
-              "minimum": 0
+              "x-zui": {}
             },
             "path": {
               "type": "array",
-              "description": "An array of the path's components sorted by level (root to leaf)",
               "items": {
                 "type": "string",
+                "minLength": 1,
                 "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
-                "x-zui": {},
-                "minLength": 1
+                "x-zui": {}
               },
+              "description": "An array of the path's components sorted by level (root to leaf)",
               "x-zui": {}
             }
           },
-          "required": [
-            "id",
-            "name",
-            "mimeType",
-            "size",
-            "path"
-          ],
+          "required": ["id", "name", "mimeType", "size", "path"],
           "additionalProperties": false,
+          "description": "The file read from Google Drive",
           "x-zui": {}
         }
       }
@@ -538,27 +487,24 @@
           "properties": {
             "id": {
               "type": "string",
+              "minLength": 1,
               "description": "The ID of the Google Drive file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "name": {
               "type": "string",
+              "minLength": 1,
               "description": "The name of the file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "parentId": {
               "type": "string",
-              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+              "minLength": 1,
               "x-zui": {},
-              "minLength": 1
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
             }
           },
-          "required": [
-            "id",
-            "name"
-          ],
+          "required": ["id", "name"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -566,58 +512,52 @@
       "output": {
         "schema": {
           "type": "object",
-          "description": "The file updated in Google Drive",
           "properties": {
             "id": {
               "type": "string",
+              "minLength": 1,
               "description": "The ID of the Google Drive file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "name": {
               "type": "string",
+              "minLength": 1,
               "description": "The name of the file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "parentId": {
               "type": "string",
-              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+              "minLength": 1,
               "x-zui": {},
-              "minLength": 1
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
             },
             "mimeType": {
               "type": "string",
+              "minLength": 1,
               "description": "The media type of the file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "size": {
               "type": "number",
+              "minimum": 0,
               "description": "The size in bytes of the file",
-              "x-zui": {},
-              "minimum": 0
+              "x-zui": {}
             },
             "path": {
               "type": "array",
-              "description": "An array of the path's components sorted by level (root to leaf)",
               "items": {
                 "type": "string",
+                "minLength": 1,
                 "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
-                "x-zui": {},
-                "minLength": 1
+                "x-zui": {}
               },
+              "description": "An array of the path's components sorted by level (root to leaf)",
               "x-zui": {}
             }
           },
-          "required": [
-            "id",
-            "name",
-            "mimeType",
-            "size",
-            "path"
-          ],
+          "required": ["id", "name", "mimeType", "size", "path"],
           "additionalProperties": false,
+          "description": "The file updated in Google Drive",
           "x-zui": {}
         }
       }
@@ -631,14 +571,12 @@
           "properties": {
             "id": {
               "type": "string",
+              "minLength": 1,
               "description": "The ID of the Google Drive file",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -661,26 +599,23 @@
           "properties": {
             "id": {
               "type": "string",
-              "x-zui": {},
-              "minLength": 1
+              "minLength": 1,
+              "x-zui": {}
             },
             "url": {
               "type": "string",
+              "minLength": 1,
               "description": "The URL used to access the file whose content will be uploaded to Google Drive",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "mimeType": {
               "type": "string",
-              "description": "Media type of the uploaded content. This will override any previously set media type",
+              "minLength": 1,
               "x-zui": {},
-              "minLength": 1
+              "description": "Media type of the uploaded content. This will override any previously set media type"
             }
           },
-          "required": [
-            "id",
-            "url"
-          ],
+          "required": ["id", "url"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -703,9 +638,9 @@
           "properties": {
             "id": {
               "type": "string",
+              "minLength": 1,
               "description": "The ID of the Google Drive file whose content will be downloaded",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "index": {
               "type": "boolean",
@@ -713,10 +648,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "id",
-            "index"
-          ],
+          "required": ["id", "index"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -727,14 +659,12 @@
           "properties": {
             "bpFileId": {
               "type": "string",
+              "minLength": 1,
               "description": "The Botpress file ID corresponding to the file that was uploaded from Google Drive to the Files API",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             }
           },
-          "required": [
-            "bpFileId"
-          ],
+          "required": ["bpFileId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -775,9 +705,7 @@
             }
           }
         },
-        "required": [
-          "refreshToken"
-        ],
+        "required": ["refreshToken"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -789,7 +717,6 @@
         "properties": {
           "filesCache": {
             "type": "object",
-            "description": "Map of known files",
             "additionalProperties": {
               "anyOf": [
                 {
@@ -797,33 +724,33 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "minLength": 1,
                       "description": "The ID of the Google Drive file",
-                      "x-zui": {},
-                      "minLength": 1
+                      "x-zui": {}
                     },
                     "name": {
                       "type": "string",
+                      "minLength": 1,
                       "description": "The name of the file",
-                      "x-zui": {},
-                      "minLength": 1
+                      "x-zui": {}
                     },
                     "parentId": {
                       "type": "string",
-                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+                      "minLength": 1,
                       "x-zui": {},
-                      "minLength": 1
+                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
                     },
                     "mimeType": {
                       "type": "string",
+                      "minLength": 1,
                       "description": "The media type of the file",
-                      "x-zui": {},
-                      "minLength": 1
+                      "x-zui": {}
                     },
                     "size": {
                       "type": "number",
+                      "minimum": 0,
                       "description": "The size in bytes of the file",
-                      "x-zui": {},
-                      "minimum": 0
+                      "x-zui": {}
                     },
                     "type": {
                       "type": "string",
@@ -831,13 +758,7 @@
                       "x-zui": {}
                     }
                   },
-                  "required": [
-                    "id",
-                    "name",
-                    "mimeType",
-                    "size",
-                    "type"
-                  ],
+                  "required": ["id", "name", "mimeType", "size", "type"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
@@ -846,21 +767,21 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "minLength": 1,
                       "description": "The ID of the Google Drive file",
-                      "x-zui": {},
-                      "minLength": 1
+                      "x-zui": {}
                     },
                     "name": {
                       "type": "string",
+                      "minLength": 1,
                       "description": "The name of the file",
-                      "x-zui": {},
-                      "minLength": 1
+                      "x-zui": {}
                     },
                     "parentId": {
                       "type": "string",
-                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+                      "minLength": 1,
                       "x-zui": {},
-                      "minLength": 1
+                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
                     },
                     "mimeType": {
                       "type": "string",
@@ -873,12 +794,7 @@
                       "x-zui": {}
                     }
                   },
-                  "required": [
-                    "id",
-                    "name",
-                    "mimeType",
-                    "type"
-                  ],
+                  "required": ["id", "name", "mimeType", "type"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
@@ -887,21 +803,21 @@
                   "properties": {
                     "id": {
                       "type": "string",
+                      "minLength": 1,
                       "description": "The ID of the Google Drive file",
-                      "x-zui": {},
-                      "minLength": 1
+                      "x-zui": {}
                     },
                     "name": {
                       "type": "string",
+                      "minLength": 1,
                       "description": "The name of the file",
-                      "x-zui": {},
-                      "minLength": 1
+                      "x-zui": {}
                     },
                     "parentId": {
                       "type": "string",
-                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+                      "minLength": 1,
                       "x-zui": {},
-                      "minLength": 1
+                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
                     },
                     "mimeType": {
                       "type": "string",
@@ -914,31 +830,20 @@
                       "x-zui": {}
                     }
                   },
-                  "required": [
-                    "id",
-                    "name",
-                    "mimeType",
-                    "type"
-                  ],
+                  "required": ["id", "name", "mimeType", "type"],
                   "additionalProperties": false,
                   "x-zui": {}
                 }
               ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodDiscriminatedUnion",
-                  "discriminator": "type"
-                }
-              }
+              "x-zui": {}
             },
+            "description": "Map of known files",
             "x-zui": {
               "title": "Files cache"
             }
           }
         },
-        "required": [
-          "filesCache"
-        ],
+        "required": ["filesCache"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -950,45 +855,39 @@
         "properties": {
           "filesChannelsCache": {
             "type": "object",
-            "description": "Serialized set of channels for file change subscriptions",
             "additionalProperties": {
               "type": "object",
               "properties": {
                 "id": {
                   "type": "string",
+                  "minLength": 1,
                   "description": "The ID of the channel",
-                  "x-zui": {},
-                  "minLength": 1
+                  "x-zui": {}
                 },
                 "resourceId": {
                   "type": "string",
+                  "minLength": 1,
                   "description": "The ID of the watched resource (different from the file ID)",
-                  "x-zui": {},
-                  "minLength": 1
+                  "x-zui": {}
                 },
                 "fileId": {
                   "type": "string",
+                  "minLength": 1,
                   "description": "The ID of the Google Drive file",
-                  "x-zui": {},
-                  "minLength": 1
+                  "x-zui": {}
                 }
               },
-              "required": [
-                "id",
-                "resourceId",
-                "fileId"
-              ],
+              "required": ["id", "resourceId", "fileId"],
               "additionalProperties": false,
               "x-zui": {}
             },
+            "description": "Serialized set of channels for file change subscriptions",
             "x-zui": {
               "title": "Files change subscription channels"
             }
           }
         },
-        "required": [
-          "filesChannelsCache"
-        ],
+        "required": ["filesChannelsCache"],
         "additionalProperties": false,
         "x-zui": {}
       }

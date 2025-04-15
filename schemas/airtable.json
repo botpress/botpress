@@ -20,9 +20,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "tableIdOrName"
-          ],
+          "required": ["tableIdOrName"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -47,19 +45,14 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "_rawJson",
-                  "id"
-                ],
+                "required": ["_rawJson", "id"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [
-            "records"
-          ],
+          "required": ["records"],
           "additionalProperties": true,
           "x-zui": {}
         }
@@ -83,14 +76,11 @@
             },
             "description": {
               "type": "string",
-              "description": "Description of the Table (e.g. This is my table) (Optional)",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "Description of the Table (e.g. This is my table) (Optional)"
             }
           },
-          "required": [
-            "name",
-            "fields"
-          ],
+          "required": ["name", "fields"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -117,10 +107,7 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "name",
-                  "type"
-                ],
+                "required": ["name", "type"],
                 "additionalProperties": true,
                 "x-zui": {}
               },
@@ -156,24 +143,14 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "id",
-                  "name",
-                  "type"
-                ],
+                "required": ["id", "name", "type"],
                 "additionalProperties": true,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [
-            "fields",
-            "id",
-            "name",
-            "primaryFieldId",
-            "views"
-          ],
+          "required": ["fields", "id", "name", "primaryFieldId", "views"],
           "additionalProperties": true,
           "x-zui": {}
         }
@@ -192,18 +169,16 @@
             },
             "name": {
               "type": "string",
-              "description": "Name of the Table (e.g. MyTable) (Optional)",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "Name of the Table (e.g. MyTable) (Optional)"
             },
             "description": {
               "type": "string",
-              "description": "Description of the Table (e.g. This is my table) (Optional)",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "Description of the Table (e.g. This is my table) (Optional)"
             }
           },
-          "required": [
-            "tableIdOrName"
-          ],
+          "required": ["tableIdOrName"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -230,10 +205,7 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "name",
-                  "type"
-                ],
+                "required": ["name", "type"],
                 "additionalProperties": true,
                 "x-zui": {}
               },
@@ -269,24 +241,14 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "id",
-                  "name",
-                  "type"
-                ],
+                "required": ["id", "name", "type"],
                 "additionalProperties": true,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [
-            "fields",
-            "id",
-            "name",
-            "primaryFieldId",
-            "views"
-          ],
+          "required": ["fields", "id", "name", "primaryFieldId", "views"],
           "additionalProperties": true,
           "x-zui": {}
         }
@@ -309,10 +271,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "tableIdOrName",
-            "fields"
-          ],
+          "required": ["tableIdOrName", "fields"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -332,10 +291,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "_rawJson",
-            "id"
-          ],
+          "required": ["_rawJson", "id"],
           "additionalProperties": true,
           "x-zui": {}
         }
@@ -363,11 +319,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "tableIdOrName",
-            "recordId",
-            "fields"
-          ],
+          "required": ["tableIdOrName", "recordId", "fields"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -387,10 +339,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "_rawJson",
-            "id"
-          ],
+          "required": ["_rawJson", "id"],
           "additionalProperties": true,
           "x-zui": {}
         }
@@ -409,18 +358,16 @@
             },
             "nextToken": {
               "type": "string",
-              "description": "The next page token (Optional)",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "The next page token (Optional)"
             },
             "filterByFormula": {
               "type": "string",
-              "description": "filter to apply to the list records (See https://support.airtable.com/docs/formula-field-reference)",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "filter to apply to the list records (See https://support.airtable.com/docs/formula-field-reference)"
             }
           },
-          "required": [
-            "tableIdOrName"
-          ],
+          "required": ["tableIdOrName"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -445,10 +392,7 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "_rawJson",
-                  "id"
-                ],
+                "required": ["_rawJson", "id"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
@@ -456,13 +400,11 @@
             },
             "nextToken": {
               "type": "string",
-              "description": "The next page token (Optional)",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "The next page token (Optional)"
             }
           },
-          "required": [
-            "records"
-          ],
+          "required": ["records"],
           "additionalProperties": true,
           "x-zui": {}
         }

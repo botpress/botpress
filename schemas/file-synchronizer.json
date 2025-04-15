@@ -15,7 +15,6 @@
       "properties": {
         "enablePeriodicSync": {
           "type": "object",
-          "description": "Enable synchronisation using the provided schedule. Leave empty to disable periodic synchronization.",
           "properties": {
             "everyNHours": {
               "type": "number",
@@ -23,23 +22,21 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "everyNHours"
-          ],
+          "required": ["everyNHours"],
           "additionalProperties": false,
-          "x-zui": {}
+          "x-zui": {},
+          "description": "Enable synchronisation using the provided schedule. Leave empty to disable periodic synchronization."
         },
         "enableRealTimeSync": {
           "type": "boolean",
           "x-zui": {},
-          "default": true
+          "default": true,
+          "description": "Enable real-time synchronization. Whever a file is created, updated, or deleted, synchronize it to Botpress immediately. This does not work with every integration."
         },
         "includeFiles": {
           "type": "array",
-          "description": "If omitted, the global Include Rules will be used.",
           "items": {
             "type": "object",
-            "description": "A file must match all criteria to be synchronized.",
             "properties": {
               "pathGlobPattern": {
                 "type": "string",
@@ -48,38 +45,32 @@
               },
               "maxSizeInBytes": {
                 "type": "number",
-                "description": "Filter by maximum size (in bytes). Only files smaller than the specified size will be synchronized.",
-                "x-zui": {}
+                "x-zui": {},
+                "description": "Filter by maximum size (in bytes). Only files smaller than the specified size will be synchronized."
               },
               "modifiedAfter": {
                 "type": "string",
-                "description": "Filter the items by modified date. Only files modified after the specified date will be synchronized.",
-                "x-zui": {
-                  "precision": null,
-                  "offset": false
-                },
                 "format": "date-time",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                "x-zui": {},
+                "description": "Filter the items by modified date. Only files modified after the specified date will be synchronized."
               }
             },
-            "required": [
-              "pathGlobPattern"
-            ],
+            "required": ["pathGlobPattern"],
             "additionalProperties": false,
+            "description": "A file must match all criteria to be synchronized.",
             "x-zui": {
               "title": "Include Criteria"
             }
           },
+          "description": "A list of rules to include files. Only files that match one or more rules will be synchronized.",
           "x-zui": {
             "title": "Include Rules Override"
           }
         },
         "excludeFiles": {
           "type": "array",
-          "description": "If omitted, the global Exclude Rules will be used",
           "items": {
             "type": "object",
-            "description": "A file must match all exclude criteria to be ignored.",
             "properties": {
               "pathGlobPattern": {
                 "type": "string",
@@ -87,23 +78,20 @@
                 "x-zui": {}
               }
             },
-            "required": [
-              "pathGlobPattern"
-            ],
+            "required": ["pathGlobPattern"],
             "additionalProperties": false,
+            "description": "A file must match all exclude criteria to be ignored.",
             "x-zui": {
               "title": "Exclude Criteria"
             }
           },
+          "description": "A list of rules to exclude files. Files that match one or more rules will be ignored. This takes precedence over Include Rules.",
           "x-zui": {
             "title": "Exclude Rules Override"
           }
         }
       },
-      "required": [
-        "includeFiles",
-        "excludeFiles"
-      ],
+      "required": ["includeFiles", "excludeFiles"],
       "additionalProperties": false,
       "x-zui": {}
     }
@@ -128,10 +116,8 @@
           "properties": {
             "includeFiles": {
               "type": "array",
-              "description": "If omitted, the global Include Rules will be used.",
               "items": {
                 "type": "object",
-                "description": "A file must match all criteria to be synchronized.",
                 "properties": {
                   "pathGlobPattern": {
                     "type": "string",
@@ -140,38 +126,32 @@
                   },
                   "maxSizeInBytes": {
                     "type": "number",
-                    "description": "Filter by maximum size (in bytes). Only files smaller than the specified size will be synchronized.",
-                    "x-zui": {}
+                    "x-zui": {},
+                    "description": "Filter by maximum size (in bytes). Only files smaller than the specified size will be synchronized."
                   },
                   "modifiedAfter": {
                     "type": "string",
-                    "description": "Filter the items by modified date. Only files modified after the specified date will be synchronized.",
-                    "x-zui": {
-                      "precision": null,
-                      "offset": false
-                    },
                     "format": "date-time",
-                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                    "x-zui": {},
+                    "description": "Filter the items by modified date. Only files modified after the specified date will be synchronized."
                   }
                 },
-                "required": [
-                  "pathGlobPattern"
-                ],
+                "required": ["pathGlobPattern"],
                 "additionalProperties": false,
+                "description": "A file must match all criteria to be synchronized.",
                 "x-zui": {
                   "title": "Include Criteria"
                 }
               },
+              "description": "If omitted, the global Include Rules will be used.",
               "x-zui": {
                 "title": "Include Rules Override"
               }
             },
             "excludeFiles": {
               "type": "array",
-              "description": "If omitted, the global Exclude Rules will be used",
               "items": {
                 "type": "object",
-                "description": "A file must match all exclude criteria to be ignored.",
                 "properties": {
                   "pathGlobPattern": {
                     "type": "string",
@@ -179,14 +159,14 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "pathGlobPattern"
-                ],
+                "required": ["pathGlobPattern"],
                 "additionalProperties": false,
+                "description": "A file must match all exclude criteria to be ignored.",
                 "x-zui": {
                   "title": "Exclude Criteria"
                 }
               },
+              "description": "If omitted, the global Exclude Rules will be used",
               "x-zui": {
                 "title": "Exclude Rules Override"
               }
@@ -202,17 +182,11 @@
           "properties": {
             "status": {
               "type": "string",
-              "enum": [
-                "queued",
-                "already-running",
-                "error"
-              ],
+              "enum": ["queued", "already-running", "error"],
               "x-zui": {}
             }
           },
-          "required": [
-            "status"
-          ],
+          "required": ["status"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -231,66 +205,17 @@
               "type": "object",
               "properties": {
                 "itemType": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "const": "file",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "string",
-                      "const": "folder",
-                      "x-zui": {}
-                    }
-                  ],
+                  "type": "string",
+                  "enum": ["file", "folder"],
                   "x-zui": {}
                 },
                 "maxSizeInBytes": {
-                  "anyOf": [
-                    {
-                      "type": "number",
-                      "x-zui": {}
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
-                  }
+                  "type": "number",
+                  "x-zui": {}
                 },
                 "modifiedAfter": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "x-zui": {
-                        "precision": null,
-                        "offset": false
-                      },
-                      "format": "date-time",
-                      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
-                    },
-                    {
-                      "not": true,
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodUndefined"
-                        }
-                      }
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodOptional"
-                    }
-                  }
+                  "type": "string",
+                  "x-zui": {}
                 }
               },
               "additionalProperties": false,
@@ -343,23 +268,14 @@
                       },
                       "lastModifiedDate": {
                         "type": "string",
-                        "x-zui": {
-                          "precision": null,
-                          "offset": false
-                        },
-                        "format": "date-time",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                        "x-zui": {}
                       },
                       "contentHash": {
                         "type": "string",
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id",
-                      "type",
-                      "name"
-                    ],
+                    "required": ["id", "type", "name"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -388,11 +304,7 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id",
-                      "type",
-                      "name"
-                    ],
+                    "required": ["id", "type", "name"],
                     "additionalProperties": false,
                     "x-zui": {}
                   }
@@ -413,10 +325,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "items",
-            "meta"
-          ],
+          "required": ["items", "meta"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -436,9 +345,7 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "elapsedHoursSinceLastSync"
-        ],
+        "required": ["elapsedHoursSinceLastSync"],
         "additionalProperties": false,
         "x-zui": {}
       },

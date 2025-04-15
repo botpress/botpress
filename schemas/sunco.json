@@ -28,10 +28,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "conversationId",
-            "messageId"
-          ],
+          "required": ["conversationId", "messageId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -59,10 +56,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "conversationId",
-            "messageId"
-          ],
+          "required": ["conversationId", "messageId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -95,7 +89,6 @@
             },
             "user": {
               "type": "object",
-              "description": "The user object fields",
               "properties": {
                 "id": {
                   "type": "string",
@@ -105,18 +98,15 @@
                   }
                 }
               },
-              "required": [
-                "id"
-              ],
+              "required": ["id"],
               "additionalProperties": false,
+              "description": "The user object fields",
               "x-zui": {
                 "title": "User"
               }
             }
           },
-          "required": [
-            "user"
-          ],
+          "required": ["user"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -130,9 +120,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "userId"
-          ],
+          "required": ["userId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -147,7 +135,6 @@
           "properties": {
             "conversation": {
               "type": "object",
-              "description": "The conversation object fields",
               "properties": {
                 "id": {
                   "type": "string",
@@ -157,18 +144,15 @@
                   }
                 }
               },
-              "required": [
-                "id"
-              ],
+              "required": ["id"],
               "additionalProperties": false,
+              "description": "The conversation object fields",
               "x-zui": {
                 "title": "Conversation"
               }
             }
           },
-          "required": [
-            "conversation"
-          ],
+          "required": ["conversation"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -182,9 +166,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "conversationId"
-          ],
+          "required": ["conversationId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -200,13 +182,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "text"
-            ],
+            "required": ["text"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -217,13 +197,11 @@
             "properties": {
               "imageUrl": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "imageUrl"
-            ],
+            "required": ["imageUrl"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -234,13 +212,11 @@
             "properties": {
               "audioUrl": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "audioUrl"
-            ],
+            "required": ["audioUrl"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -251,13 +227,11 @@
             "properties": {
               "videoUrl": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "videoUrl"
-            ],
+            "required": ["videoUrl"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -268,18 +242,16 @@
             "properties": {
               "fileUrl": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "title": {
-                "type": "string",
                 "x-zui": {},
+                "type": "string",
                 "minLength": 1
               }
             },
-            "required": [
-              "fileUrl"
-            ],
+            "required": ["fileUrl"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -305,10 +277,7 @@
                 "x-zui": {}
               }
             },
-            "required": [
-              "latitude",
-              "longitude"
-            ],
+            "required": ["latitude", "longitude"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -324,17 +293,17 @@
                   "properties": {
                     "title": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     },
                     "subtitle": {
-                      "type": "string",
                       "x-zui": {},
+                      "type": "string",
                       "minLength": 1
                     },
                     "imageUrl": {
-                      "type": "string",
                       "x-zui": {},
+                      "type": "string",
                       "minLength": 1
                     },
                     "actions": {
@@ -344,48 +313,35 @@
                         "properties": {
                           "action": {
                             "type": "string",
-                            "enum": [
-                              "postback",
-                              "url",
-                              "say"
-                            ],
+                            "enum": ["postback", "url", "say"],
                             "x-zui": {}
                           },
                           "label": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "minLength": 1,
+                            "x-zui": {}
                           },
                           "value": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "minLength": 1,
+                            "x-zui": {}
                           }
                         },
-                        "required": [
-                          "action",
-                          "label",
-                          "value"
-                        ],
+                        "required": ["action", "label", "value"],
                         "additionalProperties": false,
                         "x-zui": {}
                       },
                       "x-zui": {}
                     }
                   },
-                  "required": [
-                    "title",
-                    "actions"
-                  ],
+                  "required": ["title", "actions"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
               }
             },
-            "required": [
-              "items"
-            ],
+            "required": ["items"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -396,17 +352,17 @@
             "properties": {
               "title": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "subtitle": {
-                "type": "string",
                 "x-zui": {},
+                "type": "string",
                 "minLength": 1
               },
               "imageUrl": {
-                "type": "string",
                 "x-zui": {},
+                "type": "string",
                 "minLength": 1
               },
               "actions": {
@@ -416,39 +372,28 @@
                   "properties": {
                     "action": {
                       "type": "string",
-                      "enum": [
-                        "postback",
-                        "url",
-                        "say"
-                      ],
+                      "enum": ["postback", "url", "say"],
                       "x-zui": {}
                     },
                     "label": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     },
                     "value": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     }
                   },
-                  "required": [
-                    "action",
-                    "label",
-                    "value"
-                  ],
+                  "required": ["action", "label", "value"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
               }
             },
-            "required": [
-              "title",
-              "actions"
-            ],
+            "required": ["title", "actions"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -459,8 +404,8 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "options": {
                 "type": "array",
@@ -469,29 +414,23 @@
                   "properties": {
                     "label": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     },
                     "value": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     }
                   },
-                  "required": [
-                    "label",
-                    "value"
-                  ],
+                  "required": ["label", "value"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
               }
             },
-            "required": [
-              "text",
-              "options"
-            ],
+            "required": ["text", "options"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -502,8 +441,8 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "options": {
                 "type": "array",
@@ -512,29 +451,23 @@
                   "properties": {
                     "label": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     },
                     "value": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     }
                   },
-                  "required": [
-                    "label",
-                    "value"
-                  ],
+                  "required": ["label", "value"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
               }
             },
-            "required": [
-              "text",
-              "options"
-            ],
+            "required": ["text", "options"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -560,21 +493,16 @@
                           "properties": {
                             "text": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "text"
-                          ],
+                          "required": ["text"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -591,21 +519,16 @@
                           "properties": {
                             "markdown": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "markdown"
-                          ],
+                          "required": ["markdown"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -622,21 +545,16 @@
                           "properties": {
                             "imageUrl": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "imageUrl"
-                          ],
+                          "required": ["imageUrl"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -653,21 +571,16 @@
                           "properties": {
                             "audioUrl": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "audioUrl"
-                          ],
+                          "required": ["audioUrl"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -684,21 +597,16 @@
                           "properties": {
                             "videoUrl": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "videoUrl"
-                          ],
+                          "required": ["videoUrl"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -715,26 +623,21 @@
                           "properties": {
                             "fileUrl": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             },
                             "title": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "fileUrl"
-                          ],
+                          "required": ["fileUrl"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -766,18 +669,12 @@
                               "x-zui": {}
                             }
                           },
-                          "required": [
-                            "latitude",
-                            "longitude"
-                          ],
+                          "required": ["latitude", "longitude"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     }
@@ -787,9 +684,7 @@
                 "x-zui": {}
               }
             },
-            "required": [
-              "items"
-            ],
+            "required": ["items"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -800,13 +695,11 @@
             "properties": {
               "markdown": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "markdown"
-            ],
+            "required": ["markdown"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -830,7 +723,6 @@
       "description": "A Sunshine Conversations user",
       "schema": {
         "type": "object",
-        "description": "The user object fields",
         "properties": {
           "id": {
             "type": "string",
@@ -840,10 +732,9 @@
             }
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
+        "description": "The user object fields",
         "x-zui": {
           "title": "User"
         }
@@ -854,7 +745,6 @@
       "description": "A Sunshine Conversations conversation",
       "schema": {
         "type": "object",
-        "description": "The conversation object fields",
         "properties": {
           "id": {
             "type": "string",
@@ -864,10 +754,9 @@
             }
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
+        "description": "The conversation object fields",
         "x-zui": {
           "title": "Conversation"
         }

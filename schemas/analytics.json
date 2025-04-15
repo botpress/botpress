@@ -30,10 +30,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "name",
-            "count"
-          ],
+          "required": ["name", "count"],
           "additionalProperties": false,
           "x-zui": {}
         }

@@ -20,9 +20,7 @@
             "description": "The data the Zapier action sent. Can be any string including JSON.",
             "x-zui": {},
             "title": "Event Data received from Zapier",
-            "examples": [
-              "{ \"message\": \"Hello Botpress!\" }"
-            ]
+            "examples": ["{ \"message\": \"Hello Botpress!\" }"]
           },
           "correlationId": {
             "type": "string",
@@ -30,18 +28,14 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "data"
-        ],
+        "required": ["data"],
         "additionalProperties": false,
         "x-zui": {}
       },
       "ui": {
         "data": {
           "title": "Event Data received from Zapier",
-          "examples": [
-            "{ \"message\": \"Hello Botpress!\" }"
-          ]
+          "examples": ["{ \"message\": \"Hello Botpress!\" }"]
         }
       }
     }
@@ -59,9 +53,7 @@
               "description": "The data you want to send to Zapier trigger. Can be any string including JSON.",
               "x-zui": {},
               "title": "Trigger Data to send to Zapier",
-              "examples": [
-                "{ \"message\": \"Hello Zapier!\" }"
-              ]
+              "examples": ["{ \"message\": \"Hello Zapier!\" }"]
             },
             "correlationId": {
               "type": "string",
@@ -69,18 +61,14 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "data"
-          ],
+          "required": ["data"],
           "additionalProperties": false,
           "x-zui": {}
         },
         "ui": {
           "data": {
             "title": "Trigger Data to send to Zapier",
-            "examples": [
-              "{ \"message\": \"Hello Zapier!\" }"
-            ]
+            "examples": ["{ \"message\": \"Hello Zapier!\" }"]
           }
         }
       },
@@ -111,18 +99,14 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "url"
-              ],
+              "required": ["url"],
               "additionalProperties": false,
               "x-zui": {}
             },
             "x-zui": {}
           }
         },
-        "required": [
-          "subscribers"
-        ],
+        "required": ["subscribers"],
         "additionalProperties": false,
         "x-zui": {}
       }

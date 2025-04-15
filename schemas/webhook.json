@@ -45,19 +45,11 @@
           },
           "method": {
             "type": "string",
-            "enum": [
-              "GET",
-              "POST"
-            ],
+            "enum": ["GET", "POST"],
             "x-zui": {}
           }
         },
-        "required": [
-          "query",
-          "path",
-          "headers",
-          "method"
-        ],
+        "required": ["query", "path", "headers", "method"],
         "additionalProperties": true,
         "x-zui": {}
       }

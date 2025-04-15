@@ -35,11 +35,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "success",
-            "message",
-            "productsCount"
-          ],
+          "required": ["success", "message", "productsCount"],
           "additionalProperties": false,
           "x-zui": {}
         }

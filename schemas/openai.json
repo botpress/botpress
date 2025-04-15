@@ -14,10 +14,7 @@
           "properties": {
             "model": {
               "type": "string",
-              "enum": [
-                "tts-1",
-                "tts-1-hd"
-              ],
+              "enum": ["tts-1", "tts-1-hd"],
               "x-zui": {
                 "placeholder": "tts-1"
               }
@@ -28,51 +25,35 @@
             },
             "voice": {
               "type": "string",
-              "enum": [
-                "alloy",
-                "echo",
-                "fable",
-                "onyx",
-                "nova",
-                "shimmer"
-              ],
+              "enum": ["alloy", "echo", "fable", "onyx", "nova", "shimmer"],
               "x-zui": {
                 "placeholder": "alloy"
               }
             },
             "format": {
               "type": "string",
-              "enum": [
-                "mp3",
-                "opus",
-                "aac",
-                "flac",
-                "wav",
-                "pcm"
-              ],
+              "enum": ["mp3", "opus", "aac", "flac", "wav", "pcm"],
               "x-zui": {
                 "placeholder": "mp3"
               }
             },
             "speed": {
               "type": "number",
+              "minimum": 0.25,
+              "maximum": 4,
               "x-zui": {
                 "placeholder": "1"
-              },
-              "minimum": 0.25,
-              "maximum": 4
+              }
             },
             "expiration": {
               "type": "integer",
-              "description": "Expiration of the generated audio file in days, after which the file will be automatically deleted to free up storage space in your account. The default is to keep the file indefinitely (no expiration). The minimum is 30 days and the maximum is 90 days.",
-              "x-zui": {},
               "minimum": 30,
-              "maximum": 90
+              "maximum": 90,
+              "x-zui": {},
+              "description": "Expiration of the generated audio file in days, after which the file will be automatically deleted to free up storage space in your account. The default is to keep the file indefinitely (no expiration). The minimum is 30 days and the maximum is 90 days."
             }
           },
-          "required": [
-            "input"
-          ],
+          "required": ["input"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -95,17 +76,12 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "cost"
-              ],
+              "required": ["cost"],
               "additionalProperties": false,
               "x-zui": {}
             }
           },
-          "required": [
-            "audioUrl",
-            "botpress"
-          ],
+          "required": ["audioUrl", "botpress"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -121,7 +97,6 @@
               "properties": {
                 "id": {
                   "type": "string",
-                  "description": "Model to use for content generation",
                   "enum": [
                     "o3-mini-2025-01-31",
                     "o1-2024-12-17",
@@ -133,24 +108,19 @@
                     "gpt-4-turbo-2024-04-09",
                     "gpt-3.5-turbo-0125"
                   ],
+                  "description": "Model to use for content generation",
                   "x-zui": {
                     "placeholder": "gpt-4o-mini-2024-07-18"
                   }
                 }
               },
-              "required": [
-                "id"
-              ],
+              "required": ["id"],
               "additionalProperties": false,
               "x-zui": {}
             },
             "reasoningEffort": {
               "type": "string",
-              "enum": [
-                "low",
-                "medium",
-                "high"
-              ],
+              "enum": ["low", "medium", "high"],
               "x-zui": {}
             },
             "systemPrompt": {
@@ -164,20 +134,12 @@
                 "properties": {
                   "role": {
                     "type": "string",
-                    "enum": [
-                      "user",
-                      "assistant"
-                    ],
+                    "enum": ["user", "assistant"],
                     "x-zui": {}
                   },
                   "type": {
                     "type": "string",
-                    "enum": [
-                      "text",
-                      "tool_calls",
-                      "tool_result",
-                      "multipart"
-                    ],
+                    "enum": ["text", "tool_calls", "tool_result", "multipart"],
                     "x-zui": {},
                     "default": "text"
                   },
@@ -192,9 +154,7 @@
                         },
                         "type": {
                           "type": "string",
-                          "enum": [
-                            "function"
-                          ],
+                          "const": "function",
                           "x-zui": {}
                         },
                         "function": {
@@ -218,26 +178,15 @@
                                   "x-zui": {}
                                 }
                               ],
-                              "x-zui": {
-                                "def": {
-                                  "typeName": "ZodNullable"
-                                }
-                              }
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "name",
-                            "arguments"
-                          ],
+                          "required": ["name", "arguments"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "id",
-                        "type",
-                        "function"
-                      ],
+                      "required": ["id", "type", "function"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -262,10 +211,7 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": [
-                                    "text",
-                                    "image"
-                                  ],
+                                  "enum": ["text", "image"],
                                   "x-zui": {}
                                 },
                                 "mimeType": {
@@ -281,9 +227,7 @@
                                   "x-zui": {}
                                 }
                               },
-                              "required": [
-                                "type"
-                              ],
+                              "required": ["type"],
                               "additionalProperties": false,
                               "x-zui": {}
                             },
@@ -297,17 +241,10 @@
                         "x-zui": {}
                       }
                     ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "x-zui": {}
                   }
                 },
-                "required": [
-                  "role",
-                  "content"
-                ],
+                "required": ["role", "content"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
@@ -315,10 +252,7 @@
             },
             "responseFormat": {
               "type": "string",
-              "enum": [
-                "text",
-                "json_object"
-              ],
+              "enum": ["text", "json_object"],
               "x-zui": {}
             },
             "maxTokens": {
@@ -328,15 +262,11 @@
             "temperature": {
               "type": "number",
               "x-zui": {},
-              "minimum": 0,
-              "maximum": 2,
               "default": 1
             },
             "topP": {
               "type": "number",
               "x-zui": {},
-              "minimum": 0,
-              "maximum": 1,
               "default": 1
             },
             "stopSequences": {
@@ -345,8 +275,7 @@
                 "type": "string",
                 "x-zui": {}
               },
-              "x-zui": {},
-              "maxItems": 4
+              "x-zui": {}
             },
             "tools": {
               "type": "array",
@@ -376,17 +305,12 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "name"
-                    ],
+                    "required": ["name"],
                     "additionalProperties": false,
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "type",
-                  "function"
-                ],
+                "required": ["type", "function"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
@@ -397,13 +321,7 @@
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": [
-                    "auto",
-                    "specific",
-                    "any",
-                    "none",
-                    ""
-                  ],
+                  "enum": ["auto", "specific", "any", "none", ""],
                   "x-zui": {}
                 },
                 "functionName": {
@@ -442,9 +360,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "messages"
-          ],
+          "required": ["messages"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -472,12 +388,7 @@
                 "properties": {
                   "type": {
                     "type": "string",
-                    "enum": [
-                      "text",
-                      "tool_calls",
-                      "tool_result",
-                      "multipart"
-                    ],
+                    "enum": ["text", "tool_calls", "tool_result", "multipart"],
                     "x-zui": {},
                     "default": "text"
                   },
@@ -492,9 +403,7 @@
                         },
                         "type": {
                           "type": "string",
-                          "enum": [
-                            "function"
-                          ],
+                          "const": "function",
                           "x-zui": {}
                         },
                         "function": {
@@ -518,26 +427,15 @@
                                   "x-zui": {}
                                 }
                               ],
-                              "x-zui": {
-                                "def": {
-                                  "typeName": "ZodNullable"
-                                }
-                              }
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "name",
-                            "arguments"
-                          ],
+                          "required": ["name", "arguments"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "id",
-                        "type",
-                        "function"
-                      ],
+                      "required": ["id", "type", "function"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -562,10 +460,7 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": [
-                                    "text",
-                                    "image"
-                                  ],
+                                  "enum": ["text", "image"],
                                   "x-zui": {}
                                 },
                                 "mimeType": {
@@ -581,9 +476,7 @@
                                   "x-zui": {}
                                 }
                               },
-                              "required": [
-                                "type"
-                              ],
+                              "required": ["type"],
                               "additionalProperties": false,
                               "x-zui": {}
                             },
@@ -597,11 +490,7 @@
                         "x-zui": {}
                       }
                     ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "x-zui": {}
                   },
                   "role": {
                     "type": "string",
@@ -609,27 +498,16 @@
                     "x-zui": {}
                   },
                   "index": {
-                    "type": "integer",
+                    "type": "number",
                     "x-zui": {}
                   },
                   "stopReason": {
                     "type": "string",
-                    "enum": [
-                      "stop",
-                      "max_tokens",
-                      "tool_calls",
-                      "content_filter",
-                      "other"
-                    ],
+                    "enum": ["stop", "max_tokens", "tool_calls", "content_filter", "other"],
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "content",
-                  "role",
-                  "index",
-                  "stopReason"
-                ],
+                "required": ["content", "role", "index", "stopReason"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
@@ -639,7 +517,7 @@
               "type": "object",
               "properties": {
                 "inputTokens": {
-                  "type": "integer",
+                  "type": "number",
                   "x-zui": {}
                 },
                 "inputCost": {
@@ -647,7 +525,7 @@
                   "x-zui": {}
                 },
                 "outputTokens": {
-                  "type": "integer",
+                  "type": "number",
                   "x-zui": {}
                 },
                 "outputCost": {
@@ -655,12 +533,7 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "inputTokens",
-                "inputCost",
-                "outputTokens",
-                "outputCost"
-              ],
+              "required": ["inputTokens", "inputCost", "outputTokens", "outputCost"],
               "additionalProperties": false,
               "x-zui": {}
             },
@@ -672,21 +545,12 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "cost"
-              ],
+              "required": ["cost"],
               "additionalProperties": false,
               "x-zui": {}
             }
           },
-          "required": [
-            "id",
-            "provider",
-            "model",
-            "choices",
-            "usage",
-            "botpress"
-          ],
+          "required": ["id", "provider", "model", "choices", "usage", "botpress"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -752,7 +616,7 @@
                         "type": "object",
                         "properties": {
                           "maxTokens": {
-                            "type": "integer",
+                            "type": "number",
                             "x-zui": {}
                           },
                           "costPer1MTokens": {
@@ -760,10 +624,7 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "maxTokens",
-                          "costPer1MTokens"
-                        ],
+                        "required": ["maxTokens", "costPer1MTokens"],
                         "additionalProperties": false,
                         "x-zui": {}
                       },
@@ -771,7 +632,7 @@
                         "type": "object",
                         "properties": {
                           "maxTokens": {
-                            "type": "integer",
+                            "type": "number",
                             "x-zui": {}
                           },
                           "costPer1MTokens": {
@@ -779,23 +640,12 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "maxTokens",
-                          "costPer1MTokens"
-                        ],
+                        "required": ["maxTokens", "costPer1MTokens"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id",
-                      "name",
-                      "description",
-                      "tags",
-                      "input",
-                      "output"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id", "name", "description", "tags", "input", "output"],
                     "x-zui": {}
                   },
                   {
@@ -803,7 +653,6 @@
                     "properties": {
                       "id": {
                         "type": "string",
-                        "description": "Model to use for content generation",
                         "enum": [
                           "o3-mini-2025-01-31",
                           "o1-2024-12-17",
@@ -815,15 +664,13 @@
                           "gpt-4-turbo-2024-04-09",
                           "gpt-3.5-turbo-0125"
                         ],
+                        "description": "Model to use for content generation",
                         "x-zui": {
                           "placeholder": "gpt-4o-mini-2024-07-18"
                         }
                       }
                     },
-                    "required": [
-                      "id"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id"],
                     "x-zui": {}
                   }
                 ],
@@ -832,9 +679,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "models"
-          ],
+          "required": ["models"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -853,9 +698,7 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "id"
-              ],
+              "required": ["id"],
               "additionalProperties": false,
               "x-zui": {}
             },
@@ -868,36 +711,30 @@
               "x-zui": {}
             },
             "expiration": {
-              "type": "integer",
-              "x-zui": {},
-              "minimum": 30,
-              "maximum": 90
+              "type": "number",
+              "x-zui": {}
             },
             "params": {
               "type": "object",
               "properties": {
                 "style": {
                   "type": "string",
-                  "enum": [
-                    "natural",
-                    "vivid"
-                  ],
+                  "enum": ["natural", "vivid"],
                   "x-zui": {},
-                  "default": "vivid"
+                  "default": "vivid",
+                  "description": "Image style - Only supported by DALL-E 3 models"
                 },
                 "user": {
                   "type": "string",
-                  "description": "User ID to associate with the image, for abuse detection purposes",
-                  "x-zui": {}
+                  "x-zui": {},
+                  "description": "User ID to associate with the image, for abuse detection purposes"
                 }
               },
               "additionalProperties": false,
               "x-zui": {}
             }
           },
-          "required": [
-            "prompt"
-          ],
+          "required": ["prompt"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -926,19 +763,12 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "cost"
-              ],
+              "required": ["cost"],
               "additionalProperties": false,
               "x-zui": {}
             }
           },
-          "required": [
-            "model",
-            "imageUrl",
-            "cost",
-            "botpress"
-          ],
+          "required": ["model", "imageUrl", "cost", "botpress"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -991,14 +821,7 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id",
-                      "name",
-                      "costPerImage",
-                      "sizes",
-                      "defaultSize"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id", "name", "costPerImage", "sizes", "defaultSize"],
                     "x-zui": {}
                   },
                   {
@@ -1009,10 +832,7 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id"],
                     "x-zui": {}
                   }
                 ],
@@ -1021,9 +841,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "models"
-          ],
+          "required": ["models"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1042,16 +860,13 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "id"
-              ],
+              "required": ["id"],
               "additionalProperties": false,
               "x-zui": {}
             },
             "fileUrl": {
               "type": "string",
-              "x-zui": {},
-              "format": "uri"
+              "x-zui": {}
             },
             "language": {
               "type": "string",
@@ -1067,9 +882,7 @@
               "default": 0
             }
           },
-          "required": [
-            "fileUrl"
-          ],
+          "required": ["fileUrl"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1169,21 +982,12 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "cost"
-              ],
+              "required": ["cost"],
               "additionalProperties": false,
               "x-zui": {}
             }
           },
-          "required": [
-            "language",
-            "duration",
-            "segments",
-            "model",
-            "cost",
-            "botpress"
-          ],
+          "required": ["language", "duration", "segments", "model", "cost", "botpress"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1224,12 +1028,7 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id",
-                      "name",
-                      "costPerMinute"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id", "name", "costPerMinute"],
                     "x-zui": {}
                   },
                   {
@@ -1240,10 +1039,7 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id"],
                     "x-zui": {}
                   }
                 ],
@@ -1252,9 +1048,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "models"
-          ],
+          "required": ["models"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1269,7 +1063,6 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Model to use for content generation",
             "enum": [
               "o3-mini-2025-01-31",
               "o1-2024-12-17",
@@ -1281,14 +1074,13 @@
               "gpt-4-turbo-2024-04-09",
               "gpt-3.5-turbo-0125"
             ],
+            "description": "Model to use for content generation",
             "x-zui": {
               "placeholder": "gpt-4o-mini-2024-07-18"
             }
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -1302,9 +1094,7 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -1318,9 +1108,7 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -1331,17 +1119,15 @@
         "properties": {
           "style": {
             "type": "string",
-            "enum": [
-              "natural",
-              "vivid"
-            ],
+            "enum": ["natural", "vivid"],
             "x-zui": {},
-            "default": "vivid"
+            "default": "vivid",
+            "description": "Image style - Only supported by DALL-E 3 models"
           },
           "user": {
             "type": "string",
-            "description": "User ID to associate with the image, for abuse detection purposes",
-            "x-zui": {}
+            "x-zui": {},
+            "description": "User ID to associate with the image, for abuse detection purposes"
           }
         },
         "additionalProperties": false,

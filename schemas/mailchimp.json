@@ -13,82 +13,81 @@
           "properties": {
             "email": {
               "type": "string",
+              "format": "email",
               "description": "The email address of the customer (e.g. example@example.com)",
               "x-zui": {},
-              "format": "email",
-              "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
               "title": "The email address of the customer (e.g. example@example.com)"
             },
             "firstName": {
               "type": "string",
-              "description": "The first name of the customer (e.g. John)",
               "x-zui": {},
+              "description": "The first name of the customer (e.g. John)",
               "title": "The first name of the customer (e.g. John) (Optional)"
             },
             "lastName": {
               "type": "string",
-              "description": "The last name of the customer (e.g. Doe)",
               "x-zui": {},
+              "description": "The last name of the customer (e.g. Doe)",
               "title": "The last name of the customer (e.g. Doe) (Optional)"
             },
             "company": {
               "type": "string",
-              "description": "The company of the customer (e.g. Acme Inc.)",
               "x-zui": {},
+              "description": "The company of the customer (e.g. Acme Inc.)",
               "title": "The company of the customer (e.g. Acme Inc.) (Optional)"
             },
             "birthday": {
               "type": "string",
-              "description": "The birthday of the customer (e.g. 01/01/2000)",
               "x-zui": {},
+              "description": "The birthday of the customer (e.g. 01/01/2000)",
               "title": "The birthday of the customer (e.g. 01/01/2000) (Optional)"
             },
             "language": {
               "type": "string",
-              "description": "The language of the customer (e.g. en)",
               "x-zui": {},
+              "description": "The language of the customer (e.g. en)",
               "title": "The language of the customer (e.g. en) (Optional)"
             },
             "address1": {
               "type": "string",
-              "description": "The first line of the address of the customer (e.g. 123 St Marie.)",
               "x-zui": {},
+              "description": "The first line of the address of the customer (e.g. 123 St Marie.)",
               "title": "The first line of the address of the customer (e.g. 123 St Marie.) (Optional)"
             },
             "address2": {
               "type": "string",
-              "description": "The second line of the address of the customer (e.g. Apt. 4B)",
               "x-zui": {},
+              "description": "The second line of the address of the customer (e.g. Apt. 4B)",
               "title": "The second line of the address of the customer (e.g. Apt. 4B) (Optional)"
             },
             "city": {
               "type": "string",
-              "description": "The city of the customer (e.g. Anytown)",
               "x-zui": {},
+              "description": "The city of the customer (e.g. Anytown)",
               "title": "The city of the customer (e.g. Anytown) (Optional)"
             },
             "state": {
               "type": "string",
-              "description": "The state or province of the customer (e.g. CA)",
               "x-zui": {},
+              "description": "The state or province of the customer (e.g. CA)",
               "title": "The state or province of the customer (e.g. CA) (Optional)"
             },
             "zip": {
               "type": "string",
-              "description": "The zip or postal code of the customer (e.g. 12345)",
               "x-zui": {},
+              "description": "The zip or postal code of the customer (e.g. 12345)",
               "title": "The zip or postal code of the customer (e.g. 12345) (Optional)"
             },
             "country": {
               "type": "string",
-              "description": "The country of the customer (e.g. USA)",
               "x-zui": {},
+              "description": "The country of the customer (e.g. USA)",
               "title": "The country of the customer (e.g. USA) (Optional)"
             },
             "phone": {
               "type": "string",
-              "description": "The phone number of the customer (e.g. 555-1234)",
               "x-zui": {},
+              "description": "The phone number of the customer (e.g. 555-1234)",
               "title": "The phone number of the customer (e.g. 555-1234) (Optional)"
             },
             "campaignId": {
@@ -98,10 +97,7 @@
               "title": "The ID of the Mailchimp campaign (e.g. f6g7h8i9j0)"
             }
           },
-          "required": [
-            "email",
-            "campaignId"
-          ],
+          "required": ["email", "campaignId"],
           "additionalProperties": false,
           "x-zui": {}
         },
@@ -171,12 +167,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "id",
-            "email_address",
-            "status",
-            "list_id"
-          ],
+          "required": ["id", "email_address", "status", "list_id"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -191,82 +182,81 @@
           "properties": {
             "email": {
               "type": "string",
+              "format": "email",
               "description": "The email address of the customer (e.g. example@example.com)",
               "x-zui": {},
-              "format": "email",
-              "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
               "title": "The email address of the customer (e.g. example@example.com)"
             },
             "firstName": {
               "type": "string",
-              "description": "The first name of the customer (e.g. John)",
               "x-zui": {},
+              "description": "The first name of the customer (e.g. John)",
               "title": "The first name of the customer (e.g. John) (Optional)"
             },
             "lastName": {
               "type": "string",
-              "description": "The last name of the customer (e.g. Doe)",
               "x-zui": {},
+              "description": "The last name of the customer (e.g. Doe)",
               "title": "The last name of the customer (e.g. Doe) (Optional)"
             },
             "company": {
               "type": "string",
-              "description": "The company of the customer (e.g. Acme Inc.)",
               "x-zui": {},
+              "description": "The company of the customer (e.g. Acme Inc.)",
               "title": "The company of the customer (e.g. Acme Inc.) (Optional)"
             },
             "birthday": {
               "type": "string",
-              "description": "The birthday of the customer (e.g. 01/01/2000)",
               "x-zui": {},
+              "description": "The birthday of the customer (e.g. 01/01/2000)",
               "title": "The birthday of the customer (e.g. 01/01/2000) (Optional)"
             },
             "language": {
               "type": "string",
-              "description": "The language of the customer (e.g. en)",
               "x-zui": {},
+              "description": "The language of the customer (e.g. en)",
               "title": "The language of the customer (e.g. en) (Optional)"
             },
             "address1": {
               "type": "string",
-              "description": "The first line of the address of the customer (e.g. 123 St Marie.)",
               "x-zui": {},
+              "description": "The first line of the address of the customer (e.g. 123 St Marie.)",
               "title": "The first line of the address of the customer (e.g. 123 St Marie.) (Optional)"
             },
             "address2": {
               "type": "string",
-              "description": "The second line of the address of the customer (e.g. Apt. 4B)",
               "x-zui": {},
+              "description": "The second line of the address of the customer (e.g. Apt. 4B)",
               "title": "The second line of the address of the customer (e.g. Apt. 4B) (Optional)"
             },
             "city": {
               "type": "string",
-              "description": "The city of the customer (e.g. Anytown)",
               "x-zui": {},
+              "description": "The city of the customer (e.g. Anytown)",
               "title": "The city of the customer (e.g. Anytown) (Optional)"
             },
             "state": {
               "type": "string",
-              "description": "The state or province of the customer (e.g. CA)",
               "x-zui": {},
+              "description": "The state or province of the customer (e.g. CA)",
               "title": "The state or province of the customer (e.g. CA) (Optional)"
             },
             "zip": {
               "type": "string",
-              "description": "The zip or postal code of the customer (e.g. 12345)",
               "x-zui": {},
+              "description": "The zip or postal code of the customer (e.g. 12345)",
               "title": "The zip or postal code of the customer (e.g. 12345) (Optional)"
             },
             "country": {
               "type": "string",
-              "description": "The country of the customer (e.g. USA)",
               "x-zui": {},
+              "description": "The country of the customer (e.g. USA)",
               "title": "The country of the customer (e.g. USA) (Optional)"
             },
             "phone": {
               "type": "string",
-              "description": "The phone number of the customer (e.g. 555-1234)",
               "x-zui": {},
+              "description": "The phone number of the customer (e.g. 555-1234)",
               "title": "The phone number of the customer (e.g. 555-1234) (Optional)"
             },
             "listId": {
@@ -276,10 +266,7 @@
               "title": "The ID of the Mailchimp list or audience (e.g. a1b2c3d4e5)"
             }
           },
-          "required": [
-            "email",
-            "listId"
-          ],
+          "required": ["email", "listId"],
           "additionalProperties": false,
           "x-zui": {}
         },
@@ -349,12 +336,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "id",
-            "email_address",
-            "status",
-            "list_id"
-          ],
+          "required": ["id", "email_address", "status", "list_id"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -374,9 +356,7 @@
               "title": "The Campaign IDs (Can be either a string with comma-separated IDs)"
             }
           },
-          "required": [
-            "campaignIds"
-          ],
+          "required": ["campaignIds"],
           "additionalProperties": false,
           "x-zui": {}
         },
@@ -395,33 +375,8 @@
               "x-zui": {}
             },
             "status": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "const": "pending",
-                  "x-zui": {}
-                },
-                {
-                  "type": "string",
-                  "const": "preprocessing",
-                  "x-zui": {}
-                },
-                {
-                  "type": "string",
-                  "const": "started",
-                  "x-zui": {}
-                },
-                {
-                  "type": "string",
-                  "const": "finalizing",
-                  "x-zui": {}
-                },
-                {
-                  "type": "string",
-                  "const": "finished",
-                  "x-zui": {}
-                }
-              ],
+              "type": "string",
+              "enum": ["pending", "preprocessing", "started", "finalizing", "finished"],
               "x-zui": {}
             },
             "total_operations": {
@@ -442,43 +397,8 @@
                     "x-zui": {}
                   },
                   "method": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "const": "GET",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "POST",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "PUT",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "PATCH",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "DELETE",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "OPTIONS",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "HEAD",
-                        "x-zui": {}
-                      }
-                    ],
+                    "type": "string",
+                    "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
                     "x-zui": {}
                   },
                   "targetSchema": {
@@ -509,25 +429,8 @@
           "type": "object",
           "properties": {
             "count": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
+              "type": "number",
+              "x-zui": {},
               "default": 100,
               "title": "List count to retrieve"
             }
@@ -606,16 +509,7 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "company",
-                      "address1",
-                      "address2",
-                      "city",
-                      "state",
-                      "zip",
-                      "country",
-                      "phone"
-                    ],
+                    "required": ["company", "address1", "address2", "city", "state", "zip", "country", "phone"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -637,10 +531,9 @@
                       },
                       "from_email": {
                         "type": "string",
-                        "description": "Default sender email",
-                        "x-zui": {},
                         "format": "email",
-                        "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$"
+                        "description": "Default sender email",
+                        "x-zui": {}
                       },
                       "subject": {
                         "type": "string",
@@ -653,12 +546,7 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "from_name",
-                      "from_email",
-                      "subject",
-                      "language"
-                    ],
+                    "required": ["from_name", "from_email", "subject", "language"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -712,9 +600,6 @@
                   },
                   "modules": {
                     "type": "array",
-                    "items": {
-                      "x-zui": {}
-                    },
                     "x-zui": {}
                   },
                   "stats": {
@@ -836,43 +721,8 @@
                           "x-zui": {}
                         },
                         "method": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "GET",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "string",
-                              "const": "POST",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "string",
-                              "const": "PUT",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "string",
-                              "const": "PATCH",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "string",
-                              "const": "DELETE",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "string",
-                              "const": "OPTIONS",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "string",
-                              "const": "HEAD",
-                              "x-zui": {}
-                            }
-                          ],
+                          "type": "string",
+                          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
                           "x-zui": {}
                         },
                         "targetSchema": {
@@ -938,11 +788,7 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "may_create",
-                "max_instances",
-                "current_total_instances"
-              ],
+              "required": ["may_create", "max_instances", "current_total_instances"],
               "additionalProperties": false,
               "x-zui": {}
             },
@@ -960,43 +806,8 @@
                     "x-zui": {}
                   },
                   "method": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "const": "GET",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "POST",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "PUT",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "PATCH",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "DELETE",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "OPTIONS",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "HEAD",
-                        "x-zui": {}
-                      }
-                    ],
+                    "type": "string",
+                    "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
                     "x-zui": {}
                   },
                   "targetSchema": {
@@ -1014,11 +825,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "lists",
-            "constraints",
-            "_links"
-          ],
+          "required": ["lists", "constraints", "_links"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1032,25 +839,8 @@
           "type": "object",
           "properties": {
             "count": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
+              "type": "number",
+              "x-zui": {},
               "default": 100,
               "title": "List count to retrieve"
             }
@@ -1127,7 +917,6 @@
                   },
                   "recipients": {
                     "type": "object",
-                    "description": "Recipients information",
                     "properties": {
                       "list_id": {
                         "type": "string",
@@ -1174,14 +963,10 @@
                           },
                           "conditions": {
                             "type": "array",
-                            "description": "Array of conditions",
                             "items": {
-                              "x-zui": {
-                                "def": {
-                                  "typeName": "ZodUnknown"
-                                }
-                              }
+                              "x-zui": {}
                             },
+                            "description": "Array of conditions",
                             "x-zui": {}
                           }
                         },
@@ -1198,11 +983,11 @@
                       "segment_opts"
                     ],
                     "additionalProperties": true,
+                    "description": "Recipients information",
                     "x-zui": {}
                   },
                   "settings": {
                     "type": "object",
-                    "description": "Settings for the campaign",
                     "properties": {
                       "subject_line": {
                         "type": "string",
@@ -1266,12 +1051,12 @@
                       },
                       "auto_fb_post": {
                         "type": "array",
-                        "description": "Array of Facebook post strings",
                         "items": {
                           "type": "string",
                           "x-zui": {}
                         },
-                        "x-zui": {}
+                        "x-zui": {},
+                        "description": "Array of Facebook post strings"
                       },
                       "fb_comments": {
                         "type": "boolean",
@@ -1313,6 +1098,7 @@
                       "drag_and_drop"
                     ],
                     "additionalProperties": true,
+                    "description": "Settings for the campaign",
                     "x-zui": {}
                   },
                   "variate_settings": {
@@ -1345,52 +1131,51 @@
                       },
                       "subject_lines": {
                         "type": "array",
-                        "description": "Array of subject lines",
                         "items": {
                           "type": "string",
                           "x-zui": {}
                         },
+                        "description": "Array of subject lines",
                         "x-zui": {}
                       },
                       "send_times": {
                         "type": "array",
-                        "description": "Array of send times",
                         "items": {
                           "type": "string",
                           "x-zui": {}
                         },
+                        "description": "Array of send times",
                         "x-zui": {}
                       },
                       "from_names": {
                         "type": "array",
-                        "description": "Array of sender names",
                         "items": {
                           "type": "string",
                           "x-zui": {}
                         },
+                        "description": "Array of sender names",
                         "x-zui": {}
                       },
                       "reply_to_addresses": {
                         "type": "array",
-                        "description": "Array of reply-to email addresses",
                         "items": {
                           "type": "string",
                           "x-zui": {}
                         },
+                        "description": "Array of reply-to email addresses",
                         "x-zui": {}
                       },
                       "contents": {
                         "type": "array",
-                        "description": "Array of content strings",
                         "items": {
                           "type": "string",
                           "x-zui": {}
                         },
+                        "description": "Array of content strings",
                         "x-zui": {}
                       },
                       "combinations": {
                         "type": "array",
-                        "description": "Array of combinations",
                         "items": {
                           "type": "object",
                           "properties": {
@@ -1442,6 +1227,7 @@
                           "additionalProperties": false,
                           "x-zui": {}
                         },
+                        "description": "Array of combinations",
                         "x-zui": {}
                       }
                     },
@@ -1501,7 +1287,6 @@
                       },
                       "salesforce": {
                         "type": "object",
-                        "description": "Salesforce tracking options",
                         "properties": {
                           "campaign": {
                             "type": "boolean",
@@ -1514,16 +1299,13 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "campaign",
-                          "notes"
-                        ],
+                        "required": ["campaign", "notes"],
                         "additionalProperties": false,
-                        "x-zui": {}
+                        "x-zui": {},
+                        "description": "Salesforce tracking options"
                       },
                       "capsule": {
                         "type": "object",
-                        "description": "Capsule tracking options",
                         "properties": {
                           "notes": {
                             "type": "boolean",
@@ -1531,11 +1313,10 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "notes"
-                        ],
+                        "required": ["notes"],
                         "additionalProperties": false,
-                        "x-zui": {}
+                        "x-zui": {},
+                        "description": "Capsule tracking options"
                       }
                     },
                     "required": [
@@ -1573,7 +1354,6 @@
                           },
                           "daily_send": {
                             "type": "object",
-                            "description": "Daily send options",
                             "properties": {
                               "sunday": {
                                 "type": "boolean",
@@ -1604,16 +1384,9 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "sunday",
-                              "monday",
-                              "tuesday",
-                              "wednesday",
-                              "thursday",
-                              "friday",
-                              "saturday"
-                            ],
+                            "required": ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"],
                             "additionalProperties": false,
+                            "description": "Daily send options",
                             "x-zui": {}
                           },
                           "weekly_send_day": {
@@ -1627,12 +1400,7 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "hour",
-                          "daily_send",
-                          "weekly_send_day",
-                          "monthly_send_date"
-                        ],
+                        "required": ["hour", "daily_send", "weekly_send_day", "monthly_send_date"],
                         "additionalProperties": false,
                         "x-zui": {}
                       },
@@ -1647,13 +1415,7 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "feed_url",
-                      "frequency",
-                      "schedule",
-                      "last_sent",
-                      "constrain_rss_img"
-                    ],
+                    "required": ["feed_url", "frequency", "schedule", "last_sent", "constrain_rss_img"],
                     "additionalProperties": true,
                     "x-zui": {}
                   },
@@ -1769,11 +1531,7 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "image_url",
-                      "description",
-                      "title"
-                    ],
+                    "required": ["image_url", "description", "title"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -1829,11 +1587,7 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "total_orders",
-                          "total_spent",
-                          "total_revenue"
-                        ],
+                        "required": ["total_orders", "total_spent", "total_revenue"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
@@ -1857,8 +1611,8 @@
                         "properties": {
                           "enabled": {
                             "type": "boolean",
-                            "description": "Indicates whether delivery status tracking is enabled",
                             "const": true,
+                            "description": "Indicates whether delivery status tracking is enabled",
                             "x-zui": {}
                           },
                           "can_cancel": {
@@ -1882,13 +1636,7 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "enabled",
-                          "can_cancel",
-                          "status",
-                          "emails_sent",
-                          "emails_canceled"
-                        ],
+                        "required": ["enabled", "can_cancel", "status", "emails_sent", "emails_canceled"],
                         "additionalProperties": false,
                         "x-zui": {}
                       },
@@ -1901,9 +1649,7 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "enabled"
-                        ],
+                        "required": ["enabled"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
@@ -1924,43 +1670,8 @@
                           "x-zui": {}
                         },
                         "method": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "const": "GET",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "string",
-                              "const": "POST",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "string",
-                              "const": "PUT",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "string",
-                              "const": "PATCH",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "string",
-                              "const": "DELETE",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "string",
-                              "const": "OPTIONS",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "string",
-                              "const": "HEAD",
-                              "x-zui": {}
-                            }
-                          ],
+                          "type": "string",
+                          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
                           "x-zui": {}
                         },
                         "targetSchema": {
@@ -2020,43 +1731,8 @@
                     "x-zui": {}
                   },
                   "method": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "const": "GET",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "POST",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "PUT",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "PATCH",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "DELETE",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "OPTIONS",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "string",
-                        "const": "HEAD",
-                        "x-zui": {}
-                      }
-                    ],
+                    "type": "string",
+                    "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
                     "x-zui": {}
                   },
                   "targetSchema": {
@@ -2074,11 +1750,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "campaigns",
-            "total_items",
-            "_links"
-          ],
+          "required": ["campaigns", "total_items", "_links"],
           "additionalProperties": false,
           "x-zui": {}
         }

@@ -17,8 +17,8 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "The origin of the event trigger",
             "const": "stripe",
+            "description": "The origin of the event trigger",
             "x-zui": {}
           },
           "userId": {
@@ -28,7 +28,6 @@
           },
           "data": {
             "type": "object",
-            "description": "The data to send with the event",
             "properties": {
               "type": {
                 "type": "string",
@@ -37,24 +36,19 @@
               },
               "object": {
                 "type": "object",
-                "description": "The object of the failed charge",
                 "properties": {},
                 "additionalProperties": true,
+                "description": "The object of the failed charge",
                 "x-zui": {}
               }
             },
-            "required": [
-              "object"
-            ],
+            "required": ["object"],
             "additionalProperties": false,
+            "description": "The data to send with the event",
             "x-zui": {}
           }
         },
-        "required": [
-          "origin",
-          "userId",
-          "data"
-        ],
+        "required": ["origin", "userId", "data"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -67,8 +61,8 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "The origin of the event trigger",
             "const": "stripe",
+            "description": "The origin of the event trigger",
             "x-zui": {}
           },
           "userId": {
@@ -78,7 +72,6 @@
           },
           "data": {
             "type": "object",
-            "description": "The data to send with the event",
             "properties": {
               "type": {
                 "type": "string",
@@ -87,24 +80,19 @@
               },
               "object": {
                 "type": "object",
-                "description": "The object of the deleted subscription",
                 "properties": {},
                 "additionalProperties": true,
+                "description": "The object of the deleted subscription",
                 "x-zui": {}
               }
             },
-            "required": [
-              "object"
-            ],
+            "required": ["object"],
             "additionalProperties": false,
+            "description": "The data to send with the event",
             "x-zui": {}
           }
         },
-        "required": [
-          "origin",
-          "userId",
-          "data"
-        ],
+        "required": ["origin", "userId", "data"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -117,8 +105,8 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "The origin of the event trigger",
             "const": "stripe",
+            "description": "The origin of the event trigger",
             "x-zui": {}
           },
           "userId": {
@@ -128,7 +116,6 @@
           },
           "data": {
             "type": "object",
-            "description": "The data to send with the event",
             "properties": {
               "type": {
                 "type": "string",
@@ -137,24 +124,19 @@
               },
               "object": {
                 "type": "object",
-                "description": "The object of the updated subscription",
                 "properties": {},
                 "additionalProperties": true,
+                "description": "The object of the updated subscription",
                 "x-zui": {}
               }
             },
-            "required": [
-              "object"
-            ],
+            "required": ["object"],
             "additionalProperties": false,
+            "description": "The data to send with the event",
             "x-zui": {}
           }
         },
-        "required": [
-          "origin",
-          "userId",
-          "data"
-        ],
+        "required": ["origin", "userId", "data"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -167,8 +149,8 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "The origin of the event trigger",
             "const": "stripe",
+            "description": "The origin of the event trigger",
             "x-zui": {}
           },
           "userId": {
@@ -178,7 +160,6 @@
           },
           "data": {
             "type": "object",
-            "description": "The data to send with the event",
             "properties": {
               "type": {
                 "type": "string",
@@ -187,24 +168,19 @@
               },
               "object": {
                 "type": "object",
-                "description": "The object of the created subscription",
                 "properties": {},
                 "additionalProperties": true,
+                "description": "The object of the created subscription",
                 "x-zui": {}
               }
             },
-            "required": [
-              "object"
-            ],
+            "required": ["object"],
             "additionalProperties": false,
+            "description": "The data to send with the event",
             "x-zui": {}
           }
         },
-        "required": [
-          "origin",
-          "userId",
-          "data"
-        ],
+        "required": ["origin", "userId", "data"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -217,8 +193,8 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "The origin of the event trigger",
             "const": "stripe",
+            "description": "The origin of the event trigger",
             "x-zui": {}
           },
           "userId": {
@@ -228,7 +204,6 @@
           },
           "data": {
             "type": "object",
-            "description": "The data to send with the event",
             "properties": {
               "type": {
                 "type": "string",
@@ -237,24 +212,19 @@
               },
               "object": {
                 "type": "object",
-                "description": "The object of the invoice whose payment failed",
                 "properties": {},
                 "additionalProperties": true,
+                "description": "The object of the invoice whose payment failed",
                 "x-zui": {}
               }
             },
-            "required": [
-              "object"
-            ],
+            "required": ["object"],
             "additionalProperties": false,
+            "description": "The data to send with the event",
             "x-zui": {}
           }
         },
-        "required": [
-          "origin",
-          "userId",
-          "data"
-        ],
+        "required": ["origin", "userId", "data"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -267,8 +237,8 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "The origin of the event trigger",
             "const": "stripe",
+            "description": "The origin of the event trigger",
             "x-zui": {}
           },
           "userId": {
@@ -278,7 +248,6 @@
           },
           "data": {
             "type": "object",
-            "description": "The data to send with the event",
             "properties": {
               "type": {
                 "type": "string",
@@ -287,24 +256,19 @@
               },
               "object": {
                 "type": "object",
-                "description": "The object of the payment intent that failed",
                 "properties": {},
                 "additionalProperties": true,
+                "description": "The object of the payment intent that failed",
                 "x-zui": {}
               }
             },
-            "required": [
-              "object"
-            ],
+            "required": ["object"],
             "additionalProperties": false,
+            "description": "The data to send with the event",
             "x-zui": {}
           }
         },
-        "required": [
-          "origin",
-          "userId",
-          "data"
-        ],
+        "required": ["origin", "userId", "data"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -317,8 +281,8 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "The origin of the event trigger",
             "const": "stripe",
+            "description": "The origin of the event trigger",
             "x-zui": {}
           },
           "userId": {
@@ -328,7 +292,6 @@
           },
           "data": {
             "type": "object",
-            "description": "The data to send with the event",
             "properties": {
               "type": {
                 "type": "string",
@@ -337,24 +300,19 @@
               },
               "object": {
                 "type": "object",
-                "description": "The object of the created subscription schedule",
                 "properties": {},
                 "additionalProperties": true,
+                "description": "The object of the created subscription schedule",
                 "x-zui": {}
               }
             },
-            "required": [
-              "object"
-            ],
+            "required": ["object"],
             "additionalProperties": false,
+            "description": "The data to send with the event",
             "x-zui": {}
           }
         },
-        "required": [
-          "origin",
-          "userId",
-          "data"
-        ],
+        "required": ["origin", "userId", "data"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -367,8 +325,8 @@
         "properties": {
           "origin": {
             "type": "string",
-            "description": "The origin of the event trigger",
             "const": "stripe",
+            "description": "The origin of the event trigger",
             "x-zui": {}
           },
           "userId": {
@@ -378,7 +336,6 @@
           },
           "data": {
             "type": "object",
-            "description": "The data to send with the event",
             "properties": {
               "type": {
                 "type": "string",
@@ -387,24 +344,19 @@
               },
               "object": {
                 "type": "object",
-                "description": "The object of the updated subscription schedule",
                 "properties": {},
                 "additionalProperties": true,
+                "description": "The object of the updated subscription schedule",
                 "x-zui": {}
               }
             },
-            "required": [
-              "object"
-            ],
+            "required": ["object"],
             "additionalProperties": false,
+            "description": "The data to send with the event",
             "x-zui": {}
           }
         },
-        "required": [
-          "origin",
-          "userId",
-          "data"
-        ],
+        "required": ["origin", "userId", "data"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -427,154 +379,53 @@
               }
             },
             "unit_amount": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {
-                    "title": "Unit Price"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "number",
               "x-zui": {
-                "title": "Unit Price",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Unit Price"
               },
-              "default": 0
+              "default": 0,
+              "description": "The unit price in cents"
             },
             "currency": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
-              "default": "usd"
+              "type": "string",
+              "x-zui": {},
+              "default": "usd",
+              "description": "The currency in which the price will be expressed"
             },
             "quantity": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
-              "default": 1
+              "type": "number",
+              "x-zui": {},
+              "default": 1,
+              "description": "The quantity of the product being purchased"
             },
             "adjustableQuantity": {
-              "anyOf": [
-                {
-                  "type": "boolean",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
-              "default": false
+              "type": "boolean",
+              "x-zui": {},
+              "default": false,
+              "description": "Whether or not the quantity can be adjusted"
             },
             "adjustableQuantityMaximum": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {
-                    "title": "Max Quantity"
-                  },
-                  "minimum": 2,
-                  "maximum": 999
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "number",
+              "minimum": 2,
+              "maximum": 999,
               "x-zui": {
-                "title": "Max Quantity",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Max Quantity"
               },
-              "default": 99
+              "default": 99,
+              "description": "The maximum quantity the customer can purchase, up to 999"
             },
             "adjustableQuantityMinimum": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {
-                    "title": "Min Quantity"
-                  },
-                  "minimum": 1,
-                  "maximum": 998
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "number",
+              "minimum": 1,
+              "maximum": 998,
               "x-zui": {
-                "title": "Min Quantity",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Min Quantity"
               },
-              "default": 1
+              "default": 1,
+              "description": "The minimum quantity the customer can purchase"
             }
           },
-          "required": [
-            "productName"
-          ],
+          "required": ["productName"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -626,21 +477,8 @@
                       "type": "object",
                       "properties": {
                         "unit_amount": {
-                          "anyOf": [
-                            {
-                              "type": "number",
-                              "x-zui": {}
-                            },
-                            {
-                              "type": "null",
-                              "x-zui": {}
-                            }
-                          ],
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodNullable"
-                            }
-                          }
+                          "type": ["number", "null"],
+                          "x-zui": {}
                         },
                         "currency": {
                           "type": "string",
@@ -655,31 +493,20 @@
                               "x-zui": {}
                             },
                             {
-                              "type": "null",
-                              "x-zui": {}
+                              "type": "null"
                             }
                           ],
-                          "x-zui": {
-                            "def": {
-                              "typeName": "ZodNullable"
-                            }
-                          }
+                          "x-zui": {}
                         }
                       },
-                      "required": [
-                        "unit_amount",
-                        "currency"
-                      ],
+                      "required": ["unit_amount", "currency"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "name",
-                  "prices"
-                ],
+                "required": ["name", "prices"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
@@ -703,187 +530,70 @@
               "x-zui": {}
             },
             "unit_amount": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
-              "default": 0
+              "type": "number",
+              "x-zui": {},
+              "default": 0,
+              "description": "The unit price in cents"
             },
             "currency": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
-              "default": "usd"
+              "type": "string",
+              "x-zui": {},
+              "default": "usd",
+              "description": "The currency in which the price is expressed"
             },
             "quantity": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
-              "default": 1
+              "type": "number",
+              "x-zui": {},
+              "default": 1,
+              "description": "The quantity of the subscription being purchased"
             },
             "adjustableQuantity": {
-              "anyOf": [
-                {
-                  "type": "boolean",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
-              "default": false
+              "type": "boolean",
+              "x-zui": {},
+              "default": false,
+              "description": "Whether or not the quantity can be adjusted"
             },
             "adjustableQuantityMaximum": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {
-                    "title": "Max Quantity"
-                  },
-                  "minimum": 2,
-                  "maximum": 999
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "number",
+              "minimum": 2,
+              "maximum": 999,
               "x-zui": {
-                "title": "Max Quantity",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Max Quantity"
               },
-              "default": 99
+              "default": 99,
+              "description": "The maximum quantity the customer can purchase, up to 999"
             },
             "adjustableQuantityMinimum": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {
-                    "title": "Min Quantity"
-                  },
-                  "minimum": 1,
-                  "maximum": 998
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "number",
+              "minimum": 1,
+              "maximum": 998,
               "x-zui": {
-                "title": "Min Quantity",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Min Quantity"
               },
-              "default": 1
+              "default": 1,
+              "description": "The minimum quantity the customer can purchase"
             },
             "chargingInterval": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "x-zui": {
-                    "title": "Payment Interval"
-                  }
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "string",
               "x-zui": {
-                "title": "Payment Interval",
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Payment Interval"
               },
-              "default": "month"
+              "default": "month",
+              "description": "The interval at which the customer will be charged"
             },
             "trial_period_days": {
               "type": "number",
-              "description": "The number of free trial days for the subscription",
+              "minimum": 1,
               "x-zui": {},
-              "minimum": 1
+              "description": "The number of free trial days for the subscription"
             },
             "description": {
               "type": "string",
-              "description": "A description of the subscription product",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "A description of the subscription product"
             }
           },
-          "required": [
-            "productName"
-          ],
+          "required": ["productName"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -934,10 +644,7 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "id",
-                  "url"
-                ],
+                "required": ["id", "url"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
@@ -964,9 +671,7 @@
               }
             }
           },
-          "required": [
-            "url"
-          ],
+          "required": ["url"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -999,9 +704,7 @@
               }
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1036,11 +739,10 @@
           "properties": {
             "email": {
               "type": "string",
-              "description": "The e-mail of the customer to search for",
-              "x-zui": {},
               "format": "email",
-              "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
-              "maxLength": 512
+              "maxLength": 512,
+              "x-zui": {},
+              "description": "The e-mail of the customer to search for"
             }
           },
           "additionalProperties": false,
@@ -1063,72 +765,20 @@
                       "x-zui": {}
                     },
                     "email": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "x-zui": {}
-                        },
-                        {
-                          "type": "null",
-                          "x-zui": {}
-                        }
-                      ],
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodNullable"
-                        }
-                      }
+                      "type": ["string", "null"],
+                      "x-zui": {}
                     },
                     "name": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "x-zui": {}
-                        },
-                        {
-                          "type": "null",
-                          "x-zui": {}
-                        }
-                      ],
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodNullable"
-                        }
-                      }
+                      "type": ["string", "null"],
+                      "x-zui": {}
                     },
                     "description": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "x-zui": {}
-                        },
-                        {
-                          "type": "null",
-                          "x-zui": {}
-                        }
-                      ],
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodNullable"
-                        }
-                      }
+                      "type": ["string", "null"],
+                      "x-zui": {}
                     },
                     "phone": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "x-zui": {}
-                        },
-                        {
-                          "type": "null",
-                          "x-zui": {}
-                        }
-                      ],
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodNullable"
-                        }
-                      }
+                      "type": ["string", "null"],
+                      "x-zui": {}
                     },
                     "address": {
                       "anyOf": [
@@ -1139,44 +789,21 @@
                           "x-zui": {}
                         },
                         {
-                          "type": "null",
-                          "x-zui": {}
+                          "type": "null"
                         }
                       ],
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodNullable"
-                        }
-                      }
+                      "x-zui": {}
                     },
                     "created": {
                       "type": "number",
                       "x-zui": {}
                     },
                     "delinquent": {
-                      "anyOf": [
-                        {
-                          "type": "boolean",
-                          "x-zui": {}
-                        },
-                        {
-                          "type": "null",
-                          "x-zui": {}
-                        }
-                      ],
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodNullable"
-                        }
-                      }
+                      "type": ["boolean", "null"],
+                      "x-zui": {}
                     }
                   },
-                  "required": [
-                    "id",
-                    "email",
-                    "description",
-                    "created"
-                  ],
+                  "required": ["id", "email", "description", "created"],
                   "additionalProperties": true,
                   "x-zui": {}
                 },
@@ -1198,19 +825,19 @@
           "properties": {
             "email": {
               "type": "string",
-              "description": "Search by query on customer emails",
+              "maxLength": 512,
               "x-zui": {},
-              "maxLength": 512
+              "description": "Search by query on customer emails"
             },
             "name": {
               "type": "string",
-              "description": "Search by query on customer name",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "Search by query on customer name"
             },
             "phone": {
               "type": "string",
-              "description": "Search by query on customer phone number",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "Search by query on customer phone number"
             }
           },
           "additionalProperties": false,
@@ -1231,72 +858,20 @@
                     "x-zui": {}
                   },
                   "email": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["string", "null"],
+                    "x-zui": {}
                   },
                   "name": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["string", "null"],
+                    "x-zui": {}
                   },
                   "description": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["string", "null"],
+                    "x-zui": {}
                   },
                   "phone": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["string", "null"],
+                    "x-zui": {}
                   },
                   "address": {
                     "anyOf": [
@@ -1307,44 +882,21 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null",
-                        "x-zui": {}
+                        "type": "null"
                       }
                     ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "x-zui": {}
                   },
                   "created": {
                     "type": "number",
                     "x-zui": {}
                   },
                   "delinquent": {
-                    "anyOf": [
-                      {
-                        "type": "boolean",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["boolean", "null"],
+                    "x-zui": {}
                   }
                 },
-                "required": [
-                  "id",
-                  "email",
-                  "description",
-                  "created"
-                ],
+                "required": ["id", "email", "description", "created"],
                 "additionalProperties": true,
                 "x-zui": {}
               },
@@ -1364,53 +916,50 @@
           "properties": {
             "email": {
               "type": "string",
+              "format": "email",
+              "maxLength": 512,
               "description": "The email of the customer",
               "x-zui": {
                 "placeholder": "johndoe@botpress.com"
-              },
-              "format": "email",
-              "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
-              "maxLength": 512
+              }
             },
             "name": {
               "type": "string",
-              "description": "The name of the customer",
               "x-zui": {
                 "placeholder": "John Doe"
-              }
+              },
+              "description": "The name of the customer"
             },
             "phone": {
               "type": "string",
-              "description": "The phone number of the customer",
               "x-zui": {
                 "placeholder": "+1234567890"
-              }
+              },
+              "description": "The phone number of the customer"
             },
             "description": {
               "type": "string",
-              "description": "A description for the customer",
               "x-zui": {
                 "placeholder": "Customer Description"
-              }
+              },
+              "description": "A description for the customer"
             },
             "paymentMethodId": {
               "type": "string",
-              "description": "The ID of the payment method to attach to the customer",
               "x-zui": {
                 "placeholder": "payment-method-id"
-              }
+              },
+              "description": "The ID of the payment method to attach to the customer"
             },
             "address": {
               "type": "string",
-              "description": "The address of the customer",
               "x-zui": {
                 "placeholder": "123 Bot Street, Bot City, Botland, 12345"
-              }
+              },
+              "description": "The address of the customer"
             }
           },
-          "required": [
-            "email"
-          ],
+          "required": ["email"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1427,72 +976,20 @@
                   "x-zui": {}
                 },
                 "email": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "null",
-                      "x-zui": {}
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "type": ["string", "null"],
+                  "x-zui": {}
                 },
                 "name": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "null",
-                      "x-zui": {}
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "type": ["string", "null"],
+                  "x-zui": {}
                 },
                 "description": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "null",
-                      "x-zui": {}
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "type": ["string", "null"],
+                  "x-zui": {}
                 },
                 "phone": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "null",
-                      "x-zui": {}
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "type": ["string", "null"],
+                  "x-zui": {}
                 },
                 "address": {
                   "anyOf": [
@@ -1503,44 +1000,21 @@
                       "x-zui": {}
                     },
                     {
-                      "type": "null",
-                      "x-zui": {}
+                      "type": "null"
                     }
                   ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "x-zui": {}
                 },
                 "created": {
                   "type": "number",
                   "x-zui": {}
                 },
                 "delinquent": {
-                  "anyOf": [
-                    {
-                      "type": "boolean",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "null",
-                      "x-zui": {}
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "type": ["boolean", "null"],
+                  "x-zui": {}
                 }
               },
-              "required": [
-                "id",
-                "email",
-                "description",
-                "created"
-              ],
+              "required": ["id", "email", "description", "created"],
               "additionalProperties": true,
               "x-zui": {}
             }
@@ -1558,53 +1032,50 @@
           "properties": {
             "email": {
               "type": "string",
+              "format": "email",
+              "maxLength": 512,
               "description": "The email of the customer",
               "x-zui": {
                 "placeholder": "johndoe@botpress.com"
-              },
-              "format": "email",
-              "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
-              "maxLength": 512
+              }
             },
             "name": {
               "type": "string",
-              "description": "The name of the customer",
               "x-zui": {
                 "placeholder": "John Doe"
-              }
+              },
+              "description": "The name of the customer"
             },
             "phone": {
               "type": "string",
-              "description": "The phone number of the customer",
               "x-zui": {
                 "placeholder": "+1234567890"
-              }
+              },
+              "description": "The phone number of the customer"
             },
             "description": {
               "type": "string",
-              "description": "A description for the customer",
               "x-zui": {
                 "placeholder": "Customer Description"
-              }
+              },
+              "description": "A description for the customer"
             },
             "paymentMethodId": {
               "type": "string",
-              "description": "The ID of the payment method to attach to the customer",
               "x-zui": {
                 "placeholder": "payment-method-id"
-              }
+              },
+              "description": "The ID of the payment method to attach to the customer"
             },
             "address": {
               "type": "string",
-              "description": "The address of the customer",
               "x-zui": {
                 "placeholder": "123 Bot Street, Bot City, Botland, 12345"
-              }
+              },
+              "description": "The address of the customer"
             }
           },
-          "required": [
-            "email"
-          ],
+          "required": ["email"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1614,292 +1085,108 @@
           "type": "object",
           "properties": {
             "customer": {
-              "anyOf": [
-                {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "x-zui": {}
-                    },
-                    "email": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "x-zui": {}
-                        },
-                        {
-                          "type": "null",
-                          "x-zui": {}
-                        }
-                      ],
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodNullable"
-                        }
-                      }
-                    },
-                    "name": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "x-zui": {}
-                        },
-                        {
-                          "type": "null",
-                          "x-zui": {}
-                        }
-                      ],
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodNullable"
-                        }
-                      }
-                    },
-                    "description": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "x-zui": {}
-                        },
-                        {
-                          "type": "null",
-                          "x-zui": {}
-                        }
-                      ],
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodNullable"
-                        }
-                      }
-                    },
-                    "phone": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "x-zui": {}
-                        },
-                        {
-                          "type": "null",
-                          "x-zui": {}
-                        }
-                      ],
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodNullable"
-                        }
-                      }
-                    },
-                    "address": {
-                      "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {},
-                          "additionalProperties": true,
-                          "x-zui": {}
-                        },
-                        {
-                          "type": "null",
-                          "x-zui": {}
-                        }
-                      ],
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodNullable"
-                        }
-                      }
-                    },
-                    "created": {
-                      "type": "number",
-                      "x-zui": {}
-                    },
-                    "delinquent": {
-                      "anyOf": [
-                        {
-                          "type": "boolean",
-                          "x-zui": {}
-                        },
-                        {
-                          "type": "null",
-                          "x-zui": {}
-                        }
-                      ],
-                      "x-zui": {
-                        "def": {
-                          "typeName": "ZodNullable"
-                        }
-                      }
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "email",
-                    "description",
-                    "created"
-                  ],
-                  "additionalProperties": true,
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
                   "x-zui": {}
                 },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
+                "email": {
+                  "type": ["string", "null"],
+                  "x-zui": {}
+                },
+                "name": {
+                  "type": ["string", "null"],
+                  "x-zui": {}
+                },
+                "description": {
+                  "type": ["string", "null"],
+                  "x-zui": {}
+                },
+                "phone": {
+                  "type": ["string", "null"],
+                  "x-zui": {}
+                },
+                "address": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {},
+                      "additionalProperties": true,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "null"
                     }
-                  }
+                  ],
+                  "x-zui": {}
+                },
+                "created": {
+                  "type": "number",
+                  "x-zui": {}
+                },
+                "delinquent": {
+                  "type": ["boolean", "null"],
+                  "x-zui": {}
                 }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              }
+              },
+              "required": ["id", "email", "description", "created"],
+              "additionalProperties": true,
+              "x-zui": {}
             },
             "customers": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      "email": {
-                        "anyOf": [
-                          {
-                            "type": "string",
-                            "x-zui": {}
-                          },
-                          {
-                            "type": "null",
-                            "x-zui": {}
-                          }
-                        ],
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodNullable"
-                          }
-                        }
-                      },
-                      "name": {
-                        "anyOf": [
-                          {
-                            "type": "string",
-                            "x-zui": {}
-                          },
-                          {
-                            "type": "null",
-                            "x-zui": {}
-                          }
-                        ],
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodNullable"
-                          }
-                        }
-                      },
-                      "description": {
-                        "anyOf": [
-                          {
-                            "type": "string",
-                            "x-zui": {}
-                          },
-                          {
-                            "type": "null",
-                            "x-zui": {}
-                          }
-                        ],
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodNullable"
-                          }
-                        }
-                      },
-                      "phone": {
-                        "anyOf": [
-                          {
-                            "type": "string",
-                            "x-zui": {}
-                          },
-                          {
-                            "type": "null",
-                            "x-zui": {}
-                          }
-                        ],
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodNullable"
-                          }
-                        }
-                      },
-                      "address": {
-                        "anyOf": [
-                          {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true,
-                            "x-zui": {}
-                          },
-                          {
-                            "type": "null",
-                            "x-zui": {}
-                          }
-                        ],
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodNullable"
-                          }
-                        }
-                      },
-                      "created": {
-                        "type": "number",
-                        "x-zui": {}
-                      },
-                      "delinquent": {
-                        "anyOf": [
-                          {
-                            "type": "boolean",
-                            "x-zui": {}
-                          },
-                          {
-                            "type": "null",
-                            "x-zui": {}
-                          }
-                        ],
-                        "x-zui": {
-                          "def": {
-                            "typeName": "ZodNullable"
-                          }
-                        }
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "email",
-                      "description",
-                      "created"
-                    ],
-                    "additionalProperties": true,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
                     "x-zui": {}
                   },
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
+                  "email": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "name": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "description": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "phone": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "address": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true,
+                        "x-zui": {}
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "x-zui": {}
+                  },
+                  "created": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "delinquent": {
+                    "type": ["boolean", "null"],
+                    "x-zui": {}
                   }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              }
+                },
+                "required": ["id", "email", "description", "created"],
+                "additionalProperties": true,
+                "x-zui": {}
+              },
+              "x-zui": {}
             }
           },
           "additionalProperties": false,
@@ -1921,9 +1208,7 @@
               }
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1937,38 +1222,12 @@
               "x-zui": {}
             },
             "email": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "x-zui": {}
-                },
-                {
-                  "type": "null",
-                  "x-zui": {}
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodNullable"
-                }
-              }
+              "type": ["string", "null"],
+              "x-zui": {}
             },
             "description": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "x-zui": {}
-                },
-                {
-                  "type": "null",
-                  "x-zui": {}
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodNullable"
-                }
-              }
+              "type": ["string", "null"],
+              "x-zui": {}
             },
             "created": {
               "type": "number",
@@ -1993,9 +1252,7 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "stripeWebhookId"
-        ],
+        "required": ["stripeWebhookId"],
         "additionalProperties": false,
         "x-zui": {}
       }

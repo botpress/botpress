@@ -34,25 +34,19 @@
           },
           "createdAt": {
             "type": "string",
+            "format": "date-time",
             "description": "The ISO date the issue was created",
             "x-zui": {
-              "title": "Created At",
-              "precision": null,
-              "offset": false
-            },
-            "format": "date-time",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+              "title": "Created At"
+            }
           },
           "updatedAt": {
             "type": "string",
+            "format": "date-time",
             "description": "The ISO date the issue was last updated",
             "x-zui": {
-              "title": "Updated At",
-              "precision": null,
-              "offset": false
-            },
-            "format": "date-time",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+              "title": "Updated At"
+            }
           },
           "priority": {
             "type": "number",
@@ -63,24 +57,24 @@
           },
           "description": {
             "type": "string",
-            "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
             "x-zui": {
               "title": "Description"
-            }
+            },
+            "description": "A markdown description of the issue. Images and videos are inlined using markdown links."
           },
           "teamName": {
             "type": "string",
-            "description": "The name of the Linear team the issue currently belongs to, such as \"Customer Support\"",
             "x-zui": {
               "title": "Team Name"
-            }
+            },
+            "description": "The name of the Linear team the issue currently belongs to, such as \"Customer Support\""
           },
           "teamKey": {
             "type": "string",
-            "description": "The key of the Linear team the issue currently belongs to, such as \"XXX\" in XXX-123",
             "x-zui": {
               "title": "Team Key"
-            }
+            },
+            "description": "The key of the Linear team the issue currently belongs to, such as \"XXX\" in XXX-123"
           },
           "status": {
             "type": "string",
@@ -91,7 +85,6 @@
           },
           "labels": {
             "type": "array",
-            "description": "Label names",
             "items": {
               "type": "string",
               "description": "The name of the label",
@@ -101,29 +94,29 @@
             },
             "x-zui": {
               "title": "Applied Labels"
-            }
+            },
+            "description": "Label names"
           },
           "linearIds": {
             "type": "object",
-            "description": "The Linear IDs of the referenced entities",
             "properties": {
               "creatorId": {
                 "type": "string",
-                "description": "The internal Linear User ID of the user who created the issue",
                 "x-zui": {
                   "title": "Creator's User ID"
-                }
+                },
+                "description": "The internal Linear User ID of the user who created the issue"
               },
               "labelIds": {
                 "type": "array",
-                "description": "The internal Linear Label IDs associated with the issue",
                 "items": {
                   "type": "string",
                   "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Label IDs"
-                }
+                },
+                "description": "The internal Linear Label IDs associated with the issue"
               },
               "issueId": {
                 "type": "string",
@@ -134,51 +127,50 @@
               },
               "teamId": {
                 "type": "string",
-                "description": "The internal Linear Team ID",
                 "x-zui": {
                   "title": "Team ID"
-                }
+                },
+                "description": "The internal Linear Team ID"
               },
               "projectId": {
                 "type": "string",
-                "description": "The internal Linear Project ID",
                 "x-zui": {
                   "title": "Project ID"
-                }
+                },
+                "description": "The internal Linear Project ID"
               },
               "assigneeId": {
                 "type": "string",
-                "description": "The internal Linear Assignee ID",
                 "x-zui": {
                   "title": "Assignee User ID"
-                }
+                },
+                "description": "The internal Linear Assignee ID"
               },
               "subscriberIds": {
                 "type": "array",
-                "description": "The internal Linear Subscriber User IDs",
                 "items": {
                   "type": "string",
                   "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Subscriber IDs"
-                }
+                },
+                "description": "The internal Linear Subscriber User IDs"
               }
             },
-            "required": [
-              "issueId"
-            ],
+            "required": ["issueId"],
             "additionalProperties": false,
             "x-zui": {
               "title": "Linear IDs"
-            }
+            },
+            "description": "The Linear IDs of the referenced entities"
           },
           "userId": {
             "type": "string",
-            "description": "The Botpress User ID of the individual who initiated the issue. If not provided, it indicates the issue was generated by the bot.",
             "x-zui": {
               "title": "Botpress User ID"
-            }
+            },
+            "description": "The Botpress User ID of the individual who initiated the issue. If not provided, it indicates the issue was generated by the bot."
           },
           "conversationId": {
             "type": "string",
@@ -189,11 +181,9 @@
           },
           "targets": {
             "type": "object",
-            "description": "The issue that was updated",
             "properties": {
               "issue": {
                 "type": "object",
-                "description": "The target issue on Linear",
                 "additionalProperties": {
                   "type": "string",
                   "description": "The issue",
@@ -203,25 +193,18 @@
                 },
                 "x-zui": {
                   "title": "Target Issue"
-                }
+                },
+                "description": "The target issue on Linear"
               }
             },
             "additionalProperties": false,
+            "description": "The issue that was created",
             "x-zui": {
-              "title": "Updated Issue"
+              "title": "Created Issue"
             }
           }
         },
-        "required": [
-          "title",
-          "number",
-          "createdAt",
-          "updatedAt",
-          "priority",
-          "status",
-          "conversationId",
-          "targets"
-        ],
+        "required": ["title", "number", "createdAt", "updatedAt", "priority", "status", "conversationId", "targets"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -248,25 +231,19 @@
           },
           "createdAt": {
             "type": "string",
+            "format": "date-time",
             "description": "The ISO date the issue was created",
             "x-zui": {
-              "title": "Created At",
-              "precision": null,
-              "offset": false
-            },
-            "format": "date-time",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+              "title": "Created At"
+            }
           },
           "updatedAt": {
             "type": "string",
+            "format": "date-time",
             "description": "The ISO date the issue was last updated",
             "x-zui": {
-              "title": "Updated At",
-              "precision": null,
-              "offset": false
-            },
-            "format": "date-time",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+              "title": "Updated At"
+            }
           },
           "priority": {
             "type": "number",
@@ -277,24 +254,24 @@
           },
           "description": {
             "type": "string",
-            "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
             "x-zui": {
               "title": "Description"
-            }
+            },
+            "description": "A markdown description of the issue. Images and videos are inlined using markdown links."
           },
           "teamName": {
             "type": "string",
-            "description": "The name of the Linear team the issue currently belongs to, such as \"Customer Support\"",
             "x-zui": {
               "title": "Team Name"
-            }
+            },
+            "description": "The name of the Linear team the issue currently belongs to, such as \"Customer Support\""
           },
           "teamKey": {
             "type": "string",
-            "description": "The key of the Linear team the issue currently belongs to, such as \"XXX\" in XXX-123",
             "x-zui": {
               "title": "Team Key"
-            }
+            },
+            "description": "The key of the Linear team the issue currently belongs to, such as \"XXX\" in XXX-123"
           },
           "status": {
             "type": "string",
@@ -305,7 +282,6 @@
           },
           "labels": {
             "type": "array",
-            "description": "Label names",
             "items": {
               "type": "string",
               "description": "The name of the label",
@@ -315,29 +291,29 @@
             },
             "x-zui": {
               "title": "Applied Labels"
-            }
+            },
+            "description": "Label names"
           },
           "linearIds": {
             "type": "object",
-            "description": "The Linear IDs of the referenced entities",
             "properties": {
               "creatorId": {
                 "type": "string",
-                "description": "The internal Linear User ID of the user who created the issue",
                 "x-zui": {
                   "title": "Creator's User ID"
-                }
+                },
+                "description": "The internal Linear User ID of the user who created the issue"
               },
               "labelIds": {
                 "type": "array",
-                "description": "The internal Linear Label IDs associated with the issue",
                 "items": {
                   "type": "string",
                   "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Label IDs"
-                }
+                },
+                "description": "The internal Linear Label IDs associated with the issue"
               },
               "issueId": {
                 "type": "string",
@@ -348,51 +324,50 @@
               },
               "teamId": {
                 "type": "string",
-                "description": "The internal Linear Team ID",
                 "x-zui": {
                   "title": "Team ID"
-                }
+                },
+                "description": "The internal Linear Team ID"
               },
               "projectId": {
                 "type": "string",
-                "description": "The internal Linear Project ID",
                 "x-zui": {
                   "title": "Project ID"
-                }
+                },
+                "description": "The internal Linear Project ID"
               },
               "assigneeId": {
                 "type": "string",
-                "description": "The internal Linear Assignee ID",
                 "x-zui": {
                   "title": "Assignee User ID"
-                }
+                },
+                "description": "The internal Linear Assignee ID"
               },
               "subscriberIds": {
                 "type": "array",
-                "description": "The internal Linear Subscriber User IDs",
                 "items": {
                   "type": "string",
                   "x-zui": {}
                 },
                 "x-zui": {
                   "title": "Subscriber IDs"
-                }
+                },
+                "description": "The internal Linear Subscriber User IDs"
               }
             },
-            "required": [
-              "issueId"
-            ],
+            "required": ["issueId"],
             "additionalProperties": false,
             "x-zui": {
               "title": "Linear IDs"
-            }
+            },
+            "description": "The Linear IDs of the referenced entities"
           },
           "userId": {
             "type": "string",
-            "description": "The Botpress User ID of the individual who initiated the issue. If not provided, it indicates the issue was generated by the bot.",
             "x-zui": {
               "title": "Botpress User ID"
-            }
+            },
+            "description": "The Botpress User ID of the individual who initiated the issue. If not provided, it indicates the issue was generated by the bot."
           },
           "conversationId": {
             "type": "string",
@@ -403,11 +378,9 @@
           },
           "targets": {
             "type": "object",
-            "description": "The issue that was updated",
             "properties": {
               "issue": {
                 "type": "object",
-                "description": "The target issue on Linear",
                 "additionalProperties": {
                   "type": "string",
                   "description": "The issue",
@@ -417,25 +390,18 @@
                 },
                 "x-zui": {
                   "title": "Target Issue"
-                }
+                },
+                "description": "The target issue on Linear"
               }
             },
             "additionalProperties": false,
+            "description": "The issue that was updated",
             "x-zui": {
               "title": "Updated Issue"
             }
           }
         },
-        "required": [
-          "title",
-          "number",
-          "createdAt",
-          "updatedAt",
-          "priority",
-          "status",
-          "conversationId",
-          "targets"
-        ],
+        "required": ["title", "number", "createdAt", "updatedAt", "priority", "status", "conversationId", "targets"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -449,9 +415,7 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -468,27 +432,22 @@
           "properties": {
             "query": {
               "type": "string",
+              "minLength": 2,
               "description": "Issue title, description, or number",
               "x-zui": {
                 "title": "Search query"
-              },
-              "minLength": 2
+              }
             },
             "channel": {
               "type": "string",
+              "enum": ["issue"],
               "description": "The channel to search in",
-              "enum": [
-                "issue"
-              ],
               "x-zui": {
                 "title": "Channel"
               }
             }
           },
-          "required": [
-            "query",
-            "channel"
-          ],
+          "required": ["query", "channel"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -499,7 +458,6 @@
           "properties": {
             "targets": {
               "type": "array",
-              "description": "The list of issues found",
               "items": {
                 "type": "object",
                 "properties": {
@@ -512,42 +470,35 @@
                   },
                   "tags": {
                     "type": "object",
-                    "description": "The tags applied to the issue",
                     "additionalProperties": {
                       "type": "string",
                       "x-zui": {}
                     },
+                    "description": "The tags applied to the issue",
                     "x-zui": {
                       "title": "Tags"
                     }
                   },
                   "channel": {
                     "type": "string",
+                    "enum": ["issue"],
                     "description": "The channel of the search result",
-                    "enum": [
-                      "issue"
-                    ],
                     "x-zui": {
                       "title": "Channel"
                     }
                   }
                 },
-                "required": [
-                  "displayName",
-                  "tags",
-                  "channel"
-                ],
+                "required": ["displayName", "tags", "channel"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
+              "description": "The list of issues found",
               "x-zui": {
                 "title": "Results"
               }
             }
           },
-          "required": [
-            "targets"
-          ],
+          "required": ["targets"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -561,47 +512,33 @@
           "type": "object",
           "properties": {
             "count": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "number",
               "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Fetch Amount"
               },
-              "default": 10
+              "default": 10,
+              "description": "The number of issues to return"
             },
             "startCursor": {
               "type": "string",
-              "description": "The cursor to start from",
               "x-zui": {
                 "title": "Start Cursor"
-              }
+              },
+              "description": "The cursor to start from"
             },
             "teamId": {
               "type": "string",
-              "description": "The team ID to filter by",
               "x-zui": {
                 "title": "Team ID"
-              }
+              },
+              "description": "The team ID to filter by"
             },
             "startDate": {
               "type": "string",
-              "description": "Ignore issues created before this date",
               "x-zui": {
                 "title": "Start Date"
-              }
+              },
+              "description": "Ignore issues created before this date"
             }
           },
           "additionalProperties": false,
@@ -614,10 +551,8 @@
           "properties": {
             "issues": {
               "type": "array",
-              "description": "The list of matching issues",
               "items": {
                 "type": "object",
-                "description": "The issue found",
                 "properties": {
                   "title": {
                     "type": "string",
@@ -635,25 +570,19 @@
                   },
                   "createdAt": {
                     "type": "string",
+                    "format": "date-time",
                     "description": "The ISO date the issue was created",
                     "x-zui": {
-                      "title": "Created At",
-                      "precision": null,
-                      "offset": false
-                    },
-                    "format": "date-time",
-                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                      "title": "Created At"
+                    }
                   },
                   "updatedAt": {
                     "type": "string",
+                    "format": "date-time",
                     "description": "The ISO date the issue was last updated",
                     "x-zui": {
-                      "title": "Updated At",
-                      "precision": null,
-                      "offset": false
-                    },
-                    "format": "date-time",
-                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                      "title": "Updated At"
+                    }
                   },
                   "priority": {
                     "type": "number",
@@ -664,10 +593,10 @@
                   },
                   "description": {
                     "type": "string",
-                    "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
                     "x-zui": {
                       "title": "Description"
-                    }
+                    },
+                    "description": "A markdown description of the issue. Images and videos are inlined using markdown links."
                   },
                   "id": {
                     "type": "string",
@@ -685,10 +614,10 @@
                   },
                   "estimate": {
                     "type": "number",
-                    "description": "The estimate of the issue in points",
                     "x-zui": {
                       "title": "Points Estimate"
-                    }
+                    },
+                    "description": "The estimate of the issue in points"
                   },
                   "url": {
                     "type": "string",
@@ -699,25 +628,24 @@
                   },
                   "linearIds": {
                     "type": "object",
-                    "description": "The Linear IDs of the referenced entities",
                     "properties": {
                       "creatorId": {
                         "type": "string",
-                        "description": "The internal Linear User ID of the user who created the issue",
                         "x-zui": {
                           "title": "Creator's User ID"
-                        }
+                        },
+                        "description": "The internal Linear User ID of the user who created the issue"
                       },
                       "labelIds": {
                         "type": "array",
-                        "description": "The internal Linear Label IDs associated with the issue",
                         "items": {
                           "type": "string",
                           "x-zui": {}
                         },
                         "x-zui": {
                           "title": "Label IDs"
-                        }
+                        },
+                        "description": "The internal Linear Label IDs associated with the issue"
                       },
                       "issueId": {
                         "type": "string",
@@ -728,76 +656,65 @@
                       },
                       "teamId": {
                         "type": "string",
-                        "description": "The internal Linear Team ID",
                         "x-zui": {
                           "title": "Team ID"
-                        }
+                        },
+                        "description": "The internal Linear Team ID"
                       },
                       "projectId": {
                         "type": "string",
-                        "description": "The internal Linear Project ID",
                         "x-zui": {
                           "title": "Project ID"
-                        }
+                        },
+                        "description": "The internal Linear Project ID"
                       },
                       "assigneeId": {
                         "type": "string",
-                        "description": "The internal Linear Assignee ID",
                         "x-zui": {
                           "title": "Assignee User ID"
-                        }
+                        },
+                        "description": "The internal Linear Assignee ID"
                       },
                       "subscriberIds": {
                         "type": "array",
-                        "description": "The internal Linear Subscriber User IDs",
                         "items": {
                           "type": "string",
                           "x-zui": {}
                         },
                         "x-zui": {
                           "title": "Subscriber IDs"
-                        }
+                        },
+                        "description": "The internal Linear Subscriber User IDs"
                       }
                     },
-                    "required": [
-                      "issueId"
-                    ],
+                    "required": ["issueId"],
                     "additionalProperties": false,
                     "x-zui": {
                       "title": "Linear IDs"
-                    }
+                    },
+                    "description": "The Linear IDs of the referenced entities"
                   }
                 },
-                "required": [
-                  "title",
-                  "number",
-                  "createdAt",
-                  "updatedAt",
-                  "priority",
-                  "id",
-                  "identifier",
-                  "url"
-                ],
+                "required": ["title", "number", "createdAt", "updatedAt", "priority", "id", "identifier", "url"],
                 "additionalProperties": false,
                 "x-zui": {
                   "title": "Issue"
                 }
               },
+              "description": "The list of matching issues",
               "x-zui": {
                 "title": "Issues"
               }
             },
             "nextCursor": {
               "type": "string",
-              "description": "The cursor to fetch the next page",
               "x-zui": {
                 "title": "Next Cursor"
-              }
+              },
+              "description": "The cursor to fetch the next page"
             }
           },
-          "required": [
-            "issues"
-          ],
+          "required": ["issues"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -820,7 +737,6 @@
           "properties": {
             "teams": {
               "type": "array",
-              "description": "The list of teams",
               "items": {
                 "type": "object",
                 "properties": {
@@ -840,34 +756,30 @@
                   },
                   "description": {
                     "type": "string",
-                    "description": "The team's description",
                     "x-zui": {
                       "title": "Description"
-                    }
+                    },
+                    "description": "The team's description"
                   },
                   "icon": {
                     "type": "string",
-                    "description": "The icon of the team",
                     "x-zui": {
                       "title": "Icon"
-                    }
+                    },
+                    "description": "The icon of the team"
                   }
                 },
-                "required": [
-                  "id",
-                  "name"
-                ],
+                "required": ["id", "name"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
+              "description": "The list of teams",
               "x-zui": {
                 "title": "Teams"
               }
             }
           },
-          "required": [
-            "teams"
-          ],
+          "required": ["teams"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -881,33 +793,19 @@
           "type": "object",
           "properties": {
             "count": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
+              "type": "number",
               "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
+                "title": "Fetch Amount"
               },
-              "default": 10
+              "default": 10,
+              "description": "The number of users to return"
             },
             "startCursor": {
               "type": "string",
-              "description": "The cursor to start from",
               "x-zui": {
                 "title": "Start Cursor"
-              }
+              },
+              "description": "The cursor to start from"
             }
           },
           "additionalProperties": false,
@@ -920,7 +818,6 @@
           "properties": {
             "users": {
               "type": "array",
-              "description": "The list of matching users",
               "items": {
                 "type": "object",
                 "properties": {
@@ -954,62 +851,52 @@
                   },
                   "avatarUrl": {
                     "type": "string",
-                    "description": "The URL of the user avatar",
                     "x-zui": {
                       "title": "Avatar URL"
-                    }
+                    },
+                    "description": "The URL of the user avatar"
                   },
                   "description": {
                     "type": "string",
-                    "description": "The user's description, such as their title or bio",
                     "x-zui": {
                       "title": "Description"
-                    }
+                    },
+                    "description": "The user's description, such as their title or bio"
                   },
                   "lastSeen": {
                     "type": "string",
-                    "description": "The last time the user was seen",
                     "x-zui": {
                       "title": "Last Seen"
-                    }
+                    },
+                    "description": "The last time the user was seen"
                   },
                   "updatedAt": {
                     "type": "string",
+                    "format": "date-time",
                     "description": "The last time the user was updated",
                     "x-zui": {
-                      "title": "Updated At",
-                      "precision": null,
-                      "offset": false
-                    },
-                    "format": "date-time",
-                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                      "title": "Updated At"
+                    }
                   }
                 },
-                "required": [
-                  "id",
-                  "email",
-                  "name",
-                  "displayName",
-                  "updatedAt"
-                ],
+                "required": ["id", "email", "name", "displayName", "updatedAt"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
+              "description": "The list of matching users",
               "x-zui": {
                 "title": "Users"
               }
             },
             "nextCursor": {
               "type": "string",
-              "description": "The cursor to fetch the next page",
               "x-zui": {
                 "title": "Next Cursor"
-              }
+              },
+              "description": "The cursor to fetch the next page"
             }
           },
-          "required": [
-            "users"
-          ],
+          "required": ["users"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1037,10 +924,7 @@
               }
             }
           },
-          "required": [
-            "issueId",
-            "relatedIssueId"
-          ],
+          "required": ["issueId", "relatedIssueId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1069,9 +953,7 @@
               }
             }
           },
-          "required": [
-            "issueId"
-          ],
+          "required": ["issueId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1079,7 +961,6 @@
       "output": {
         "schema": {
           "type": "object",
-          "description": "The created issue",
           "properties": {
             "title": {
               "type": "string",
@@ -1097,25 +978,19 @@
             },
             "createdAt": {
               "type": "string",
+              "format": "date-time",
               "description": "The ISO date the issue was created",
               "x-zui": {
-                "title": "Created At",
-                "precision": null,
-                "offset": false
-              },
-              "format": "date-time",
-              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                "title": "Created At"
+              }
             },
             "updatedAt": {
               "type": "string",
+              "format": "date-time",
               "description": "The ISO date the issue was last updated",
               "x-zui": {
-                "title": "Updated At",
-                "precision": null,
-                "offset": false
-              },
-              "format": "date-time",
-              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                "title": "Updated At"
+              }
             },
             "priority": {
               "type": "number",
@@ -1126,10 +1001,10 @@
             },
             "description": {
               "type": "string",
-              "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
               "x-zui": {
                 "title": "Description"
-              }
+              },
+              "description": "A markdown description of the issue. Images and videos are inlined using markdown links."
             },
             "id": {
               "type": "string",
@@ -1147,10 +1022,10 @@
             },
             "estimate": {
               "type": "number",
-              "description": "The estimate of the issue in points",
               "x-zui": {
                 "title": "Points Estimate"
-              }
+              },
+              "description": "The estimate of the issue in points"
             },
             "url": {
               "type": "string",
@@ -1160,17 +1035,9 @@
               }
             }
           },
-          "required": [
-            "title",
-            "number",
-            "createdAt",
-            "updatedAt",
-            "priority",
-            "id",
-            "identifier",
-            "url"
-          ],
+          "required": ["title", "number", "createdAt", "updatedAt", "priority", "id", "identifier", "url"],
           "additionalProperties": false,
+          "description": "The issue found",
           "x-zui": {
             "title": "Issue"
           }
@@ -1192,9 +1059,7 @@
               }
             }
           },
-          "required": [
-            "linearUserId"
-          ],
+          "required": ["linearUserId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1202,7 +1067,6 @@
       "output": {
         "schema": {
           "type": "object",
-          "description": "The user profile",
           "properties": {
             "linearId": {
               "type": "string",
@@ -1220,40 +1084,34 @@
             },
             "archivedAt": {
               "type": "string",
-              "description": "Date when the user was archived",
-              "x-zui": {
-                "title": "Archival Date",
-                "precision": null,
-                "offset": false
-              },
               "format": "date-time",
-              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+              "x-zui": {
+                "title": "Archival Date"
+              },
+              "description": "Date when the user was archived"
             },
             "avatarUrl": {
               "type": "string",
-              "description": "The URL for the profile picture",
+              "format": "uri",
               "x-zui": {
                 "title": "Avatar URL"
               },
-              "format": "uri"
+              "description": "The URL for the profile picture"
             },
             "createdAt": {
               "type": "string",
+              "format": "date-time",
               "description": "Date when the user was created",
               "x-zui": {
-                "title": "Creation Date",
-                "precision": null,
-                "offset": false
-              },
-              "format": "date-time",
-              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                "title": "Creation Date"
+              }
             },
             "description": {
               "type": "string",
-              "description": "A short description of the user, either its title or bio",
               "x-zui": {
                 "title": "Description"
-              }
+              },
+              "description": "A short description of the user, either its title or bio"
             },
             "displayName": {
               "type": "string",
@@ -1292,10 +1150,10 @@
             },
             "timezone": {
               "type": "string",
-              "description": "The local timezone of the user",
               "x-zui": {
                 "title": "Timezone"
-              }
+              },
+              "description": "The local timezone of the user"
             },
             "name": {
               "type": "string",
@@ -1305,18 +1163,9 @@
               }
             }
           },
-          "required": [
-            "linearId",
-            "admin",
-            "createdAt",
-            "displayName",
-            "guest",
-            "email",
-            "isMe",
-            "url",
-            "name"
-          ],
+          "required": ["linearId", "admin", "createdAt", "displayName", "guest", "email", "isMe", "url", "name"],
           "additionalProperties": false,
+          "description": "The user profile",
           "x-zui": {
             "title": "User"
           }
@@ -1339,40 +1188,38 @@
             },
             "priority": {
               "type": "number",
-              "description": "0 = none, 1 = urgent, 2 = high, 3 = medium, 4 = low",
               "x-zui": {
                 "title": "Priority"
-              }
+              },
+              "description": "0 = none, 1 = urgent, 2 = high, 3 = medium, 4 = low"
             },
             "teamName": {
               "type": "string",
-              "description": "Type a name to change the assigned team of the issue",
               "x-zui": {
                 "title": "Move to team..."
-              }
+              },
+              "description": "Type a name to change the assigned team of the issue"
             },
             "labels": {
               "type": "array",
-              "description": "One or multiple labels to assign to this issue",
               "items": {
                 "type": "string",
                 "x-zui": {}
               },
               "x-zui": {
                 "title": "Set labels"
-              }
+              },
+              "description": "One or multiple labels to assign to this issue"
             },
             "project": {
               "type": "string",
-              "description": "A project to associate to this issue",
               "x-zui": {
                 "title": "Associate to project..."
-              }
+              },
+              "description": "A project to associate to this issue"
             }
           },
-          "required": [
-            "issueId"
-          ],
+          "required": ["issueId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1383,7 +1230,6 @@
           "properties": {
             "issue": {
               "type": "object",
-              "description": "The created issue",
               "properties": {
                 "title": {
                   "type": "string",
@@ -1401,25 +1247,19 @@
                 },
                 "createdAt": {
                   "type": "string",
+                  "format": "date-time",
                   "description": "The ISO date the issue was created",
                   "x-zui": {
-                    "title": "Created At",
-                    "precision": null,
-                    "offset": false
-                  },
-                  "format": "date-time",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                    "title": "Created At"
+                  }
                 },
                 "updatedAt": {
                   "type": "string",
+                  "format": "date-time",
                   "description": "The ISO date the issue was last updated",
                   "x-zui": {
-                    "title": "Updated At",
-                    "precision": null,
-                    "offset": false
-                  },
-                  "format": "date-time",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                    "title": "Updated At"
+                  }
                 },
                 "priority": {
                   "type": "number",
@@ -1430,10 +1270,10 @@
                 },
                 "description": {
                   "type": "string",
-                  "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
                   "x-zui": {
                     "title": "Description"
-                  }
+                  },
+                  "description": "A markdown description of the issue. Images and videos are inlined using markdown links."
                 },
                 "id": {
                   "type": "string",
@@ -1451,10 +1291,10 @@
                 },
                 "estimate": {
                   "type": "number",
-                  "description": "The estimate of the issue in points",
                   "x-zui": {
                     "title": "Points Estimate"
-                  }
+                  },
+                  "description": "The estimate of the issue in points"
                 },
                 "url": {
                   "type": "string",
@@ -1464,20 +1304,12 @@
                   }
                 }
               },
-              "required": [
-                "title",
-                "number",
-                "createdAt",
-                "updatedAt",
-                "priority",
-                "id",
-                "identifier",
-                "url"
-              ],
+              "required": ["title", "number", "createdAt", "updatedAt", "priority", "id", "identifier", "url"],
               "additionalProperties": false,
               "x-zui": {
                 "title": "Issue"
-              }
+              },
+              "description": "The updated issue"
             }
           },
           "additionalProperties": false,
@@ -1494,11 +1326,11 @@
           "properties": {
             "title": {
               "type": "string",
+              "minLength": 1,
               "description": "The issue's title",
               "x-zui": {
                 "title": "Title"
-              },
-              "minLength": 1
+              }
             },
             "description": {
               "type": "string",
@@ -1509,10 +1341,10 @@
             },
             "priority": {
               "type": "number",
-              "description": "0 = none, 1 = urgent, 2 = high, 3 = medium, 4 = low",
               "x-zui": {
                 "title": "Priority"
-              }
+              },
+              "description": "0 = none, 1 = urgent, 2 = high, 3 = medium, 4 = low"
             },
             "teamName": {
               "type": "string",
@@ -1523,28 +1355,24 @@
             },
             "labels": {
               "type": "array",
-              "description": "One or multiple labels to assign to this issue",
               "items": {
                 "type": "string",
                 "x-zui": {}
               },
               "x-zui": {
                 "title": "Labels"
-              }
+              },
+              "description": "One or multiple labels to assign to this issue"
             },
             "project": {
               "type": "string",
-              "description": "A project to associate to this issue",
               "x-zui": {
                 "title": "Project"
-              }
+              },
+              "description": "A project to associate to this issue"
             }
           },
-          "required": [
-            "title",
-            "description",
-            "teamName"
-          ],
+          "required": ["title", "description", "teamName"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1555,7 +1383,6 @@
           "properties": {
             "issue": {
               "type": "object",
-              "description": "The created issue",
               "properties": {
                 "title": {
                   "type": "string",
@@ -1573,25 +1400,19 @@
                 },
                 "createdAt": {
                   "type": "string",
+                  "format": "date-time",
                   "description": "The ISO date the issue was created",
                   "x-zui": {
-                    "title": "Created At",
-                    "precision": null,
-                    "offset": false
-                  },
-                  "format": "date-time",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                    "title": "Created At"
+                  }
                 },
                 "updatedAt": {
                   "type": "string",
+                  "format": "date-time",
                   "description": "The ISO date the issue was last updated",
                   "x-zui": {
-                    "title": "Updated At",
-                    "precision": null,
-                    "offset": false
-                  },
-                  "format": "date-time",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                    "title": "Updated At"
+                  }
                 },
                 "priority": {
                   "type": "number",
@@ -1602,10 +1423,10 @@
                 },
                 "description": {
                   "type": "string",
-                  "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
                   "x-zui": {
                     "title": "Description"
-                  }
+                  },
+                  "description": "A markdown description of the issue. Images and videos are inlined using markdown links."
                 },
                 "id": {
                   "type": "string",
@@ -1623,10 +1444,10 @@
                 },
                 "estimate": {
                   "type": "number",
-                  "description": "The estimate of the issue in points",
                   "x-zui": {
                     "title": "Points Estimate"
-                  }
+                  },
+                  "description": "The estimate of the issue in points"
                 },
                 "url": {
                   "type": "string",
@@ -1636,25 +1457,15 @@
                   }
                 }
               },
-              "required": [
-                "title",
-                "number",
-                "createdAt",
-                "updatedAt",
-                "priority",
-                "id",
-                "identifier",
-                "url"
-              ],
+              "required": ["title", "number", "createdAt", "updatedAt", "priority", "id", "identifier", "url"],
               "additionalProperties": false,
+              "description": "The created issue",
               "x-zui": {
                 "title": "Issue"
               }
             }
           },
-          "required": [
-            "issue"
-          ],
+          "required": ["issue"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1675,9 +1486,7 @@
               }
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1715,7 +1524,6 @@
                 "allOf": [
                   {
                     "type": "object",
-                    "description": "The created issue",
                     "properties": {
                       "title": {
                         "type": "string",
@@ -1733,25 +1541,19 @@
                       },
                       "createdAt": {
                         "type": "string",
+                        "format": "date-time",
                         "description": "The ISO date the issue was created",
                         "x-zui": {
-                          "title": "Created At",
-                          "precision": null,
-                          "offset": false
-                        },
-                        "format": "date-time",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                          "title": "Created At"
+                        }
                       },
                       "updatedAt": {
                         "type": "string",
+                        "format": "date-time",
                         "description": "The ISO date the issue was last updated",
                         "x-zui": {
-                          "title": "Updated At",
-                          "precision": null,
-                          "offset": false
-                        },
-                        "format": "date-time",
-                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+                          "title": "Updated At"
+                        }
                       },
                       "priority": {
                         "type": "number",
@@ -1762,10 +1564,10 @@
                       },
                       "description": {
                         "type": "string",
-                        "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
                         "x-zui": {
                           "title": "Description"
-                        }
+                        },
+                        "description": "A markdown description of the issue. Images and videos are inlined using markdown links."
                       },
                       "id": {
                         "type": "string",
@@ -1783,10 +1585,10 @@
                       },
                       "estimate": {
                         "type": "number",
-                        "description": "The estimate of the issue in points",
                         "x-zui": {
                           "title": "Points Estimate"
-                        }
+                        },
+                        "description": "The estimate of the issue in points"
                       },
                       "url": {
                         "type": "string",
@@ -1796,17 +1598,7 @@
                         }
                       }
                     },
-                    "required": [
-                      "title",
-                      "number",
-                      "createdAt",
-                      "updatedAt",
-                      "priority",
-                      "id",
-                      "identifier",
-                      "url"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["title", "number", "createdAt", "updatedAt", "priority", "id", "identifier", "url"],
                     "x-zui": {
                       "title": "Issue"
                     }
@@ -1819,10 +1611,7 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id"],
                     "x-zui": {}
                   }
                 ],
@@ -1842,10 +1631,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "items",
-            "meta"
-          ],
+          "required": ["items", "meta"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1862,9 +1648,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "id"
-          ],
+          "required": ["id"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1891,13 +1675,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "text"
-            ],
+            "required": ["text"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -1908,13 +1690,11 @@
             "properties": {
               "imageUrl": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "imageUrl"
-            ],
+            "required": ["imageUrl"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -1925,13 +1705,11 @@
             "properties": {
               "audioUrl": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "audioUrl"
-            ],
+            "required": ["audioUrl"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -1942,13 +1720,11 @@
             "properties": {
               "videoUrl": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "videoUrl"
-            ],
+            "required": ["videoUrl"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -1959,18 +1735,16 @@
             "properties": {
               "fileUrl": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "title": {
-                "type": "string",
                 "x-zui": {},
+                "type": "string",
                 "minLength": 1
               }
             },
-            "required": [
-              "fileUrl"
-            ],
+            "required": ["fileUrl"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -1996,10 +1770,7 @@
                 "x-zui": {}
               }
             },
-            "required": [
-              "latitude",
-              "longitude"
-            ],
+            "required": ["latitude", "longitude"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -2015,17 +1786,17 @@
                   "properties": {
                     "title": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     },
                     "subtitle": {
-                      "type": "string",
                       "x-zui": {},
+                      "type": "string",
                       "minLength": 1
                     },
                     "imageUrl": {
-                      "type": "string",
                       "x-zui": {},
+                      "type": "string",
                       "minLength": 1
                     },
                     "actions": {
@@ -2035,48 +1806,35 @@
                         "properties": {
                           "action": {
                             "type": "string",
-                            "enum": [
-                              "postback",
-                              "url",
-                              "say"
-                            ],
+                            "enum": ["postback", "url", "say"],
                             "x-zui": {}
                           },
                           "label": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "minLength": 1,
+                            "x-zui": {}
                           },
                           "value": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "minLength": 1,
+                            "x-zui": {}
                           }
                         },
-                        "required": [
-                          "action",
-                          "label",
-                          "value"
-                        ],
+                        "required": ["action", "label", "value"],
                         "additionalProperties": false,
                         "x-zui": {}
                       },
                       "x-zui": {}
                     }
                   },
-                  "required": [
-                    "title",
-                    "actions"
-                  ],
+                  "required": ["title", "actions"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
               }
             },
-            "required": [
-              "items"
-            ],
+            "required": ["items"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -2087,17 +1845,17 @@
             "properties": {
               "title": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "subtitle": {
-                "type": "string",
                 "x-zui": {},
+                "type": "string",
                 "minLength": 1
               },
               "imageUrl": {
-                "type": "string",
                 "x-zui": {},
+                "type": "string",
                 "minLength": 1
               },
               "actions": {
@@ -2107,39 +1865,28 @@
                   "properties": {
                     "action": {
                       "type": "string",
-                      "enum": [
-                        "postback",
-                        "url",
-                        "say"
-                      ],
+                      "enum": ["postback", "url", "say"],
                       "x-zui": {}
                     },
                     "label": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     },
                     "value": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     }
                   },
-                  "required": [
-                    "action",
-                    "label",
-                    "value"
-                  ],
+                  "required": ["action", "label", "value"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
               }
             },
-            "required": [
-              "title",
-              "actions"
-            ],
+            "required": ["title", "actions"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -2150,8 +1897,8 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "options": {
                 "type": "array",
@@ -2160,29 +1907,23 @@
                   "properties": {
                     "label": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     },
                     "value": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     }
                   },
-                  "required": [
-                    "label",
-                    "value"
-                  ],
+                  "required": ["label", "value"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
               }
             },
-            "required": [
-              "text",
-              "options"
-            ],
+            "required": ["text", "options"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -2193,8 +1934,8 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "options": {
                 "type": "array",
@@ -2203,29 +1944,23 @@
                   "properties": {
                     "label": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     },
                     "value": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     }
                   },
-                  "required": [
-                    "label",
-                    "value"
-                  ],
+                  "required": ["label", "value"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
               }
             },
-            "required": [
-              "text",
-              "options"
-            ],
+            "required": ["text", "options"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -2251,21 +1986,16 @@
                           "properties": {
                             "text": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "text"
-                          ],
+                          "required": ["text"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -2282,21 +2012,16 @@
                           "properties": {
                             "markdown": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "markdown"
-                          ],
+                          "required": ["markdown"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -2313,21 +2038,16 @@
                           "properties": {
                             "imageUrl": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "imageUrl"
-                          ],
+                          "required": ["imageUrl"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -2344,21 +2064,16 @@
                           "properties": {
                             "audioUrl": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "audioUrl"
-                          ],
+                          "required": ["audioUrl"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -2375,21 +2090,16 @@
                           "properties": {
                             "videoUrl": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "videoUrl"
-                          ],
+                          "required": ["videoUrl"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -2406,26 +2116,21 @@
                           "properties": {
                             "fileUrl": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             },
                             "title": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "fileUrl"
-                          ],
+                          "required": ["fileUrl"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -2457,18 +2162,12 @@
                               "x-zui": {}
                             }
                           },
-                          "required": [
-                            "latitude",
-                            "longitude"
-                          ],
+                          "required": ["latitude", "longitude"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     }
@@ -2478,9 +2177,7 @@
                 "x-zui": {}
               }
             },
-            "required": [
-              "items"
-            ],
+            "required": ["items"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -2491,13 +2188,11 @@
             "properties": {
               "markdown": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "markdown"
-            ],
+            "required": ["markdown"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -2562,10 +2257,7 @@
             }
           }
         },
-        "required": [
-          "accessToken",
-          "expiresAt"
-        ],
+        "required": ["accessToken", "expiresAt"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -2577,10 +2269,10 @@
         "properties": {
           "botUserId": {
             "type": "string",
-            "description": "The ID of the bot user",
             "x-zui": {
               "title": "Bot User ID"
-            }
+            },
+            "description": "The ID of the bot user"
           }
         },
         "additionalProperties": false,
@@ -2591,7 +2283,6 @@
       "type": "user",
       "schema": {
         "type": "object",
-        "description": "The user profile",
         "properties": {
           "linearId": {
             "type": "string",
@@ -2609,40 +2300,34 @@
           },
           "archivedAt": {
             "type": "string",
-            "description": "Date when the user was archived",
-            "x-zui": {
-              "title": "Archival Date",
-              "precision": null,
-              "offset": false
-            },
             "format": "date-time",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+            "x-zui": {
+              "title": "Archival Date"
+            },
+            "description": "Date when the user was archived"
           },
           "avatarUrl": {
             "type": "string",
-            "description": "The URL for the profile picture",
+            "format": "uri",
             "x-zui": {
               "title": "Avatar URL"
             },
-            "format": "uri"
+            "description": "The URL for the profile picture"
           },
           "createdAt": {
             "type": "string",
+            "format": "date-time",
             "description": "Date when the user was created",
             "x-zui": {
-              "title": "Creation Date",
-              "precision": null,
-              "offset": false
-            },
-            "format": "date-time",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+              "title": "Creation Date"
+            }
           },
           "description": {
             "type": "string",
-            "description": "A short description of the user, either its title or bio",
             "x-zui": {
               "title": "Description"
-            }
+            },
+            "description": "A short description of the user, either its title or bio"
           },
           "displayName": {
             "type": "string",
@@ -2681,10 +2366,10 @@
           },
           "timezone": {
             "type": "string",
-            "description": "The local timezone of the user",
             "x-zui": {
               "title": "Timezone"
-            }
+            },
+            "description": "The local timezone of the user"
           },
           "name": {
             "type": "string",
@@ -2694,17 +2379,7 @@
             }
           }
         },
-        "required": [
-          "linearId",
-          "admin",
-          "createdAt",
-          "displayName",
-          "guest",
-          "email",
-          "isMe",
-          "url",
-          "name"
-        ],
+        "required": ["linearId", "admin", "createdAt", "displayName", "guest", "email", "isMe", "url", "name"],
         "additionalProperties": false,
         "x-zui": {
           "title": "User"
@@ -2718,7 +2393,6 @@
       "description": "A linear issue",
       "schema": {
         "type": "object",
-        "description": "The created issue",
         "properties": {
           "title": {
             "type": "string",
@@ -2736,25 +2410,19 @@
           },
           "createdAt": {
             "type": "string",
+            "format": "date-time",
             "description": "The ISO date the issue was created",
             "x-zui": {
-              "title": "Created At",
-              "precision": null,
-              "offset": false
-            },
-            "format": "date-time",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+              "title": "Created At"
+            }
           },
           "updatedAt": {
             "type": "string",
+            "format": "date-time",
             "description": "The ISO date the issue was last updated",
             "x-zui": {
-              "title": "Updated At",
-              "precision": null,
-              "offset": false
-            },
-            "format": "date-time",
-            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+              "title": "Updated At"
+            }
           },
           "priority": {
             "type": "number",
@@ -2765,10 +2433,10 @@
           },
           "description": {
             "type": "string",
-            "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
             "x-zui": {
               "title": "Description"
-            }
+            },
+            "description": "A markdown description of the issue. Images and videos are inlined using markdown links."
           },
           "id": {
             "type": "string",
@@ -2786,10 +2454,10 @@
           },
           "estimate": {
             "type": "number",
-            "description": "The estimate of the issue in points",
             "x-zui": {
               "title": "Points Estimate"
-            }
+            },
+            "description": "The estimate of the issue in points"
           },
           "url": {
             "type": "string",
@@ -2799,16 +2467,7 @@
             }
           }
         },
-        "required": [
-          "title",
-          "number",
-          "createdAt",
-          "updatedAt",
-          "priority",
-          "id",
-          "identifier",
-          "url"
-        ],
+        "required": ["title", "number", "createdAt", "updatedAt", "priority", "id", "identifier", "url"],
         "additionalProperties": false,
         "x-zui": {
           "title": "Issue"

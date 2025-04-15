@@ -32,7 +32,6 @@
         "properties": {
           "issue": {
             "type": "object",
-            "description": "The issue that was opened",
             "properties": {
               "id": {
                 "type": "number",
@@ -64,7 +63,6 @@
               },
               "repository": {
                 "type": "object",
-                "description": "The repository the issue belongs to",
                 "properties": {
                   "id": {
                     "type": "number",
@@ -96,7 +94,6 @@
                   },
                   "owner": {
                     "type": "object",
-                    "description": "The owner of the repository",
                     "properties": {
                       "id": {
                         "type": "number",
@@ -141,28 +138,17 @@
                         }
                       }
                     },
-                    "required": [
-                      "id",
-                      "nodeId",
-                      "url",
-                      "name",
-                      "handle",
-                      "botpressUser"
-                    ],
+                    "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                     "additionalProperties": false,
+                    "description": "The owner of the repository",
                     "x-zui": {
                       "title": "Owner"
                     }
                   }
                 },
-                "required": [
-                  "id",
-                  "nodeId",
-                  "url",
-                  "name",
-                  "owner"
-                ],
+                "required": ["id", "nodeId", "url", "name", "owner"],
                 "additionalProperties": false,
+                "description": "The repository the issue belongs to",
                 "x-zui": {
                   "title": "Repository"
                 }
@@ -183,7 +169,6 @@
               },
               "labels": {
                 "type": "array",
-                "description": "The labels associated with the issue",
                 "items": {
                   "type": "object",
                   "properties": {
@@ -216,22 +201,17 @@
                       }
                     }
                   },
-                  "required": [
-                    "id",
-                    "nodeId",
-                    "url",
-                    "name"
-                  ],
+                  "required": ["id", "nodeId", "url", "name"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
+                "description": "The labels associated with the issue",
                 "x-zui": {
                   "title": "Labels"
                 }
               },
               "author": {
                 "type": "object",
-                "description": "The author of the issue",
                 "properties": {
                   "id": {
                     "type": "number",
@@ -276,22 +256,15 @@
                     }
                   }
                 },
-                "required": [
-                  "id",
-                  "nodeId",
-                  "url",
-                  "name",
-                  "handle",
-                  "botpressUser"
-                ],
+                "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                 "additionalProperties": false,
+                "description": "The author of the issue",
                 "x-zui": {
                   "title": "Author"
                 }
               },
               "assignees": {
                 "type": "array",
-                "description": "The assignees of the issue",
                 "items": {
                   "type": "object",
                   "properties": {
@@ -338,17 +311,11 @@
                       }
                     }
                   },
-                  "required": [
-                    "id",
-                    "nodeId",
-                    "url",
-                    "name",
-                    "handle",
-                    "botpressUser"
-                  ],
+                  "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
+                "description": "The assignees of the issue",
                 "x-zui": {
                   "title": "Assignees"
                 }
@@ -367,13 +334,13 @@
               "assignees"
             ],
             "additionalProperties": false,
+            "description": "The issue that was opened",
             "x-zui": {
               "title": "Issue"
             }
           },
           "eventSender": {
             "type": "object",
-            "description": "The user who triggered the event",
             "properties": {
               "id": {
                 "type": "number",
@@ -418,15 +385,9 @@
                 }
               }
             },
-            "required": [
-              "id",
-              "nodeId",
-              "url",
-              "name",
-              "handle",
-              "botpressUser"
-            ],
+            "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
             "additionalProperties": false,
+            "description": "The user who triggered the event",
             "x-zui": {
               "title": "Sender"
             }
@@ -467,24 +428,9 @@
             }
           },
           "content": {
-            "anyOf": [
-              {
-                "type": "string",
-                "description": "use issue.body instead",
-                "x-zui": {
-                  "title": "DEPRECATED: content"
-                }
-              },
-              {
-                "type": "null",
-                "x-zui": {}
-              }
-            ],
-            "x-zui": {
-              "def": {
-                "typeName": "ZodNullable"
-              }
-            }
+            "type": ["string", "null"],
+            "description": "use issue.body instead",
+            "x-zui": {}
           },
           "repositoryName": {
             "type": "string",
@@ -525,7 +471,6 @@
         "properties": {
           "pullRequest": {
             "type": "object",
-            "description": "The pull request that was merged",
             "properties": {
               "id": {
                 "type": "number",
@@ -557,7 +502,6 @@
               },
               "repository": {
                 "type": "object",
-                "description": "The repository the pull request belongs to",
                 "properties": {
                   "id": {
                     "type": "number",
@@ -589,7 +533,6 @@
                   },
                   "owner": {
                     "type": "object",
-                    "description": "The owner of the repository",
                     "properties": {
                       "id": {
                         "type": "number",
@@ -634,28 +577,17 @@
                         }
                       }
                     },
-                    "required": [
-                      "id",
-                      "nodeId",
-                      "url",
-                      "name",
-                      "handle",
-                      "botpressUser"
-                    ],
+                    "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                     "additionalProperties": false,
+                    "description": "The owner of the repository",
                     "x-zui": {
                       "title": "Owner"
                     }
                   }
                 },
-                "required": [
-                  "id",
-                  "nodeId",
-                  "url",
-                  "name",
-                  "owner"
-                ],
+                "required": ["id", "nodeId", "url", "name", "owner"],
                 "additionalProperties": false,
+                "description": "The repository the pull request belongs to",
                 "x-zui": {
                   "title": "Repository"
                 }
@@ -676,7 +608,6 @@
               },
               "labels": {
                 "type": "array",
-                "description": "The labels associated with the pull request",
                 "items": {
                   "type": "object",
                   "properties": {
@@ -709,22 +640,17 @@
                       }
                     }
                   },
-                  "required": [
-                    "id",
-                    "nodeId",
-                    "url",
-                    "name"
-                  ],
+                  "required": ["id", "nodeId", "url", "name"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
+                "description": "The labels associated with the pull request",
                 "x-zui": {
                   "title": "Labels"
                 }
               },
               "author": {
                 "type": "object",
-                "description": "The author of the pull request",
                 "properties": {
                   "id": {
                     "type": "number",
@@ -769,22 +695,15 @@
                     }
                   }
                 },
-                "required": [
-                  "id",
-                  "nodeId",
-                  "url",
-                  "name",
-                  "handle",
-                  "botpressUser"
-                ],
+                "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                 "additionalProperties": false,
+                "description": "The author of the pull request",
                 "x-zui": {
                   "title": "Author"
                 }
               },
               "assignees": {
                 "type": "array",
-                "description": "The assignees of the pull request",
                 "items": {
                   "type": "object",
                   "properties": {
@@ -831,24 +750,17 @@
                       }
                     }
                   },
-                  "required": [
-                    "id",
-                    "nodeId",
-                    "url",
-                    "name",
-                    "handle",
-                    "botpressUser"
-                  ],
+                  "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
+                "description": "The assignees of the pull request",
                 "x-zui": {
                   "title": "Assignees"
                 }
               },
               "target": {
                 "type": "object",
-                "description": "The target repository and branch of the pull request",
                 "properties": {
                   "ref": {
                     "type": "string",
@@ -866,7 +778,6 @@
                   },
                   "repository": {
                     "type": "object",
-                    "description": "The repository the branch belongs to",
                     "properties": {
                       "id": {
                         "type": "number",
@@ -898,7 +809,6 @@
                       },
                       "owner": {
                         "type": "object",
-                        "description": "The owner of the repository",
                         "properties": {
                           "id": {
                             "type": "number",
@@ -943,46 +853,31 @@
                             }
                           }
                         },
-                        "required": [
-                          "id",
-                          "nodeId",
-                          "url",
-                          "name",
-                          "handle",
-                          "botpressUser"
-                        ],
+                        "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                         "additionalProperties": false,
+                        "description": "The owner of the repository",
                         "x-zui": {
                           "title": "Owner"
                         }
                       }
                     },
-                    "required": [
-                      "id",
-                      "nodeId",
-                      "url",
-                      "name",
-                      "owner"
-                    ],
+                    "required": ["id", "nodeId", "url", "name", "owner"],
                     "additionalProperties": false,
+                    "description": "The repository the branch belongs to",
                     "x-zui": {
                       "title": "Repository"
                     }
                   }
                 },
-                "required": [
-                  "ref",
-                  "label",
-                  "repository"
-                ],
+                "required": ["ref", "label", "repository"],
                 "additionalProperties": false,
+                "description": "The target repository and branch of the pull request",
                 "x-zui": {
                   "title": "Target"
                 }
               },
               "source": {
                 "type": "object",
-                "description": "The source repository and branch of the pull request",
                 "properties": {
                   "ref": {
                     "type": "string",
@@ -1000,7 +895,6 @@
                   },
                   "repository": {
                     "type": "object",
-                    "description": "The repository the branch belongs to",
                     "properties": {
                       "id": {
                         "type": "number",
@@ -1032,7 +926,6 @@
                       },
                       "owner": {
                         "type": "object",
-                        "description": "The owner of the repository",
                         "properties": {
                           "id": {
                             "type": "number",
@@ -1077,39 +970,25 @@
                             }
                           }
                         },
-                        "required": [
-                          "id",
-                          "nodeId",
-                          "url",
-                          "name",
-                          "handle",
-                          "botpressUser"
-                        ],
+                        "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                         "additionalProperties": false,
+                        "description": "The owner of the repository",
                         "x-zui": {
                           "title": "Owner"
                         }
                       }
                     },
-                    "required": [
-                      "id",
-                      "nodeId",
-                      "url",
-                      "name",
-                      "owner"
-                    ],
+                    "required": ["id", "nodeId", "url", "name", "owner"],
                     "additionalProperties": false,
+                    "description": "The repository the branch belongs to",
                     "x-zui": {
                       "title": "Repository"
                     }
                   }
                 },
-                "required": [
-                  "ref",
-                  "label",
-                  "repository"
-                ],
+                "required": ["ref", "label", "repository"],
                 "additionalProperties": false,
+                "description": "The source repository and branch of the pull request",
                 "x-zui": {
                   "title": "Source"
                 }
@@ -1130,13 +1009,13 @@
               "source"
             ],
             "additionalProperties": false,
+            "description": "The pull request that was merged",
             "x-zui": {
               "title": "Pull Request"
             }
           },
           "eventSender": {
             "type": "object",
-            "description": "The user who triggered the event",
             "properties": {
               "id": {
                 "type": "number",
@@ -1181,15 +1060,9 @@
                 }
               }
             },
-            "required": [
-              "id",
-              "nodeId",
-              "url",
-              "name",
-              "handle",
-              "botpressUser"
-            ],
+            "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
             "additionalProperties": false,
+            "description": "The user who triggered the event",
             "x-zui": {
               "title": "Sender"
             }
@@ -1224,34 +1097,34 @@
           },
           "baseBranch": {
             "type": "string",
-            "description": "use pullRequest.source.ref instead",
             "x-zui": {
               "title": "DEPRECATED: baseBranch"
-            }
+            },
+            "description": "use pullRequest.source.ref instead"
           },
           "userId": {
             "type": "string",
-            "description": "use pullRequest.author.id instead",
             "x-zui": {
               "title": "DEPRECATED: userId"
-            }
+            },
+            "description": "use pullRequest.author.id instead"
           },
           "conversationId": {
             "type": "string",
-            "description": "use the conversation id associated with the event instead",
             "x-zui": {
               "title": "DEPRECATED: conversationId"
-            }
+            },
+            "description": "use the conversation id associated with the event instead"
           },
           "targets": {
             "type": "object",
             "properties": {
               "pullRequest": {
                 "type": "string",
-                "description": "use pullRequest.number instead",
                 "x-zui": {
                   "title": "DEPRECATED: pullRequest"
-                }
+                },
+                "description": "use pullRequest.number instead"
               },
               "issue": {
                 "type": "string",
@@ -1272,14 +1145,7 @@
             }
           }
         },
-        "required": [
-          "pullRequest",
-          "eventSender",
-          "id",
-          "title",
-          "content",
-          "targets"
-        ],
+        "required": ["pullRequest", "eventSender", "id", "title", "content", "targets"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -1292,7 +1158,6 @@
         "properties": {
           "pullRequest": {
             "type": "object",
-            "description": "The pull request that was merged",
             "properties": {
               "id": {
                 "type": "number",
@@ -1324,7 +1189,6 @@
               },
               "repository": {
                 "type": "object",
-                "description": "The repository the pull request belongs to",
                 "properties": {
                   "id": {
                     "type": "number",
@@ -1356,7 +1220,6 @@
                   },
                   "owner": {
                     "type": "object",
-                    "description": "The owner of the repository",
                     "properties": {
                       "id": {
                         "type": "number",
@@ -1401,28 +1264,17 @@
                         }
                       }
                     },
-                    "required": [
-                      "id",
-                      "nodeId",
-                      "url",
-                      "name",
-                      "handle",
-                      "botpressUser"
-                    ],
+                    "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                     "additionalProperties": false,
+                    "description": "The owner of the repository",
                     "x-zui": {
                       "title": "Owner"
                     }
                   }
                 },
-                "required": [
-                  "id",
-                  "nodeId",
-                  "url",
-                  "name",
-                  "owner"
-                ],
+                "required": ["id", "nodeId", "url", "name", "owner"],
                 "additionalProperties": false,
+                "description": "The repository the pull request belongs to",
                 "x-zui": {
                   "title": "Repository"
                 }
@@ -1443,7 +1295,6 @@
               },
               "labels": {
                 "type": "array",
-                "description": "The labels associated with the pull request",
                 "items": {
                   "type": "object",
                   "properties": {
@@ -1476,22 +1327,17 @@
                       }
                     }
                   },
-                  "required": [
-                    "id",
-                    "nodeId",
-                    "url",
-                    "name"
-                  ],
+                  "required": ["id", "nodeId", "url", "name"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
+                "description": "The labels associated with the pull request",
                 "x-zui": {
                   "title": "Labels"
                 }
               },
               "author": {
                 "type": "object",
-                "description": "The author of the pull request",
                 "properties": {
                   "id": {
                     "type": "number",
@@ -1536,22 +1382,15 @@
                     }
                   }
                 },
-                "required": [
-                  "id",
-                  "nodeId",
-                  "url",
-                  "name",
-                  "handle",
-                  "botpressUser"
-                ],
+                "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                 "additionalProperties": false,
+                "description": "The author of the pull request",
                 "x-zui": {
                   "title": "Author"
                 }
               },
               "assignees": {
                 "type": "array",
-                "description": "The assignees of the pull request",
                 "items": {
                   "type": "object",
                   "properties": {
@@ -1598,24 +1437,17 @@
                       }
                     }
                   },
-                  "required": [
-                    "id",
-                    "nodeId",
-                    "url",
-                    "name",
-                    "handle",
-                    "botpressUser"
-                  ],
+                  "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
+                "description": "The assignees of the pull request",
                 "x-zui": {
                   "title": "Assignees"
                 }
               },
               "target": {
                 "type": "object",
-                "description": "The target repository and branch of the pull request",
                 "properties": {
                   "ref": {
                     "type": "string",
@@ -1633,7 +1465,6 @@
                   },
                   "repository": {
                     "type": "object",
-                    "description": "The repository the branch belongs to",
                     "properties": {
                       "id": {
                         "type": "number",
@@ -1665,7 +1496,6 @@
                       },
                       "owner": {
                         "type": "object",
-                        "description": "The owner of the repository",
                         "properties": {
                           "id": {
                             "type": "number",
@@ -1710,46 +1540,31 @@
                             }
                           }
                         },
-                        "required": [
-                          "id",
-                          "nodeId",
-                          "url",
-                          "name",
-                          "handle",
-                          "botpressUser"
-                        ],
+                        "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                         "additionalProperties": false,
+                        "description": "The owner of the repository",
                         "x-zui": {
                           "title": "Owner"
                         }
                       }
                     },
-                    "required": [
-                      "id",
-                      "nodeId",
-                      "url",
-                      "name",
-                      "owner"
-                    ],
+                    "required": ["id", "nodeId", "url", "name", "owner"],
                     "additionalProperties": false,
+                    "description": "The repository the branch belongs to",
                     "x-zui": {
                       "title": "Repository"
                     }
                   }
                 },
-                "required": [
-                  "ref",
-                  "label",
-                  "repository"
-                ],
+                "required": ["ref", "label", "repository"],
                 "additionalProperties": false,
+                "description": "The target repository and branch of the pull request",
                 "x-zui": {
                   "title": "Target"
                 }
               },
               "source": {
                 "type": "object",
-                "description": "The source repository and branch of the pull request",
                 "properties": {
                   "ref": {
                     "type": "string",
@@ -1767,7 +1582,6 @@
                   },
                   "repository": {
                     "type": "object",
-                    "description": "The repository the branch belongs to",
                     "properties": {
                       "id": {
                         "type": "number",
@@ -1799,7 +1613,6 @@
                       },
                       "owner": {
                         "type": "object",
-                        "description": "The owner of the repository",
                         "properties": {
                           "id": {
                             "type": "number",
@@ -1844,39 +1657,25 @@
                             }
                           }
                         },
-                        "required": [
-                          "id",
-                          "nodeId",
-                          "url",
-                          "name",
-                          "handle",
-                          "botpressUser"
-                        ],
+                        "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                         "additionalProperties": false,
+                        "description": "The owner of the repository",
                         "x-zui": {
                           "title": "Owner"
                         }
                       }
                     },
-                    "required": [
-                      "id",
-                      "nodeId",
-                      "url",
-                      "name",
-                      "owner"
-                    ],
+                    "required": ["id", "nodeId", "url", "name", "owner"],
                     "additionalProperties": false,
+                    "description": "The repository the branch belongs to",
                     "x-zui": {
                       "title": "Repository"
                     }
                   }
                 },
-                "required": [
-                  "ref",
-                  "label",
-                  "repository"
-                ],
+                "required": ["ref", "label", "repository"],
                 "additionalProperties": false,
+                "description": "The source repository and branch of the pull request",
                 "x-zui": {
                   "title": "Source"
                 }
@@ -1897,13 +1696,13 @@
               "source"
             ],
             "additionalProperties": false,
+            "description": "The pull request that was opened",
             "x-zui": {
               "title": "Pull Request"
             }
           },
           "eventSender": {
             "type": "object",
-            "description": "The user who triggered the event",
             "properties": {
               "id": {
                 "type": "number",
@@ -1948,15 +1747,9 @@
                 }
               }
             },
-            "required": [
-              "id",
-              "nodeId",
-              "url",
-              "name",
-              "handle",
-              "botpressUser"
-            ],
+            "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
             "additionalProperties": false,
+            "description": "The user who triggered the event",
             "x-zui": {
               "title": "Sender"
             }
@@ -1991,34 +1784,34 @@
           },
           "baseBranch": {
             "type": "string",
-            "description": "use pullRequest.source.ref instead",
             "x-zui": {
               "title": "DEPRECATED: baseBranch"
-            }
+            },
+            "description": "use pullRequest.source.ref instead"
           },
           "userId": {
             "type": "string",
-            "description": "use pullRequest.author.id instead",
             "x-zui": {
               "title": "DEPRECATED: userId"
-            }
+            },
+            "description": "use pullRequest.author.id instead"
           },
           "conversationId": {
             "type": "string",
-            "description": "use the conversation id associated with the event instead",
             "x-zui": {
               "title": "DEPRECATED: conversationId"
-            }
+            },
+            "description": "use the conversation id associated with the event instead"
           },
           "targets": {
             "type": "object",
             "properties": {
               "pullRequest": {
                 "type": "string",
-                "description": "use pullRequest.number instead",
                 "x-zui": {
                   "title": "DEPRECATED: pullRequest"
-                }
+                },
+                "description": "use pullRequest.number instead"
               },
               "issue": {
                 "type": "string",
@@ -2039,14 +1832,7 @@
             }
           }
         },
-        "required": [
-          "pullRequest",
-          "eventSender",
-          "id",
-          "title",
-          "content",
-          "targets"
-        ],
+        "required": ["pullRequest", "eventSender", "id", "title", "content", "targets"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -2059,7 +1845,6 @@
         "properties": {
           "review": {
             "type": "object",
-            "description": "The review that was submitted",
             "properties": {
               "id": {
                 "type": "number",
@@ -2084,7 +1869,6 @@
               },
               "pullRequest": {
                 "type": "object",
-                "description": "The pull request being reviewed",
                 "properties": {
                   "id": {
                     "type": "number",
@@ -2116,7 +1900,6 @@
                   },
                   "repository": {
                     "type": "object",
-                    "description": "The repository the pull request belongs to",
                     "properties": {
                       "id": {
                         "type": "number",
@@ -2148,7 +1931,6 @@
                       },
                       "owner": {
                         "type": "object",
-                        "description": "The owner of the repository",
                         "properties": {
                           "id": {
                             "type": "number",
@@ -2193,28 +1975,17 @@
                             }
                           }
                         },
-                        "required": [
-                          "id",
-                          "nodeId",
-                          "url",
-                          "name",
-                          "handle",
-                          "botpressUser"
-                        ],
+                        "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                         "additionalProperties": false,
+                        "description": "The owner of the repository",
                         "x-zui": {
                           "title": "Owner"
                         }
                       }
                     },
-                    "required": [
-                      "id",
-                      "nodeId",
-                      "url",
-                      "name",
-                      "owner"
-                    ],
+                    "required": ["id", "nodeId", "url", "name", "owner"],
                     "additionalProperties": false,
+                    "description": "The repository the pull request belongs to",
                     "x-zui": {
                       "title": "Repository"
                     }
@@ -2235,7 +2006,6 @@
                   },
                   "labels": {
                     "type": "array",
-                    "description": "The labels associated with the pull request",
                     "items": {
                       "type": "object",
                       "properties": {
@@ -2268,22 +2038,17 @@
                           }
                         }
                       },
-                      "required": [
-                        "id",
-                        "nodeId",
-                        "url",
-                        "name"
-                      ],
+                      "required": ["id", "nodeId", "url", "name"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
+                    "description": "The labels associated with the pull request",
                     "x-zui": {
                       "title": "Labels"
                     }
                   },
                   "author": {
                     "type": "object",
-                    "description": "The author of the pull request",
                     "properties": {
                       "id": {
                         "type": "number",
@@ -2328,22 +2093,15 @@
                         }
                       }
                     },
-                    "required": [
-                      "id",
-                      "nodeId",
-                      "url",
-                      "name",
-                      "handle",
-                      "botpressUser"
-                    ],
+                    "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                     "additionalProperties": false,
+                    "description": "The author of the pull request",
                     "x-zui": {
                       "title": "Author"
                     }
                   },
                   "assignees": {
                     "type": "array",
-                    "description": "The assignees of the pull request",
                     "items": {
                       "type": "object",
                       "properties": {
@@ -2390,24 +2148,17 @@
                           }
                         }
                       },
-                      "required": [
-                        "id",
-                        "nodeId",
-                        "url",
-                        "name",
-                        "handle",
-                        "botpressUser"
-                      ],
+                      "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
+                    "description": "The assignees of the pull request",
                     "x-zui": {
                       "title": "Assignees"
                     }
                   },
                   "target": {
                     "type": "object",
-                    "description": "The target repository and branch of the pull request",
                     "properties": {
                       "ref": {
                         "type": "string",
@@ -2425,7 +2176,6 @@
                       },
                       "repository": {
                         "type": "object",
-                        "description": "The repository the branch belongs to",
                         "properties": {
                           "id": {
                             "type": "number",
@@ -2457,7 +2207,6 @@
                           },
                           "owner": {
                             "type": "object",
-                            "description": "The owner of the repository",
                             "properties": {
                               "id": {
                                 "type": "number",
@@ -2502,46 +2251,31 @@
                                 }
                               }
                             },
-                            "required": [
-                              "id",
-                              "nodeId",
-                              "url",
-                              "name",
-                              "handle",
-                              "botpressUser"
-                            ],
+                            "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                             "additionalProperties": false,
+                            "description": "The owner of the repository",
                             "x-zui": {
                               "title": "Owner"
                             }
                           }
                         },
-                        "required": [
-                          "id",
-                          "nodeId",
-                          "url",
-                          "name",
-                          "owner"
-                        ],
+                        "required": ["id", "nodeId", "url", "name", "owner"],
                         "additionalProperties": false,
+                        "description": "The repository the branch belongs to",
                         "x-zui": {
                           "title": "Repository"
                         }
                       }
                     },
-                    "required": [
-                      "ref",
-                      "label",
-                      "repository"
-                    ],
+                    "required": ["ref", "label", "repository"],
                     "additionalProperties": false,
+                    "description": "The target repository and branch of the pull request",
                     "x-zui": {
                       "title": "Target"
                     }
                   },
                   "source": {
                     "type": "object",
-                    "description": "The source repository and branch of the pull request",
                     "properties": {
                       "ref": {
                         "type": "string",
@@ -2559,7 +2293,6 @@
                       },
                       "repository": {
                         "type": "object",
-                        "description": "The repository the branch belongs to",
                         "properties": {
                           "id": {
                             "type": "number",
@@ -2591,7 +2324,6 @@
                           },
                           "owner": {
                             "type": "object",
-                            "description": "The owner of the repository",
                             "properties": {
                               "id": {
                                 "type": "number",
@@ -2636,39 +2368,25 @@
                                 }
                               }
                             },
-                            "required": [
-                              "id",
-                              "nodeId",
-                              "url",
-                              "name",
-                              "handle",
-                              "botpressUser"
-                            ],
+                            "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                             "additionalProperties": false,
+                            "description": "The owner of the repository",
                             "x-zui": {
                               "title": "Owner"
                             }
                           }
                         },
-                        "required": [
-                          "id",
-                          "nodeId",
-                          "url",
-                          "name",
-                          "owner"
-                        ],
+                        "required": ["id", "nodeId", "url", "name", "owner"],
                         "additionalProperties": false,
+                        "description": "The repository the branch belongs to",
                         "x-zui": {
                           "title": "Repository"
                         }
                       }
                     },
-                    "required": [
-                      "ref",
-                      "label",
-                      "repository"
-                    ],
+                    "required": ["ref", "label", "repository"],
                     "additionalProperties": false,
+                    "description": "The source repository and branch of the pull request",
                     "x-zui": {
                       "title": "Source"
                     }
@@ -2689,6 +2407,7 @@
                   "source"
                 ],
                 "additionalProperties": false,
+                "description": "The pull request being reviewed",
                 "x-zui": {
                   "title": "Pull Request"
                 }
@@ -2702,20 +2421,14 @@
               },
               "state": {
                 "type": "string",
+                "enum": ["APPROVED", "CHANGES_REQUESTED", "COMMENTED", "DISMISSED"],
                 "description": "The state of the review",
-                "enum": [
-                  "APPROVED",
-                  "CHANGES_REQUESTED",
-                  "COMMENTED",
-                  "DISMISSED"
-                ],
                 "x-zui": {
                   "title": "State"
                 }
               },
               "author": {
                 "type": "object",
-                "description": "The author of the review",
                 "properties": {
                   "id": {
                     "type": "number",
@@ -2760,15 +2473,9 @@
                     }
                   }
                 },
-                "required": [
-                  "id",
-                  "nodeId",
-                  "url",
-                  "name",
-                  "handle",
-                  "botpressUser"
-                ],
+                "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
                 "additionalProperties": false,
+                "description": "The author of the review",
                 "x-zui": {
                   "title": "Author"
                 }
@@ -2781,24 +2488,15 @@
                 }
               }
             },
-            "required": [
-              "id",
-              "nodeId",
-              "url",
-              "pullRequest",
-              "commitId",
-              "state",
-              "author",
-              "body"
-            ],
+            "required": ["id", "nodeId", "url", "pullRequest", "commitId", "state", "author", "body"],
             "additionalProperties": false,
+            "description": "The review that was submitted",
             "x-zui": {
               "title": "Review"
             }
           },
           "eventSender": {
             "type": "object",
-            "description": "The user who triggered the event",
             "properties": {
               "id": {
                 "type": "number",
@@ -2843,24 +2541,15 @@
                 }
               }
             },
-            "required": [
-              "id",
-              "nodeId",
-              "url",
-              "name",
-              "handle",
-              "botpressUser"
-            ],
+            "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
             "additionalProperties": false,
+            "description": "The user who triggered the event",
             "x-zui": {
               "title": "Sender"
             }
           }
         },
-        "required": [
-          "review",
-          "eventSender"
-        ],
+        "required": ["review", "eventSender"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -2878,10 +2567,7 @@
             },
             "channel": {
               "type": "string",
-              "enum": [
-                "pullRequest",
-                "issue"
-              ],
+              "enum": ["pullRequest", "issue"],
               "x-zui": {}
             },
             "repo": {
@@ -2892,11 +2578,7 @@
               }
             }
           },
-          "required": [
-            "query",
-            "channel",
-            "repo"
-          ],
+          "required": ["query", "channel", "repo"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -2924,27 +2606,18 @@
                   },
                   "channel": {
                     "type": "string",
-                    "enum": [
-                      "pullRequest",
-                      "issue"
-                    ],
+                    "enum": ["pullRequest", "issue"],
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "displayName",
-                  "tags",
-                  "channel"
-                ],
+                "required": ["displayName", "tags", "channel"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [
-            "targets"
-          ],
+          "required": ["targets"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -3026,13 +2699,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "text"
-            ],
+            "required": ["text"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -3129,13 +2800,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "text"
-            ],
+            "required": ["text"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -3212,13 +2881,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "text"
-            ],
+            "required": ["text"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -3315,13 +2982,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "text"
-            ],
+            "required": ["text"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -3418,13 +3083,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "text"
-            ],
+            "required": ["text"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -3440,18 +3103,18 @@
         "properties": {
           "githubInstallationId": {
             "type": "number",
-            "description": "The ID of the GitHub installation",
+            "exclusiveMinimum": 0,
             "x-zui": {
               "title": "GitHub Installation ID"
             },
-            "exclusiveMinimum": 0
+            "description": "The ID of the GitHub installation"
           },
           "organizationHandle": {
             "type": "string",
-            "description": "The handle of the organization that owns the repositories",
             "x-zui": {
               "title": "Organization Handle"
-            }
+            },
+            "description": "The handle of the organization that owns the repositories"
           }
         },
         "additionalProperties": false,

@@ -5,16 +5,13 @@
     "speechToTextModelRef": {
       "schema": {
         "type": "object",
-        "description": "Model to use for speech-to-text transcription (optional)",
         "properties": {
           "id": {
             "type": "string",
             "x-zui": {}
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -31,34 +28,33 @@
           "properties": {
             "model": {
               "$ref": "speechToTextModelRef",
-              "description": "Model to use for speech-to-text transcription (optional)",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "Model to use for speech-to-text transcription (optional)"
             },
             "fileUrl": {
               "type": "string",
+              "format": "uri",
               "description": "URL of the audio file to transcribe. The URL should return a content-type header in order to detect the audio format. Supported audio formats supported are: mp3, mp4, mpeg, mpga, m4a, wav, webm",
-              "x-zui": {},
-              "format": "uri"
+              "x-zui": {}
             },
             "language": {
               "type": "string",
-              "description": "The language of the input audio (optional). Supplying the input language in ISO-639-1 format will improve accuracy and latency.",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "The language of the input audio (optional). Supplying the input language in ISO-639-1 format will improve accuracy and latency."
             },
             "prompt": {
               "type": "string",
-              "description": "An optional text to guide the model's style or continue a previous audio segment. The prompt should match the audio language.",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "An optional text to guide the model's style or continue a previous audio segment. The prompt should match the audio language."
             },
             "temperature": {
               "type": "number",
               "x-zui": {},
-              "default": 0
+              "default": 0,
+              "description": "The sampling temperature (optional), between 0 and 1. Defaults to 0 (automatic). Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic."
             }
           },
-          "required": [
-            "fileUrl"
-          ],
+          "required": ["fileUrl"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -109,11 +105,11 @@
                   },
                   "tokens": {
                     "type": "array",
-                    "description": "Array of token IDs for the text content.",
                     "items": {
                       "type": "number",
                       "x-zui": {}
                     },
+                    "description": "Array of token IDs for the text content.",
                     "x-zui": {}
                   },
                   "temperature": {
@@ -173,21 +169,12 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "cost"
-              ],
+              "required": ["cost"],
               "additionalProperties": false,
               "x-zui": {}
             }
           },
-          "required": [
-            "language",
-            "duration",
-            "segments",
-            "model",
-            "cost",
-            "botpress"
-          ],
+          "required": ["language", "duration", "segments", "model", "cost", "botpress"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -227,17 +214,11 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id",
-                      "name",
-                      "costPerMinute"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id", "name", "costPerMinute"],
                     "x-zui": {}
                   },
                   {
                     "$ref": "speechToTextModelRef",
-                    "description": "Model to use for speech-to-text transcription (optional)",
                     "x-zui": {}
                   }
                 ],
@@ -246,9 +227,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "models"
-          ],
+          "required": ["models"],
           "additionalProperties": false,
           "x-zui": {}
         }

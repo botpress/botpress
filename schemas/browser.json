@@ -16,9 +16,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "url"
-          ],
+          "required": ["url"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -32,9 +30,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "imageUrl"
-          ],
+          "required": ["imageUrl"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -58,31 +54,13 @@
               "x-zui": {}
             },
             "waitFor": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
-              "default": 350
+              "type": "number",
+              "x-zui": {},
+              "default": 350,
+              "description": "Time to wait before extracting the content (in milliseconds). Set this value higher for dynamic pages."
             }
           },
-          "required": [
-            "urls"
-          ],
+          "required": ["urls"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -117,19 +95,14 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "url",
-                  "content"
-                ],
+                "required": ["url", "content"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [
-            "results"
-          ],
+          "required": ["results"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -146,97 +119,59 @@
           "properties": {
             "query": {
               "type": "string",
-              "description": "What are we searching for?",
-              "x-zui": {},
               "minLength": 1,
-              "maxLength": 1000
+              "maxLength": 1000,
+              "description": "What are we searching for?",
+              "x-zui": {}
             },
             "includeSites": {
               "type": "array",
-              "description": "Include only these domains in the search (max 20)",
               "items": {
                 "type": "string",
-                "x-zui": {},
                 "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
                 "minLength": 3,
-                "maxLength": 50
+                "maxLength": 50,
+                "x-zui": {}
               },
+              "maxItems": 20,
               "x-zui": {},
-              "maxItems": 20
+              "description": "Include only these domains in the search (max 20)"
             },
             "excludeSites": {
               "type": "array",
-              "description": "Exclude these domains from the search (max 20)",
               "items": {
                 "type": "string",
-                "x-zui": {},
                 "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
                 "minLength": 3,
-                "maxLength": 50
+                "maxLength": 50,
+                "x-zui": {}
               },
+              "maxItems": 20,
               "x-zui": {},
-              "maxItems": 20
+              "description": "Exclude these domains from the search (max 20)"
             },
             "count": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "x-zui": {},
-                  "minimum": 1,
-                  "maximum": 20
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
-              "default": 10
+              "type": "number",
+              "minimum": 1,
+              "maximum": 20,
+              "x-zui": {},
+              "default": 10,
+              "description": "Number of search results to return (default: 10)"
             },
             "freshness": {
               "type": "string",
-              "description": "Only consider results from the last day, week or month",
-              "enum": [
-                "Day",
-                "Week",
-                "Month"
-              ],
-              "x-zui": {}
+              "enum": ["Day", "Week", "Month"],
+              "x-zui": {},
+              "description": "Only consider results from the last day, week or month"
             },
             "browsePages": {
-              "anyOf": [
-                {
-                  "type": "boolean",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
-              "default": false
+              "type": "boolean",
+              "x-zui": {},
+              "default": false,
+              "description": "Whether to browse to the pages to get the full content"
             }
           },
-          "required": [
-            "query"
-          ],
+          "required": ["query"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -267,7 +202,6 @@
                   },
                   "links": {
                     "type": "array",
-                    "description": "Useful links on the page",
                     "items": {
                       "type": "object",
                       "properties": {
@@ -280,14 +214,12 @@
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "name",
-                        "url"
-                      ],
+                      "required": ["name", "url"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
-                    "x-zui": {}
+                    "x-zui": {},
+                    "description": "Useful links on the page"
                   },
                   "page": {
                     "type": "object",
@@ -313,28 +245,19 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "url",
-                      "content"
-                    ],
+                    "required": ["url", "content"],
                     "additionalProperties": false,
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "name",
-                  "url",
-                  "snippet"
-                ],
+                "required": ["name", "url", "snippet"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [
-            "results"
-          ],
+          "required": ["results"],
           "additionalProperties": false,
           "x-zui": {}
         }

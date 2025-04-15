@@ -12,40 +12,20 @@
           "properties": {
             "markdown": {
               "type": "string",
+              "minLength": 1,
               "description": "The markdown content to convert to PDF",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "filename": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\.pdf$",
               "description": "The filename of the PDF",
-              "anyOf": [
-                {
-                  "type": "string",
-                  "description": "The filename of the PDF",
-                  "x-zui": {},
-                  "minLength": 1,
-                  "pattern": "\\.pdf$"
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
+              "x-zui": {},
               "default": "generated.pdf"
             }
           },
-          "required": [
-            "markdown"
-          ],
+          "required": ["markdown"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -65,10 +45,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "fileId",
-            "fileUrl"
-          ],
+          "required": ["fileId", "fileUrl"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -83,40 +60,20 @@
           "properties": {
             "html": {
               "type": "string",
+              "minLength": 1,
               "description": "The HTML content to convert to PDF",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             },
             "filename": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\.pdf$",
               "description": "The filename of the PDF",
-              "anyOf": [
-                {
-                  "type": "string",
-                  "description": "The filename of the PDF",
-                  "x-zui": {},
-                  "minLength": 1,
-                  "pattern": "\\.pdf$"
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
+              "x-zui": {},
               "default": "generated.pdf"
             }
           },
-          "required": [
-            "html"
-          ],
+          "required": ["html"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -136,10 +93,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "fileId",
-            "fileUrl"
-          ],
+          "required": ["fileId", "fileUrl"],
           "additionalProperties": false,
           "x-zui": {}
         }

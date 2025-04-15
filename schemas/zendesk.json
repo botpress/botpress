@@ -26,10 +26,7 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "articleId",
-          "articleTitle"
-        ],
+        "required": ["articleId", "articleTitle"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -46,9 +43,7 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "articleId"
-        ],
+        "required": ["articleId"],
         "additionalProperties": false,
         "x-zui": {}
       },
@@ -67,10 +62,7 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "conversationId",
-          "userId"
-        ],
+        "required": ["conversationId", "userId"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -84,9 +76,7 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "conversationId"
-        ],
+        "required": ["conversationId"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -107,9 +97,7 @@
               "title": "Ticket id"
             }
           },
-          "required": [
-            "ticketId"
-          ],
+          "required": ["ticketId"],
           "additionalProperties": false,
           "x-zui": {}
         },
@@ -140,59 +128,29 @@
                 },
                 "status": {
                   "type": "string",
-                  "enum": [
-                    "new",
-                    "open",
-                    "pending",
-                    "hold",
-                    "solved",
-                    "closed"
-                  ],
+                  "enum": ["new", "open", "pending", "hold", "solved", "closed"],
                   "x-zui": {}
                 },
                 "priority": {
                   "anyOf": [
                     {
                       "type": "string",
-                      "enum": [
-                        "low",
-                        "normal",
-                        "high",
-                        "urgent"
-                      ],
+                      "enum": ["low", "normal", "high", "urgent"],
                       "x-zui": {}
                     },
                     {
-                      "type": "null",
-                      "x-zui": {}
+                      "type": "null"
                     }
                   ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "x-zui": {}
                 },
                 "requesterId": {
                   "type": "number",
                   "x-zui": {}
                 },
                 "assigneeId": {
-                  "anyOf": [
-                    {
-                      "type": "number",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "null",
-                      "x-zui": {}
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "type": ["number", "null"],
+                  "x-zui": {}
                 },
                 "createdAt": {
                   "type": "string",
@@ -211,21 +169,8 @@
                   "x-zui": {}
                 },
                 "externalId": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "null",
-                      "x-zui": {}
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "type": ["string", "null"],
+                  "x-zui": {}
                 },
                 "comment": {
                   "type": "object",
@@ -252,9 +197,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "ticket"
-          ],
+          "required": ["ticket"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -269,15 +212,13 @@
           "properties": {
             "query": {
               "type": "string",
+              "minLength": 2,
               "description": "partial or full value of any user property, including name, email address, notes, or phone.",
               "x-zui": {},
-              "minLength": 2,
               "title": "Search Query"
             }
           },
-          "required": [
-            "query"
-          ],
+          "required": ["query"],
           "additionalProperties": false,
           "x-zui": {}
         },
@@ -309,63 +250,20 @@
                     "x-zui": {}
                   },
                   "phone": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["string", "null"],
+                    "x-zui": {}
                   },
                   "photo": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["string", "null"],
+                    "x-zui": {}
                   },
                   "remotePhotoUrl": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["string", "null"],
+                    "x-zui": {}
                   },
                   "role": {
                     "type": "string",
-                    "enum": [
-                      "end-user",
-                      "agent",
-                      "admin"
-                    ],
+                    "enum": ["end-user", "agent", "admin"],
                     "x-zui": {}
                   },
                   "tags": {
@@ -385,21 +283,8 @@
                     "x-zui": {}
                   },
                   "externalId": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["string", "null"],
+                    "x-zui": {}
                   },
                   "userFields": {
                     "type": "object",
@@ -410,25 +295,14 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "id",
-                  "name",
-                  "email",
-                  "role",
-                  "tags",
-                  "createdAt",
-                  "updatedAt",
-                  "externalId"
-                ],
+                "required": ["id", "name", "email", "role", "tags", "createdAt", "updatedAt", "externalId"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [
-            "customers"
-          ],
+          "required": ["customers"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -466,12 +340,7 @@
               "title": "Requester email"
             }
           },
-          "required": [
-            "subject",
-            "comment",
-            "requesterName",
-            "requesterEmail"
-          ],
+          "required": ["subject", "comment", "requesterName", "requesterEmail"],
           "additionalProperties": false,
           "x-zui": {}
         },
@@ -511,59 +380,29 @@
                 },
                 "status": {
                   "type": "string",
-                  "enum": [
-                    "new",
-                    "open",
-                    "pending",
-                    "hold",
-                    "solved",
-                    "closed"
-                  ],
+                  "enum": ["new", "open", "pending", "hold", "solved", "closed"],
                   "x-zui": {}
                 },
                 "priority": {
                   "anyOf": [
                     {
                       "type": "string",
-                      "enum": [
-                        "low",
-                        "normal",
-                        "high",
-                        "urgent"
-                      ],
+                      "enum": ["low", "normal", "high", "urgent"],
                       "x-zui": {}
                     },
                     {
-                      "type": "null",
-                      "x-zui": {}
+                      "type": "null"
                     }
                   ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "x-zui": {}
                 },
                 "requesterId": {
                   "type": "number",
                   "x-zui": {}
                 },
                 "assigneeId": {
-                  "anyOf": [
-                    {
-                      "type": "number",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "null",
-                      "x-zui": {}
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "type": ["number", "null"],
+                  "x-zui": {}
                 },
                 "createdAt": {
                   "type": "string",
@@ -582,21 +421,8 @@
                   "x-zui": {}
                 },
                 "externalId": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "null",
-                      "x-zui": {}
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "type": ["string", "null"],
+                  "x-zui": {}
                 },
                 "comment": {
                   "type": "object",
@@ -623,9 +449,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "ticket"
-          ],
+          "required": ["ticket"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -646,14 +470,12 @@
             },
             "comment": {
               "type": "string",
-              "description": "Closing comment",
               "x-zui": {},
+              "description": "Closing comment",
               "title": "Closing comment"
             }
           },
-          "required": [
-            "ticketId"
-          ],
+          "required": ["ticketId"],
           "additionalProperties": false,
           "x-zui": {}
         },
@@ -687,59 +509,29 @@
                 },
                 "status": {
                   "type": "string",
-                  "enum": [
-                    "new",
-                    "open",
-                    "pending",
-                    "hold",
-                    "solved",
-                    "closed"
-                  ],
+                  "enum": ["new", "open", "pending", "hold", "solved", "closed"],
                   "x-zui": {}
                 },
                 "priority": {
                   "anyOf": [
                     {
                       "type": "string",
-                      "enum": [
-                        "low",
-                        "normal",
-                        "high",
-                        "urgent"
-                      ],
+                      "enum": ["low", "normal", "high", "urgent"],
                       "x-zui": {}
                     },
                     {
-                      "type": "null",
-                      "x-zui": {}
+                      "type": "null"
                     }
                   ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "x-zui": {}
                 },
                 "requesterId": {
                   "type": "number",
                   "x-zui": {}
                 },
                 "assigneeId": {
-                  "anyOf": [
-                    {
-                      "type": "number",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "null",
-                      "x-zui": {}
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "type": ["number", "null"],
+                  "x-zui": {}
                 },
                 "createdAt": {
                   "type": "string",
@@ -758,21 +550,8 @@
                   "x-zui": {}
                 },
                 "externalId": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "x-zui": {}
-                    },
-                    {
-                      "type": "null",
-                      "x-zui": {}
-                    }
-                  ],
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodNullable"
-                    }
-                  }
+                  "type": ["string", "null"],
+                  "x-zui": {}
                 },
                 "comment": {
                   "type": "object",
@@ -799,9 +578,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "ticket"
-          ],
+          "required": ["ticket"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -815,26 +592,10 @@
           "type": "object",
           "properties": {
             "isOnline": {
-              "anyOf": [
-                {
-                  "type": "boolean",
-                  "x-zui": {}
-                },
-                {
-                  "not": true,
-                  "x-zui": {
-                    "def": {
-                      "typeName": "ZodUndefined"
-                    }
-                  }
-                }
-              ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodOptional"
-                }
-              },
-              "default": true
+              "type": "boolean",
+              "x-zui": {},
+              "default": true,
+              "description": "Only return agents that are currently online"
             }
           },
           "additionalProperties": false,
@@ -863,63 +624,20 @@
                     "x-zui": {}
                   },
                   "phone": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["string", "null"],
+                    "x-zui": {}
                   },
                   "photo": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["string", "null"],
+                    "x-zui": {}
                   },
                   "remotePhotoUrl": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["string", "null"],
+                    "x-zui": {}
                   },
                   "role": {
                     "type": "string",
-                    "enum": [
-                      "end-user",
-                      "agent",
-                      "admin"
-                    ],
+                    "enum": ["end-user", "agent", "admin"],
                     "x-zui": {}
                   },
                   "tags": {
@@ -939,21 +657,8 @@
                     "x-zui": {}
                   },
                   "externalId": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "x-zui": {}
-                      },
-                      {
-                        "type": "null",
-                        "x-zui": {}
-                      }
-                    ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "type": ["string", "null"],
+                    "x-zui": {}
                   },
                   "userFields": {
                     "type": "object",
@@ -964,25 +669,14 @@
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "id",
-                  "name",
-                  "email",
-                  "role",
-                  "tags",
-                  "createdAt",
-                  "updatedAt",
-                  "externalId"
-                ],
+                "required": ["id", "name", "email", "role", "tags", "createdAt", "updatedAt", "externalId"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
               "x-zui": {}
             }
           },
-          "required": [
-            "agents"
-          ],
+          "required": ["agents"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -997,14 +691,8 @@
           "properties": {
             "method": {
               "type": "string",
+              "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
               "description": "HTTP Method",
-              "enum": [
-                "GET",
-                "POST",
-                "PUT",
-                "PATCH",
-                "DELETE"
-              ],
               "x-zui": {}
             },
             "path": {
@@ -1014,24 +702,21 @@
             },
             "headers": {
               "type": "string",
-              "description": "Headers (JSON)",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "Headers (JSON)"
             },
             "params": {
               "type": "string",
-              "description": "Query Params (JSON)",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "Query Params (JSON)"
             },
             "requestBody": {
               "type": "string",
-              "description": "Request Body (JSON)",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "Request Body (JSON)"
             }
           },
-          "required": [
-            "method",
-            "path"
-          ],
+          "required": ["method", "path"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1060,11 +745,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "status",
-            "headers",
-            "data"
-          ],
+          "required": ["status", "headers", "data"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1083,9 +764,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "knowledgeBaseId"
-          ],
+          "required": ["knowledgeBaseId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1099,9 +778,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "success"
-          ],
+          "required": ["success"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1138,9 +815,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "userId"
-          ],
+          "required": ["userId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1185,10 +860,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type",
-                              "userId"
-                            ],
+                            "required": ["type", "userId"],
                             "additionalProperties": false,
                             "x-zui": {}
                           },
@@ -1201,9 +873,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type"
-                            ],
+                            "required": ["type"],
                             "additionalProperties": false,
                             "x-zui": {}
                           }
@@ -1220,22 +890,15 @@
                         "properties": {
                           "text": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "x-zui": {}
                           }
                         },
-                        "required": [
-                          "text"
-                        ],
+                        "required": ["text"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "source",
-                      "type",
-                      "payload"
-                    ],
+                    "required": ["source", "type", "payload"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -1257,10 +920,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type",
-                              "userId"
-                            ],
+                            "required": ["type", "userId"],
                             "additionalProperties": false,
                             "x-zui": {}
                           },
@@ -1273,9 +933,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type"
-                            ],
+                            "required": ["type"],
                             "additionalProperties": false,
                             "x-zui": {}
                           }
@@ -1292,22 +950,15 @@
                         "properties": {
                           "imageUrl": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "x-zui": {}
                           }
                         },
-                        "required": [
-                          "imageUrl"
-                        ],
+                        "required": ["imageUrl"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "source",
-                      "type",
-                      "payload"
-                    ],
+                    "required": ["source", "type", "payload"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -1329,10 +980,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type",
-                              "userId"
-                            ],
+                            "required": ["type", "userId"],
                             "additionalProperties": false,
                             "x-zui": {}
                           },
@@ -1345,9 +993,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type"
-                            ],
+                            "required": ["type"],
                             "additionalProperties": false,
                             "x-zui": {}
                           }
@@ -1364,22 +1010,15 @@
                         "properties": {
                           "audioUrl": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "x-zui": {}
                           }
                         },
-                        "required": [
-                          "audioUrl"
-                        ],
+                        "required": ["audioUrl"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "source",
-                      "type",
-                      "payload"
-                    ],
+                    "required": ["source", "type", "payload"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -1401,10 +1040,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type",
-                              "userId"
-                            ],
+                            "required": ["type", "userId"],
                             "additionalProperties": false,
                             "x-zui": {}
                           },
@@ -1417,9 +1053,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type"
-                            ],
+                            "required": ["type"],
                             "additionalProperties": false,
                             "x-zui": {}
                           }
@@ -1436,22 +1070,15 @@
                         "properties": {
                           "videoUrl": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "x-zui": {}
                           }
                         },
-                        "required": [
-                          "videoUrl"
-                        ],
+                        "required": ["videoUrl"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "source",
-                      "type",
-                      "payload"
-                    ],
+                    "required": ["source", "type", "payload"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -1473,10 +1100,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type",
-                              "userId"
-                            ],
+                            "required": ["type", "userId"],
                             "additionalProperties": false,
                             "x-zui": {}
                           },
@@ -1489,9 +1113,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type"
-                            ],
+                            "required": ["type"],
                             "additionalProperties": false,
                             "x-zui": {}
                           }
@@ -1508,27 +1130,19 @@
                         "properties": {
                           "fileUrl": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "x-zui": {}
                           },
                           "title": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "x-zui": {}
                           }
                         },
-                        "required": [
-                          "fileUrl"
-                        ],
+                        "required": ["fileUrl"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "source",
-                      "type",
-                      "payload"
-                    ],
+                    "required": ["source", "type", "payload"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -1550,10 +1164,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type",
-                              "userId"
-                            ],
+                            "required": ["type", "userId"],
                             "additionalProperties": false,
                             "x-zui": {}
                           },
@@ -1566,9 +1177,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type"
-                            ],
+                            "required": ["type"],
                             "additionalProperties": false,
                             "x-zui": {}
                           }
@@ -1600,19 +1209,12 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "latitude",
-                          "longitude"
-                        ],
+                        "required": ["latitude", "longitude"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "source",
-                      "type",
-                      "payload"
-                    ],
+                    "required": ["source", "type", "payload"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -1634,10 +1236,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type",
-                              "userId"
-                            ],
+                            "required": ["type", "userId"],
                             "additionalProperties": false,
                             "x-zui": {}
                           },
@@ -1650,9 +1249,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type"
-                            ],
+                            "required": ["type"],
                             "additionalProperties": false,
                             "x-zui": {}
                           }
@@ -1674,18 +1271,15 @@
                               "properties": {
                                 "title": {
                                   "type": "string",
-                                  "x-zui": {},
-                                  "minLength": 1
+                                  "x-zui": {}
                                 },
                                 "subtitle": {
                                   "type": "string",
-                                  "x-zui": {},
-                                  "minLength": 1
+                                  "x-zui": {}
                                 },
                                 "imageUrl": {
                                   "type": "string",
-                                  "x-zui": {},
-                                  "minLength": 1
+                                  "x-zui": {}
                                 },
                                 "actions": {
                                   "type": "array",
@@ -1694,57 +1288,38 @@
                                     "properties": {
                                       "action": {
                                         "type": "string",
-                                        "enum": [
-                                          "postback",
-                                          "url",
-                                          "say"
-                                        ],
+                                        "enum": ["postback", "url", "say"],
                                         "x-zui": {}
                                       },
                                       "label": {
                                         "type": "string",
-                                        "x-zui": {},
-                                        "minLength": 1
+                                        "x-zui": {}
                                       },
                                       "value": {
                                         "type": "string",
-                                        "x-zui": {},
-                                        "minLength": 1
+                                        "x-zui": {}
                                       }
                                     },
-                                    "required": [
-                                      "action",
-                                      "label",
-                                      "value"
-                                    ],
+                                    "required": ["action", "label", "value"],
                                     "additionalProperties": false,
                                     "x-zui": {}
                                   },
                                   "x-zui": {}
                                 }
                               },
-                              "required": [
-                                "title",
-                                "actions"
-                              ],
+                              "required": ["title", "actions"],
                               "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "items"
-                        ],
+                        "required": ["items"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "source",
-                      "type",
-                      "payload"
-                    ],
+                    "required": ["source", "type", "payload"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -1766,10 +1341,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type",
-                              "userId"
-                            ],
+                            "required": ["type", "userId"],
                             "additionalProperties": false,
                             "x-zui": {}
                           },
@@ -1782,9 +1354,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type"
-                            ],
+                            "required": ["type"],
                             "additionalProperties": false,
                             "x-zui": {}
                           }
@@ -1801,18 +1371,15 @@
                         "properties": {
                           "title": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "x-zui": {}
                           },
                           "subtitle": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "x-zui": {}
                           },
                           "imageUrl": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "x-zui": {}
                           },
                           "actions": {
                             "type": "array",
@@ -1821,48 +1388,31 @@
                               "properties": {
                                 "action": {
                                   "type": "string",
-                                  "enum": [
-                                    "postback",
-                                    "url",
-                                    "say"
-                                  ],
+                                  "enum": ["postback", "url", "say"],
                                   "x-zui": {}
                                 },
                                 "label": {
                                   "type": "string",
-                                  "x-zui": {},
-                                  "minLength": 1
+                                  "x-zui": {}
                                 },
                                 "value": {
                                   "type": "string",
-                                  "x-zui": {},
-                                  "minLength": 1
+                                  "x-zui": {}
                                 }
                               },
-                              "required": [
-                                "action",
-                                "label",
-                                "value"
-                              ],
+                              "required": ["action", "label", "value"],
                               "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "title",
-                          "actions"
-                        ],
+                        "required": ["title", "actions"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "source",
-                      "type",
-                      "payload"
-                    ],
+                    "required": ["source", "type", "payload"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -1884,10 +1434,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type",
-                              "userId"
-                            ],
+                            "required": ["type", "userId"],
                             "additionalProperties": false,
                             "x-zui": {}
                           },
@@ -1900,9 +1447,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type"
-                            ],
+                            "required": ["type"],
                             "additionalProperties": false,
                             "x-zui": {}
                           }
@@ -1919,8 +1464,7 @@
                         "properties": {
                           "text": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "x-zui": {}
                           },
                           "options": {
                             "type": "array",
@@ -1929,38 +1473,26 @@
                               "properties": {
                                 "label": {
                                   "type": "string",
-                                  "x-zui": {},
-                                  "minLength": 1
+                                  "x-zui": {}
                                 },
                                 "value": {
                                   "type": "string",
-                                  "x-zui": {},
-                                  "minLength": 1
+                                  "x-zui": {}
                                 }
                               },
-                              "required": [
-                                "label",
-                                "value"
-                              ],
+                              "required": ["label", "value"],
                               "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "text",
-                          "options"
-                        ],
+                        "required": ["text", "options"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "source",
-                      "type",
-                      "payload"
-                    ],
+                    "required": ["source", "type", "payload"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -1982,10 +1514,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type",
-                              "userId"
-                            ],
+                            "required": ["type", "userId"],
                             "additionalProperties": false,
                             "x-zui": {}
                           },
@@ -1998,9 +1527,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type"
-                            ],
+                            "required": ["type"],
                             "additionalProperties": false,
                             "x-zui": {}
                           }
@@ -2017,8 +1544,7 @@
                         "properties": {
                           "text": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "x-zui": {}
                           },
                           "options": {
                             "type": "array",
@@ -2027,38 +1553,26 @@
                               "properties": {
                                 "label": {
                                   "type": "string",
-                                  "x-zui": {},
-                                  "minLength": 1
+                                  "x-zui": {}
                                 },
                                 "value": {
                                   "type": "string",
-                                  "x-zui": {},
-                                  "minLength": 1
+                                  "x-zui": {}
                                 }
                               },
-                              "required": [
-                                "label",
-                                "value"
-                              ],
+                              "required": ["label", "value"],
                               "additionalProperties": false,
                               "x-zui": {}
                             },
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "text",
-                          "options"
-                        ],
+                        "required": ["text", "options"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "source",
-                      "type",
-                      "payload"
-                    ],
+                    "required": ["source", "type", "payload"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -2080,10 +1594,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type",
-                              "userId"
-                            ],
+                            "required": ["type", "userId"],
                             "additionalProperties": false,
                             "x-zui": {}
                           },
@@ -2096,9 +1607,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type"
-                            ],
+                            "required": ["type"],
                             "additionalProperties": false,
                             "x-zui": {}
                           }
@@ -2130,21 +1639,15 @@
                                       "properties": {
                                         "text": {
                                           "type": "string",
-                                          "x-zui": {},
-                                          "minLength": 1
+                                          "x-zui": {}
                                         }
                                       },
-                                      "required": [
-                                        "text"
-                                      ],
+                                      "required": ["text"],
                                       "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
-                                  "required": [
-                                    "type",
-                                    "payload"
-                                  ],
+                                  "required": ["type", "payload"],
                                   "additionalProperties": false,
                                   "x-zui": {}
                                 },
@@ -2161,21 +1664,15 @@
                                       "properties": {
                                         "markdown": {
                                           "type": "string",
-                                          "x-zui": {},
-                                          "minLength": 1
+                                          "x-zui": {}
                                         }
                                       },
-                                      "required": [
-                                        "markdown"
-                                      ],
+                                      "required": ["markdown"],
                                       "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
-                                  "required": [
-                                    "type",
-                                    "payload"
-                                  ],
+                                  "required": ["type", "payload"],
                                   "additionalProperties": false,
                                   "x-zui": {}
                                 },
@@ -2192,21 +1689,15 @@
                                       "properties": {
                                         "imageUrl": {
                                           "type": "string",
-                                          "x-zui": {},
-                                          "minLength": 1
+                                          "x-zui": {}
                                         }
                                       },
-                                      "required": [
-                                        "imageUrl"
-                                      ],
+                                      "required": ["imageUrl"],
                                       "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
-                                  "required": [
-                                    "type",
-                                    "payload"
-                                  ],
+                                  "required": ["type", "payload"],
                                   "additionalProperties": false,
                                   "x-zui": {}
                                 },
@@ -2223,21 +1714,15 @@
                                       "properties": {
                                         "audioUrl": {
                                           "type": "string",
-                                          "x-zui": {},
-                                          "minLength": 1
+                                          "x-zui": {}
                                         }
                                       },
-                                      "required": [
-                                        "audioUrl"
-                                      ],
+                                      "required": ["audioUrl"],
                                       "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
-                                  "required": [
-                                    "type",
-                                    "payload"
-                                  ],
+                                  "required": ["type", "payload"],
                                   "additionalProperties": false,
                                   "x-zui": {}
                                 },
@@ -2254,21 +1739,15 @@
                                       "properties": {
                                         "videoUrl": {
                                           "type": "string",
-                                          "x-zui": {},
-                                          "minLength": 1
+                                          "x-zui": {}
                                         }
                                       },
-                                      "required": [
-                                        "videoUrl"
-                                      ],
+                                      "required": ["videoUrl"],
                                       "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
-                                  "required": [
-                                    "type",
-                                    "payload"
-                                  ],
+                                  "required": ["type", "payload"],
                                   "additionalProperties": false,
                                   "x-zui": {}
                                 },
@@ -2285,26 +1764,19 @@
                                       "properties": {
                                         "fileUrl": {
                                           "type": "string",
-                                          "x-zui": {},
-                                          "minLength": 1
+                                          "x-zui": {}
                                         },
                                         "title": {
                                           "type": "string",
-                                          "x-zui": {},
-                                          "minLength": 1
+                                          "x-zui": {}
                                         }
                                       },
-                                      "required": [
-                                        "fileUrl"
-                                      ],
+                                      "required": ["fileUrl"],
                                       "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
-                                  "required": [
-                                    "type",
-                                    "payload"
-                                  ],
+                                  "required": ["type", "payload"],
                                   "additionalProperties": false,
                                   "x-zui": {}
                                 },
@@ -2336,18 +1808,12 @@
                                           "x-zui": {}
                                         }
                                       },
-                                      "required": [
-                                        "latitude",
-                                        "longitude"
-                                      ],
+                                      "required": ["latitude", "longitude"],
                                       "additionalProperties": false,
                                       "x-zui": {}
                                     }
                                   },
-                                  "required": [
-                                    "type",
-                                    "payload"
-                                  ],
+                                  "required": ["type", "payload"],
                                   "additionalProperties": false,
                                   "x-zui": {}
                                 }
@@ -2357,18 +1823,12 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "items"
-                        ],
+                        "required": ["items"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "source",
-                      "type",
-                      "payload"
-                    ],
+                    "required": ["source", "type", "payload"],
                     "additionalProperties": false,
                     "x-zui": {}
                   },
@@ -2390,10 +1850,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type",
-                              "userId"
-                            ],
+                            "required": ["type", "userId"],
                             "additionalProperties": false,
                             "x-zui": {}
                           },
@@ -2406,9 +1863,7 @@
                                 "x-zui": {}
                               }
                             },
-                            "required": [
-                              "type"
-                            ],
+                            "required": ["type"],
                             "additionalProperties": false,
                             "x-zui": {}
                           }
@@ -2425,22 +1880,15 @@
                         "properties": {
                           "markdown": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "x-zui": {}
                           }
                         },
-                        "required": [
-                          "markdown"
-                        ],
+                        "required": ["markdown"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "source",
-                      "type",
-                      "payload"
-                    ],
+                    "required": ["source", "type", "payload"],
                     "additionalProperties": false,
                     "x-zui": {}
                   }
@@ -2450,10 +1898,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "userId",
-            "title"
-          ],
+          "required": ["userId", "title"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -2467,9 +1912,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "conversationId"
-          ],
+          "required": ["conversationId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -2486,16 +1929,11 @@
             },
             "reason": {
               "type": "string",
-              "enum": [
-                "timeout",
-                "cancel"
-              ],
+              "enum": ["timeout", "cancel"],
               "x-zui": {}
             }
           },
-          "required": [
-            "conversationId"
-          ],
+          "required": ["conversationId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -2519,17 +1957,14 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "x-zui": {}
               },
               "userId": {
                 "type": "string",
                 "x-zui": {}
               }
             },
-            "required": [
-              "text"
-            ],
+            "required": ["text"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -2572,10 +2007,7 @@
             "x-zui": {}
           }
         },
-        "required": [
-          "subscriptionId",
-          "triggerIds"
-        ],
+        "required": ["subscriptionId", "triggerIds"],
         "additionalProperties": false,
         "x-zui": {}
       }

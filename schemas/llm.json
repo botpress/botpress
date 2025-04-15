@@ -5,16 +5,13 @@
     "modelRef": {
       "schema": {
         "type": "object",
-        "description": "Model to use for content generation",
         "properties": {
           "id": {
             "type": "string",
             "x-zui": {}
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -36,47 +33,33 @@
             },
             "reasoningEffort": {
               "type": "string",
-              "description": "Reasoning effort level to use for models that support reasoning",
-              "enum": [
-                "low",
-                "medium",
-                "high"
-              ],
-              "x-zui": {}
+              "enum": ["low", "medium", "high"],
+              "x-zui": {},
+              "description": "Reasoning effort level to use for models that support reasoning"
             },
             "systemPrompt": {
               "type": "string",
-              "description": "Optional system prompt to guide the model",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "Optional system prompt to guide the model"
             },
             "messages": {
               "type": "array",
-              "description": "Array of messages for the model to process",
               "items": {
                 "type": "object",
                 "properties": {
                   "role": {
                     "type": "string",
-                    "enum": [
-                      "user",
-                      "assistant"
-                    ],
+                    "enum": ["user", "assistant"],
                     "x-zui": {}
                   },
                   "type": {
                     "type": "string",
-                    "enum": [
-                      "text",
-                      "tool_calls",
-                      "tool_result",
-                      "multipart"
-                    ],
+                    "enum": ["text", "tool_calls", "tool_result", "multipart"],
                     "x-zui": {},
                     "default": "text"
                   },
                   "toolCalls": {
                     "type": "array",
-                    "description": "Required if `type` is \"tool_calls\"",
                     "items": {
                       "type": "object",
                       "properties": {
@@ -86,9 +69,7 @@
                         },
                         "type": {
                           "type": "string",
-                          "enum": [
-                            "function"
-                          ],
+                          "enum": ["function"],
                           "x-zui": {}
                         },
                         "function": {
@@ -102,51 +83,39 @@
                               "anyOf": [
                                 {
                                   "type": "object",
-                                  "description": "Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens.",
                                   "additionalProperties": {
                                     "x-zui": {}
                                   },
                                   "x-zui": {}
                                 },
                                 {
-                                  "type": "null",
-                                  "x-zui": {}
+                                  "type": "null"
                                 }
                               ],
-                              "x-zui": {
-                                "def": {
-                                  "typeName": "ZodNullable"
-                                }
-                              }
+                              "description": "Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens.",
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "name",
-                            "arguments"
-                          ],
+                          "required": ["name", "arguments"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "id",
-                        "type",
-                        "function"
-                      ],
+                      "required": ["id", "type", "function"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
-                    "x-zui": {}
+                    "x-zui": {},
+                    "description": "Required if `type` is \"tool_calls\""
                   },
                   "toolResultCallId": {
                     "type": "string",
-                    "description": "Required if `type` is \"tool_result\"",
-                    "x-zui": {}
+                    "x-zui": {},
+                    "description": "Required if `type` is \"tool_result\""
                   },
                   "content": {
                     "anyOf": [
                       {
-                        "description": "Required unless `type` is \"tool_call\". If `type` is \"multipart\", this field must be an array of content objects. If `type` is \"tool_result\" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is \"tool_call\" then the `toolCalls` field should be used instead.",
                         "anyOf": [
                           {
                             "type": "string",
@@ -159,31 +128,26 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": [
-                                    "text",
-                                    "image"
-                                  ],
+                                  "enum": ["text", "image"],
                                   "x-zui": {}
                                 },
                                 "mimeType": {
                                   "type": "string",
-                                  "description": "Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL.",
-                                  "x-zui": {}
+                                  "x-zui": {},
+                                  "description": "Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL."
                                 },
                                 "text": {
                                   "type": "string",
-                                  "description": "Required if part type is \"text\" ",
-                                  "x-zui": {}
+                                  "x-zui": {},
+                                  "description": "Required if part type is \"text\" "
                                 },
                                 "url": {
                                   "type": "string",
-                                  "description": "Required if part type is \"image\"",
-                                  "x-zui": {}
+                                  "x-zui": {},
+                                  "description": "Required if part type is \"image\""
                                 }
                               },
-                              "required": [
-                                "type"
-                              ],
+                              "required": ["type"],
                               "additionalProperties": false,
                               "x-zui": {}
                             },
@@ -193,42 +157,35 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null",
-                        "x-zui": {}
+                        "type": "null"
                       }
                     ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "description": "Required unless `type` is \"tool_call\". If `type` is \"multipart\", this field must be an array of content objects. If `type` is \"tool_result\" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is \"tool_call\" then the `toolCalls` field should be used instead.",
+                    "x-zui": {}
                   }
                 },
-                "required": [
-                  "role",
-                  "content"
-                ],
+                "required": ["role", "content"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
+              "description": "Array of messages for the model to process",
               "x-zui": {}
             },
             "responseFormat": {
               "type": "string",
-              "description": "Response format expected from the model. If \"json_object\" is chosen, you must instruct the model to generate JSON either via the system prompt or a user message.",
-              "enum": [
-                "text",
-                "json_object"
-              ],
-              "x-zui": {}
+              "enum": ["text", "json_object"],
+              "x-zui": {},
+              "description": "Response format expected from the model. If \"json_object\" is chosen, you must instruct the model to generate JSON either via the system prompt or a user message."
             },
             "maxTokens": {
               "type": "number",
-              "description": "Maximum number of tokens allowed in the generated response",
-              "x-zui": {}
+              "x-zui": {},
+              "description": "Maximum number of tokens allowed in the generated response"
             },
             "temperature": {
               "type": "number",
+              "minimum": 0,
+              "maximum": 2,
               "x-zui": {
                 "displayAs": [
                   "slider",
@@ -238,26 +195,34 @@
                   }
                 ]
               },
-              "minimum": 0,
-              "maximum": 2,
-              "default": 1
+              "default": 1,
+              "description": "Sampling temperature for the model. Higher values result in more random outputs."
             },
             "topP": {
               "type": "number",
-              "x-zui": {},
               "minimum": 0,
               "maximum": 1,
-              "default": 1
+              "x-zui": {
+                "displayAs": [
+                  "slider",
+                  {
+                    "stepSize": 0.01,
+                    "horizontal": true
+                  }
+                ]
+              },
+              "default": 1,
+              "description": "Top-p sampling parameter. Limits sampling to the smallest set of tokens with a cumulative probability above the threshold."
             },
             "stopSequences": {
               "type": "array",
-              "description": "Sequences where the model should stop generating further tokens.",
               "items": {
                 "type": "string",
                 "x-zui": {}
               },
+              "maxItems": 4,
               "x-zui": {},
-              "maxItems": 4
+              "description": "Sequences where the model should stop generating further tokens."
             },
             "tools": {
               "type": "array",
@@ -283,23 +248,18 @@
                       },
                       "argumentsSchema": {
                         "type": "object",
-                        "description": "JSON schema of the function arguments",
                         "properties": {},
                         "additionalProperties": true,
-                        "x-zui": {}
+                        "x-zui": {},
+                        "description": "JSON schema of the function arguments"
                       }
                     },
-                    "required": [
-                      "name"
-                    ],
+                    "required": ["name"],
                     "additionalProperties": false,
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "type",
-                  "function"
-                ],
+                "required": ["type", "function"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
@@ -310,19 +270,13 @@
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": [
-                    "auto",
-                    "specific",
-                    "any",
-                    "none",
-                    ""
-                  ],
+                  "enum": ["auto", "specific", "any", "none", ""],
                   "x-zui": {}
                 },
                 "functionName": {
                   "type": "string",
-                  "description": "Required if `type` is \"specific\"",
-                  "x-zui": {}
+                  "x-zui": {},
+                  "description": "Required if `type` is \"specific\""
                 }
               },
               "additionalProperties": false,
@@ -334,18 +288,18 @@
             },
             "debug": {
               "type": "boolean",
-              "description": "Set to `true` to output debug information to the bot logs",
               "x-zui": {
                 "hidden": true
-              }
+              },
+              "description": "Set to `true` to output debug information to the bot logs"
             },
             "meta": {
               "type": "object",
               "properties": {
                 "promptSource": {
                   "type": "string",
-                  "description": "Source of the prompt, e.g. agent/:id/:version cards/ai-generate, cards/ai-task, nodes/autonomous, etc.",
-                  "x-zui": {}
+                  "x-zui": {},
+                  "description": "Source of the prompt, e.g. agent/:id/:version cards/ai-generate, cards/ai-task, nodes/autonomous, etc."
                 },
                 "promptCategory": {
                   "type": "string",
@@ -353,8 +307,8 @@
                 },
                 "integrationName": {
                   "type": "string",
-                  "description": "Name of the integration that originally received the message that initiated this action",
-                  "x-zui": {}
+                  "x-zui": {},
+                  "description": "Name of the integration that originally received the message that initiated this action"
                 }
               },
               "additionalProperties": false,
@@ -363,9 +317,7 @@
               }
             }
           },
-          "required": [
-            "messages"
-          ],
+          "required": ["messages"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -396,18 +348,12 @@
                 "properties": {
                   "type": {
                     "type": "string",
-                    "enum": [
-                      "text",
-                      "tool_calls",
-                      "tool_result",
-                      "multipart"
-                    ],
+                    "enum": ["text", "tool_calls", "tool_result", "multipart"],
                     "x-zui": {},
                     "default": "text"
                   },
                   "toolCalls": {
                     "type": "array",
-                    "description": "Required if `type` is \"tool_calls\"",
                     "items": {
                       "type": "object",
                       "properties": {
@@ -417,9 +363,7 @@
                         },
                         "type": {
                           "type": "string",
-                          "enum": [
-                            "function"
-                          ],
+                          "enum": ["function"],
                           "x-zui": {}
                         },
                         "function": {
@@ -433,51 +377,39 @@
                               "anyOf": [
                                 {
                                   "type": "object",
-                                  "description": "Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens.",
                                   "additionalProperties": {
                                     "x-zui": {}
                                   },
                                   "x-zui": {}
                                 },
                                 {
-                                  "type": "null",
-                                  "x-zui": {}
+                                  "type": "null"
                                 }
                               ],
-                              "x-zui": {
-                                "def": {
-                                  "typeName": "ZodNullable"
-                                }
-                              }
+                              "description": "Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens.",
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "name",
-                            "arguments"
-                          ],
+                          "required": ["name", "arguments"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "id",
-                        "type",
-                        "function"
-                      ],
+                      "required": ["id", "type", "function"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
-                    "x-zui": {}
+                    "x-zui": {},
+                    "description": "Required if `type` is \"tool_calls\""
                   },
                   "toolResultCallId": {
                     "type": "string",
-                    "description": "Required if `type` is \"tool_result\"",
-                    "x-zui": {}
+                    "x-zui": {},
+                    "description": "Required if `type` is \"tool_result\""
                   },
                   "content": {
                     "anyOf": [
                       {
-                        "description": "Required unless `type` is \"tool_call\". If `type` is \"multipart\", this field must be an array of content objects. If `type` is \"tool_result\" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is \"tool_call\" then the `toolCalls` field should be used instead.",
                         "anyOf": [
                           {
                             "type": "string",
@@ -490,31 +422,26 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": [
-                                    "text",
-                                    "image"
-                                  ],
+                                  "enum": ["text", "image"],
                                   "x-zui": {}
                                 },
                                 "mimeType": {
                                   "type": "string",
-                                  "description": "Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL.",
-                                  "x-zui": {}
+                                  "x-zui": {},
+                                  "description": "Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL."
                                 },
                                 "text": {
                                   "type": "string",
-                                  "description": "Required if part type is \"text\" ",
-                                  "x-zui": {}
+                                  "x-zui": {},
+                                  "description": "Required if part type is \"text\" "
                                 },
                                 "url": {
                                   "type": "string",
-                                  "description": "Required if part type is \"image\"",
-                                  "x-zui": {}
+                                  "x-zui": {},
+                                  "description": "Required if part type is \"image\""
                                 }
                               },
-                              "required": [
-                                "type"
-                              ],
+                              "required": ["type"],
                               "additionalProperties": false,
                               "x-zui": {}
                             },
@@ -524,15 +451,11 @@
                         "x-zui": {}
                       },
                       {
-                        "type": "null",
-                        "x-zui": {}
+                        "type": "null"
                       }
                     ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "description": "Required unless `type` is \"tool_call\". If `type` is \"multipart\", this field must be an array of content objects. If `type` is \"tool_result\" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is \"tool_call\" then the `toolCalls` field should be used instead.",
+                    "x-zui": {}
                   },
                   "role": {
                     "type": "string",
@@ -545,22 +468,11 @@
                   },
                   "stopReason": {
                     "type": "string",
-                    "enum": [
-                      "stop",
-                      "max_tokens",
-                      "tool_calls",
-                      "content_filter",
-                      "other"
-                    ],
+                    "enum": ["stop", "max_tokens", "tool_calls", "content_filter", "other"],
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "content",
-                  "role",
-                  "index",
-                  "stopReason"
-                ],
+                "required": ["content", "role", "index", "stopReason"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
@@ -590,12 +502,7 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "inputTokens",
-                "inputCost",
-                "outputTokens",
-                "outputCost"
-              ],
+              "required": ["inputTokens", "inputCost", "outputTokens", "outputCost"],
               "additionalProperties": false,
               "x-zui": {}
             },
@@ -608,21 +515,12 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "cost"
-              ],
+              "required": ["cost"],
               "additionalProperties": false,
               "x-zui": {}
             }
           },
-          "required": [
-            "id",
-            "provider",
-            "model",
-            "choices",
-            "usage",
-            "botpress"
-          ],
+          "required": ["id", "provider", "model", "choices", "usage", "botpress"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -695,10 +593,7 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "maxTokens",
-                          "costPer1MTokens"
-                        ],
+                        "required": ["maxTokens", "costPer1MTokens"],
                         "additionalProperties": false,
                         "x-zui": {}
                       },
@@ -715,28 +610,16 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "maxTokens",
-                          "costPer1MTokens"
-                        ],
+                        "required": ["maxTokens", "costPer1MTokens"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id",
-                      "name",
-                      "description",
-                      "tags",
-                      "input",
-                      "output"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id", "name", "description", "tags", "input", "output"],
                     "x-zui": {}
                   },
                   {
                     "$ref": "modelRef",
-                    "description": "Model to use for content generation",
                     "x-zui": {}
                   }
                 ],
@@ -745,9 +628,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "models"
-          ],
+          "required": ["models"],
           "additionalProperties": false,
           "x-zui": {}
         }

@@ -15,29 +15,20 @@
               "properties": {
                 "id": {
                   "type": "string",
+                  "enum": ["llama3.1-8b", "llama3.3-70b"],
                   "description": "Model to use for content generation",
-                  "enum": [
-                    "llama3.1-8b",
-                    "llama3.3-70b"
-                  ],
                   "x-zui": {
                     "placeholder": "llama3.1-8b"
                   }
                 }
               },
-              "required": [
-                "id"
-              ],
+              "required": ["id"],
               "additionalProperties": false,
               "x-zui": {}
             },
             "reasoningEffort": {
               "type": "string",
-              "enum": [
-                "low",
-                "medium",
-                "high"
-              ],
+              "enum": ["low", "medium", "high"],
               "x-zui": {}
             },
             "systemPrompt": {
@@ -51,20 +42,12 @@
                 "properties": {
                   "role": {
                     "type": "string",
-                    "enum": [
-                      "user",
-                      "assistant"
-                    ],
+                    "enum": ["user", "assistant"],
                     "x-zui": {}
                   },
                   "type": {
                     "type": "string",
-                    "enum": [
-                      "text",
-                      "tool_calls",
-                      "tool_result",
-                      "multipart"
-                    ],
+                    "enum": ["text", "tool_calls", "tool_result", "multipart"],
                     "x-zui": {},
                     "default": "text"
                   },
@@ -79,9 +62,7 @@
                         },
                         "type": {
                           "type": "string",
-                          "enum": [
-                            "function"
-                          ],
+                          "const": "function",
                           "x-zui": {}
                         },
                         "function": {
@@ -105,26 +86,15 @@
                                   "x-zui": {}
                                 }
                               ],
-                              "x-zui": {
-                                "def": {
-                                  "typeName": "ZodNullable"
-                                }
-                              }
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "name",
-                            "arguments"
-                          ],
+                          "required": ["name", "arguments"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "id",
-                        "type",
-                        "function"
-                      ],
+                      "required": ["id", "type", "function"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -149,10 +119,7 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": [
-                                    "text",
-                                    "image"
-                                  ],
+                                  "enum": ["text", "image"],
                                   "x-zui": {}
                                 },
                                 "mimeType": {
@@ -168,9 +135,7 @@
                                   "x-zui": {}
                                 }
                               },
-                              "required": [
-                                "type"
-                              ],
+                              "required": ["type"],
                               "additionalProperties": false,
                               "x-zui": {}
                             },
@@ -184,17 +149,10 @@
                         "x-zui": {}
                       }
                     ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "x-zui": {}
                   }
                 },
-                "required": [
-                  "role",
-                  "content"
-                ],
+                "required": ["role", "content"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
@@ -202,10 +160,7 @@
             },
             "responseFormat": {
               "type": "string",
-              "enum": [
-                "text",
-                "json_object"
-              ],
+              "enum": ["text", "json_object"],
               "x-zui": {}
             },
             "maxTokens": {
@@ -215,15 +170,11 @@
             "temperature": {
               "type": "number",
               "x-zui": {},
-              "minimum": 0,
-              "maximum": 2,
               "default": 1
             },
             "topP": {
               "type": "number",
               "x-zui": {},
-              "minimum": 0,
-              "maximum": 1,
               "default": 1
             },
             "stopSequences": {
@@ -232,8 +183,7 @@
                 "type": "string",
                 "x-zui": {}
               },
-              "x-zui": {},
-              "maxItems": 4
+              "x-zui": {}
             },
             "tools": {
               "type": "array",
@@ -263,17 +213,12 @@
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "name"
-                    ],
+                    "required": ["name"],
                     "additionalProperties": false,
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "type",
-                  "function"
-                ],
+                "required": ["type", "function"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
@@ -284,13 +229,7 @@
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": [
-                    "auto",
-                    "specific",
-                    "any",
-                    "none",
-                    ""
-                  ],
+                  "enum": ["auto", "specific", "any", "none", ""],
                   "x-zui": {}
                 },
                 "functionName": {
@@ -329,9 +268,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "messages"
-          ],
+          "required": ["messages"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -359,12 +296,7 @@
                 "properties": {
                   "type": {
                     "type": "string",
-                    "enum": [
-                      "text",
-                      "tool_calls",
-                      "tool_result",
-                      "multipart"
-                    ],
+                    "enum": ["text", "tool_calls", "tool_result", "multipart"],
                     "x-zui": {},
                     "default": "text"
                   },
@@ -379,9 +311,7 @@
                         },
                         "type": {
                           "type": "string",
-                          "enum": [
-                            "function"
-                          ],
+                          "const": "function",
                           "x-zui": {}
                         },
                         "function": {
@@ -405,26 +335,15 @@
                                   "x-zui": {}
                                 }
                               ],
-                              "x-zui": {
-                                "def": {
-                                  "typeName": "ZodNullable"
-                                }
-                              }
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "name",
-                            "arguments"
-                          ],
+                          "required": ["name", "arguments"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "id",
-                        "type",
-                        "function"
-                      ],
+                      "required": ["id", "type", "function"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -449,10 +368,7 @@
                               "properties": {
                                 "type": {
                                   "type": "string",
-                                  "enum": [
-                                    "text",
-                                    "image"
-                                  ],
+                                  "enum": ["text", "image"],
                                   "x-zui": {}
                                 },
                                 "mimeType": {
@@ -468,9 +384,7 @@
                                   "x-zui": {}
                                 }
                               },
-                              "required": [
-                                "type"
-                              ],
+                              "required": ["type"],
                               "additionalProperties": false,
                               "x-zui": {}
                             },
@@ -484,11 +398,7 @@
                         "x-zui": {}
                       }
                     ],
-                    "x-zui": {
-                      "def": {
-                        "typeName": "ZodNullable"
-                      }
-                    }
+                    "x-zui": {}
                   },
                   "role": {
                     "type": "string",
@@ -496,27 +406,16 @@
                     "x-zui": {}
                   },
                   "index": {
-                    "type": "integer",
+                    "type": "number",
                     "x-zui": {}
                   },
                   "stopReason": {
                     "type": "string",
-                    "enum": [
-                      "stop",
-                      "max_tokens",
-                      "tool_calls",
-                      "content_filter",
-                      "other"
-                    ],
+                    "enum": ["stop", "max_tokens", "tool_calls", "content_filter", "other"],
                     "x-zui": {}
                   }
                 },
-                "required": [
-                  "content",
-                  "role",
-                  "index",
-                  "stopReason"
-                ],
+                "required": ["content", "role", "index", "stopReason"],
                 "additionalProperties": false,
                 "x-zui": {}
               },
@@ -526,7 +425,7 @@
               "type": "object",
               "properties": {
                 "inputTokens": {
-                  "type": "integer",
+                  "type": "number",
                   "x-zui": {}
                 },
                 "inputCost": {
@@ -534,7 +433,7 @@
                   "x-zui": {}
                 },
                 "outputTokens": {
-                  "type": "integer",
+                  "type": "number",
                   "x-zui": {}
                 },
                 "outputCost": {
@@ -542,12 +441,7 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "inputTokens",
-                "inputCost",
-                "outputTokens",
-                "outputCost"
-              ],
+              "required": ["inputTokens", "inputCost", "outputTokens", "outputCost"],
               "additionalProperties": false,
               "x-zui": {}
             },
@@ -559,21 +453,12 @@
                   "x-zui": {}
                 }
               },
-              "required": [
-                "cost"
-              ],
+              "required": ["cost"],
               "additionalProperties": false,
               "x-zui": {}
             }
           },
-          "required": [
-            "id",
-            "provider",
-            "model",
-            "choices",
-            "usage",
-            "botpress"
-          ],
+          "required": ["id", "provider", "model", "choices", "usage", "botpress"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -639,7 +524,7 @@
                         "type": "object",
                         "properties": {
                           "maxTokens": {
-                            "type": "integer",
+                            "type": "number",
                             "x-zui": {}
                           },
                           "costPer1MTokens": {
@@ -647,10 +532,7 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "maxTokens",
-                          "costPer1MTokens"
-                        ],
+                        "required": ["maxTokens", "costPer1MTokens"],
                         "additionalProperties": false,
                         "x-zui": {}
                       },
@@ -658,7 +540,7 @@
                         "type": "object",
                         "properties": {
                           "maxTokens": {
-                            "type": "integer",
+                            "type": "number",
                             "x-zui": {}
                           },
                           "costPer1MTokens": {
@@ -666,23 +548,12 @@
                             "x-zui": {}
                           }
                         },
-                        "required": [
-                          "maxTokens",
-                          "costPer1MTokens"
-                        ],
+                        "required": ["maxTokens", "costPer1MTokens"],
                         "additionalProperties": false,
                         "x-zui": {}
                       }
                     },
-                    "required": [
-                      "id",
-                      "name",
-                      "description",
-                      "tags",
-                      "input",
-                      "output"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id", "name", "description", "tags", "input", "output"],
                     "x-zui": {}
                   },
                   {
@@ -690,20 +561,14 @@
                     "properties": {
                       "id": {
                         "type": "string",
+                        "enum": ["llama3.1-8b", "llama3.3-70b"],
                         "description": "Model to use for content generation",
-                        "enum": [
-                          "llama3.1-8b",
-                          "llama3.3-70b"
-                        ],
                         "x-zui": {
                           "placeholder": "llama3.1-8b"
                         }
                       }
                     },
-                    "required": [
-                      "id"
-                    ],
-                    "additionalProperties": false,
+                    "required": ["id"],
                     "x-zui": {}
                   }
                 ],
@@ -712,9 +577,7 @@
               "x-zui": {}
             }
           },
-          "required": [
-            "models"
-          ],
+          "required": ["models"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -729,19 +592,14 @@
         "properties": {
           "id": {
             "type": "string",
+            "enum": ["llama3.1-8b", "llama3.3-70b"],
             "description": "Model to use for content generation",
-            "enum": [
-              "llama3.1-8b",
-              "llama3.3-70b"
-            ],
             "x-zui": {
               "placeholder": "llama3.1-8b"
             }
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "additionalProperties": false,
         "x-zui": {}
       }

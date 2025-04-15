@@ -8,26 +8,23 @@
       "input": {
         "schema": {
           "type": "object",
-          "description": "Input schema for sending data",
           "properties": {
             "data": {
               "type": "string",
+              "minLength": 1,
               "description": "JSON string of data to send",
-              "x-zui": {},
-              "minLength": 1
+              "x-zui": {}
             }
           },
-          "required": [
-            "data"
-          ],
+          "required": ["data"],
           "additionalProperties": false,
+          "description": "Input schema for sending data",
           "x-zui": {}
         }
       },
       "output": {
         "schema": {
           "type": "object",
-          "description": "Output schema after sending data, expecting any JSON structure",
           "properties": {
             "success": {
               "type": "boolean",
@@ -41,21 +38,16 @@
                   "x-zui": {}
                 },
                 {
-                  "type": "null",
-                  "x-zui": {}
+                  "type": "null"
                 }
               ],
-              "x-zui": {
-                "def": {
-                  "typeName": "ZodNullable"
-                }
-              }
+              "description": "Data received from Make.com, will be the string `Accepted` if successful and no data is returned",
+              "x-zui": {}
             }
           },
-          "required": [
-            "success"
-          ],
+          "required": ["success"],
           "additionalProperties": false,
+          "description": "Output schema after sending data, expecting any JSON structure",
           "x-zui": {}
         }
       }

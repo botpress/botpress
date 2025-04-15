@@ -7,9 +7,9 @@
       "description": "A user of the system",
       "schema": {
         "type": "object",
-        "description": "The user object fields",
         "properties": {},
         "additionalProperties": false,
+        "description": "The user object fields",
         "x-zui": {
           "title": "User"
         }
@@ -27,24 +27,24 @@
           "properties": {
             "name": {
               "type": "string",
-              "description": "The name of the user",
               "x-zui": {
                 "title": "Name"
-              }
+              },
+              "description": "The name of the user"
             },
             "pictureUrl": {
               "type": "string",
-              "description": "The URL of the user profile picture",
               "x-zui": {
                 "title": "Picture URL"
-              }
+              },
+              "description": "The URL of the user profile picture"
             },
             "email": {
               "type": "string",
-              "description": "The email of the user",
               "x-zui": {
                 "title": "Email"
-              }
+              },
+              "description": "The email of the user"
             },
             "user": {
               "$ref": "user",
@@ -54,9 +54,7 @@
               }
             }
           },
-          "required": [
-            "user"
-          ],
+          "required": ["user"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -73,9 +71,7 @@
               }
             }
           },
-          "required": [
-            "userId"
-          ],
+          "required": ["userId"],
           "additionalProperties": false,
           "x-zui": {}
         }

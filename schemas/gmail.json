@@ -24,13 +24,11 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "text"
-            ],
+            "required": ["text"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -41,20 +39,18 @@
             "properties": {
               "imageUrl": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "title": {
                 "type": "string",
-                "description": "Alt text for the image",
                 "x-zui": {
                   "title": "Alt text"
-                }
+                },
+                "description": "Alt text for the image"
               }
             },
-            "required": [
-              "imageUrl"
-            ],
+            "required": ["imageUrl"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -65,20 +61,18 @@
             "properties": {
               "audioUrl": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "title": {
                 "type": "string",
-                "description": "Title for the audio file",
                 "x-zui": {
                   "title": "Title"
-                }
+                },
+                "description": "Title for the audio file"
               }
             },
-            "required": [
-              "audioUrl"
-            ],
+            "required": ["audioUrl"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -89,20 +83,18 @@
             "properties": {
               "videoUrl": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "title": {
                 "type": "string",
-                "description": "Title for the video file",
                 "x-zui": {
                   "title": "Title"
-                }
+                },
+                "description": "Title for the video file"
               }
             },
-            "required": [
-              "videoUrl"
-            ],
+            "required": ["videoUrl"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -113,20 +105,18 @@
             "properties": {
               "fileUrl": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "title": {
                 "type": "string",
-                "description": "Title for the file",
                 "x-zui": {
                   "title": "Title"
-                }
+                },
+                "description": "Title for the file"
               }
             },
-            "required": [
-              "fileUrl"
-            ],
+            "required": ["fileUrl"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -152,10 +142,7 @@
                 "x-zui": {}
               }
             },
-            "required": [
-              "latitude",
-              "longitude"
-            ],
+            "required": ["latitude", "longitude"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -171,17 +158,17 @@
                   "properties": {
                     "title": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     },
                     "subtitle": {
-                      "type": "string",
                       "x-zui": {},
+                      "type": "string",
                       "minLength": 1
                     },
                     "imageUrl": {
-                      "type": "string",
                       "x-zui": {},
+                      "type": "string",
                       "minLength": 1
                     },
                     "actions": {
@@ -191,48 +178,35 @@
                         "properties": {
                           "action": {
                             "type": "string",
-                            "enum": [
-                              "postback",
-                              "url",
-                              "say"
-                            ],
+                            "enum": ["postback", "url", "say"],
                             "x-zui": {}
                           },
                           "label": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "minLength": 1,
+                            "x-zui": {}
                           },
                           "value": {
                             "type": "string",
-                            "x-zui": {},
-                            "minLength": 1
+                            "minLength": 1,
+                            "x-zui": {}
                           }
                         },
-                        "required": [
-                          "action",
-                          "label",
-                          "value"
-                        ],
+                        "required": ["action", "label", "value"],
                         "additionalProperties": false,
                         "x-zui": {}
                       },
                       "x-zui": {}
                     }
                   },
-                  "required": [
-                    "title",
-                    "actions"
-                  ],
+                  "required": ["title", "actions"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
               }
             },
-            "required": [
-              "items"
-            ],
+            "required": ["items"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -243,17 +217,17 @@
             "properties": {
               "title": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "subtitle": {
-                "type": "string",
                 "x-zui": {},
+                "type": "string",
                 "minLength": 1
               },
               "imageUrl": {
-                "type": "string",
                 "x-zui": {},
+                "type": "string",
                 "minLength": 1
               },
               "actions": {
@@ -263,39 +237,28 @@
                   "properties": {
                     "action": {
                       "type": "string",
-                      "enum": [
-                        "postback",
-                        "url",
-                        "say"
-                      ],
+                      "enum": ["postback", "url", "say"],
                       "x-zui": {}
                     },
                     "label": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     },
                     "value": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     }
                   },
-                  "required": [
-                    "action",
-                    "label",
-                    "value"
-                  ],
+                  "required": ["action", "label", "value"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
               }
             },
-            "required": [
-              "title",
-              "actions"
-            ],
+            "required": ["title", "actions"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -306,8 +269,8 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "options": {
                 "type": "array",
@@ -316,29 +279,23 @@
                   "properties": {
                     "label": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     },
                     "value": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     }
                   },
-                  "required": [
-                    "label",
-                    "value"
-                  ],
+                  "required": ["label", "value"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
               }
             },
-            "required": [
-              "text",
-              "options"
-            ],
+            "required": ["text", "options"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -349,8 +306,8 @@
             "properties": {
               "text": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               },
               "options": {
                 "type": "array",
@@ -359,29 +316,23 @@
                   "properties": {
                     "label": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     },
                     "value": {
                       "type": "string",
-                      "x-zui": {},
-                      "minLength": 1
+                      "minLength": 1,
+                      "x-zui": {}
                     }
                   },
-                  "required": [
-                    "label",
-                    "value"
-                  ],
+                  "required": ["label", "value"],
                   "additionalProperties": false,
                   "x-zui": {}
                 },
                 "x-zui": {}
               }
             },
-            "required": [
-              "text",
-              "options"
-            ],
+            "required": ["text", "options"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -407,21 +358,16 @@
                           "properties": {
                             "text": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "text"
-                          ],
+                          "required": ["text"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -438,21 +384,16 @@
                           "properties": {
                             "markdown": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "markdown"
-                          ],
+                          "required": ["markdown"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -469,21 +410,16 @@
                           "properties": {
                             "imageUrl": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "imageUrl"
-                          ],
+                          "required": ["imageUrl"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -500,21 +436,16 @@
                           "properties": {
                             "audioUrl": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "audioUrl"
-                          ],
+                          "required": ["audioUrl"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -531,21 +462,16 @@
                           "properties": {
                             "videoUrl": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "videoUrl"
-                          ],
+                          "required": ["videoUrl"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -562,26 +488,21 @@
                           "properties": {
                             "fileUrl": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             },
                             "title": {
                               "type": "string",
-                              "x-zui": {},
-                              "minLength": 1
+                              "minLength": 1,
+                              "x-zui": {}
                             }
                           },
-                          "required": [
-                            "fileUrl"
-                          ],
+                          "required": ["fileUrl"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     },
@@ -613,18 +534,12 @@
                               "x-zui": {}
                             }
                           },
-                          "required": [
-                            "latitude",
-                            "longitude"
-                          ],
+                          "required": ["latitude", "longitude"],
                           "additionalProperties": false,
                           "x-zui": {}
                         }
                       },
-                      "required": [
-                        "type",
-                        "payload"
-                      ],
+                      "required": ["type", "payload"],
                       "additionalProperties": false,
                       "x-zui": {}
                     }
@@ -634,9 +549,7 @@
                 "x-zui": {}
               }
             },
-            "required": [
-              "items"
-            ],
+            "required": ["items"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -647,13 +560,11 @@
             "properties": {
               "markdown": {
                 "type": "string",
-                "x-zui": {},
-                "minLength": 1
+                "minLength": 1,
+                "x-zui": {}
               }
             },
-            "required": [
-              "markdown"
-            ],
+            "required": ["markdown"],
             "additionalProperties": false,
             "x-zui": {}
           }
@@ -701,10 +612,10 @@
         "properties": {
           "inReplyTo": {
             "type": "string",
-            "description": "The ID of the message this message is a reply to",
             "x-zui": {
               "title": "In reply to"
-            }
+            },
+            "description": "The ID of the message this message is a reply to"
           }
         },
         "additionalProperties": false,
@@ -725,15 +636,13 @@
           },
           "lastHistoryId": {
             "type": "string",
-            "description": "The last history ID processed by the integration",
             "x-zui": {
               "title": "History cursor"
-            }
+            },
+            "description": "The last history ID processed by the integration"
           }
         },
-        "required": [
-          "refreshToken"
-        ],
+        "required": ["refreshToken"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -751,9 +660,7 @@
             }
           }
         },
-        "required": [
-          "certificates"
-        ],
+        "required": ["certificates"],
         "additionalProperties": false,
         "x-zui": {}
       }

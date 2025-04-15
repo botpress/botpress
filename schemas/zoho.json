@@ -35,23 +35,20 @@
             },
             "data": {
               "type": "string",
-              "description": "The data to send with the request as a string JSON object.",
               "x-zui": {
                 "title": "Date"
-              }
+              },
+              "description": "The data to send with the request as a string JSON object."
             },
             "params": {
               "type": "string",
-              "description": "The params to send with the request as a string JSON object if required.",
               "x-zui": {
                 "title": "Params"
-              }
+              },
+              "description": "The params to send with the request as a string JSON object if required."
             }
           },
-          "required": [
-            "endpoint",
-            "method"
-          ],
+          "required": ["endpoint", "method"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -81,10 +78,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -112,10 +106,7 @@
               }
             }
           },
-          "required": [
-            "module",
-            "data"
-          ],
+          "required": ["module", "data"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -145,10 +136,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -183,11 +171,7 @@
               }
             }
           },
-          "required": [
-            "module",
-            "recordId",
-            "data"
-          ],
+          "required": ["module", "recordId", "data"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -217,10 +201,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -248,10 +229,7 @@
               }
             }
           },
-          "required": [
-            "module",
-            "recordId"
-          ],
+          "required": ["module", "recordId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -281,10 +259,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -312,10 +287,7 @@
               }
             }
           },
-          "required": [
-            "module",
-            "criteria"
-          ],
+          "required": ["module", "criteria"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -345,10 +317,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -376,10 +345,7 @@
               }
             }
           },
-          "required": [
-            "module",
-            "recordId"
-          ],
+          "required": ["module", "recordId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -409,10 +375,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -434,15 +397,13 @@
             },
             "params": {
               "type": "string",
-              "description": "Optional query parameters as a JSON string (e.g., pagination, sorting)",
               "x-zui": {
                 "title": "Params"
-              }
+              },
+              "description": "Optional query parameters as a JSON string (e.g., pagination, sorting)"
             }
           },
-          "required": [
-            "module"
-          ],
+          "required": ["module"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -472,10 +433,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -517,10 +475,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -535,10 +490,10 @@
           "properties": {
             "params": {
               "type": "string",
-              "description": "Optional query parameters as a JSON string for filtering users (e.g., role, status)",
               "x-zui": {
                 "title": "Params"
-              }
+              },
+              "description": "Optional query parameters as a JSON string for filtering users (e.g., role, status)"
             }
           },
           "additionalProperties": false,
@@ -570,10 +525,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -588,10 +540,10 @@
           "properties": {
             "params": {
               "type": "string",
-              "description": "Optional query parameters as a JSON string (e.g., date range, filters)",
               "x-zui": {
                 "title": "Params"
-              }
+              },
+              "description": "Optional query parameters as a JSON string (e.g., date range, filters)"
             }
           },
           "additionalProperties": false,
@@ -623,10 +575,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -647,9 +596,7 @@
               }
             }
           },
-          "required": [
-            "appointmentId"
-          ],
+          "required": ["appointmentId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -679,10 +626,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -703,9 +647,7 @@
               }
             }
           },
-          "required": [
-            "data"
-          ],
+          "required": ["data"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -735,10 +677,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -766,10 +705,7 @@
               }
             }
           },
-          "required": [
-            "appointmentId",
-            "data"
-          ],
+          "required": ["appointmentId", "data"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -799,10 +735,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -823,9 +756,7 @@
               }
             }
           },
-          "required": [
-            "appointmentId"
-          ],
+          "required": ["appointmentId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -855,10 +786,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -893,11 +821,7 @@
               }
             }
           },
-          "required": [
-            "module",
-            "recordId",
-            "data"
-          ],
+          "required": ["module", "recordId", "data"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -927,10 +851,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -951,9 +872,7 @@
               }
             }
           },
-          "required": [
-            "fileUrl"
-          ],
+          "required": ["fileUrl"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -983,10 +902,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1007,9 +923,7 @@
               }
             }
           },
-          "required": [
-            "fileId"
-          ],
+          "required": ["fileId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1039,10 +953,7 @@
               }
             }
           },
-          "required": [
-            "success",
-            "message"
-          ],
+          "required": ["success", "message"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -1063,9 +974,7 @@
             }
           }
         },
-        "required": [
-          "accessToken"
-        ],
+        "required": ["accessToken"],
         "additionalProperties": false,
         "x-zui": {}
       }

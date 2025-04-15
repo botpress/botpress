@@ -1,6 +1,6 @@
 {
   "name": "hitl",
-  "version": "0.4.5",
+  "version": "0.5.0",
   "title": "Human In The Loop",
   "description": "Seamlessly transfer conversations to human agents",
   "user": {
@@ -117,12 +117,20 @@
         },
         "agentAssignedTimeoutSeconds": {
           "type": "number",
+          "minimum": 0,
           "description": "The time in seconds to wait before giving up and telling the user that no human agent is available. Set to 0 to disable",
           "x-zui": {
             "title": "Agent Assigned Timeout",
             "placeholder": "0"
+          }
+        },
+        "flowOnHitlStopped": {
+          "type": "boolean",
+          "x-zui": {
+            "title": "Flow on HITL Stopped"
           },
-          "minimum": 0
+          "default": true,
+          "description": "Weither to wait for the user to respond to continue the flow after the hitl session"
         }
       },
       "additionalProperties": false,
@@ -149,10 +157,24 @@
             }
           }
         },
-        "required": [
-          "sessionStartedAt",
-          "downstreamConversationId"
-        ],
+        "required": ["sessionStartedAt", "downstreamConversationId"],
+        "additionalProperties": false,
+        "x-zui": {}
+      }
+    },
+    "continueWorkflow": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "conversationId": {
+            "type": "string",
+            "description": "ID of the conversation",
+            "x-zui": {
+              "title": "Conversation ID"
+            }
+          }
+        },
+        "required": ["conversationId"],
         "additionalProperties": false,
         "x-zui": {}
       }
@@ -175,10 +197,10 @@
             },
             "description": {
               "type": "string",
-              "description": "Description of the HITL ticket",
               "x-zui": {
                 "title": "Ticket Description"
-              }
+              },
+              "description": "Description of the HITL ticket"
             },
             "userId": {
               "type": "string",
@@ -190,10 +212,10 @@
             },
             "userEmail": {
               "type": "string",
-              "description": "Email of the user that starts the HITL mode. If this value is unset, the agent will try to use the email provided by the channel.",
               "x-zui": {
                 "title": "User Email"
-              }
+              },
+              "description": "Email of the user that starts the HITL mode. If this value is unset, the agent will try to use the email provided by the channel."
             },
             "conversationId": {
               "type": "string",
@@ -204,11 +226,7 @@
               }
             }
           },
-          "required": [
-            "title",
-            "userId",
-            "conversationId"
-          ],
+          "required": ["title", "userId", "conversationId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -237,9 +255,7 @@
               }
             }
           },
-          "required": [
-            "conversationId"
-          ],
+          "required": ["conversationId"],
           "additionalProperties": false,
           "x-zui": {}
         }
@@ -268,9 +284,7 @@
             }
           }
         },
-        "required": [
-          "hitlActive"
-        ],
+        "required": ["hitlActive"],
         "additionalProperties": false,
         "x-zui": {}
       }
