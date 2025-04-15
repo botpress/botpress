@@ -101,7 +101,7 @@ describe('zuiToJsonSchemaNext', () => {
       type: 'object',
       properties: { name: { type: 'string' } },
       required: ['name'],
-      additionalProperties: { not: true },
+      additionalProperties: false,
     })
   })
 
@@ -111,7 +111,7 @@ describe('zuiToJsonSchemaNext', () => {
       type: 'object',
       properties: { name: { type: 'string' } },
       required: ['name'],
-      additionalProperties: {},
+      additionalProperties: true,
     })
   })
 
@@ -122,6 +122,25 @@ describe('zuiToJsonSchemaNext', () => {
       properties: { name: { type: 'string' } },
       required: ['name'],
       additionalProperties: { type: 'number' },
+    })
+  })
+
+  test('should preserve ZodObject nested properties descriptions', () => {
+    const description = 'The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)'
+    const schema = toJsonSchema(
+      z.object({
+        tableIdOrName: z.string().describe(description),
+      }),
+    )
+    expect(schema).toEqual({
+      type: 'object',
+      properties: {
+        tableIdOrName: {
+          type: 'string',
+          description,
+        },
+      },
+      required: ['tableIdOrName'],
     })
   })
 

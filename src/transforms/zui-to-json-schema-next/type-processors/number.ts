@@ -5,6 +5,8 @@ import * as json from '../../common/json-schema'
 export const zodNumberToJsonNumber = (zodNumber: z.ZodNumber): json.NumberSchema => {
   const schema: json.NumberSchema = {
     type: 'number',
+    description: zodNumber.description,
+    'x-zui': zodNumber._def['x-zui'],
   }
 
   if (zodNumber._def[zuiKey]) {

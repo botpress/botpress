@@ -1,4 +1,3 @@
-import { ZuiExtensionObject } from '../../ui/types'
 import z from '../../z'
 import * as json from '../common/json-schema'
 import * as err from '../common/errors'
@@ -35,7 +34,11 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
       })
 
     case z.ZodFirstPartyTypeKind.ZodBoolean:
-      return { type: 'boolean', 'x-zui': def['x-zui'] } satisfies json.BooleanSchema
+      return {
+        type: 'boolean',
+        description: def.description,
+        'x-zui': def['x-zui'],
+      } satisfies json.BooleanSchema
 
     case z.ZodFirstPartyTypeKind.ZodDate:
       throw new err.UnsupportedZuiToJsonSchemaError(z.ZodFirstPartyTypeKind.ZodDate, {
@@ -43,22 +46,27 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
       })
 
     case z.ZodFirstPartyTypeKind.ZodUndefined:
-      return undefinedSchema(def['x-zui'])
+      return undefinedSchema(def)
 
     case z.ZodFirstPartyTypeKind.ZodNull:
-      return nullSchema(def['x-zui'])
+      return nullSchema(def)
 
     case z.ZodFirstPartyTypeKind.ZodAny:
-      return { 'x-zui': def['x-zui'] } satisfies json.AnySchema
+      return {
+        description: def.description,
+        'x-zui': def['x-zui'],
+      } satisfies json.AnySchema
 
     case z.ZodFirstPartyTypeKind.ZodUnknown:
       return {
+        description: def.description,
         'x-zui': { ...def['x-zui'], def: { typeName: z.ZodFirstPartyTypeKind.ZodUnknown } },
       }
 
     case z.ZodFirstPartyTypeKind.ZodNever:
       return {
         not: true,
+        description: def.description,
         'x-zui': def['x-zui'],
       } satisfies json.NeverSchema
 
@@ -70,30 +78,40 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
 
     case z.ZodFirstPartyTypeKind.ZodObject:
       const shape = Object.entries(def.shape())
-      const required = shape.filter(([_, value]) => !value.isOptional()).map(([key]) => key)
+      const requiredProperties = shape.filter(([_, value]) => !value.isOptional())
+      const required = requiredProperties.length ? requiredProperties.map(([key]) => key) : undefined
       const properties = shape
         .map(([key, value]) => [key, _toRequired(value)] satisfies [string, z.ZodType])
         .map(([key, value]) => [key, toJsonSchema(value)] satisfies [string, json.ZuiJsonSchema])
 
-      const zAdditionalProperties = (schema as z.ZodObject).additionalProperties()
-      const additionalProperties = zAdditionalProperties ? toJsonSchema(zAdditionalProperties) : undefined
+      let additionalProperties: json.ObjectSchema['additionalProperties'] = undefined
+      if (def.unknownKeys instanceof z.ZodType) {
+        additionalProperties = toJsonSchema(def.unknownKeys)
+      } else if (def.unknownKeys === 'passthrough') {
+        additionalProperties = true
+      } else if (def.unknownKeys === 'strict') {
+        additionalProperties = false
+      }
 
       return {
         type: 'object',
+        description: def.description,
         properties: Object.fromEntries(properties),
         required,
-        'x-zui': def['x-zui'],
         additionalProperties,
+        'x-zui': def['x-zui'],
       } satisfies json.ObjectSchema
 
     case z.ZodFirstPartyTypeKind.ZodUnion:
       return {
+        description: def.description,
         anyOf: def.options.map((option) => toJsonSchema(option)),
         'x-zui': def['x-zui'],
       } satisfies json.UnionSchema
 
     case z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
       return {
+        description: def.description,
         anyOf: def.options.map((option) => toJsonSchema(option)),
         'x-zui': {
           ...def['x-zui'],
@@ -103,6 +121,7 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
 
     case z.ZodFirstPartyTypeKind.ZodIntersection:
       return {
+        description: def.description,
         allOf: [toJsonSchema(def.left), toJsonSchema(def.right)],
         'x-zui': def['x-zui'],
       } satisfies json.IntersectionSchema
@@ -113,6 +132,7 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
     case z.ZodFirstPartyTypeKind.ZodRecord:
       return {
         type: 'object',
+        description: def.description,
         additionalProperties: toJsonSchema(def.valueType),
         'x-zui': def['x-zui'],
       } satisfies json.RecordSchema
@@ -133,25 +153,28 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
       if (typeof def.value === 'string') {
         return {
           type: 'string',
+          description: def.description,
           const: def.value,
           'x-zui': def['x-zui'],
         } satisfies json.LiteralStringSchema
       } else if (typeof def.value === 'number') {
         return {
           type: 'number',
+          description: def.description,
           const: def.value,
           'x-zui': def['x-zui'],
         } satisfies json.LiteralNumberSchema
       } else if (typeof def.value === 'boolean') {
         return {
           type: 'boolean',
+          description: def.description,
           const: def.value,
           'x-zui': def['x-zui'],
         } satisfies json.LiteralBooleanSchema
       } else if (def.value === null) {
-        return nullSchema(def['x-zui'])
+        return nullSchema(def)
       } else if (def.value === undefined) {
-        return undefinedSchema(def['x-zui'])
+        return undefinedSchema(def)
       } else {
         z.util.assertEqual<bigint | symbol, typeof def.value>(true)
         const unsupportedLiteral = typeof def.value
@@ -161,6 +184,7 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
     case z.ZodFirstPartyTypeKind.ZodEnum:
       return {
         type: 'string',
+        description: def.description,
         enum: def.values,
         'x-zui': def['x-zui'],
       } satisfies json.EnumSchema
@@ -173,6 +197,7 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
 
     case z.ZodFirstPartyTypeKind.ZodOptional:
       return {
+        description: def.description,
         anyOf: [toJsonSchema(def.innerType), undefinedSchema()],
         'x-zui': {
           ...def['x-zui'],
@@ -192,8 +217,8 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
     case z.ZodFirstPartyTypeKind.ZodDefault:
       // ZodDefault is not treated as a metadata root so we don't need to preserve x-zui
       return {
-        default: def.defaultValue(),
         ...toJsonSchema(def.innerType),
+        default: def.defaultValue(),
       }
 
     case z.ZodFirstPartyTypeKind.ZodCatch:
@@ -215,13 +240,14 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
     case z.ZodFirstPartyTypeKind.ZodReadonly:
       // ZodReadonly is not treated as a metadata root so we don't need to preserve x-zui
       return {
-        readOnly: true,
         ...toJsonSchema(def.innerType),
+        readOnly: true,
       }
 
     case z.ZodFirstPartyTypeKind.ZodRef:
       return {
         $ref: def.uri,
+        description: def.description,
         'x-zui': def['x-zui'],
       }
 
@@ -259,12 +285,14 @@ const _toRequired = (schema: z.ZodType): z.ZodType => {
   return newSchema
 }
 
-const undefinedSchema = (xZui?: ZuiExtensionObject): json.UndefinedSchema => ({
+const undefinedSchema = (def?: z.ZodTypeDef): json.UndefinedSchema => ({
   not: true,
-  'x-zui': { ...xZui, def: { typeName: z.ZodFirstPartyTypeKind.ZodUndefined } },
+  description: def?.description,
+  'x-zui': { ...def?.['x-zui'], def: { typeName: z.ZodFirstPartyTypeKind.ZodUndefined } },
 })
 
-const nullSchema = (xZui?: ZuiExtensionObject): json.NullSchema => ({
+const nullSchema = (def?: z.ZodTypeDef): json.NullSchema => ({
   type: 'null',
-  'x-zui': xZui,
+  description: def?.description,
+  'x-zui': def?.['x-zui'],
 })

@@ -458,6 +458,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   }
 
   describe(description: string): this {
+    // should set the description on the _metadataRoot
     const This = (this as any).constructor
     return new This({
       ...this._def,

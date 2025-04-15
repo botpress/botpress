@@ -8,8 +8,10 @@ export const zodSetToJsonSet = (
 ): json.SetSchema => {
   const schema: json.SetSchema = {
     type: 'array',
+    description: zodSet.description,
     uniqueItems: true,
     items: toSchema(zodSet._def.valueType),
+    'x-zui': zodSet._def['x-zui'],
   }
 
   if (zodSet._def[zuiKey]) {

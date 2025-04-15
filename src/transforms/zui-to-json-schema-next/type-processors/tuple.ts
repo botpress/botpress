@@ -8,6 +8,7 @@ export const zodTupleToJsonTuple = (
 ): json.TupleSchema => {
   const schema: json.TupleSchema = {
     type: 'array',
+    description: zodTuple.description,
     items: zodTuple._def.items.map((item) => toSchema(item)),
   }
 

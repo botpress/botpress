@@ -8,6 +8,8 @@ import { zodPatterns } from '../../zui-to-json-schema/parsers/string'
 export const zodStringToJsonString = (zodString: z.ZodString): json.StringSchema => {
   const schema: json.StringSchema = {
     type: 'string',
+    description: zodString.description,
+    'x-zui': zodString._def['x-zui'],
   }
 
   if (zodString._def[zuiKey]) {
