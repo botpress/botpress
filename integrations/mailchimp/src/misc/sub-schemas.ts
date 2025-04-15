@@ -64,13 +64,7 @@ const memberStatsSchema = z.object({
   ecommerce_data: memberEcommerceDataSchema.optional(),
 })
 
-const batchStatusSchema = z.union([
-  z.literal('pending'),
-  z.literal('preprocessing'),
-  z.literal('started'),
-  z.literal('finalizing'),
-  z.literal('finished'),
-])
+const batchStatusSchema = z.enum(['pending', 'preprocessing', 'started', 'finalizing', 'finished'])
 
 const contactSchema = z.object({
   company: z.string().describe('Company name'),
