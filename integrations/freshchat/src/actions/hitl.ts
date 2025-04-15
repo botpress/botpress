@@ -115,11 +115,7 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx
 
   const freshchatClient = getFreshchatClient({ ...ctx.configuration }, logger)
 
-  void freshchatClient.sendMessage(
-    null,
-    freshchatConversationId,
-    'Botpress HITL terminated with reason: ' + input.reason
-  )
+  await freshchatClient.setConversationAsResolved(freshchatConversationId)
 
   return {}
 }
@@ -129,37 +125,23 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
   try {
     const freshchatClient = getFreshchatClient({ ...ctx.configuration }, logger)
 
-    const { name, email, pictureUrl } = input
+    const { user: botpressUser } = await client.getOrCreateUser({
+      ...input,
+      tags: {
+        email: input.email,
+      },
+    })
 
-    if (!email) {
-      logger.forBot().error('Email necessary for HITL')
-      throw new RuntimeError('Email necessary for HITL')
-    }
-
-    let freshchatUser = await freshchatClient.getUserByEmail(email)
-
-    // Create a user on the agent handoff platform
-    if (!freshchatUser) {
-      logger.forBot().info(`User with email ${email} not Found on Freshchat, creating a new one`)
-
-      freshchatUser = await freshchatClient.createUser({
-        email,
-        first_name: name,
-        reference_id: email,
-      })
-    }
+    const freshchatUser = await freshchatClient.getOrCreateUser({ ...input, botpressUserId: botpressUser.id })
 
     if (!freshchatUser.id) {
-      logger.forBot().error('Failed to create/get Freshchat User')
-      throw new RuntimeError('Failed to create/get Freshchat User')
+      throw new RuntimeError('Failed to create Freshchat User')
     }
 
-    // Create a user on Botpress
-    const { user: botpressUser } = await client.getOrCreateUser({
-      name,
-      pictureUrl,
+    await client.updateUser({
+      ...input,
+      id: botpressUser.id,
       tags: {
-        // Link the Botpress user with the user on the agent handoff platform
         id: freshchatUser.id,
       },
     })

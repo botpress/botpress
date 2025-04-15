@@ -6,7 +6,7 @@ import { events, configuration, channels, states, user } from './src/definitions
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'Freshchat (Beta)',
-  version: '0.0.3',
+  version: '1.0.0',
   icon: 'icon.svg',
   description: 'This integration allows your bot to use Freshchat as a HITL Provider',
   readme: 'hub.md',
@@ -24,6 +24,14 @@ export default new IntegrationDefinition({
       conversation: {
         tags: {
           id: { title: 'Freshchat Conversation Id', description: 'Freshchat Conversation Id' },
+        },
+      },
+      message: {
+        tags: {
+          id: {
+            title: 'Freshchat Message ID',
+            description: 'The ID of the message in Freshchat',
+          },
         },
       },
     },
