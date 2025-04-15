@@ -1,14 +1,6 @@
 import { z } from '@botpress/sdk'
 
-const HttpMethodSchema = z.union([
-  z.literal('GET'),
-  z.literal('POST'),
-  z.literal('PUT'),
-  z.literal('PATCH'),
-  z.literal('DELETE'),
-  z.literal('OPTIONS'),
-  z.literal('HEAD'),
-])
+const HttpMethodSchema = z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'])
 
 const linkSchema = z.object({
   rel: z.string().optional(),
