@@ -91,8 +91,6 @@ const handleProductCreateOrUpdate = async (
   const product = productResponse.data
 
   if (!product) return null
-
-  logger.forBot().info('Fetching categories to map IDs to names')
   const categoriesResponse = await bigCommerceClient.getCategories()
   const categoryById: Record<number, string> = {}
 
@@ -101,8 +99,6 @@ const handleProductCreateOrUpdate = async (
       categoryById[category.id] = category.name
     }
   }
-
-  logger.forBot().info('Fetching brands to map IDs to names')
   const brandsResponse = await bigCommerceClient.getBrands()
   const brandById: Record<number, string> = {}
 
@@ -215,12 +211,12 @@ type BigCommerceConfig = {
 
 const setupBigCommerceWebhooks = async (configuration: BigCommerceConfig, logger: bp.Logger, webhookId: string) => {
   const webhookUrl = `https://webhook.botpress.cloud/${webhookId}`
-  logger.forBot().info(`Setting up BigCommerce webhooks to: ${webhookUrl}`)
+  logger.forBot().info(`Setting up BigCommerce webhooks...`)
 
   try {
     const bigCommerceClient = getBigCommerceClient(configuration)
     const webhookResults = await bigCommerceClient.createProductWebhooks(webhookUrl)
-    logger.forBot().info('Webhook creation results:', webhookResults)
+    logger.forBot().info('Webhooks created successfully!')
     return { success: true }
   } catch (webhookError) {
     logger.forBot().error('Error creating webhooks:', webhookError)
@@ -241,7 +237,7 @@ const syncBigCommerceProducts = async (ctx: bp.Context, client: bp.Client, logge
       metadata: { setCost: (_cost: number) => {} },
     })
 
-    logger.forBot().info(`Product sync completed: ${syncResult.message}`)
+    logger.forBot().info(`Product sync completed!`)
     return { success: true, result: syncResult }
   } catch (syncError) {
     logger.forBot().error('Error syncing products during initialization', syncError)
@@ -354,14 +350,8 @@ export default new bp.Integration({
       }
     }
 
-    logger.forBot().info('Received webhook from BigCommerce')
-
     try {
-      logger.forBot().info('Webhook headers:', JSON.stringify(req.headers))
-
       const isBCWebhook = isBigCommerceWebhook(req.headers)
-      logger.forBot().info(`Is BigCommerce webhook based on headers: ${isBCWebhook}`)
-
       if (!isBCWebhook) {
         logger.forBot().warn('Rejecting request - not a BigCommerce webhook')
         return {
@@ -374,22 +364,10 @@ export default new bp.Integration({
       }
 
       const webhookData = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
-      logger.forBot().info('Webhook data:', JSON.stringify(webhookData))
 
       const botpressVanillaClient = getBotpressVanillaClient(client)
       const tableName = PRODUCT_TABLE
       const bigCommerceClient = getBigCommerceClient(ctx.configuration)
-
-      logger.forBot().info(
-        'Webhook data structure:',
-        JSON.stringify({
-          hasData: !!webhookData?.data,
-          dataType: webhookData?.data ? typeof webhookData.data : 'undefined',
-          dataKeys: webhookData?.data ? Object.keys(webhookData.data) : [],
-          hasScope: !!webhookData?.scope,
-          scope: webhookData?.scope,
-        })
-      )
 
       if (!webhookData) {
         logger.forBot().warn('No webhook data found, unable to process')
