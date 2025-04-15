@@ -15,11 +15,6 @@ const plugin = new bp.Plugin({
   },
 })
 
-plugin.on.event('periodicSync', async (props) => {
-  props.logger.info('Periodic sync event triggered')
-  await hooks.onEvent.periodicSync.handleEvent(props)
-})
-
 plugin.on.event('files-readonly:fileCreated', async (props) => {
   props.logger.info('File created event triggered', props.event.payload.file)
   await hooks.onEvent.fileCreated.handleEvent(props)
