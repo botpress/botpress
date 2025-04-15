@@ -216,7 +216,7 @@ const setupBigCommerceWebhooks = async (configuration: BigCommerceConfig, logger
   try {
     const bigCommerceClient = getBigCommerceClient(configuration)
     const webhookResults = await bigCommerceClient.createProductWebhooks(webhookUrl)
-    logger.forBot().info('Webhooks created successfully!')
+    logger.forBot().info('Webhooks created successfully!', webhookResults)
     return { success: true }
   } catch (webhookError) {
     logger.forBot().error('Error creating webhooks:', webhookError)
