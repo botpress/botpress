@@ -56,7 +56,7 @@ const _handleDownstreamMessage = async (
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
 
   props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
-  await upstreamCm.respond(messagePayload)
+  await upstreamCm.respond({ ...messagePayload, userId: props.data.userId })
   return consts.STOP_EVENT_HANDLING
 }
 
@@ -122,7 +122,7 @@ const _handleUpstreamMessage = async (
   }
 
   props.logger.withConversationId(upstreamConversation.id).info('Sending message to downstream')
-  await downstreamCm.respond(messagePayload)
+  await downstreamCm.respond({ ...messagePayload, userId: downstreamUserId })
 
   return consts.STOP_EVENT_HANDLING
 }
