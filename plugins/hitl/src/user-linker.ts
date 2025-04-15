@@ -58,7 +58,7 @@ export class UserLinker {
         upstreamUserOverrides?.email ??
         upstreamUser.tags['email'] ??
         upstreamUser.tags.email ??
-        'anonymous@noemail.com',
+        this._generateFakeEmail(upstreamUser),
     })
 
     const [{ user: updatedUpstreamUser }, { user: updatedDownstreamUser }] = await Promise.all([
@@ -82,5 +82,10 @@ export class UserLinker {
       upstreamUser: updatedUpstreamUser,
       downstreamUser: updatedDownstreamUser,
     }
+  }
+
+  private _generateFakeEmail(user: client.User) {
+    const botId = this._props.ctx.botId.replaceAll('_', '-')
+    return `${user.id}@${botId}.botpress.invalid`
   }
 }

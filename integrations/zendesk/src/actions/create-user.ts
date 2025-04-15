@@ -5,6 +5,7 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
   const zendeskClient = getZendeskClient(ctx.configuration)
 
   const { name, email, pictureUrl } = input
+
   const { user } = await bpClient.getOrCreateUser({
     name,
     pictureUrl,
@@ -19,7 +20,6 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
     role: 'end-user',
     external_id: user.id,
     name,
-    email,
     remote_photo_url: pictureUrl,
   })
 
