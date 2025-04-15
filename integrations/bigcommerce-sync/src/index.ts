@@ -211,7 +211,7 @@ type BigCommerceConfig = {
 
 const setupBigCommerceWebhooks = async (configuration: BigCommerceConfig, logger: bp.Logger, webhookId: string) => {
   const webhookUrl = `https://webhook.botpress.cloud/${webhookId}`
-  logger.forBot().info(`Setting up BigCommerce webhooks...`)
+  logger.forBot().info('Setting up BigCommerce webhooks...')
 
   try {
     const bigCommerceClient = getBigCommerceClient(configuration)
@@ -237,7 +237,7 @@ const syncBigCommerceProducts = async (ctx: bp.Context, client: bp.Client, logge
       metadata: { setCost: (_cost: number) => {} },
     })
 
-    logger.forBot().info(`Product sync completed!`)
+    logger.forBot().info('Product sync completed!')
     return { success: true, result: syncResult }
   } catch (syncError) {
     logger.forBot().error('Error syncing products during initialization', syncError)
