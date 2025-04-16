@@ -24,10 +24,17 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
 
   await Promise.allSettled([
     upstreamCm.respond({
+      type: 'text',
       text: props.configuration.onHitlStoppedMessage ?? DEFAULT_HITL_STOPPED_MESSAGE,
     }),
     downstreamCm.setHitlInactive(conv.HITL_END_REASON.AGENT_CLOSED_TICKET),
     upstreamCm.setHitlInactive(conv.HITL_END_REASON.AGENT_CLOSED_TICKET),
   ])
+
+  if (props.configuration.flowOnHitlStopped) {
+    // the bot will continue the conversation without the patient having to send another message
+    await upstreamCm.continueWorkflow()
+  }
+
   return consts.STOP_EVENT_HANDLING
 }

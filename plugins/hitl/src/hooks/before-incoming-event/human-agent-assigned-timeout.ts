@@ -11,12 +11,12 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
 
   if (!_isTimeoutElapsed(props)) {
     props.logger.info('Human agent assigned timeout event ignored because the timeout has not lapsed yet')
-    return consts.LET_BOT_HANDLE_EVENT
+    return consts.STOP_EVENT_HANDLING
   }
 
   if (!upstreamConversationId || !downstreamConversationId) {
     props.logger.error('Missing conversationId in event payload')
-    return consts.LET_BOT_HANDLE_EVENT
+    return consts.STOP_EVENT_HANDLING
   }
 
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
@@ -24,7 +24,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
 
   if (isAgentAlreadyAssigned) {
     props.logger.info('Human agent assigned timeout event ignored because the agent is already assigned')
-    return consts.LET_BOT_HANDLE_EVENT
+    return consts.STOP_EVENT_HANDLING
   }
 
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
@@ -32,11 +32,17 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
 
   if (!isHitlActive) {
     props.logger.info('Human agent assigned timeout event ignored because hitl is inactive')
-    return consts.LET_BOT_HANDLE_EVENT
+    return consts.STOP_EVENT_HANDLING
   }
 
   await _handleTimeout(props, upstreamCm, downstreamCm)
-  return consts.LET_BOT_HANDLE_EVENT
+
+  if (props.configuration.flowOnHitlStopped) {
+    // the bot will continue the conversation without the patient having to send another message
+    await upstreamCm.continueWorkflow()
+  }
+
+  return consts.STOP_EVENT_HANDLING
 }
 
 const _isTimeoutElapsed = (props: bp.HookHandlerProps['before_incoming_event']): boolean => {
@@ -63,6 +69,7 @@ const _handleTimeout = async (
 ) => {
   await downstreamCm.respond({
     // TODO: We might want to add a custom message for the human agent.
+    type: 'text',
     text: props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   })
 
@@ -80,6 +87,7 @@ const _handleTimeout = async (
   await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
 
   await upstreamCm.respond({
+    type: 'text',
     text: props.configuration.onAgentAssignedTimeoutMessage ?? DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE,
   })
 }
