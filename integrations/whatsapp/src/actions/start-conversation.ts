@@ -1,6 +1,6 @@
 import { channel } from 'integration.definition'
-import { getPhoneNumberId } from 'src/misc/whatsapp'
-import { startConversation as startConversationImpl } from '../conversation'
+import { getPhoneNumberId } from '../auth'
+import { startConversation as startConversationImpl } from '../create-conversation'
 import * as bp from '.botpress'
 
 export const startConversation: bp.IntegrationProps['actions']['startConversation'] = async ({

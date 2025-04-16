@@ -4,8 +4,7 @@ import WhatsAppAPI from 'whatsapp-api-js'
 import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { ServerErrorResponse, ServerMessageResponse } from 'whatsapp-api-js/types'
-import { getAccessToken, getPhoneNumberId } from './misc/whatsapp'
-import * as types from './types'
+import { getAccessToken, getPhoneNumberId } from './auth'
 import * as bp from '.botpress'
 
 type Channels = bp.channels.Channels
@@ -23,8 +22,8 @@ export async function startConversation(
   },
   dependencies: {
     client: bp.Client
-    ctx: types.IntegrationCtx
-    logger: types.Logger
+    ctx: bp.Context
+    logger: bp.Logger
   }
 ): Promise<Pick<Conversation, 'id'>> {
   const { channel, phoneNumberId, userPhone, templateName, templateVariablesJson } = params
@@ -35,11 +34,11 @@ export async function startConversation(
   let templateVariables: z.infer<typeof TemplateVariablesSchema> = []
 
   if (!phoneNumberId) {
-    logForBotAndThrow('Whatsapp Phone number ID to use as sender was not provided', logger)
+    _logForBotAndThrow('Whatsapp Phone number ID to use as sender was not provided', logger)
   }
 
   if (!userPhone) {
-    logForBotAndThrow('A Whatsapp recipient phone number needs to be provided', logger)
+    _logForBotAndThrow('A Whatsapp recipient phone number needs to be provided', logger)
   }
 
   /*
@@ -47,7 +46,7 @@ export async function startConversation(
   See: https://developers.facebook.com/docs/whatsapp/pricing#opening-conversations
   */
   if (!templateName) {
-    logForBotAndThrow('A Whatsapp template name needs to be provided', logger)
+    _logForBotAndThrow('A Whatsapp template name needs to be provided', logger)
   }
 
   if (templateVariablesJson) {
@@ -56,7 +55,7 @@ export async function startConversation(
     try {
       templateVariablesRaw = JSON.parse(templateVariablesJson)
     } catch (err) {
-      logForBotAndThrow(
+      _logForBotAndThrow(
         `Value provided for Template Variables JSON isn't valid JSON (error: ${
           (err as Error)?.message ?? ''
         }). Received: ${templateVariablesJson}`,
@@ -66,7 +65,7 @@ export async function startConversation(
 
     const validationResult = TemplateVariablesSchema.safeParse(templateVariablesRaw)
     if (!validationResult.success) {
-      logForBotAndThrow(
+      _logForBotAndThrow(
         `Template variables should be an array of strings or numbers (error: ${validationResult.error})`,
         logger
       )
@@ -100,7 +99,7 @@ export async function startConversation(
   const errorResponse = response as ServerErrorResponse
 
   if (errorResponse?.error) {
-    logForBotAndThrow(
+    _logForBotAndThrow(
       `Failed to start Whatsapp conversation using template "${templateName}" and language "${templateLanguage}" - Error: ${JSON.stringify(
         errorResponse?.error
       )}`,
@@ -154,7 +153,7 @@ export const createConversationHandler: bp.IntegrationProps['createConversation'
   }
 }
 
-function logForBotAndThrow(message: string, logger: types.Logger): never {
+function _logForBotAndThrow(message: string, logger: bp.Logger): never {
   logger.forBot().error(message)
   throw new RuntimeError(message)
 }

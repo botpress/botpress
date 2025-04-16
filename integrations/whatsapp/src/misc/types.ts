@@ -3,12 +3,12 @@ export type WhatsAppPayload = {
   entry: WhatsAppEntry[]
 }
 
-export type WhatsAppEntry = {
+type WhatsAppEntry = {
   id: string
   changes: WhatsAppChanges[]
 }
 
-export type WhatsAppChanges = {
+type WhatsAppChanges = {
   value: WhatsAppValue
   field: string
 }
@@ -23,7 +23,7 @@ export type WhatsAppValue = {
   messages: WhatsAppMessage[]
 }
 
-export type WhatsAppProfile = {
+type WhatsAppProfile = {
   profile: {
     name: string
   }

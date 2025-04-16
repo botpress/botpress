@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import typingIndicator from 'bp_modules/typing-indicator'
@@ -36,18 +35,20 @@ const commonConfigSchema = z.object({
   typingIndicatorEmoji: z
     .boolean()
     .default(false)
+    .title('Typing Indicator Emoji')
     .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
 })
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '3.0.0',
+  version: '3.0.1', // TODO: Bump major
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configurations: {
     manualApp: {
+      // TODO: Rename
       title: 'Manual Configuration',
       description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
       ui: {
@@ -60,15 +61,25 @@ export default new IntegrationDefinition({
           verifyToken: z
             .string()
             .min(1)
+            .title('Verify Token')
             .describe(
               'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
             ),
           accessToken: z
             .string()
             .min(1)
+            .title('Access Token')
             .describe('Access Token from a System Account that has permission to the Meta app'),
-          clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
-          phoneNumberId: z.string().min(1).describe('Default Phone id used for starting conversations'),
+          clientSecret: z
+            .string()
+            .optional()
+            .title('Client Secret')
+            .describe('Meta app secret used for webhook signature check'),
+          phoneNumberId: z
+            .string()
+            .min(1)
+            .title('Phone Number ID')
+            .describe('Default Phone id used for starting conversations'),
         })
         .merge(commonConfigSchema),
     },
@@ -86,9 +97,11 @@ export default new IntegrationDefinition({
   },
   channels: {
     [channel]: {
+      title: 'WhatsApp conversation',
+      description: 'Conversation between a WhatsApp user and the bot',
       messages: {
         ...messages.defaults,
-        markdown: messages.markdown,
+        markdown: messages.markdown, // TODO: Remove
         file: {
           schema: messages.defaults.file.schema.extend({
             filename: z.string().optional(),
@@ -97,7 +110,10 @@ export default new IntegrationDefinition({
       },
       message: {
         tags: {
-          id: {},
+          id: {
+            title: 'Message ID',
+            description: 'The WhatsApp message ID',
+          },
         },
       },
       conversation: {
@@ -107,8 +123,14 @@ export default new IntegrationDefinition({
   },
   user: {
     tags: {
-      userId: {},
-      name: {},
+      userId: {
+        title: 'User ID',
+        description: 'WhatsApp user ID',
+      },
+      name: {
+        title: 'Name',
+        description: 'WhatsApp user display name',
+      },
     },
   },
   actions: {
@@ -118,19 +140,34 @@ export default new IntegrationDefinition({
         "Proactively starts a conversation with a user's Whatsapp phone number by sending them a message using a Whatsapp Message Template.",
       input: {
         schema: z.object({
-          userPhone: z.string().describe(TagsForCreatingConversation.userPhone.description),
-          templateName: z.string().describe(TagsForCreatingConversation.templateName.description),
-          templateLanguage: z.string().optional().describe(TagsForCreatingConversation.templateLanguage.description),
+          userPhone: z
+            .string()
+            .title(TagsForCreatingConversation.userPhone.title)
+            .describe(TagsForCreatingConversation.userPhone.description),
+          templateName: z
+            .string()
+            .title(TagsForCreatingConversation.templateName.title)
+            .describe(TagsForCreatingConversation.templateName.description),
+          templateLanguage: z
+            .string()
+            .optional()
+            .title(TagsForCreatingConversation.templateLanguage.title)
+            .describe(TagsForCreatingConversation.templateLanguage.description),
           templateVariablesJson: z
             .string()
             .optional()
+            .title(TagsForCreatingConversation.templateVariables.title)
             .describe(TagsForCreatingConversation.templateVariables.description),
-          senderPhoneNumberId: z.string().optional().describe(TagsForCreatingConversation.phoneNumberId.description),
+          senderPhoneNumberId: z
+            .string()
+            .optional()
+            .title(TagsForCreatingConversation.phoneNumberId.title)
+            .describe(TagsForCreatingConversation.phoneNumberId.description),
         }),
       },
       output: {
         schema: z.object({
-          conversationId: z.string(),
+          conversationId: z.string().title('Conversation ID').describe('ID of the conversation created'),
         }),
       },
     },
@@ -140,9 +177,21 @@ export default new IntegrationDefinition({
     credentials: {
       type: 'integration',
       schema: z.object({
-        accessToken: z.string().optional(),
-        phoneNumberId: z.string().optional(),
-        wabaId: z.string().optional(),
+        accessToken: z
+          .string()
+          .optional()
+          .title('Access token')
+          .describe('Access token used to authenticate requests to the WhatsApp Business Platform API'),
+        phoneNumberId: z
+          .string()
+          .optional()
+          .title('Phone Number ID')
+          .describe('WhatsApp Phone Number ID to use as sender'),
+        wabaId: z
+          .string()
+          .optional()
+          .title('WhatsApp Business Account ID')
+          .describe('WhatsApp Business Account ID used to subscribe to webhook events'),
       }),
     },
   },
@@ -158,6 +207,7 @@ export default new IntegrationDefinition({
       description: 'Access token for internal Meta App',
     },
     NUMBER_PIN: {
+      // TODO: Global to the app? Remove if not necessary
       description: '6 Digits Pin used for phone number registration',
     },
     SEGMENT_KEY: {
@@ -171,6 +221,7 @@ export default new IntegrationDefinition({
   },
 }).extend(typingIndicator, () => ({ entities: {} }))
 
+// TODO: Add a secret instead?
 export const getOAuthConfigId = () => {
   if (process.env.BP_WEBHOOK_URL?.includes('dev')) {
     return '1535672497288913'

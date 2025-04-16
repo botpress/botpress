@@ -1,6 +1,5 @@
 import { z } from '@botpress/sdk'
 import axios from 'axios'
-import { getGlobalWebhookUrl } from '../index'
 import * as bp from '.botpress'
 
 export class MetaOauthClient {
@@ -17,9 +16,12 @@ export class MetaOauthClient {
     const query = new URLSearchParams({
       client_id: this._clientId,
       client_secret: this._clientSecret,
-      redirect_uri: redirectUri ?? getGlobalWebhookUrl(),
       code,
     })
+
+    if (redirectUri) {
+      query.append('redirect_uri', redirectUri)
+    }
 
     const res = await axios.get(`https://graph.facebook.com/${this._version}/oauth/access_token?${query.toString()}`)
     const data = z
@@ -145,7 +147,12 @@ export const getAccessToken = async (client: bp.Client, ctx: bp.Context): Promis
   return accessToken as string
 }
 
-export const getSecret = (ctx: bp.Context): string | undefined => {
+export function getVerifyToken(ctx: bp.Context): string | undefined {
+  // Should normally be verified in the fallbackHandler script with OAuth and Sandbox
+  return ctx.configurationType === 'manualApp' ? ctx.configuration.verifyToken : bp.secrets.VERIFY_TOKEN
+}
+
+export const getClientSecret = (ctx: bp.Context): string | undefined => {
   let value: string | undefined
   if (ctx.configurationType === 'manualApp') {
     value = ctx.configuration.clientSecret

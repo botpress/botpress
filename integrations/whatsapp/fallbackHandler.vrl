@@ -4,7 +4,6 @@ mode = q."hub.mode"
 challenge = q."hub.challenge"
 verifyTokenReceived = q."hub.verify_token"
 
-
 response = {
   "status": 403,
   "body": "Invalid webhook request"

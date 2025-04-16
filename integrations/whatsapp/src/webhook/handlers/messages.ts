@@ -1,18 +1,54 @@
-import * as types from './types'
-import { getWhatsAppMediaUrl } from './util'
-import { WhatsAppMessage, WhatsAppValue } from './whatsapp-types'
+import { channel } from 'integration.definition'
+import WhatsAppAPI from 'whatsapp-api-js'
+import { getAccessToken } from '../../auth'
+import { WhatsAppPayload, WhatsAppMessage, WhatsAppValue } from '../../misc/types'
+import { getWhatsAppMediaUrl } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
 
-export async function handleIncomingMessage(
+export const messagesHandler = async (props: bp.HandlerProps) => {
+  const { req, ctx, client, logger } = props
+  if (!req.body) {
+    logger.debug('Handler received an empty body, so the message was ignored')
+    return
+  }
+
+  try {
+    const data = JSON.parse(req.body) as WhatsAppPayload
+    for (const { changes } of data.entry) {
+      for (const change of changes) {
+        if (!change.value.messages) {
+          // If the change doesn't contain messages we can ignore it, as we don't currently process other change types (such as statuses).
+          continue
+        }
+
+        for (const message of change.value.messages) {
+          const accessToken = await getAccessToken(client, ctx)
+          const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
+          const phoneNumberId = change.value.metadata.phone_number_id
+          await whatsapp.markAsRead(phoneNumberId, message.id)
+
+          await _handleIncomingMessage(message, change.value, ctx, client, logger)
+        }
+      }
+    }
+  } catch (e: any) {
+    logger.debug('Error while handling request:', e)
+    return { status: 500, body: 'Error while handling request: ' + e.message }
+  }
+
+  return { status: 200 }
+}
+
+async function _handleIncomingMessage(
   message: WhatsAppMessage,
   value: WhatsAppValue,
-  ctx: types.IntegrationCtx,
+  ctx: bp.Context,
   client: bp.Client,
-  logger: types.Logger
+  logger: bp.Logger
 ) {
   if (message.type) {
     const { conversation } = await client.getOrCreateConversation({
-      channel: 'channel',
+      channel,
       tags: {
         userPhone: message.from,
         phoneNumberId: value.metadata.phone_number_id,

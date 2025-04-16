@@ -1,11 +1,10 @@
 import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 import { Text, Interactive, ActionList, ListSection, Row } from 'whatsapp-api-js/messages'
-import * as body from '../interactive/body'
-import * as types from '../types'
-import { chunkArray, truncate } from '../util'
-import { channels } from '.botpress'
+import { chunkArray, truncate } from '../../misc/util'
+import * as body from './interactive/body'
+import * as bp from '.botpress'
 
-type Dropdown = channels.channel.dropdown.Dropdown
+type Dropdown = bp.channels.channel.dropdown.Dropdown
 
 const INTERACTIVE_MAX_ACTIONS_COUNT = 10
 const ACTION_LABEL_MAX_LENGTH = 24
@@ -15,7 +14,7 @@ export function* generateOutgoingMessages({
   logger,
 }: {
   payload: Dropdown
-  logger: types.Logger
+  logger: bp.Logger
 }) {
   if (options.length === 0) {
     yield new Text(text)

@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/client'
-import { getAccessToken } from 'src/misc/whatsapp'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { Reaction } from 'whatsapp-api-js/messages'
+import { getAccessToken } from '../auth'
 import * as bp from '.botpress'
 
 export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIndicator'] = async ({
@@ -12,8 +12,8 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
   const token = await getAccessToken(client, ctx)
   const whatsapp = new WhatsAppAPI({ token, secure: false })
   const { conversationId, messageId } = input
-  const { phoneNumberId, userPhone } = await getConversationInfos(client, conversationId)
-  const { whatsappMessageId } = await getMessageInfos(client, messageId)
+  const { phoneNumberId, userPhone } = await _getConversationInfos(client, conversationId)
+  const { whatsappMessageId } = await _getMessageInfos(client, messageId)
   await whatsapp.markAsRead(phoneNumberId, whatsappMessageId)
   if (ctx.configuration.typingIndicatorEmoji) {
     await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId, '👀'))
@@ -29,13 +29,13 @@ export const stopTypingIndicator: bp.IntegrationProps['actions']['stopTypingIndi
   const token = await getAccessToken(client, ctx)
   const whatsapp = new WhatsAppAPI({ token, secure: false })
   const { conversationId, messageId } = input
-  const { phoneNumberId, userPhone } = await getConversationInfos(client, conversationId)
-  const { whatsappMessageId } = await getMessageInfos(client, messageId)
+  const { phoneNumberId, userPhone } = await _getConversationInfos(client, conversationId)
+  const { whatsappMessageId } = await _getMessageInfos(client, messageId)
   await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId))
   return {}
 }
 
-const getConversationInfos = async (client: bp.Client, conversationId: string) => {
+const _getConversationInfos = async (client: bp.Client, conversationId: string) => {
   const { conversation } = await client.getConversation({
     id: conversationId,
   })
@@ -46,7 +46,7 @@ const getConversationInfos = async (client: bp.Client, conversationId: string) =
   return { phoneNumberId, userPhone }
 }
 
-const getMessageInfos = async (client: bp.Client, messageId: string) => {
+const _getMessageInfos = async (client: bp.Client, messageId: string) => {
   const { message } = await client.getMessage({
     id: messageId,
   })

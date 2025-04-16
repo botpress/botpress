@@ -1,10 +1,10 @@
 import { ClientTypedMessageComponent } from 'whatsapp-api-js/lib/types/types'
 import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 import { Text, Interactive, ActionButtons, Header, Image, Button } from 'whatsapp-api-js/messages'
-import * as body from '../interactive/body'
-import * as button from '../interactive/button'
-import * as footer from '../interactive/footer'
-import { UnreachableCaseError, chunkArray } from '../util'
+import { UnreachableCaseError, chunkArray } from '../../misc/util'
+import * as body from './interactive/body'
+import * as button from './interactive/button'
+import * as footer from './interactive/footer'
 import { channels } from '.botpress'
 
 type Card = channels.channel.card.Card
@@ -26,19 +26,19 @@ export function* generateOutgoingMessages(card: Card) {
 
   if (actions.length === 0) {
     // No actions, so we can't display an interactive message
-    for (const m of generateHeader(card)) {
+    for (const m of _generateHeader(card)) {
       yield m
     }
     return
   }
 
   // We have to split the actions into two groups (URL actions and other actions) because buttons are sent differently than URLs
-  const urlActions = actions.filter(isActionURL)
-  const nonUrlActions = actions.filter(isNotActionUrl)
+  const urlActions = actions.filter(_isActionURL)
+  const nonUrlActions = actions.filter(_isNotActionUrl)
 
   if (urlActions.length === 0) {
     // All actions are either postback or say
-    for (const m of generateButtonInteractiveMessages(card, nonUrlActions)) {
+    for (const m of _generateButtonInteractiveMessages(card, nonUrlActions)) {
       yield m
     }
     return
@@ -50,7 +50,7 @@ export function* generateOutgoingMessages(card: Card) {
       yield new Image(card.imageUrl)
     }
 
-    for (const m of generateCTAUrlInteractiveMessages(card, urlActions)) {
+    for (const m of _generateCTAUrlInteractiveMessages(card, urlActions)) {
       yield m
     }
 
@@ -58,16 +58,16 @@ export function* generateOutgoingMessages(card: Card) {
   }
 
   // We have have a mix of URL, postback and say actions
-  for (const m of generateButtonInteractiveMessages(card, nonUrlActions)) {
+  for (const m of _generateButtonInteractiveMessages(card, nonUrlActions)) {
     yield m
   }
 
-  for (const m of generateCTAUrlInteractiveMessages(card, urlActions)) {
+  for (const m of _generateCTAUrlInteractiveMessages(card, urlActions)) {
     yield m
   }
 }
 
-function* generateHeader(card: Card) {
+function* _generateHeader(card: Card) {
   if (card.imageUrl) {
     yield new Image(card.imageUrl, false, card.title)
   } else {
@@ -79,18 +79,18 @@ function* generateHeader(card: Card) {
   }
 }
 
-function isActionURL(action: Action): action is ActionURL {
+function _isActionURL(action: Action): action is ActionURL {
   return action.action === 'url'
 }
 
-function isNotActionUrl(action: Action): action is ActionSay | ActionPostback {
-  return !isActionURL(action)
+function _isNotActionUrl(action: Action): action is ActionSay | ActionPostback {
+  return !_isActionURL(action)
 }
 
-function* generateButtonInteractiveMessages(card: Card, actions: Array<ActionSay | ActionPostback>) {
+function* _generateButtonInteractiveMessages(card: Card, actions: Array<ActionSay | ActionPostback>) {
   const [firstChunk, ...followingChunks] = chunkArray(actions, INTERACTIVE_MAX_BUTTONS_COUNT)
   if (firstChunk) {
-    const buttons: Button[] = createButtons(firstChunk)
+    const buttons: Button[] = _createButtons(firstChunk)
     yield new Interactive(
       new ActionButtons(...(buttons as AtLeastOne<Button>)),
       body.create(card.title),
@@ -101,13 +101,13 @@ function* generateButtonInteractiveMessages(card: Card, actions: Array<ActionSay
 
   if (followingChunks) {
     for (const chunk of followingChunks) {
-      const buttons: Button[] = createButtons(chunk)
+      const buttons: Button[] = _createButtons(chunk)
       yield new Interactive(new ActionButtons(...(buttons as AtLeastOne<Button>)), body.create(card.title))
     }
   }
 }
 
-function createButtons(nonURLActions: Array<ActionSay | ActionPostback>) {
+function _createButtons(nonURLActions: Array<ActionSay | ActionPostback>) {
   const buttons: Button[] = []
   for (const action of nonURLActions) {
     switch (action.action) {
@@ -124,7 +124,7 @@ function createButtons(nonURLActions: Array<ActionSay | ActionPostback>) {
   return buttons
 }
 
-function* generateCTAUrlInteractiveMessages(card: Card, actions: ActionURL[]) {
+function* _generateCTAUrlInteractiveMessages(card: Card, actions: ActionURL[]) {
   let actionNumber = 1
 
   for (const action of actions) {

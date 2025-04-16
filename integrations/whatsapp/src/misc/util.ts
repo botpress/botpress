@@ -1,8 +1,3 @@
-import WhatsAppAPI from 'whatsapp-api-js'
-import { ServerErrorResponse, ServerMediaRetrieveResponse } from 'whatsapp-api-js/types'
-import { getAccessToken } from './misc/whatsapp'
-import { IntegrationCtx, Client } from './types'
-
 export class UnreachableCaseError extends Error {
   public constructor(val: never) {
     super(`Unreachable case: ${val}`)
@@ -32,17 +27,6 @@ export function truncate(input: string, maxLength: number) {
     truncated = truncated.substring(0, maxLength - 1) + '…'
   }
   return truncated
-}
-
-export async function getWhatsAppMediaUrl(
-  whatsappMediaId: string,
-  client: Client,
-  ctx: IntegrationCtx
-): Promise<string> {
-  const accessToken = await getAccessToken(client, ctx)
-  const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
-  const media = await whatsapp.retrieveMedia(whatsappMediaId)
-  return (media as Exclude<ServerMediaRetrieveResponse, ServerErrorResponse>).url
 }
 
 export function getSubpath(path: string) {
