@@ -2,21 +2,29 @@ import { RuntimeError } from '@botpress/client'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { Reaction } from 'whatsapp-api-js/messages'
 import { getAccessToken } from '../auth'
+import { sendTypingIndicator } from '../misc/whatsapp-utils'
 import * as bp from '.botpress'
 
 export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIndicator'] = async ({
   client,
   ctx,
   input,
+  logger,
 }) => {
   const token = await getAccessToken(client, ctx)
   const whatsapp = new WhatsAppAPI({ token, secure: false })
   const { conversationId, messageId } = input
   const { phoneNumberId, userPhone } = await _getConversationInfos(client, conversationId)
   const { whatsappMessageId } = await _getMessageInfos(client, messageId)
-  await whatsapp.markAsRead(phoneNumberId, whatsappMessageId)
+
+  // No await to avoid blocking
+  void sendTypingIndicator(phoneNumberId, whatsappMessageId, client, ctx).catch((e) => {
+    logger.forBot().error(`Error sending typing indicator: ${e ?? '[Unknown error]'}`)
+  })
   if (ctx.configuration.typingIndicatorEmoji) {
-    await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId, '👀'))
+    void whatsapp
+      .sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId, '👀'))
+      .catch((e) => logger.forBot().error(`Error sending typing indicator emoji: ${e ?? '[Unknown error]'}`))
   }
   return {}
 }

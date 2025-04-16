@@ -2,7 +2,7 @@ import { channel } from 'integration.definition'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { getAccessToken } from '../../auth'
 import { WhatsAppPayload, WhatsAppMessage, WhatsAppValue } from '../../misc/types'
-import { getWhatsAppMediaUrl } from '../../misc/whatsapp-utils'
+import { getMediaUrl } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
 
 export const messagesHandler = async (props: bp.HandlerProps) => {
@@ -104,7 +104,7 @@ async function _handleIncomingMessage(
       } else if (message.image) {
         logger.forBot().debug('Received image message from Whatsapp:', message.button)
 
-        const imageUrl = await getWhatsAppMediaUrl(message.image.id, client, ctx)
+        const imageUrl = await getMediaUrl(message.image.id, client, ctx)
 
         await client.createMessage({
           tags: { id: message.id },
@@ -116,7 +116,7 @@ async function _handleIncomingMessage(
       } else if (message.audio) {
         logger.forBot().debug('Received audio message from Whatsapp:', message.button)
 
-        const audioUrl = await getWhatsAppMediaUrl(message.audio.id, client, ctx)
+        const audioUrl = await getMediaUrl(message.audio.id, client, ctx)
 
         await client.createMessage({
           tags: { id: message.id },
@@ -128,7 +128,7 @@ async function _handleIncomingMessage(
       } else if (message.document) {
         logger.forBot().debug('Received document message from Whatsapp:', message.button)
 
-        const documentUrl = await getWhatsAppMediaUrl(message.document.id, client, ctx)
+        const documentUrl = await getMediaUrl(message.document.id, client, ctx)
 
         await client.createMessage({
           tags: { id: message.id },
@@ -143,7 +143,7 @@ async function _handleIncomingMessage(
       } else if (message.video) {
         logger.forBot().debug('Received video message from Whatsapp:', message.video)
 
-        const videoUrl = await getWhatsAppMediaUrl(message.video.id, client, ctx)
+        const videoUrl = await getMediaUrl(message.video.id, client, ctx)
 
         await client.createMessage({
           tags: { id: message.id },

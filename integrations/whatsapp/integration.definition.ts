@@ -41,7 +41,7 @@ const commonConfigSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '3.0.1', // TODO: Bump major
+  version: '3.0.2', // TODO: Bump major
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
