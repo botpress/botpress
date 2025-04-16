@@ -122,6 +122,7 @@ function handleNode(node: AtlassianNode): string {
         `[${node?.attrs?.state === CHECKBOX_DONE_STATUS ? 'x' : ''}]` + (node.content || []).map(handleNode).join('')
       )
     default:
+      node.type satisfies never
       console.warn(`handleNode :: Unhandled node type: ${node.type}`)
       return ''
   }
