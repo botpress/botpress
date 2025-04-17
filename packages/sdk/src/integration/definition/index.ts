@@ -296,7 +296,6 @@ export class IntegrationDefinition<
     events: EventOverrides
     channels: ChannelOverrides
   } {
-    // Trigger CI
     const entityStore = createStore(this.entities)
     const extensionBuilderInput: ExtensionBuilderInput<TEntities, TActions, TEvents, TChannels> = {
       entities: entityStore,
