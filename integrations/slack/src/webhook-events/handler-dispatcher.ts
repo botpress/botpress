@@ -15,17 +15,18 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   }
 
   _verifyBodyIsPresent(req)
-  await _verifyMessageIsProperlyAuthenticated({ req, client, logger, ctx })
-
-  if (isInteractiveRequest(req)) {
-    return await handleInteractiveRequest({ req, client, logger, ctx })
-  }
 
   const data = JSON.parse(req.body)
 
   if (isUrlVerificationRequest(data)) {
     logger.forBot().debug('Handler received request of type url_verification')
     return handleUrlVerificationRequest(data)
+  }
+
+  await _verifyMessageIsProperlyAuthenticated({ req, client, logger, ctx })
+
+  if (isInteractiveRequest(req)) {
+    return await handleInteractiveRequest({ req, client, logger, ctx })
   }
 
   const event: SlackEvent = data.event
