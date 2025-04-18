@@ -1,356 +1,209 @@
 {
-  "name": "charts",
-  "version": "0.2.2",
-  "description": "Easily generate a variety of charts, including line, bar, pie, and scatter plots, etc.",
   "actions": {
-    "generateLinePlot": {
-      "title": "Line Plot",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "xData": {
-              "type": "array",
-              "items": {
-                "type": ["string", "number"]
-              }
-            },
-            "yData": {
-              "type": "array",
-              "items": {
-                "type": "number"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "xAxisTitle": {
-              "type": "string"
-            },
-            "yAxisTitle": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "imageUrl": {
-              "type": "string"
-            }
-          },
-          "required": ["imageUrl"],
-          "additionalProperties": false
-        }
-      }
-    },
     "generateBarChart": {
-      "title": "Bar Chart",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "xData": {
-              "type": "array",
-              "items": {
-                "type": ["string", "number"]
-              }
-            },
-            "yData": {
-              "type": "array",
-              "items": {
-                "type": "number"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "xAxisTitle": {
-              "type": "string"
-            },
-            "yAxisTitle": {
-              "type": "string"
-            }
+            "title": { "type": "string" },
+            "xAxisTitle": { "type": "string" },
+            "xData": { "items": { "type": ["string", "number"] }, "type": "array" },
+            "yAxisTitle": { "type": "string" },
+            "yData": { "items": { "type": "number" }, "type": "array" }
           },
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "imageUrl": {
-              "type": "string"
-            }
-          },
+          "additionalProperties": false,
+          "properties": { "imageUrl": { "type": "string" } },
           "required": ["imageUrl"],
-          "additionalProperties": false
-        }
-      }
-    },
-    "generatePieChart": {
-      "title": "Pie Chart",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "labels": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "data": {
-              "type": "array",
-              "items": {
-                "type": "number"
-              }
-            },
-            "title": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "imageUrl": {
-              "type": "string"
-            }
-          },
-          "required": ["imageUrl"],
-          "additionalProperties": false
-        }
-      }
-    },
-    "generateScatterPlot": {
-      "title": "Scatter Plot",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "data": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "x": {
-                    "type": "number"
-                  },
-                  "y": {
-                    "type": "number"
-                  }
-                },
-                "required": ["x", "y"],
-                "additionalProperties": false
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "xAxisTitle": {
-              "type": "string"
-            },
-            "yAxisTitle": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "imageUrl": {
-              "type": "string"
-            }
-          },
-          "required": ["imageUrl"],
-          "additionalProperties": false
-        }
-      }
-    },
-    "generateDoughnutChart": {
-      "title": "Doughnut Chart",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "labels": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "data": {
-              "type": "array",
-              "items": {
-                "type": "number"
-              }
-            },
-            "title": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "imageUrl": {
-              "type": "string"
-            }
-          },
-          "required": ["imageUrl"],
-          "additionalProperties": false
-        }
-      }
-    },
-    "generateRadarChart": {
-      "title": "Radar Chart",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "labels": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "data": {
-              "type": "array",
-              "items": {
-                "type": "number"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "axisTitle": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "imageUrl": {
-              "type": "string"
-            }
-          },
-          "required": ["imageUrl"],
-          "additionalProperties": false
-        }
-      }
+      "title": "Bar Chart"
     },
     "generateBubbleChart": {
-      "title": "Bubble Chart",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "data": {
-              "type": "array",
               "items": {
-                "type": "object",
-                "properties": {
-                  "x": {
-                    "type": "number"
-                  },
-                  "y": {
-                    "type": "number"
-                  },
-                  "r": {
-                    "type": "number"
-                  }
-                },
+                "additionalProperties": false,
+                "properties": { "r": { "type": "number" }, "x": { "type": "number" }, "y": { "type": "number" } },
                 "required": ["x", "y", "r"],
-                "additionalProperties": false
-              }
+                "type": "object"
+              },
+              "type": "array"
             },
-            "title": {
-              "type": "string"
-            },
-            "xAxisTitle": {
-              "type": "string"
-            },
-            "yAxisTitle": {
-              "type": "string"
-            }
+            "title": { "type": "string" },
+            "xAxisTitle": { "type": "string" },
+            "yAxisTitle": { "type": "string" }
           },
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "imageUrl": {
-              "type": "string"
-            }
-          },
+          "additionalProperties": false,
+          "properties": { "imageUrl": { "type": "string" } },
           "required": ["imageUrl"],
-          "additionalProperties": false
+          "type": "object"
         }
-      }
+      },
+      "title": "Bubble Chart"
     },
-    "generateHorizontalBarChart": {
-      "title": "Horizontal Bar Chart",
+    "generateDoughnutChart": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "xData": {
-              "type": "array",
-              "items": {
-                "type": ["string", "number"]
-              }
-            },
-            "yData": {
-              "type": "array",
-              "items": {
-                "type": "number"
-              }
-            },
-            "title": {
-              "type": "string"
-            },
-            "xAxisTitle": {
-              "type": "string"
-            },
-            "yAxisTitle": {
-              "type": "string"
-            }
+            "data": { "items": { "type": "number" }, "type": "array" },
+            "labels": { "items": { "type": "string" }, "type": "array" },
+            "title": { "type": "string" }
           },
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "imageUrl": {
-              "type": "string"
-            }
-          },
+          "additionalProperties": false,
+          "properties": { "imageUrl": { "type": "string" } },
           "required": ["imageUrl"],
-          "additionalProperties": false
+          "type": "object"
         }
-      }
+      },
+      "title": "Doughnut Chart"
+    },
+    "generateHorizontalBarChart": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "title": { "type": "string" },
+            "xAxisTitle": { "type": "string" },
+            "xData": { "items": { "type": ["string", "number"] }, "type": "array" },
+            "yAxisTitle": { "type": "string" },
+            "yData": { "items": { "type": "number" }, "type": "array" }
+          },
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "imageUrl": { "type": "string" } },
+          "required": ["imageUrl"],
+          "type": "object"
+        }
+      },
+      "title": "Horizontal Bar Chart"
+    },
+    "generateLinePlot": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "title": { "type": "string" },
+            "xAxisTitle": { "type": "string" },
+            "xData": { "items": { "type": ["string", "number"] }, "type": "array" },
+            "yAxisTitle": { "type": "string" },
+            "yData": { "items": { "type": "number" }, "type": "array" }
+          },
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "imageUrl": { "type": "string" } },
+          "required": ["imageUrl"],
+          "type": "object"
+        }
+      },
+      "title": "Line Plot"
+    },
+    "generatePieChart": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "data": { "items": { "type": "number" }, "type": "array" },
+            "labels": { "items": { "type": "string" }, "type": "array" },
+            "title": { "type": "string" }
+          },
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "imageUrl": { "type": "string" } },
+          "required": ["imageUrl"],
+          "type": "object"
+        }
+      },
+      "title": "Pie Chart"
+    },
+    "generateRadarChart": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "axisTitle": { "type": "string" },
+            "data": { "items": { "type": "number" }, "type": "array" },
+            "labels": { "items": { "type": "string" }, "type": "array" },
+            "title": { "type": "string" }
+          },
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "imageUrl": { "type": "string" } },
+          "required": ["imageUrl"],
+          "type": "object"
+        }
+      },
+      "title": "Radar Chart"
+    },
+    "generateScatterPlot": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "items": {
+                "additionalProperties": false,
+                "properties": { "x": { "type": "number" }, "y": { "type": "number" } },
+                "required": ["x", "y"],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "title": { "type": "string" },
+            "xAxisTitle": { "type": "string" },
+            "yAxisTitle": { "type": "string" }
+          },
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "imageUrl": { "type": "string" } },
+          "required": ["imageUrl"],
+          "type": "object"
+        }
+      },
+      "title": "Scatter Plot"
     }
   },
-  "interfaces": {}
+  "description": "Easily generate a variety of charts, including line, bar, pie, and scatter plots, etc.",
+  "interfaces": {},
+  "name": "charts",
+  "version": "0.2.2"
 }

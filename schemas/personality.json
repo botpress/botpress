@@ -1,28 +1,21 @@
 {
-  "name": "personality",
-  "version": "0.0.1",
-  "user": {
-    "tags": {}
-  },
-  "conversation": {
-    "tags": {}
-  },
   "configuration": {
     "schema": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
-        "model": {
-          "type": "string",
-          "description": "Model to use to handle bot personality"
-        },
+        "model": { "description": "Model to use to handle bot personality", "type": "string" },
         "personality": {
-          "type": "string",
+          "description": "Describe what your chatbot is meant to do and how it should behave. You can include some personality traits here as well to influence how the chatbot will respond. Expressions are supported.",
           "maxLength": 1000,
-          "description": "Describe what your chatbot is meant to do and how it should behave. You can include some personality traits here as well to influence how the chatbot will respond. Expressions are supported."
+          "type": "string"
         }
       },
       "required": ["model", "personality"],
-      "additionalProperties": false
+      "type": "object"
     }
-  }
+  },
+  "conversation": { "tags": {} },
+  "name": "personality",
+  "user": { "tags": {} },
+  "version": "0.0.1"
 }

@@ -1,107 +1,85 @@
 {
-  "name": "zapier",
-  "version": "0.3.4",
-  "title": "Zapier",
-  "description": "Trigger workflows from Zapier or let Zapier trigger your workflows to automate tasks and enhance your bot's capabilities.",
-  "user": {
-    "tags": {
-      "id": {}
-    }
-  },
-  "events": {
-    "event": {
-      "title": "Event from Zapier",
-      "description": "This is called when a Zap sends an event to the Zapier webhook of your bot.",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "string",
-            "description": "The data the Zapier action sent. Can be any string including JSON.",
-
-            "title": "Event Data received from Zapier",
-            "examples": ["{ \"message\": \"Hello Botpress!\" }"]
-          },
-          "correlationId": {
-            "type": "string",
-            "description": "Can be used to correlate the response from Zapier when used with an `action.correlationId`"
-          }
-        },
-        "required": ["data"],
-        "additionalProperties": false
-      },
-      "ui": {
-        "data": {
-          "title": "Event Data received from Zapier",
-          "examples": ["{ \"message\": \"Hello Botpress!\" }"]
-        }
-      }
-    }
-  },
   "actions": {
     "trigger": {
-      "title": "Send to Zapier",
       "description": "This sends a trigger to Zapier which you can use to start a Zap.",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "data": {
-              "type": "string",
-              "description": "The data you want to send to Zapier trigger. Can be any string including JSON.",
-
-              "title": "Trigger Data to send to Zapier",
-              "examples": ["{ \"message\": \"Hello Zapier!\" }"]
-            },
             "correlationId": {
-              "type": "string",
-              "description": "Can be used to receive a response back from Zapier by listening for an `event.correlationId`"
+              "description": "Can be used to receive a response back from Zapier by listening for an `event.correlationId`",
+              "type": "string"
+            },
+            "data": {
+              "description": "The data you want to send to Zapier trigger. Can be any string including JSON.",
+              "examples": ["{ \"message\": \"Hello Zapier!\" }"],
+              "title": "Trigger Data to send to Zapier",
+              "type": "string"
             }
           },
           "required": ["data"],
-          "additionalProperties": false
+          "type": "object"
         },
         "ui": {
-          "data": {
-            "title": "Trigger Data to send to Zapier",
-            "examples": ["{ \"message\": \"Hello Zapier!\" }"]
-          }
+          "data": { "examples": ["{ \"message\": \"Hello Zapier!\" }"], "title": "Trigger Data to send to Zapier" }
         }
       },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      }
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+      "title": "Send to Zapier"
     }
   },
   "channels": {},
-  "states": {
-    "triggers": {
-      "type": "integration",
+  "description": "Trigger workflows from Zapier or let Zapier trigger your workflows to automate tasks and enhance your bot's capabilities.",
+  "events": {
+    "event": {
+      "description": "This is called when a Zap sends an event to the Zapier webhook of your bot.",
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
-          "subscribers": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "url": {
-                  "type": "string"
-                }
-              },
-              "required": ["url"],
-              "additionalProperties": false
-            }
+          "correlationId": {
+            "description": "Can be used to correlate the response from Zapier when used with an `action.correlationId`",
+            "type": "string"
+          },
+          "data": {
+            "description": "The data the Zapier action sent. Can be any string including JSON.",
+            "examples": ["{ \"message\": \"Hello Botpress!\" }"],
+            "title": "Event Data received from Zapier",
+            "type": "string"
           }
         },
-        "required": ["subscribers"],
-        "additionalProperties": false
+        "required": ["data"],
+        "type": "object"
+      },
+      "title": "Event from Zapier",
+      "ui": {
+        "data": { "examples": ["{ \"message\": \"Hello Botpress!\" }"], "title": "Event Data received from Zapier" }
       }
     }
   },
-  "interfaces": {}
+  "interfaces": {},
+  "name": "zapier",
+  "states": {
+    "triggers": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "subscribers": {
+            "items": {
+              "additionalProperties": false,
+              "properties": { "url": { "type": "string" } },
+              "required": ["url"],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["subscribers"],
+        "type": "object"
+      },
+      "type": "integration"
+    }
+  },
+  "title": "Zapier",
+  "user": { "tags": { "id": {} } },
+  "version": "0.3.4"
 }

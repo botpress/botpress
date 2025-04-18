@@ -1,90 +1,59 @@
 {
-  "name": "updatable",
-  "version": "0.0.1",
+  "actions": {
+    "update": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "id": { "type": "string" }, "item": { "$ref": "item" } },
+          "required": ["id", "item"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "item": {
+              "allOf": [
+                { "$ref": "item" },
+                { "properties": { "id": { "type": "string" } }, "required": ["id"], "type": "object" }
+              ]
+            }
+          },
+          "required": ["item"],
+          "type": "object"
+        }
+      }
+    }
+  },
+  "channels": {},
   "entities": {
     "item": {
       "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          }
-        },
+        "additionalProperties": false,
+        "properties": { "id": { "type": "string" } },
         "required": ["id"],
-        "additionalProperties": false
+        "type": "object"
       }
     }
   },
   "events": {
     "updated": {
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "item": {
             "allOf": [
-              {
-                "$ref": "item"
-              },
-              {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  }
-                },
-                "required": ["id"]
-              }
+              { "$ref": "item" },
+              { "properties": { "id": { "type": "string" } }, "required": ["id"], "type": "object" }
             ]
           }
         },
         "required": ["item"],
-        "additionalProperties": false
+        "type": "object"
       }
     }
   },
-  "actions": {
-    "update": {
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "item": {
-              "$ref": "item"
-            }
-          },
-          "required": ["id", "item"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "item": {
-              "allOf": [
-                {
-                  "$ref": "item"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    }
-                  },
-                  "required": ["id"]
-                }
-              ]
-            }
-          },
-          "required": ["item"],
-          "additionalProperties": false
-        }
-      }
-    }
-  },
-  "channels": {}
+  "name": "updatable",
+  "version": "0.0.1"
 }

@@ -1,285 +1,231 @@
 {
-  "name": "hitl",
-  "version": "0.5.0",
-  "title": "Human In The Loop",
-  "description": "Seamlessly transfer conversations to human agents",
-  "user": {
-    "tags": {
-      "downstream": {
-        "title": "Downstream User ID",
-        "description": "ID of the downstream user binded to the upstream one"
+  "actions": {
+    "startHitl": {
+      "description": "Starts the HITL mode",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "conversationId": {
+              "description": "ID of the conversation on which to start the HITL mode",
+              "type": "string",
+              "x-zui": { "placeholder": "{{ event.conversationId }}", "title": "Conversation ID" }
+            },
+            "description": {
+              "description": "Description of the HITL ticket",
+              "type": "string",
+              "x-zui": { "title": "Ticket Description" }
+            },
+            "title": {
+              "description": "Title of the HITL ticket",
+              "type": "string",
+              "x-zui": { "title": "Ticket Title" }
+            },
+            "userEmail": {
+              "description": "Email of the user that starts the HITL mode. If this value is unset, the agent will try to use the email provided by the channel.",
+              "type": "string",
+              "x-zui": { "title": "User Email" }
+            },
+            "userId": {
+              "description": "ID of the user that starts the HITL mode",
+              "type": "string",
+              "x-zui": { "placeholder": "{{ event.userId }}", "title": "User ID" }
+            }
+          },
+          "required": ["title", "userId", "conversationId"],
+          "type": "object"
+        }
       },
-      "upstream": {
-        "title": "Upstream User ID",
-        "description": "ID of the upstream user binded to the downstream one"
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+      "title": "Start HITL"
+    },
+    "stopHitl": {
+      "description": "Stop the HITL mode",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "conversationId": {
+              "description": "ID of the conversation on which to stop the HITL mode",
+              "type": "string",
+              "x-zui": { "placeholder": "{{ event.conversationId }}" }
+            }
+          },
+          "required": ["conversationId"],
+          "type": "object"
+        }
       },
-      "integrationName": {
-        "title": "HITL Integration Name",
-        "description": "Name of the integration which created the downstream user"
-      }
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+      "title": "Stop HITL"
+    }
+  },
+  "configuration": {
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "agentAssignedTimeoutSeconds": {
+          "description": "The time in seconds to wait before giving up and telling the user that no human agent is available. Set to 0 to disable",
+          "minimum": 0,
+          "type": "number",
+          "x-zui": { "placeholder": "0", "title": "Agent Assigned Timeout" }
+        },
+        "flowOnHitlStopped": {
+          "default": true,
+          "description": "Weither to wait for the user to respond to continue the flow after the hitl session",
+          "type": "boolean",
+          "x-zui": { "title": "Flow on HITL Stopped" }
+        },
+        "onAgentAssignedTimeoutMessage": {
+          "description": "The message to send to the user when no human agent is assigned within the timeout period",
+          "type": "string",
+          "x-zui": {
+            "placeholder": "No human agent is available at the moment. Please try again later. I will continue assisting you for the time being.",
+            "title": "Agent Assigned Timeout Message"
+          }
+        },
+        "onHitlHandoffMessage": {
+          "description": "The message to send to the user when transferring to a human agent",
+          "type": "string",
+          "x-zui": {
+            "placeholder": "I have escalated this conversation to a human agent. They should be with you shortly.",
+            "title": "Escalation Started Message"
+          }
+        },
+        "onHitlStoppedMessage": {
+          "description": "The message to send to the user when the hitl session stops and control is tranfered back to bot",
+          "type": "string",
+          "x-zui": {
+            "placeholder": "The human agent closed the conversation. I will continue assisting you.",
+            "title": "Escalation Terminated Message"
+          }
+        },
+        "onHumanAgentAssignedMessage": {
+          "description": "The message to send to the user when a human agent is assigned",
+          "type": "string",
+          "x-zui": {
+            "placeholder": "A human agent has joined the conversation.",
+            "title": "Human Agent Assigned Message"
+          }
+        },
+        "onIncompatibleMsgTypeMessage": {
+          "description": "The warning to send to the human agent when they send a message that is not supported by the hitl session",
+          "type": "string",
+          "x-zui": {
+            "placeholder": "Sorry, the user can only receive text messages. Please resend your message as a text message.",
+            "title": "Incompatible Message Type Warning"
+          }
+        },
+        "onUserHitlCancelledMessage": {
+          "description": "The message to send to the human agent when the user abruptly ends the hitl session",
+          "type": "string",
+          "x-zui": { "placeholder": "( The user has ended the session. )", "title": "Escalation Aborted Message" }
+        },
+        "onUserHitlCloseMessage": {
+          "description": "The message to send to the user when they end the hitl session using the termination command",
+          "type": "string",
+          "x-zui": {
+            "placeholder": "You have ended the session with the human agent. I will continue assisting you.",
+            "title": "Termination Command Message"
+          }
+        },
+        "userHitlCloseCommand": {
+          "description": "Users may send this command to end the hitl session at any time. It is case-insensitive, so it works regardless of letter casing.",
+          "type": "string",
+          "x-zui": { "placeholder": "/end", "title": "Termination Command" }
+        }
+      },
+      "type": "object"
     }
   },
   "conversation": {
     "tags": {
       "downstream": {
-        "title": "Downstream Conversation ID",
-        "description": "ID of the downstream conversation binded to the upstream one"
+        "description": "ID of the downstream conversation binded to the upstream one",
+        "title": "Downstream Conversation ID"
       },
-      "upstream": {
-        "title": "Upstream Conversation ID",
-        "description": "ID of the upstream conversation binded to the downstream one"
-      },
-      "humanAgentId": {
-        "title": "Human Agent ID",
-        "description": "ID of the human agent assigned to the ticket"
-      },
+      "hitlEndReason": { "description": "Reason why the HITL session ended", "title": "HITL End Reason" },
+      "humanAgentId": { "description": "ID of the human agent assigned to the ticket", "title": "Human Agent ID" },
       "humanAgentName": {
-        "title": "Human Agent Name",
-        "description": "Name of the human agent assigned to the ticket"
-      },
-      "hitlEndReason": {
-        "title": "HITL End Reason",
-        "description": "Reason why the HITL session ended"
+        "description": "Name of the human agent assigned to the ticket",
+        "title": "Human Agent Name"
       },
       "startMessageId": {
-        "title": "Start Message ID",
-        "description": "ID of the user message that initiated the HITL session"
-      }
-    }
-  },
-  "configuration": {
-    "schema": {
-      "type": "object",
-      "properties": {
-        "onHitlHandoffMessage": {
-          "type": "string",
-          "description": "The message to send to the user when transferring to a human agent",
-          "x-zui": {
-            "title": "Escalation Started Message",
-            "placeholder": "I have escalated this conversation to a human agent. They should be with you shortly."
-          }
-        },
-        "onHumanAgentAssignedMessage": {
-          "type": "string",
-          "description": "The message to send to the user when a human agent is assigned",
-          "x-zui": {
-            "title": "Human Agent Assigned Message",
-            "placeholder": "A human agent has joined the conversation."
-          }
-        },
-        "onHitlStoppedMessage": {
-          "type": "string",
-          "description": "The message to send to the user when the hitl session stops and control is tranfered back to bot",
-          "x-zui": {
-            "title": "Escalation Terminated Message",
-            "placeholder": "The human agent closed the conversation. I will continue assisting you."
-          }
-        },
-        "onUserHitlCancelledMessage": {
-          "type": "string",
-          "description": "The message to send to the human agent when the user abruptly ends the hitl session",
-          "x-zui": {
-            "title": "Escalation Aborted Message",
-            "placeholder": "( The user has ended the session. )"
-          }
-        },
-        "onIncompatibleMsgTypeMessage": {
-          "type": "string",
-          "description": "The warning to send to the human agent when they send a message that is not supported by the hitl session",
-          "x-zui": {
-            "title": "Incompatible Message Type Warning",
-            "placeholder": "Sorry, the user can only receive text messages. Please resend your message as a text message."
-          }
-        },
-        "userHitlCloseCommand": {
-          "type": "string",
-          "description": "Users may send this command to end the hitl session at any time. It is case-insensitive, so it works regardless of letter casing.",
-          "x-zui": {
-            "title": "Termination Command",
-            "placeholder": "/end"
-          }
-        },
-        "onUserHitlCloseMessage": {
-          "type": "string",
-          "description": "The message to send to the user when they end the hitl session using the termination command",
-          "x-zui": {
-            "title": "Termination Command Message",
-            "placeholder": "You have ended the session with the human agent. I will continue assisting you."
-          }
-        },
-        "onAgentAssignedTimeoutMessage": {
-          "type": "string",
-          "description": "The message to send to the user when no human agent is assigned within the timeout period",
-          "x-zui": {
-            "title": "Agent Assigned Timeout Message",
-            "placeholder": "No human agent is available at the moment. Please try again later. I will continue assisting you for the time being."
-          }
-        },
-        "agentAssignedTimeoutSeconds": {
-          "type": "number",
-          "minimum": 0,
-          "description": "The time in seconds to wait before giving up and telling the user that no human agent is available. Set to 0 to disable",
-          "x-zui": {
-            "title": "Agent Assigned Timeout",
-            "placeholder": "0"
-          }
-        },
-        "flowOnHitlStopped": {
-          "type": "boolean",
-          "x-zui": {
-            "title": "Flow on HITL Stopped"
-          },
-          "default": true,
-          "description": "Weither to wait for the user to respond to continue the flow after the hitl session"
-        }
+        "description": "ID of the user message that initiated the HITL session",
+        "title": "Start Message ID"
       },
-      "additionalProperties": false
+      "upstream": {
+        "description": "ID of the upstream conversation binded to the downstream one",
+        "title": "Upstream Conversation ID"
+      }
     }
   },
+  "description": "Seamlessly transfer conversations to human agents",
   "events": {
-    "humanAgentAssignedTimeout": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "sessionStartedAt": {
-            "type": "string",
-            "description": "Timestamp of when the HITL session started",
-            "x-zui": {
-              "title": "Session Started At"
-            }
-          },
-          "downstreamConversationId": {
-            "type": "string",
-            "description": "ID of the downstream conversation",
-            "x-zui": {
-              "title": "Downstream Conversation ID"
-            }
-          }
-        },
-        "required": ["sessionStartedAt", "downstreamConversationId"],
-        "additionalProperties": false
-      }
-    },
     "continueWorkflow": {
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "conversationId": {
-            "type": "string",
             "description": "ID of the conversation",
-            "x-zui": {
-              "title": "Conversation ID"
-            }
+            "type": "string",
+            "x-zui": { "title": "Conversation ID" }
           }
         },
         "required": ["conversationId"],
-        "additionalProperties": false
-      }
-    }
-  },
-  "actions": {
-    "startHitl": {
-      "title": "Start HITL",
-      "description": "Starts the HITL mode",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "title": {
-              "type": "string",
-              "description": "Title of the HITL ticket",
-              "x-zui": {
-                "title": "Ticket Title"
-              }
-            },
-            "description": {
-              "type": "string",
-              "x-zui": {
-                "title": "Ticket Description"
-              },
-              "description": "Description of the HITL ticket"
-            },
-            "userId": {
-              "type": "string",
-              "description": "ID of the user that starts the HITL mode",
-              "x-zui": {
-                "title": "User ID",
-                "placeholder": "{{ event.userId }}"
-              }
-            },
-            "userEmail": {
-              "type": "string",
-              "x-zui": {
-                "title": "User Email"
-              },
-              "description": "Email of the user that starts the HITL mode. If this value is unset, the agent will try to use the email provided by the channel."
-            },
-            "conversationId": {
-              "type": "string",
-              "description": "ID of the conversation on which to start the HITL mode",
-              "x-zui": {
-                "title": "Conversation ID",
-                "placeholder": "{{ event.conversationId }}"
-              }
-            }
-          },
-          "required": ["title", "userId", "conversationId"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
+        "type": "object"
       }
     },
-    "stopHitl": {
-      "title": "Stop HITL",
-      "description": "Stop the HITL mode",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "conversationId": {
-              "type": "string",
-              "description": "ID of the conversation on which to stop the HITL mode",
-              "x-zui": {
-                "placeholder": "{{ event.conversationId }}"
-              }
-            }
+    "humanAgentAssignedTimeout": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "downstreamConversationId": {
+            "description": "ID of the downstream conversation",
+            "type": "string",
+            "x-zui": { "title": "Downstream Conversation ID" }
           },
-          "required": ["conversationId"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
+          "sessionStartedAt": {
+            "description": "Timestamp of when the HITL session started",
+            "type": "string",
+            "x-zui": { "title": "Session Started At" }
+          }
+        },
+        "required": ["sessionStartedAt", "downstreamConversationId"],
+        "type": "object"
       }
     }
   },
+  "name": "hitl",
   "states": {
     "hitl": {
-      "type": "conversation",
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "hitlActive": {
-            "type": "boolean",
             "description": "Whether the conversation is in HITL mode",
-            "x-zui": {
-              "title": "Is HITL Enabled?"
-            }
+            "type": "boolean",
+            "x-zui": { "title": "Is HITL Enabled?" }
           }
         },
         "required": ["hitlActive"],
-        "additionalProperties": false
-      }
+        "type": "object"
+      },
+      "type": "conversation"
     }
-  }
+  },
+  "title": "Human In The Loop",
+  "user": {
+    "tags": {
+      "downstream": {
+        "description": "ID of the downstream user binded to the upstream one",
+        "title": "Downstream User ID"
+      },
+      "integrationName": {
+        "description": "Name of the integration which created the downstream user",
+        "title": "HITL Integration Name"
+      },
+      "upstream": { "description": "ID of the upstream user binded to the downstream one", "title": "Upstream User ID" }
+    }
+  },
+  "version": "0.5.0"
 }

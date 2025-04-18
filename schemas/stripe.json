@@ -1,1118 +1,759 @@
 {
-  "name": "stripe",
-  "version": "0.5.0",
-  "title": "Stripe",
-  "description": "Manage payments, subscriptions, and customers seamlessly. Execute workflows on charge failures and subscription updates.",
-  "user": {
-    "tags": {
-      "id": {
-        "title": "Stripe customer ID"
-      }
-    }
-  },
-  "events": {
-    "chargeFailed": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "origin": {
-            "type": "string",
-            "const": "stripe",
-            "description": "The origin of the event trigger"
-          },
-          "userId": {
-            "type": "string",
-            "description": "Botpress User ID"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-
-                "default": "charge.failed"
-              },
-              "object": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true,
-                "description": "The object of the failed charge"
-              }
-            },
-            "required": ["object"],
-            "additionalProperties": false,
-            "description": "The data to send with the event"
-          }
-        },
-        "required": ["origin", "userId", "data"],
-        "additionalProperties": false
-      },
-      "title": "Charge Failed",
-      "description": "This event occurs when a charge fails in Stripe."
-    },
-    "subscriptionDeleted": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "origin": {
-            "type": "string",
-            "const": "stripe",
-            "description": "The origin of the event trigger"
-          },
-          "userId": {
-            "type": "string",
-            "description": "Botpress User ID"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-
-                "default": "customer.subscription.deleted"
-              },
-              "object": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true,
-                "description": "The object of the deleted subscription"
-              }
-            },
-            "required": ["object"],
-            "additionalProperties": false,
-            "description": "The data to send with the event"
-          }
-        },
-        "required": ["origin", "userId", "data"],
-        "additionalProperties": false
-      },
-      "title": "Subscription Deleted",
-      "description": "This event occurs when a subscription is canceled/deleted in Stripe."
-    },
-    "subscriptionUpdated": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "origin": {
-            "type": "string",
-            "const": "stripe",
-            "description": "The origin of the event trigger"
-          },
-          "userId": {
-            "type": "string",
-            "description": "Botpress User ID"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-
-                "default": "customer.subscription.updated"
-              },
-              "object": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true,
-                "description": "The object of the updated subscription"
-              }
-            },
-            "required": ["object"],
-            "additionalProperties": false,
-            "description": "The data to send with the event"
-          }
-        },
-        "required": ["origin", "userId", "data"],
-        "additionalProperties": false
-      },
-      "title": "Subscription Updated",
-      "description": "This event occurs when a subscription is updated in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true."
-    },
-    "subscriptionCreated": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "origin": {
-            "type": "string",
-            "const": "stripe",
-            "description": "The origin of the event trigger"
-          },
-          "userId": {
-            "type": "string",
-            "description": "Botpress User ID"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-
-                "default": "customer.subscription.created"
-              },
-              "object": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true,
-                "description": "The object of the created subscription"
-              }
-            },
-            "required": ["object"],
-            "additionalProperties": false,
-            "description": "The data to send with the event"
-          }
-        },
-        "required": ["origin", "userId", "data"],
-        "additionalProperties": false
-      },
-      "title": "Subscription Created",
-      "description": "This event occurs when a subscription is created in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true."
-    },
-    "invoicePaymentFailed": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "origin": {
-            "type": "string",
-            "const": "stripe",
-            "description": "The origin of the event trigger"
-          },
-          "userId": {
-            "type": "string",
-            "description": "Botpress User ID"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-
-                "default": "invoice.payment_failed"
-              },
-              "object": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true,
-                "description": "The object of the invoice whose payment failed"
-              }
-            },
-            "required": ["object"],
-            "additionalProperties": false,
-            "description": "The data to send with the event"
-          }
-        },
-        "required": ["origin", "userId", "data"],
-        "additionalProperties": false
-      },
-      "title": "Invoice Payment Failed",
-      "description": "This event occurs when an invoice payment fails in Stripe."
-    },
-    "paymentIntentFailed": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "origin": {
-            "type": "string",
-            "const": "stripe",
-            "description": "The origin of the event trigger"
-          },
-          "userId": {
-            "type": "string",
-            "description": "Botpress User ID"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-
-                "default": "payment_intent.payment_failed"
-              },
-              "object": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true,
-                "description": "The object of the payment intent that failed"
-              }
-            },
-            "required": ["object"],
-            "additionalProperties": false,
-            "description": "The data to send with the event"
-          }
-        },
-        "required": ["origin", "userId", "data"],
-        "additionalProperties": false
-      },
-      "title": "Payment Intent Failed",
-      "description": "This event occurs when a payment intent fails in Stripe."
-    },
-    "subscriptionScheduleCreated": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "origin": {
-            "type": "string",
-            "const": "stripe",
-            "description": "The origin of the event trigger"
-          },
-          "userId": {
-            "type": "string",
-            "description": "Botpress User ID"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-
-                "default": "subscription_schedule.created"
-              },
-              "object": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true,
-                "description": "The object of the created subscription schedule"
-              }
-            },
-            "required": ["object"],
-            "additionalProperties": false,
-            "description": "The data to send with the event"
-          }
-        },
-        "required": ["origin", "userId", "data"],
-        "additionalProperties": false
-      },
-      "title": "Subscription Schedule Created",
-      "description": "This event occurs when a subscription schedule is created in Stripe."
-    },
-    "subscriptionScheduleUpdated": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "origin": {
-            "type": "string",
-            "const": "stripe",
-            "description": "The origin of the event trigger"
-          },
-          "userId": {
-            "type": "string",
-            "description": "Botpress User ID"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-
-                "default": "subscription_schedule.updated"
-              },
-              "object": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true,
-                "description": "The object of the updated subscription schedule"
-              }
-            },
-            "required": ["object"],
-            "additionalProperties": false,
-            "description": "The data to send with the event"
-          }
-        },
-        "required": ["origin", "userId", "data"],
-        "additionalProperties": false
-      },
-      "title": "Subscription Schedule Updated",
-      "description": "This event occurs when a subscription schedule is updated in Stripe."
-    }
-  },
   "actions": {
-    "createPaymentLink": {
-      "title": "Create Payment Link",
+    "createCustomer": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "productName": {
+            "address": {
+              "description": "The address of the customer",
               "type": "string",
-              "description": "The name of the product to be sold",
-              "x-zui": {
-                "placeholder": "ex: T-Shirt"
-              }
-            },
-            "unit_amount": {
-              "type": "number",
-              "x-zui": {
-                "title": "Unit Price"
-              },
-              "default": 0,
-              "description": "The unit price in cents"
-            },
-            "currency": {
-              "type": "string",
-
-              "default": "usd",
-              "description": "The currency in which the price will be expressed"
-            },
-            "quantity": {
-              "type": "number",
-
-              "default": 1,
-              "description": "The quantity of the product being purchased"
-            },
-            "adjustableQuantity": {
-              "type": "boolean",
-
-              "default": false,
-              "description": "Whether or not the quantity can be adjusted"
-            },
-            "adjustableQuantityMaximum": {
-              "type": "number",
-              "minimum": 2,
-              "maximum": 999,
-              "x-zui": {
-                "title": "Max Quantity"
-              },
-              "default": 99,
-              "description": "The maximum quantity the customer can purchase, up to 999"
-            },
-            "adjustableQuantityMinimum": {
-              "type": "number",
-              "minimum": 1,
-              "maximum": 998,
-              "x-zui": {
-                "title": "Min Quantity"
-              },
-              "default": 1,
-              "description": "The minimum quantity the customer can purchase"
-            }
-          },
-          "required": ["productName"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "url": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        }
-      }
-    },
-    "listProductPrices": {
-      "title": "List Product Prices",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "products": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "prices": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "unit_amount": {
-                          "type": ["number", "null"]
-                        },
-                        "currency": {
-                          "type": "string"
-                        },
-                        "recurring": {
-                          "anyOf": [
-                            {
-                              "type": "object",
-                              "properties": {},
-                              "additionalProperties": true
-                            },
-                            {
-                              "type": "null"
-                            }
-                          ]
-                        }
-                      },
-                      "required": ["unit_amount", "currency"],
-                      "additionalProperties": false
-                    }
-                  }
-                },
-                "required": ["name", "prices"],
-                "additionalProperties": false
-              }
-            }
-          },
-          "additionalProperties": false
-        }
-      }
-    },
-    "createSubsLink": {
-      "title": "Create Subscription Payment Link",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "productName": {
-              "type": "string",
-              "description": "The name of the subscription product"
-            },
-            "unit_amount": {
-              "type": "number",
-
-              "default": 0,
-              "description": "The unit price in cents"
-            },
-            "currency": {
-              "type": "string",
-
-              "default": "usd",
-              "description": "The currency in which the price is expressed"
-            },
-            "quantity": {
-              "type": "number",
-
-              "default": 1,
-              "description": "The quantity of the subscription being purchased"
-            },
-            "adjustableQuantity": {
-              "type": "boolean",
-
-              "default": false,
-              "description": "Whether or not the quantity can be adjusted"
-            },
-            "adjustableQuantityMaximum": {
-              "type": "number",
-              "minimum": 2,
-              "maximum": 999,
-              "x-zui": {
-                "title": "Max Quantity"
-              },
-              "default": 99,
-              "description": "The maximum quantity the customer can purchase, up to 999"
-            },
-            "adjustableQuantityMinimum": {
-              "type": "number",
-              "minimum": 1,
-              "maximum": 998,
-              "x-zui": {
-                "title": "Min Quantity"
-              },
-              "default": 1,
-              "description": "The minimum quantity the customer can purchase"
-            },
-            "chargingInterval": {
-              "type": "string",
-              "x-zui": {
-                "title": "Payment Interval"
-              },
-              "default": "month",
-              "description": "The interval at which the customer will be charged"
-            },
-            "trial_period_days": {
-              "type": "number",
-              "minimum": 1,
-
-              "description": "The number of free trial days for the subscription"
+              "x-zui": { "placeholder": "123 Bot Street, Bot City, Botland, 12345" }
             },
             "description": {
+              "description": "A description for the customer",
               "type": "string",
-
-              "description": "A description of the subscription product"
+              "x-zui": { "placeholder": "Customer Description" }
+            },
+            "email": {
+              "description": "The email of the customer",
+              "format": "email",
+              "maxLength": 512,
+              "type": "string",
+              "x-zui": { "placeholder": "johndoe@botpress.com" }
+            },
+            "name": {
+              "description": "The name of the customer",
+              "type": "string",
+              "x-zui": { "placeholder": "John Doe" }
+            },
+            "paymentMethodId": {
+              "description": "The ID of the payment method to attach to the customer",
+              "type": "string",
+              "x-zui": { "placeholder": "payment-method-id" }
+            },
+            "phone": {
+              "description": "The phone number of the customer",
+              "type": "string",
+              "x-zui": { "placeholder": "+1234567890" }
+            }
+          },
+          "required": ["email"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "customer": {
+              "additionalProperties": true,
+              "properties": {
+                "address": {
+                  "anyOf": [{ "additionalProperties": true, "properties": {}, "type": "object" }, { "type": "null" }]
+                },
+                "created": { "type": "number" },
+                "delinquent": { "type": ["boolean", "null"] },
+                "description": { "type": ["string", "null"] },
+                "email": { "type": ["string", "null"] },
+                "id": { "type": "string" },
+                "name": { "type": ["string", "null"] },
+                "phone": { "type": ["string", "null"] }
+              },
+              "required": ["id", "email", "description", "created"],
+              "type": "object"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "title": "Create Customer"
+    },
+    "createOrRetrieveCustomer": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "description": "The address of the customer",
+              "type": "string",
+              "x-zui": { "placeholder": "123 Bot Street, Bot City, Botland, 12345" }
+            },
+            "description": {
+              "description": "A description for the customer",
+              "type": "string",
+              "x-zui": { "placeholder": "Customer Description" }
+            },
+            "email": {
+              "description": "The email of the customer",
+              "format": "email",
+              "maxLength": 512,
+              "type": "string",
+              "x-zui": { "placeholder": "johndoe@botpress.com" }
+            },
+            "name": {
+              "description": "The name of the customer",
+              "type": "string",
+              "x-zui": { "placeholder": "John Doe" }
+            },
+            "paymentMethodId": {
+              "description": "The ID of the payment method to attach to the customer",
+              "type": "string",
+              "x-zui": { "placeholder": "payment-method-id" }
+            },
+            "phone": {
+              "description": "The phone number of the customer",
+              "type": "string",
+              "x-zui": { "placeholder": "+1234567890" }
+            }
+          },
+          "required": ["email"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "customer": {
+              "additionalProperties": true,
+              "properties": {
+                "address": {
+                  "anyOf": [{ "additionalProperties": true, "properties": {}, "type": "object" }, { "type": "null" }]
+                },
+                "created": { "type": "number" },
+                "delinquent": { "type": ["boolean", "null"] },
+                "description": { "type": ["string", "null"] },
+                "email": { "type": ["string", "null"] },
+                "id": { "type": "string" },
+                "name": { "type": ["string", "null"] },
+                "phone": { "type": ["string", "null"] }
+              },
+              "required": ["id", "email", "description", "created"],
+              "type": "object"
+            },
+            "customers": {
+              "items": {
+                "additionalProperties": true,
+                "properties": {
+                  "address": {
+                    "anyOf": [{ "additionalProperties": true, "properties": {}, "type": "object" }, { "type": "null" }]
+                  },
+                  "created": { "type": "number" },
+                  "delinquent": { "type": ["boolean", "null"] },
+                  "description": { "type": ["string", "null"] },
+                  "email": { "type": ["string", "null"] },
+                  "id": { "type": "string" },
+                  "name": { "type": ["string", "null"] },
+                  "phone": { "type": ["string", "null"] }
+                },
+                "required": ["id", "email", "description", "created"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "title": "Create Or Retrieve Customer"
+    },
+    "createPaymentLink": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "adjustableQuantity": {
+              "default": false,
+              "description": "Whether or not the quantity can be adjusted",
+              "type": "boolean"
+            },
+            "adjustableQuantityMaximum": {
+              "default": 99,
+              "description": "The maximum quantity the customer can purchase, up to 999",
+              "maximum": 999,
+              "minimum": 2,
+              "type": "number",
+              "x-zui": { "title": "Max Quantity" }
+            },
+            "adjustableQuantityMinimum": {
+              "default": 1,
+              "description": "The minimum quantity the customer can purchase",
+              "maximum": 998,
+              "minimum": 1,
+              "type": "number",
+              "x-zui": { "title": "Min Quantity" }
+            },
+            "currency": {
+              "default": "usd",
+              "description": "The currency in which the price will be expressed",
+              "type": "string"
+            },
+            "productName": {
+              "description": "The name of the product to be sold",
+              "type": "string",
+              "x-zui": { "placeholder": "ex: T-Shirt" }
+            },
+            "quantity": {
+              "default": 1,
+              "description": "The quantity of the product being purchased",
+              "type": "number"
+            },
+            "unit_amount": {
+              "default": 0,
+              "description": "The unit price in cents",
+              "type": "number",
+              "x-zui": { "title": "Unit Price" }
             }
           },
           "required": ["productName"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
+          "properties": { "id": { "type": "string" }, "url": { "type": "string" } },
+          "type": "object"
+        }
+      },
+      "title": "Create Payment Link"
+    },
+    "createSubsLink": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
           "properties": {
-            "id": {
+            "adjustableQuantity": {
+              "default": false,
+              "description": "Whether or not the quantity can be adjusted",
+              "type": "boolean"
+            },
+            "adjustableQuantityMaximum": {
+              "default": 99,
+              "description": "The maximum quantity the customer can purchase, up to 999",
+              "maximum": 999,
+              "minimum": 2,
+              "type": "number",
+              "x-zui": { "title": "Max Quantity" }
+            },
+            "adjustableQuantityMinimum": {
+              "default": 1,
+              "description": "The minimum quantity the customer can purchase",
+              "maximum": 998,
+              "minimum": 1,
+              "type": "number",
+              "x-zui": { "title": "Min Quantity" }
+            },
+            "chargingInterval": {
+              "default": "month",
+              "description": "The interval at which the customer will be charged",
+              "type": "string",
+              "x-zui": { "title": "Payment Interval" }
+            },
+            "currency": {
+              "default": "usd",
+              "description": "The currency in which the price is expressed",
               "type": "string"
             },
-            "url": {
-              "type": "string"
-            }
+            "description": { "description": "A description of the subscription product", "type": "string" },
+            "productName": { "description": "The name of the subscription product", "type": "string" },
+            "quantity": {
+              "default": 1,
+              "description": "The quantity of the subscription being purchased",
+              "type": "number"
+            },
+            "trial_period_days": {
+              "description": "The number of free trial days for the subscription",
+              "minimum": 1,
+              "type": "number"
+            },
+            "unit_amount": { "default": 0, "description": "The unit price in cents", "type": "number" }
           },
-          "additionalProperties": false
-        }
-      }
-    },
-    "listPaymentLinks": {
-      "title": "List Payment Links",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
+          "required": ["productName"],
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "paymentLinks": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "url": {
-                    "type": "string"
-                  }
-                },
-                "required": ["id", "url"],
-                "additionalProperties": false
-              }
-            }
-          },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "properties": { "id": { "type": "string" }, "url": { "type": "string" } },
+          "type": "object"
         }
-      }
+      },
+      "title": "Create Subscription Payment Link"
     },
-    "findPaymentLink": {
-      "title": "Find Payment Link",
+    "deactivatePaymentLink": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "description": "The payment link ID to deactivate",
+              "type": "string",
+              "x-zui": { "placeholder": "ex: test_aEUdTEdRP95RdvaaEJ" }
+            }
+          },
+          "required": ["id"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "active": { "type": "boolean" }, "id": { "type": "string" }, "url": { "type": "string" } },
+          "type": "object"
+        }
+      },
+      "title": "Deactivate Payment Link"
+    },
+    "findPaymentLink": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
           "properties": {
             "url": {
-              "type": "string",
               "description": "The URL of the payment link",
-              "x-zui": {
-                "title": "Payment link",
-                "placeholder": "ex: https://buy.stripe.com/test_b0tPr3sS5w3sOm3"
-              }
+              "type": "string",
+              "x-zui": { "placeholder": "ex: https://buy.stripe.com/test_b0tPr3sS5w3sOm3", "title": "Payment link" }
             }
           },
           "required": ["url"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
-        }
-      }
-    },
-    "deactivatePaymentLink": {
-      "title": "Deactivate Payment Link",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "description": "The payment link ID to deactivate",
-              "x-zui": {
-                "placeholder": "ex: test_aEUdTEdRP95RdvaaEJ"
-              }
-            }
-          },
-          "required": ["id"],
-          "additionalProperties": false
-        }
+        "schema": { "additionalProperties": false, "properties": { "id": { "type": "string" } }, "type": "object" }
       },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "url": {
-              "type": "string"
-            },
-            "active": {
-              "type": "boolean"
-            }
-          },
-          "additionalProperties": false
-        }
-      }
+      "title": "Find Payment Link"
     },
     "listCustomers": {
-      "title": "List Customers By Email",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "email": {
-              "type": "string",
+              "description": "The e-mail of the customer to search for",
               "format": "email",
               "maxLength": 512,
-
-              "description": "The e-mail of the customer to search for"
+              "type": "string"
             }
           },
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "customers": {
-              "type": "object",
               "additionalProperties": {
-                "type": "array",
                 "items": {
-                  "type": "object",
+                  "additionalProperties": true,
                   "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": ["string", "null"]
-                    },
-                    "name": {
-                      "type": ["string", "null"]
-                    },
-                    "description": {
-                      "type": ["string", "null"]
-                    },
-                    "phone": {
-                      "type": ["string", "null"]
-                    },
                     "address": {
                       "anyOf": [
-                        {
-                          "type": "object",
-                          "properties": {},
-                          "additionalProperties": true
-                        },
-                        {
-                          "type": "null"
-                        }
+                        { "additionalProperties": true, "properties": {}, "type": "object" },
+                        { "type": "null" }
                       ]
                     },
-                    "created": {
-                      "type": "number"
-                    },
-                    "delinquent": {
-                      "type": ["boolean", "null"]
-                    }
+                    "created": { "type": "number" },
+                    "delinquent": { "type": ["boolean", "null"] },
+                    "description": { "type": ["string", "null"] },
+                    "email": { "type": ["string", "null"] },
+                    "id": { "type": "string" },
+                    "name": { "type": ["string", "null"] },
+                    "phone": { "type": ["string", "null"] }
                   },
                   "required": ["id", "email", "description", "created"],
-                  "additionalProperties": true
-                }
-              }
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "type": "object"
             }
           },
-          "additionalProperties": false
-        }
-      }
-    },
-    "searchCustomers": {
-      "title": "Search Customers By Fields",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "email": {
-              "type": "string",
-              "maxLength": 512,
-
-              "description": "Search by query on customer emails"
-            },
-            "name": {
-              "type": "string",
-
-              "description": "Search by query on customer name"
-            },
-            "phone": {
-              "type": "string",
-
-              "description": "Search by query on customer phone number"
-            }
-          },
-          "additionalProperties": false
+          "type": "object"
         }
       },
+      "title": "List Customers By Email"
+    },
+    "listPaymentLinks": {
+      "input": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "customers": {
-              "type": "array",
+            "paymentLinks": {
               "items": {
-                "type": "object",
+                "additionalProperties": false,
+                "properties": { "id": { "type": "string" }, "url": { "type": "string" } },
+                "required": ["id", "url"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "title": "List Payment Links"
+    },
+    "listProductPrices": {
+      "input": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "products": {
+              "additionalProperties": {
+                "additionalProperties": false,
                 "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": ["string", "null"]
-                  },
-                  "name": {
-                    "type": ["string", "null"]
-                  },
-                  "description": {
-                    "type": ["string", "null"]
-                  },
-                  "phone": {
-                    "type": ["string", "null"]
-                  },
-                  "address": {
-                    "anyOf": [
-                      {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
+                  "name": { "type": "string" },
+                  "prices": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "currency": { "type": "string" },
+                        "recurring": {
+                          "anyOf": [
+                            { "additionalProperties": true, "properties": {}, "type": "object" },
+                            { "type": "null" }
+                          ]
+                        },
+                        "unit_amount": { "type": ["number", "null"] }
                       },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "created": {
-                    "type": "number"
-                  },
-                  "delinquent": {
-                    "type": ["boolean", "null"]
+                      "required": ["unit_amount", "currency"],
+                      "type": "object"
+                    },
+                    "type": "array"
                   }
                 },
-                "required": ["id", "email", "description", "created"],
-                "additionalProperties": true
-              }
+                "required": ["name", "prices"],
+                "type": "object"
+              },
+              "type": "object"
             }
           },
-          "additionalProperties": false
-        }
-      }
-    },
-    "createCustomer": {
-      "title": "Create Customer",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "email": {
-              "type": "string",
-              "format": "email",
-              "maxLength": 512,
-              "description": "The email of the customer",
-              "x-zui": {
-                "placeholder": "johndoe@botpress.com"
-              }
-            },
-            "name": {
-              "type": "string",
-              "x-zui": {
-                "placeholder": "John Doe"
-              },
-              "description": "The name of the customer"
-            },
-            "phone": {
-              "type": "string",
-              "x-zui": {
-                "placeholder": "+1234567890"
-              },
-              "description": "The phone number of the customer"
-            },
-            "description": {
-              "type": "string",
-              "x-zui": {
-                "placeholder": "Customer Description"
-              },
-              "description": "A description for the customer"
-            },
-            "paymentMethodId": {
-              "type": "string",
-              "x-zui": {
-                "placeholder": "payment-method-id"
-              },
-              "description": "The ID of the payment method to attach to the customer"
-            },
-            "address": {
-              "type": "string",
-              "x-zui": {
-                "placeholder": "123 Bot Street, Bot City, Botland, 12345"
-              },
-              "description": "The address of the customer"
-            }
-          },
-          "required": ["email"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "customer": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "email": {
-                  "type": ["string", "null"]
-                },
-                "name": {
-                  "type": ["string", "null"]
-                },
-                "description": {
-                  "type": ["string", "null"]
-                },
-                "phone": {
-                  "type": ["string", "null"]
-                },
-                "address": {
-                  "anyOf": [
-                    {
-                      "type": "object",
-                      "properties": {},
-                      "additionalProperties": true
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "created": {
-                  "type": "number"
-                },
-                "delinquent": {
-                  "type": ["boolean", "null"]
-                }
-              },
-              "required": ["id", "email", "description", "created"],
-              "additionalProperties": true
-            }
-          },
-          "additionalProperties": false
-        }
-      }
-    },
-    "createOrRetrieveCustomer": {
-      "title": "Create Or Retrieve Customer",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "email": {
-              "type": "string",
-              "format": "email",
-              "maxLength": 512,
-              "description": "The email of the customer",
-              "x-zui": {
-                "placeholder": "johndoe@botpress.com"
-              }
-            },
-            "name": {
-              "type": "string",
-              "x-zui": {
-                "placeholder": "John Doe"
-              },
-              "description": "The name of the customer"
-            },
-            "phone": {
-              "type": "string",
-              "x-zui": {
-                "placeholder": "+1234567890"
-              },
-              "description": "The phone number of the customer"
-            },
-            "description": {
-              "type": "string",
-              "x-zui": {
-                "placeholder": "Customer Description"
-              },
-              "description": "A description for the customer"
-            },
-            "paymentMethodId": {
-              "type": "string",
-              "x-zui": {
-                "placeholder": "payment-method-id"
-              },
-              "description": "The ID of the payment method to attach to the customer"
-            },
-            "address": {
-              "type": "string",
-              "x-zui": {
-                "placeholder": "123 Bot Street, Bot City, Botland, 12345"
-              },
-              "description": "The address of the customer"
-            }
-          },
-          "required": ["email"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "customer": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "email": {
-                  "type": ["string", "null"]
-                },
-                "name": {
-                  "type": ["string", "null"]
-                },
-                "description": {
-                  "type": ["string", "null"]
-                },
-                "phone": {
-                  "type": ["string", "null"]
-                },
-                "address": {
-                  "anyOf": [
-                    {
-                      "type": "object",
-                      "properties": {},
-                      "additionalProperties": true
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "created": {
-                  "type": "number"
-                },
-                "delinquent": {
-                  "type": ["boolean", "null"]
-                }
-              },
-              "required": ["id", "email", "description", "created"],
-              "additionalProperties": true
-            },
-            "customers": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": ["string", "null"]
-                  },
-                  "name": {
-                    "type": ["string", "null"]
-                  },
-                  "description": {
-                    "type": ["string", "null"]
-                  },
-                  "phone": {
-                    "type": ["string", "null"]
-                  },
-                  "address": {
-                    "anyOf": [
-                      {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "created": {
-                    "type": "number"
-                  },
-                  "delinquent": {
-                    "type": ["boolean", "null"]
-                  }
-                },
-                "required": ["id", "email", "description", "created"],
-                "additionalProperties": true
-              }
-            }
-          },
-          "additionalProperties": false
-        }
-      }
+      "title": "List Product Prices"
     },
     "retrieveCustomerById": {
-      "title": "Retrieve Customer By ID",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "id": {
-              "type": "string",
               "description": "The ID of the customer to retrieve",
-              "x-zui": {
-                "placeholder": "cus_1234567890"
-              }
+              "type": "string",
+              "x-zui": { "placeholder": "cus_1234567890" }
             }
           },
           "required": ["id"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": true,
           "properties": {
-            "id": {
-              "type": "string"
-            },
-            "email": {
-              "type": ["string", "null"]
-            },
-            "description": {
-              "type": ["string", "null"]
-            },
-            "created": {
-              "type": "number"
+            "created": { "type": "number" },
+            "description": { "type": ["string", "null"] },
+            "email": { "type": ["string", "null"] },
+            "id": { "type": "string" }
+          },
+          "type": "object"
+        }
+      },
+      "title": "Retrieve Customer By ID"
+    },
+    "searchCustomers": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "email": { "description": "Search by query on customer emails", "maxLength": 512, "type": "string" },
+            "name": { "description": "Search by query on customer name", "type": "string" },
+            "phone": { "description": "Search by query on customer phone number", "type": "string" }
+          },
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "customers": {
+              "items": {
+                "additionalProperties": true,
+                "properties": {
+                  "address": {
+                    "anyOf": [{ "additionalProperties": true, "properties": {}, "type": "object" }, { "type": "null" }]
+                  },
+                  "created": { "type": "number" },
+                  "delinquent": { "type": ["boolean", "null"] },
+                  "description": { "type": ["string", "null"] },
+                  "email": { "type": ["string", "null"] },
+                  "id": { "type": "string" },
+                  "name": { "type": ["string", "null"] },
+                  "phone": { "type": ["string", "null"] }
+                },
+                "required": ["id", "email", "description", "created"],
+                "type": "object"
+              },
+              "type": "array"
             }
           },
-          "additionalProperties": true
+          "type": "object"
         }
-      }
+      },
+      "title": "Search Customers By Fields"
     }
   },
   "channels": {},
-  "states": {
-    "stripeIntegrationInfo": {
-      "type": "integration",
+  "description": "Manage payments, subscriptions, and customers seamlessly. Execute workflows on charge failures and subscription updates.",
+  "events": {
+    "chargeFailed": {
+      "description": "This event occurs when a charge fails in Stripe.",
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
-          "stripeWebhookId": {
-            "type": "string"
-          }
+          "data": {
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "properties": {
+              "object": {
+                "additionalProperties": true,
+                "description": "The object of the failed charge",
+                "properties": {},
+                "type": "object"
+              },
+              "type": { "default": "charge.failed", "type": "string" }
+            },
+            "required": ["object"],
+            "type": "object"
+          },
+          "origin": { "const": "stripe", "description": "The origin of the event trigger", "type": "string" },
+          "userId": { "description": "Botpress User ID", "type": "string" }
         },
-        "required": ["stripeWebhookId"],
-        "additionalProperties": false
-      }
+        "required": ["origin", "userId", "data"],
+        "type": "object"
+      },
+      "title": "Charge Failed"
+    },
+    "invoicePaymentFailed": {
+      "description": "This event occurs when an invoice payment fails in Stripe.",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "properties": {
+              "object": {
+                "additionalProperties": true,
+                "description": "The object of the invoice whose payment failed",
+                "properties": {},
+                "type": "object"
+              },
+              "type": { "default": "invoice.payment_failed", "type": "string" }
+            },
+            "required": ["object"],
+            "type": "object"
+          },
+          "origin": { "const": "stripe", "description": "The origin of the event trigger", "type": "string" },
+          "userId": { "description": "Botpress User ID", "type": "string" }
+        },
+        "required": ["origin", "userId", "data"],
+        "type": "object"
+      },
+      "title": "Invoice Payment Failed"
+    },
+    "paymentIntentFailed": {
+      "description": "This event occurs when a payment intent fails in Stripe.",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "properties": {
+              "object": {
+                "additionalProperties": true,
+                "description": "The object of the payment intent that failed",
+                "properties": {},
+                "type": "object"
+              },
+              "type": { "default": "payment_intent.payment_failed", "type": "string" }
+            },
+            "required": ["object"],
+            "type": "object"
+          },
+          "origin": { "const": "stripe", "description": "The origin of the event trigger", "type": "string" },
+          "userId": { "description": "Botpress User ID", "type": "string" }
+        },
+        "required": ["origin", "userId", "data"],
+        "type": "object"
+      },
+      "title": "Payment Intent Failed"
+    },
+    "subscriptionCreated": {
+      "description": "This event occurs when a subscription is created in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true.",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "properties": {
+              "object": {
+                "additionalProperties": true,
+                "description": "The object of the created subscription",
+                "properties": {},
+                "type": "object"
+              },
+              "type": { "default": "customer.subscription.created", "type": "string" }
+            },
+            "required": ["object"],
+            "type": "object"
+          },
+          "origin": { "const": "stripe", "description": "The origin of the event trigger", "type": "string" },
+          "userId": { "description": "Botpress User ID", "type": "string" }
+        },
+        "required": ["origin", "userId", "data"],
+        "type": "object"
+      },
+      "title": "Subscription Created"
+    },
+    "subscriptionDeleted": {
+      "description": "This event occurs when a subscription is canceled/deleted in Stripe.",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "properties": {
+              "object": {
+                "additionalProperties": true,
+                "description": "The object of the deleted subscription",
+                "properties": {},
+                "type": "object"
+              },
+              "type": { "default": "customer.subscription.deleted", "type": "string" }
+            },
+            "required": ["object"],
+            "type": "object"
+          },
+          "origin": { "const": "stripe", "description": "The origin of the event trigger", "type": "string" },
+          "userId": { "description": "Botpress User ID", "type": "string" }
+        },
+        "required": ["origin", "userId", "data"],
+        "type": "object"
+      },
+      "title": "Subscription Deleted"
+    },
+    "subscriptionScheduleCreated": {
+      "description": "This event occurs when a subscription schedule is created in Stripe.",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "properties": {
+              "object": {
+                "additionalProperties": true,
+                "description": "The object of the created subscription schedule",
+                "properties": {},
+                "type": "object"
+              },
+              "type": { "default": "subscription_schedule.created", "type": "string" }
+            },
+            "required": ["object"],
+            "type": "object"
+          },
+          "origin": { "const": "stripe", "description": "The origin of the event trigger", "type": "string" },
+          "userId": { "description": "Botpress User ID", "type": "string" }
+        },
+        "required": ["origin", "userId", "data"],
+        "type": "object"
+      },
+      "title": "Subscription Schedule Created"
+    },
+    "subscriptionScheduleUpdated": {
+      "description": "This event occurs when a subscription schedule is updated in Stripe.",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "properties": {
+              "object": {
+                "additionalProperties": true,
+                "description": "The object of the updated subscription schedule",
+                "properties": {},
+                "type": "object"
+              },
+              "type": { "default": "subscription_schedule.updated", "type": "string" }
+            },
+            "required": ["object"],
+            "type": "object"
+          },
+          "origin": { "const": "stripe", "description": "The origin of the event trigger", "type": "string" },
+          "userId": { "description": "Botpress User ID", "type": "string" }
+        },
+        "required": ["origin", "userId", "data"],
+        "type": "object"
+      },
+      "title": "Subscription Schedule Updated"
+    },
+    "subscriptionUpdated": {
+      "description": "This event occurs when a subscription is updated in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true.",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "properties": {
+              "object": {
+                "additionalProperties": true,
+                "description": "The object of the updated subscription",
+                "properties": {},
+                "type": "object"
+              },
+              "type": { "default": "customer.subscription.updated", "type": "string" }
+            },
+            "required": ["object"],
+            "type": "object"
+          },
+          "origin": { "const": "stripe", "description": "The origin of the event trigger", "type": "string" },
+          "userId": { "description": "Botpress User ID", "type": "string" }
+        },
+        "required": ["origin", "userId", "data"],
+        "type": "object"
+      },
+      "title": "Subscription Updated"
     }
   },
-  "interfaces": {}
+  "interfaces": {},
+  "name": "stripe",
+  "states": {
+    "stripeIntegrationInfo": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": { "stripeWebhookId": { "type": "string" } },
+        "required": ["stripeWebhookId"],
+        "type": "object"
+      },
+      "type": "integration"
+    }
+  },
+  "title": "Stripe",
+  "user": { "tags": { "id": { "title": "Stripe customer ID" } } },
+  "version": "0.5.0"
 }

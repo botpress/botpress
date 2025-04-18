@@ -1,680 +1,267 @@
 {
-  "name": "dropbox",
-  "version": "1.1.1",
-  "title": "Dropbox",
-  "description": "Manage your files and folders effortlessly.",
-  "events": {
-    "fileCreated": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "file": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "type": {
-                "type": "string",
-                "const": "file"
-              },
-              "name": {
-                "type": "string"
-              },
-              "parentId": {
-                "type": "string"
-              },
-              "absolutePath": {
-                "type": "string"
-              },
-              "sizeInBytes": {
-                "type": "number"
-              },
-              "lastModifiedDate": {
-                "type": "string"
-              },
-              "contentHash": {
-                "type": "string"
-              }
-            },
-            "required": ["id", "type", "name", "absolutePath"],
-            "additionalProperties": false
-          }
-        },
-        "required": ["file"],
-        "additionalProperties": false
-      }
-    },
-    "fileUpdated": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "file": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "type": {
-                "type": "string",
-                "const": "file"
-              },
-              "name": {
-                "type": "string"
-              },
-              "parentId": {
-                "type": "string"
-              },
-              "absolutePath": {
-                "type": "string"
-              },
-              "sizeInBytes": {
-                "type": "number"
-              },
-              "lastModifiedDate": {
-                "type": "string"
-              },
-              "contentHash": {
-                "type": "string"
-              }
-            },
-            "required": ["id", "type", "name", "absolutePath"],
-            "additionalProperties": false
-          }
-        },
-        "required": ["file"],
-        "additionalProperties": false
-      }
-    },
-    "fileDeleted": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "file": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "type": {
-                "type": "string",
-                "const": "file"
-              },
-              "name": {
-                "type": "string"
-              },
-              "parentId": {
-                "type": "string"
-              },
-              "absolutePath": {
-                "type": "string"
-              },
-              "sizeInBytes": {
-                "type": "number"
-              },
-              "lastModifiedDate": {
-                "type": "string"
-              },
-              "contentHash": {
-                "type": "string"
-              }
-            },
-            "required": ["id", "type", "name", "absolutePath"],
-            "additionalProperties": false
-          }
-        },
-        "required": ["file"],
-        "additionalProperties": false
-      }
-    },
-    "folderDeletedRecursive": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "folder": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              },
-              "type": {
-                "type": "string",
-                "const": "folder"
-              },
-              "name": {
-                "type": "string"
-              },
-              "parentId": {
-                "type": "string"
-              },
-              "absolutePath": {
-                "type": "string"
-              }
-            },
-            "required": ["id", "type", "name", "absolutePath"],
-            "additionalProperties": false
-          }
-        },
-        "required": ["folder"],
-        "additionalProperties": false
-      }
-    },
-    "aggregateFileChanges": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "modifiedItems": {
-            "type": "object",
-            "properties": {
-              "created": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "type": {
-                      "type": "string",
-                      "const": "file"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "parentId": {
-                      "type": "string"
-                    },
-                    "absolutePath": {
-                      "type": "string"
-                    },
-                    "sizeInBytes": {
-                      "type": "number"
-                    },
-                    "lastModifiedDate": {
-                      "type": "string"
-                    },
-                    "contentHash": {
-                      "type": "string"
-                    }
-                  },
-                  "required": ["id", "type", "name", "absolutePath"],
-                  "additionalProperties": false
-                }
-              },
-              "updated": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    },
-                    "type": {
-                      "type": "string",
-                      "const": "file"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "parentId": {
-                      "type": "string"
-                    },
-                    "absolutePath": {
-                      "type": "string"
-                    },
-                    "sizeInBytes": {
-                      "type": "number"
-                    },
-                    "lastModifiedDate": {
-                      "type": "string"
-                    },
-                    "contentHash": {
-                      "type": "string"
-                    }
-                  },
-                  "required": ["id", "type", "name", "absolutePath"],
-                  "additionalProperties": false
-                }
-              },
-              "deleted": {
-                "type": "array",
-                "items": {
-                  "anyOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "type": {
-                          "type": "string",
-                          "const": "file"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "parentId": {
-                          "type": "string"
-                        },
-                        "absolutePath": {
-                          "type": "string"
-                        },
-                        "sizeInBytes": {
-                          "type": "number"
-                        },
-                        "lastModifiedDate": {
-                          "type": "string"
-                        },
-                        "contentHash": {
-                          "type": "string"
-                        }
-                      },
-                      "required": ["id", "type", "name", "absolutePath"],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "type": {
-                          "type": "string",
-                          "const": "folder"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "parentId": {
-                          "type": "string"
-                        },
-                        "absolutePath": {
-                          "type": "string"
-                        }
-                      },
-                      "required": ["id", "type", "name", "absolutePath"],
-                      "additionalProperties": false
-                    }
-                  ]
-                }
-              }
-            },
-            "required": ["created", "updated", "deleted"],
-            "additionalProperties": false
-          }
-        },
-        "required": ["modifiedItems"],
-        "additionalProperties": false
-      }
-    }
-  },
   "actions": {
-    "listItemsInFolder": {
-      "title": "List items in a folder",
-      "description": "List files and folders in dropbox within a directory",
+    "copyItem": {
+      "description": "Copy a file or folder to a new location in dropbox",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "path": {
-              "type": "string",
-              "x-zui": {
-                "title": "Path"
-              },
-              "description": "The folder's path. Leave empty to list the contents of the root folder"
-            },
-            "recursive": {
-              "type": "boolean",
-              "x-zui": {
-                "title": "List recursively?"
-              },
-              "default": false,
-              "description": "Whether to recursively visit subfolders"
-            },
-            "nextToken": {
-              "type": "string",
+            "fromPath": {
+              "description": "The item's source path",
               "minLength": 1,
-              "x-zui": {
-                "title": "Pagination token"
-              },
-              "description": "The cursor to continue the pagination"
+              "type": "string",
+              "x-zui": { "title": "Source Path" }
+            },
+            "toPath": {
+              "description": "The item's destination path",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": { "title": "Destination Path" }
             }
           },
-          "additionalProperties": false
+          "required": ["fromPath", "toPath"],
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "description": "Unique identifier of the item.",
-                        "x-zui": {
-                          "title": "ID"
-                        }
-                      },
-                      "itemType": {
-                        "type": "string",
-                        "const": "file",
-                        "description": "The type of the item.",
-                        "x-zui": {
-                          "title": "Item Type"
-                        }
-                      },
-                      "name": {
-                        "type": "string",
-                        "description": "The name of the item, including extension.",
-                        "x-zui": {
-                          "title": "Name"
-                        }
-                      },
-                      "path": {
-                        "type": "string",
-                        "description": "The path to the item in the user's Dropbox.",
-                        "x-zui": {
-                          "title": "Path"
-                        }
-                      },
-                      "webUrl": {
-                        "type": "string",
-                        "x-zui": {
-                          "title": "Web URL"
-                        },
-                        "description": "The URL to view the item on the Dropbox website."
-                      },
-                      "isDeleted": {
-                        "type": "boolean",
-                        "description": "Whether the item has been deleted.",
-                        "x-zui": {
-                          "title": "Is Deleted?"
-                        }
-                      },
-                      "isShared": {
-                        "type": "boolean",
-                        "description": "Whether the item is shared with other users.",
-                        "x-zui": {
-                          "title": "Is Shared?"
-                        }
-                      },
-                      "revision": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "The file's revision",
-                        "x-zui": {
-                          "title": "Revision"
-                        }
-                      },
-                      "size": {
-                        "type": "number",
-                        "description": "The file's size in bytes",
-                        "x-zui": {
-                          "title": "Size"
-                        }
-                      },
-                      "fileHash": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "The file's validation hash",
-                        "x-zui": {
-                          "title": "Checksum"
-                        }
-                      },
-                      "isDownloadable": {
-                        "type": "boolean",
-                        "description": "Whether the file is downloadable",
-                        "x-zui": {
-                          "title": "Is Downloadable?"
-                        }
-                      },
-                      "symlinkTarget": {
-                        "type": "string",
-                        "x-zui": {
-                          "title": "Symlink Target"
-                        },
-                        "description": "The target of the symlink, if the file is a symlink"
-                      },
-                      "modifiedAt": {
-                        "type": "string",
-                        "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
-                        "x-zui": {
-                          "title": "Modified At"
-                        }
-                      }
+            "newItem": {
+              "anyOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "fileHash": {
+                      "description": "The file's validation hash",
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": { "title": "Checksum" }
                     },
-                    "required": [
-                      "id",
-                      "itemType",
-                      "name",
-                      "path",
-                      "isDeleted",
-                      "isShared",
-                      "revision",
-                      "size",
-                      "fileHash",
-                      "isDownloadable",
-                      "modifiedAt"
-                    ],
-                    "additionalProperties": false,
-                    "x-zui": {
-                      "title": "New File"
+                    "id": {
+                      "description": "Unique identifier of the item.",
+                      "type": "string",
+                      "x-zui": { "title": "ID" }
+                    },
+                    "isDeleted": {
+                      "description": "Whether the item has been deleted.",
+                      "type": "boolean",
+                      "x-zui": { "title": "Is Deleted?" }
+                    },
+                    "isDownloadable": {
+                      "description": "Whether the file is downloadable",
+                      "type": "boolean",
+                      "x-zui": { "title": "Is Downloadable?" }
+                    },
+                    "isShared": {
+                      "description": "Whether the item is shared with other users.",
+                      "type": "boolean",
+                      "x-zui": { "title": "Is Shared?" }
+                    },
+                    "itemType": {
+                      "const": "file",
+                      "description": "The type of the item.",
+                      "type": "string",
+                      "x-zui": { "title": "Item Type" }
+                    },
+                    "modifiedAt": {
+                      "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
+                      "type": "string",
+                      "x-zui": { "title": "Modified At" }
+                    },
+                    "name": {
+                      "description": "The name of the item, including extension.",
+                      "type": "string",
+                      "x-zui": { "title": "Name" }
+                    },
+                    "path": {
+                      "description": "The path to the item in the user's Dropbox.",
+                      "type": "string",
+                      "x-zui": { "title": "Path" }
+                    },
+                    "revision": {
+                      "description": "The file's revision",
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": { "title": "Revision" }
+                    },
+                    "size": {
+                      "description": "The file's size in bytes",
+                      "type": "number",
+                      "x-zui": { "title": "Size" }
+                    },
+                    "symlinkTarget": {
+                      "description": "The target of the symlink, if the file is a symlink",
+                      "type": "string",
+                      "x-zui": { "title": "Symlink Target" }
+                    },
+                    "webUrl": {
+                      "description": "The URL to view the item on the Dropbox website.",
+                      "type": "string",
+                      "x-zui": { "title": "Web URL" }
                     }
                   },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "description": "Unique identifier of the item.",
-                        "x-zui": {
-                          "title": "ID"
-                        }
-                      },
-                      "itemType": {
-                        "type": "string",
-                        "const": "folder",
-                        "description": "The type of the item.",
-                        "x-zui": {
-                          "title": "Item Type"
-                        }
-                      },
-                      "name": {
-                        "type": "string",
-                        "description": "The name of the item, including extension.",
-                        "x-zui": {
-                          "title": "Name"
-                        }
-                      },
-                      "path": {
-                        "type": "string",
-                        "description": "The path to the item in the user's Dropbox.",
-                        "x-zui": {
-                          "title": "Path"
-                        }
-                      },
-                      "webUrl": {
-                        "type": "string",
-                        "x-zui": {
-                          "title": "Web URL"
-                        },
-                        "description": "The URL to view the item on the Dropbox website."
-                      },
-                      "isDeleted": {
-                        "type": "boolean",
-                        "description": "Whether the item has been deleted.",
-                        "x-zui": {
-                          "title": "Is Deleted?"
-                        }
-                      },
-                      "isShared": {
-                        "type": "boolean",
-                        "description": "Whether the item is shared with other users.",
-                        "x-zui": {
-                          "title": "Is Shared?"
-                        }
-                      }
+                  "required": [
+                    "id",
+                    "itemType",
+                    "name",
+                    "path",
+                    "isDeleted",
+                    "isShared",
+                    "revision",
+                    "size",
+                    "fileHash",
+                    "isDownloadable",
+                    "modifiedAt"
+                  ],
+                  "type": "object",
+                  "x-zui": { "title": "New File" }
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "description": "Unique identifier of the item.",
+                      "type": "string",
+                      "x-zui": { "title": "ID" }
                     },
-                    "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
-                    "additionalProperties": false,
-                    "x-zui": {
-                      "title": "New Folder"
+                    "isDeleted": {
+                      "description": "Whether the item has been deleted.",
+                      "type": "boolean",
+                      "x-zui": { "title": "Is Deleted?" }
+                    },
+                    "isShared": {
+                      "description": "Whether the item is shared with other users.",
+                      "type": "boolean",
+                      "x-zui": { "title": "Is Shared?" }
+                    },
+                    "itemType": {
+                      "const": "folder",
+                      "description": "The type of the item.",
+                      "type": "string",
+                      "x-zui": { "title": "Item Type" }
+                    },
+                    "name": {
+                      "description": "The name of the item, including extension.",
+                      "type": "string",
+                      "x-zui": { "title": "Name" }
+                    },
+                    "path": {
+                      "description": "The path to the item in the user's Dropbox.",
+                      "type": "string",
+                      "x-zui": { "title": "Path" }
+                    },
+                    "webUrl": {
+                      "description": "The URL to view the item on the Dropbox website.",
+                      "type": "string",
+                      "x-zui": { "title": "Web URL" }
                     }
-                  }
-                ]
-              },
-              "description": "The list of files and folders in the folder",
-              "x-zui": {
-                "title": "Items"
-              }
-            },
-            "nextToken": {
-              "type": "string",
-              "x-zui": {
-                "title": "Pagination token"
-              },
-              "description": "The cursor to use for pagination. If the cursor is present, you may use it to fetch the next page of results. If it's not present, it means there are no more results"
+                  },
+                  "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
+                  "type": "object",
+                  "x-zui": { "title": "New Folder" }
+                }
+              ],
+              "description": "The newly-created item",
+              "x-zui": { "title": "New item" }
             }
           },
-          "required": ["items"],
-          "additionalProperties": false
+          "required": ["newItem"],
+          "type": "object"
         }
-      }
+      },
+      "title": "Copy Item"
     },
     "createFile": {
-      "title": "Upload File",
       "description": "Upload a file to dropbox",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "contents": {
-              "type": "string",
-              "minLength": 1,
               "description": "The file's contents",
-              "x-zui": {
-                "title": "Contents"
-              }
+              "minLength": 1,
+              "type": "string",
+              "x-zui": { "title": "Contents" }
             },
             "path": {
-              "type": "string",
-              "minLength": 1,
               "description": "The file's path, including the file name and extension",
-              "x-zui": {
-                "title": "Path"
-              }
+              "minLength": 1,
+              "type": "string",
+              "x-zui": { "title": "Path" }
             }
           },
           "required": ["contents", "path"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "newFile": {
-              "type": "object",
+              "additionalProperties": false,
+              "description": "The newly-uploaded file",
               "properties": {
-                "id": {
-                  "type": "string",
-                  "description": "Unique identifier of the item.",
-                  "x-zui": {
-                    "title": "ID"
-                  }
-                },
-                "itemType": {
-                  "type": "string",
-                  "const": "file",
-                  "description": "The type of the item.",
-                  "x-zui": {
-                    "title": "Item Type"
-                  }
-                },
-                "name": {
-                  "type": "string",
-                  "description": "The name of the item, including extension.",
-                  "x-zui": {
-                    "title": "Name"
-                  }
-                },
-                "path": {
-                  "type": "string",
-                  "description": "The path to the item in the user's Dropbox.",
-                  "x-zui": {
-                    "title": "Path"
-                  }
-                },
-                "webUrl": {
-                  "type": "string",
-                  "x-zui": {
-                    "title": "Web URL"
-                  },
-                  "description": "The URL to view the item on the Dropbox website."
-                },
-                "isDeleted": {
-                  "type": "boolean",
-                  "description": "Whether the item has been deleted.",
-                  "x-zui": {
-                    "title": "Is Deleted?"
-                  }
-                },
-                "isShared": {
-                  "type": "boolean",
-                  "description": "Whether the item is shared with other users.",
-                  "x-zui": {
-                    "title": "Is Shared?"
-                  }
-                },
-                "revision": {
-                  "type": "string",
-                  "minLength": 1,
-                  "description": "The file's revision",
-                  "x-zui": {
-                    "title": "Revision"
-                  }
-                },
-                "size": {
-                  "type": "number",
-                  "description": "The file's size in bytes",
-                  "x-zui": {
-                    "title": "Size"
-                  }
-                },
                 "fileHash": {
-                  "type": "string",
-                  "minLength": 1,
                   "description": "The file's validation hash",
-                  "x-zui": {
-                    "title": "Checksum"
-                  }
+                  "minLength": 1,
+                  "type": "string",
+                  "x-zui": { "title": "Checksum" }
+                },
+                "id": { "description": "Unique identifier of the item.", "type": "string", "x-zui": { "title": "ID" } },
+                "isDeleted": {
+                  "description": "Whether the item has been deleted.",
+                  "type": "boolean",
+                  "x-zui": { "title": "Is Deleted?" }
                 },
                 "isDownloadable": {
-                  "type": "boolean",
                   "description": "Whether the file is downloadable",
-                  "x-zui": {
-                    "title": "Is Downloadable?"
-                  }
+                  "type": "boolean",
+                  "x-zui": { "title": "Is Downloadable?" }
                 },
-                "symlinkTarget": {
+                "isShared": {
+                  "description": "Whether the item is shared with other users.",
+                  "type": "boolean",
+                  "x-zui": { "title": "Is Shared?" }
+                },
+                "itemType": {
+                  "const": "file",
+                  "description": "The type of the item.",
                   "type": "string",
-                  "x-zui": {
-                    "title": "Symlink Target"
-                  },
-                  "description": "The target of the symlink, if the file is a symlink"
+                  "x-zui": { "title": "Item Type" }
                 },
                 "modifiedAt": {
-                  "type": "string",
                   "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
-                  "x-zui": {
-                    "title": "Modified At"
-                  }
+                  "type": "string",
+                  "x-zui": { "title": "Modified At" }
+                },
+                "name": {
+                  "description": "The name of the item, including extension.",
+                  "type": "string",
+                  "x-zui": { "title": "Name" }
+                },
+                "path": {
+                  "description": "The path to the item in the user's Dropbox.",
+                  "type": "string",
+                  "x-zui": { "title": "Path" }
+                },
+                "revision": {
+                  "description": "The file's revision",
+                  "minLength": 1,
+                  "type": "string",
+                  "x-zui": { "title": "Revision" }
+                },
+                "size": { "description": "The file's size in bytes", "type": "number", "x-zui": { "title": "Size" } },
+                "symlinkTarget": {
+                  "description": "The target of the symlink, if the file is a symlink",
+                  "type": "string",
+                  "x-zui": { "title": "Symlink Target" }
+                },
+                "webUrl": {
+                  "description": "The URL to view the item on the Dropbox website.",
+                  "type": "string",
+                  "x-zui": { "title": "Web URL" }
                 }
               },
               "required": [
@@ -690,563 +277,564 @@
                 "isDownloadable",
                 "modifiedAt"
               ],
-              "additionalProperties": false,
-              "description": "The newly-uploaded file",
-              "x-zui": {
-                "title": "New File"
-              }
+              "type": "object",
+              "x-zui": { "title": "New File" }
             }
           },
           "required": ["newFile"],
-          "additionalProperties": false
+          "type": "object"
         }
-      }
+      },
+      "title": "Upload File"
     },
     "createFolder": {
-      "title": "Create Folder",
       "description": "Create a folder in dropbox",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "path": {
-              "type": "string",
-              "minLength": 1,
               "description": "The folder's path",
-              "x-zui": {
-                "title": "Path"
-              }
+              "minLength": 1,
+              "type": "string",
+              "x-zui": { "title": "Path" }
             }
           },
           "required": ["path"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "newFolder": {
-              "type": "object",
+              "additionalProperties": false,
+              "description": "The newly-created folder",
               "properties": {
-                "id": {
-                  "type": "string",
-                  "description": "Unique identifier of the item.",
-                  "x-zui": {
-                    "title": "ID"
-                  }
-                },
-                "itemType": {
-                  "type": "string",
-                  "const": "folder",
-                  "description": "The type of the item.",
-                  "x-zui": {
-                    "title": "Item Type"
-                  }
-                },
-                "name": {
-                  "type": "string",
-                  "description": "The name of the item, including extension.",
-                  "x-zui": {
-                    "title": "Name"
-                  }
-                },
-                "path": {
-                  "type": "string",
-                  "description": "The path to the item in the user's Dropbox.",
-                  "x-zui": {
-                    "title": "Path"
-                  }
-                },
-                "webUrl": {
-                  "type": "string",
-                  "x-zui": {
-                    "title": "Web URL"
-                  },
-                  "description": "The URL to view the item on the Dropbox website."
-                },
+                "id": { "description": "Unique identifier of the item.", "type": "string", "x-zui": { "title": "ID" } },
                 "isDeleted": {
-                  "type": "boolean",
                   "description": "Whether the item has been deleted.",
-                  "x-zui": {
-                    "title": "Is Deleted?"
-                  }
+                  "type": "boolean",
+                  "x-zui": { "title": "Is Deleted?" }
                 },
                 "isShared": {
-                  "type": "boolean",
                   "description": "Whether the item is shared with other users.",
-                  "x-zui": {
-                    "title": "Is Shared?"
-                  }
+                  "type": "boolean",
+                  "x-zui": { "title": "Is Shared?" }
+                },
+                "itemType": {
+                  "const": "folder",
+                  "description": "The type of the item.",
+                  "type": "string",
+                  "x-zui": { "title": "Item Type" }
+                },
+                "name": {
+                  "description": "The name of the item, including extension.",
+                  "type": "string",
+                  "x-zui": { "title": "Name" }
+                },
+                "path": {
+                  "description": "The path to the item in the user's Dropbox.",
+                  "type": "string",
+                  "x-zui": { "title": "Path" }
+                },
+                "webUrl": {
+                  "description": "The URL to view the item on the Dropbox website.",
+                  "type": "string",
+                  "x-zui": { "title": "Web URL" }
                 }
               },
               "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
-              "additionalProperties": false,
-              "description": "The newly-created folder",
-              "x-zui": {
-                "title": "New Folder"
-              }
+              "type": "object",
+              "x-zui": { "title": "New Folder" }
             }
           },
           "required": ["newFolder"],
-          "additionalProperties": false
+          "type": "object"
         }
-      }
+      },
+      "title": "Create Folder"
     },
     "deleteItem": {
-      "title": "Delete Item",
       "description": "Deletes a file or folder from dropbox",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "path": {
-              "type": "string",
-              "minLength": 1,
               "description": "The path of the item to delete",
-              "x-zui": {
-                "title": "Path"
-              }
+              "minLength": 1,
+              "type": "string",
+              "x-zui": { "title": "Path" }
             }
           },
           "required": ["path"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      }
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+      "title": "Delete Item"
     },
     "downloadFile": {
-      "title": "Download File",
       "description": "Download a file from dropbox",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "path": {
-              "type": "string",
-              "minLength": 1,
               "description": "The file's path on Dropbox",
-              "x-zui": {
-                "title": "Path"
-              }
+              "minLength": 1,
+              "type": "string",
+              "x-zui": { "title": "Path" }
             }
           },
           "required": ["path"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "fileUrl": {
-              "type": "string",
               "description": "The url to download the file from",
-              "x-zui": {
-                "title": "Download URL"
-              }
+              "type": "string",
+              "x-zui": { "title": "Download URL" }
             }
           },
           "required": ["fileUrl"],
-          "additionalProperties": false
+          "type": "object"
         }
-      }
+      },
+      "title": "Download File"
     },
     "downloadFolder": {
-      "title": "Download Folder",
       "description": "Download a folder from dropbox",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "path": {
-              "type": "string",
-              "minLength": 1,
               "description": "The folder's path on Dropbox",
-              "x-zui": {
-                "title": "Path"
-              }
+              "minLength": 1,
+              "type": "string",
+              "x-zui": { "title": "Path" }
             }
           },
           "required": ["path"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "zipUrl": {
-              "type": "string",
               "description": "The url to download the folder from, compressed as a zip archive.",
-              "x-zui": {
-                "title": "Download URL"
-              }
+              "type": "string",
+              "x-zui": { "title": "Download URL" }
             }
           },
           "required": ["zipUrl"],
-          "additionalProperties": false
+          "type": "object"
         }
-      }
+      },
+      "title": "Download Folder"
     },
-    "copyItem": {
-      "title": "Copy Item",
-      "description": "Copy a file or folder to a new location in dropbox",
+    "filesReadonlyListItemsInFolder": {
+      "description": "List the files and folders in a folder",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "fromPath": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The item's source path",
-              "x-zui": {
-                "title": "Source Path"
-              }
+            "filters": {
+              "additionalProperties": false,
+              "properties": {
+                "itemType": { "enum": ["file", "folder"], "type": "string" },
+                "maxSizeInBytes": { "type": "number" },
+                "modifiedAfter": { "type": "string" }
+              },
+              "type": "object"
             },
-            "toPath": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The item's destination path",
-              "x-zui": {
-                "title": "Destination Path"
-              }
+            "folderId": { "type": "string" },
+            "nextToken": { "type": "string" }
+          },
+          "type": "object"
+        }
+      },
+      "name": "filesReadonlyListItemsInFolder",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "items": {
+                "anyOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "absolutePath": { "type": "string" },
+                      "contentHash": { "type": "string" },
+                      "id": { "type": "string" },
+                      "lastModifiedDate": { "type": "string" },
+                      "name": { "type": "string" },
+                      "parentId": { "type": "string" },
+                      "sizeInBytes": { "type": "number" },
+                      "type": { "const": "file", "type": "string" }
+                    },
+                    "required": ["id", "type", "name"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "absolutePath": { "type": "string" },
+                      "id": { "type": "string" },
+                      "name": { "type": "string" },
+                      "parentId": { "type": "string" },
+                      "type": { "const": "folder", "type": "string" }
+                    },
+                    "required": ["id", "type", "name"],
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            "meta": {
+              "additionalProperties": false,
+              "properties": { "nextToken": { "type": "string" } },
+              "type": "object"
             }
           },
-          "required": ["fromPath", "toPath"],
-          "additionalProperties": false
+          "required": ["items", "meta"],
+          "type": "object"
+        }
+      },
+      "title": "List items in folder"
+    },
+    "filesReadonlyTransferFileToBotpress": {
+      "description": "Transfer a file from an external service to Botpress",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "additionalProperties": false,
+              "properties": {
+                "absolutePath": { "type": "string" },
+                "contentHash": { "type": "string" },
+                "id": { "type": "string" },
+                "lastModifiedDate": { "type": "string" },
+                "name": { "type": "string" },
+                "parentId": { "type": "string" },
+                "sizeInBytes": { "type": "number" },
+                "type": { "const": "file", "type": "string" }
+              },
+              "required": ["id", "type", "name"],
+              "type": "object"
+            },
+            "fileKey": { "type": "string" }
+          },
+          "required": ["file", "fileKey"],
+          "type": "object"
+        }
+      },
+      "name": "filesReadonlyTransferFileToBotpress",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "botpressFileId": { "type": "string" } },
+          "required": ["botpressFileId"],
+          "type": "object"
+        }
+      },
+      "title": "Transfer file to Botpress"
+    },
+    "listItemsInFolder": {
+      "description": "List files and folders in dropbox within a directory",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "nextToken": {
+              "description": "The cursor to continue the pagination",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": { "title": "Pagination token" }
+            },
+            "path": {
+              "description": "The folder's path. Leave empty to list the contents of the root folder",
+              "type": "string",
+              "x-zui": { "title": "Path" }
+            },
+            "recursive": {
+              "default": false,
+              "description": "Whether to recursively visit subfolders",
+              "type": "boolean",
+              "x-zui": { "title": "List recursively?" }
+            }
+          },
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "newItem": {
-              "anyOf": [
-                {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "description": "Unique identifier of the item.",
-                      "x-zui": {
-                        "title": "ID"
-                      }
-                    },
-                    "itemType": {
-                      "type": "string",
-                      "const": "file",
-                      "description": "The type of the item.",
-                      "x-zui": {
-                        "title": "Item Type"
-                      }
-                    },
-                    "name": {
-                      "type": "string",
-                      "description": "The name of the item, including extension.",
-                      "x-zui": {
-                        "title": "Name"
-                      }
-                    },
-                    "path": {
-                      "type": "string",
-                      "description": "The path to the item in the user's Dropbox.",
-                      "x-zui": {
-                        "title": "Path"
-                      }
-                    },
-                    "webUrl": {
-                      "type": "string",
-                      "x-zui": {
-                        "title": "Web URL"
+            "items": {
+              "description": "The list of files and folders in the folder",
+              "items": {
+                "anyOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "fileHash": {
+                        "description": "The file's validation hash",
+                        "minLength": 1,
+                        "type": "string",
+                        "x-zui": { "title": "Checksum" }
                       },
-                      "description": "The URL to view the item on the Dropbox website."
-                    },
-                    "isDeleted": {
-                      "type": "boolean",
-                      "description": "Whether the item has been deleted.",
-                      "x-zui": {
-                        "title": "Is Deleted?"
-                      }
-                    },
-                    "isShared": {
-                      "type": "boolean",
-                      "description": "Whether the item is shared with other users.",
-                      "x-zui": {
-                        "title": "Is Shared?"
-                      }
-                    },
-                    "revision": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "The file's revision",
-                      "x-zui": {
-                        "title": "Revision"
-                      }
-                    },
-                    "size": {
-                      "type": "number",
-                      "description": "The file's size in bytes",
-                      "x-zui": {
-                        "title": "Size"
-                      }
-                    },
-                    "fileHash": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "The file's validation hash",
-                      "x-zui": {
-                        "title": "Checksum"
-                      }
-                    },
-                    "isDownloadable": {
-                      "type": "boolean",
-                      "description": "Whether the file is downloadable",
-                      "x-zui": {
-                        "title": "Is Downloadable?"
-                      }
-                    },
-                    "symlinkTarget": {
-                      "type": "string",
-                      "x-zui": {
-                        "title": "Symlink Target"
+                      "id": {
+                        "description": "Unique identifier of the item.",
+                        "type": "string",
+                        "x-zui": { "title": "ID" }
                       },
-                      "description": "The target of the symlink, if the file is a symlink"
-                    },
-                    "modifiedAt": {
-                      "type": "string",
-                      "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
-                      "x-zui": {
-                        "title": "Modified At"
+                      "isDeleted": {
+                        "description": "Whether the item has been deleted.",
+                        "type": "boolean",
+                        "x-zui": { "title": "Is Deleted?" }
+                      },
+                      "isDownloadable": {
+                        "description": "Whether the file is downloadable",
+                        "type": "boolean",
+                        "x-zui": { "title": "Is Downloadable?" }
+                      },
+                      "isShared": {
+                        "description": "Whether the item is shared with other users.",
+                        "type": "boolean",
+                        "x-zui": { "title": "Is Shared?" }
+                      },
+                      "itemType": {
+                        "const": "file",
+                        "description": "The type of the item.",
+                        "type": "string",
+                        "x-zui": { "title": "Item Type" }
+                      },
+                      "modifiedAt": {
+                        "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
+                        "type": "string",
+                        "x-zui": { "title": "Modified At" }
+                      },
+                      "name": {
+                        "description": "The name of the item, including extension.",
+                        "type": "string",
+                        "x-zui": { "title": "Name" }
+                      },
+                      "path": {
+                        "description": "The path to the item in the user's Dropbox.",
+                        "type": "string",
+                        "x-zui": { "title": "Path" }
+                      },
+                      "revision": {
+                        "description": "The file's revision",
+                        "minLength": 1,
+                        "type": "string",
+                        "x-zui": { "title": "Revision" }
+                      },
+                      "size": {
+                        "description": "The file's size in bytes",
+                        "type": "number",
+                        "x-zui": { "title": "Size" }
+                      },
+                      "symlinkTarget": {
+                        "description": "The target of the symlink, if the file is a symlink",
+                        "type": "string",
+                        "x-zui": { "title": "Symlink Target" }
+                      },
+                      "webUrl": {
+                        "description": "The URL to view the item on the Dropbox website.",
+                        "type": "string",
+                        "x-zui": { "title": "Web URL" }
                       }
-                    }
+                    },
+                    "required": [
+                      "id",
+                      "itemType",
+                      "name",
+                      "path",
+                      "isDeleted",
+                      "isShared",
+                      "revision",
+                      "size",
+                      "fileHash",
+                      "isDownloadable",
+                      "modifiedAt"
+                    ],
+                    "type": "object",
+                    "x-zui": { "title": "New File" }
                   },
-                  "required": [
-                    "id",
-                    "itemType",
-                    "name",
-                    "path",
-                    "isDeleted",
-                    "isShared",
-                    "revision",
-                    "size",
-                    "fileHash",
-                    "isDownloadable",
-                    "modifiedAt"
-                  ],
-                  "additionalProperties": false,
-                  "x-zui": {
-                    "title": "New File"
-                  }
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "description": "Unique identifier of the item.",
-                      "x-zui": {
-                        "title": "ID"
-                      }
-                    },
-                    "itemType": {
-                      "type": "string",
-                      "const": "folder",
-                      "description": "The type of the item.",
-                      "x-zui": {
-                        "title": "Item Type"
-                      }
-                    },
-                    "name": {
-                      "type": "string",
-                      "description": "The name of the item, including extension.",
-                      "x-zui": {
-                        "title": "Name"
-                      }
-                    },
-                    "path": {
-                      "type": "string",
-                      "description": "The path to the item in the user's Dropbox.",
-                      "x-zui": {
-                        "title": "Path"
-                      }
-                    },
-                    "webUrl": {
-                      "type": "string",
-                      "x-zui": {
-                        "title": "Web URL"
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "description": "Unique identifier of the item.",
+                        "type": "string",
+                        "x-zui": { "title": "ID" }
                       },
-                      "description": "The URL to view the item on the Dropbox website."
-                    },
-                    "isDeleted": {
-                      "type": "boolean",
-                      "description": "Whether the item has been deleted.",
-                      "x-zui": {
-                        "title": "Is Deleted?"
+                      "isDeleted": {
+                        "description": "Whether the item has been deleted.",
+                        "type": "boolean",
+                        "x-zui": { "title": "Is Deleted?" }
+                      },
+                      "isShared": {
+                        "description": "Whether the item is shared with other users.",
+                        "type": "boolean",
+                        "x-zui": { "title": "Is Shared?" }
+                      },
+                      "itemType": {
+                        "const": "folder",
+                        "description": "The type of the item.",
+                        "type": "string",
+                        "x-zui": { "title": "Item Type" }
+                      },
+                      "name": {
+                        "description": "The name of the item, including extension.",
+                        "type": "string",
+                        "x-zui": { "title": "Name" }
+                      },
+                      "path": {
+                        "description": "The path to the item in the user's Dropbox.",
+                        "type": "string",
+                        "x-zui": { "title": "Path" }
+                      },
+                      "webUrl": {
+                        "description": "The URL to view the item on the Dropbox website.",
+                        "type": "string",
+                        "x-zui": { "title": "Web URL" }
                       }
                     },
-                    "isShared": {
-                      "type": "boolean",
-                      "description": "Whether the item is shared with other users.",
-                      "x-zui": {
-                        "title": "Is Shared?"
-                      }
-                    }
-                  },
-                  "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
-                  "additionalProperties": false,
-                  "x-zui": {
-                    "title": "New Folder"
+                    "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
+                    "type": "object",
+                    "x-zui": { "title": "New Folder" }
                   }
-                }
-              ],
-              "description": "The newly-created item",
-              "x-zui": {
-                "title": "New item"
-              }
+                ]
+              },
+              "type": "array",
+              "x-zui": { "title": "Items" }
+            },
+            "nextToken": {
+              "description": "The cursor to use for pagination. If the cursor is present, you may use it to fetch the next page of results. If it's not present, it means there are no more results",
+              "type": "string",
+              "x-zui": { "title": "Pagination token" }
             }
           },
-          "required": ["newItem"],
-          "additionalProperties": false
+          "required": ["items"],
+          "type": "object"
         }
-      }
+      },
+      "title": "List items in a folder"
     },
     "moveItem": {
-      "title": "Move Item",
       "description": "Move a file or folder in dropbox",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "fromPath": {
-              "type": "string",
-              "minLength": 1,
               "description": "The item's source path",
-              "x-zui": {
-                "title": "Source Path"
-              }
+              "minLength": 1,
+              "type": "string",
+              "x-zui": { "title": "Source Path" }
             },
             "toPath": {
-              "type": "string",
-              "minLength": 1,
               "description": "The item's destination path",
-              "x-zui": {
-                "title": "Destination Path"
-              }
+              "minLength": 1,
+              "type": "string",
+              "x-zui": { "title": "Destination Path" }
             }
           },
           "required": ["fromPath", "toPath"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "newItem": {
               "anyOf": [
                 {
-                  "type": "object",
+                  "additionalProperties": false,
                   "properties": {
+                    "fileHash": {
+                      "description": "The file's validation hash",
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": { "title": "Checksum" }
+                    },
                     "id": {
-                      "type": "string",
                       "description": "Unique identifier of the item.",
-                      "x-zui": {
-                        "title": "ID"
-                      }
-                    },
-                    "itemType": {
                       "type": "string",
-                      "const": "file",
-                      "description": "The type of the item.",
-                      "x-zui": {
-                        "title": "Item Type"
-                      }
-                    },
-                    "name": {
-                      "type": "string",
-                      "description": "The name of the item, including extension.",
-                      "x-zui": {
-                        "title": "Name"
-                      }
-                    },
-                    "path": {
-                      "type": "string",
-                      "description": "The path to the item in the user's Dropbox.",
-                      "x-zui": {
-                        "title": "Path"
-                      }
-                    },
-                    "webUrl": {
-                      "type": "string",
-                      "x-zui": {
-                        "title": "Web URL"
-                      },
-                      "description": "The URL to view the item on the Dropbox website."
+                      "x-zui": { "title": "ID" }
                     },
                     "isDeleted": {
-                      "type": "boolean",
                       "description": "Whether the item has been deleted.",
-                      "x-zui": {
-                        "title": "Is Deleted?"
-                      }
-                    },
-                    "isShared": {
                       "type": "boolean",
-                      "description": "Whether the item is shared with other users.",
-                      "x-zui": {
-                        "title": "Is Shared?"
-                      }
-                    },
-                    "revision": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "The file's revision",
-                      "x-zui": {
-                        "title": "Revision"
-                      }
-                    },
-                    "size": {
-                      "type": "number",
-                      "description": "The file's size in bytes",
-                      "x-zui": {
-                        "title": "Size"
-                      }
-                    },
-                    "fileHash": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "The file's validation hash",
-                      "x-zui": {
-                        "title": "Checksum"
-                      }
+                      "x-zui": { "title": "Is Deleted?" }
                     },
                     "isDownloadable": {
-                      "type": "boolean",
                       "description": "Whether the file is downloadable",
-                      "x-zui": {
-                        "title": "Is Downloadable?"
-                      }
+                      "type": "boolean",
+                      "x-zui": { "title": "Is Downloadable?" }
                     },
-                    "symlinkTarget": {
+                    "isShared": {
+                      "description": "Whether the item is shared with other users.",
+                      "type": "boolean",
+                      "x-zui": { "title": "Is Shared?" }
+                    },
+                    "itemType": {
+                      "const": "file",
+                      "description": "The type of the item.",
                       "type": "string",
-                      "x-zui": {
-                        "title": "Symlink Target"
-                      },
-                      "description": "The target of the symlink, if the file is a symlink"
+                      "x-zui": { "title": "Item Type" }
                     },
                     "modifiedAt": {
-                      "type": "string",
                       "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
-                      "x-zui": {
-                        "title": "Modified At"
-                      }
+                      "type": "string",
+                      "x-zui": { "title": "Modified At" }
+                    },
+                    "name": {
+                      "description": "The name of the item, including extension.",
+                      "type": "string",
+                      "x-zui": { "title": "Name" }
+                    },
+                    "path": {
+                      "description": "The path to the item in the user's Dropbox.",
+                      "type": "string",
+                      "x-zui": { "title": "Path" }
+                    },
+                    "revision": {
+                      "description": "The file's revision",
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": { "title": "Revision" }
+                    },
+                    "size": {
+                      "description": "The file's size in bytes",
+                      "type": "number",
+                      "x-zui": { "title": "Size" }
+                    },
+                    "symlinkTarget": {
+                      "description": "The target of the symlink, if the file is a symlink",
+                      "type": "string",
+                      "x-zui": { "title": "Symlink Target" }
+                    },
+                    "webUrl": {
+                      "description": "The URL to view the item on the Dropbox website.",
+                      "type": "string",
+                      "x-zui": { "title": "Web URL" }
                     }
                   },
                   "required": [
@@ -1262,139 +850,73 @@
                     "isDownloadable",
                     "modifiedAt"
                   ],
-                  "additionalProperties": false,
-                  "x-zui": {
-                    "title": "New File"
-                  }
+                  "type": "object",
+                  "x-zui": { "title": "New File" }
                 },
                 {
-                  "type": "object",
+                  "additionalProperties": false,
                   "properties": {
                     "id": {
-                      "type": "string",
                       "description": "Unique identifier of the item.",
-                      "x-zui": {
-                        "title": "ID"
-                      }
-                    },
-                    "itemType": {
                       "type": "string",
-                      "const": "folder",
-                      "description": "The type of the item.",
-                      "x-zui": {
-                        "title": "Item Type"
-                      }
-                    },
-                    "name": {
-                      "type": "string",
-                      "description": "The name of the item, including extension.",
-                      "x-zui": {
-                        "title": "Name"
-                      }
-                    },
-                    "path": {
-                      "type": "string",
-                      "description": "The path to the item in the user's Dropbox.",
-                      "x-zui": {
-                        "title": "Path"
-                      }
-                    },
-                    "webUrl": {
-                      "type": "string",
-                      "x-zui": {
-                        "title": "Web URL"
-                      },
-                      "description": "The URL to view the item on the Dropbox website."
+                      "x-zui": { "title": "ID" }
                     },
                     "isDeleted": {
-                      "type": "boolean",
                       "description": "Whether the item has been deleted.",
-                      "x-zui": {
-                        "title": "Is Deleted?"
-                      }
+                      "type": "boolean",
+                      "x-zui": { "title": "Is Deleted?" }
                     },
                     "isShared": {
-                      "type": "boolean",
                       "description": "Whether the item is shared with other users.",
-                      "x-zui": {
-                        "title": "Is Shared?"
-                      }
+                      "type": "boolean",
+                      "x-zui": { "title": "Is Shared?" }
+                    },
+                    "itemType": {
+                      "const": "folder",
+                      "description": "The type of the item.",
+                      "type": "string",
+                      "x-zui": { "title": "Item Type" }
+                    },
+                    "name": {
+                      "description": "The name of the item, including extension.",
+                      "type": "string",
+                      "x-zui": { "title": "Name" }
+                    },
+                    "path": {
+                      "description": "The path to the item in the user's Dropbox.",
+                      "type": "string",
+                      "x-zui": { "title": "Path" }
+                    },
+                    "webUrl": {
+                      "description": "The URL to view the item on the Dropbox website.",
+                      "type": "string",
+                      "x-zui": { "title": "Web URL" }
                     }
                   },
                   "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
-                  "additionalProperties": false,
-                  "x-zui": {
-                    "title": "New Folder"
-                  }
+                  "type": "object",
+                  "x-zui": { "title": "New Folder" }
                 }
               ],
               "description": "The item that was moved",
-              "x-zui": {
-                "title": "Moved item"
-              }
+              "x-zui": { "title": "Moved item" }
             }
           },
           "required": ["newItem"],
-          "additionalProperties": false
+          "type": "object"
         }
-      }
+      },
+      "title": "Move Item"
     },
     "searchItems": {
-      "title": "Search Items",
       "description": "Search for files and folders in dropbox",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "query": {
-              "type": "string",
-              "minLength": 1,
-              "description": "Keywords to search for",
-              "x-zui": {
-                "title": "Search query"
-              }
-            },
-            "path": {
-              "type": "string",
-              "x-zui": {
-                "title": "Path"
-              },
-              "description": "The path to search in"
-            },
-            "orderBy": {
-              "type": "string",
-              "enum": ["relevance", "last_modified_time"],
-              "x-zui": {
-                "title": "Order By"
-              },
-              "description": "How to sort the results"
-            },
-            "fileNameOnly": {
-              "type": "boolean",
-              "x-zui": {
-                "title": "Search only within names?"
-              },
-              "default": false,
-              "description": "Whether to search only in file names"
-            },
-            "fileExtensions": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "description": "The file extension to search for",
-                "x-zui": {
-                  "title": "File extension"
-                }
-              },
-              "x-zui": {
-                "title": "Filter by extension"
-              },
-              "description": "The file extensions to search for"
-            },
             "fileCategories": {
-              "type": "array",
+              "description": "The file categories to search for",
               "items": {
-                "type": "string",
                 "enum": [
                   "image",
                   "document",
@@ -1406,133 +928,138 @@
                   "folder",
                   "paper",
                   "others"
-                ]
+                ],
+                "type": "string"
               },
-              "x-zui": {
-                "title": "Filter by categories"
+              "type": "array",
+              "x-zui": { "title": "Filter by categories" }
+            },
+            "fileExtensions": {
+              "description": "The file extensions to search for",
+              "items": {
+                "description": "The file extension to search for",
+                "type": "string",
+                "x-zui": { "title": "File extension" }
               },
-              "description": "The file categories to search for"
+              "type": "array",
+              "x-zui": { "title": "Filter by extension" }
+            },
+            "fileNameOnly": {
+              "default": false,
+              "description": "Whether to search only in file names",
+              "type": "boolean",
+              "x-zui": { "title": "Search only within names?" }
             },
             "nextToken": {
-              "type": "string",
+              "description": "The cursor to continue the pagination",
               "minLength": 1,
-              "x-zui": {
-                "title": "Pagination Token"
-              },
-              "description": "The cursor to continue the pagination"
+              "type": "string",
+              "x-zui": { "title": "Pagination Token" }
+            },
+            "orderBy": {
+              "description": "How to sort the results",
+              "enum": ["relevance", "last_modified_time"],
+              "type": "string",
+              "x-zui": { "title": "Order By" }
+            },
+            "path": { "description": "The path to search in", "type": "string", "x-zui": { "title": "Path" } },
+            "query": {
+              "description": "Keywords to search for",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": { "title": "Search query" }
             }
           },
           "required": ["query"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
+            "nextToken": {
+              "description": "The cursor to use for pagination. If the cursor is present, you may use it to fetch the next page of results. If it's not present, it means there are no more results",
+              "type": "string",
+              "x-zui": { "title": "Pagination Token" }
+            },
             "results": {
-              "type": "array",
+              "description": "A list of matches for the query",
               "items": {
-                "type": "object",
+                "additionalProperties": false,
                 "properties": {
                   "item": {
                     "anyOf": [
                       {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
+                          "fileHash": {
+                            "description": "The file's validation hash",
+                            "minLength": 1,
+                            "type": "string",
+                            "x-zui": { "title": "Checksum" }
+                          },
                           "id": {
-                            "type": "string",
                             "description": "Unique identifier of the item.",
-                            "x-zui": {
-                              "title": "ID"
-                            }
-                          },
-                          "itemType": {
                             "type": "string",
-                            "const": "file",
-                            "description": "The type of the item.",
-                            "x-zui": {
-                              "title": "Item Type"
-                            }
-                          },
-                          "name": {
-                            "type": "string",
-                            "description": "The name of the item, including extension.",
-                            "x-zui": {
-                              "title": "Name"
-                            }
-                          },
-                          "path": {
-                            "type": "string",
-                            "description": "The path to the item in the user's Dropbox.",
-                            "x-zui": {
-                              "title": "Path"
-                            }
-                          },
-                          "webUrl": {
-                            "type": "string",
-                            "x-zui": {
-                              "title": "Web URL"
-                            },
-                            "description": "The URL to view the item on the Dropbox website."
+                            "x-zui": { "title": "ID" }
                           },
                           "isDeleted": {
-                            "type": "boolean",
                             "description": "Whether the item has been deleted.",
-                            "x-zui": {
-                              "title": "Is Deleted?"
-                            }
-                          },
-                          "isShared": {
                             "type": "boolean",
-                            "description": "Whether the item is shared with other users.",
-                            "x-zui": {
-                              "title": "Is Shared?"
-                            }
-                          },
-                          "revision": {
-                            "type": "string",
-                            "minLength": 1,
-                            "description": "The file's revision",
-                            "x-zui": {
-                              "title": "Revision"
-                            }
-                          },
-                          "size": {
-                            "type": "number",
-                            "description": "The file's size in bytes",
-                            "x-zui": {
-                              "title": "Size"
-                            }
-                          },
-                          "fileHash": {
-                            "type": "string",
-                            "minLength": 1,
-                            "description": "The file's validation hash",
-                            "x-zui": {
-                              "title": "Checksum"
-                            }
+                            "x-zui": { "title": "Is Deleted?" }
                           },
                           "isDownloadable": {
-                            "type": "boolean",
                             "description": "Whether the file is downloadable",
-                            "x-zui": {
-                              "title": "Is Downloadable?"
-                            }
+                            "type": "boolean",
+                            "x-zui": { "title": "Is Downloadable?" }
                           },
-                          "symlinkTarget": {
+                          "isShared": {
+                            "description": "Whether the item is shared with other users.",
+                            "type": "boolean",
+                            "x-zui": { "title": "Is Shared?" }
+                          },
+                          "itemType": {
+                            "const": "file",
+                            "description": "The type of the item.",
                             "type": "string",
-                            "x-zui": {
-                              "title": "Symlink Target"
-                            },
-                            "description": "The target of the symlink, if the file is a symlink"
+                            "x-zui": { "title": "Item Type" }
                           },
                           "modifiedAt": {
-                            "type": "string",
                             "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
-                            "x-zui": {
-                              "title": "Modified At"
-                            }
+                            "type": "string",
+                            "x-zui": { "title": "Modified At" }
+                          },
+                          "name": {
+                            "description": "The name of the item, including extension.",
+                            "type": "string",
+                            "x-zui": { "title": "Name" }
+                          },
+                          "path": {
+                            "description": "The path to the item in the user's Dropbox.",
+                            "type": "string",
+                            "x-zui": { "title": "Path" }
+                          },
+                          "revision": {
+                            "description": "The file's revision",
+                            "minLength": 1,
+                            "type": "string",
+                            "x-zui": { "title": "Revision" }
+                          },
+                          "size": {
+                            "description": "The file's size in bytes",
+                            "type": "number",
+                            "x-zui": { "title": "Size" }
+                          },
+                          "symlinkTarget": {
+                            "description": "The target of the symlink, if the file is a symlink",
+                            "type": "string",
+                            "x-zui": { "title": "Symlink Target" }
+                          },
+                          "webUrl": {
+                            "description": "The URL to view the item on the Dropbox website.",
+                            "type": "string",
+                            "x-zui": { "title": "Web URL" }
                           }
                         },
                         "required": [
@@ -1548,465 +1075,145 @@
                           "isDownloadable",
                           "modifiedAt"
                         ],
-                        "additionalProperties": false,
-                        "x-zui": {
-                          "title": "New File"
-                        }
+                        "type": "object",
+                        "x-zui": { "title": "New File" }
                       },
                       {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
                           "id": {
-                            "type": "string",
                             "description": "Unique identifier of the item.",
-                            "x-zui": {
-                              "title": "ID"
-                            }
-                          },
-                          "itemType": {
                             "type": "string",
-                            "const": "folder",
-                            "description": "The type of the item.",
-                            "x-zui": {
-                              "title": "Item Type"
-                            }
-                          },
-                          "name": {
-                            "type": "string",
-                            "description": "The name of the item, including extension.",
-                            "x-zui": {
-                              "title": "Name"
-                            }
-                          },
-                          "path": {
-                            "type": "string",
-                            "description": "The path to the item in the user's Dropbox.",
-                            "x-zui": {
-                              "title": "Path"
-                            }
-                          },
-                          "webUrl": {
-                            "type": "string",
-                            "x-zui": {
-                              "title": "Web URL"
-                            },
-                            "description": "The URL to view the item on the Dropbox website."
+                            "x-zui": { "title": "ID" }
                           },
                           "isDeleted": {
-                            "type": "boolean",
                             "description": "Whether the item has been deleted.",
-                            "x-zui": {
-                              "title": "Is Deleted?"
-                            }
+                            "type": "boolean",
+                            "x-zui": { "title": "Is Deleted?" }
                           },
                           "isShared": {
-                            "type": "boolean",
                             "description": "Whether the item is shared with other users.",
-                            "x-zui": {
-                              "title": "Is Shared?"
-                            }
+                            "type": "boolean",
+                            "x-zui": { "title": "Is Shared?" }
+                          },
+                          "itemType": {
+                            "const": "folder",
+                            "description": "The type of the item.",
+                            "type": "string",
+                            "x-zui": { "title": "Item Type" }
+                          },
+                          "name": {
+                            "description": "The name of the item, including extension.",
+                            "type": "string",
+                            "x-zui": { "title": "Name" }
+                          },
+                          "path": {
+                            "description": "The path to the item in the user's Dropbox.",
+                            "type": "string",
+                            "x-zui": { "title": "Path" }
+                          },
+                          "webUrl": {
+                            "description": "The URL to view the item on the Dropbox website.",
+                            "type": "string",
+                            "x-zui": { "title": "Web URL" }
                           }
                         },
                         "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
-                        "additionalProperties": false,
-                        "x-zui": {
-                          "title": "New Folder"
-                        }
+                        "type": "object",
+                        "x-zui": { "title": "New Folder" }
                       }
                     ],
                     "description": "The matched item",
-                    "x-zui": {
-                      "title": "Item"
-                    }
+                    "x-zui": { "title": "Item" }
                   },
                   "matchType": {
-                    "type": "string",
-                    "enum": ["filename", "file_content", "filename_and_content", "image_content", "metadata", "other"],
                     "description": "The type of match",
-                    "x-zui": {
-                      "title": "Match type"
-                    }
+                    "enum": ["filename", "file_content", "filename_and_content", "image_content", "metadata", "other"],
+                    "type": "string",
+                    "x-zui": { "title": "Match type" }
                   }
                 },
                 "required": ["item"],
-                "additionalProperties": false
+                "type": "object"
               },
-              "description": "A list of matches for the query",
-              "x-zui": {
-                "title": "Matches"
-              }
-            },
-            "nextToken": {
-              "type": "string",
-              "x-zui": {
-                "title": "Pagination Token"
-              },
-              "description": "The cursor to use for pagination. If the cursor is present, you may use it to fetch the next page of results. If it's not present, it means there are no more results"
+              "type": "array",
+              "x-zui": { "title": "Matches" }
             }
           },
           "required": ["results"],
-          "additionalProperties": false
-        }
-      }
-    },
-    "filesReadonlyListItemsInFolder": {
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "folderId": {
-              "type": "string"
-            },
-            "filters": {
-              "type": "object",
-              "properties": {
-                "itemType": {
-                  "type": "string",
-                  "enum": ["file", "folder"]
-                },
-                "maxSizeInBytes": {
-                  "type": "number"
-                },
-                "modifiedAfter": {
-                  "type": "string"
-                }
-              },
-              "additionalProperties": false
-            },
-            "nextToken": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "type": {
-                        "type": "string",
-                        "const": "file"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "parentId": {
-                        "type": "string"
-                      },
-                      "absolutePath": {
-                        "type": "string"
-                      },
-                      "sizeInBytes": {
-                        "type": "number"
-                      },
-                      "lastModifiedDate": {
-                        "type": "string"
-                      },
-                      "contentHash": {
-                        "type": "string"
-                      }
-                    },
-                    "required": ["id", "type", "name"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "type": {
-                        "type": "string",
-                        "const": "folder"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "parentId": {
-                        "type": "string"
-                      },
-                      "absolutePath": {
-                        "type": "string"
-                      }
-                    },
-                    "required": ["id", "type", "name"],
-                    "additionalProperties": false
-                  }
-                ]
-              }
-            },
-            "meta": {
-              "type": "object",
-              "properties": {
-                "nextToken": {
-                  "type": "string"
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "required": ["items", "meta"],
-          "additionalProperties": false
-        }
-      },
-      "title": "List items in folder",
-      "description": "List the files and folders in a folder",
-      "name": "filesReadonlyListItemsInFolder"
-    },
-    "filesReadonlyTransferFileToBotpress": {
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "file": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string",
-                  "const": "file"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "parentId": {
-                  "type": "string"
-                },
-                "absolutePath": {
-                  "type": "string"
-                },
-                "sizeInBytes": {
-                  "type": "number"
-                },
-                "lastModifiedDate": {
-                  "type": "string"
-                },
-                "contentHash": {
-                  "type": "string"
-                }
-              },
-              "required": ["id", "type", "name"],
-              "additionalProperties": false
-            },
-            "fileKey": {
-              "type": "string"
-            }
-          },
-          "required": ["file", "fileKey"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "botpressFileId": {
-              "type": "string"
-            }
-          },
-          "required": ["botpressFileId"],
-          "additionalProperties": false
-        }
-      },
-      "title": "Transfer file to Botpress",
-      "description": "Transfer a file from an external service to Botpress",
-      "name": "filesReadonlyTransferFileToBotpress"
+      "title": "Search Items"
     }
   },
   "channels": {},
-  "states": {
-    "authorization": {
-      "type": "integration",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "refreshToken": {
-            "type": "string",
-            "description": "Refresh token used to generate a new access token",
-            "x-zui": {
-              "secret": true
-            }
-          },
-          "grantedScopes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Scopes granted by the user"
-          },
-          "accountId": {
-            "type": "string",
-            "description": "User ID of the authenticated user"
-          },
-          "authorizationCode": {
-            "type": "string",
-            "description": "The Access Code that was exchanged for the refresh token",
-            "x-zui": {
-              "title": "Access Code",
-              "secret": true
-            }
-          }
-        },
-        "required": ["refreshToken", "grantedScopes", "accountId", "authorizationCode"],
-        "additionalProperties": false
-      }
-    },
-    "realTimeSync": {
-      "type": "integration",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "syncCursor": {
-            "type": "string",
-            "description": "The cursor used to track the sync state of the tracked Dropbox account.",
-            "x-zui": {
-              "title": "Sync Cursor"
-            }
-          },
-          "fileTreeJson": {
-            "type": "string",
-            "description": "The JSON representation of the file tree.",
-            "x-zui": {
-              "title": "File Tree JSON"
-            }
-          }
-        },
-        "required": ["syncCursor", "fileTreeJson"],
-        "additionalProperties": false
-      }
-    },
-    "setupMeta": {
-      "type": "integration",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "integrationRegisteredAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Date and time when the user configured the integration",
-            "x-zui": {
-              "title": "Registered At"
-            }
-          }
-        },
-        "required": ["integrationRegisteredAt"],
-        "additionalProperties": false
-      }
-    }
-  },
+  "description": "Manage your files and folders effortlessly.",
   "entities": {
     "file": {
-      "title": "File",
       "description": "A file in a user's Dropbox",
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
-          "id": {
-            "type": "string",
-            "description": "Unique identifier of the item.",
-            "x-zui": {
-              "title": "ID"
-            }
-          },
-          "itemType": {
-            "type": "string",
-            "const": "file",
-            "description": "The type of the item.",
-            "x-zui": {
-              "title": "Item Type"
-            }
-          },
-          "name": {
-            "type": "string",
-            "description": "The name of the item, including extension.",
-            "x-zui": {
-              "title": "Name"
-            }
-          },
-          "path": {
-            "type": "string",
-            "description": "The path to the item in the user's Dropbox.",
-            "x-zui": {
-              "title": "Path"
-            }
-          },
-          "webUrl": {
-            "type": "string",
-            "x-zui": {
-              "title": "Web URL"
-            },
-            "description": "The URL to view the item on the Dropbox website."
-          },
-          "isDeleted": {
-            "type": "boolean",
-            "description": "Whether the item has been deleted.",
-            "x-zui": {
-              "title": "Is Deleted?"
-            }
-          },
-          "isShared": {
-            "type": "boolean",
-            "description": "Whether the item is shared with other users.",
-            "x-zui": {
-              "title": "Is Shared?"
-            }
-          },
-          "revision": {
-            "type": "string",
-            "minLength": 1,
-            "description": "The file's revision",
-            "x-zui": {
-              "title": "Revision"
-            }
-          },
-          "size": {
-            "type": "number",
-            "description": "The file's size in bytes",
-            "x-zui": {
-              "title": "Size"
-            }
-          },
           "fileHash": {
-            "type": "string",
-            "minLength": 1,
             "description": "The file's validation hash",
-            "x-zui": {
-              "title": "Checksum"
-            }
+            "minLength": 1,
+            "type": "string",
+            "x-zui": { "title": "Checksum" }
+          },
+          "id": { "description": "Unique identifier of the item.", "type": "string", "x-zui": { "title": "ID" } },
+          "isDeleted": {
+            "description": "Whether the item has been deleted.",
+            "type": "boolean",
+            "x-zui": { "title": "Is Deleted?" }
           },
           "isDownloadable": {
-            "type": "boolean",
             "description": "Whether the file is downloadable",
-            "x-zui": {
-              "title": "Is Downloadable?"
-            }
+            "type": "boolean",
+            "x-zui": { "title": "Is Downloadable?" }
           },
-          "symlinkTarget": {
+          "isShared": {
+            "description": "Whether the item is shared with other users.",
+            "type": "boolean",
+            "x-zui": { "title": "Is Shared?" }
+          },
+          "itemType": {
+            "const": "file",
+            "description": "The type of the item.",
             "type": "string",
-            "x-zui": {
-              "title": "Symlink Target"
-            },
-            "description": "The target of the symlink, if the file is a symlink"
+            "x-zui": { "title": "Item Type" }
           },
           "modifiedAt": {
-            "type": "string",
             "description": "The date and time the file was last modified, formatted as an ISO 8601 timestamp.",
-            "x-zui": {
-              "title": "Modified At"
-            }
+            "type": "string",
+            "x-zui": { "title": "Modified At" }
+          },
+          "name": {
+            "description": "The name of the item, including extension.",
+            "type": "string",
+            "x-zui": { "title": "Name" }
+          },
+          "path": {
+            "description": "The path to the item in the user's Dropbox.",
+            "type": "string",
+            "x-zui": { "title": "Path" }
+          },
+          "revision": {
+            "description": "The file's revision",
+            "minLength": 1,
+            "type": "string",
+            "x-zui": { "title": "Revision" }
+          },
+          "size": { "description": "The file's size in bytes", "type": "number", "x-zui": { "title": "Size" } },
+          "symlinkTarget": {
+            "description": "The target of the symlink, if the file is a symlink",
+            "type": "string",
+            "x-zui": { "title": "Symlink Target" }
+          },
+          "webUrl": {
+            "description": "The URL to view the item on the Dropbox website.",
+            "type": "string",
+            "x-zui": { "title": "Web URL" }
           }
         },
         "required": [
@@ -2022,109 +1229,322 @@
           "isDownloadable",
           "modifiedAt"
         ],
-        "additionalProperties": false,
-        "x-zui": {
-          "title": "New File"
-        }
-      }
+        "type": "object",
+        "x-zui": { "title": "New File" }
+      },
+      "title": "File"
     },
     "folder": {
-      "title": "Folder",
       "description": "A folder in a user's Dropbox",
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
-          "id": {
-            "type": "string",
-            "description": "Unique identifier of the item.",
-            "x-zui": {
-              "title": "ID"
-            }
-          },
-          "itemType": {
-            "type": "string",
-            "const": "folder",
-            "description": "The type of the item.",
-            "x-zui": {
-              "title": "Item Type"
-            }
-          },
-          "name": {
-            "type": "string",
-            "description": "The name of the item, including extension.",
-            "x-zui": {
-              "title": "Name"
-            }
-          },
-          "path": {
-            "type": "string",
-            "description": "The path to the item in the user's Dropbox.",
-            "x-zui": {
-              "title": "Path"
-            }
-          },
-          "webUrl": {
-            "type": "string",
-            "x-zui": {
-              "title": "Web URL"
-            },
-            "description": "The URL to view the item on the Dropbox website."
-          },
+          "id": { "description": "Unique identifier of the item.", "type": "string", "x-zui": { "title": "ID" } },
           "isDeleted": {
-            "type": "boolean",
             "description": "Whether the item has been deleted.",
-            "x-zui": {
-              "title": "Is Deleted?"
-            }
+            "type": "boolean",
+            "x-zui": { "title": "Is Deleted?" }
           },
           "isShared": {
-            "type": "boolean",
             "description": "Whether the item is shared with other users.",
-            "x-zui": {
-              "title": "Is Shared?"
-            }
+            "type": "boolean",
+            "x-zui": { "title": "Is Shared?" }
+          },
+          "itemType": {
+            "const": "folder",
+            "description": "The type of the item.",
+            "type": "string",
+            "x-zui": { "title": "Item Type" }
+          },
+          "name": {
+            "description": "The name of the item, including extension.",
+            "type": "string",
+            "x-zui": { "title": "Name" }
+          },
+          "path": {
+            "description": "The path to the item in the user's Dropbox.",
+            "type": "string",
+            "x-zui": { "title": "Path" }
+          },
+          "webUrl": {
+            "description": "The URL to view the item on the Dropbox website.",
+            "type": "string",
+            "x-zui": { "title": "Web URL" }
           }
         },
         "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
+        "type": "object",
+        "x-zui": { "title": "New Folder" }
+      },
+      "title": "Folder"
+    }
+  },
+  "events": {
+    "aggregateFileChanges": {
+      "schema": {
         "additionalProperties": false,
-        "x-zui": {
-          "title": "New Folder"
-        }
+        "properties": {
+          "modifiedItems": {
+            "additionalProperties": false,
+            "properties": {
+              "created": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "absolutePath": { "type": "string" },
+                    "contentHash": { "type": "string" },
+                    "id": { "type": "string" },
+                    "lastModifiedDate": { "type": "string" },
+                    "name": { "type": "string" },
+                    "parentId": { "type": "string" },
+                    "sizeInBytes": { "type": "number" },
+                    "type": { "const": "file", "type": "string" }
+                  },
+                  "required": ["id", "type", "name", "absolutePath"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "deleted": {
+                "items": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "absolutePath": { "type": "string" },
+                        "contentHash": { "type": "string" },
+                        "id": { "type": "string" },
+                        "lastModifiedDate": { "type": "string" },
+                        "name": { "type": "string" },
+                        "parentId": { "type": "string" },
+                        "sizeInBytes": { "type": "number" },
+                        "type": { "const": "file", "type": "string" }
+                      },
+                      "required": ["id", "type", "name", "absolutePath"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "absolutePath": { "type": "string" },
+                        "id": { "type": "string" },
+                        "name": { "type": "string" },
+                        "parentId": { "type": "string" },
+                        "type": { "const": "folder", "type": "string" }
+                      },
+                      "required": ["id", "type", "name", "absolutePath"],
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              "updated": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "absolutePath": { "type": "string" },
+                    "contentHash": { "type": "string" },
+                    "id": { "type": "string" },
+                    "lastModifiedDate": { "type": "string" },
+                    "name": { "type": "string" },
+                    "parentId": { "type": "string" },
+                    "sizeInBytes": { "type": "number" },
+                    "type": { "const": "file", "type": "string" }
+                  },
+                  "required": ["id", "type", "name", "absolutePath"],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": ["created", "updated", "deleted"],
+            "type": "object"
+          }
+        },
+        "required": ["modifiedItems"],
+        "type": "object"
+      }
+    },
+    "fileCreated": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "additionalProperties": false,
+            "properties": {
+              "absolutePath": { "type": "string" },
+              "contentHash": { "type": "string" },
+              "id": { "type": "string" },
+              "lastModifiedDate": { "type": "string" },
+              "name": { "type": "string" },
+              "parentId": { "type": "string" },
+              "sizeInBytes": { "type": "number" },
+              "type": { "const": "file", "type": "string" }
+            },
+            "required": ["id", "type", "name", "absolutePath"],
+            "type": "object"
+          }
+        },
+        "required": ["file"],
+        "type": "object"
+      }
+    },
+    "fileDeleted": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "additionalProperties": false,
+            "properties": {
+              "absolutePath": { "type": "string" },
+              "contentHash": { "type": "string" },
+              "id": { "type": "string" },
+              "lastModifiedDate": { "type": "string" },
+              "name": { "type": "string" },
+              "parentId": { "type": "string" },
+              "sizeInBytes": { "type": "number" },
+              "type": { "const": "file", "type": "string" }
+            },
+            "required": ["id", "type", "name", "absolutePath"],
+            "type": "object"
+          }
+        },
+        "required": ["file"],
+        "type": "object"
+      }
+    },
+    "fileUpdated": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "additionalProperties": false,
+            "properties": {
+              "absolutePath": { "type": "string" },
+              "contentHash": { "type": "string" },
+              "id": { "type": "string" },
+              "lastModifiedDate": { "type": "string" },
+              "name": { "type": "string" },
+              "parentId": { "type": "string" },
+              "sizeInBytes": { "type": "number" },
+              "type": { "const": "file", "type": "string" }
+            },
+            "required": ["id", "type", "name", "absolutePath"],
+            "type": "object"
+          }
+        },
+        "required": ["file"],
+        "type": "object"
+      }
+    },
+    "folderDeletedRecursive": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "folder": {
+            "additionalProperties": false,
+            "properties": {
+              "absolutePath": { "type": "string" },
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "parentId": { "type": "string" },
+              "type": { "const": "folder", "type": "string" }
+            },
+            "required": ["id", "type", "name", "absolutePath"],
+            "type": "object"
+          }
+        },
+        "required": ["folder"],
+        "type": "object"
       }
     }
   },
   "interfaces": {
     "files-readonly": {
+      "actions": {
+        "listItemsInFolder": { "name": "filesReadonlyListItemsInFolder" },
+        "transferFileToBotpress": { "name": "filesReadonlyTransferFileToBotpress" }
+      },
+      "channels": {},
+      "entities": {},
+      "events": {
+        "aggregateFileChanges": { "name": "aggregateFileChanges" },
+        "fileCreated": { "name": "fileCreated" },
+        "fileDeleted": { "name": "fileDeleted" },
+        "fileUpdated": { "name": "fileUpdated" },
+        "folderDeletedRecursive": { "name": "folderDeletedRecursive" }
+      },
       "id": "",
       "name": "files-readonly",
-      "version": "0.2.0",
-      "entities": {},
-      "actions": {
-        "listItemsInFolder": {
-          "name": "filesReadonlyListItemsInFolder"
-        },
-        "transferFileToBotpress": {
-          "name": "filesReadonlyTransferFileToBotpress"
-        }
-      },
-      "events": {
-        "fileCreated": {
-          "name": "fileCreated"
-        },
-        "fileUpdated": {
-          "name": "fileUpdated"
-        },
-        "fileDeleted": {
-          "name": "fileDeleted"
-        },
-        "folderDeletedRecursive": {
-          "name": "folderDeletedRecursive"
-        },
-        "aggregateFileChanges": {
-          "name": "aggregateFileChanges"
-        }
-      },
-      "channels": {}
+      "version": "0.2.0"
     }
-  }
+  },
+  "name": "dropbox",
+  "states": {
+    "authorization": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "accountId": { "description": "User ID of the authenticated user", "type": "string" },
+          "authorizationCode": {
+            "description": "The Access Code that was exchanged for the refresh token",
+            "type": "string",
+            "x-zui": { "secret": true, "title": "Access Code" }
+          },
+          "grantedScopes": {
+            "description": "Scopes granted by the user",
+            "items": { "type": "string" },
+            "type": "array"
+          },
+          "refreshToken": {
+            "description": "Refresh token used to generate a new access token",
+            "type": "string",
+            "x-zui": { "secret": true }
+          }
+        },
+        "required": ["refreshToken", "grantedScopes", "accountId", "authorizationCode"],
+        "type": "object"
+      },
+      "type": "integration"
+    },
+    "realTimeSync": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "fileTreeJson": {
+            "description": "The JSON representation of the file tree.",
+            "type": "string",
+            "x-zui": { "title": "File Tree JSON" }
+          },
+          "syncCursor": {
+            "description": "The cursor used to track the sync state of the tracked Dropbox account.",
+            "type": "string",
+            "x-zui": { "title": "Sync Cursor" }
+          }
+        },
+        "required": ["syncCursor", "fileTreeJson"],
+        "type": "object"
+      },
+      "type": "integration"
+    },
+    "setupMeta": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "integrationRegisteredAt": {
+            "description": "Date and time when the user configured the integration",
+            "format": "date-time",
+            "type": "string",
+            "x-zui": { "title": "Registered At" }
+          }
+        },
+        "required": ["integrationRegisteredAt"],
+        "type": "object"
+      },
+      "type": "integration"
+    }
+  },
+  "title": "Dropbox",
+  "version": "1.1.1"
 }

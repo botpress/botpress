@@ -1,499 +1,335 @@
 {
-  "name": "llm",
-  "version": "8.0.0",
-  "entities": {
-    "modelRef": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          }
-        },
-        "required": ["id"],
-        "additionalProperties": false
-      }
-    }
-  },
-  "events": {},
   "actions": {
     "generateContent": {
       "billable": true,
       "cacheable": true,
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "model": {
-              "$ref": "modelRef",
-              "description": "Model to use for content generation"
+            "debug": {
+              "description": "Set to `true` to output debug information to the bot logs",
+              "type": "boolean",
+              "x-zui": { "hidden": true }
             },
-            "reasoningEffort": {
-              "type": "string",
-              "enum": ["low", "medium", "high"],
-
-              "description": "Reasoning effort level to use for models that support reasoning"
-            },
-            "systemPrompt": {
-              "type": "string",
-
-              "description": "Optional system prompt to guide the model"
+            "maxTokens": {
+              "description": "Maximum number of tokens allowed in the generated response",
+              "type": "number"
             },
             "messages": {
-              "type": "array",
+              "description": "Array of messages for the model to process",
               "items": {
-                "type": "object",
+                "additionalProperties": false,
                 "properties": {
-                  "role": {
-                    "type": "string",
-                    "enum": ["user", "assistant"]
-                  },
-                  "type": {
-                    "type": "string",
-                    "enum": ["text", "tool_calls", "tool_result", "multipart"],
-
-                    "default": "text"
-                  },
-                  "toolCalls": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "type": {
-                          "type": "string",
-                          "enum": ["function"]
-                        },
-                        "function": {
-                          "type": "object",
-                          "properties": {
-                            "name": {
-                              "type": "string"
-                            },
-                            "arguments": {
-                              "anyOf": [
-                                {
-                                  "type": "object",
-                                  "additionalProperties": {}
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ],
-                              "description": "Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens."
-                            }
-                          },
-                          "required": ["name", "arguments"],
-                          "additionalProperties": false
-                        }
-                      },
-                      "required": ["id", "type", "function"],
-                      "additionalProperties": false
-                    },
-
-                    "description": "Required if `type` is \"tool_calls\""
-                  },
-                  "toolResultCallId": {
-                    "type": "string",
-
-                    "description": "Required if `type` is \"tool_result\""
-                  },
                   "content": {
                     "anyOf": [
                       {
                         "anyOf": [
+                          { "type": "string" },
                           {
-                            "type": "string"
-                          },
-                          {
-                            "type": "array",
                             "items": {
-                              "type": "object",
+                              "additionalProperties": false,
                               "properties": {
-                                "type": {
-                                  "type": "string",
-                                  "enum": ["text", "image"]
-                                },
                                 "mimeType": {
-                                  "type": "string",
-
-                                  "description": "Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL."
+                                  "description": "Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL.",
+                                  "type": "string"
                                 },
-                                "text": {
-                                  "type": "string",
-
-                                  "description": "Required if part type is \"text\" "
-                                },
-                                "url": {
-                                  "type": "string",
-
-                                  "description": "Required if part type is \"image\""
-                                }
+                                "text": { "description": "Required if part type is \"text\" ", "type": "string" },
+                                "type": { "enum": ["text", "image"], "type": "string" },
+                                "url": { "description": "Required if part type is \"image\"", "type": "string" }
                               },
                               "required": ["type"],
-                              "additionalProperties": false
-                            }
+                              "type": "object"
+                            },
+                            "type": "array"
                           }
                         ]
                       },
-                      {
-                        "type": "null"
-                      }
+                      { "type": "null" }
                     ],
                     "description": "Required unless `type` is \"tool_call\". If `type` is \"multipart\", this field must be an array of content objects. If `type` is \"tool_result\" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is \"tool_call\" then the `toolCalls` field should be used instead."
+                  },
+                  "role": { "enum": ["user", "assistant"], "type": "string" },
+                  "toolCalls": {
+                    "description": "Required if `type` is \"tool_calls\"",
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "function": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "arguments": {
+                              "anyOf": [{ "additionalProperties": {}, "type": "object" }, { "type": "null" }],
+                              "description": "Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens."
+                            },
+                            "name": { "type": "string" }
+                          },
+                          "required": ["name", "arguments"],
+                          "type": "object"
+                        },
+                        "id": { "type": "string" },
+                        "type": { "enum": ["function"], "type": "string" }
+                      },
+                      "required": ["id", "type", "function"],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "toolResultCallId": { "description": "Required if `type` is \"tool_result\"", "type": "string" },
+                  "type": {
+                    "default": "text",
+                    "enum": ["text", "tool_calls", "tool_result", "multipart"],
+                    "type": "string"
                   }
                 },
                 "required": ["role", "content"],
-                "additionalProperties": false
+                "type": "object"
               },
-              "description": "Array of messages for the model to process"
-            },
-            "responseFormat": {
-              "type": "string",
-              "enum": ["text", "json_object"],
-
-              "description": "Response format expected from the model. If \"json_object\" is chosen, you must instruct the model to generate JSON either via the system prompt or a user message."
-            },
-            "maxTokens": {
-              "type": "number",
-
-              "description": "Maximum number of tokens allowed in the generated response"
-            },
-            "temperature": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 2,
-              "x-zui": {
-                "displayAs": [
-                  "slider",
-                  {
-                    "stepSize": 0.01,
-                    "horizontal": true
-                  }
-                ]
-              },
-              "default": 1,
-              "description": "Sampling temperature for the model. Higher values result in more random outputs."
-            },
-            "topP": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1,
-              "x-zui": {
-                "displayAs": [
-                  "slider",
-                  {
-                    "stepSize": 0.01,
-                    "horizontal": true
-                  }
-                ]
-              },
-              "default": 1,
-              "description": "Top-p sampling parameter. Limits sampling to the smallest set of tokens with a cumulative probability above the threshold."
-            },
-            "stopSequences": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "maxItems": 4,
-
-              "description": "Sequences where the model should stop generating further tokens."
-            },
-            "tools": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "const": "function"
-                  },
-                  "function": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string",
-                        "description": "Function name"
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "argumentsSchema": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true,
-
-                        "description": "JSON schema of the function arguments"
-                      }
-                    },
-                    "required": ["name"],
-                    "additionalProperties": false
-                  }
-                },
-                "required": ["type", "function"],
-                "additionalProperties": false
-              }
-            },
-            "toolChoice": {
-              "type": "object",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": ["auto", "specific", "any", "none", ""]
-                },
-                "functionName": {
-                  "type": "string",
-
-                  "description": "Required if `type` is \"specific\""
-                }
-              },
-              "additionalProperties": false
-            },
-            "userId": {
-              "type": "string"
-            },
-            "debug": {
-              "type": "boolean",
-              "x-zui": {
-                "hidden": true
-              },
-              "description": "Set to `true` to output debug information to the bot logs"
+              "type": "array"
             },
             "meta": {
-              "type": "object",
+              "additionalProperties": false,
               "properties": {
-                "promptSource": {
-                  "type": "string",
-
-                  "description": "Source of the prompt, e.g. agent/:id/:version cards/ai-generate, cards/ai-task, nodes/autonomous, etc."
-                },
-                "promptCategory": {
+                "integrationName": {
+                  "description": "Name of the integration that originally received the message that initiated this action",
                   "type": "string"
                 },
-                "integrationName": {
-                  "type": "string",
-
-                  "description": "Name of the integration that originally received the message that initiated this action"
+                "promptCategory": { "type": "string" },
+                "promptSource": {
+                  "description": "Source of the prompt, e.g. agent/:id/:version cards/ai-generate, cards/ai-task, nodes/autonomous, etc.",
+                  "type": "string"
                 }
               },
+              "type": "object",
+              "x-zui": { "hidden": true }
+            },
+            "model": { "$ref": "modelRef", "description": "Model to use for content generation" },
+            "reasoningEffort": {
+              "description": "Reasoning effort level to use for models that support reasoning",
+              "enum": ["low", "medium", "high"],
+              "type": "string"
+            },
+            "responseFormat": {
+              "description": "Response format expected from the model. If \"json_object\" is chosen, you must instruct the model to generate JSON either via the system prompt or a user message.",
+              "enum": ["text", "json_object"],
+              "type": "string"
+            },
+            "stopSequences": {
+              "description": "Sequences where the model should stop generating further tokens.",
+              "items": { "type": "string" },
+              "maxItems": 4,
+              "type": "array"
+            },
+            "systemPrompt": { "description": "Optional system prompt to guide the model", "type": "string" },
+            "temperature": {
+              "default": 1,
+              "description": "Sampling temperature for the model. Higher values result in more random outputs.",
+              "maximum": 2,
+              "minimum": 0,
+              "type": "number",
+              "x-zui": { "displayAs": ["slider", { "horizontal": true, "stepSize": 0.01 }] }
+            },
+            "toolChoice": {
               "additionalProperties": false,
-              "x-zui": {
-                "hidden": true
-              }
-            }
+              "properties": {
+                "functionName": { "description": "Required if `type` is \"specific\"", "type": "string" },
+                "type": { "enum": ["auto", "specific", "any", "none", ""], "type": "string" }
+              },
+              "type": "object"
+            },
+            "tools": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "function": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "argumentsSchema": {
+                        "additionalProperties": true,
+                        "description": "JSON schema of the function arguments",
+                        "properties": {},
+                        "type": "object"
+                      },
+                      "description": { "type": "string" },
+                      "name": { "description": "Function name", "type": "string" }
+                    },
+                    "required": ["name"],
+                    "type": "object"
+                  },
+                  "type": { "const": "function", "type": "string" }
+                },
+                "required": ["type", "function"],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "topP": {
+              "default": 1,
+              "description": "Top-p sampling parameter. Limits sampling to the smallest set of tokens with a cumulative probability above the threshold.",
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number",
+              "x-zui": { "displayAs": ["slider", { "horizontal": true, "stepSize": 0.01 }] }
+            },
+            "userId": { "type": "string" }
           },
           "required": ["messages"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "id": {
-              "type": "string",
-              "description": "Response ID from LLM provider"
-            },
-            "provider": {
-              "type": "string",
-              "description": "LLM provider name"
-            },
-            "model": {
-              "type": "string",
-              "description": "Model name"
+            "botpress": {
+              "additionalProperties": false,
+              "properties": {
+                "cost": { "description": "Total cost of the content generation, in U.S. dollars", "type": "number" }
+              },
+              "required": ["cost"],
+              "type": "object"
             },
             "choices": {
-              "type": "array",
               "items": {
-                "type": "object",
+                "additionalProperties": false,
                 "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": ["text", "tool_calls", "tool_result", "multipart"],
-
-                    "default": "text"
-                  },
-                  "toolCalls": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string"
-                        },
-                        "type": {
-                          "type": "string",
-                          "enum": ["function"]
-                        },
-                        "function": {
-                          "type": "object",
-                          "properties": {
-                            "name": {
-                              "type": "string"
-                            },
-                            "arguments": {
-                              "anyOf": [
-                                {
-                                  "type": "object",
-                                  "additionalProperties": {}
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ],
-                              "description": "Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens."
-                            }
-                          },
-                          "required": ["name", "arguments"],
-                          "additionalProperties": false
-                        }
-                      },
-                      "required": ["id", "type", "function"],
-                      "additionalProperties": false
-                    },
-
-                    "description": "Required if `type` is \"tool_calls\""
-                  },
-                  "toolResultCallId": {
-                    "type": "string",
-
-                    "description": "Required if `type` is \"tool_result\""
-                  },
                   "content": {
                     "anyOf": [
                       {
                         "anyOf": [
+                          { "type": "string" },
                           {
-                            "type": "string"
-                          },
-                          {
-                            "type": "array",
                             "items": {
-                              "type": "object",
+                              "additionalProperties": false,
                               "properties": {
-                                "type": {
-                                  "type": "string",
-                                  "enum": ["text", "image"]
-                                },
                                 "mimeType": {
-                                  "type": "string",
-
-                                  "description": "Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL."
+                                  "description": "Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL.",
+                                  "type": "string"
                                 },
-                                "text": {
-                                  "type": "string",
-
-                                  "description": "Required if part type is \"text\" "
-                                },
-                                "url": {
-                                  "type": "string",
-
-                                  "description": "Required if part type is \"image\""
-                                }
+                                "text": { "description": "Required if part type is \"text\" ", "type": "string" },
+                                "type": { "enum": ["text", "image"], "type": "string" },
+                                "url": { "description": "Required if part type is \"image\"", "type": "string" }
                               },
                               "required": ["type"],
-                              "additionalProperties": false
-                            }
+                              "type": "object"
+                            },
+                            "type": "array"
                           }
                         ]
                       },
-                      {
-                        "type": "null"
-                      }
+                      { "type": "null" }
                     ],
                     "description": "Required unless `type` is \"tool_call\". If `type` is \"multipart\", this field must be an array of content objects. If `type` is \"tool_result\" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is \"tool_call\" then the `toolCalls` field should be used instead."
                   },
-                  "role": {
-                    "type": "string",
-                    "const": "assistant"
-                  },
-                  "index": {
-                    "type": "integer"
-                  },
+                  "index": { "type": "integer" },
+                  "role": { "const": "assistant", "type": "string" },
                   "stopReason": {
-                    "type": "string",
-                    "enum": ["stop", "max_tokens", "tool_calls", "content_filter", "other"]
+                    "enum": ["stop", "max_tokens", "tool_calls", "content_filter", "other"],
+                    "type": "string"
+                  },
+                  "toolCalls": {
+                    "description": "Required if `type` is \"tool_calls\"",
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "function": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "arguments": {
+                              "anyOf": [{ "additionalProperties": {}, "type": "object" }, { "type": "null" }],
+                              "description": "Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens."
+                            },
+                            "name": { "type": "string" }
+                          },
+                          "required": ["name", "arguments"],
+                          "type": "object"
+                        },
+                        "id": { "type": "string" },
+                        "type": { "enum": ["function"], "type": "string" }
+                      },
+                      "required": ["id", "type", "function"],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "toolResultCallId": { "description": "Required if `type` is \"tool_result\"", "type": "string" },
+                  "type": {
+                    "default": "text",
+                    "enum": ["text", "tool_calls", "tool_result", "multipart"],
+                    "type": "string"
                   }
                 },
                 "required": ["content", "role", "index", "stopReason"],
-                "additionalProperties": false
-              }
+                "type": "object"
+              },
+              "type": "array"
             },
+            "id": { "description": "Response ID from LLM provider", "type": "string" },
+            "model": { "description": "Model name", "type": "string" },
+            "provider": { "description": "LLM provider name", "type": "string" },
             "usage": {
-              "type": "object",
+              "additionalProperties": false,
               "properties": {
-                "inputTokens": {
-                  "type": "integer",
-                  "description": "Number of input tokens used by the model"
-                },
                 "inputCost": {
-                  "type": "number",
-                  "description": "Cost of the input tokens received by the model, in U.S. dollars"
+                  "description": "Cost of the input tokens received by the model, in U.S. dollars",
+                  "type": "number"
                 },
-                "outputTokens": {
-                  "type": "integer",
-                  "description": "Number of output tokens used by the model"
-                },
+                "inputTokens": { "description": "Number of input tokens used by the model", "type": "integer" },
                 "outputCost": {
-                  "type": "number",
-                  "description": "Cost of the output tokens generated by the model, in U.S. dollars"
-                }
+                  "description": "Cost of the output tokens generated by the model, in U.S. dollars",
+                  "type": "number"
+                },
+                "outputTokens": { "description": "Number of output tokens used by the model", "type": "integer" }
               },
               "required": ["inputTokens", "inputCost", "outputTokens", "outputCost"],
-              "additionalProperties": false
-            },
-            "botpress": {
-              "type": "object",
-              "properties": {
-                "cost": {
-                  "type": "number",
-                  "description": "Total cost of the content generation, in U.S. dollars"
-                }
-              },
-              "required": ["cost"],
-              "additionalProperties": false
+              "type": "object"
             }
           },
           "required": ["id", "provider", "model", "choices", "usage", "botpress"],
-          "additionalProperties": false
+          "type": "object"
         }
       }
     },
     "listLanguageModels": {
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      },
+      "input": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "models": {
-              "type": "array",
               "items": {
                 "allOf": [
                   {
-                    "type": "object",
                     "properties": {
-                      "id": {
-                        "type": "string"
+                      "description": { "type": "string" },
+                      "id": { "type": "string" },
+                      "input": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "costPer1MTokens": {
+                            "description": "Cost per 1 million tokens, in U.S. dollars",
+                            "type": "number"
+                          },
+                          "maxTokens": { "type": "integer" }
+                        },
+                        "required": ["maxTokens", "costPer1MTokens"],
+                        "type": "object"
                       },
-                      "name": {
-                        "type": "string"
-                      },
-                      "description": {
-                        "type": "string"
+                      "name": { "type": "string" },
+                      "output": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "costPer1MTokens": {
+                            "description": "Cost per 1 million tokens, in U.S. dollars",
+                            "type": "number"
+                          },
+                          "maxTokens": { "type": "integer" }
+                        },
+                        "required": ["maxTokens", "costPer1MTokens"],
+                        "type": "object"
                       },
                       "tags": {
-                        "type": "array",
                         "items": {
-                          "type": "string",
                           "enum": [
                             "recommended",
                             "deprecated",
@@ -507,52 +343,39 @@
                             "storytelling",
                             "reasoning",
                             "preview"
-                          ]
-                        }
-                      },
-                      "input": {
-                        "type": "object",
-                        "properties": {
-                          "maxTokens": {
-                            "type": "integer"
-                          },
-                          "costPer1MTokens": {
-                            "type": "number",
-                            "description": "Cost per 1 million tokens, in U.S. dollars"
-                          }
+                          ],
+                          "type": "string"
                         },
-                        "required": ["maxTokens", "costPer1MTokens"],
-                        "additionalProperties": false
-                      },
-                      "output": {
-                        "type": "object",
-                        "properties": {
-                          "maxTokens": {
-                            "type": "integer"
-                          },
-                          "costPer1MTokens": {
-                            "type": "number",
-                            "description": "Cost per 1 million tokens, in U.S. dollars"
-                          }
-                        },
-                        "required": ["maxTokens", "costPer1MTokens"],
-                        "additionalProperties": false
+                        "type": "array"
                       }
                     },
-                    "required": ["id", "name", "description", "tags", "input", "output"]
+                    "required": ["id", "name", "description", "tags", "input", "output"],
+                    "type": "object"
                   },
-                  {
-                    "$ref": "modelRef"
-                  }
+                  { "$ref": "modelRef" }
                 ]
-              }
+              },
+              "type": "array"
             }
           },
           "required": ["models"],
-          "additionalProperties": false
+          "type": "object"
         }
       }
     }
   },
-  "channels": {}
+  "channels": {},
+  "entities": {
+    "modelRef": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": { "id": { "type": "string" } },
+        "required": ["id"],
+        "type": "object"
+      }
+    }
+  },
+  "events": {},
+  "name": "llm",
+  "version": "8.0.0"
 }

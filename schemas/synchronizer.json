@@ -1,169 +1,119 @@
 {
-  "name": "synchronizer",
-  "version": "0.0.1",
-  "user": {
-    "tags": {}
-  },
-  "conversation": {
-    "tags": {}
+  "actions": {
+    "clear": {
+      "description": "Clear the table",
+      "input": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+      "title": "Clear"
+    },
+    "synchronize": {
+      "description": "Manually synchronize a page of items without waiting for the cron job",
+      "input": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "itemsLeft": { "type": "boolean" } },
+          "required": ["itemsLeft"],
+          "type": "object"
+        }
+      },
+      "title": "Synchronize"
+    }
   },
   "configuration": {
     "schema": {
-      "type": "object",
+      "additionalProperties": false,
       "properties": {
         "tableName": {
-          "type": "string",
           "description": "The name of the table to store items",
-          "x-zui": {
-            "title": "Table Name"
-          }
+          "type": "string",
+          "x-zui": { "title": "Table Name" }
         }
       },
       "required": ["tableName"],
-      "additionalProperties": false
+      "type": "object"
     }
   },
+  "conversation": { "tags": {} },
   "events": {
-    "listItems": {
+    "listItems": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+    "rowDeleted": {
       "schema": {
-        "type": "object",
-        "properties": {},
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "row": {
+            "additionalProperties": false,
+            "properties": { "id": { "type": "string" } },
+            "required": ["id"],
+            "type": "object"
+          }
+        },
+        "required": ["row"],
+        "type": "object"
       }
     },
     "rowInserted": {
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "row": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              }
-            },
+            "additionalProperties": false,
+            "properties": { "id": { "type": "string" } },
             "required": ["id"],
-            "additionalProperties": false
+            "type": "object"
           }
         },
         "required": ["row"],
-        "additionalProperties": false
+        "type": "object"
       }
     },
     "rowUpdated": {
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "row": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              }
-            },
+            "additionalProperties": false,
+            "properties": { "id": { "type": "string" } },
             "required": ["id"],
-            "additionalProperties": false
+            "type": "object"
           }
         },
         "required": ["row"],
-        "additionalProperties": false
-      }
-    },
-    "rowDeleted": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "row": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string"
-              }
-            },
-            "required": ["id"],
-            "additionalProperties": false
-          }
-        },
-        "required": ["row"],
-        "additionalProperties": false
+        "type": "object"
       }
     }
   },
-  "actions": {
-    "synchronize": {
-      "title": "Synchronize",
-      "description": "Manually synchronize a page of items without waiting for the cron job",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "itemsLeft": {
-              "type": "boolean"
-            }
-          },
-          "required": ["itemsLeft"],
-          "additionalProperties": false
-        }
-      }
-    },
-    "clear": {
-      "title": "Clear",
-      "description": "Clear the table",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      }
-    }
-  },
+  "name": "synchronizer",
   "states": {
-    "table": {
-      "type": "bot",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "tableCreated": {
-            "type": "boolean",
-            "x-zui": {
-              "title": "Table Created"
-            },
-            "description": "Whether the table has been created"
-          }
-        },
-        "additionalProperties": false
-      }
-    },
     "job": {
-      "type": "bot",
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "nextToken": {
+            "description": "The token to use to get the next page of items",
             "type": "string",
-            "x-zui": {
-              "title": "Next Token"
-            },
-            "description": "The token to use to get the next page of items"
+            "x-zui": { "title": "Next Token" }
           }
         },
-        "additionalProperties": false
-      }
+        "type": "object"
+      },
+      "type": "bot"
+    },
+    "table": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "tableCreated": {
+            "description": "Whether the table has been created",
+            "type": "boolean",
+            "x-zui": { "title": "Table Created" }
+          }
+        },
+        "type": "object"
+      },
+      "type": "bot"
     }
-  }
+  },
+  "user": { "tags": {} },
+  "version": "0.0.1"
 }

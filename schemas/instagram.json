@@ -1,671 +1,450 @@
 {
-  "name": "instagram",
-  "version": "3.0.0",
-  "title": "Instagram",
-  "description": "Automate interactions, manage comments, and send/receive messages all in real-time.",
-  "user": {
-    "tags": {
-      "id": {
-        "title": "User ID",
-        "description": "The Instagram user ID"
-      }
-    }
-  },
-  "events": {},
   "actions": {
-    "getOrCreateUser": {
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "pictureUrl": {
-              "type": "string"
-            },
-            "email": {
-              "type": "string"
-            },
-            "user": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "description": "The Instagram user ID",
-                  "x-zui": {
-                    "title": "ID"
-                  }
-                }
-              },
-              "required": ["id"],
-              "additionalProperties": false,
-              "description": "The user object fields",
-              "x-zui": {
-                "title": "User"
-              }
-            }
-          },
-          "required": ["user"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "userId": {
-              "type": "string"
-            }
-          },
-          "required": ["userId"],
-          "additionalProperties": false
-        }
-      },
-      "title": "Get or Create a User",
-      "description": "Proactively create a user from a bot"
-    },
     "getOrCreateConversationDm": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "conversation": {
-              "type": "object",
+              "additionalProperties": false,
+              "description": "The conversation object fields",
               "properties": {
                 "id": {
-                  "type": "string",
                   "description": "The Instagram user ID of the user in the conversation",
-                  "x-zui": {
-                    "title": "User ID"
-                  }
+                  "type": "string",
+                  "x-zui": { "title": "User ID" }
                 }
               },
               "required": ["id"],
-              "additionalProperties": false,
-              "description": "The conversation object fields",
-              "x-zui": {
-                "title": "Conversation"
-              }
+              "type": "object",
+              "x-zui": { "title": "Conversation" }
             }
           },
           "required": ["conversation"],
-          "additionalProperties": false
+          "type": "object"
+        }
+      },
+      "name": "getOrCreateConversationDm",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "conversationId": { "type": "string" } },
+          "required": ["conversationId"],
+          "type": "object"
+        }
+      }
+    },
+    "getOrCreateUser": {
+      "description": "Proactively create a user from a bot",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "email": { "type": "string" },
+            "name": { "type": "string" },
+            "pictureUrl": { "type": "string" },
+            "user": {
+              "additionalProperties": false,
+              "description": "The user object fields",
+              "properties": {
+                "id": { "description": "The Instagram user ID", "type": "string", "x-zui": { "title": "ID" } }
+              },
+              "required": ["id"],
+              "type": "object",
+              "x-zui": { "title": "User" }
+            }
+          },
+          "required": ["user"],
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "conversationId": {
-              "type": "string"
-            }
-          },
-          "required": ["conversationId"],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "properties": { "userId": { "type": "string" } },
+          "required": ["userId"],
+          "type": "object"
         }
       },
-      "name": "getOrCreateConversationDm"
+      "title": "Get or Create a User"
     }
   },
   "channels": {
     "channel": {
-      "title": "Direct Message",
+      "conversation": {
+        "tags": {
+          "id": { "description": "The Instagram user ID of the user in the conversation", "title": "Conversation ID" }
+        }
+      },
       "description": "Direct message conversation between an Instagram user and the bot",
+      "message": {
+        "tags": {
+          "id": { "description": "The Instagram message ID", "title": "Message ID" },
+          "recipientId": { "description": "The Instagram user ID of the message recipient", "title": "Recipient ID" },
+          "senderId": { "description": "The Instagram user ID of the message sender", "title": "Sender ID" }
+        }
+      },
       "messages": {
-        "text": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "text": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": ["text"],
-            "additionalProperties": false
-          }
-        },
-        "image": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "imageUrl": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": ["imageUrl"],
-            "additionalProperties": false
-          }
-        },
         "audio": {
           "schema": {
-            "type": "object",
-            "properties": {
-              "audioUrl": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
+            "additionalProperties": false,
+            "properties": { "audioUrl": { "minLength": 1, "type": "string" } },
             "required": ["audioUrl"],
-            "additionalProperties": false
-          }
-        },
-        "video": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "videoUrl": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": ["videoUrl"],
-            "additionalProperties": false
-          }
-        },
-        "location": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "latitude": {
-                "type": "number"
-              },
-              "longitude": {
-                "type": "number"
-              },
-              "address": {
-                "type": "string"
-              },
-              "title": {
-                "type": "string"
-              }
-            },
-            "required": ["latitude", "longitude"],
-            "additionalProperties": false
-          }
-        },
-        "carousel": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "title": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "subtitle": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "imageUrl": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "actions": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "action": {
-                            "type": "string",
-                            "enum": ["postback", "url", "say"]
-                          },
-                          "label": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "value": {
-                            "type": "string",
-                            "minLength": 1
-                          }
-                        },
-                        "required": ["action", "label", "value"],
-                        "additionalProperties": false
-                      }
-                    }
-                  },
-                  "required": ["title", "actions"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["items"],
-            "additionalProperties": false
-          }
-        },
-        "card": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "title": {
-                "type": "string",
-                "minLength": 1
-              },
-              "subtitle": {
-                "type": "string",
-                "minLength": 1
-              },
-              "imageUrl": {
-                "type": "string",
-                "minLength": 1
-              },
-              "actions": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "action": {
-                      "type": "string",
-                      "enum": ["postback", "url", "say"]
-                    },
-                    "label": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "value": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  },
-                  "required": ["action", "label", "value"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["title", "actions"],
-            "additionalProperties": false
-          }
-        },
-        "dropdown": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "text": {
-                "type": "string",
-                "minLength": 1
-              },
-              "options": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "value": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  },
-                  "required": ["label", "value"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["text", "options"],
-            "additionalProperties": false
-          }
-        },
-        "choice": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "text": {
-                "type": "string",
-                "minLength": 1
-              },
-              "options": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "value": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  },
-                  "required": ["label", "value"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["text", "options"],
-            "additionalProperties": false
+            "type": "object"
           }
         },
         "bloc": {
           "schema": {
-            "type": "object",
+            "additionalProperties": false,
             "properties": {
               "items": {
-                "type": "array",
                 "items": {
                   "anyOf": [
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "text"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "text": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "text": { "minLength": 1, "type": "string" } },
                           "required": ["text"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "text", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "markdown"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "markdown": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "markdown": { "minLength": 1, "type": "string" } },
                           "required": ["markdown"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "markdown", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "image"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "imageUrl": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "imageUrl": { "minLength": 1, "type": "string" } },
                           "required": ["imageUrl"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "image", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "audio"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "audioUrl": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "audioUrl": { "minLength": 1, "type": "string" } },
                           "required": ["audioUrl"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "audio", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "video"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "videoUrl": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "videoUrl": { "minLength": 1, "type": "string" } },
                           "required": ["videoUrl"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "video", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "file"
-                        },
                         "payload": {
-                          "type": "object",
+                          "additionalProperties": false,
                           "properties": {
-                            "fileUrl": {
-                              "type": "string",
-                              "minLength": 1
-                            },
-                            "title": {
-                              "type": "string",
-                              "minLength": 1
-                            }
+                            "fileUrl": { "minLength": 1, "type": "string" },
+                            "title": { "minLength": 1, "type": "string" }
                           },
                           "required": ["fileUrl"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "file", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "location"
-                        },
                         "payload": {
-                          "type": "object",
+                          "additionalProperties": false,
                           "properties": {
-                            "latitude": {
-                              "type": "number"
-                            },
-                            "longitude": {
-                              "type": "number"
-                            },
-                            "address": {
-                              "type": "string"
-                            },
-                            "title": {
-                              "type": "string"
-                            }
+                            "address": { "type": "string" },
+                            "latitude": { "type": "number" },
+                            "longitude": { "type": "number" },
+                            "title": { "type": "string" }
                           },
                           "required": ["latitude", "longitude"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "location", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     }
                   ]
-                }
+                },
+                "type": "array"
               }
             },
             "required": ["items"],
-            "additionalProperties": false
+            "type": "object"
+          }
+        },
+        "card": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "actions": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "action": { "enum": ["postback", "url", "say"], "type": "string" },
+                    "label": { "minLength": 1, "type": "string" },
+                    "value": { "minLength": 1, "type": "string" }
+                  },
+                  "required": ["action", "label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "imageUrl": { "minLength": 1, "type": "string" },
+              "subtitle": { "minLength": 1, "type": "string" },
+              "title": { "minLength": 1, "type": "string" }
+            },
+            "required": ["title", "actions"],
+            "type": "object"
+          }
+        },
+        "carousel": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "actions": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "action": { "enum": ["postback", "url", "say"], "type": "string" },
+                          "label": { "minLength": 1, "type": "string" },
+                          "value": { "minLength": 1, "type": "string" }
+                        },
+                        "required": ["action", "label", "value"],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "imageUrl": { "minLength": 1, "type": "string" },
+                    "subtitle": { "minLength": 1, "type": "string" },
+                    "title": { "minLength": 1, "type": "string" }
+                  },
+                  "required": ["title", "actions"],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": ["items"],
+            "type": "object"
+          }
+        },
+        "choice": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "options": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "minLength": 1, "type": "string" },
+                    "value": { "minLength": 1, "type": "string" }
+                  },
+                  "required": ["label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "text": { "minLength": 1, "type": "string" }
+            },
+            "required": ["text", "options"],
+            "type": "object"
+          }
+        },
+        "dropdown": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "options": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "minLength": 1, "type": "string" },
+                    "value": { "minLength": 1, "type": "string" }
+                  },
+                  "required": ["label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "text": { "minLength": 1, "type": "string" }
+            },
+            "required": ["text", "options"],
+            "type": "object"
+          }
+        },
+        "image": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": { "imageUrl": { "minLength": 1, "type": "string" } },
+            "required": ["imageUrl"],
+            "type": "object"
+          }
+        },
+        "location": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "address": { "type": "string" },
+              "latitude": { "type": "number" },
+              "longitude": { "type": "number" },
+              "title": { "type": "string" }
+            },
+            "required": ["latitude", "longitude"],
+            "type": "object"
+          }
+        },
+        "text": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": { "text": { "minLength": 1, "type": "string" } },
+            "required": ["text"],
+            "type": "object"
+          }
+        },
+        "video": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": { "videoUrl": { "minLength": 1, "type": "string" } },
+            "required": ["videoUrl"],
+            "type": "object"
           }
         }
       },
-      "message": {
-        "tags": {
-          "id": {
-            "title": "Message ID",
-            "description": "The Instagram message ID"
-          },
-          "senderId": {
-            "title": "Sender ID",
-            "description": "The Instagram user ID of the message sender"
-          },
-          "recipientId": {
-            "title": "Recipient ID",
-            "description": "The Instagram user ID of the message recipient"
-          }
-        }
-      },
-      "conversation": {
-        "tags": {
-          "id": {
-            "title": "Conversation ID",
-            "description": "The Instagram user ID of the user in the conversation"
-          }
-        }
-      }
+      "title": "Direct Message"
     }
   },
+  "description": "Automate interactions, manage comments, and send/receive messages all in real-time.",
+  "entities": {
+    "dm": {
+      "description": "An Instagram direct message conversation",
+      "schema": {
+        "additionalProperties": false,
+        "description": "The conversation object fields",
+        "properties": {
+          "id": {
+            "description": "The Instagram user ID of the user in the conversation",
+            "type": "string",
+            "x-zui": { "title": "User ID" }
+          }
+        },
+        "required": ["id"],
+        "type": "object",
+        "x-zui": { "title": "Conversation" }
+      },
+      "title": "Direct Message"
+    },
+    "user": {
+      "description": "An Instagram user",
+      "schema": {
+        "additionalProperties": false,
+        "description": "The user object fields",
+        "properties": {
+          "id": { "description": "The Instagram user ID", "type": "string", "x-zui": { "title": "ID" } }
+        },
+        "required": ["id"],
+        "type": "object",
+        "x-zui": { "title": "User" }
+      },
+      "title": "User"
+    }
+  },
+  "events": {},
+  "interfaces": {
+    "proactiveConversation<dm>": {
+      "actions": { "getOrCreateConversation": { "name": "getOrCreateConversationDm" } },
+      "channels": {},
+      "entities": { "conversation": { "name": "dm" } },
+      "events": {},
+      "id": "",
+      "name": "proactiveConversation",
+      "version": "0.0.2"
+    },
+    "proactiveUser<user>": {
+      "actions": { "getOrCreateUser": { "name": "getOrCreateUser" } },
+      "channels": {},
+      "entities": { "user": { "name": "user" } },
+      "events": {},
+      "id": "",
+      "name": "proactiveUser",
+      "version": "0.0.2"
+    }
+  },
+  "name": "instagram",
   "states": {
     "oauth": {
-      "type": "integration",
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "accessToken": {
-            "type": "string",
             "description": "Access token used to authenticate requests to the Instagram API",
-            "x-zui": {
-              "title": "Access token"
-            }
-          },
-          "instagramId": {
             "type": "string",
-            "description": "The Instagram account ID associated with the access token",
-            "x-zui": {
-              "title": "Instagram account ID"
-            }
+            "x-zui": { "title": "Access token" }
           },
           "expirationTime": {
-            "type": "number",
             "description": "The time when the access token expires, expressed as a Unix timestamp (epoch) in milliseconds",
-            "x-zui": {
-              "title": "Expiration time"
-            }
+            "type": "number",
+            "x-zui": { "title": "Expiration time" }
+          },
+          "instagramId": {
+            "description": "The Instagram account ID associated with the access token",
+            "type": "string",
+            "x-zui": { "title": "Instagram account ID" }
           }
         },
         "required": ["accessToken", "instagramId", "expirationTime"],
-        "additionalProperties": false
-      }
+        "type": "object"
+      },
+      "type": "integration"
     }
   },
-  "entities": {
-    "user": {
-      "title": "User",
-      "description": "An Instagram user",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The Instagram user ID",
-            "x-zui": {
-              "title": "ID"
-            }
-          }
-        },
-        "required": ["id"],
-        "additionalProperties": false,
-        "description": "The user object fields",
-        "x-zui": {
-          "title": "User"
-        }
-      }
-    },
-    "dm": {
-      "title": "Direct Message",
-      "description": "An Instagram direct message conversation",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The Instagram user ID of the user in the conversation",
-            "x-zui": {
-              "title": "User ID"
-            }
-          }
-        },
-        "required": ["id"],
-        "additionalProperties": false,
-        "description": "The conversation object fields",
-        "x-zui": {
-          "title": "Conversation"
-        }
-      }
-    }
-  },
-  "interfaces": {
-    "proactiveUser<user>": {
-      "id": "",
-      "name": "proactiveUser",
-      "version": "0.0.2",
-      "entities": {
-        "user": {
-          "name": "user"
-        }
-      },
-      "actions": {
-        "getOrCreateUser": {
-          "name": "getOrCreateUser"
-        }
-      },
-      "events": {},
-      "channels": {}
-    },
-    "proactiveConversation<dm>": {
-      "id": "",
-      "name": "proactiveConversation",
-      "version": "0.0.2",
-      "entities": {
-        "conversation": {
-          "name": "dm"
-        }
-      },
-      "actions": {
-        "getOrCreateConversation": {
-          "name": "getOrCreateConversationDm"
-        }
-      },
-      "events": {},
-      "channels": {}
-    }
-  }
+  "title": "Instagram",
+  "user": { "tags": { "id": { "description": "The Instagram user ID", "title": "User ID" } } },
+  "version": "3.0.0"
 }

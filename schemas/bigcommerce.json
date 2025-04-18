@@ -1,42 +1,27 @@
 {
-  "name": "bigcommerce",
-  "version": "3.0.1",
-  "title": "BigCommerce",
-  "description": "Sync products from BigCommerce to Botpress",
   "actions": {
     "syncProducts": {
-      "title": "Sync Products",
       "description": "Get all products from BigCommerce and sync them to a Botpress table",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      },
+      "input": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "success": {
-              "type": "boolean",
-              "description": "Whether the sync was successful"
-            },
-            "message": {
-              "type": "string",
-              "description": "Status message"
-            },
-            "productsCount": {
-              "type": "number",
-              "description": "Number of products synced"
-            }
+            "message": { "description": "Status message", "type": "string" },
+            "productsCount": { "description": "Number of products synced", "type": "number" },
+            "success": { "description": "Whether the sync was successful", "type": "boolean" }
           },
           "required": ["success", "message", "productsCount"],
-          "additionalProperties": false
+          "type": "object"
         }
-      }
+      },
+      "title": "Sync Products"
     }
   },
+  "description": "Sync products from BigCommerce to Botpress",
+  "interfaces": {},
+  "name": "bigcommerce",
   "states": {},
-  "interfaces": {}
+  "title": "BigCommerce",
+  "version": "3.0.1"
 }

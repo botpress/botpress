@@ -1,1725 +1,1076 @@
 {
-  "name": "zendesk",
-  "version": "1.1.1",
-  "title": "Zendesk",
-  "description": "Optimize your support workflow. Trigger workflows from ticket updates as well as manage tickets, access conversations, and engage with customers.",
-  "user": {
-    "tags": {
-      "id": {},
-      "email": {},
-      "role": {}
-    }
-  },
-  "events": {
-    "articlePublished": {
-      "title": "Article Published",
-      "description": "Triggered when an article is published",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "articleId": {
-            "type": "string"
-          },
-          "articleTitle": {
-            "type": "string"
-          }
-        },
-        "required": ["articleId", "articleTitle"],
-        "additionalProperties": false
-      },
-      "ui": {}
-    },
-    "articleUnpublished": {
-      "title": "Article Unpublished",
-      "description": "Triggered when an article is unpublished",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "articleId": {
-            "type": "string"
-          }
-        },
-        "required": ["articleId"],
-        "additionalProperties": false
-      },
-      "ui": {}
-    },
-    "hitlAssigned": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "conversationId": {
-            "type": "string"
-          },
-          "userId": {
-            "type": "string"
-          }
-        },
-        "required": ["conversationId", "userId"],
-        "additionalProperties": false
-      }
-    },
-    "hitlStopped": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "conversationId": {
-            "type": "string"
-          }
-        },
-        "required": ["conversationId"],
-        "additionalProperties": false
-      }
-    }
-  },
   "actions": {
-    "getTicket": {
-      "title": "Get ticket",
-      "description": "Get Ticket by id.",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "ticketId": {
-              "type": "string",
-              "description": "The ID of the ticket",
-
-              "title": "Ticket id"
-            }
-          },
-          "required": ["ticketId"],
-          "additionalProperties": false
-        },
-        "ui": {
-          "ticketId": {
-            "title": "Ticket id"
-          }
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "ticket": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "subject": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "status": {
-                  "type": "string",
-                  "enum": ["new", "open", "pending", "hold", "solved", "closed"]
-                },
-                "priority": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "enum": ["low", "normal", "high", "urgent"]
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "requesterId": {
-                  "type": "number"
-                },
-                "assigneeId": {
-                  "type": ["number", "null"]
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
-                },
-                "tags": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "externalId": {
-                  "type": ["string", "null"]
-                },
-                "comment": {
-                  "type": "object",
-                  "additionalProperties": {}
-                }
-              },
-              "required": [
-                "id",
-                "subject",
-                "description",
-                "status",
-                "priority",
-                "requesterId",
-                "assigneeId",
-                "createdAt",
-                "updatedAt",
-                "tags",
-                "externalId"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": ["ticket"],
-          "additionalProperties": false
-        }
-      }
-    },
-    "findCustomer": {
-      "title": "Find Customer",
-      "description": "Find a Customer in Zendesk",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "query": {
-              "type": "string",
-              "minLength": 2,
-              "description": "partial or full value of any user property, including name, email address, notes, or phone.",
-
-              "title": "Search Query"
-            }
-          },
-          "required": ["query"],
-          "additionalProperties": false
-        },
-        "ui": {
-          "query": {
-            "title": "Search Query"
-          }
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "customers": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "number"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  },
-                  "phone": {
-                    "type": ["string", "null"]
-                  },
-                  "photo": {
-                    "type": ["string", "null"]
-                  },
-                  "remotePhotoUrl": {
-                    "type": ["string", "null"]
-                  },
-                  "role": {
-                    "type": "string",
-                    "enum": ["end-user", "agent", "admin"]
-                  },
-                  "tags": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "createdAt": {
-                    "type": "string"
-                  },
-                  "updatedAt": {
-                    "type": "string"
-                  },
-                  "externalId": {
-                    "type": ["string", "null"]
-                  },
-                  "userFields": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "required": ["id", "name", "email", "role", "tags", "createdAt", "updatedAt", "externalId"],
-                "additionalProperties": false
-              }
-            }
-          },
-          "required": ["customers"],
-          "additionalProperties": false
-        }
-      }
-    },
-    "createTicket": {
-      "title": "Create Ticket",
-      "description": "Creates a new ticket in Zendesk",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "subject": {
-              "type": "string",
-              "description": "Subject for the ticket",
-
-              "title": "Ticket subject"
-            },
-            "comment": {
-              "type": "string",
-              "description": "Comment for the ticket",
-
-              "title": "Ticket comment"
-            },
-            "requesterName": {
-              "type": "string",
-              "description": "Requester name",
-
-              "title": "Requester name"
-            },
-            "requesterEmail": {
-              "type": "string",
-              "description": "Requester email",
-
-              "title": "Requester email"
-            }
-          },
-          "required": ["subject", "comment", "requesterName", "requesterEmail"],
-          "additionalProperties": false
-        },
-        "ui": {
-          "subject": {
-            "title": "Ticket subject"
-          },
-          "comment": {
-            "title": "Ticket comment"
-          },
-          "requesterName": {
-            "title": "Requester name"
-          },
-          "requesterEmail": {
-            "title": "Requester email"
-          }
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "ticket": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "subject": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "status": {
-                  "type": "string",
-                  "enum": ["new", "open", "pending", "hold", "solved", "closed"]
-                },
-                "priority": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "enum": ["low", "normal", "high", "urgent"]
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "requesterId": {
-                  "type": "number"
-                },
-                "assigneeId": {
-                  "type": ["number", "null"]
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
-                },
-                "tags": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "externalId": {
-                  "type": ["string", "null"]
-                },
-                "comment": {
-                  "type": "object",
-                  "additionalProperties": {}
-                }
-              },
-              "required": [
-                "id",
-                "subject",
-                "description",
-                "status",
-                "priority",
-                "requesterId",
-                "assigneeId",
-                "createdAt",
-                "updatedAt",
-                "tags",
-                "externalId"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": ["ticket"],
-          "additionalProperties": false
-        }
-      }
-    },
-    "closeTicket": {
-      "title": "Close ticket",
-      "description": "Close a ticket by its id.",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "ticketId": {
-              "type": "string",
-              "description": "ID of the ticket to close",
-
-              "title": "Ticket ID"
-            },
-            "comment": {
-              "type": "string",
-
-              "description": "Closing comment",
-              "title": "Closing comment"
-            }
-          },
-          "required": ["ticketId"],
-          "additionalProperties": false
-        },
-        "ui": {
-          "ticketId": {
-            "title": "Ticket ID"
-          },
-          "comment": {
-            "title": "Closing comment"
-          }
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "ticket": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "number"
-                },
-                "subject": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "status": {
-                  "type": "string",
-                  "enum": ["new", "open", "pending", "hold", "solved", "closed"]
-                },
-                "priority": {
-                  "anyOf": [
-                    {
-                      "type": "string",
-                      "enum": ["low", "normal", "high", "urgent"]
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "requesterId": {
-                  "type": "number"
-                },
-                "assigneeId": {
-                  "type": ["number", "null"]
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "updatedAt": {
-                  "type": "string"
-                },
-                "tags": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "externalId": {
-                  "type": ["string", "null"]
-                },
-                "comment": {
-                  "type": "object",
-                  "additionalProperties": {}
-                }
-              },
-              "required": [
-                "id",
-                "subject",
-                "description",
-                "status",
-                "priority",
-                "requesterId",
-                "assigneeId",
-                "createdAt",
-                "updatedAt",
-                "tags",
-                "externalId"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": ["ticket"],
-          "additionalProperties": false
-        }
-      }
-    },
-    "listAgents": {
-      "title": "List Agents",
-      "description": "List agents",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "isOnline": {
-              "type": "boolean",
-
-              "default": true,
-              "description": "Only return agents that are currently online"
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "agents": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "number"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  },
-                  "phone": {
-                    "type": ["string", "null"]
-                  },
-                  "photo": {
-                    "type": ["string", "null"]
-                  },
-                  "remotePhotoUrl": {
-                    "type": ["string", "null"]
-                  },
-                  "role": {
-                    "type": "string",
-                    "enum": ["end-user", "agent", "admin"]
-                  },
-                  "tags": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "createdAt": {
-                    "type": "string"
-                  },
-                  "updatedAt": {
-                    "type": "string"
-                  },
-                  "externalId": {
-                    "type": ["string", "null"]
-                  },
-                  "userFields": {
-                    "type": "object",
-                    "additionalProperties": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "required": ["id", "name", "email", "role", "tags", "createdAt", "updatedAt", "externalId"],
-                "additionalProperties": false
-              }
-            }
-          },
-          "required": ["agents"],
-          "additionalProperties": false
-        }
-      }
-    },
     "callApi": {
-      "title": "Call API",
       "description": "Call Zendesk API",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
+            "headers": { "description": "Headers (JSON)", "type": "string" },
             "method": {
-              "type": "string",
+              "description": "HTTP Method",
               "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
-              "description": "HTTP Method"
+              "type": "string"
             },
-            "path": {
-              "type": "string",
-              "description": "URL Path (https://<subdomain>.zendesk.com/api/v2/PATH)"
-            },
-            "headers": {
-              "type": "string",
-
-              "description": "Headers (JSON)"
-            },
-            "params": {
-              "type": "string",
-
-              "description": "Query Params (JSON)"
-            },
-            "requestBody": {
-              "type": "string",
-
-              "description": "Request Body (JSON)"
-            }
+            "params": { "description": "Query Params (JSON)", "type": "string" },
+            "path": { "description": "URL Path (https://<subdomain>.zendesk.com/api/v2/PATH)", "type": "string" },
+            "requestBody": { "description": "Request Body (JSON)", "type": "string" }
           },
           "required": ["method", "path"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "status": {
-              "type": "number"
-            },
-            "headers": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "string"
-              }
-            },
-            "data": {
-              "type": "object",
-              "additionalProperties": {}
-            }
+            "data": { "additionalProperties": {}, "type": "object" },
+            "headers": { "additionalProperties": { "type": "string" }, "type": "object" },
+            "status": { "type": "number" }
           },
           "required": ["status", "headers", "data"],
-          "additionalProperties": false
+          "type": "object"
         }
-      }
+      },
+      "title": "Call API"
     },
-    "syncKb": {
-      "title": "Sync Knowledge Base",
-      "description": "Sync Zendesk knowledge base to bot knowledge base",
+    "closeTicket": {
+      "description": "Close a ticket by its id.",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "knowledgeBaseId": {
-              "type": "string",
-              "description": "ID of the bot knowledge base you want to sync with"
+            "comment": { "description": "Closing comment", "title": "Closing comment", "type": "string" },
+            "ticketId": { "description": "ID of the ticket to close", "title": "Ticket ID", "type": "string" }
+          },
+          "required": ["ticketId"],
+          "type": "object"
+        },
+        "ui": { "comment": { "title": "Closing comment" }, "ticketId": { "title": "Ticket ID" } }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "ticket": {
+              "additionalProperties": false,
+              "properties": {
+                "assigneeId": { "type": ["number", "null"] },
+                "comment": { "additionalProperties": {}, "type": "object" },
+                "createdAt": { "type": "string" },
+                "description": { "type": "string" },
+                "externalId": { "type": ["string", "null"] },
+                "id": { "type": "number" },
+                "priority": {
+                  "anyOf": [{ "enum": ["low", "normal", "high", "urgent"], "type": "string" }, { "type": "null" }]
+                },
+                "requesterId": { "type": "number" },
+                "status": { "enum": ["new", "open", "pending", "hold", "solved", "closed"], "type": "string" },
+                "subject": { "type": "string" },
+                "tags": { "items": { "type": "string" }, "type": "array" },
+                "updatedAt": { "type": "string" }
+              },
+              "required": [
+                "id",
+                "subject",
+                "description",
+                "status",
+                "priority",
+                "requesterId",
+                "assigneeId",
+                "createdAt",
+                "updatedAt",
+                "tags",
+                "externalId"
+              ],
+              "type": "object"
             }
           },
-          "required": ["knowledgeBaseId"],
-          "additionalProperties": false
+          "required": ["ticket"],
+          "type": "object"
+        }
+      },
+      "title": "Close ticket"
+    },
+    "createTicket": {
+      "description": "Creates a new ticket in Zendesk",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "comment": { "description": "Comment for the ticket", "title": "Ticket comment", "type": "string" },
+            "requesterEmail": { "description": "Requester email", "title": "Requester email", "type": "string" },
+            "requesterName": { "description": "Requester name", "title": "Requester name", "type": "string" },
+            "subject": { "description": "Subject for the ticket", "title": "Ticket subject", "type": "string" }
+          },
+          "required": ["subject", "comment", "requesterName", "requesterEmail"],
+          "type": "object"
+        },
+        "ui": {
+          "comment": { "title": "Ticket comment" },
+          "requesterEmail": { "title": "Requester email" },
+          "requesterName": { "title": "Requester name" },
+          "subject": { "title": "Ticket subject" }
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "success": {
-              "type": "boolean"
+            "ticket": {
+              "additionalProperties": false,
+              "properties": {
+                "assigneeId": { "type": ["number", "null"] },
+                "comment": { "additionalProperties": {}, "type": "object" },
+                "createdAt": { "type": "string" },
+                "description": { "type": "string" },
+                "externalId": { "type": ["string", "null"] },
+                "id": { "type": "number" },
+                "priority": {
+                  "anyOf": [{ "enum": ["low", "normal", "high", "urgent"], "type": "string" }, { "type": "null" }]
+                },
+                "requesterId": { "type": "number" },
+                "status": { "enum": ["new", "open", "pending", "hold", "solved", "closed"], "type": "string" },
+                "subject": { "type": "string" },
+                "tags": { "items": { "type": "string" }, "type": "array" },
+                "updatedAt": { "type": "string" }
+              },
+              "required": [
+                "id",
+                "subject",
+                "description",
+                "status",
+                "priority",
+                "requesterId",
+                "assigneeId",
+                "createdAt",
+                "updatedAt",
+                "tags",
+                "externalId"
+              ],
+              "type": "object"
             }
           },
-          "required": ["success"],
-          "additionalProperties": false
+          "required": ["ticket"],
+          "type": "object"
         }
-      }
+      },
+      "title": "Create Ticket"
     },
     "createUser": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "name": {
-              "type": "string"
-            },
-            "pictureUrl": {
-              "type": "string"
-            },
-            "email": {
-              "type": "string"
-            }
+            "email": { "type": "string" },
+            "name": { "type": "string" },
+            "pictureUrl": { "type": "string" }
           },
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
+          "properties": { "userId": { "type": "string" } },
+          "required": ["userId"],
+          "type": "object"
+        }
+      }
+    },
+    "findCustomer": {
+      "description": "Find a Customer in Zendesk",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
           "properties": {
-            "userId": {
+            "query": {
+              "description": "partial or full value of any user property, including name, email address, notes, or phone.",
+              "minLength": 2,
+              "title": "Search Query",
               "type": "string"
             }
           },
-          "required": ["userId"],
-          "additionalProperties": false
+          "required": ["query"],
+          "type": "object"
+        },
+        "ui": { "query": { "title": "Search Query" } }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "customers": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "createdAt": { "type": "string" },
+                  "email": { "type": "string" },
+                  "externalId": { "type": ["string", "null"] },
+                  "id": { "type": "number" },
+                  "name": { "type": "string" },
+                  "phone": { "type": ["string", "null"] },
+                  "photo": { "type": ["string", "null"] },
+                  "remotePhotoUrl": { "type": ["string", "null"] },
+                  "role": { "enum": ["end-user", "agent", "admin"], "type": "string" },
+                  "tags": { "items": { "type": "string" }, "type": "array" },
+                  "updatedAt": { "type": "string" },
+                  "userFields": { "additionalProperties": { "type": "string" }, "type": "object" }
+                },
+                "required": ["id", "name", "email", "role", "tags", "createdAt", "updatedAt", "externalId"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["customers"],
+          "type": "object"
         }
-      }
+      },
+      "title": "Find Customer"
+    },
+    "getTicket": {
+      "description": "Get Ticket by id.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "ticketId": { "description": "The ID of the ticket", "title": "Ticket id", "type": "string" }
+          },
+          "required": ["ticketId"],
+          "type": "object"
+        },
+        "ui": { "ticketId": { "title": "Ticket id" } }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "ticket": {
+              "additionalProperties": false,
+              "properties": {
+                "assigneeId": { "type": ["number", "null"] },
+                "comment": { "additionalProperties": {}, "type": "object" },
+                "createdAt": { "type": "string" },
+                "description": { "type": "string" },
+                "externalId": { "type": ["string", "null"] },
+                "id": { "type": "number" },
+                "priority": {
+                  "anyOf": [{ "enum": ["low", "normal", "high", "urgent"], "type": "string" }, { "type": "null" }]
+                },
+                "requesterId": { "type": "number" },
+                "status": { "enum": ["new", "open", "pending", "hold", "solved", "closed"], "type": "string" },
+                "subject": { "type": "string" },
+                "tags": { "items": { "type": "string" }, "type": "array" },
+                "updatedAt": { "type": "string" }
+              },
+              "required": [
+                "id",
+                "subject",
+                "description",
+                "status",
+                "priority",
+                "requesterId",
+                "assigneeId",
+                "createdAt",
+                "updatedAt",
+                "tags",
+                "externalId"
+              ],
+              "type": "object"
+            }
+          },
+          "required": ["ticket"],
+          "type": "object"
+        }
+      },
+      "title": "Get ticket"
+    },
+    "listAgents": {
+      "description": "List agents",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "isOnline": {
+              "default": true,
+              "description": "Only return agents that are currently online",
+              "type": "boolean"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "agents": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "createdAt": { "type": "string" },
+                  "email": { "type": "string" },
+                  "externalId": { "type": ["string", "null"] },
+                  "id": { "type": "number" },
+                  "name": { "type": "string" },
+                  "phone": { "type": ["string", "null"] },
+                  "photo": { "type": ["string", "null"] },
+                  "remotePhotoUrl": { "type": ["string", "null"] },
+                  "role": { "enum": ["end-user", "agent", "admin"], "type": "string" },
+                  "tags": { "items": { "type": "string" }, "type": "array" },
+                  "updatedAt": { "type": "string" },
+                  "userFields": { "additionalProperties": { "type": "string" }, "type": "object" }
+                },
+                "required": ["id", "name", "email", "role", "tags", "createdAt", "updatedAt", "externalId"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["agents"],
+          "type": "object"
+        }
+      },
+      "title": "List Agents"
     },
     "startHitl": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "userId": {
-              "type": "string"
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
+            "description": { "type": "string" },
             "messageHistory": {
-              "type": "array",
               "items": {
                 "anyOf": [
                   {
-                    "type": "object",
+                    "additionalProperties": false,
                     "properties": {
-                      "source": {
-                        "anyOf": [
-                          {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
-                            },
-                            "required": ["type", "userId"],
-                            "additionalProperties": false
-                          },
-                          {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
-                            "required": ["type"],
-                            "additionalProperties": false
-                          }
-                        ]
-                      },
-                      "type": {
-                        "type": "string",
-                        "const": "text"
-                      },
                       "payload": {
-                        "type": "object",
-                        "properties": {
-                          "text": {
-                            "type": "string"
-                          }
-                        },
+                        "additionalProperties": false,
+                        "properties": { "text": { "type": "string" } },
                         "required": ["text"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "image"
-                      },
+                      "type": { "const": "text", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
-                        "properties": {
-                          "imageUrl": {
-                            "type": "string"
-                          }
-                        },
+                        "additionalProperties": false,
+                        "properties": { "imageUrl": { "type": "string" } },
                         "required": ["imageUrl"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "audio"
-                      },
+                      "type": { "const": "image", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
-                        "properties": {
-                          "audioUrl": {
-                            "type": "string"
-                          }
-                        },
+                        "additionalProperties": false,
+                        "properties": { "audioUrl": { "type": "string" } },
                         "required": ["audioUrl"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "video"
-                      },
+                      "type": { "const": "audio", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
-                        "properties": {
-                          "videoUrl": {
-                            "type": "string"
-                          }
-                        },
+                        "additionalProperties": false,
+                        "properties": { "videoUrl": { "type": "string" } },
                         "required": ["videoUrl"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "file"
-                      },
+                      "type": { "const": "video", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
-                        "properties": {
-                          "fileUrl": {
-                            "type": "string"
-                          },
-                          "title": {
-                            "type": "string"
-                          }
-                        },
+                        "additionalProperties": false,
+                        "properties": { "fileUrl": { "type": "string" }, "title": { "type": "string" } },
                         "required": ["fileUrl"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "location"
-                      },
+                      "type": { "const": "file", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
-                          "latitude": {
-                            "type": "number"
-                          },
-                          "longitude": {
-                            "type": "number"
-                          },
-                          "address": {
-                            "type": "string"
-                          },
-                          "title": {
-                            "type": "string"
-                          }
+                          "address": { "type": "string" },
+                          "latitude": { "type": "number" },
+                          "longitude": { "type": "number" },
+                          "title": { "type": "string" }
                         },
                         "required": ["latitude", "longitude"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "carousel"
-                      },
+                      "type": { "const": "location", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
                           "items": {
-                            "type": "array",
                             "items": {
-                              "type": "object",
+                              "additionalProperties": false,
                               "properties": {
-                                "title": {
-                                  "type": "string"
-                                },
-                                "subtitle": {
-                                  "type": "string"
-                                },
-                                "imageUrl": {
-                                  "type": "string"
-                                },
                                 "actions": {
-                                  "type": "array",
                                   "items": {
-                                    "type": "object",
+                                    "additionalProperties": false,
                                     "properties": {
-                                      "action": {
-                                        "type": "string",
-                                        "enum": ["postback", "url", "say"]
-                                      },
-                                      "label": {
-                                        "type": "string"
-                                      },
-                                      "value": {
-                                        "type": "string"
-                                      }
+                                      "action": { "enum": ["postback", "url", "say"], "type": "string" },
+                                      "label": { "type": "string" },
+                                      "value": { "type": "string" }
                                     },
                                     "required": ["action", "label", "value"],
-                                    "additionalProperties": false
-                                  }
-                                }
+                                    "type": "object"
+                                  },
+                                  "type": "array"
+                                },
+                                "imageUrl": { "type": "string" },
+                                "subtitle": { "type": "string" },
+                                "title": { "type": "string" }
                               },
                               "required": ["title", "actions"],
-                              "additionalProperties": false
-                            }
+                              "type": "object"
+                            },
+                            "type": "array"
                           }
                         },
                         "required": ["items"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "card"
-                      },
+                      "type": { "const": "carousel", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
-                          "title": {
-                            "type": "string"
-                          },
-                          "subtitle": {
-                            "type": "string"
-                          },
-                          "imageUrl": {
-                            "type": "string"
-                          },
                           "actions": {
-                            "type": "array",
                             "items": {
-                              "type": "object",
+                              "additionalProperties": false,
                               "properties": {
-                                "action": {
-                                  "type": "string",
-                                  "enum": ["postback", "url", "say"]
-                                },
-                                "label": {
-                                  "type": "string"
-                                },
-                                "value": {
-                                  "type": "string"
-                                }
+                                "action": { "enum": ["postback", "url", "say"], "type": "string" },
+                                "label": { "type": "string" },
+                                "value": { "type": "string" }
                               },
                               "required": ["action", "label", "value"],
-                              "additionalProperties": false
-                            }
-                          }
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "imageUrl": { "type": "string" },
+                          "subtitle": { "type": "string" },
+                          "title": { "type": "string" }
                         },
                         "required": ["title", "actions"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "dropdown"
-                      },
+                      "type": { "const": "card", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
-                          "text": {
-                            "type": "string"
-                          },
                           "options": {
-                            "type": "array",
                             "items": {
-                              "type": "object",
-                              "properties": {
-                                "label": {
-                                  "type": "string"
-                                },
-                                "value": {
-                                  "type": "string"
-                                }
-                              },
+                              "additionalProperties": false,
+                              "properties": { "label": { "type": "string" }, "value": { "type": "string" } },
                               "required": ["label", "value"],
-                              "additionalProperties": false
-                            }
-                          }
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "text": { "type": "string" }
                         },
                         "required": ["text", "options"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "choice"
-                      },
+                      "type": { "const": "dropdown", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
-                          "text": {
-                            "type": "string"
-                          },
                           "options": {
-                            "type": "array",
                             "items": {
-                              "type": "object",
-                              "properties": {
-                                "label": {
-                                  "type": "string"
-                                },
-                                "value": {
-                                  "type": "string"
-                                }
-                              },
+                              "additionalProperties": false,
+                              "properties": { "label": { "type": "string" }, "value": { "type": "string" } },
                               "required": ["label", "value"],
-                              "additionalProperties": false
-                            }
-                          }
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "text": { "type": "string" }
                         },
                         "required": ["text", "options"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "bloc"
-                      },
+                      "type": { "const": "choice", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
                           "items": {
-                            "type": "array",
                             "items": {
                               "anyOf": [
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "text"
-                                    },
                                     "payload": {
-                                      "type": "object",
-                                      "properties": {
-                                        "text": {
-                                          "type": "string"
-                                        }
-                                      },
+                                      "additionalProperties": false,
+                                      "properties": { "text": { "type": "string" } },
                                       "required": ["text"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "text", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 },
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "markdown"
-                                    },
                                     "payload": {
-                                      "type": "object",
-                                      "properties": {
-                                        "markdown": {
-                                          "type": "string"
-                                        }
-                                      },
+                                      "additionalProperties": false,
+                                      "properties": { "markdown": { "type": "string" } },
                                       "required": ["markdown"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "markdown", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 },
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "image"
-                                    },
                                     "payload": {
-                                      "type": "object",
-                                      "properties": {
-                                        "imageUrl": {
-                                          "type": "string"
-                                        }
-                                      },
+                                      "additionalProperties": false,
+                                      "properties": { "imageUrl": { "type": "string" } },
                                       "required": ["imageUrl"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "image", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 },
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "audio"
-                                    },
                                     "payload": {
-                                      "type": "object",
-                                      "properties": {
-                                        "audioUrl": {
-                                          "type": "string"
-                                        }
-                                      },
+                                      "additionalProperties": false,
+                                      "properties": { "audioUrl": { "type": "string" } },
                                       "required": ["audioUrl"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "audio", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 },
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "video"
-                                    },
                                     "payload": {
-                                      "type": "object",
-                                      "properties": {
-                                        "videoUrl": {
-                                          "type": "string"
-                                        }
-                                      },
+                                      "additionalProperties": false,
+                                      "properties": { "videoUrl": { "type": "string" } },
                                       "required": ["videoUrl"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "video", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 },
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "file"
-                                    },
                                     "payload": {
-                                      "type": "object",
-                                      "properties": {
-                                        "fileUrl": {
-                                          "type": "string"
-                                        },
-                                        "title": {
-                                          "type": "string"
-                                        }
-                                      },
+                                      "additionalProperties": false,
+                                      "properties": { "fileUrl": { "type": "string" }, "title": { "type": "string" } },
                                       "required": ["fileUrl"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "file", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 },
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "location"
-                                    },
                                     "payload": {
-                                      "type": "object",
+                                      "additionalProperties": false,
                                       "properties": {
-                                        "latitude": {
-                                          "type": "number"
-                                        },
-                                        "longitude": {
-                                          "type": "number"
-                                        },
-                                        "address": {
-                                          "type": "string"
-                                        },
-                                        "title": {
-                                          "type": "string"
-                                        }
+                                        "address": { "type": "string" },
+                                        "latitude": { "type": "number" },
+                                        "longitude": { "type": "number" },
+                                        "title": { "type": "string" }
                                       },
                                       "required": ["latitude", "longitude"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "location", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 }
                               ]
-                            }
+                            },
+                            "type": "array"
                           }
                         },
                         "required": ["items"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "markdown"
-                      },
-                      "payload": {
-                        "type": "object",
-                        "properties": {
-                          "markdown": {
-                            "type": "string"
-                          }
-                        },
-                        "required": ["markdown"],
-                        "additionalProperties": false
-                      }
+                      "type": { "const": "bloc", "type": "string" }
                     },
                     "required": ["source", "type", "payload"],
-                    "additionalProperties": false
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "payload": {
+                        "additionalProperties": false,
+                        "properties": { "markdown": { "type": "string" } },
+                        "required": ["markdown"],
+                        "type": "object"
+                      },
+                      "source": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
+                            },
+                            "required": ["type", "userId"],
+                            "type": "object"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
+                            "required": ["type"],
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      "type": { "const": "markdown", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
                   }
                 ]
-              }
-            }
+              },
+              "type": "array"
+            },
+            "title": { "type": "string" },
+            "userId": { "type": "string" }
           },
           "required": ["userId", "title"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "conversationId": {
-              "type": "string"
-            }
-          },
+          "additionalProperties": false,
+          "properties": { "conversationId": { "type": "string" } },
           "required": ["conversationId"],
-          "additionalProperties": false
+          "type": "object"
         }
       }
     },
     "stopHitl": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "conversationId": {
-              "type": "string"
-            },
-            "reason": {
-              "type": "string",
-              "enum": ["timeout", "cancel"]
-            }
+            "conversationId": { "type": "string" },
+            "reason": { "enum": ["timeout", "cancel"], "type": "string" }
           },
           "required": ["conversationId"],
-          "additionalProperties": false
+          "type": "object"
+        }
+      },
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } }
+    },
+    "syncKb": {
+      "description": "Sync Zendesk knowledge base to bot knowledge base",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "knowledgeBaseId": { "description": "ID of the bot knowledge base you want to sync with", "type": "string" }
+          },
+          "required": ["knowledgeBaseId"],
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
+          "additionalProperties": false,
+          "properties": { "success": { "type": "boolean" } },
+          "required": ["success"],
+          "type": "object"
         }
-      }
+      },
+      "title": "Sync Knowledge Base"
     }
   },
   "channels": {
     "hitl": {
+      "conversation": { "tags": { "id": { "title": "Zendesk Ticket ID" } } },
+      "message": {
+        "tags": {
+          "zendeskCommentId": { "description": "The ID of the comment in Zendesk", "title": "Zendesk Comment ID" }
+        }
+      },
       "messages": {
         "text": {
           "schema": {
-            "type": "object",
-            "properties": {
-              "text": {
-                "type": "string"
-              },
-              "userId": {
-                "type": "string"
-              }
-            },
+            "additionalProperties": false,
+            "properties": { "text": { "type": "string" }, "userId": { "type": "string" } },
             "required": ["text"],
-            "additionalProperties": false
+            "type": "object"
           }
         }
       },
-      "title": "Zendesk Ticket",
-      "conversation": {
-        "tags": {
-          "id": {
-            "title": "Zendesk Ticket ID"
-          }
-        }
-      },
-      "message": {
-        "tags": {
-          "zendeskCommentId": {
-            "title": "Zendesk Comment ID",
-            "description": "The ID of the comment in Zendesk"
-          }
-        }
-      }
+      "title": "Zendesk Ticket"
     }
   },
-  "states": {
-    "subscriptionInfo": {
-      "type": "integration",
+  "description": "Optimize your support workflow. Trigger workflows from ticket updates as well as manage tickets, access conversations, and engage with customers.",
+  "events": {
+    "articlePublished": {
+      "description": "Triggered when an article is published",
       "schema": {
-        "type": "object",
-        "properties": {
-          "subscriptionId": {
-            "type": "string"
-          },
-          "triggerIds": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": ["subscriptionId", "triggerIds"],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": { "articleId": { "type": "string" }, "articleTitle": { "type": "string" } },
+        "required": ["articleId", "articleTitle"],
+        "type": "object"
+      },
+      "title": "Article Published",
+      "ui": {}
+    },
+    "articleUnpublished": {
+      "description": "Triggered when an article is unpublished",
+      "schema": {
+        "additionalProperties": false,
+        "properties": { "articleId": { "type": "string" } },
+        "required": ["articleId"],
+        "type": "object"
+      },
+      "title": "Article Unpublished",
+      "ui": {}
+    },
+    "hitlAssigned": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": { "conversationId": { "type": "string" }, "userId": { "type": "string" } },
+        "required": ["conversationId", "userId"],
+        "type": "object"
+      }
+    },
+    "hitlStopped": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": { "conversationId": { "type": "string" } },
+        "required": ["conversationId"],
+        "type": "object"
       }
     }
   },
   "interfaces": {
     "hitl": {
+      "actions": {
+        "createUser": { "name": "createUser" },
+        "startHitl": { "name": "startHitl" },
+        "stopHitl": { "name": "stopHitl" }
+      },
+      "channels": { "hitl": { "name": "hitl" } },
+      "entities": {},
+      "events": { "hitlAssigned": { "name": "hitlAssigned" }, "hitlStopped": { "name": "hitlStopped" } },
       "id": "",
       "name": "hitl",
-      "version": "0.4.0",
-      "entities": {},
-      "actions": {
-        "createUser": {
-          "name": "createUser"
-        },
-        "startHitl": {
-          "name": "startHitl"
-        },
-        "stopHitl": {
-          "name": "stopHitl"
-        }
-      },
-      "events": {
-        "hitlAssigned": {
-          "name": "hitlAssigned"
-        },
-        "hitlStopped": {
-          "name": "hitlStopped"
-        }
-      },
-      "channels": {
-        "hitl": {
-          "name": "hitl"
-        }
-      }
+      "version": "0.4.0"
     }
-  }
+  },
+  "name": "zendesk",
+  "states": {
+    "subscriptionInfo": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "subscriptionId": { "type": "string" },
+          "triggerIds": { "items": { "type": "string" }, "type": "array" }
+        },
+        "required": ["subscriptionId", "triggerIds"],
+        "type": "object"
+      },
+      "type": "integration"
+    }
+  },
+  "title": "Zendesk",
+  "user": { "tags": { "email": {}, "id": {}, "role": {} } },
+  "version": "1.1.1"
 }

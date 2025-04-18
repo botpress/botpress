@@ -1,635 +1,492 @@
 {
-  "name": "files-readonly",
-  "version": "0.2.0",
+  "actions": {
+    "listItemsInFolder": {
+      "description": "List the files and folders in a folder",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "filters": {
+              "additionalProperties": false,
+              "description": "Optional search filters",
+              "properties": {
+                "itemType": { "description": "Filter the items by type", "enum": ["file", "folder"], "type": "string" },
+                "maxSizeInBytes": { "description": "Filter the items by maximum size (in bytes)", "type": "number" },
+                "modifiedAfter": {
+                  "description": "Filter the items modified after the given date",
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "folderId": {
+              "description": "The folder ID to list the items from. Leave empty to list items from the root folder.",
+              "type": "string"
+            },
+            "nextToken": {
+              "description": "The token to get the next page of items. Leave empty to get the first page.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "description": "The files and folders in the folder",
+              "items": {
+                "anyOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "absolutePath": {
+                        "description": "The absolute path of the file. Leave empty if not available.",
+                        "type": "string"
+                      },
+                      "contentHash": {
+                        "description": "The hash of the file content, or version/revision number, if available",
+                        "type": "string"
+                      },
+                      "id": {
+                        "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                        "type": "string"
+                      },
+                      "lastModifiedDate": {
+                        "description": "The last modified date of the file, if available",
+                        "format": "date-time",
+                        "type": "string"
+                      },
+                      "name": {
+                        "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                        "type": "string"
+                      },
+                      "sizeInBytes": { "description": "The file size in bytes, if available", "type": "number" },
+                      "type": { "const": "file", "type": "string" }
+                    },
+                    "required": ["id", "type", "name"],
+                    "type": "object",
+                    "x-zui": { "title": "File to transfer" }
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "absolutePath": {
+                        "description": "The absolute path of the folder. Leave empty if not available.",
+                        "type": "string"
+                      },
+                      "id": {
+                        "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                        "type": "string"
+                      },
+                      "name": {
+                        "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
+                        "type": "string"
+                      },
+                      "parentId": {
+                        "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
+                        "type": "string"
+                      },
+                      "type": { "const": "folder", "type": "string" }
+                    },
+                    "required": ["id", "type", "name"],
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            "meta": {
+              "additionalProperties": false,
+              "properties": {
+                "nextToken": { "description": "The token to get the next page of items.", "type": "string" }
+              },
+              "type": "object"
+            }
+          },
+          "required": ["items", "meta"],
+          "type": "object"
+        }
+      },
+      "title": "List items in folder"
+    },
+    "transferFileToBotpress": {
+      "description": "Transfer a file from an external service to Botpress",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "additionalProperties": false,
+              "description": "The file to transfer",
+              "properties": {
+                "absolutePath": {
+                  "description": "The absolute path of the file. Leave empty if not available.",
+                  "type": "string"
+                },
+                "contentHash": {
+                  "description": "The hash of the file content, or version/revision number, if available",
+                  "type": "string"
+                },
+                "id": {
+                  "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                  "type": "string"
+                },
+                "lastModifiedDate": {
+                  "description": "The last modified date of the file, if available",
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                  "type": "string"
+                },
+                "parentId": {
+                  "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                  "type": "string"
+                },
+                "sizeInBytes": { "description": "The file size in bytes, if available", "type": "number" },
+                "type": { "const": "file", "type": "string" }
+              },
+              "required": ["id", "type", "name"],
+              "type": "object",
+              "x-zui": { "title": "File to transfer" }
+            },
+            "fileKey": {
+              "description": "The file key to use in Botpress",
+              "type": "string",
+              "x-zui": { "title": "File key" }
+            }
+          },
+          "required": ["file", "fileKey"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "botpressFileId": { "description": "The file ID of the uploaded file on Botpress", "type": "string" }
+          },
+          "required": ["botpressFileId"],
+          "type": "object"
+        }
+      },
+      "title": "Transfer file to Botpress"
+    }
+  },
+  "channels": {},
   "entities": {},
   "events": {
-    "fileCreated": {
+    "aggregateFileChanges": {
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
-          "file": {
-            "type": "object",
+          "modifiedItems": {
+            "additionalProperties": false,
+            "description": "The modified items",
             "properties": {
-              "id": {
-                "type": "string",
-                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
+              "created": {
+                "description": "The files created",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "absolutePath": { "description": "The full path of the file", "type": "string" },
+                    "contentHash": {
+                      "description": "The hash of the file content, or version/revision number, if available",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                      "type": "string"
+                    },
+                    "lastModifiedDate": {
+                      "description": "The last modified date of the file, if available",
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                      "type": "string"
+                    },
+                    "parentId": {
+                      "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                      "type": "string"
+                    },
+                    "sizeInBytes": { "description": "The file size in bytes, if available", "type": "number" },
+                    "type": { "const": "file", "type": "string" }
+                  },
+                  "required": ["id", "type", "name", "absolutePath"],
+                  "type": "object"
+                },
+                "type": "array"
               },
-              "type": {
-                "type": "string",
-                "const": "file"
+              "deleted": {
+                "description": "The files and folders deleted",
+                "items": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "absolutePath": { "description": "The full path of the file", "type": "string" },
+                        "contentHash": {
+                          "description": "The hash of the file content, or version/revision number, if available",
+                          "type": "string"
+                        },
+                        "id": {
+                          "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                          "type": "string"
+                        },
+                        "lastModifiedDate": {
+                          "description": "The last modified date of the file, if available",
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "name": {
+                          "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                          "type": "string"
+                        },
+                        "parentId": {
+                          "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                          "type": "string"
+                        },
+                        "sizeInBytes": { "description": "The file size in bytes, if available", "type": "number" },
+                        "type": { "const": "file", "type": "string" }
+                      },
+                      "required": ["id", "type", "name", "absolutePath"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "absolutePath": { "description": "The full path of the folder", "type": "string" },
+                        "id": {
+                          "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                          "type": "string"
+                        },
+                        "name": {
+                          "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
+                          "type": "string"
+                        },
+                        "parentId": {
+                          "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
+                          "type": "string"
+                        },
+                        "type": { "const": "folder", "type": "string" }
+                      },
+                      "required": ["id", "type", "name", "absolutePath"],
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array"
               },
-              "name": {
-                "type": "string",
-                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
-              },
-              "parentId": {
-                "type": "string",
-
-                "description": "The parent folder ID. Leave empty if the file is in the root folder."
-              },
-              "absolutePath": {
-                "type": "string",
-                "description": "The full path of the file"
-              },
-              "sizeInBytes": {
-                "type": "number",
-
-                "description": "The file size in bytes, if available"
-              },
-              "lastModifiedDate": {
-                "type": "string",
-                "format": "date-time",
-
-                "description": "The last modified date of the file, if available"
-              },
-              "contentHash": {
-                "type": "string",
-
-                "description": "The hash of the file content, or version/revision number, if available"
+              "updated": {
+                "description": "The files updated",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "absolutePath": { "description": "The full path of the file", "type": "string" },
+                    "contentHash": {
+                      "description": "The hash of the file content, or version/revision number, if available",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                      "type": "string"
+                    },
+                    "lastModifiedDate": {
+                      "description": "The last modified date of the file, if available",
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                      "type": "string"
+                    },
+                    "parentId": {
+                      "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                      "type": "string"
+                    },
+                    "sizeInBytes": { "description": "The file size in bytes, if available", "type": "number" },
+                    "type": { "const": "file", "type": "string" }
+                  },
+                  "required": ["id", "type", "name", "absolutePath"],
+                  "type": "object"
+                },
+                "type": "array"
               }
             },
-            "required": ["id", "type", "name", "absolutePath"],
-            "additionalProperties": false,
-            "description": "The created file"
+            "required": ["created", "updated", "deleted"],
+            "type": "object"
           }
         },
-        "required": ["file"],
-        "additionalProperties": false
+        "required": ["modifiedItems"],
+        "type": "object"
       }
     },
-    "fileUpdated": {
+    "fileCreated": {
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "file": {
-            "type": "object",
+            "additionalProperties": false,
+            "description": "The created file",
             "properties": {
+              "absolutePath": { "description": "The full path of the file", "type": "string" },
+              "contentHash": {
+                "description": "The hash of the file content, or version/revision number, if available",
+                "type": "string"
+              },
               "id": {
-                "type": "string",
-                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
-              },
-              "type": {
-                "type": "string",
-                "const": "file"
-              },
-              "name": {
-                "type": "string",
-                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
-              },
-              "parentId": {
-                "type": "string",
-
-                "description": "The parent folder ID. Leave empty if the file is in the root folder."
-              },
-              "absolutePath": {
-                "type": "string",
-                "description": "The full path of the file"
-              },
-              "sizeInBytes": {
-                "type": "number",
-
-                "description": "The file size in bytes, if available"
+                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                "type": "string"
               },
               "lastModifiedDate": {
-                "type": "string",
+                "description": "The last modified date of the file, if available",
                 "format": "date-time",
-
-                "description": "The last modified date of the file, if available"
+                "type": "string"
               },
-              "contentHash": {
-                "type": "string",
-
-                "description": "The hash of the file content, or version/revision number, if available"
-              }
+              "name": {
+                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                "type": "string"
+              },
+              "parentId": {
+                "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                "type": "string"
+              },
+              "sizeInBytes": { "description": "The file size in bytes, if available", "type": "number" },
+              "type": { "const": "file", "type": "string" }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "additionalProperties": false,
-            "description": "The updated file"
+            "type": "object"
           }
         },
         "required": ["file"],
-        "additionalProperties": false
+        "type": "object"
       }
     },
     "fileDeleted": {
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "file": {
-            "type": "object",
+            "additionalProperties": false,
+            "description": "The deleted file",
             "properties": {
+              "absolutePath": { "description": "The full path of the file", "type": "string" },
+              "contentHash": {
+                "description": "The hash of the file content, or version/revision number, if available",
+                "type": "string"
+              },
               "id": {
-                "type": "string",
-                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
-              },
-              "type": {
-                "type": "string",
-                "const": "file"
-              },
-              "name": {
-                "type": "string",
-                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
-              },
-              "parentId": {
-                "type": "string",
-
-                "description": "The parent folder ID. Leave empty if the file is in the root folder."
-              },
-              "absolutePath": {
-                "type": "string",
-                "description": "The full path of the file"
-              },
-              "sizeInBytes": {
-                "type": "number",
-
-                "description": "The file size in bytes, if available"
+                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                "type": "string"
               },
               "lastModifiedDate": {
-                "type": "string",
+                "description": "The last modified date of the file, if available",
                 "format": "date-time",
-
-                "description": "The last modified date of the file, if available"
+                "type": "string"
               },
-              "contentHash": {
-                "type": "string",
-
-                "description": "The hash of the file content, or version/revision number, if available"
-              }
+              "name": {
+                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                "type": "string"
+              },
+              "parentId": {
+                "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                "type": "string"
+              },
+              "sizeInBytes": { "description": "The file size in bytes, if available", "type": "number" },
+              "type": { "const": "file", "type": "string" }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "additionalProperties": false,
-            "description": "The deleted file"
+            "type": "object"
           }
         },
         "required": ["file"],
-        "additionalProperties": false
+        "type": "object"
+      }
+    },
+    "fileUpdated": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "additionalProperties": false,
+            "description": "The updated file",
+            "properties": {
+              "absolutePath": { "description": "The full path of the file", "type": "string" },
+              "contentHash": {
+                "description": "The hash of the file content, or version/revision number, if available",
+                "type": "string"
+              },
+              "id": {
+                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                "type": "string"
+              },
+              "lastModifiedDate": {
+                "description": "The last modified date of the file, if available",
+                "format": "date-time",
+                "type": "string"
+              },
+              "name": {
+                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                "type": "string"
+              },
+              "parentId": {
+                "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                "type": "string"
+              },
+              "sizeInBytes": { "description": "The file size in bytes, if available", "type": "number" },
+              "type": { "const": "file", "type": "string" }
+            },
+            "required": ["id", "type", "name", "absolutePath"],
+            "type": "object"
+          }
+        },
+        "required": ["file"],
+        "type": "object"
       }
     },
     "folderDeletedRecursive": {
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "folder": {
-            "type": "object",
+            "additionalProperties": false,
+            "description": "The deleted folder",
             "properties": {
+              "absolutePath": { "description": "The full path of the folder", "type": "string" },
               "id": {
-                "type": "string",
-                "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
-              },
-              "type": {
-                "type": "string",
-                "const": "folder"
+                "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                "type": "string"
               },
               "name": {
-                "type": "string",
-                "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\""
+                "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
+                "type": "string"
               },
               "parentId": {
-                "type": "string",
-
-                "description": "The parent folder ID. Leave empty if the folder is in the root folder."
+                "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
+                "type": "string"
               },
-              "absolutePath": {
-                "type": "string",
-                "description": "The full path of the folder"
-              }
+              "type": { "const": "folder", "type": "string" }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "additionalProperties": false,
-            "description": "The deleted folder"
+            "type": "object"
           }
         },
         "required": ["folder"],
-        "additionalProperties": false
-      }
-    },
-    "aggregateFileChanges": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "modifiedItems": {
-            "type": "object",
-            "properties": {
-              "created": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
-                    },
-                    "type": {
-                      "type": "string",
-                      "const": "file"
-                    },
-                    "name": {
-                      "type": "string",
-                      "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
-                    },
-                    "parentId": {
-                      "type": "string",
-
-                      "description": "The parent folder ID. Leave empty if the file is in the root folder."
-                    },
-                    "absolutePath": {
-                      "type": "string",
-                      "description": "The full path of the file"
-                    },
-                    "sizeInBytes": {
-                      "type": "number",
-
-                      "description": "The file size in bytes, if available"
-                    },
-                    "lastModifiedDate": {
-                      "type": "string",
-                      "format": "date-time",
-
-                      "description": "The last modified date of the file, if available"
-                    },
-                    "contentHash": {
-                      "type": "string",
-
-                      "description": "The hash of the file content, or version/revision number, if available"
-                    }
-                  },
-                  "required": ["id", "type", "name", "absolutePath"],
-                  "additionalProperties": false
-                },
-                "description": "The files created"
-              },
-              "updated": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
-                    },
-                    "type": {
-                      "type": "string",
-                      "const": "file"
-                    },
-                    "name": {
-                      "type": "string",
-                      "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
-                    },
-                    "parentId": {
-                      "type": "string",
-
-                      "description": "The parent folder ID. Leave empty if the file is in the root folder."
-                    },
-                    "absolutePath": {
-                      "type": "string",
-                      "description": "The full path of the file"
-                    },
-                    "sizeInBytes": {
-                      "type": "number",
-
-                      "description": "The file size in bytes, if available"
-                    },
-                    "lastModifiedDate": {
-                      "type": "string",
-                      "format": "date-time",
-
-                      "description": "The last modified date of the file, if available"
-                    },
-                    "contentHash": {
-                      "type": "string",
-
-                      "description": "The hash of the file content, or version/revision number, if available"
-                    }
-                  },
-                  "required": ["id", "type", "name", "absolutePath"],
-                  "additionalProperties": false
-                },
-                "description": "The files updated"
-              },
-              "deleted": {
-                "type": "array",
-                "items": {
-                  "anyOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
-                        },
-                        "type": {
-                          "type": "string",
-                          "const": "file"
-                        },
-                        "name": {
-                          "type": "string",
-                          "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
-                        },
-                        "parentId": {
-                          "type": "string",
-
-                          "description": "The parent folder ID. Leave empty if the file is in the root folder."
-                        },
-                        "absolutePath": {
-                          "type": "string",
-                          "description": "The full path of the file"
-                        },
-                        "sizeInBytes": {
-                          "type": "number",
-
-                          "description": "The file size in bytes, if available"
-                        },
-                        "lastModifiedDate": {
-                          "type": "string",
-                          "format": "date-time",
-
-                          "description": "The last modified date of the file, if available"
-                        },
-                        "contentHash": {
-                          "type": "string",
-
-                          "description": "The hash of the file content, or version/revision number, if available"
-                        }
-                      },
-                      "required": ["id", "type", "name", "absolutePath"],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
-                        },
-                        "type": {
-                          "type": "string",
-                          "const": "folder"
-                        },
-                        "name": {
-                          "type": "string",
-                          "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\""
-                        },
-                        "parentId": {
-                          "type": "string",
-
-                          "description": "The parent folder ID. Leave empty if the folder is in the root folder."
-                        },
-                        "absolutePath": {
-                          "type": "string",
-                          "description": "The full path of the folder"
-                        }
-                      },
-                      "required": ["id", "type", "name", "absolutePath"],
-                      "additionalProperties": false
-                    }
-                  ]
-                },
-                "description": "The files and folders deleted"
-              }
-            },
-            "required": ["created", "updated", "deleted"],
-            "additionalProperties": false,
-            "description": "The modified items"
-          }
-        },
-        "required": ["modifiedItems"],
-        "additionalProperties": false
+        "type": "object"
       }
     }
   },
-  "actions": {
-    "listItemsInFolder": {
-      "title": "List items in folder",
-      "description": "List the files and folders in a folder",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "folderId": {
-              "type": "string",
-              "description": "The folder ID to list the items from. Leave empty to list items from the root folder."
-            },
-            "filters": {
-              "type": "object",
-              "properties": {
-                "itemType": {
-                  "type": "string",
-                  "enum": ["file", "folder"],
-                  "description": "Filter the items by type"
-                },
-                "maxSizeInBytes": {
-                  "type": "number",
-
-                  "description": "Filter the items by maximum size (in bytes)"
-                },
-                "modifiedAfter": {
-                  "type": "string",
-                  "format": "date-time",
-
-                  "description": "Filter the items modified after the given date"
-                }
-              },
-              "additionalProperties": false,
-
-              "description": "Optional search filters"
-            },
-            "nextToken": {
-              "type": "string",
-
-              "description": "The token to get the next page of items. Leave empty to get the first page."
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
-                      },
-                      "type": {
-                        "type": "string",
-                        "const": "file"
-                      },
-                      "name": {
-                        "type": "string",
-                        "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
-                      },
-                      "parentId": {
-                        "type": "string",
-
-                        "description": "The parent folder ID. Leave empty if the file is in the root folder."
-                      },
-                      "absolutePath": {
-                        "type": "string",
-
-                        "description": "The absolute path of the file. Leave empty if not available."
-                      },
-                      "sizeInBytes": {
-                        "type": "number",
-
-                        "description": "The file size in bytes, if available"
-                      },
-                      "lastModifiedDate": {
-                        "type": "string",
-                        "format": "date-time",
-
-                        "description": "The last modified date of the file, if available"
-                      },
-                      "contentHash": {
-                        "type": "string",
-
-                        "description": "The hash of the file content, or version/revision number, if available"
-                      }
-                    },
-                    "required": ["id", "type", "name"],
-                    "additionalProperties": false,
-                    "x-zui": {
-                      "title": "File to transfer"
-                    }
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
-                      },
-                      "type": {
-                        "type": "string",
-                        "const": "folder"
-                      },
-                      "name": {
-                        "type": "string",
-                        "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\""
-                      },
-                      "parentId": {
-                        "type": "string",
-
-                        "description": "The parent folder ID. Leave empty if the folder is in the root folder."
-                      },
-                      "absolutePath": {
-                        "type": "string",
-
-                        "description": "The absolute path of the folder. Leave empty if not available."
-                      }
-                    },
-                    "required": ["id", "type", "name"],
-                    "additionalProperties": false
-                  }
-                ]
-              },
-              "description": "The files and folders in the folder"
-            },
-            "meta": {
-              "type": "object",
-              "properties": {
-                "nextToken": {
-                  "type": "string",
-
-                  "description": "The token to get the next page of items."
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "required": ["items", "meta"],
-          "additionalProperties": false
-        }
-      }
-    },
-    "transferFileToBotpress": {
-      "title": "Transfer file to Botpress",
-      "description": "Transfer a file from an external service to Botpress",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "file": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique."
-                },
-                "type": {
-                  "type": "string",
-                  "const": "file"
-                },
-                "name": {
-                  "type": "string",
-                  "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\""
-                },
-                "parentId": {
-                  "type": "string",
-
-                  "description": "The parent folder ID. Leave empty if the file is in the root folder."
-                },
-                "absolutePath": {
-                  "type": "string",
-
-                  "description": "The absolute path of the file. Leave empty if not available."
-                },
-                "sizeInBytes": {
-                  "type": "number",
-
-                  "description": "The file size in bytes, if available"
-                },
-                "lastModifiedDate": {
-                  "type": "string",
-                  "format": "date-time",
-
-                  "description": "The last modified date of the file, if available"
-                },
-                "contentHash": {
-                  "type": "string",
-
-                  "description": "The hash of the file content, or version/revision number, if available"
-                }
-              },
-              "required": ["id", "type", "name"],
-              "additionalProperties": false,
-              "description": "The file to transfer",
-              "x-zui": {
-                "title": "File to transfer"
-              }
-            },
-            "fileKey": {
-              "type": "string",
-              "description": "The file key to use in Botpress",
-              "x-zui": {
-                "title": "File key"
-              }
-            }
-          },
-          "required": ["file", "fileKey"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "botpressFileId": {
-              "type": "string",
-              "description": "The file ID of the uploaded file on Botpress"
-            }
-          },
-          "required": ["botpressFileId"],
-          "additionalProperties": false
-        }
-      }
-    }
-  },
-  "channels": {}
+  "name": "files-readonly",
+  "version": "0.2.0"
 }

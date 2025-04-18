@@ -1,1094 +1,721 @@
 {
-  "name": "freshchat",
-  "version": "0.0.3",
-  "title": "Freshchat (Beta)",
-  "description": "This integration allows your bot to use Freshchat as a HITL Provider",
-  "user": {
-    "tags": {
-      "id": {
-        "description": "Freshchat User Id",
-        "title": "Freshchat User Id"
-      }
-    }
-  },
-  "events": {
-    "hitlAssigned": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "conversationId": {
-            "type": "string"
-          },
-          "userId": {
-            "type": "string"
-          }
-        },
-        "required": ["conversationId", "userId"],
-        "additionalProperties": false
-      }
-    },
-    "hitlStopped": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "conversationId": {
-            "type": "string"
-          }
-        },
-        "required": ["conversationId"],
-        "additionalProperties": false
-      }
-    }
-  },
   "actions": {
     "createUser": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "name": {
-              "type": "string"
-            },
-            "pictureUrl": {
-              "type": "string"
-            },
-            "email": {
-              "type": "string"
-            }
+            "email": { "type": "string" },
+            "name": { "type": "string" },
+            "pictureUrl": { "type": "string" }
           },
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "userId": {
-              "type": "string"
-            }
-          },
+          "additionalProperties": false,
+          "properties": { "userId": { "type": "string" } },
           "required": ["userId"],
-          "additionalProperties": false
+          "type": "object"
         }
       }
     },
     "startHitl": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "userId": {
-              "type": "string"
-            },
-            "title": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
+            "description": { "type": "string" },
             "messageHistory": {
-              "type": "array",
               "items": {
                 "anyOf": [
                   {
-                    "type": "object",
+                    "additionalProperties": false,
                     "properties": {
-                      "source": {
-                        "anyOf": [
-                          {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
-                            },
-                            "required": ["type", "userId"],
-                            "additionalProperties": false
-                          },
-                          {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
-                            "required": ["type"],
-                            "additionalProperties": false
-                          }
-                        ]
-                      },
-                      "type": {
-                        "type": "string",
-                        "const": "text"
-                      },
                       "payload": {
-                        "type": "object",
-                        "properties": {
-                          "text": {
-                            "type": "string"
-                          }
-                        },
+                        "additionalProperties": false,
+                        "properties": { "text": { "type": "string" } },
                         "required": ["text"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "image"
-                      },
+                      "type": { "const": "text", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
-                        "properties": {
-                          "imageUrl": {
-                            "type": "string"
-                          }
-                        },
+                        "additionalProperties": false,
+                        "properties": { "imageUrl": { "type": "string" } },
                         "required": ["imageUrl"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "audio"
-                      },
+                      "type": { "const": "image", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
-                        "properties": {
-                          "audioUrl": {
-                            "type": "string"
-                          }
-                        },
+                        "additionalProperties": false,
+                        "properties": { "audioUrl": { "type": "string" } },
                         "required": ["audioUrl"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "video"
-                      },
+                      "type": { "const": "audio", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
-                        "properties": {
-                          "videoUrl": {
-                            "type": "string"
-                          }
-                        },
+                        "additionalProperties": false,
+                        "properties": { "videoUrl": { "type": "string" } },
                         "required": ["videoUrl"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "file"
-                      },
+                      "type": { "const": "video", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
-                        "properties": {
-                          "fileUrl": {
-                            "type": "string"
-                          },
-                          "title": {
-                            "type": "string"
-                          }
-                        },
+                        "additionalProperties": false,
+                        "properties": { "fileUrl": { "type": "string" }, "title": { "type": "string" } },
                         "required": ["fileUrl"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "location"
-                      },
+                      "type": { "const": "file", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
-                          "latitude": {
-                            "type": "number"
-                          },
-                          "longitude": {
-                            "type": "number"
-                          },
-                          "address": {
-                            "type": "string"
-                          },
-                          "title": {
-                            "type": "string"
-                          }
+                          "address": { "type": "string" },
+                          "latitude": { "type": "number" },
+                          "longitude": { "type": "number" },
+                          "title": { "type": "string" }
                         },
                         "required": ["latitude", "longitude"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "carousel"
-                      },
+                      "type": { "const": "location", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
                           "items": {
-                            "type": "array",
                             "items": {
-                              "type": "object",
+                              "additionalProperties": false,
                               "properties": {
-                                "title": {
-                                  "type": "string"
-                                },
-                                "subtitle": {
-                                  "type": "string"
-                                },
-                                "imageUrl": {
-                                  "type": "string"
-                                },
                                 "actions": {
-                                  "type": "array",
                                   "items": {
-                                    "type": "object",
+                                    "additionalProperties": false,
                                     "properties": {
-                                      "action": {
-                                        "type": "string",
-                                        "enum": ["postback", "url", "say"]
-                                      },
-                                      "label": {
-                                        "type": "string"
-                                      },
-                                      "value": {
-                                        "type": "string"
-                                      }
+                                      "action": { "enum": ["postback", "url", "say"], "type": "string" },
+                                      "label": { "type": "string" },
+                                      "value": { "type": "string" }
                                     },
                                     "required": ["action", "label", "value"],
-                                    "additionalProperties": false
-                                  }
-                                }
+                                    "type": "object"
+                                  },
+                                  "type": "array"
+                                },
+                                "imageUrl": { "type": "string" },
+                                "subtitle": { "type": "string" },
+                                "title": { "type": "string" }
                               },
                               "required": ["title", "actions"],
-                              "additionalProperties": false
-                            }
+                              "type": "object"
+                            },
+                            "type": "array"
                           }
                         },
                         "required": ["items"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "card"
-                      },
+                      "type": { "const": "carousel", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
-                          "title": {
-                            "type": "string"
-                          },
-                          "subtitle": {
-                            "type": "string"
-                          },
-                          "imageUrl": {
-                            "type": "string"
-                          },
                           "actions": {
-                            "type": "array",
                             "items": {
-                              "type": "object",
+                              "additionalProperties": false,
                               "properties": {
-                                "action": {
-                                  "type": "string",
-                                  "enum": ["postback", "url", "say"]
-                                },
-                                "label": {
-                                  "type": "string"
-                                },
-                                "value": {
-                                  "type": "string"
-                                }
+                                "action": { "enum": ["postback", "url", "say"], "type": "string" },
+                                "label": { "type": "string" },
+                                "value": { "type": "string" }
                               },
                               "required": ["action", "label", "value"],
-                              "additionalProperties": false
-                            }
-                          }
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "imageUrl": { "type": "string" },
+                          "subtitle": { "type": "string" },
+                          "title": { "type": "string" }
                         },
                         "required": ["title", "actions"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "dropdown"
-                      },
+                      "type": { "const": "card", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
-                          "text": {
-                            "type": "string"
-                          },
                           "options": {
-                            "type": "array",
                             "items": {
-                              "type": "object",
-                              "properties": {
-                                "label": {
-                                  "type": "string"
-                                },
-                                "value": {
-                                  "type": "string"
-                                }
-                              },
+                              "additionalProperties": false,
+                              "properties": { "label": { "type": "string" }, "value": { "type": "string" } },
                               "required": ["label", "value"],
-                              "additionalProperties": false
-                            }
-                          }
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "text": { "type": "string" }
                         },
                         "required": ["text", "options"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "choice"
-                      },
+                      "type": { "const": "dropdown", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
-                          "text": {
-                            "type": "string"
-                          },
                           "options": {
-                            "type": "array",
                             "items": {
-                              "type": "object",
-                              "properties": {
-                                "label": {
-                                  "type": "string"
-                                },
-                                "value": {
-                                  "type": "string"
-                                }
-                              },
+                              "additionalProperties": false,
+                              "properties": { "label": { "type": "string" }, "value": { "type": "string" } },
                               "required": ["label", "value"],
-                              "additionalProperties": false
-                            }
-                          }
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "text": { "type": "string" }
                         },
                         "required": ["text", "options"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "bloc"
-                      },
+                      "type": { "const": "choice", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
                       "payload": {
-                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
                           "items": {
-                            "type": "array",
                             "items": {
                               "anyOf": [
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "text"
-                                    },
                                     "payload": {
-                                      "type": "object",
-                                      "properties": {
-                                        "text": {
-                                          "type": "string"
-                                        }
-                                      },
+                                      "additionalProperties": false,
+                                      "properties": { "text": { "type": "string" } },
                                       "required": ["text"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "text", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 },
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "markdown"
-                                    },
                                     "payload": {
-                                      "type": "object",
-                                      "properties": {
-                                        "markdown": {
-                                          "type": "string"
-                                        }
-                                      },
+                                      "additionalProperties": false,
+                                      "properties": { "markdown": { "type": "string" } },
                                       "required": ["markdown"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "markdown", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 },
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "image"
-                                    },
                                     "payload": {
-                                      "type": "object",
-                                      "properties": {
-                                        "imageUrl": {
-                                          "type": "string"
-                                        }
-                                      },
+                                      "additionalProperties": false,
+                                      "properties": { "imageUrl": { "type": "string" } },
                                       "required": ["imageUrl"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "image", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 },
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "audio"
-                                    },
                                     "payload": {
-                                      "type": "object",
-                                      "properties": {
-                                        "audioUrl": {
-                                          "type": "string"
-                                        }
-                                      },
+                                      "additionalProperties": false,
+                                      "properties": { "audioUrl": { "type": "string" } },
                                       "required": ["audioUrl"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "audio", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 },
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "video"
-                                    },
                                     "payload": {
-                                      "type": "object",
-                                      "properties": {
-                                        "videoUrl": {
-                                          "type": "string"
-                                        }
-                                      },
+                                      "additionalProperties": false,
+                                      "properties": { "videoUrl": { "type": "string" } },
                                       "required": ["videoUrl"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "video", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 },
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "file"
-                                    },
                                     "payload": {
-                                      "type": "object",
-                                      "properties": {
-                                        "fileUrl": {
-                                          "type": "string"
-                                        },
-                                        "title": {
-                                          "type": "string"
-                                        }
-                                      },
+                                      "additionalProperties": false,
+                                      "properties": { "fileUrl": { "type": "string" }, "title": { "type": "string" } },
                                       "required": ["fileUrl"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "file", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 },
                                 {
-                                  "type": "object",
+                                  "additionalProperties": false,
                                   "properties": {
-                                    "type": {
-                                      "type": "string",
-                                      "const": "location"
-                                    },
                                     "payload": {
-                                      "type": "object",
+                                      "additionalProperties": false,
                                       "properties": {
-                                        "latitude": {
-                                          "type": "number"
-                                        },
-                                        "longitude": {
-                                          "type": "number"
-                                        },
-                                        "address": {
-                                          "type": "string"
-                                        },
-                                        "title": {
-                                          "type": "string"
-                                        }
+                                        "address": { "type": "string" },
+                                        "latitude": { "type": "number" },
+                                        "longitude": { "type": "number" },
+                                        "title": { "type": "string" }
                                       },
                                       "required": ["latitude", "longitude"],
-                                      "additionalProperties": false
-                                    }
+                                      "type": "object"
+                                    },
+                                    "type": { "const": "location", "type": "string" }
                                   },
                                   "required": ["type", "payload"],
-                                  "additionalProperties": false
+                                  "type": "object"
                                 }
                               ]
-                            }
+                            },
+                            "type": "array"
                           }
                         },
                         "required": ["items"],
-                        "additionalProperties": false
-                      }
-                    },
-                    "required": ["source", "type", "payload"],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
+                        "type": "object"
+                      },
                       "source": {
                         "anyOf": [
                           {
-                            "type": "object",
+                            "additionalProperties": false,
                             "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "user"
-                              },
-                              "userId": {
-                                "type": "string"
-                              }
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
                             },
                             "required": ["type", "userId"],
-                            "additionalProperties": false
+                            "type": "object"
                           },
                           {
-                            "type": "object",
-                            "properties": {
-                              "type": {
-                                "type": "string",
-                                "const": "bot"
-                              }
-                            },
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
                             "required": ["type"],
-                            "additionalProperties": false
+                            "type": "object"
                           }
                         ]
                       },
-                      "type": {
-                        "type": "string",
-                        "const": "markdown"
-                      },
-                      "payload": {
-                        "type": "object",
-                        "properties": {
-                          "markdown": {
-                            "type": "string"
-                          }
-                        },
-                        "required": ["markdown"],
-                        "additionalProperties": false
-                      }
+                      "type": { "const": "bloc", "type": "string" }
                     },
                     "required": ["source", "type", "payload"],
-                    "additionalProperties": false
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "payload": {
+                        "additionalProperties": false,
+                        "properties": { "markdown": { "type": "string" } },
+                        "required": ["markdown"],
+                        "type": "object"
+                      },
+                      "source": {
+                        "anyOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "type": { "const": "user", "type": "string" },
+                              "userId": { "type": "string" }
+                            },
+                            "required": ["type", "userId"],
+                            "type": "object"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": { "type": { "const": "bot", "type": "string" } },
+                            "required": ["type"],
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      "type": { "const": "markdown", "type": "string" }
+                    },
+                    "required": ["source", "type", "payload"],
+                    "type": "object"
                   }
                 ]
-              }
-            }
+              },
+              "type": "array"
+            },
+            "title": { "type": "string" },
+            "userId": { "type": "string" }
           },
           "required": ["userId", "title"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "conversationId": {
-              "type": "string"
-            }
-          },
+          "additionalProperties": false,
+          "properties": { "conversationId": { "type": "string" } },
           "required": ["conversationId"],
-          "additionalProperties": false
+          "type": "object"
         }
       }
     },
     "stopHitl": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "conversationId": {
-              "type": "string"
-            },
-            "reason": {
-              "type": "string",
-              "enum": ["timeout", "cancel"]
-            }
+            "conversationId": { "type": "string" },
+            "reason": { "enum": ["timeout", "cancel"], "type": "string" }
           },
           "required": ["conversationId"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      }
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } }
     }
   },
   "channels": {
     "hitl": {
+      "conversation": {
+        "tags": { "id": { "description": "Freshchat Conversation Id", "title": "Freshchat Conversation Id" } }
+      },
+      "description": "Freshchat HITL",
+      "message": { "tags": {} },
       "messages": {
         "text": {
           "schema": {
-            "type": "object",
-            "properties": {
-              "text": {
-                "type": "string"
-              },
-              "userId": {
-                "type": "string"
-              }
-            },
+            "additionalProperties": false,
+            "properties": { "text": { "type": "string" }, "userId": { "type": "string" } },
             "required": ["text"],
-            "additionalProperties": false
+            "type": "object"
           }
         }
       },
-      "title": "Freshchat",
-      "description": "Freshchat HITL",
-      "conversation": {
-        "tags": {
-          "id": {
-            "title": "Freshchat Conversation Id",
-            "description": "Freshchat Conversation Id"
-          }
-        }
-      },
-      "message": {
-        "tags": {}
-      }
+      "title": "Freshchat"
     }
   },
-  "states": {
-    "freshchat": {
-      "type": "integration",
+  "description": "This integration allows your bot to use Freshchat as a HITL Provider",
+  "events": {
+    "hitlAssigned": {
       "schema": {
-        "type": "object",
-        "properties": {
-          "channelId": {
-            "type": "string",
-            "description": "Id from the channel topic",
-            "x-zui": {
-              "title": "Channel Id"
-            }
-          }
-        },
-        "required": ["channelId"],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": { "conversationId": { "type": "string" }, "userId": { "type": "string" } },
+        "required": ["conversationId", "userId"],
+        "type": "object"
+      }
+    },
+    "hitlStopped": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": { "conversationId": { "type": "string" } },
+        "required": ["conversationId"],
+        "type": "object"
       }
     }
   },
   "interfaces": {
     "hitl": {
+      "actions": {
+        "createUser": { "name": "createUser" },
+        "startHitl": { "name": "startHitl" },
+        "stopHitl": { "name": "stopHitl" }
+      },
+      "channels": { "hitl": { "name": "hitl" } },
+      "entities": {},
+      "events": { "hitlAssigned": { "name": "hitlAssigned" }, "hitlStopped": { "name": "hitlStopped" } },
       "id": "",
       "name": "hitl",
-      "version": "0.4.0",
-      "entities": {},
-      "actions": {
-        "createUser": {
-          "name": "createUser"
-        },
-        "startHitl": {
-          "name": "startHitl"
-        },
-        "stopHitl": {
-          "name": "stopHitl"
-        }
-      },
-      "events": {
-        "hitlAssigned": {
-          "name": "hitlAssigned"
-        },
-        "hitlStopped": {
-          "name": "hitlStopped"
-        }
-      },
-      "channels": {
-        "hitl": {
-          "name": "hitl"
-        }
-      }
+      "version": "0.4.0"
     }
-  }
+  },
+  "name": "freshchat",
+  "states": {
+    "freshchat": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "channelId": {
+            "description": "Id from the channel topic",
+            "type": "string",
+            "x-zui": { "title": "Channel Id" }
+          }
+        },
+        "required": ["channelId"],
+        "type": "object"
+      },
+      "type": "integration"
+    }
+  },
+  "title": "Freshchat (Beta)",
+  "user": { "tags": { "id": { "description": "Freshchat User Id", "title": "Freshchat User Id" } } },
+  "version": "0.0.3"
 }

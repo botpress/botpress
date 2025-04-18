@@ -1,94 +1,72 @@
 {
-  "name": "pdf-generator",
-  "version": "0.0.2",
-  "description": "Converts markdown content to PDF using PDFShift",
   "actions": {
-    "fromMarkdown": {
-      "title": "Markdown to PDF",
-      "description": "Converts a markdown content to a PDF file",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "markdown": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The markdown content to convert to PDF"
-            },
-            "filename": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "\\.pdf$",
-              "description": "The filename of the PDF",
-
-              "default": "generated.pdf"
-            }
-          },
-          "required": ["markdown"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "fileId": {
-              "type": "string",
-              "description": "The generated PDF file ID"
-            },
-            "fileUrl": {
-              "type": "string",
-              "description": "The public URL to download the PDF"
-            }
-          },
-          "required": ["fileId", "fileUrl"],
-          "additionalProperties": false
-        }
-      }
-    },
     "fromHtml": {
-      "title": "HTML to PDF",
       "description": "Converts an HTML document to a PDF file",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "html": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The HTML content to convert to PDF"
-            },
             "filename": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "\\.pdf$",
+              "default": "generated.pdf",
               "description": "The filename of the PDF",
-
-              "default": "generated.pdf"
-            }
+              "minLength": 1,
+              "pattern": "\.pdf$",
+              "type": "string"
+            },
+            "html": { "description": "The HTML content to convert to PDF", "minLength": 1, "type": "string" }
           },
           "required": ["html"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "fileId": {
-              "type": "string",
-              "description": "The generated PDF file ID"
-            },
-            "fileUrl": {
-              "type": "string",
-              "description": "The public URL to download the PDF"
-            }
+            "fileId": { "description": "The generated PDF file ID", "type": "string" },
+            "fileUrl": { "description": "The public URL to download the PDF", "type": "string" }
           },
           "required": ["fileId", "fileUrl"],
-          "additionalProperties": false
+          "type": "object"
         }
-      }
+      },
+      "title": "HTML to PDF"
+    },
+    "fromMarkdown": {
+      "description": "Converts a markdown content to a PDF file",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "filename": {
+              "default": "generated.pdf",
+              "description": "The filename of the PDF",
+              "minLength": 1,
+              "pattern": "\.pdf$",
+              "type": "string"
+            },
+            "markdown": { "description": "The markdown content to convert to PDF", "minLength": 1, "type": "string" }
+          },
+          "required": ["markdown"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "fileId": { "description": "The generated PDF file ID", "type": "string" },
+            "fileUrl": { "description": "The public URL to download the PDF", "type": "string" }
+          },
+          "required": ["fileId", "fileUrl"],
+          "type": "object"
+        }
+      },
+      "title": "Markdown to PDF"
     }
   },
-  "interfaces": {}
+  "description": "Converts markdown content to PDF using PDFShift",
+  "interfaces": {},
+  "name": "pdf-generator",
+  "version": "0.0.2"
 }

@@ -1,235 +1,179 @@
 {
-  "name": "browser",
-  "version": "0.4.1",
-  "title": "Browser",
-  "description": "Capture screenshots and retrieve web page content with metadata for automated browsing and data extraction.",
   "actions": {
-    "captureScreenshot": {
-      "title": "Capture Screenshot",
-      "description": "Capture a screenshot of the specified page.",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "url": {
-              "type": "string"
-            }
-          },
-          "required": ["url"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "imageUrl": {
-              "type": "string"
-            }
-          },
-          "required": ["imageUrl"],
-          "additionalProperties": false
-        }
-      },
-      "cacheable": true,
-      "billable": true
-    },
     "browsePages": {
-      "title": "Browse Pages",
+      "billable": true,
+      "cacheable": true,
       "description": "Extract the full content & the metadata of the specified pages as markdown.",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "urls": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
+            "urls": { "items": { "type": "string" }, "type": "array" },
             "waitFor": {
-              "type": "number",
-
               "default": 350,
-              "description": "Time to wait before extracting the content (in milliseconds). Set this value higher for dynamic pages."
+              "description": "Time to wait before extracting the content (in milliseconds). Set this value higher for dynamic pages.",
+              "type": "number"
             }
           },
           "required": ["urls"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "results": {
-              "type": "array",
               "items": {
-                "type": "object",
+                "additionalProperties": false,
                 "properties": {
-                  "url": {
-                    "type": "string"
-                  },
-                  "content": {
-                    "type": "string"
-                  },
-                  "favicon": {
-                    "type": "string"
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  }
+                  "content": { "type": "string" },
+                  "description": { "type": "string" },
+                  "favicon": { "type": "string" },
+                  "title": { "type": "string" },
+                  "url": { "type": "string" }
                 },
                 "required": ["url", "content"],
-                "additionalProperties": false
-              }
+                "type": "object"
+              },
+              "type": "array"
             }
           },
           "required": ["results"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
+      "title": "Browse Pages"
+    },
+    "captureScreenshot": {
+      "billable": true,
       "cacheable": true,
-      "billable": true
+      "description": "Capture a screenshot of the specified page.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "url": { "type": "string" } },
+          "required": ["url"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "imageUrl": { "type": "string" } },
+          "required": ["imageUrl"],
+          "type": "object"
+        }
+      },
+      "title": "Capture Screenshot"
     },
     "webSearch": {
-      "title": "Web Search",
+      "cacheable": true,
       "description": "Search information on the web. You need to browse to that page to get the full content of the page.",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "query": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 1000,
-              "description": "What are we searching for?"
-            },
-            "includeSites": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
-                "minLength": 3,
-                "maxLength": 50
-              },
-              "maxItems": 20,
-
-              "description": "Include only these domains in the search (max 20)"
-            },
-            "excludeSites": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
-                "minLength": 3,
-                "maxLength": 50
-              },
-              "maxItems": 20,
-
-              "description": "Exclude these domains from the search (max 20)"
+            "browsePages": {
+              "default": false,
+              "description": "Whether to browse to the pages to get the full content",
+              "type": "boolean"
             },
             "count": {
-              "type": "number",
-              "minimum": 1,
-              "maximum": 20,
-
               "default": 10,
-              "description": "Number of search results to return (default: 10)"
+              "description": "Number of search results to return (default: 10)",
+              "maximum": 20,
+              "minimum": 1,
+              "type": "number"
+            },
+            "excludeSites": {
+              "description": "Exclude these domains from the search (max 20)",
+              "items": {
+                "maxLength": 50,
+                "minLength": 3,
+                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$",
+                "type": "string"
+              },
+              "maxItems": 20,
+              "type": "array"
             },
             "freshness": {
-              "type": "string",
+              "description": "Only consider results from the last day, week or month",
               "enum": ["Day", "Week", "Month"],
-
-              "description": "Only consider results from the last day, week or month"
+              "type": "string"
             },
-            "browsePages": {
-              "type": "boolean",
-
-              "default": false,
-              "description": "Whether to browse to the pages to get the full content"
+            "includeSites": {
+              "description": "Include only these domains in the search (max 20)",
+              "items": {
+                "maxLength": 50,
+                "minLength": 3,
+                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$",
+                "type": "string"
+              },
+              "maxItems": 20,
+              "type": "array"
+            },
+            "query": {
+              "description": "What are we searching for?",
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string"
             }
           },
           "required": ["query"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "results": {
-              "type": "array",
               "items": {
-                "type": "object",
+                "additionalProperties": false,
                 "properties": {
-                  "name": {
-                    "type": "string",
-                    "description": "Title of the page"
-                  },
-                  "url": {
-                    "type": "string",
-                    "description": "URL of the page"
-                  },
-                  "snippet": {
-                    "type": "string",
-                    "description": "A short summary of the page"
-                  },
                   "links": {
-                    "type": "array",
+                    "description": "Useful links on the page",
                     "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
-                        },
-                        "url": {
-                          "type": "string"
-                        }
-                      },
+                      "additionalProperties": false,
+                      "properties": { "name": { "type": "string" }, "url": { "type": "string" } },
                       "required": ["name", "url"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
-
-                    "description": "Useful links on the page"
+                    "type": "array"
                   },
+                  "name": { "description": "Title of the page", "type": "string" },
                   "page": {
-                    "type": "object",
+                    "additionalProperties": false,
                     "properties": {
-                      "url": {
-                        "type": "string"
-                      },
-                      "content": {
-                        "type": "string"
-                      },
-                      "favicon": {
-                        "type": "string"
-                      },
-                      "title": {
-                        "type": "string"
-                      },
-                      "description": {
-                        "type": "string"
-                      }
+                      "content": { "type": "string" },
+                      "description": { "type": "string" },
+                      "favicon": { "type": "string" },
+                      "title": { "type": "string" },
+                      "url": { "type": "string" }
                     },
                     "required": ["url", "content"],
-                    "additionalProperties": false
-                  }
+                    "type": "object"
+                  },
+                  "snippet": { "description": "A short summary of the page", "type": "string" },
+                  "url": { "description": "URL of the page", "type": "string" }
                 },
                 "required": ["name", "url", "snippet"],
-                "additionalProperties": false
-              }
+                "type": "object"
+              },
+              "type": "array"
             }
           },
           "required": ["results"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "cacheable": true
+      "title": "Web Search"
     }
   },
-  "interfaces": {}
+  "description": "Capture screenshots and retrieve web page content with metadata for automated browsing and data extraction.",
+  "interfaces": {},
+  "name": "browser",
+  "title": "Browser",
+  "version": "0.4.1"
 }

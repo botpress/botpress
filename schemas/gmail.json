@@ -1,583 +1,380 @@
 {
-  "name": "gmail",
-  "version": "0.6.2",
-  "title": "Gmail",
-  "description": "Send, receive, and manage emails directly within your bot's workflow.",
-  "user": {
-    "tags": {
-      "id": {
-        "title": "Email address",
-        "description": "The email address of the user"
-      }
-    }
-  },
-  "events": {},
   "actions": {},
   "channels": {
     "channel": {
-      "title": "Email thread",
+      "conversation": {
+        "tags": {
+          "cc": { "description": "Co-recipients", "title": "CC" },
+          "email": { "description": "The email address of the sender", "title": "Sender email" },
+          "id": { "description": "The unique identifier of the email thread on Gmail", "title": "Gmail ID" },
+          "references": { "description": "The contents of the References header field", "title": "References" },
+          "subject": { "description": "The subject of the email", "title": "Subject" }
+        }
+      },
       "description": "Messages in an email thread",
+      "message": {
+        "tags": { "id": { "description": "The unique identifier of the message on Gmail", "title": "Gmail ID" } }
+      },
       "messages": {
-        "text": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "text": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": ["text"],
-            "additionalProperties": false
-          }
-        },
-        "image": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "imageUrl": {
-                "type": "string",
-                "minLength": 1
-              },
-              "title": {
-                "type": "string",
-                "x-zui": {
-                  "title": "Alt text"
-                },
-                "description": "Alt text for the image"
-              }
-            },
-            "required": ["imageUrl"],
-            "additionalProperties": false
-          }
-        },
         "audio": {
           "schema": {
-            "type": "object",
+            "additionalProperties": false,
             "properties": {
-              "audioUrl": {
-                "type": "string",
-                "minLength": 1
-              },
-              "title": {
-                "type": "string",
-                "x-zui": {
-                  "title": "Title"
-                },
-                "description": "Title for the audio file"
-              }
+              "audioUrl": { "minLength": 1, "type": "string" },
+              "title": { "description": "Title for the audio file", "type": "string", "x-zui": { "title": "Title" } }
             },
             "required": ["audioUrl"],
-            "additionalProperties": false
-          }
-        },
-        "video": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "videoUrl": {
-                "type": "string",
-                "minLength": 1
-              },
-              "title": {
-                "type": "string",
-                "x-zui": {
-                  "title": "Title"
-                },
-                "description": "Title for the video file"
-              }
-            },
-            "required": ["videoUrl"],
-            "additionalProperties": false
-          }
-        },
-        "file": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "fileUrl": {
-                "type": "string",
-                "minLength": 1
-              },
-              "title": {
-                "type": "string",
-                "x-zui": {
-                  "title": "Title"
-                },
-                "description": "Title for the file"
-              }
-            },
-            "required": ["fileUrl"],
-            "additionalProperties": false
-          }
-        },
-        "location": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "latitude": {
-                "type": "number"
-              },
-              "longitude": {
-                "type": "number"
-              },
-              "address": {
-                "type": "string"
-              },
-              "title": {
-                "type": "string"
-              }
-            },
-            "required": ["latitude", "longitude"],
-            "additionalProperties": false
-          }
-        },
-        "carousel": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "title": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "subtitle": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "imageUrl": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "actions": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "action": {
-                            "type": "string",
-                            "enum": ["postback", "url", "say"]
-                          },
-                          "label": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "value": {
-                            "type": "string",
-                            "minLength": 1
-                          }
-                        },
-                        "required": ["action", "label", "value"],
-                        "additionalProperties": false
-                      }
-                    }
-                  },
-                  "required": ["title", "actions"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["items"],
-            "additionalProperties": false
-          }
-        },
-        "card": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "title": {
-                "type": "string",
-                "minLength": 1
-              },
-              "subtitle": {
-                "type": "string",
-                "minLength": 1
-              },
-              "imageUrl": {
-                "type": "string",
-                "minLength": 1
-              },
-              "actions": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "action": {
-                      "type": "string",
-                      "enum": ["postback", "url", "say"]
-                    },
-                    "label": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "value": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  },
-                  "required": ["action", "label", "value"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["title", "actions"],
-            "additionalProperties": false
-          }
-        },
-        "dropdown": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "text": {
-                "type": "string",
-                "minLength": 1
-              },
-              "options": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "value": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  },
-                  "required": ["label", "value"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["text", "options"],
-            "additionalProperties": false
-          }
-        },
-        "choice": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "text": {
-                "type": "string",
-                "minLength": 1
-              },
-              "options": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "value": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  },
-                  "required": ["label", "value"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["text", "options"],
-            "additionalProperties": false
+            "type": "object"
           }
         },
         "bloc": {
           "schema": {
-            "type": "object",
+            "additionalProperties": false,
             "properties": {
               "items": {
-                "type": "array",
                 "items": {
                   "anyOf": [
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "text"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "text": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "text": { "minLength": 1, "type": "string" } },
                           "required": ["text"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "text", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "markdown"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "markdown": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "markdown": { "minLength": 1, "type": "string" } },
                           "required": ["markdown"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "markdown", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "image"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "imageUrl": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "imageUrl": { "minLength": 1, "type": "string" } },
                           "required": ["imageUrl"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "image", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "audio"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "audioUrl": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "audioUrl": { "minLength": 1, "type": "string" } },
                           "required": ["audioUrl"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "audio", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "video"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "videoUrl": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "videoUrl": { "minLength": 1, "type": "string" } },
                           "required": ["videoUrl"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "video", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "file"
-                        },
                         "payload": {
-                          "type": "object",
+                          "additionalProperties": false,
                           "properties": {
-                            "fileUrl": {
-                              "type": "string",
-                              "minLength": 1
-                            },
-                            "title": {
-                              "type": "string",
-                              "minLength": 1
-                            }
+                            "fileUrl": { "minLength": 1, "type": "string" },
+                            "title": { "minLength": 1, "type": "string" }
                           },
                           "required": ["fileUrl"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "file", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "location"
-                        },
                         "payload": {
-                          "type": "object",
+                          "additionalProperties": false,
                           "properties": {
-                            "latitude": {
-                              "type": "number"
-                            },
-                            "longitude": {
-                              "type": "number"
-                            },
-                            "address": {
-                              "type": "string"
-                            },
-                            "title": {
-                              "type": "string"
-                            }
+                            "address": { "type": "string" },
+                            "latitude": { "type": "number" },
+                            "longitude": { "type": "number" },
+                            "title": { "type": "string" }
                           },
                           "required": ["latitude", "longitude"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "location", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     }
                   ]
-                }
+                },
+                "type": "array"
               }
             },
             "required": ["items"],
-            "additionalProperties": false
+            "type": "object"
+          }
+        },
+        "card": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "actions": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "action": { "enum": ["postback", "url", "say"], "type": "string" },
+                    "label": { "minLength": 1, "type": "string" },
+                    "value": { "minLength": 1, "type": "string" }
+                  },
+                  "required": ["action", "label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "imageUrl": { "minLength": 1, "type": "string" },
+              "subtitle": { "minLength": 1, "type": "string" },
+              "title": { "minLength": 1, "type": "string" }
+            },
+            "required": ["title", "actions"],
+            "type": "object"
+          }
+        },
+        "carousel": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "actions": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "action": { "enum": ["postback", "url", "say"], "type": "string" },
+                          "label": { "minLength": 1, "type": "string" },
+                          "value": { "minLength": 1, "type": "string" }
+                        },
+                        "required": ["action", "label", "value"],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "imageUrl": { "minLength": 1, "type": "string" },
+                    "subtitle": { "minLength": 1, "type": "string" },
+                    "title": { "minLength": 1, "type": "string" }
+                  },
+                  "required": ["title", "actions"],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": ["items"],
+            "type": "object"
+          }
+        },
+        "choice": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "options": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "minLength": 1, "type": "string" },
+                    "value": { "minLength": 1, "type": "string" }
+                  },
+                  "required": ["label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "text": { "minLength": 1, "type": "string" }
+            },
+            "required": ["text", "options"],
+            "type": "object"
+          }
+        },
+        "dropdown": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "options": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "minLength": 1, "type": "string" },
+                    "value": { "minLength": 1, "type": "string" }
+                  },
+                  "required": ["label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "text": { "minLength": 1, "type": "string" }
+            },
+            "required": ["text", "options"],
+            "type": "object"
+          }
+        },
+        "file": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "fileUrl": { "minLength": 1, "type": "string" },
+              "title": { "description": "Title for the file", "type": "string", "x-zui": { "title": "Title" } }
+            },
+            "required": ["fileUrl"],
+            "type": "object"
+          }
+        },
+        "image": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "imageUrl": { "minLength": 1, "type": "string" },
+              "title": { "description": "Alt text for the image", "type": "string", "x-zui": { "title": "Alt text" } }
+            },
+            "required": ["imageUrl"],
+            "type": "object"
+          }
+        },
+        "location": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "address": { "type": "string" },
+              "latitude": { "type": "number" },
+              "longitude": { "type": "number" },
+              "title": { "type": "string" }
+            },
+            "required": ["latitude", "longitude"],
+            "type": "object"
           }
         },
         "markdown": {
           "schema": {
-            "type": "object",
-            "properties": {
-              "markdown": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
+            "additionalProperties": false,
+            "properties": { "markdown": { "minLength": 1, "type": "string" } },
             "required": ["markdown"],
-            "additionalProperties": false
-          }
-        }
-      },
-      "message": {
-        "tags": {
-          "id": {
-            "title": "Gmail ID",
-            "description": "The unique identifier of the message on Gmail"
-          }
-        }
-      },
-      "conversation": {
-        "tags": {
-          "id": {
-            "title": "Gmail ID",
-            "description": "The unique identifier of the email thread on Gmail"
-          },
-          "email": {
-            "title": "Sender email",
-            "description": "The email address of the sender"
-          },
-          "subject": {
-            "title": "Subject",
-            "description": "The subject of the email"
-          },
-          "references": {
-            "title": "References",
-            "description": "The contents of the References header field"
-          },
-          "cc": {
-            "title": "CC",
-            "description": "Co-recipients"
-          }
-        }
-      }
-    }
-  },
-  "states": {
-    "thread": {
-      "type": "conversation",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "inReplyTo": {
-            "type": "string",
-            "x-zui": {
-              "title": "In reply to"
-            },
-            "description": "The ID of the message this message is a reply to"
+            "type": "object"
           }
         },
-        "additionalProperties": false
-      }
-    },
-    "configuration": {
-      "type": "integration",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "refreshToken": {
-            "type": "string",
-            "description": "The refresh token to use to authenticate with Gmail. It gets exchanged for a bearer token",
-            "x-zui": {
-              "title": "Refresh token"
-            }
-          },
-          "lastHistoryId": {
-            "type": "string",
-            "x-zui": {
-              "title": "History cursor"
+        "text": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": { "text": { "minLength": 1, "type": "string" } },
+            "required": ["text"],
+            "type": "object"
+          }
+        },
+        "video": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "title": { "description": "Title for the video file", "type": "string", "x-zui": { "title": "Title" } },
+              "videoUrl": { "minLength": 1, "type": "string" }
             },
-            "description": "The last history ID processed by the integration"
+            "required": ["videoUrl"],
+            "type": "object"
+          }
+        }
+      },
+      "title": "Email thread"
+    }
+  },
+  "description": "Send, receive, and manage emails directly within your bot's workflow.",
+  "events": {},
+  "interfaces": {},
+  "name": "gmail",
+  "states": {
+    "configuration": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "lastHistoryId": {
+            "description": "The last history ID processed by the integration",
+            "type": "string",
+            "x-zui": { "title": "History cursor" }
+          },
+          "refreshToken": {
+            "description": "The refresh token to use to authenticate with Gmail. It gets exchanged for a bearer token",
+            "type": "string",
+            "x-zui": { "title": "Refresh token" }
           }
         },
         "required": ["refreshToken"],
-        "additionalProperties": false
-      }
+        "type": "object"
+      },
+      "type": "integration"
     },
     "googlePublicCertCache": {
-      "type": "integration",
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "certificates": {
-            "type": "string",
             "description": "The certs used by Google for federated sign-on, stringified as JSON",
-            "x-zui": {
-              "title": "Certificates JSON"
-            }
+            "type": "string",
+            "x-zui": { "title": "Certificates JSON" }
           }
         },
         "required": ["certificates"],
-        "additionalProperties": false
-      }
+        "type": "object"
+      },
+      "type": "integration"
+    },
+    "thread": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "inReplyTo": {
+            "description": "The ID of the message this message is a reply to",
+            "type": "string",
+            "x-zui": { "title": "In reply to" }
+          }
+        },
+        "type": "object"
+      },
+      "type": "conversation"
     }
   },
-  "interfaces": {}
+  "title": "Gmail",
+  "user": { "tags": { "id": { "description": "The email address of the user", "title": "Email address" } } },
+  "version": "0.6.2"
 }

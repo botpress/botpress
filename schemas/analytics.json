@@ -1,43 +1,20 @@
 {
-  "name": "analytics",
-  "version": "0.0.1",
-  "user": {
-    "tags": {}
-  },
-  "conversation": {
-    "tags": {}
-  },
-  "configuration": {
-    "schema": {
-      "type": "object",
-      "properties": {},
-      "additionalProperties": false
-    }
-  },
   "actions": {
     "track": {
       "input": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "count": {
-              "type": "number"
-            }
-          },
+          "additionalProperties": false,
+          "properties": { "count": { "type": "number" }, "name": { "type": "string" } },
           "required": ["name", "count"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      }
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } }
     }
-  }
+  },
+  "configuration": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+  "conversation": { "tags": {} },
+  "name": "analytics",
+  "user": { "tags": {} },
+  "version": "0.0.1"
 }

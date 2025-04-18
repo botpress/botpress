@@ -1,715 +1,471 @@
 {
-  "name": "sunco",
-  "version": "1.0.0",
-  "title": "Sunshine Conversations",
-  "description": "Give your bot access to a powerful omnichannel messaging platform.",
-  "user": {
-    "tags": {
-      "id": {}
-    }
-  },
-  "events": {},
   "actions": {
-    "startTypingIndicator": {
+    "getOrCreateConversation": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "conversationId": {
-              "type": "string"
-            },
-            "messageId": {
-              "type": "string"
-            },
-            "timeout": {
-              "type": "number"
+            "conversation": {
+              "additionalProperties": false,
+              "description": "The conversation object fields",
+              "properties": {
+                "id": {
+                  "description": "The Sunshine Conversations conversation ID",
+                  "type": "string",
+                  "x-zui": { "title": "ID" }
+                }
+              },
+              "required": ["id"],
+              "type": "object",
+              "x-zui": { "title": "Conversation" }
             }
           },
-          "required": ["conversationId", "messageId"],
-          "additionalProperties": false
+          "required": ["conversation"],
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      }
-    },
-    "stopTypingIndicator": {
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "conversationId": {
-              "type": "string"
-            },
-            "messageId": {
-              "type": "string"
-            }
-          },
-          "required": ["conversationId", "messageId"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
+          "additionalProperties": false,
+          "properties": { "conversationId": { "type": "string" } },
+          "required": ["conversationId"],
+          "type": "object"
         }
       }
     },
     "getOrCreateUser": {
+      "description": "Proactively create a user from a bot",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "name": {
-              "type": "string"
-            },
-            "pictureUrl": {
-              "type": "string"
-            },
-            "email": {
-              "type": "string"
-            },
+            "email": { "type": "string" },
+            "name": { "type": "string" },
+            "pictureUrl": { "type": "string" },
             "user": {
-              "type": "object",
+              "additionalProperties": false,
+              "description": "The user object fields",
               "properties": {
                 "id": {
-                  "type": "string",
                   "description": "The Sunshine Conversations user ID",
-                  "x-zui": {
-                    "title": "ID"
-                  }
+                  "type": "string",
+                  "x-zui": { "title": "ID" }
                 }
               },
               "required": ["id"],
-              "additionalProperties": false,
-              "description": "The user object fields",
-              "x-zui": {
-                "title": "User"
-              }
+              "type": "object",
+              "x-zui": { "title": "User" }
             }
           },
           "required": ["user"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "userId": {
-              "type": "string"
-            }
-          },
+          "additionalProperties": false,
+          "properties": { "userId": { "type": "string" } },
           "required": ["userId"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "title": "Get or Create a User",
-      "description": "Proactively create a user from a bot"
+      "title": "Get or Create a User"
     },
-    "getOrCreateConversation": {
+    "startTypingIndicator": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "conversation": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "description": "The Sunshine Conversations conversation ID",
-                  "x-zui": {
-                    "title": "ID"
-                  }
-                }
-              },
-              "required": ["id"],
-              "additionalProperties": false,
-              "description": "The conversation object fields",
-              "x-zui": {
-                "title": "Conversation"
-              }
-            }
+            "conversationId": { "type": "string" },
+            "messageId": { "type": "string" },
+            "timeout": { "type": "number" }
           },
-          "required": ["conversation"],
-          "additionalProperties": false
+          "required": ["conversationId", "messageId"],
+          "type": "object"
         }
       },
-      "output": {
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } }
+    },
+    "stopTypingIndicator": {
+      "input": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "conversationId": {
-              "type": "string"
-            }
-          },
-          "required": ["conversationId"],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "properties": { "conversationId": { "type": "string" }, "messageId": { "type": "string" } },
+          "required": ["conversationId", "messageId"],
+          "type": "object"
         }
-      }
+      },
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } }
     }
   },
   "channels": {
     "channel": {
+      "conversation": { "tags": { "id": {} } },
+      "message": { "tags": { "id": {} } },
       "messages": {
-        "text": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "text": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": ["text"],
-            "additionalProperties": false
-          }
-        },
-        "image": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "imageUrl": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": ["imageUrl"],
-            "additionalProperties": false
-          }
-        },
         "audio": {
           "schema": {
-            "type": "object",
-            "properties": {
-              "audioUrl": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
+            "additionalProperties": false,
+            "properties": { "audioUrl": { "minLength": 1, "type": "string" } },
             "required": ["audioUrl"],
-            "additionalProperties": false
-          }
-        },
-        "video": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "videoUrl": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": ["videoUrl"],
-            "additionalProperties": false
-          }
-        },
-        "file": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "fileUrl": {
-                "type": "string",
-                "minLength": 1
-              },
-              "title": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": ["fileUrl"],
-            "additionalProperties": false
-          }
-        },
-        "location": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "latitude": {
-                "type": "number"
-              },
-              "longitude": {
-                "type": "number"
-              },
-              "address": {
-                "type": "string"
-              },
-              "title": {
-                "type": "string"
-              }
-            },
-            "required": ["latitude", "longitude"],
-            "additionalProperties": false
-          }
-        },
-        "carousel": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "title": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "subtitle": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "imageUrl": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "actions": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "action": {
-                            "type": "string",
-                            "enum": ["postback", "url", "say"]
-                          },
-                          "label": {
-                            "type": "string",
-                            "minLength": 1
-                          },
-                          "value": {
-                            "type": "string",
-                            "minLength": 1
-                          }
-                        },
-                        "required": ["action", "label", "value"],
-                        "additionalProperties": false
-                      }
-                    }
-                  },
-                  "required": ["title", "actions"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["items"],
-            "additionalProperties": false
-          }
-        },
-        "card": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "title": {
-                "type": "string",
-                "minLength": 1
-              },
-              "subtitle": {
-                "type": "string",
-                "minLength": 1
-              },
-              "imageUrl": {
-                "type": "string",
-                "minLength": 1
-              },
-              "actions": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "action": {
-                      "type": "string",
-                      "enum": ["postback", "url", "say"]
-                    },
-                    "label": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "value": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  },
-                  "required": ["action", "label", "value"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["title", "actions"],
-            "additionalProperties": false
-          }
-        },
-        "dropdown": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "text": {
-                "type": "string",
-                "minLength": 1
-              },
-              "options": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "value": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  },
-                  "required": ["label", "value"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["text", "options"],
-            "additionalProperties": false
-          }
-        },
-        "choice": {
-          "schema": {
-            "type": "object",
-            "properties": {
-              "text": {
-                "type": "string",
-                "minLength": 1
-              },
-              "options": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "value": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  },
-                  "required": ["label", "value"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["text", "options"],
-            "additionalProperties": false
+            "type": "object"
           }
         },
         "bloc": {
           "schema": {
-            "type": "object",
+            "additionalProperties": false,
             "properties": {
               "items": {
-                "type": "array",
                 "items": {
                   "anyOf": [
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "text"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "text": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "text": { "minLength": 1, "type": "string" } },
                           "required": ["text"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "text", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "markdown"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "markdown": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "markdown": { "minLength": 1, "type": "string" } },
                           "required": ["markdown"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "markdown", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "image"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "imageUrl": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "imageUrl": { "minLength": 1, "type": "string" } },
                           "required": ["imageUrl"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "image", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "audio"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "audioUrl": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "audioUrl": { "minLength": 1, "type": "string" } },
                           "required": ["audioUrl"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "audio", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "video"
-                        },
                         "payload": {
-                          "type": "object",
-                          "properties": {
-                            "videoUrl": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
+                          "additionalProperties": false,
+                          "properties": { "videoUrl": { "minLength": 1, "type": "string" } },
                           "required": ["videoUrl"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "video", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "file"
-                        },
                         "payload": {
-                          "type": "object",
+                          "additionalProperties": false,
                           "properties": {
-                            "fileUrl": {
-                              "type": "string",
-                              "minLength": 1
-                            },
-                            "title": {
-                              "type": "string",
-                              "minLength": 1
-                            }
+                            "fileUrl": { "minLength": 1, "type": "string" },
+                            "title": { "minLength": 1, "type": "string" }
                           },
                           "required": ["fileUrl"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "file", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     },
                     {
-                      "type": "object",
+                      "additionalProperties": false,
                       "properties": {
-                        "type": {
-                          "type": "string",
-                          "const": "location"
-                        },
                         "payload": {
-                          "type": "object",
+                          "additionalProperties": false,
                           "properties": {
-                            "latitude": {
-                              "type": "number"
-                            },
-                            "longitude": {
-                              "type": "number"
-                            },
-                            "address": {
-                              "type": "string"
-                            },
-                            "title": {
-                              "type": "string"
-                            }
+                            "address": { "type": "string" },
+                            "latitude": { "type": "number" },
+                            "longitude": { "type": "number" },
+                            "title": { "type": "string" }
                           },
                           "required": ["latitude", "longitude"],
-                          "additionalProperties": false
-                        }
+                          "type": "object"
+                        },
+                        "type": { "const": "location", "type": "string" }
                       },
                       "required": ["type", "payload"],
-                      "additionalProperties": false
+                      "type": "object"
                     }
                   ]
-                }
+                },
+                "type": "array"
               }
             },
             "required": ["items"],
-            "additionalProperties": false
+            "type": "object"
+          }
+        },
+        "card": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "actions": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "action": { "enum": ["postback", "url", "say"], "type": "string" },
+                    "label": { "minLength": 1, "type": "string" },
+                    "value": { "minLength": 1, "type": "string" }
+                  },
+                  "required": ["action", "label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "imageUrl": { "minLength": 1, "type": "string" },
+              "subtitle": { "minLength": 1, "type": "string" },
+              "title": { "minLength": 1, "type": "string" }
+            },
+            "required": ["title", "actions"],
+            "type": "object"
+          }
+        },
+        "carousel": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "actions": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "action": { "enum": ["postback", "url", "say"], "type": "string" },
+                          "label": { "minLength": 1, "type": "string" },
+                          "value": { "minLength": 1, "type": "string" }
+                        },
+                        "required": ["action", "label", "value"],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "imageUrl": { "minLength": 1, "type": "string" },
+                    "subtitle": { "minLength": 1, "type": "string" },
+                    "title": { "minLength": 1, "type": "string" }
+                  },
+                  "required": ["title", "actions"],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": ["items"],
+            "type": "object"
+          }
+        },
+        "choice": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "options": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "minLength": 1, "type": "string" },
+                    "value": { "minLength": 1, "type": "string" }
+                  },
+                  "required": ["label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "text": { "minLength": 1, "type": "string" }
+            },
+            "required": ["text", "options"],
+            "type": "object"
+          }
+        },
+        "dropdown": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "options": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "minLength": 1, "type": "string" },
+                    "value": { "minLength": 1, "type": "string" }
+                  },
+                  "required": ["label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "text": { "minLength": 1, "type": "string" }
+            },
+            "required": ["text", "options"],
+            "type": "object"
+          }
+        },
+        "file": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "fileUrl": { "minLength": 1, "type": "string" },
+              "title": { "minLength": 1, "type": "string" }
+            },
+            "required": ["fileUrl"],
+            "type": "object"
+          }
+        },
+        "image": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": { "imageUrl": { "minLength": 1, "type": "string" } },
+            "required": ["imageUrl"],
+            "type": "object"
+          }
+        },
+        "location": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "address": { "type": "string" },
+              "latitude": { "type": "number" },
+              "longitude": { "type": "number" },
+              "title": { "type": "string" }
+            },
+            "required": ["latitude", "longitude"],
+            "type": "object"
           }
         },
         "markdown": {
           "schema": {
-            "type": "object",
-            "properties": {
-              "markdown": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
+            "additionalProperties": false,
+            "properties": { "markdown": { "minLength": 1, "type": "string" } },
             "required": ["markdown"],
-            "additionalProperties": false
+            "type": "object"
           }
-        }
-      },
-      "message": {
-        "tags": {
-          "id": {}
-        }
-      },
-      "conversation": {
-        "tags": {
-          "id": {}
+        },
+        "text": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": { "text": { "minLength": 1, "type": "string" } },
+            "required": ["text"],
+            "type": "object"
+          }
+        },
+        "video": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": { "videoUrl": { "minLength": 1, "type": "string" } },
+            "required": ["videoUrl"],
+            "type": "object"
+          }
         }
       }
     }
   },
+  "description": "Give your bot access to a powerful omnichannel messaging platform.",
   "entities": {
-    "user": {
-      "title": "User",
-      "description": "A Sunshine Conversations user",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "The Sunshine Conversations user ID",
-            "x-zui": {
-              "title": "ID"
-            }
-          }
-        },
-        "required": ["id"],
-        "additionalProperties": false,
-        "description": "The user object fields",
-        "x-zui": {
-          "title": "User"
-        }
-      }
-    },
     "conversation": {
-      "title": "Conversation",
       "description": "A Sunshine Conversations conversation",
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
+        "description": "The conversation object fields",
         "properties": {
           "id": {
-            "type": "string",
             "description": "The Sunshine Conversations conversation ID",
-            "x-zui": {
-              "title": "ID"
-            }
+            "type": "string",
+            "x-zui": { "title": "ID" }
           }
         },
         "required": ["id"],
+        "type": "object",
+        "x-zui": { "title": "Conversation" }
+      },
+      "title": "Conversation"
+    },
+    "user": {
+      "description": "A Sunshine Conversations user",
+      "schema": {
         "additionalProperties": false,
-        "description": "The conversation object fields",
-        "x-zui": {
-          "title": "Conversation"
-        }
-      }
+        "description": "The user object fields",
+        "properties": {
+          "id": { "description": "The Sunshine Conversations user ID", "type": "string", "x-zui": { "title": "ID" } }
+        },
+        "required": ["id"],
+        "type": "object",
+        "x-zui": { "title": "User" }
+      },
+      "title": "User"
     }
   },
+  "events": {},
   "interfaces": {
-    "typingIndicator": {
-      "id": "",
-      "name": "typingIndicator",
-      "version": "0.0.1",
-      "entities": {},
-      "actions": {
-        "startTypingIndicator": {
-          "name": "startTypingIndicator"
-        },
-        "stopTypingIndicator": {
-          "name": "stopTypingIndicator"
-        }
-      },
-      "events": {},
-      "channels": {}
-    },
-    "proactiveUser<user>": {
-      "id": "",
-      "name": "proactiveUser",
-      "version": "0.0.2",
-      "entities": {
-        "user": {
-          "name": "user"
-        }
-      },
-      "actions": {
-        "getOrCreateUser": {
-          "name": "getOrCreateUser"
-        }
-      },
-      "events": {},
-      "channels": {}
-    },
     "proactiveConversation<conversation>": {
+      "actions": { "getOrCreateConversation": { "name": "getOrCreateConversation" } },
+      "channels": {},
+      "entities": { "conversation": { "name": "conversation" } },
+      "events": {},
       "id": "",
       "name": "proactiveConversation",
-      "version": "0.0.2",
-      "entities": {
-        "conversation": {
-          "name": "conversation"
-        }
-      },
-      "actions": {
-        "getOrCreateConversation": {
-          "name": "getOrCreateConversation"
-        }
-      },
+      "version": "0.0.2"
+    },
+    "proactiveUser<user>": {
+      "actions": { "getOrCreateUser": { "name": "getOrCreateUser" } },
+      "channels": {},
+      "entities": { "user": { "name": "user" } },
       "events": {},
-      "channels": {}
+      "id": "",
+      "name": "proactiveUser",
+      "version": "0.0.2"
+    },
+    "typingIndicator": {
+      "actions": {
+        "startTypingIndicator": { "name": "startTypingIndicator" },
+        "stopTypingIndicator": { "name": "stopTypingIndicator" }
+      },
+      "channels": {},
+      "entities": {},
+      "events": {},
+      "id": "",
+      "name": "typingIndicator",
+      "version": "0.0.1"
     }
-  }
+  },
+  "name": "sunco",
+  "title": "Sunshine Conversations",
+  "user": { "tags": { "id": {} } },
+  "version": "1.0.0"
 }

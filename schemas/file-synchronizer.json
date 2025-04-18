@@ -1,316 +1,227 @@
 {
-  "name": "file-synchronizer",
-  "version": "0.4.0",
-  "title": "File Synchronizer",
-  "description": "Synchronize files from external services to Botpress",
-  "user": {
-    "tags": {}
-  },
-  "conversation": {
-    "tags": {}
-  },
-  "configuration": {
-    "schema": {
-      "type": "object",
-      "properties": {
-        "enablePeriodicSync": {
-          "type": "object",
-          "properties": {
-            "everyNHours": {
-              "type": "number",
-              "description": "The interval (in hours) at which to synchronize files."
-            }
-          },
-          "required": ["everyNHours"],
-          "additionalProperties": false,
-
-          "description": "Enable synchronisation using the provided schedule. Leave empty to disable periodic synchronization."
-        },
-        "enableRealTimeSync": {
-          "type": "boolean",
-
-          "default": true,
-          "description": "Enable real-time synchronization. Whever a file is created, updated, or deleted, synchronize it to Botpress immediately. This does not work with every integration."
-        },
-        "includeFiles": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "pathGlobPattern": {
-                "type": "string",
-                "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported."
-              },
-              "maxSizeInBytes": {
-                "type": "number",
-
-                "description": "Filter by maximum size (in bytes). Only files smaller than the specified size will be synchronized."
-              },
-              "modifiedAfter": {
-                "type": "string",
-                "format": "date-time",
-
-                "description": "Filter the items by modified date. Only files modified after the specified date will be synchronized."
-              }
-            },
-            "required": ["pathGlobPattern"],
-            "additionalProperties": false,
-            "description": "A file must match all criteria to be synchronized.",
-            "x-zui": {
-              "title": "Include Criteria"
-            }
-          },
-          "description": "A list of rules to include files. Only files that match one or more rules will be synchronized.",
-          "x-zui": {
-            "title": "Include Rules Override"
-          }
-        },
-        "excludeFiles": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "pathGlobPattern": {
-                "type": "string",
-                "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration."
-              }
-            },
-            "required": ["pathGlobPattern"],
-            "additionalProperties": false,
-            "description": "A file must match all exclude criteria to be ignored.",
-            "x-zui": {
-              "title": "Exclude Criteria"
-            }
-          },
-          "description": "A list of rules to exclude files. Files that match one or more rules will be ignored. This takes precedence over Include Rules.",
-          "x-zui": {
-            "title": "Exclude Rules Override"
-          }
-        }
-      },
-      "required": ["includeFiles", "excludeFiles"],
-      "additionalProperties": false
-    }
-  },
-  "events": {
-    "periodicSync": {
-      "schema": {
-        "type": "object",
-        "properties": {},
-        "additionalProperties": false
-      }
-    }
-  },
   "actions": {
-    "syncFilesToBotpess": {
-      "title": "Sync files to Botpress",
-      "description": "Start synchronization of files from the external service to Botpress",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "includeFiles": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "pathGlobPattern": {
-                    "type": "string",
-                    "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported."
-                  },
-                  "maxSizeInBytes": {
-                    "type": "number",
-
-                    "description": "Filter by maximum size (in bytes). Only files smaller than the specified size will be synchronized."
-                  },
-                  "modifiedAfter": {
-                    "type": "string",
-                    "format": "date-time",
-
-                    "description": "Filter the items by modified date. Only files modified after the specified date will be synchronized."
-                  }
-                },
-                "required": ["pathGlobPattern"],
-                "additionalProperties": false,
-                "description": "A file must match all criteria to be synchronized.",
-                "x-zui": {
-                  "title": "Include Criteria"
-                }
-              },
-              "description": "If omitted, the global Include Rules will be used.",
-              "x-zui": {
-                "title": "Include Rules Override"
-              }
-            },
-            "excludeFiles": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "pathGlobPattern": {
-                    "type": "string",
-                    "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration."
-                  }
-                },
-                "required": ["pathGlobPattern"],
-                "additionalProperties": false,
-                "description": "A file must match all exclude criteria to be ignored.",
-                "x-zui": {
-                  "title": "Exclude Criteria"
-                }
-              },
-              "description": "If omitted, the global Exclude Rules will be used",
-              "x-zui": {
-                "title": "Exclude Rules Override"
-              }
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "status": {
-              "type": "string",
-              "enum": ["queued", "already-running", "error"]
-            }
-          },
-          "required": ["status"],
-          "additionalProperties": false
-        }
-      }
-    },
     "listItemsInFolder": {
+      "description": "List the files and folders in a folder",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "folderId": {
-              "type": "string"
-            },
             "filters": {
-              "type": "object",
+              "additionalProperties": false,
               "properties": {
-                "itemType": {
-                  "type": "string",
-                  "enum": ["file", "folder"]
-                },
-                "maxSizeInBytes": {
-                  "type": "number"
-                },
-                "modifiedAfter": {
-                  "type": "string"
-                }
+                "itemType": { "enum": ["file", "folder"], "type": "string" },
+                "maxSizeInBytes": { "type": "number" },
+                "modifiedAfter": { "type": "string" }
               },
-              "additionalProperties": false
+              "type": "object"
             },
-            "nextToken": {
-              "type": "string"
-            }
+            "folderId": { "type": "string" },
+            "nextToken": { "type": "string" }
           },
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "items": {
-              "type": "array",
               "items": {
                 "anyOf": [
                   {
-                    "type": "object",
+                    "additionalProperties": false,
                     "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "type": {
-                        "type": "string",
-                        "const": "file"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "parentId": {
-                        "type": "string"
-                      },
-                      "absolutePath": {
-                        "type": "string"
-                      },
-                      "sizeInBytes": {
-                        "type": "number"
-                      },
-                      "lastModifiedDate": {
-                        "type": "string"
-                      },
-                      "contentHash": {
-                        "type": "string"
-                      }
+                      "absolutePath": { "type": "string" },
+                      "contentHash": { "type": "string" },
+                      "id": { "type": "string" },
+                      "lastModifiedDate": { "type": "string" },
+                      "name": { "type": "string" },
+                      "parentId": { "type": "string" },
+                      "sizeInBytes": { "type": "number" },
+                      "type": { "const": "file", "type": "string" }
                     },
                     "required": ["id", "type", "name"],
-                    "additionalProperties": false
+                    "type": "object"
                   },
                   {
-                    "type": "object",
+                    "additionalProperties": false,
                     "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "type": {
-                        "type": "string",
-                        "const": "folder"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "parentId": {
-                        "type": "string"
-                      },
-                      "absolutePath": {
-                        "type": "string"
-                      }
+                      "absolutePath": { "type": "string" },
+                      "id": { "type": "string" },
+                      "name": { "type": "string" },
+                      "parentId": { "type": "string" },
+                      "type": { "const": "folder", "type": "string" }
                     },
                     "required": ["id", "type", "name"],
-                    "additionalProperties": false
+                    "type": "object"
                   }
                 ]
-              }
+              },
+              "type": "array"
             },
             "meta": {
-              "type": "object",
-              "properties": {
-                "nextToken": {
-                  "type": "string"
-                }
-              },
-              "additionalProperties": false
+              "additionalProperties": false,
+              "properties": { "nextToken": { "type": "string" } },
+              "type": "object"
             }
           },
           "required": ["items", "meta"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "title": "List items in folder",
-      "description": "List the files and folders in a folder"
+      "title": "List items in folder"
+    },
+    "syncFilesToBotpess": {
+      "description": "Start synchronization of files from the external service to Botpress",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "excludeFiles": {
+              "description": "If omitted, the global Exclude Rules will be used",
+              "items": {
+                "additionalProperties": false,
+                "description": "A file must match all exclude criteria to be ignored.",
+                "properties": {
+                  "pathGlobPattern": {
+                    "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration.",
+                    "type": "string"
+                  }
+                },
+                "required": ["pathGlobPattern"],
+                "type": "object",
+                "x-zui": { "title": "Exclude Criteria" }
+              },
+              "type": "array",
+              "x-zui": { "title": "Exclude Rules Override" }
+            },
+            "includeFiles": {
+              "description": "If omitted, the global Include Rules will be used.",
+              "items": {
+                "additionalProperties": false,
+                "description": "A file must match all criteria to be synchronized.",
+                "properties": {
+                  "maxSizeInBytes": {
+                    "description": "Filter by maximum size (in bytes). Only files smaller than the specified size will be synchronized.",
+                    "type": "number"
+                  },
+                  "modifiedAfter": {
+                    "description": "Filter the items by modified date. Only files modified after the specified date will be synchronized.",
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "pathGlobPattern": {
+                    "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported.",
+                    "type": "string"
+                  }
+                },
+                "required": ["pathGlobPattern"],
+                "type": "object",
+                "x-zui": { "title": "Include Criteria" }
+              },
+              "type": "array",
+              "x-zui": { "title": "Include Rules Override" }
+            }
+          },
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": { "status": { "enum": ["queued", "already-running", "error"], "type": "string" } },
+          "required": ["status"],
+          "type": "object"
+        }
+      },
+      "title": "Sync files to Botpress"
     }
   },
+  "configuration": {
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "enablePeriodicSync": {
+          "additionalProperties": false,
+          "description": "Enable synchronisation using the provided schedule. Leave empty to disable periodic synchronization.",
+          "properties": {
+            "everyNHours": { "description": "The interval (in hours) at which to synchronize files.", "type": "number" }
+          },
+          "required": ["everyNHours"],
+          "type": "object"
+        },
+        "enableRealTimeSync": {
+          "default": true,
+          "description": "Enable real-time synchronization. Whever a file is created, updated, or deleted, synchronize it to Botpress immediately. This does not work with every integration.",
+          "type": "boolean"
+        },
+        "excludeFiles": {
+          "description": "A list of rules to exclude files. Files that match one or more rules will be ignored. This takes precedence over Include Rules.",
+          "items": {
+            "additionalProperties": false,
+            "description": "A file must match all exclude criteria to be ignored.",
+            "properties": {
+              "pathGlobPattern": {
+                "description": "A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration.",
+                "type": "string"
+              }
+            },
+            "required": ["pathGlobPattern"],
+            "type": "object",
+            "x-zui": { "title": "Exclude Criteria" }
+          },
+          "type": "array",
+          "x-zui": { "title": "Exclude Rules Override" }
+        },
+        "includeFiles": {
+          "description": "A list of rules to include files. Only files that match one or more rules will be synchronized.",
+          "items": {
+            "additionalProperties": false,
+            "description": "A file must match all criteria to be synchronized.",
+            "properties": {
+              "maxSizeInBytes": {
+                "description": "Filter by maximum size (in bytes). Only files smaller than the specified size will be synchronized.",
+                "type": "number"
+              },
+              "modifiedAfter": {
+                "description": "Filter the items by modified date. Only files modified after the specified date will be synchronized.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "pathGlobPattern": {
+                "description": "A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported.",
+                "type": "string"
+              }
+            },
+            "required": ["pathGlobPattern"],
+            "type": "object",
+            "x-zui": { "title": "Include Criteria" }
+          },
+          "type": "array",
+          "x-zui": { "title": "Include Rules Override" }
+        }
+      },
+      "required": ["includeFiles", "excludeFiles"],
+      "type": "object"
+    }
+  },
+  "conversation": { "tags": {} },
+  "description": "Synchronize files from external services to Botpress",
+  "events": { "periodicSync": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } } },
+  "name": "file-synchronizer",
   "states": {
     "periodicSync": {
-      "type": "bot",
+      "expiry": 172800000,
       "schema": {
-        "type": "object",
-        "properties": {
-          "elapsedHoursSinceLastSync": {
-            "type": "number"
-          }
-        },
+        "additionalProperties": false,
+        "properties": { "elapsedHoursSinceLastSync": { "type": "number" } },
         "required": ["elapsedHoursSinceLastSync"],
-        "additionalProperties": false
+        "type": "object"
       },
-      "expiry": 172800000
+      "type": "bot"
     }
-  }
+  },
+  "title": "File Synchronizer",
+  "user": { "tags": {} },
+  "version": "0.4.0"
 }

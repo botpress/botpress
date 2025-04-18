@@ -1,357 +1,268 @@
 {
-  "name": "airtable",
-  "version": "0.0.4",
-  "title": "Airtable",
-  "description": "Access and manage Airtable data to allow your chatbot to retrieve details, update records, and organize information.",
-  "user": {
-    "tags": {}
-  },
-  "events": {},
   "actions": {
-    "getTableRecords": {
-      "title": "Get Records of the Table",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "tableIdOrName": {
-              "type": "string",
-              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
-            }
-          },
-          "required": ["tableIdOrName"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "records": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "_rawJson": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                  },
-                  "id": {
-                    "type": "string"
-                  }
-                },
-                "required": ["_rawJson", "id"],
-                "additionalProperties": false
-              }
-            }
-          },
-          "required": ["records"],
-          "additionalProperties": true
-        }
-      }
-    },
-    "createTable": {
-      "title": "Create Table",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string",
-              "description": "Name of the Table (e.g. MyTable)"
-            },
-            "fields": {
-              "type": "string",
-              "description": "The Table's fields, separated by commas. Each field should be in the format \"type_name\" (e.g. \"phoneNumber_Customer Phone, singleLineText_Address\")."
-            },
-            "description": {
-              "type": "string",
-
-              "description": "Description of the Table (e.g. This is my table) (Optional)"
-            }
-          },
-          "required": ["name", "fields"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "description": {
-              "type": "string"
-            },
-            "fields": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "type": {
-                    "type": "string"
-                  }
-                },
-                "required": ["name", "type"],
-                "additionalProperties": true
-              }
-            },
-            "id": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
-            },
-            "primaryFieldId": {
-              "type": "string"
-            },
-            "views": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "type": {
-                    "type": "string"
-                  }
-                },
-                "required": ["id", "name", "type"],
-                "additionalProperties": true
-              }
-            }
-          },
-          "required": ["fields", "id", "name", "primaryFieldId", "views"],
-          "additionalProperties": true
-        }
-      }
-    },
-    "updateTable": {
-      "title": "Update Table",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "tableIdOrName": {
-              "type": "string",
-              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
-            },
-            "name": {
-              "type": "string",
-
-              "description": "Name of the Table (e.g. MyTable) (Optional)"
-            },
-            "description": {
-              "type": "string",
-
-              "description": "Description of the Table (e.g. This is my table) (Optional)"
-            }
-          },
-          "required": ["tableIdOrName"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "description": {
-              "type": "string"
-            },
-            "fields": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "type": {
-                    "type": "string"
-                  }
-                },
-                "required": ["name", "type"],
-                "additionalProperties": true
-              }
-            },
-            "id": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
-            },
-            "primaryFieldId": {
-              "type": "string"
-            },
-            "views": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "type": {
-                    "type": "string"
-                  }
-                },
-                "required": ["id", "name", "type"],
-                "additionalProperties": true
-              }
-            }
-          },
-          "required": ["fields", "id", "name", "primaryFieldId", "views"],
-          "additionalProperties": true
-        }
-      }
-    },
     "createRecord": {
-      "title": "Create Record",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "tableIdOrName": {
-              "type": "string",
-              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
-            },
             "fields": {
-              "type": "string",
-              "description": "The fields and their values for the new record, in a JSON format (e.g. {\"Name\":\"John Doe\",\"City\":\"In the moon\",\"Verify\":true})"
+              "description": "The fields and their values for the new record, in a JSON format (e.g. {\"Name\":\"John Doe\",\"City\":\"In the moon\",\"Verify\":true})",
+              "type": "string"
+            },
+            "tableIdOrName": {
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
+              "type": "string"
             }
           },
           "required": ["tableIdOrName", "fields"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": true,
           "properties": {
-            "_rawJson": {
-              "type": "object",
-              "properties": {},
-              "additionalProperties": true
-            },
-            "id": {
-              "type": "string"
-            }
+            "_rawJson": { "additionalProperties": true, "properties": {}, "type": "object" },
+            "id": { "type": "string" }
           },
           "required": ["_rawJson", "id"],
-          "additionalProperties": true
+          "type": "object"
         }
-      }
+      },
+      "title": "Create Record"
     },
-    "updateRecord": {
-      "title": "Update Record",
+    "createTable": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "tableIdOrName": {
-              "type": "string",
-              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
-            },
-            "recordId": {
-              "type": "string",
-              "description": "The ID of the Record to be updated"
+            "description": {
+              "description": "Description of the Table (e.g. This is my table) (Optional)",
+              "type": "string"
             },
             "fields": {
-              "type": "string",
-              "description": "The fields and their values for the record to be updated, in a JSON format (e.g. {\"Name\":\"John Doe\",\"Verify\":true})"
-            }
+              "description": "The Table's fields, separated by commas. Each field should be in the format \"type_name\" (e.g. \"phoneNumber_Customer Phone, singleLineText_Address\").",
+              "type": "string"
+            },
+            "name": { "description": "Name of the Table (e.g. MyTable)", "type": "string" }
           },
-          "required": ["tableIdOrName", "recordId", "fields"],
-          "additionalProperties": false
+          "required": ["name", "fields"],
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": true,
           "properties": {
-            "_rawJson": {
-              "type": "object",
-              "properties": {},
-              "additionalProperties": true
+            "description": { "type": "string" },
+            "fields": {
+              "items": {
+                "additionalProperties": true,
+                "properties": { "name": { "type": "string" }, "type": { "type": "string" } },
+                "required": ["name", "type"],
+                "type": "object"
+              },
+              "type": "array"
             },
-            "id": {
-              "type": "string"
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "primaryFieldId": { "type": "string" },
+            "views": {
+              "items": {
+                "additionalProperties": true,
+                "properties": {
+                  "id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "type": { "type": "string" }
+                },
+                "required": ["id", "name", "type"],
+                "type": "object"
+              },
+              "type": "array"
             }
           },
-          "required": ["_rawJson", "id"],
-          "additionalProperties": true
+          "required": ["fields", "id", "name", "primaryFieldId", "views"],
+          "type": "object"
         }
-      }
+      },
+      "title": "Create Table"
     },
-    "listRecords": {
-      "title": "List Records",
+    "getTableRecords": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "tableIdOrName": {
-              "type": "string",
-              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)"
-            },
-            "nextToken": {
-              "type": "string",
-
-              "description": "The next page token (Optional)"
-            },
-            "filterByFormula": {
-              "type": "string",
-
-              "description": "filter to apply to the list records (See https://support.airtable.com/docs/formula-field-reference)"
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
+              "type": "string"
             }
           },
           "required": ["tableIdOrName"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": true,
           "properties": {
             "records": {
-              "type": "array",
               "items": {
-                "type": "object",
+                "additionalProperties": false,
                 "properties": {
-                  "_rawJson": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                  },
-                  "id": {
-                    "type": "string"
-                  }
+                  "_rawJson": { "additionalProperties": true, "properties": {}, "type": "object" },
+                  "id": { "type": "string" }
                 },
                 "required": ["_rawJson", "id"],
-                "additionalProperties": false
-              }
-            },
-            "nextToken": {
-              "type": "string",
-
-              "description": "The next page token (Optional)"
+                "type": "object"
+              },
+              "type": "array"
             }
           },
           "required": ["records"],
-          "additionalProperties": true
+          "type": "object"
         }
-      }
+      },
+      "title": "Get Records of the Table"
+    },
+    "listRecords": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "filterByFormula": {
+              "description": "filter to apply to the list records (See https://support.airtable.com/docs/formula-field-reference)",
+              "type": "string"
+            },
+            "nextToken": { "description": "The next page token (Optional)", "type": "string" },
+            "tableIdOrName": {
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
+              "type": "string"
+            }
+          },
+          "required": ["tableIdOrName"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": true,
+          "properties": {
+            "nextToken": { "description": "The next page token (Optional)", "type": "string" },
+            "records": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "_rawJson": { "additionalProperties": true, "properties": {}, "type": "object" },
+                  "id": { "type": "string" }
+                },
+                "required": ["_rawJson", "id"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["records"],
+          "type": "object"
+        }
+      },
+      "title": "List Records"
+    },
+    "updateRecord": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "fields": {
+              "description": "The fields and their values for the record to be updated, in a JSON format (e.g. {\"Name\":\"John Doe\",\"Verify\":true})",
+              "type": "string"
+            },
+            "recordId": { "description": "The ID of the Record to be updated", "type": "string" },
+            "tableIdOrName": {
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
+              "type": "string"
+            }
+          },
+          "required": ["tableIdOrName", "recordId", "fields"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": true,
+          "properties": {
+            "_rawJson": { "additionalProperties": true, "properties": {}, "type": "object" },
+            "id": { "type": "string" }
+          },
+          "required": ["_rawJson", "id"],
+          "type": "object"
+        }
+      },
+      "title": "Update Record"
+    },
+    "updateTable": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "description": "Description of the Table (e.g. This is my table) (Optional)",
+              "type": "string"
+            },
+            "name": { "description": "Name of the Table (e.g. MyTable) (Optional)", "type": "string" },
+            "tableIdOrName": {
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
+              "type": "string"
+            }
+          },
+          "required": ["tableIdOrName"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": true,
+          "properties": {
+            "description": { "type": "string" },
+            "fields": {
+              "items": {
+                "additionalProperties": true,
+                "properties": { "name": { "type": "string" }, "type": { "type": "string" } },
+                "required": ["name", "type"],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "primaryFieldId": { "type": "string" },
+            "views": {
+              "items": {
+                "additionalProperties": true,
+                "properties": {
+                  "id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "type": { "type": "string" }
+                },
+                "required": ["id", "name", "type"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["fields", "id", "name", "primaryFieldId", "views"],
+          "type": "object"
+        }
+      },
+      "title": "Update Table"
     }
   },
   "channels": {},
+  "description": "Access and manage Airtable data to allow your chatbot to retrieve details, update records, and organize information.",
+  "events": {},
+  "interfaces": {},
+  "name": "airtable",
   "states": {},
-  "interfaces": {}
+  "title": "Airtable",
+  "user": { "tags": {} },
+  "version": "0.0.4"
 }

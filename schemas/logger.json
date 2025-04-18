@@ -1,17 +1,7 @@
 {
+  "configuration": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+  "conversation": { "tags": {} },
   "name": "logger",
-  "version": "0.0.1",
-  "user": {
-    "tags": {}
-  },
-  "conversation": {
-    "tags": {}
-  },
-  "configuration": {
-    "schema": {
-      "type": "object",
-      "properties": {},
-      "additionalProperties": false
-    }
-  }
+  "user": { "tags": {} },
+  "version": "0.0.1"
 }

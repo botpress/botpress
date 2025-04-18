@@ -1,64 +1,47 @@
 {
-  "name": "typingIndicator",
-  "version": "0.0.1",
-  "entities": {},
-  "events": {},
   "actions": {
     "startTypingIndicator": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "conversationId": {
+            "conversationId": { "type": "string" },
+            "messageId": {
+              "description": "The message ID to which the typing indicator should be attached",
               "type": "string"
             },
-            "messageId": {
-              "type": "string",
-              "description": "The message ID to which the typing indicator should be attached"
-            },
             "timeout": {
-              "type": "number",
-
-              "description": "The timeout in milliseconds after which the typing indicator should stop"
+              "description": "The timeout in milliseconds after which the typing indicator should stop",
+              "type": "number"
             }
           },
           "required": ["conversationId", "messageId"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      }
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } }
     },
     "stopTypingIndicator": {
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "conversationId": {
-              "type": "string"
-            },
+            "conversationId": { "type": "string" },
             "messageId": {
-              "type": "string",
-              "description": "The message ID from which the typing indicator should be removed"
+              "description": "The message ID from which the typing indicator should be removed",
+              "type": "string"
             }
           },
           "required": ["conversationId", "messageId"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      }
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } }
     }
   },
-  "channels": {}
+  "channels": {},
+  "entities": {},
+  "events": {},
+  "name": "typingIndicator",
+  "version": "0.0.1"
 }

@@ -1,61 +1,43 @@
 {
-  "name": "readable",
-  "version": "0.0.1",
-  "entities": {
-    "item": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          }
-        },
-        "required": ["id"],
-        "additionalProperties": false
-      }
-    }
-  },
-  "events": {},
   "actions": {
     "read": {
       "input": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            }
-          },
+          "additionalProperties": false,
+          "properties": { "id": { "type": "string" } },
           "required": ["id"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "item": {
               "allOf": [
-                {
-                  "$ref": "item"
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string"
-                    }
-                  },
-                  "required": ["id"]
-                }
+                { "$ref": "item" },
+                { "properties": { "id": { "type": "string" } }, "required": ["id"], "type": "object" }
               ]
             }
           },
           "required": ["item"],
-          "additionalProperties": false
+          "type": "object"
         }
       }
     }
   },
-  "channels": {}
+  "channels": {},
+  "entities": {
+    "item": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": { "id": { "type": "string" } },
+        "required": ["id"],
+        "type": "object"
+      }
+    }
+  },
+  "events": {},
+  "name": "readable",
+  "version": "0.0.1"
 }

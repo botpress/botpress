@@ -1,72 +1,50 @@
 {
-  "name": "listable",
-  "version": "0.0.1",
-  "entities": {
-    "item": {
-      "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          }
-        },
-        "required": ["id"],
-        "additionalProperties": false
-      }
-    }
-  },
-  "events": {},
   "actions": {
     "list": {
       "input": {
         "schema": {
-          "type": "object",
-          "properties": {
-            "nextToken": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "properties": { "nextToken": { "type": "string" } },
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "items": {
-              "type": "array",
               "items": {
                 "allOf": [
-                  {
-                    "$ref": "item"
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string"
-                      }
-                    },
-                    "required": ["id"]
-                  }
+                  { "$ref": "item" },
+                  { "properties": { "id": { "type": "string" } }, "required": ["id"], "type": "object" }
                 ]
-              }
+              },
+              "type": "array"
             },
             "meta": {
-              "type": "object",
-              "properties": {
-                "nextToken": {
-                  "type": "string"
-                }
-              },
-              "additionalProperties": false
+              "additionalProperties": false,
+              "properties": { "nextToken": { "type": "string" } },
+              "type": "object"
             }
           },
           "required": ["items", "meta"],
-          "additionalProperties": false
+          "type": "object"
         }
       }
     }
   },
-  "channels": {}
+  "channels": {},
+  "entities": {
+    "item": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": { "id": { "type": "string" } },
+        "required": ["id"],
+        "type": "object"
+      }
+    }
+  },
+  "events": {},
+  "name": "listable",
+  "version": "0.0.1"
 }

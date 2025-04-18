@@ -1,792 +1,540 @@
 {
-  "name": "googledrive",
-  "version": "0.0.4",
-  "title": "Google Drive",
-  "description": "Access and manage your Google Drive files from your bot.",
-  "events": {
-    "fileCreated": {
-      "title": "File Created",
-      "description": "Triggered when a file is created in Google Drive",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "The ID of the Google Drive file"
-          },
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "description": "The name of the file"
-          },
-          "parentId": {
-            "type": "string",
-            "minLength": 1,
-
-            "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
-          },
-          "mimeType": {
-            "type": "string",
-            "minLength": 1,
-            "description": "The media type of the file"
-          },
-          "size": {
-            "type": "number",
-            "minimum": 0,
-            "description": "The size in bytes of the file"
-          },
-          "path": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "description": "A component of the path of the file. It corresponds to the name of one of it's parents."
-            },
-            "description": "An array of the path's components sorted by level (root to leaf)"
-          }
-        },
-        "required": ["id", "name", "mimeType", "size", "path"],
-        "additionalProperties": false
-      }
-    },
-    "fileDeleted": {
-      "title": "File Deleted",
-      "description": "Triggered when a file is deleted in Google Drive",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "The ID of the Google Drive file"
-          }
-        },
-        "required": ["id"],
-        "additionalProperties": false
-      }
-    },
-    "folderCreated": {
-      "title": "Folder Created",
-      "description": "Triggered when a folder is created in Google Drive",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "The ID of the Google Drive file"
-          },
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "description": "The name of the file"
-          },
-          "parentId": {
-            "type": "string",
-            "minLength": 1,
-
-            "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
-          },
-          "mimeType": {
-            "type": "string",
-            "const": "application/vnd.google-apps.folder"
-          },
-          "path": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1,
-              "description": "A component of the path of the file. It corresponds to the name of one of it's parents."
-            },
-            "description": "An array of the path's components sorted by level (root to leaf)"
-          }
-        },
-        "required": ["id", "name", "mimeType", "path"],
-        "additionalProperties": false
-      }
-    },
-    "folderDeleted": {
-      "title": "Folder Deleted",
-      "description": "Triggered when a folder is deleted in Google Drive",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "The ID of the Google Drive file"
-          }
-        },
-        "required": ["id"],
-        "additionalProperties": false
-      }
-    }
-  },
   "actions": {
-    "listFiles": {
-      "title": "List Files",
-      "description": "List files in Google Drive",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "nextToken": {
-              "type": "string",
-
-              "description": "The token to use to get the next page of results"
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "The ID of the Google Drive file"
-                  },
-                  "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "The name of the file"
-                  },
-                  "parentId": {
-                    "type": "string",
-                    "minLength": 1,
-
-                    "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
-                  },
-                  "mimeType": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "The media type of the file"
-                  },
-                  "size": {
-                    "type": "number",
-                    "minimum": 0,
-                    "description": "The size in bytes of the file"
-                  },
-                  "path": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "A component of the path of the file. It corresponds to the name of one of it's parents."
-                    },
-                    "description": "An array of the path's components sorted by level (root to leaf)"
-                  }
-                },
-                "required": ["id", "name", "mimeType", "size", "path"],
-                "additionalProperties": false
-              },
-              "description": "The list of items listed in Google Drive. Results may be paginated. If set, use nextToken to get additional results"
-            },
-            "meta": {
-              "type": "object",
-              "properties": {
-                "nextToken": {
-                  "type": "string",
-
-                  "description": "The token to pass as input to the next call of the list action to list additional items"
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "required": ["items", "meta"],
-          "additionalProperties": false
-        }
-      }
-    },
-    "listFolders": {
-      "title": "List folders",
-      "description": "List folders in Google Drive",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "nextToken": {
-              "type": "string",
-
-              "description": "The token to use to get the next page of results"
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "The ID of the Google Drive file"
-                  },
-                  "name": {
-                    "type": "string",
-                    "minLength": 1,
-                    "description": "The name of the file"
-                  },
-                  "parentId": {
-                    "type": "string",
-                    "minLength": 1,
-
-                    "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
-                  },
-                  "mimeType": {
-                    "type": "string",
-                    "const": "application/vnd.google-apps.folder"
-                  },
-                  "path": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "A component of the path of the file. It corresponds to the name of one of it's parents."
-                    },
-                    "description": "An array of the path's components sorted by level (root to leaf)"
-                  }
-                },
-                "required": ["id", "name", "mimeType", "path"],
-                "additionalProperties": false
-              },
-              "description": "The list of items listed in Google Drive. Results may be paginated. If set, use nextToken to get additional results"
-            },
-            "meta": {
-              "type": "object",
-              "properties": {
-                "nextToken": {
-                  "type": "string",
-
-                  "description": "The token to pass as input to the next call of the list action to list additional items"
-                }
-              },
-              "additionalProperties": false
-            }
-          },
-          "required": ["items", "meta"],
-          "additionalProperties": false
-        }
-      }
-    },
     "createFile": {
-      "title": "Create File",
       "description": "Create an empty file in Google Drive",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "name": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The name of the file"
-            },
+            "mimeType": { "description": "The media type of the file", "minLength": 1, "type": "string" },
+            "name": { "description": "The name of the file", "minLength": 1, "type": "string" },
             "parentId": {
-              "type": "string",
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
               "minLength": 1,
-
-              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
-            },
-            "mimeType": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The media type of the file"
+              "type": "string"
             }
           },
           "required": ["name", "mimeType"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
+          "description": "The file created in Google Drive",
           "properties": {
-            "id": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The ID of the Google Drive file"
-            },
-            "name": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The name of the file"
-            },
+            "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" },
+            "mimeType": { "description": "The media type of the file", "minLength": 1, "type": "string" },
+            "name": { "description": "The name of the file", "minLength": 1, "type": "string" },
             "parentId": {
-              "type": "string",
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
               "minLength": 1,
-
-              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
-            },
-            "mimeType": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The media type of the file"
-            },
-            "size": {
-              "type": "number",
-              "minimum": 0,
-              "description": "The size in bytes of the file"
+              "type": "string"
             },
             "path": {
-              "type": "array",
+              "description": "An array of the path's components sorted by level (root to leaf)",
               "items": {
-                "type": "string",
+                "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
                 "minLength": 1,
-                "description": "A component of the path of the file. It corresponds to the name of one of it's parents."
+                "type": "string"
               },
-              "description": "An array of the path's components sorted by level (root to leaf)"
-            }
+              "type": "array"
+            },
+            "size": { "description": "The size in bytes of the file", "minimum": 0, "type": "number" }
           },
           "required": ["id", "name", "mimeType", "size", "path"],
-          "additionalProperties": false,
-          "description": "The file created in Google Drive"
-        }
-      }
-    },
-    "readFile": {
-      "title": "Read File",
-      "description": "Read a file's metadata in a Google Drive",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The ID of the Google Drive file"
-            }
-          },
-          "required": ["id"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The ID of the Google Drive file"
-            },
-            "name": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The name of the file"
-            },
-            "parentId": {
-              "type": "string",
-              "minLength": 1,
-
-              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
-            },
-            "mimeType": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The media type of the file"
-            },
-            "size": {
-              "type": "number",
-              "minimum": 0,
-              "description": "The size in bytes of the file"
-            },
-            "path": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "minLength": 1,
-                "description": "A component of the path of the file. It corresponds to the name of one of it's parents."
-              },
-              "description": "An array of the path's components sorted by level (root to leaf)"
-            }
-          },
-          "required": ["id", "name", "mimeType", "size", "path"],
-          "additionalProperties": false,
-          "description": "The file read from Google Drive"
-        }
-      }
-    },
-    "updateFile": {
-      "title": "Update File",
-      "description": "Update a file's metadata in Google Drive",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The ID of the Google Drive file"
-            },
-            "name": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The name of the file"
-            },
-            "parentId": {
-              "type": "string",
-              "minLength": 1,
-
-              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
-            }
-          },
-          "required": ["id", "name"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The ID of the Google Drive file"
-            },
-            "name": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The name of the file"
-            },
-            "parentId": {
-              "type": "string",
-              "minLength": 1,
-
-              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
-            },
-            "mimeType": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The media type of the file"
-            },
-            "size": {
-              "type": "number",
-              "minimum": 0,
-              "description": "The size in bytes of the file"
-            },
-            "path": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "minLength": 1,
-                "description": "A component of the path of the file. It corresponds to the name of one of it's parents."
-              },
-              "description": "An array of the path's components sorted by level (root to leaf)"
-            }
-          },
-          "required": ["id", "name", "mimeType", "size", "path"],
-          "additionalProperties": false,
-          "description": "The file updated in Google Drive"
-        }
-      }
+      "title": "Create File"
     },
     "deleteFile": {
-      "title": "Delete File",
       "description": "Deletes a file in Google Drive",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
-            "id": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The ID of the Google Drive file"
-            }
+            "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" }
           },
           "required": ["id"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      }
-    },
-    "uploadFileData": {
-      "title": "Upload file data",
-      "description": "Upload data to a file in Google Drive",
-      "input": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string",
-              "minLength": 1
-            },
-            "url": {
-              "type": "string",
-              "minLength": 1,
-              "description": "The URL used to access the file whose content will be uploaded to Google Drive"
-            },
-            "mimeType": {
-              "type": "string",
-              "minLength": 1,
-
-              "description": "Media type of the uploaded content. This will override any previously set media type"
-            }
-          },
-          "required": ["id", "url"],
-          "additionalProperties": false
-        }
-      },
-      "output": {
-        "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        }
-      }
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+      "title": "Delete File"
     },
     "downloadFileData": {
-      "title": "Download file data",
       "description": "Download data from a file in Google Drive",
       "input": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "id": {
-              "type": "string",
+              "description": "The ID of the Google Drive file whose content will be downloaded",
               "minLength": 1,
-              "description": "The ID of the Google Drive file whose content will be downloaded"
+              "type": "string"
             },
-            "index": {
-              "type": "boolean",
-              "description": "Indicates if the file is to be indexed or not"
-            }
+            "index": { "description": "Indicates if the file is to be indexed or not", "type": "boolean" }
           },
           "required": ["id", "index"],
-          "additionalProperties": false
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
+          "additionalProperties": false,
           "properties": {
             "bpFileId": {
-              "type": "string",
+              "description": "The Botpress file ID corresponding to the file that was uploaded from Google Drive to the Files API",
               "minLength": 1,
-              "description": "The Botpress file ID corresponding to the file that was uploaded from Google Drive to the Files API"
+              "type": "string"
             }
           },
           "required": ["bpFileId"],
-          "additionalProperties": false
+          "type": "object"
         }
-      }
+      },
+      "title": "Download file data"
     },
-    "syncChannels": {
-      "title": "Sync Channels",
-      "description": "Sync channels for file change subscriptions",
+    "listFiles": {
+      "description": "List files in Google Drive",
       "input": {
         "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
+          "additionalProperties": false,
+          "properties": {
+            "nextToken": { "description": "The token to use to get the next page of results", "type": "string" }
+          },
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "description": "The list of items listed in Google Drive. Results may be paginated. If set, use nextToken to get additional results",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" },
+                  "mimeType": { "description": "The media type of the file", "minLength": 1, "type": "string" },
+                  "name": { "description": "The name of the file", "minLength": 1, "type": "string" },
+                  "parentId": {
+                    "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "An array of the path's components sorted by level (root to leaf)",
+                    "items": {
+                      "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "size": { "description": "The size in bytes of the file", "minimum": 0, "type": "number" }
+                },
+                "required": ["id", "name", "mimeType", "size", "path"],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "meta": {
+              "additionalProperties": false,
+              "properties": {
+                "nextToken": {
+                  "description": "The token to pass as input to the next call of the list action to list additional items",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": ["items", "meta"],
+          "type": "object"
         }
-      }
+      },
+      "title": "List Files"
+    },
+    "listFolders": {
+      "description": "List folders in Google Drive",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "nextToken": { "description": "The token to use to get the next page of results", "type": "string" }
+          },
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "description": "The list of items listed in Google Drive. Results may be paginated. If set, use nextToken to get additional results",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" },
+                  "mimeType": { "const": "application/vnd.google-apps.folder", "type": "string" },
+                  "name": { "description": "The name of the file", "minLength": 1, "type": "string" },
+                  "parentId": {
+                    "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "path": {
+                    "description": "An array of the path's components sorted by level (root to leaf)",
+                    "items": {
+                      "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": ["id", "name", "mimeType", "path"],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "meta": {
+              "additionalProperties": false,
+              "properties": {
+                "nextToken": {
+                  "description": "The token to pass as input to the next call of the list action to list additional items",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": ["items", "meta"],
+          "type": "object"
+        }
+      },
+      "title": "List folders"
+    },
+    "readFile": {
+      "description": "Read a file's metadata in a Google Drive",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" }
+          },
+          "required": ["id"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "The file read from Google Drive",
+          "properties": {
+            "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" },
+            "mimeType": { "description": "The media type of the file", "minLength": 1, "type": "string" },
+            "name": { "description": "The name of the file", "minLength": 1, "type": "string" },
+            "parentId": {
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+              "minLength": 1,
+              "type": "string"
+            },
+            "path": {
+              "description": "An array of the path's components sorted by level (root to leaf)",
+              "items": {
+                "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "size": { "description": "The size in bytes of the file", "minimum": 0, "type": "number" }
+          },
+          "required": ["id", "name", "mimeType", "size", "path"],
+          "type": "object"
+        }
+      },
+      "title": "Read File"
+    },
+    "syncChannels": {
+      "description": "Sync channels for file change subscriptions",
+      "input": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+      "title": "Sync Channels"
+    },
+    "updateFile": {
+      "description": "Update a file's metadata in Google Drive",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" },
+            "name": { "description": "The name of the file", "minLength": 1, "type": "string" },
+            "parentId": {
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": ["id", "name"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "The file updated in Google Drive",
+          "properties": {
+            "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" },
+            "mimeType": { "description": "The media type of the file", "minLength": 1, "type": "string" },
+            "name": { "description": "The name of the file", "minLength": 1, "type": "string" },
+            "parentId": {
+              "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+              "minLength": 1,
+              "type": "string"
+            },
+            "path": {
+              "description": "An array of the path's components sorted by level (root to leaf)",
+              "items": {
+                "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "size": { "description": "The size in bytes of the file", "minimum": 0, "type": "number" }
+          },
+          "required": ["id", "name", "mimeType", "size", "path"],
+          "type": "object"
+        }
+      },
+      "title": "Update File"
+    },
+    "uploadFileData": {
+      "description": "Upload data to a file in Google Drive",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": { "minLength": 1, "type": "string" },
+            "mimeType": {
+              "description": "Media type of the uploaded content. This will override any previously set media type",
+              "minLength": 1,
+              "type": "string"
+            },
+            "url": {
+              "description": "The URL used to access the file whose content will be uploaded to Google Drive",
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": ["id", "url"],
+          "type": "object"
+        }
+      },
+      "output": { "schema": { "additionalProperties": false, "properties": {}, "type": "object" } },
+      "title": "Upload file data"
     }
   },
+  "description": "Access and manage your Google Drive files from your bot.",
+  "events": {
+    "fileCreated": {
+      "description": "Triggered when a file is created in Google Drive",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" },
+          "mimeType": { "description": "The media type of the file", "minLength": 1, "type": "string" },
+          "name": { "description": "The name of the file", "minLength": 1, "type": "string" },
+          "parentId": {
+            "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+            "minLength": 1,
+            "type": "string"
+          },
+          "path": {
+            "description": "An array of the path's components sorted by level (root to leaf)",
+            "items": {
+              "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "size": { "description": "The size in bytes of the file", "minimum": 0, "type": "number" }
+        },
+        "required": ["id", "name", "mimeType", "size", "path"],
+        "type": "object"
+      },
+      "title": "File Created"
+    },
+    "fileDeleted": {
+      "description": "Triggered when a file is deleted in Google Drive",
+      "schema": {
+        "additionalProperties": false,
+        "properties": { "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" } },
+        "required": ["id"],
+        "type": "object"
+      },
+      "title": "File Deleted"
+    },
+    "folderCreated": {
+      "description": "Triggered when a folder is created in Google Drive",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" },
+          "mimeType": { "const": "application/vnd.google-apps.folder", "type": "string" },
+          "name": { "description": "The name of the file", "minLength": 1, "type": "string" },
+          "parentId": {
+            "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
+            "minLength": 1,
+            "type": "string"
+          },
+          "path": {
+            "description": "An array of the path's components sorted by level (root to leaf)",
+            "items": {
+              "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["id", "name", "mimeType", "path"],
+        "type": "object"
+      },
+      "title": "Folder Created"
+    },
+    "folderDeleted": {
+      "description": "Triggered when a folder is deleted in Google Drive",
+      "schema": {
+        "additionalProperties": false,
+        "properties": { "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" } },
+        "required": ["id"],
+        "type": "object"
+      },
+      "title": "Folder Deleted"
+    }
+  },
+  "interfaces": {},
+  "name": "googledrive",
   "states": {
     "configuration": {
-      "type": "integration",
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "refreshToken": {
-            "type": "string",
             "description": "The refresh token to use to authenticate with Google. It gets exchanged for a bearer token",
-            "x-zui": {
-              "title": "Refresh token"
-            }
+            "type": "string",
+            "x-zui": { "title": "Refresh token" }
           }
         },
         "required": ["refreshToken"],
-        "additionalProperties": false
-      }
+        "type": "object"
+      },
+      "type": "integration"
     },
     "filesCache": {
-      "type": "integration",
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "filesCache": {
-            "type": "object",
             "additionalProperties": {
               "anyOf": [
                 {
-                  "type": "object",
+                  "additionalProperties": false,
                   "properties": {
-                    "id": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "The ID of the Google Drive file"
-                    },
-                    "name": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "The name of the file"
-                    },
+                    "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" },
+                    "mimeType": { "description": "The media type of the file", "minLength": 1, "type": "string" },
+                    "name": { "description": "The name of the file", "minLength": 1, "type": "string" },
                     "parentId": {
-                      "type": "string",
+                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                       "minLength": 1,
-
-                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
+                      "type": "string"
                     },
-                    "mimeType": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "The media type of the file"
-                    },
-                    "size": {
-                      "type": "number",
-                      "minimum": 0,
-                      "description": "The size in bytes of the file"
-                    },
-                    "type": {
-                      "type": "string",
-                      "const": "normal"
-                    }
+                    "size": { "description": "The size in bytes of the file", "minimum": 0, "type": "number" },
+                    "type": { "const": "normal", "type": "string" }
                   },
                   "required": ["id", "name", "mimeType", "size", "type"],
-                  "additionalProperties": false
+                  "type": "object"
                 },
                 {
-                  "type": "object",
+                  "additionalProperties": false,
                   "properties": {
-                    "id": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "The ID of the Google Drive file"
-                    },
-                    "name": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "The name of the file"
-                    },
+                    "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" },
+                    "mimeType": { "const": "application/vnd.google-apps.folder", "type": "string" },
+                    "name": { "description": "The name of the file", "minLength": 1, "type": "string" },
                     "parentId": {
-                      "type": "string",
+                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                       "minLength": 1,
-
-                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
+                      "type": "string"
                     },
-                    "mimeType": {
-                      "type": "string",
-                      "const": "application/vnd.google-apps.folder"
-                    },
-                    "type": {
-                      "type": "string",
-                      "const": "folder"
-                    }
+                    "type": { "const": "folder", "type": "string" }
                   },
                   "required": ["id", "name", "mimeType", "type"],
-                  "additionalProperties": false
+                  "type": "object"
                 },
                 {
-                  "type": "object",
+                  "additionalProperties": false,
                   "properties": {
-                    "id": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "The ID of the Google Drive file"
-                    },
-                    "name": {
-                      "type": "string",
-                      "minLength": 1,
-                      "description": "The name of the file"
-                    },
+                    "id": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" },
+                    "mimeType": { "const": "application/vnd.google-apps.shortcut", "type": "string" },
+                    "name": { "description": "The name of the file", "minLength": 1, "type": "string" },
                     "parentId": {
-                      "type": "string",
+                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                       "minLength": 1,
-
-                      "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent"
+                      "type": "string"
                     },
-                    "mimeType": {
-                      "type": "string",
-                      "const": "application/vnd.google-apps.shortcut"
-                    },
-                    "type": {
-                      "type": "string",
-                      "const": "shortcut"
-                    }
+                    "type": { "const": "shortcut", "type": "string" }
                   },
                   "required": ["id", "name", "mimeType", "type"],
-                  "additionalProperties": false
+                  "type": "object"
                 }
               ]
             },
             "description": "Map of known files",
-            "x-zui": {
-              "title": "Files cache"
-            }
+            "type": "object",
+            "x-zui": { "title": "Files cache" }
           }
         },
         "required": ["filesCache"],
-        "additionalProperties": false
-      }
+        "type": "object"
+      },
+      "type": "integration"
     },
     "filesChannelsCache": {
-      "type": "integration",
       "schema": {
-        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "filesChannelsCache": {
-            "type": "object",
             "additionalProperties": {
-              "type": "object",
+              "additionalProperties": false,
               "properties": {
-                "id": {
-                  "type": "string",
-                  "minLength": 1,
-                  "description": "The ID of the channel"
-                },
+                "fileId": { "description": "The ID of the Google Drive file", "minLength": 1, "type": "string" },
+                "id": { "description": "The ID of the channel", "minLength": 1, "type": "string" },
                 "resourceId": {
-                  "type": "string",
+                  "description": "The ID of the watched resource (different from the file ID)",
                   "minLength": 1,
-                  "description": "The ID of the watched resource (different from the file ID)"
-                },
-                "fileId": {
-                  "type": "string",
-                  "minLength": 1,
-                  "description": "The ID of the Google Drive file"
+                  "type": "string"
                 }
               },
               "required": ["id", "resourceId", "fileId"],
-              "additionalProperties": false
+              "type": "object"
             },
             "description": "Serialized set of channels for file change subscriptions",
-            "x-zui": {
-              "title": "Files change subscription channels"
-            }
+            "type": "object",
+            "x-zui": { "title": "Files change subscription channels" }
           }
         },
         "required": ["filesChannelsCache"],
-        "additionalProperties": false
-      }
+        "type": "object"
+      },
+      "type": "integration"
     }
   },
-  "interfaces": {}
+  "title": "Google Drive",
+  "version": "0.0.4"
 }
