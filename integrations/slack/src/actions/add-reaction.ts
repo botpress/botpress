@@ -1,30 +1,25 @@
+import * as sdk from '@botpress/sdk'
 import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
-import { SlackScopes } from 'src/misc/slack-scopes'
+import { retrieveChannelAndMessageTs } from './utils/message-utils'
 
-export const addReaction = wrapActionAndInjectSlackClient('addReaction', {
-  async action({ client, ctx, logger, slackClient }, { messageId, name }) {
-    if (messageId) {
-      const { message } = await client.getMessage({ id: messageId })
-      const { conversation } = await client.getConversation({ id: message.conversationId })
-
-      const addReactionArgs = {
-        name,
-        channel: conversation.tags.id,
-        timestamp: message.tags.ts,
-      }
-
-      logger.forBot().debug('Sending reaction to Slack:', addReactionArgs)
-
-      await SlackScopes.ensureHasAllScopes({
-        client,
-        ctx,
-        requiredScopes: ['reactions:write'],
-        operation: 'reactions.add',
-      })
-      await slackClient.reactions.add(addReactionArgs)
+export const addReaction = wrapActionAndInjectSlackClient(
+  { actionName: 'addReaction', errorMessage: 'Failed to add reaction' },
+  async ({ client, logger, slackClient }, { messageId, name }) => {
+    if (!messageId) {
+      throw new sdk.RuntimeError('Missing Botpress message ID')
     }
 
-    return {}
-  },
-  errorMessage: 'Failed to add reaction',
-})
+    const { channel, ts } = await retrieveChannelAndMessageTs({
+      client,
+      messageId,
+    })
+
+    logger.forBot().debug('Sending reaction to Slack')
+
+    await slackClient.addReactionToMessage({
+      channelId: channel,
+      messageTs: ts,
+      reactionName: name,
+    })
+  }
+)

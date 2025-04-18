@@ -1,36 +1,36 @@
-import { z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 
-const plainTextSchema = z.object({ type: z.literal('plain_text'), text: z.string() }).strict()
-const markdownSchema = z.object({ type: z.literal('mrkdwn'), text: z.string() }).strict()
-const plainOrMarkdown = z.discriminatedUnion('type', [markdownSchema, plainTextSchema])
+const plainTextSchema = sdk.z.object({ type: sdk.z.literal('plain_text'), text: sdk.z.string() }).strict()
+const markdownSchema = sdk.z.object({ type: sdk.z.literal('mrkdwn'), text: sdk.z.string() }).strict()
+const plainOrMarkdown = sdk.z.discriminatedUnion('type', [markdownSchema, plainTextSchema])
 
-const imageElement = z
+const imageElement = sdk.z
   .object({
-    type: z.literal('image'),
-    image_url: z.string().describe('The full URL to the image file'),
-    alt_text: z.string().describe('Plain text summary of the image'),
+    type: sdk.z.literal('image'),
+    image_url: sdk.z.string().describe('The full URL to the image file'),
+    alt_text: sdk.z.string().describe('Plain text summary of the image'),
   })
   .strict()
   .describe('Display an image to a user')
 
-const imageBlock = z
+const imageBlock = sdk.z
   .object({
-    type: z.literal('image'),
-    image_url: z.string().describe('The full URL to the image file'),
-    alt_text: z.string().describe('Plain text summary of the image'),
+    type: sdk.z.literal('image'),
+    image_url: sdk.z.string().describe('The full URL to the image file'),
+    alt_text: sdk.z.string().describe('Plain text summary of the image'),
     title: plainTextSchema.optional(),
   })
   .strict()
   .describe('Display an image to a user')
 
-const buttonSchema = z
+const buttonSchema = sdk.z
   .object({
-    type: z.literal('button'),
-    action_id: z.string().describe('A unique identifier for the button'),
+    type: sdk.z.literal('button'),
+    action_id: sdk.z.string().describe('A unique identifier for the button'),
     text: plainTextSchema,
-    url: z.string().optional().describe('An external URL to open when the button is clicked'),
-    value: z.string().optional().describe('The value to send along with the interaction payload'),
-    style: z
+    url: sdk.z.string().optional().describe('An external URL to open when the button is clicked'),
+    value: sdk.z.string().optional().describe('The value to send along with the interaction payload'),
+    style: sdk.z
       .enum(['primary', 'danger'])
       .optional()
       .describe('Decorates buttons with alternative visual color schemes. Leave empty for default.'),
@@ -38,35 +38,35 @@ const buttonSchema = z
   .strict()
   .describe('Button Block. Display a button')
 
-const staticSelectSchema = z
+const staticSelectSchema = sdk.z
   .object({
-    type: z.literal('static_select'),
+    type: sdk.z.literal('static_select'),
     placeholder: plainTextSchema,
-    action_id: z.string(),
-    options: z.array(
-      z
+    action_id: sdk.z.string(),
+    options: sdk.z.array(
+      sdk.z
         .object({
           text: plainTextSchema,
-          value: z.string(),
+          value: sdk.z.string(),
         })
         .strict()
     ),
   })
   .strict()
 
-const contextBlock = z
+const contextBlock = sdk.z
   .object({
-    type: z.literal('context'),
-    elements: z.array(z.discriminatedUnion('type', [imageElement, ...plainOrMarkdown.options])).max(10),
+    type: sdk.z.literal('context'),
+    elements: sdk.z.array(sdk.z.discriminatedUnion('type', [imageElement, ...plainOrMarkdown.options])).max(10),
   })
   .strict()
   .describe('Display multiple elements in a group')
 
-const dividerBlock = z.object({ type: z.literal('divider') }).describe('A simple divider block')
+const dividerBlock = sdk.z.object({ type: sdk.z.literal('divider') }).describe('A simple divider block')
 
-const headerBlock = z
+const headerBlock = sdk.z
   .object({
-    type: z.literal('header'),
+    type: sdk.z.literal('header'),
     text: plainTextSchema,
   })
   .strict()
@@ -74,56 +74,56 @@ const headerBlock = z
     'A header is a plain-text block that displays in a larger, bold font. Use it to delineate between different groups of content in your app surface'
   )
 
-const fileBlock = z
+const fileBlock = sdk.z
   .object({
-    type: z.literal('file'),
-    external_id: z.string(),
-    source: z.literal('remote'),
+    type: sdk.z.literal('file'),
+    external_id: sdk.z.string(),
+    source: sdk.z.literal('remote'),
   })
   .strict()
   .describe('A file block')
 
-const radioButtonsSchema = z
+const radioButtonsSchema = sdk.z
   .object({
-    type: z.literal('radio_buttons'),
-    options: z.array(
-      z
+    type: sdk.z.literal('radio_buttons'),
+    options: sdk.z.array(
+      sdk.z
         .object({
           text: plainTextSchema,
-          value: z.string(),
+          value: sdk.z.string(),
         })
         .strict()
     ),
-    action_id: z.string(),
+    action_id: sdk.z.string(),
   })
   .strict()
   .describe('A radio buttons block')
 
-const checkboxesSchema = z
+const checkboxesSchema = sdk.z
   .object({
-    type: z.literal('checkboxes'),
-    options: z.array(
-      z.object({
+    type: sdk.z.literal('checkboxes'),
+    options: sdk.z.array(
+      sdk.z.object({
         text: plainTextSchema,
-        value: z.string(),
+        value: sdk.z.string(),
       })
     ),
-    action_id: z.string(),
+    action_id: sdk.z.string(),
   })
   .strict()
   .describe('A checkboxes block')
 
-const overflowSchema = z
+const overflowSchema = sdk.z
   .object({
-    type: z.literal('overflow'),
-    options: z
+    type: sdk.z.literal('overflow'),
+    options: sdk.z
       .array(
-        z
+        sdk.z
           .object({
             text: plainTextSchema,
-            value: z.string().max(75),
+            value: sdk.z.string().max(75),
             description: plainTextSchema.optional(),
-            url: z
+            url: sdk.z
               .string()
               .optional()
               .describe(
@@ -133,75 +133,75 @@ const overflowSchema = z
           .strict()
       )
       .max(5),
-    action_id: z.string(),
+    action_id: sdk.z.string(),
   })
   .strict()
   .describe('An overflow block')
 
-const actionId = z
+const actionId = sdk.z
   .string()
   .max(255)
   .describe(
     'An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. '
   )
 
-const datePickerSchema = z
+const datePickerSchema = sdk.z
   .object({
-    type: z.literal('datepicker'),
+    type: sdk.z.literal('datepicker'),
     action_id: actionId,
     placeholder: plainTextSchema.optional(),
-    initial_date: z.string().optional(),
+    initial_date: sdk.z.string().optional(),
   })
   .strict()
   .describe('A date picker block')
 
-const dateTimePickerSchema = z
+const dateTimePickerSchema = sdk.z
   .object({
-    type: z.literal('datetimepicker'),
+    type: sdk.z.literal('datetimepicker'),
     action_id: actionId,
-    initial_date_time: z
+    initial_date_time: sdk.z
       .number()
       .describe(
         'The initial date and time that is selected when the element is loaded, represented as a UNUIX timestamp in seconds. This should be in the format of 10 digits, for example 1628633820 represents the date and time August 10th, 2021 at 03:17pm PST'
       )
       .optional(),
     // confirm: // TODO:
-    focus_on_load: z.boolean().optional(),
+    focus_on_load: sdk.z.boolean().optional(),
   })
   .strict()
   .describe('A date picker block')
 
-const timePickerSchema = z
+const timePickerSchema = sdk.z
   .object({
-    type: z.literal('timepicker'),
+    type: sdk.z.literal('timepicker'),
     action_id: actionId,
     placeholder: plainTextSchema.optional(),
-    initial_time: z.string().optional(),
+    initial_time: sdk.z.string().optional(),
   })
   .strict()
   .describe('A time picker block')
 
-const optionSchema = z
+const optionSchema = sdk.z
   .object({
     text: plainTextSchema,
-    value: z.string(),
+    value: sdk.z.string(),
   })
   .strict()
 
-const optionGroupSchema = z
+const optionGroupSchema = sdk.z
   .object({
     label: plainTextSchema,
-    options: z.array(optionSchema),
+    options: sdk.z.array(optionSchema),
   })
   .strict()
 
-const multiSelectStaticMenuSchema = z
+const multiSelectStaticMenuSchema = sdk.z
   .object({
-    type: z.literal('multi_static_select'),
+    type: sdk.z.literal('multi_static_select'),
     placeholder: plainTextSchema,
-    action_id: z.string(),
-    options: z.array(optionSchema).optional(),
-    option_groups: z.array(optionGroupSchema).optional(),
+    action_id: sdk.z.string(),
+    options: sdk.z.array(optionSchema).optional(),
+    option_groups: sdk.z.array(optionGroupSchema).optional(),
   })
   .strict()
   .refine((obj) => !!obj.options || !!obj.option_groups, {
@@ -209,101 +209,101 @@ const multiSelectStaticMenuSchema = z
   })
   .describe('A multi-select menu block')
 
-const conversationsSelectMenuSchema = z
+const conversationsSelectMenuSchema = sdk.z
   .object({
-    type: z.literal('conversations_select'),
+    type: sdk.z.literal('conversations_select'),
     placeholder: plainTextSchema,
-    action_id: z.string(),
+    action_id: sdk.z.string(),
   })
   .strict()
   .describe('A conversations select menu block')
 
-const channelsSelectMenuSchema = z
+const channelsSelectMenuSchema = sdk.z
   .object({
-    type: z.literal('channels_select'),
+    type: sdk.z.literal('channels_select'),
     placeholder: plainTextSchema,
-    action_id: z.string(),
+    action_id: sdk.z.string(),
   })
   .strict()
   .describe('A channels select menu block')
 
-const usersSelectMenuSchema = z
+const usersSelectMenuSchema = sdk.z
   .object({
-    type: z.literal('users_select'),
+    type: sdk.z.literal('users_select'),
     placeholder: plainTextSchema,
-    action_id: z.string(),
+    action_id: sdk.z.string(),
   })
   .strict()
   .describe('A users select menu block')
 
-const externalSelectMenuSchema = z
+const externalSelectMenuSchema = sdk.z
   .object({
-    type: z.literal('external_select'),
+    type: sdk.z.literal('external_select'),
     placeholder: plainTextSchema,
-    action_id: z.string(),
+    action_id: sdk.z.string(),
   })
   .strict()
   .describe('An external select menu block')
 
-const conversationsMultiSelectMenuSchema = z
+const conversationsMultiSelectMenuSchema = sdk.z
   .object({
-    type: z.literal('conversations_multi_select'),
+    type: sdk.z.literal('conversations_multi_select'),
     placeholder: plainTextSchema,
-    action_id: z.string(),
+    action_id: sdk.z.string(),
   })
   .strict()
   .describe('A conversations multi-select menu block')
 
-const channelsMultiSelectMenuSchema = z
+const channelsMultiSelectMenuSchema = sdk.z
   .object({
-    type: z.literal('channels_multi_select'),
+    type: sdk.z.literal('channels_multi_select'),
     placeholder: plainTextSchema,
-    action_id: z.string(),
+    action_id: sdk.z.string(),
   })
   .strict()
   .describe('A channels multi-select menu block')
 
-const usersMultiSelectMenuSchema = z
+const usersMultiSelectMenuSchema = sdk.z
   .object({
-    type: z.literal('users_multi_select'),
+    type: sdk.z.literal('users_multi_select'),
     placeholder: plainTextSchema,
-    action_id: z.string(),
+    action_id: sdk.z.string(),
   })
   .strict()
   .describe('A users multi-select menu block')
 
-const externalMultiSelectMenuSchema = z
+const externalMultiSelectMenuSchema = sdk.z
   .object({
-    type: z.literal('external_multi_select'),
+    type: sdk.z.literal('external_multi_select'),
     placeholder: plainTextSchema,
-    action_id: z.string(),
+    action_id: sdk.z.string(),
   })
   .strict()
   .describe('An external multi-select menu block')
 
-const plainTextInput = z
+const plainTextInput = sdk.z
   .object({
-    type: z.literal('plain_text_input'),
-    action_id: z
+    type: sdk.z.literal('plain_text_input'),
+    action_id: sdk.z
       .string()
       .max(255)
       .describe(
         'An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block.'
       ),
-    initial_value: z.string().describe('The initial value in the plain-text input when it is loaded.').optional(),
-    multiline: z
+    initial_value: sdk.z.string().describe('The initial value in the plain-text input when it is loaded.').optional(),
+    multiline: sdk.z
       .boolean()
       .optional()
       .describe('Indicates whether the input will be a single line (false) or a larger textarea (true'),
-    min_length: z.number().min(0).max(3000).optional(),
-    max_length: z.number().min(0).max(3000).optional(),
-    focus_on_load: z.boolean().optional(),
+    min_length: sdk.z.number().min(0).max(3000).optional(),
+    max_length: sdk.z.number().min(0).max(3000).optional(),
+    focus_on_load: sdk.z.boolean().optional(),
     placeholder: plainTextSchema.optional(),
     // TODO: dispatch_action_config
   })
   .strict()
 
-const multiSelectMenus = z.discriminatedUnion('type', [
+const multiSelectMenus = sdk.z.discriminatedUnion('type', [
   multiSelectStaticMenuSchema.sourceType(),
   externalMultiSelectMenuSchema,
   usersMultiSelectMenuSchema,
@@ -311,7 +311,7 @@ const multiSelectMenus = z.discriminatedUnion('type', [
   channelsMultiSelectMenuSchema,
 ])
 
-const selectMenus = z.discriminatedUnion('type', [
+const selectMenus = sdk.z.discriminatedUnion('type', [
   staticSelectSchema,
   externalSelectMenuSchema,
   usersSelectMenuSchema,
@@ -319,11 +319,11 @@ const selectMenus = z.discriminatedUnion('type', [
   channelsSelectMenuSchema,
 ])
 
-const inputBlock = z
+const inputBlock = sdk.z
   .object({
-    type: z.literal('input'),
+    type: sdk.z.literal('input'),
     label: plainTextSchema,
-    element: z.discriminatedUnion('type', [
+    element: sdk.z.discriminatedUnion('type', [
       plainTextInput,
       checkboxesSchema,
       radioButtonsSchema,
@@ -331,21 +331,21 @@ const inputBlock = z
       ...multiSelectMenus.options,
       datePickerSchema,
     ]),
-    dispatch_action: z.boolean().optional(),
-    block_id: z.string().max(255).optional(),
+    dispatch_action: sdk.z.boolean().optional(),
+    block_id: sdk.z.string().max(255).optional(),
     hint: plainTextSchema.optional(),
-    optional: z.boolean().optional(),
+    optional: sdk.z.boolean().optional(),
   })
 
   .strict()
   .describe('An input block')
 
-const sectionSchema = z
+const sectionSchema = sdk.z
   .object({
-    type: z.literal('section'),
+    type: sdk.z.literal('section'),
     text: plainOrMarkdown.optional(),
-    fields: z.array(plainOrMarkdown).min(1).max(10).optional(),
-    accessory: z
+    fields: sdk.z.array(plainOrMarkdown).min(1).max(10).optional(),
+    accessory: sdk.z
       .discriminatedUnion('type', [
         buttonSchema,
         checkboxesSchema,
@@ -362,12 +362,12 @@ const sectionSchema = z
   .strict()
   .describe('Show a message using markdown')
 
-const actionsBlock = z
+const actionsBlock = sdk.z
   .object({
-    type: z.literal('actions'),
-    elements: z
+    type: sdk.z.literal('actions'),
+    elements: sdk.z
       .array(
-        z.discriminatedUnion('type', [
+        sdk.z.discriminatedUnion('type', [
           buttonSchema,
           checkboxesSchema,
           datePickerSchema,
@@ -383,7 +383,7 @@ const actionsBlock = z
   .describe('Display multiple elements in a group')
   .strict()
 
-const blocks = z.discriminatedUnion('type', [
+const blocks = sdk.z.discriminatedUnion('type', [
   actionsBlock,
   contextBlock,
   dividerBlock,
@@ -395,15 +395,15 @@ const blocks = z.discriminatedUnion('type', [
   // video // TODO:
 ])
 
-export const textSchema = z
+export const textSchema = sdk.z
   .object({
-    text: z
+    text: sdk.z
       .string()
       .describe(
         'Field text must be defined but it is ignored if blocks are provided. In this situation, the text must be provided in the blocks array'
       )
       .optional(),
-    blocks: z
+    blocks: sdk.z
       .array(blocks)
       .max(50)
       .optional()

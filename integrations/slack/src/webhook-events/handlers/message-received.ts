@@ -1,17 +1,18 @@
 import { AllMessageEvents } from '@slack/types'
-import { Client, IntegrationCtx, IntegrationLogger } from '../misc/types'
-import { getAccessToken, getSlackUserProfile, getUserAndConversation } from '../misc/utils'
+import { getBotpressConversationFromSlackThread, getBotpressUserFromSlackUser } from 'src/misc/utils'
+import { SlackClient } from 'src/slack-api'
+import * as bp from '.botpress'
 
-export const executeMessageReceived = async ({
+export const handleEvent = async ({
   slackEvent,
   client,
   ctx,
   logger,
 }: {
   slackEvent: AllMessageEvents
-  client: Client
-  ctx: IntegrationCtx
-  logger: IntegrationLogger
+  client: bp.Client
+  ctx: bp.Context
+  logger: bp.Logger
 }) => {
   // do not handle notification-type messages such as channel_join, channel_leave, etc:
   if (slackEvent.subtype) {
@@ -23,22 +24,23 @@ export const executeMessageReceived = async ({
     return
   }
 
-  const { user, userId, conversationId } = await getUserAndConversation(
-    { slackUserId: slackEvent.user, slackChannelId: slackEvent.channel, slackThreadId: slackEvent.thread_ts },
+  const { botpressConversation } = await getBotpressConversationFromSlackThread(
+    { slackChannelId: slackEvent.channel, slackThreadId: slackEvent.thread_ts },
     client
   )
+  const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: slackEvent.user }, client)
 
-  if (!user.pictureUrl || !user.name) {
+  if (!botpressUser.pictureUrl || !botpressUser.name) {
     try {
-      const accessToken = await getAccessToken(client, ctx)
-      const userProfile = await getSlackUserProfile(accessToken, slackEvent.user)
+      const slackClient = await SlackClient.createFromStates({ ctx, client, logger })
+      const userProfile = await slackClient.getUserProfile({ userId: slackEvent.user })
       const fieldsToUpdate = {
         pictureUrl: userProfile?.image_192,
         name: userProfile?.real_name,
       }
       logger.forBot().debug('Fetched latest Slack user profile: ', fieldsToUpdate)
       if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
-        await client.updateUser({ ...user, ...fieldsToUpdate })
+        await client.updateUser({ ...botpressUser, ...fieldsToUpdate })
       }
     } catch (error) {
       logger.forBot().error('Error while fetching user profile from Slack:', error)
@@ -68,7 +70,7 @@ export const executeMessageReceived = async ({
       //   channel: { id: slackEvent.channel },
       // },
     },
-    userId,
-    conversationId,
+    userId: botpressUser.id,
+    conversationId: botpressConversation.id,
   })
 }
