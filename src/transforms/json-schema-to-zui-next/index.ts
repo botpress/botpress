@@ -157,15 +157,6 @@ function _fromJsonSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
       return _fromJsonSchema(schema.anyOf[0])
     }
 
-    if (guards.isDiscriminatedUnionSchema(schema)) {
-      const { discriminator } = schema['x-zui']?.def!
-      const options = schema.anyOf.map(_fromJsonSchema) as [
-        z.ZodDiscriminatedUnionOption<string>,
-        ...z.ZodDiscriminatedUnionOption<string>[],
-      ]
-      return z.discriminatedUnion(discriminator, options)
-    }
-
     if (guards.isOptionalSchema(schema)) {
       const inner = _fromJsonSchema(schema.anyOf[0])
       return inner.optional()

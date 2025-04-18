@@ -14,10 +14,6 @@ export const isNullableSchema = (s: JSONSchema7): s is json.NullableSchema =>
   s.anyOf.some((s) => typeof s !== 'boolean' && s.type === 'null') &&
   (s as json.NullableSchema)['x-zui']?.def?.typeName === z.ZodFirstPartyTypeKind.ZodNullable
 
-export const isDiscriminatedUnionSchema = (s: JSONSchema7): s is json.DiscriminatedUnionSchema =>
-  s.anyOf !== undefined &&
-  (s as json.DiscriminatedUnionSchema)['x-zui']?.def?.typeName === z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion
-
 export const isUndefinedSchema = (s: JSONSchema7): s is json.UndefinedSchema =>
   s.not === true && (s as json.UndefinedSchema)['x-zui']?.def?.typeName === z.ZodFirstPartyTypeKind.ZodUndefined
 

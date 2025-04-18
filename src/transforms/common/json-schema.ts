@@ -9,10 +9,6 @@ import { ZuiExtensionObject } from '../../ui/types'
  * Mutiple zui schemas map to the same JSON schema; undefined/never, any/unknown, union/discriminated-union
  * Adding some ZodDef to the ZuiExtension allows us to differentiate between them
  */
-type DiscriminatedUnionDef = util.Satisfies<
-  { typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion; discriminator: string },
-  Partial<z.ZodDiscriminatedUnionDef>
->
 type NullableDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodNullable }, Partial<z.ZodNullableDef>>
 type OptionalDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodOptional }, Partial<z.ZodOptionalDef>>
 type UndefinedDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodUndefined }, Partial<z.ZodUndefinedDef>>
@@ -109,7 +105,7 @@ export type AnySchema = BaseZuiJsonSchema
 export type UnknownSchema = BaseZuiJsonSchema<UnknownDef>
 export type ArraySchema = _ArraySchema & BaseZuiJsonSchema
 export type UnionSchema = _UnionSchema & BaseZuiJsonSchema
-export type DiscriminatedUnionSchema = _DiscriminatedUnionSchema & BaseZuiJsonSchema<DiscriminatedUnionDef>
+export type DiscriminatedUnionSchema = _DiscriminatedUnionSchema & BaseZuiJsonSchema
 export type IntersectionSchema = _IntersectionSchema & BaseZuiJsonSchema
 export type SetSchema = _SetSchema & BaseZuiJsonSchema
 export type EnumSchema = _EnumSchema & BaseZuiJsonSchema

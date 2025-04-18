@@ -166,7 +166,7 @@ describe('zuiToJsonSchemaNext', () => {
     })
   })
 
-  test('should map ZodDiscriminatedUnion to DiscriminatedUnionSchema', () => {
+  test('should map ZodDiscriminatedUnion to UnionSchema', () => {
     const schema = toJsonSchema(
       z.discriminatedUnion('type', [
         z.object({ type: z.literal('A'), a: z.string() }),
@@ -186,12 +186,6 @@ describe('zuiToJsonSchemaNext', () => {
           required: ['type', 'b'],
         },
       ],
-      'x-zui': {
-        def: {
-          typeName: 'ZodDiscriminatedUnion',
-          discriminator: 'type',
-        },
-      },
     })
   })
 

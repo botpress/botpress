@@ -182,26 +182,23 @@ describe.concurrent('zuifromJsonSchemaNext', () => {
     assert(zSchema).toEqual(expected)
   })
 
-  test('should map DiscriminatedUnionSchema to ZodDiscriminatedUnion', () => {
-    const jSchema = buildSchema(
-      {
-        anyOf: [
-          {
-            type: 'object',
-            properties: { type: { type: 'string', const: 'A' }, a: { type: 'string' } },
-            required: ['type', 'a'],
-          },
-          {
-            type: 'object',
-            properties: { type: { type: 'string', const: 'B' }, b: { type: 'number' } },
-            required: ['type', 'b'],
-          },
-        ],
-      },
-      { def: { typeName: 'ZodDiscriminatedUnion', discriminator: 'type' } },
-    )
+  test('should map DiscriminatedUnionSchema to ZodUnion', () => {
+    const jSchema = buildSchema({
+      anyOf: [
+        {
+          type: 'object',
+          properties: { type: { type: 'string', const: 'A' }, a: { type: 'string' } },
+          required: ['type', 'a'],
+        },
+        {
+          type: 'object',
+          properties: { type: { type: 'string', const: 'B' }, b: { type: 'number' } },
+          required: ['type', 'b'],
+        },
+      ],
+    })
     const zSchema = fromJsonSchema(jSchema)
-    const expected = z.discriminatedUnion('type', [
+    const expected = z.union([
       z.object({ type: z.literal('A'), a: z.string() }),
       z.object({ type: z.literal('B'), b: z.number() }),
     ])

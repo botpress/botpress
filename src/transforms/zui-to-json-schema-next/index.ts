@@ -113,11 +113,8 @@ export function toJsonSchema(schema: z.Schema): json.ZuiJsonSchema {
       return {
         description: def.description,
         anyOf: def.options.map((option) => toJsonSchema(option)),
-        'x-zui': {
-          ...def['x-zui'],
-          def: { typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion, discriminator: def.discriminator },
-        },
-      } satisfies json.DiscriminatedUnionSchema
+        'x-zui': def['x-zui'],
+      } satisfies json.UnionSchema
 
     case z.ZodFirstPartyTypeKind.ZodIntersection:
       return {
