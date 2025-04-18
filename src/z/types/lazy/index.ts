@@ -21,6 +21,24 @@ export class ZodLazy<T extends ZodTypeAny = ZodTypeAny> extends ZodType<output<T
     return this._def.getter()
   }
 
+  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+    return new ZodLazy({
+      ...this._def,
+      getter: () => this._def.getter().dereference(defs),
+    })
+  }
+
+  getReferences(): string[] {
+    return this._def.getter().getReferences()
+  }
+
+  clone(): ZodLazy<T> {
+    return new ZodLazy({
+      ...this._def,
+      getter: () => this._def.getter().clone(),
+    }) as ZodLazy<T>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { ctx } = this._processInputParams(input)
     const lazySchema = this._def.getter()

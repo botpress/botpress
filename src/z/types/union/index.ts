@@ -53,6 +53,14 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
     )
   }
 
+  clone(): ZodUnion<T> {
+    const options = this._def.options.map((option) => option.clone()) as [ZodTypeAny, ...ZodTypeAny[]]
+    return new ZodUnion({
+      ...this._def,
+      options,
+    }) as ZodUnion<any>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { ctx } = this._processInputParams(input)
     const options = this._def.options

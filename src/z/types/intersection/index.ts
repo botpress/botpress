@@ -90,6 +90,14 @@ export class ZodIntersection<T extends ZodTypeAny = ZodTypeAny, U extends ZodTyp
     return unique([...this._def.left.getReferences(), ...this._def.right.getReferences()])
   }
 
+  clone(): ZodIntersection<T, U> {
+    return new ZodIntersection({
+      ...this._def,
+      left: this._def.left.clone(),
+      right: this._def.right.clone(),
+    }) as ZodIntersection<T, U>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
     const handleParsed = (

@@ -34,6 +34,13 @@ export class ZodOptional<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.getReferences()
   }
 
+  clone(): ZodOptional<T> {
+    return new ZodOptional({
+      ...this._def,
+      innerType: this._def.innerType.clone(),
+    }) as ZodOptional<T>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
     if (parsedType === ZodParsedType.undefined) {

@@ -47,6 +47,13 @@ export class ZodArray<T extends ZodTypeAny = ZodTypeAny, Cardinality extends Arr
     return this._def.type.getReferences()
   }
 
+  clone(): ZodArray<T, Cardinality> {
+    return new ZodArray({
+      ...this._def,
+      type: this._def.type.clone(),
+    }) as ZodArray<T, Cardinality>
+  }
+
   isEqual(schema: ZodType): boolean {
     if (!(schema instanceof ZodArray)) {
       return false

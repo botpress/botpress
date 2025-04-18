@@ -63,6 +63,14 @@ export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodTypeA
     return unique([...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()])
   }
 
+  clone(): ZodRecord<Key, Value> {
+    return new ZodRecord({
+      ...this._def,
+      keyType: this._def.keyType.clone(),
+      valueType: this._def.valueType.clone(),
+    }) as ZodRecord<Key, Value>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
     if (ctx.parsedType !== ZodParsedType.object) {

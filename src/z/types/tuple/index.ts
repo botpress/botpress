@@ -65,6 +65,16 @@ export class ZodTuple<
     ])
   }
 
+  clone(): ZodTuple<T, Rest> {
+    const items = this._def.items.map((item) => item.clone()) as [ZodTypeAny, ...ZodTypeAny[]]
+    const rest = this._def.rest ? this._def.rest.clone() : null
+    return new ZodTuple({
+      ...this._def,
+      items,
+      rest,
+    }) as ZodTuple<T, Rest>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
     if (ctx.parsedType !== ZodParsedType.array) {

@@ -39,6 +39,13 @@ export class ZodSet<Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.valueType.getReferences()
   }
 
+  clone(): ZodSet<Value> {
+    return new ZodSet({
+      ...this._def,
+      valueType: this._def.valueType.clone(),
+    }) as ZodSet<Value>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
     if (ctx.parsedType !== ZodParsedType.set) {

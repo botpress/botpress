@@ -155,6 +155,18 @@ export class ZodObject<
     return unique(refs)
   }
 
+  clone(): ZodObject<T, UnknownKeys, Output, Input> {
+    const newShape: Record<string, ZodTypeAny> = {}
+    const currentShape = this._def.shape()
+    for (const [key, value] of Object.entries(currentShape)) {
+      newShape[key] = value.clone()
+    }
+    return new ZodObject({
+      ...this._def,
+      shape: () => newShape,
+    }) as ZodObject<T, UnknownKeys, Output, Input>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
     if (parsedType !== ZodParsedType.object) {

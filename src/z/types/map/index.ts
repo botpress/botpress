@@ -49,6 +49,14 @@ export class ZodMap<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAn
     return unique([...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()])
   }
 
+  clone(): ZodMap<Key, Value> {
+    return new ZodMap({
+      ...this._def,
+      keyType: this._def.keyType.clone(),
+      valueType: this._def.valueType.clone(),
+    }) as ZodMap<Key, Value>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
     if (ctx.parsedType !== ZodParsedType.map) {

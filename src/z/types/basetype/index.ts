@@ -167,6 +167,13 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     return []
   }
 
+  clone(): ZodType<Output, Def, Input> {
+    const This = (this as any).constructor
+    return new This({
+      ...this._def,
+    })
+  }
+
   /** checks if a schema is equal to another */
   abstract isEqual(schema: ZodType): boolean
 

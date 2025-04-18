@@ -34,6 +34,14 @@ export class ZodPipeline<A extends ZodTypeAny = ZodTypeAny, B extends ZodTypeAny
     return unique([...this._def.in.getReferences(), ...this._def.out.getReferences()])
   }
 
+  clone(): ZodPipeline<A, B> {
+    return new ZodPipeline({
+      ...this._def,
+      in: this._def.in.clone(),
+      out: this._def.out.clone(),
+    }) as ZodPipeline<A, B>
+  }
+
   _parse(input: ParseInput): ParseReturnType<any> {
     const { status, ctx } = this._processInputParams(input)
     if (ctx.common.async) {

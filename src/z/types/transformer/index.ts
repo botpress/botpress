@@ -70,6 +70,13 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
     return this._def.schema.getReferences()
   }
 
+  clone(): ZodEffects<T, Output, Input> {
+    return new ZodEffects({
+      ...this._def,
+      schema: this._def.schema.clone(),
+    }) as ZodEffects<T, Output, Input>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
 

@@ -60,6 +60,14 @@ export class ZodFunction<
     return unique([...this._def.args.getReferences(), ...this._def.returns.getReferences()])
   }
 
+  clone(): ZodFunction<Args, Returns> {
+    return new ZodFunction({
+      ...this._def,
+      args: this._def.args.clone() as ZodTuple<any, any>,
+      returns: this._def.returns.clone(),
+    }) as ZodFunction<Args, Returns>
+  }
+
   _parse(input: ParseInput): ParseReturnType<any> {
     const { ctx } = this._processInputParams(input)
     if (ctx.parsedType !== ZodParsedType.function) {

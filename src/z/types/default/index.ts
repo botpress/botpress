@@ -48,6 +48,17 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     })
   }
 
+  getReferences(): string[] {
+    return this._def.innerType.getReferences()
+  }
+
+  clone(): ZodDefault<T> {
+    return new ZodDefault({
+      ...this._def,
+      innerType: this._def.innerType.clone(),
+    }) as ZodDefault<T>
+  }
+
   static create = <T extends ZodTypeAny>(
     type: T,
     value: T['_input'] | (() => util.noUndefined<T['_input']>),

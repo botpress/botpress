@@ -102,6 +102,24 @@ export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     )
   }
 
+  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+    return new ZodCatch({
+      ...this._def,
+      innerType: this._def.innerType.dereference(defs),
+    })
+  }
+
+  getReferences(): string[] {
+    return this._def.innerType.getReferences()
+  }
+
+  clone(): ZodCatch<T> {
+    return new ZodCatch({
+      ...this._def,
+      innerType: this._def.innerType.clone(),
+    }) as ZodCatch<T>
+  }
+
   naked() {
     return this._def.innerType.naked()
   }

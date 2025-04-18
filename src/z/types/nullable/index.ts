@@ -34,6 +34,13 @@ export class ZodNullable<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.getReferences()
   }
 
+  clone(): ZodNullable<T> {
+    return new ZodNullable({
+      ...this._def,
+      innerType: this._def.innerType.clone(),
+    }) as ZodNullable<T>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
     if (parsedType === ZodParsedType.null) {

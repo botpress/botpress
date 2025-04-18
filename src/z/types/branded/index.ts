@@ -19,6 +19,24 @@ export class ZodBranded<T extends ZodTypeAny = ZodTypeAny, B extends Key = Key> 
   ZodBrandedDef<T>,
   T['_input']
 > {
+  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+    return new ZodBranded({
+      ...this._def,
+      type: this._def.type.dereference(defs),
+    })
+  }
+
+  getReferences(): string[] {
+    return this._def.type.getReferences()
+  }
+
+  clone(): ZodBranded<T, B> {
+    return new ZodBranded({
+      ...this._def,
+      type: this._def.type.clone(),
+    }) as ZodBranded<T, B>
+  }
+
   _parse(input: ParseInput): ParseReturnType<any> {
     const { ctx } = this._processInputParams(input)
     const data = ctx.data

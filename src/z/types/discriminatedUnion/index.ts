@@ -108,6 +108,16 @@ export class ZodDiscriminatedUnion<
     return unique(this.options.flatMap((option) => option.getReferences()))
   }
 
+  clone(): ZodDiscriminatedUnion<Discriminator, Options> {
+    const options: ZodDiscriminatedUnionOption<Discriminator>[] = this.options.map(
+      (option) => option.clone() as ZodDiscriminatedUnionOption<Discriminator>,
+    )
+    return new ZodDiscriminatedUnion({
+      ...this._def,
+      options: options as [ZodDiscriminatedUnionOption<Discriminator>, ...ZodDiscriminatedUnionOption<Discriminator>[]],
+    }) as ZodDiscriminatedUnion<Discriminator, any>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { ctx } = this._processInputParams(input)
 

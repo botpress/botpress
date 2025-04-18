@@ -53,6 +53,13 @@ export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.getReferences()
   }
 
+  clone(): ZodReadonly<T> {
+    return new ZodReadonly({
+      ...this._def,
+      innerType: this._def.innerType.clone(),
+    }) as ZodReadonly<T>
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const result = this._def.innerType._parse(input)
     if (isValid(result)) {
