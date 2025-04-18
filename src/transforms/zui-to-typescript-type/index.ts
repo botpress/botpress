@@ -115,13 +115,10 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
   if (schema instanceof KeyValue) {
     if (schema.value instanceof z.ZodOptional) {
       let innerType = schema.value._def.innerType as z.Schema
-      if (innerType instanceof z.Schema && !innerType.description && schema.value.description) {
-        innerType = innerType?.describe(schema.value.description)
-      }
       return sUnwrapZod(new KeyValue(schema.key, innerType, true), newConfig)
     }
 
-    const description = getMultilineComment(schema.value._def.description)
+    const description = getMultilineComment(schema.value.description)
     const delimiter = description?.trim().length > 0 ? '\n' : ''
     const withoutDesc = schema.value.describe('')
 
@@ -173,36 +170,36 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
 
   switch (def.typeName) {
     case z.ZodFirstPartyTypeKind.ZodString:
-      return `${getMultilineComment(def.description)} string`.trim()
+      return `${getMultilineComment(schemaTyped.description)} string`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodNumber:
     case z.ZodFirstPartyTypeKind.ZodNaN:
     case z.ZodFirstPartyTypeKind.ZodBigInt:
-      return `${getMultilineComment(def.description)} number`.trim()
+      return `${getMultilineComment(schemaTyped.description)} number`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodBoolean:
-      return `${getMultilineComment(schema._def.description)} boolean`.trim()
+      return `${getMultilineComment(schemaTyped.description)} boolean`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodDate:
-      return `${getMultilineComment(def.description)} Date`.trim()
+      return `${getMultilineComment(schemaTyped.description)} Date`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodUndefined:
-      return `${getMultilineComment(def.description)} undefined`.trim()
+      return `${getMultilineComment(schemaTyped.description)} undefined`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodNull:
-      return `${getMultilineComment(def.description)} null`.trim()
+      return `${getMultilineComment(schemaTyped.description)} null`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodAny:
-      return `${getMultilineComment(def.description)} any`.trim()
+      return `${getMultilineComment(schemaTyped.description)} any`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodUnknown:
-      return `${getMultilineComment(def.description)} unknown`.trim()
+      return `${getMultilineComment(schemaTyped.description)} unknown`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodNever:
-      return `${getMultilineComment(def.description)} never`.trim()
+      return `${getMultilineComment(schemaTyped.description)} never`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodVoid:
-      return `${getMultilineComment(def.description)} void`.trim()
+      return `${getMultilineComment(schemaTyped.description)} void`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodArray:
       const item = sUnwrapZod(def.type, newConfig)
@@ -223,14 +220,14 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
       const options = def.options.map((option) => {
         return sUnwrapZod(option, newConfig)
       })
-      return `${getMultilineComment(def.description)}
+      return `${getMultilineComment(schemaTyped.description)}
 ${options.join(' | ')}`
 
     case z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
       const opts = def.options.map((option) => {
         return sUnwrapZod(option, newConfig)
       })
-      return `${getMultilineComment(schema._def.description)}
+      return `${getMultilineComment(schemaTyped.description)}
 ${opts.join(' | ')}`
 
     case z.ZodFirstPartyTypeKind.ZodIntersection:
@@ -247,7 +244,7 @@ ${opts.join(' | ')}`
     case z.ZodFirstPartyTypeKind.ZodRecord:
       const keyType = sUnwrapZod(def.keyType, newConfig)
       const valueType = sUnwrapZod(def.valueType, newConfig)
-      return `${getMultilineComment(def.description)} { [key: ${keyType}]: ${valueType} }`
+      return `${getMultilineComment(schemaTyped.description)} { [key: ${keyType}]: ${valueType} }`
 
     case z.ZodFirstPartyTypeKind.ZodMap:
       return `Map<${sUnwrapZod(def.keyType, newConfig)}, ${sUnwrapZod(def.valueType, newConfig)}>`
@@ -259,7 +256,7 @@ ${opts.join(' | ')}`
       const input = sUnwrapZod(new FnParameters(def.args), newConfig)
       const output = sUnwrapZod(new FnReturn(def.returns), newConfig)
 
-      return `${getMultilineComment(def.description)}
+      return `${getMultilineComment(schemaTyped.description)}
 (${input}) => ${output}`
 
     case z.ZodFirstPartyTypeKind.ZodLazy:
@@ -267,7 +264,7 @@ ${opts.join(' | ')}`
 
     case z.ZodFirstPartyTypeKind.ZodLiteral:
       const value: string = primitiveToTypscriptLiteralType(def.value)
-      return `${getMultilineComment(def.description)}
+      return `${getMultilineComment(schemaTyped.description)}
 ${value}`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodEnum:
@@ -302,7 +299,7 @@ ${value}`.trim()
       return sUnwrapZod(def.in, newConfig)
 
     case z.ZodFirstPartyTypeKind.ZodSymbol:
-      return `${getMultilineComment(def.description)} symbol`.trim()
+      return `${getMultilineComment(schemaTyped.description)} symbol`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodReadonly:
       return `Readonly<${sUnwrapZod(def.innerType, newConfig)}>`

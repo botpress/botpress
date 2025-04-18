@@ -152,7 +152,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   readonly _def!: Def
 
   get description() {
-    return this._def.description
+    return this._metadataRoot._def.description
   }
 
   abstract _parse(input: ParseInput): ParseReturnType<Output>
@@ -482,12 +482,8 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   }
 
   describe(description: string): this {
-    // FIXME: should set the description on the _metadataRoot
-    const This = (this as any).constructor
-    return new This({
-      ...this._def,
-      description,
-    })
+    this._metadataRoot._def.description = description
+    return this
   }
 
   pipe<T extends ZodTypeAny>(target: T): ZodPipeline<this, T> {

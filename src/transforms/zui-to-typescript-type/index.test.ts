@@ -358,7 +358,7 @@ describe.concurrent('objects', () => {
 
     await expect(typings).toMatchWithoutFormatting(`
         declare const MyObject: {
-          someStr: Readonly</** Description */ string>
+          /** Description */ someStr: Readonly<string>
         };
       `)
   })
@@ -431,7 +431,7 @@ describe.concurrent('objects', () => {
     )
   })
 
-  it('Can handle a complex discriminated union with descriptions', async () => {
+  it('can handle a complex discriminated union with descriptions', async () => {
     const obj = z
       .discriminatedUnion('type', [
         z.object({
@@ -555,7 +555,7 @@ describe.concurrent('objects', () => {
 
     await expect(typings).toMatchWithoutFormatting(`
         declare const MyObject: {
-          address: /** This is a record */ {
+          /** This is a record */ address: /** This is a record */ {
             [key: number]: { street: string; number: number }
           }
         };
@@ -602,8 +602,7 @@ describe.concurrent('objects', () => {
     await expect(typings).toMatchWithoutFormatting(`
         declare const MyObject: {
           /** This is A */
-          a: /** This is A */
-          string
+          a: string
         };
       `)
   })

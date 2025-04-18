@@ -147,13 +147,11 @@ describe('zuiToJsonSchemaNext', () => {
         },
         notes: {
           type: 'string',
-          // FIXME: this should be preserved
-          // description: description2,
+          description: description2,
         },
         assignee: {
           type: 'string',
-          // FIXME: this should be preserved
-          // description: description2,
+          description: description3,
           default: 'me',
         },
       },
