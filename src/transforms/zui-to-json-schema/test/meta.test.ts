@@ -31,12 +31,12 @@ describe('Meta data', () => {
   })
 
   it('should handle optional schemas with different descriptions', () => {
-    const recurringSchema = () => z.object({})
+    const recurringSchema = z.object({})
     const zodSchema = z
       .object({
-        p1: recurringSchema().optional().describe('aaaaaaaaa'),
-        p2: recurringSchema().optional().describe('bbbbbbbbb'),
-        p3: recurringSchema().optional().describe('ccccccccc'),
+        p1: recurringSchema.optional().describe('aaaaaaaaa'),
+        p2: recurringSchema.optional().describe('bbbbbbbbb'),
+        p3: recurringSchema.optional().describe('ccccccccc'),
       })
       .describe('sssssssss')
 

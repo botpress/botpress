@@ -420,10 +420,10 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * Makes the schema required; i.e. not optional or undefined. If the schema is already required than it returns itself.
    * Null is not considered optional and remains unchanged.
    *
-   * @example z.string().optional().required() // z.string()
-   * @example z.string().nullable().required() // z.string().nullable()
-   * @example z.string().or(z.undefined()).required() // z.string()
-   * @example z.union([z.string(), z.number(), z.undefined()]).required() // z.union([z.string(), z.number()])
+   * @example z.string().optional().mandatory() // z.string()
+   * @example z.string().nullable().mandatory() // z.string().nullable()
+   * @example z.string().or(z.undefined()).mandatory() // z.string()
+   * @example z.union([z.string(), z.number(), z.undefined()]).mandatory() // z.union([z.string(), z.number()])
    */
   mandatory(): ZodType {
     return this
@@ -482,8 +482,9 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   }
 
   describe(description: string): this {
-    this._metadataRoot._def.description = description
-    return this
+    const clone = this.clone() as this
+    clone._metadataRoot._def.description = description
+    return clone
   }
 
   pipe<T extends ZodTypeAny>(target: T): ZodPipeline<this, T> {
@@ -506,7 +507,8 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
 
   /** append metadata to the schema */
   metadata(data: Record<string, ZuiMetadata>): this {
-    const root = this._metadataRoot
+    const clone = this.clone() as this
+    const root = clone._metadataRoot
     root._def[zuiKey] ??= {}
     for (const [key, value] of Object.entries(data)) {
       root._def[zuiKey] = {
@@ -514,7 +516,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
         [key]: value,
       }
     }
-    return this
+    return clone
   }
 
   /** get metadata of the schema */
