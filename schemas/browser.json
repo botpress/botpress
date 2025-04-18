@@ -91,7 +91,7 @@
               "items": {
                 "maxLength": 50,
                 "minLength": 3,
-                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$",
+                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
                 "type": "string"
               },
               "maxItems": 20,
@@ -107,7 +107,7 @@
               "items": {
                 "maxLength": 50,
                 "minLength": 3,
-                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$",
+                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
                 "type": "string"
               },
               "maxItems": 20,

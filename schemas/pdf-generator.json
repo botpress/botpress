@@ -10,7 +10,7 @@
               "default": "generated.pdf",
               "description": "The filename of the PDF",
               "minLength": 1,
-              "pattern": "\.pdf$",
+              "pattern": "\\.pdf$",
               "type": "string"
             },
             "html": { "description": "The HTML content to convert to PDF", "minLength": 1, "type": "string" }
@@ -42,7 +42,7 @@
               "default": "generated.pdf",
               "description": "The filename of the PDF",
               "minLength": 1,
-              "pattern": "\.pdf$",
+              "pattern": "\\.pdf$",
               "type": "string"
             },
             "markdown": { "description": "The markdown content to convert to PDF", "minLength": 1, "type": "string" }
