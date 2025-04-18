@@ -3,9 +3,9 @@ import { BotpressClientLike, Cognitive, Model } from '@botpress/cognitive'
 import { type TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
 import { z } from '@bpinternal/zui'
 
-import { Adapter } from './adapters/adapter'
-import { TableAdapter } from './adapters/botpress-table'
-import { MemoryAdapter } from './adapters/memory'
+import { Adapter } from './adapters/adapter.js'
+import { TableAdapter } from './adapters/botpress-table.js'
+import { MemoryAdapter } from './adapters/memory.js'
 
 type ModelId = Required<Parameters<Cognitive['generateContent']>[0]['model']>
 
