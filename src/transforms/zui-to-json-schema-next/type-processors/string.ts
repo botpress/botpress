@@ -1,6 +1,7 @@
 import { zuiKey } from '../../../ui/constants'
 import z from '../../../z'
 import { generateDatetimeRegex } from '../../../z/types/string/datetime'
+import { regexUtils } from '../../common'
 import * as errors from '../../common/errors'
 import * as json from '../../common/json-schema'
 import { zodPatterns } from '../../zui-to-json-schema/parsers/string'
@@ -55,14 +56,14 @@ export const zodStringToJsonString = (zodString: z.ZodString): json.StringSchema
         schema.format = 'uri'
         break
       case 'endsWith':
-        schema.pattern = `${_escapeNonAlphaNumeric(check.value)}$`
+        schema.pattern = `${regexUtils.escapeSpecialChars(check.value)}$`
         break
       case 'startsWith':
-        schema.pattern = `^${_escapeNonAlphaNumeric(check.value)}`
+        schema.pattern = `^${regexUtils.escapeSpecialChars(check.value)}`
         break
       case 'includes':
         const positionPredicate = check.position && check.position >= 1 ? `^(?:.{${check.position}}).*` : ''
-        schema.pattern = `${positionPredicate}${_escapeNonAlphaNumeric(check.value)}`
+        schema.pattern = `${positionPredicate}${regexUtils.escapeSpecialChars(check.value)}`
         break
       case 'regex':
         schema.pattern = check.regex.source
@@ -89,5 +90,3 @@ export const zodStringToJsonString = (zodString: z.ZodString): json.StringSchema
 
   return schema
 }
-
-const _escapeNonAlphaNumeric = (value: string): string => value.replaceAll(/[^a-z0-9]/gi, '\\$&')

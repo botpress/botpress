@@ -1,6 +1,7 @@
 import { zuiKey } from '../../../ui/constants'
 import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodStringDef } from '../../../z/index'
+import { regexUtils } from '../../common'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { Refs } from '../Refs'
 
@@ -67,7 +68,7 @@ export function parseStringDef(def: ZodStringDef, refs: Refs): JsonSchema7String
   }
 
   function processPattern(value: string): string {
-    return refs.patternStrategy === 'escape' ? escapeNonAlphaNumeric(value) : value
+    return refs.patternStrategy === 'escape' ? regexUtils.escapeSpecialChars(value) : value
   }
 
   if (def.checks) {
@@ -180,11 +181,6 @@ export function parseStringDef(def: ZodStringDef, refs: Refs): JsonSchema7String
 
   return res
 }
-
-const escapeNonAlphaNumeric = (value: string) =>
-  Array.from(value)
-    .map((c) => (/[a-zA-Z0-9]/.test(c) ? c : `\\${c}`))
-    .join('')
 
 const addFormat = (
   schema: JsonSchema7StringType,
