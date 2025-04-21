@@ -1,0 +1,16 @@
+{
+  "name": "@botpresshub/threaded-responses",
+  "description": "Interface to support threaded responses in Botpress.",
+  "private": true,
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*"
+  }
+}

@@ -1765,6 +1765,16 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  interfaces/threaded-responses:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   interfaces/typing-indicator:
     dependencies:
       '@botpress/sdk':
