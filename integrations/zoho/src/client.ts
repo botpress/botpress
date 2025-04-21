@@ -116,7 +116,7 @@ export class ZohoApi {
     } catch (error: any) {
       if (error.response?.status === 401) {
         logger.forBot().warn('Access token expired. Refreshing...', error)
-        await this._refreshAccessToken()
+        await this.refreshAccessToken()
         return this._makeRequest(endpoint, method, data, params)
       }
       logger.forBot().error(`Error in ${method} ${endpoint}:`, error.response?.data || error.message)
@@ -145,7 +145,7 @@ export class ZohoApi {
     } catch (error: any) {
       if (error.response?.status === 401) {
         logger.forBot().warn('Access token expired. Refreshing...', error)
-        await this._refreshAccessToken()
+        await this.refreshAccessToken()
         return this._makeFileUploadRequest(endpoint, formData)
       }
       logger.forBot().error(`Error in file upload ${endpoint}:`, error.response?.data || error.message)
@@ -153,7 +153,7 @@ export class ZohoApi {
     }
   }
 
-  async _refreshAccessToken() {
+  public async refreshAccessToken() {
     try {
       const requestData = new URLSearchParams()
       requestData.append('client_id', this._clientId)

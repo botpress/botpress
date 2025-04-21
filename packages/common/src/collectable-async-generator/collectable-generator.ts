@@ -13,7 +13,7 @@ export function collectableGenerator<T, TReturn = unknown, TNext = undefined, Ar
         const results: T[] = []
 
         for await (const item of _takeFromGenerator(originalGenerator, limit)) {
-          results.push(item)
+          results.push(item as T)
         }
 
         return results
