@@ -67,6 +67,10 @@ export const channels = {
           title: 'Thread ID',
           description: 'The Slack ID of the thread',
         },
+        isBotReplyThread: {
+          title: 'Is Bot Reply Thread?',
+          description: 'Whether the thread is a bot reply thread',
+        },
       },
     },
   },

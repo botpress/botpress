@@ -5,6 +5,7 @@ import { startDmConversation } from './start-dm'
 import { syncMembers } from './sync-members'
 import { startTypingIndicator, stopTypingIndicator } from './typing-indicator'
 import { updateChannelTopic } from './update-channel-topic'
+import { forwardToReplyThread } from './forward-to-reply-thread'
 
 import * as bp from '.botpress'
 
@@ -17,4 +18,5 @@ export default {
   updateChannelTopic,
   startTypingIndicator,
   stopTypingIndicator,
+  forwardToReplyThread,
 } satisfies bp.IntegrationProps['actions']

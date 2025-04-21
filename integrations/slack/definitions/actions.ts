@@ -124,4 +124,31 @@ export const actions = {
       schema: sdk.z.object({}),
     },
   },
+
+  forwardToReplyThread: {
+    title: 'Forward to Reply Thread',
+    description: 'Forward a channel message to a new reply thread',
+    input: {
+      schema: sdk.z.object({
+        parentMessage: sdk.z
+          .object({
+            id: sdk.z.string().title('Message ID').describe('The ID of the message to reply to.'),
+            type: sdk.z.string().title('Message type').describe('The type of the message to reply to.'),
+            payload: sdk.z
+              .record(sdk.z.any())
+              .title('Message payload')
+              .describe('The payload of the message to reply to.'),
+            tags: sdk.z.record(sdk.z.string()).title('Message tags').describe('The tags of the message to reply to.'),
+            userId: sdk.z.string().title('User ID').describe('The ID of the user who sent the message.'),
+          })
+          .title('Parent message')
+          .describe(
+            'The message to reply to. The channel conversation will be forked at this point and a new thread will be created.'
+          ),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({}),
+    },
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['actions']
