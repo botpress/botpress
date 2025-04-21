@@ -20,6 +20,34 @@ const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 //  https://openai.com/api/pricing/
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
+  'o4-mini-2025-04-16': {
+    name: 'GPT o4-mini',
+    description:
+      "o4-mini is OpenAI's latest small o-series model. It's optimized for fast, effective reasoning with exceptionally efficient performance in coding and visual tasks.",
+    tags: ['reasoning', 'vision'],
+    input: {
+      costPer1MTokens: 1.1,
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 4.4,
+      maxTokens: 100_000,
+    },
+  },
+  'o3-2025-04-16': {
+    name: 'GPT o3',
+    description:
+      'o3 is a well-rounded and powerful model across domains. It sets a new standard for math, science, coding, and visual reasoning tasks. It also excels at technical writing and instruction-following. Use it to think through multi-step problems that involve analysis across text, code, and images.',
+    tags: ['reasoning', 'vision'],
+    input: {
+      costPer1MTokens: 10,
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 40,
+      maxTokens: 100_000,
+    },
+  },
   'gpt-4.1-2025-04-14': {
     name: 'GPT 4.1',
     description:
@@ -27,7 +55,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     tags: ['recommended', 'vision', 'general-purpose'],
     input: {
       costPer1MTokens: 2,
-      maxTokens: 1047576,
+      maxTokens: 1_047_576,
     },
     output: {
       costPer1MTokens: 8,
@@ -41,7 +69,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     tags: ['recommended', 'vision', 'general-purpose'],
     input: {
       costPer1MTokens: 0.4,
-      maxTokens: 1047576,
+      maxTokens: 1_047_576,
     },
     output: {
       costPer1MTokens: 1.6,
@@ -54,7 +82,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     tags: ['low-cost', 'vision', 'general-purpose'],
     input: {
       costPer1MTokens: 0.1,
-      maxTokens: 1047576,
+      maxTokens: 1_047_576,
     },
     output: {
       costPer1MTokens: 0.4,

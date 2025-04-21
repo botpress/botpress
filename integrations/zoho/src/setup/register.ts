@@ -13,7 +13,7 @@ export const register: RegisterFunction = async ({ ctx, client, logger }) => {
       client
     )
 
-    await zohoClient._refreshAccessToken()
+    await zohoClient.refreshAccessToken()
 
     const orgResult = await zohoClient.getOrganizationDetails()
 

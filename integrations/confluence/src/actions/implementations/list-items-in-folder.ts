@@ -1,7 +1,7 @@
+import { ConfluenceClient } from 'src/client'
 import * as bp from '.botpress'
 
 import type { Actions } from '.botpress/implementation/typings/actions'
-import { ConfluenceClient } from 'src/client'
 
 export const filesReadonlyListItemsInFolder: bp.IntegrationProps['actions']['filesReadonlyListItemsInFolder'] = async ({
   ctx,

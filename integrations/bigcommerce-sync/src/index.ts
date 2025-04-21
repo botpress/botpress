@@ -417,18 +417,7 @@ export default new bp.Integration({
 
       logger.forBot().info(`Processing event: ${webhookType} for product ID: ${productId}`)
 
-      let result: {
-        success: boolean
-        message: string
-        productsCount?: number
-        syncResult?: {
-          success: boolean
-          message: string
-          productsCount: number
-        }
-      } | null
-
-      result = await processWebhookByType(
+      const result = await processWebhookByType(
         webhookType,
         productId.toString(),
         bigCommerceClient,
