@@ -31,7 +31,6 @@ export default new sdk.BotDefinition({
   })
   .addPlugin(fileSynchronizer, {
     configuration: {
-      // enablePeriodicSync: undefined,
       enableRealTimeSync: true,
       includeFiles: [
         {

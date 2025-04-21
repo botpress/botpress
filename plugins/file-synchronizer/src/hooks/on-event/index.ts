@@ -1,4 +1,3 @@
-export * as periodicSync from './periodic-sync'
 export * as fileCreated from './file-created'
 export * as fileDeleted from './file-deleted'
 export * as fileUpdated from './file-updated'
