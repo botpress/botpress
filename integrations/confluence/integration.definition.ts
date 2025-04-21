@@ -5,7 +5,7 @@ import { actions } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'confluence',
-  version: '0.1.0',
+  version: '1.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   title: 'Confluence',
