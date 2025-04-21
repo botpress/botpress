@@ -1,0 +1,19 @@
+{
+  "name": "@botpresshub/slack-reply-as-thread",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpresshub/slack": "workspace:*"
+  },
+  "bpDependencies": {
+    "slack": "../../integrations/slack"
+  }
+}

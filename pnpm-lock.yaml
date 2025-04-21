@@ -2428,6 +2428,22 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
 
+  plugins/slack-reply-as-thread:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpresshub/slack':
+        specifier: workspace:*
+        version: link:../../integrations/slack
+
   plugins/synchronizer:
     dependencies:
       '@botpress/client':
