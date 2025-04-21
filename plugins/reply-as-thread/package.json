@@ -1,0 +1,19 @@
+{
+  "name": "@botpresshub/reply-as-thread",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpresshub/threaded-responses": "workspace:*"
+  },
+  "bpDependencies": {
+    "threaded-responses": "../../interfaces/threaded-responses"
+  }
+}

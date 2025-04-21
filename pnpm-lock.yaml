@@ -2438,6 +2438,22 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
 
+  plugins/reply-as-thread:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpresshub/threaded-responses':
+        specifier: workspace:*
+        version: link:../../interfaces/threaded-responses
+
   plugins/synchronizer:
     dependencies:
       '@botpress/client':
