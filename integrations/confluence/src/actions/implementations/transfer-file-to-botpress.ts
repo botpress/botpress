@@ -1,8 +1,7 @@
-import * as bp from '.botpress'
-
-import { convertAtlassianDocumentToMarkdown } from 'src/parser/confluenceToMarkdown'
-import { ConfluenceClient } from 'src/client'
 import { RuntimeError } from '@botpress/sdk'
+import { ConfluenceClient } from 'src/client'
+import { convertAtlassianDocumentToMarkdown } from 'src/parser/confluenceToMarkdown'
+import * as bp from '.botpress'
 
 export const filesReadonlyTransferFileToBotpress: bp.IntegrationProps['actions']['filesReadonlyTransferFileToBotpress'] =
   async ({ logger, client, ctx, input: { file, fileKey } }) => {

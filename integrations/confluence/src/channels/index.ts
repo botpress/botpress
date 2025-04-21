@@ -1,6 +1,5 @@
-import * as bp from '.botpress'
-
 import { PageCommentPublisher } from './publishers/page-comment'
+import * as bp from '.botpress'
 
 export const channels = {
   pageComments: {
