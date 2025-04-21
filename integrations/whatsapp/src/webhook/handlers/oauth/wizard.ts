@@ -19,7 +19,7 @@ type WizardStep =
   | 'finish-wrap-up'
 
 const ACCESS_TOKEN_UNAVAILABLE_ERROR = 'Access token unavailable, please try again.'
-const WABA_ID_UNAVAILABLE_ERROR = 'Whatsapp Business Account ID unavailable, please try again.'
+const WABA_ID_UNAVAILABLE_ERROR = 'WhatsApp Business Account ID unavailable, please try again.'
 const PHONE_NUMBER_ID_UNAVAILABLE_ERROR = 'Phone number ID unavailable, please try again.'
 const INVALID_WIZARD_STEP_ERROR = 'Invalid wizard step'
 
@@ -72,7 +72,7 @@ const _handleWizardSetup = async (props: WizardStepHandlerProps): Promise<Respon
   const { client, ctx } = props
   await _trackWizardStep(ctx, 'setup', 'setup-started')
   // Clean current state to start a fresh wizard
-  const credentials = { accessToken: undefined, wabaId: undefined, phoneNumberId: undefined }
+  const credentials: Credentials = { accessToken: undefined, wabaId: undefined, defaultBotPhoneNumberId: undefined }
   await _patchCredentialsState(client, ctx, credentials)
   return redirectTo(
     'https://www.facebook.com/v19.0/dialog/oauth?' +
@@ -119,9 +119,9 @@ const _handleWizardVerifyWaba = async (props: WizardStepHandlerProps): Promise<R
 const _handleWizardVerifyNumber = async (props: WizardStepHandlerProps): Promise<Response> => {
   const { req } = props
   const params = new URLSearchParams(req.query)
-  const phoneNumberId = z.string().safeParse(params.get('phoneNumberId')).data
+  const defaultBotPhoneNumberId = z.string().safeParse(params.get('defaultBotPhoneNumberId')).data
   const force = !!params.get('force-step')
-  return await _doStepVerifyNumber(props, phoneNumberId, force)
+  return await _doStepVerifyNumber(props, defaultBotPhoneNumberId, force)
 }
 
 const _getWizardStepUrl = (step: WizardStep, ctx?: bp.Context) => {
@@ -179,11 +179,11 @@ const _doStepVerifyWaba = async (
 
 const _doStepVerifyNumber = async (
   props: WizardStepHandlerProps,
-  inPhoneNumberId?: string,
+  inDefaultBotPhoneNumberId?: string,
   force?: boolean
 ): Promise<Response> => {
   const { client, ctx, logger, credentials } = props
-  let phoneNumberId = inPhoneNumberId || credentials.phoneNumberId
+  let defaultBotPhoneNumberId = inDefaultBotPhoneNumberId || credentials.defaultBotPhoneNumberId
   await _trackWizardStep(ctx, 'verify-number')
   const { accessToken, wabaId } = credentials
   if (!accessToken) {
@@ -194,17 +194,17 @@ const _doStepVerifyNumber = async (
   }
 
   const oauthClient = new MetaOauthClient(logger)
-  if (!phoneNumberId || force) {
+  if (!defaultBotPhoneNumberId || force) {
     const phoneNumbers = await oauthClient.getWhatsappNumbersFromBusiness(wabaId, accessToken)
     if (phoneNumbers.length === 1) {
-      phoneNumberId = phoneNumbers[0]?.id
+      defaultBotPhoneNumberId = phoneNumbers[0]?.id
     } else {
       return generateSelectDialog({
         title: 'Select the default number',
         description: 'Choose a phone number from the current WhatsApp Business Account to use as default:',
         settings: { targetUrl: _getWizardStepUrl('verify-number', ctx) },
         select: {
-          key: 'phoneNumberId',
+          key: 'defaultBotPhoneNumberId',
           options: phoneNumbers.map((phoneNumber) => ({
             id: phoneNumber.id,
             display: `${phoneNumber.displayPhoneNumber} (${phoneNumber.verifiedName})`,
@@ -215,11 +215,11 @@ const _doStepVerifyNumber = async (
     }
   }
 
-  if (!phoneNumberId) {
+  if (!defaultBotPhoneNumberId) {
     throw new Error(PHONE_NUMBER_ID_UNAVAILABLE_ERROR)
   }
 
-  const newCredentials = { ...credentials, phoneNumberId }
+  const newCredentials = { ...credentials, defaultBotPhoneNumberId }
   await _patchCredentialsState(client, ctx, newCredentials)
   return await _doStepWrapUp({ ...props, credentials: newCredentials })
 }
@@ -233,21 +233,21 @@ const _doStepFinishWrapUp = async (props: WizardStepHandlerProps): Promise<Respo
 const _doStepWrapUp = async (props: WizardStepHandlerProps): Promise<Response> => {
   const { client, ctx, logger, credentials } = props
   await _trackWizardStep(ctx, 'wrap-up', 'completed')
-  const { accessToken, wabaId, phoneNumberId } = credentials
+  const { accessToken, wabaId, defaultBotPhoneNumberId } = credentials
   if (!accessToken) {
     throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
   }
   if (!wabaId) {
     throw new Error(WABA_ID_UNAVAILABLE_ERROR)
   }
-  if (!phoneNumberId) {
+  if (!defaultBotPhoneNumberId) {
     throw new Error(PHONE_NUMBER_ID_UNAVAILABLE_ERROR)
   }
   const oauthClient = new MetaOauthClient(logger)
   await client.configureIntegration({
     identifier: wabaId,
   })
-  await oauthClient.registerNumber(phoneNumberId, accessToken)
+  await oauthClient.registerNumber(defaultBotPhoneNumberId, accessToken)
   await oauthClient.subscribeToWebhooks(wabaId, accessToken)
 
   return generateButtonDialog({

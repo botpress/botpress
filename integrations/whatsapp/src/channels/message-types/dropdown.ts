@@ -25,7 +25,7 @@ export function* generateOutgoingMessages({
       logger
         .forBot()
         .info(
-          `Splitting ${options.length} dropdown options into groups of ${INTERACTIVE_MAX_ACTIONS_COUNT} actions each due to a limitation of Whatsapp.`
+          `Splitting ${options.length} dropdown options into groups of ${INTERACTIVE_MAX_ACTIONS_COUNT} actions each due to a limitation of WhatsApp.`
         )
     }
 
@@ -35,7 +35,7 @@ export function* generateOutgoingMessages({
       )
       const section = new ListSection(
         truncate(text, ACTION_LABEL_MAX_LENGTH),
-        ...(rows as AtLeastOne<Row>) // NOTE: The description parameter is optional as per Whatsapp's documentation, but they have a bug that actually enforces the description to be a non-empty string.
+        ...(rows as AtLeastOne<Row>) // NOTE: The description parameter is optional as per WhatsApp's documentation, but they have a bug that actually enforces the description to be a non-empty string.
       )
       const actionList = new ActionList('Choose...', section)
 

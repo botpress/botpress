@@ -163,13 +163,13 @@ export const getClientSecret = (ctx: bp.Context): string | undefined => {
   return value?.length ? value : undefined
 }
 
-export const getPhoneNumberId = async (client: bp.Client, ctx: bp.Context) => {
+export const getDefaultBotPhoneNumberId = async (client: bp.Client, ctx: bp.Context) => {
   if (ctx.configurationType === 'manualApp') {
-    return ctx.configuration.phoneNumberId
+    return ctx.configuration.defaultBotPhoneNumberId
   }
 
   const {
     state: { payload },
   } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
-  return payload.phoneNumberId
+  return payload.defaultBotPhoneNumberId
 }

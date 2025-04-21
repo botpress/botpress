@@ -27,7 +27,7 @@ export function* generateOutgoingMessages({
       logger
         .forBot()
         .info(
-          `Splitting ${options.length} choices into groups of ${INTERACTIVE_MAX_BUTTONS_COUNT} buttons each due to a limitation of Whatsapp.`
+          `Splitting ${options.length} choices into groups of ${INTERACTIVE_MAX_BUTTONS_COUNT} buttons each due to a limitation of WhatsApp.`
         )
     }
 
@@ -39,6 +39,6 @@ export function* generateOutgoingMessages({
 }
 
 function _createButton(option: Option) {
-  const safeValue = option.value.trim() // Whatsapp doesn't allow trailing spaces in button IDs
+  const safeValue = option.value.trim() // WhatsApp doesn't allow trailing spaces in button IDs
   return button.create({ id: safeValue, title: truncate(option.label, BUTTON_LABEL_MAX_LENGTH) })
 }

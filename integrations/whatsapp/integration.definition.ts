@@ -1,33 +1,9 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import proactiveConversation from 'bp_modules/proactive-conversation'
 import typingIndicator from 'bp_modules/typing-indicator'
 
 export const channel = 'channel' // TODO: Rename to "whatsapp" once support for integration versioning is finished.
-
-const TagsForCreatingConversation = {
-  phoneNumberId: {
-    title: 'Phone Number ID',
-    description:
-      'Whatsapp Phone Number ID to use as sender. If not provided it defaults to the one set in the configuration.',
-  },
-  userPhone: {
-    title: 'User phone number',
-    description: 'Phone number of the Whatsapp user to start the conversation with.',
-  },
-  templateName: {
-    title: 'Message Template name',
-    description: 'Name of the Whatsapp Message Template to start the conversation with.',
-  },
-  templateLanguage: {
-    title: 'Message Template language (optional)',
-    description:
-      'Language of the Whatsapp Message Template to start the conversation with. Defaults to "en_US" (U.S. English).',
-  },
-  templateVariables: {
-    title: 'Message Template variables (optional)',
-    description: 'JSON array representation of variable values to pass to the Whatsapp Message Template.',
-  },
-}
 
 export const INTEGRATION_NAME = 'whatsapp'
 
@@ -39,9 +15,55 @@ const commonConfigSchema = z.object({
     .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
 })
 
+const startConversationProps = {
+  title: 'Start Conversation',
+  description:
+    'Proactively starts a conversation with a WhatsApp user by sending them a message using a WhatsApp Message Template',
+  input: {
+    schema: z.object({
+      conversation: z.object({
+        userPhone: z
+          .string()
+          .min(1)
+          .title('User Phone Number')
+          .describe('Phone number of the WhatsApp user to start a conversation with'),
+        templateName: z
+          .string()
+          .min(1)
+          .title('Message Template name')
+          .describe('Name of the WhatsApp Message Template to start the conversation with'),
+        templateLanguage: z
+          .string()
+          .optional()
+          .title('Message Template language')
+          .describe(
+            'Language of the WhatsApp Message Template to start the conversation with. Defaults to "en_US" (U.S. English)'
+          ),
+        templateVariablesJson: z
+          .string()
+          .optional()
+          .title('Message Template variables')
+          .describe(
+            'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template)'
+          ),
+        botPhoneNumberId: z
+          .string()
+          .optional()
+          .title('Bot Phone Number ID')
+          .describe('Phone number ID to use as sender (uses the default phone number ID if not provided)'),
+      }),
+    }),
+  },
+}
+
+const defaultBotPhoneNumberId = {
+  title: 'Default Bot Phone Number ID',
+  description: 'Default Phone ID used by the bot for starting conversations',
+}
+
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '3.0.2', // TODO: Bump major
+  version: '4.0.0',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -51,16 +73,12 @@ export default new IntegrationDefinition({
       // TODO: Rename
       title: 'Manual Configuration',
       description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
-      ui: {
-        phoneNumberId: {
-          title: 'Default Phone Number ID for starting conversations',
-        },
-      },
       schema: z
         .object({
           verifyToken: z
             .string()
             .min(1)
+            .secret()
             .title('Verify Token')
             .describe(
               'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
@@ -68,18 +86,20 @@ export default new IntegrationDefinition({
           accessToken: z
             .string()
             .min(1)
+            .secret()
             .title('Access Token')
             .describe('Access Token from a System Account that has permission to the Meta app'),
           clientSecret: z
             .string()
+            .secret()
             .optional()
             .title('Client Secret')
             .describe('Meta app secret used for webhook signature check'),
-          phoneNumberId: z
+          defaultBotPhoneNumberId: z
             .string()
             .min(1)
-            .title('Phone Number ID')
-            .describe('Default Phone id used for starting conversations'),
+            .title(defaultBotPhoneNumberId.title)
+            .describe(defaultBotPhoneNumberId.description),
         })
         .merge(commonConfigSchema),
     },
@@ -117,7 +137,16 @@ export default new IntegrationDefinition({
         },
       },
       conversation: {
-        tags: TagsForCreatingConversation,
+        tags: {
+          botPhoneNumberId: {
+            title: 'Bot Phone Number ID',
+            description: 'WhatsApp Phone Number ID of the bot',
+          },
+          userPhone: {
+            title: 'User Phone Number',
+            description: 'Phone number of the WhatsApp user having a conversation with the bot.',
+          },
+        },
       },
     },
   },
@@ -135,36 +164,7 @@ export default new IntegrationDefinition({
   },
   actions: {
     startConversation: {
-      title: 'Start Conversation',
-      description:
-        "Proactively starts a conversation with a user's Whatsapp phone number by sending them a message using a Whatsapp Message Template.",
-      input: {
-        schema: z.object({
-          userPhone: z
-            .string()
-            .title(TagsForCreatingConversation.userPhone.title)
-            .describe(TagsForCreatingConversation.userPhone.description),
-          templateName: z
-            .string()
-            .title(TagsForCreatingConversation.templateName.title)
-            .describe(TagsForCreatingConversation.templateName.description),
-          templateLanguage: z
-            .string()
-            .optional()
-            .title(TagsForCreatingConversation.templateLanguage.title)
-            .describe(TagsForCreatingConversation.templateLanguage.description),
-          templateVariablesJson: z
-            .string()
-            .optional()
-            .title(TagsForCreatingConversation.templateVariables.title)
-            .describe(TagsForCreatingConversation.templateVariables.description),
-          senderPhoneNumberId: z
-            .string()
-            .optional()
-            .title(TagsForCreatingConversation.phoneNumberId.title)
-            .describe(TagsForCreatingConversation.phoneNumberId.description),
-        }),
-      },
+      ...startConversationProps,
       output: {
         schema: z.object({
           conversationId: z.string().title('Conversation ID').describe('ID of the conversation created'),
@@ -182,11 +182,11 @@ export default new IntegrationDefinition({
           .optional()
           .title('Access token')
           .describe('Access token used to authenticate requests to the WhatsApp Business Platform API'),
-        phoneNumberId: z
+        defaultBotPhoneNumberId: z
           .string()
           .optional()
-          .title('Phone Number ID')
-          .describe('WhatsApp Phone Number ID to use as sender'),
+          .title(defaultBotPhoneNumberId.title)
+          .describe(defaultBotPhoneNumberId.description),
         wabaId: z
           .string()
           .optional()
@@ -219,7 +219,27 @@ export default new IntegrationDefinition({
       optional: true,
     },
   },
-}).extend(typingIndicator, () => ({ entities: {} }))
+  entities: {
+    proactiveConversation: {
+      title: 'Proactive Conversation',
+      description: 'Proactive conversation with a WhatsApp user',
+      schema: startConversationProps.input.schema.shape['conversation'],
+    },
+  },
+})
+  .extend(typingIndicator, () => ({ entities: {} }))
+  .extend(proactiveConversation, ({ entities }) => ({
+    entities: {
+      conversation: entities.proactiveConversation,
+    },
+    actions: {
+      getOrCreateConversation: {
+        name: 'startConversation',
+        title: startConversationProps.title,
+        description: startConversationProps.description,
+      },
+    },
+  }))
 
 // TODO: Add a secret instead?
 export const getOAuthConfigId = () => {

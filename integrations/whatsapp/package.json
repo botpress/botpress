@@ -24,6 +24,7 @@
     "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
-    "typing-indicator": "../../interfaces/typing-indicator"
+    "typing-indicator": "../../interfaces/typing-indicator",
+    "proactive-conversation": "../../interfaces/proactive-conversation"
   }
 }

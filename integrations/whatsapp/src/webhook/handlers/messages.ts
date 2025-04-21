@@ -51,7 +51,7 @@ async function _handleIncomingMessage(
       channel,
       tags: {
         userPhone: message.from,
-        phoneNumberId: value.metadata.phone_number_id,
+        botPhoneNumberId: value.metadata.phone_number_id,
       },
     })
 
@@ -65,7 +65,7 @@ async function _handleIncomingMessage(
       })
 
       if (message.text) {
-        logger.forBot().debug('Received text message from Whatsapp:', message.text.body)
+        logger.forBot().debug('Received text message from WhatsApp:', message.text.body)
 
         await client.createMessage({
           tags: { id: message.id },
@@ -75,7 +75,7 @@ async function _handleIncomingMessage(
           conversationId: conversation.id,
         })
       } else if (message.button) {
-        logger.forBot().debug('Received button message from Whatsapp:', message.button)
+        logger.forBot().debug('Received button message from WhatsApp:', message.button)
 
         await client.createMessage({
           tags: { id: message.id },
@@ -87,7 +87,7 @@ async function _handleIncomingMessage(
           conversationId: conversation.id,
         })
       } else if (message.location) {
-        logger.forBot().debug('Received location message from Whatsapp:', JSON.stringify(message.location))
+        logger.forBot().debug('Received location message from WhatsApp:', JSON.stringify(message.location))
 
         await client.createMessage({
           tags: { id: message.id },
@@ -102,7 +102,7 @@ async function _handleIncomingMessage(
           conversationId: conversation.id,
         })
       } else if (message.image) {
-        logger.forBot().debug('Received image message from Whatsapp:', message.button)
+        logger.forBot().debug('Received image message from WhatsApp:', message.button)
 
         const imageUrl = await getMediaUrl(message.image.id, client, ctx)
 
@@ -114,7 +114,7 @@ async function _handleIncomingMessage(
           conversationId: conversation.id,
         })
       } else if (message.audio) {
-        logger.forBot().debug('Received audio message from Whatsapp:', message.button)
+        logger.forBot().debug('Received audio message from WhatsApp:', message.button)
 
         const audioUrl = await getMediaUrl(message.audio.id, client, ctx)
 
@@ -126,7 +126,7 @@ async function _handleIncomingMessage(
           conversationId: conversation.id,
         })
       } else if (message.document) {
-        logger.forBot().debug('Received document message from Whatsapp:', message.button)
+        logger.forBot().debug('Received document message from WhatsApp:', message.button)
 
         const documentUrl = await getMediaUrl(message.document.id, client, ctx)
 
@@ -141,7 +141,7 @@ async function _handleIncomingMessage(
           conversationId: conversation.id,
         })
       } else if (message.video) {
-        logger.forBot().debug('Received video message from Whatsapp:', message.video)
+        logger.forBot().debug('Received video message from WhatsApp:', message.video)
 
         const videoUrl = await getMediaUrl(message.video.id, client, ctx)
 
@@ -154,7 +154,7 @@ async function _handleIncomingMessage(
         })
       } else if (message.interactive) {
         if (message.interactive.type === 'button_reply') {
-          logger.forBot().debug('Received button reply from Whatsapp:', message.interactive.button_reply)
+          logger.forBot().debug('Received button reply from WhatsApp:', message.interactive.button_reply)
 
           await client.createMessage({
             tags: { id: message.id },
@@ -168,7 +168,7 @@ async function _handleIncomingMessage(
             conversationId: conversation.id,
           })
         } else if (message.interactive.type === 'list_reply') {
-          logger.forBot().debug('Received list reply from Whatsapp:', message.interactive.list_reply)
+          logger.forBot().debug('Received list reply from WhatsApp:', message.interactive.list_reply)
 
           await client.createMessage({
             tags: { id: message.id },
@@ -188,7 +188,7 @@ async function _handleIncomingMessage(
         logger.forBot().warn(`Unhandled message type: ${JSON.stringify(message)}`)
       }
     } else {
-      logger.forBot().warn('Ignored message from Whatsapp because it did not have any contacts')
+      logger.forBot().warn('Ignored message from WhatsApp because it did not have any contacts')
     }
   }
 }
