@@ -202,6 +202,10 @@ export type HookDefinitions<TPlugin extends common.BasePlugin> = {
   before_incoming_message: HookDefinition<{
     stoppable: true
     data: _IncomingMessages<TPlugin> & { '*': AnyIncomingMessage<TPlugin> }
+    additionalContext: {
+      user: client.User
+      conversation: client.Conversation
+    }
   }>
   before_outgoing_message: HookDefinition<{
     stoppable: false
@@ -218,6 +222,10 @@ export type HookDefinitions<TPlugin extends common.BasePlugin> = {
   after_incoming_message: HookDefinition<{
     stoppable: true
     data: _IncomingMessages<TPlugin> & { '*': AnyIncomingMessage<TPlugin> }
+    additionalContext: {
+      user: client.User
+      conversation: client.Conversation
+    }
   }>
   after_outgoing_message: HookDefinition<{
     stoppable: false
@@ -237,11 +245,19 @@ export type HookData<TPlugin extends common.BasePlugin> = {
   }
 }
 
+export type HookAdditionalContext<TPlugin extends common.BasePlugin> = {
+  [THookType in utils.StringKeys<HookDefinitions<TPlugin>>]: HookDefinitions<TPlugin>[THookType] extends {
+    additionalContext: any
+  }
+    ? HookDefinitions<TPlugin>[THookType]['additionalContext']
+    : never
+}
+
 export type HookInputs<TPlugin extends common.BasePlugin> = {
   [THookType in utils.StringKeys<HookData<TPlugin>>]: {
     [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]: CommonHandlerProps<TPlugin> & {
       data: HookData<TPlugin>[THookType][THookDataName]
-    }
+    } & (HookAdditionalContext<TPlugin>[THookType] extends never ? {} : HookAdditionalContext<TPlugin>[THookType])
   }
 }
 

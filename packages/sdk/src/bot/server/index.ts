@@ -150,45 +150,47 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
 
   if (ctx.type === 'message_created') {
     const event = body.event
-    let message: client.Message = event.payload.message
-
-    common.logger = common.logger.with({
-      messageId: message.id,
-      conversationId: message.conversationId,
-      userId: message.userId,
-    })
-
-    const beforeIncomingMessageHooks = self.hookHandlers.before_incoming_message[message.type] ?? []
-    for (const handler of beforeIncomingMessageHooks) {
-      const hookOutput = await handler({
-        ...common,
-        data: message,
-      })
-      message = hookOutput?.data ?? message
-      if (hookOutput?.stop) {
-        return SUCCESS_RESPONSE
-      }
-    }
 
     const messagePayload: utils.ValueOf<types.MessagePayloads<common.BaseBot>> = {
       ...common,
       user: event.payload.user,
       conversation: event.payload.conversation,
-      message,
+      message: event.payload.message,
       event,
     }
-    const messageHandlers = self.messageHandlers[message.type] ?? []
+
+    common.logger = common.logger.with({
+      messageId: messagePayload.message.id,
+      conversationId: messagePayload.message.conversationId,
+      userId: messagePayload.message.userId,
+    })
+
+    const beforeIncomingMessageHooks = self.hookHandlers.before_incoming_message[messagePayload.message.type] ?? []
+    for (const handler of beforeIncomingMessageHooks) {
+      const hookOutput = await handler({
+        ...messagePayload,
+        ...common,
+        data: messagePayload.message,
+      })
+      messagePayload.message = hookOutput?.data ?? messagePayload.message
+      if (hookOutput?.stop) {
+        return SUCCESS_RESPONSE
+      }
+    }
+
+    const messageHandlers = self.messageHandlers[messagePayload.message.type] ?? []
     for (const handler of messageHandlers) {
       await handler(messagePayload)
     }
 
-    const afterIncomingMessageHooks = self.hookHandlers.after_incoming_message[message.type] ?? []
+    const afterIncomingMessageHooks = self.hookHandlers.after_incoming_message[messagePayload.message.type] ?? []
     for (const handler of afterIncomingMessageHooks) {
       const hookOutput = await handler({
+        ...messagePayload,
         ...common,
-        data: message,
+        data: messagePayload.message,
       })
-      message = hookOutput?.data ?? message
+      messagePayload.message = hookOutput?.data ?? messagePayload.message
       if (hookOutput?.stop) {
         return SUCCESS_RESPONSE
       }

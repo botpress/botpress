@@ -227,6 +227,10 @@ export type HookDefinitions<TBot extends common.BaseBot> = {
   before_incoming_message: HookDefinition<{
     stoppable: true
     data: _IncomingMessages<TBot> & { '*': AnyIncomingMessage<TBot> }
+    additionalContext: {
+      user: client.User
+      conversation: client.Conversation
+    }
   }>
   before_outgoing_message: HookDefinition<{
     stoppable: false
@@ -243,6 +247,10 @@ export type HookDefinitions<TBot extends common.BaseBot> = {
   after_incoming_message: HookDefinition<{
     stoppable: true
     data: _IncomingMessages<TBot> & { '*': AnyIncomingMessage<TBot> }
+    additionalContext: {
+      user: client.User
+      conversation: client.Conversation
+    }
   }>
   after_outgoing_message: HookDefinition<{
     stoppable: false
@@ -262,11 +270,19 @@ export type HookData<TBot extends common.BaseBot> = {
   }
 }
 
+export type HookAdditionalContext<TBot extends common.BaseBot> = {
+  [THookType in utils.StringKeys<HookDefinitions<TBot>>]: HookDefinitions<TBot>[THookType] extends {
+    additionalContext: any
+  }
+    ? HookDefinitions<TBot>[THookType]['additionalContext']
+    : never
+}
+
 export type HookInputs<TBot extends common.BaseBot> = {
   [THookType in utils.StringKeys<HookData<TBot>>]: {
     [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]: CommonHandlerProps<TBot> & {
       data: HookData<TBot>[THookType][THookDataName]
-    }
+    } & (HookAdditionalContext<TBot>[THookType] extends never ? {} : HookAdditionalContext<TBot>[THookType])
   }
 }
 
