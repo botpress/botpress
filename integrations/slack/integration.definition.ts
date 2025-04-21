@@ -1,5 +1,6 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import typingIndicator from 'bp_modules/typing-indicator'
+import threadedResponses from './bp_modules/threaded-responses'
 
 import {
   actions,
@@ -17,7 +18,7 @@ export default new IntegrationDefinition({
   name: 'slack',
   title: 'Slack',
   description: 'Automate interactions with your team.',
-  version: '2.0.0',
+  version: '2.1.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration,
@@ -29,6 +30,27 @@ export default new IntegrationDefinition({
   events,
   secrets,
   user,
-}).extend(typingIndicator, () => ({
-  entities: {},
-}))
+})
+  .extend(typingIndicator, () => ({
+    entities: {},
+  }))
+  .extend(threadedResponses, () => ({
+    entities: {},
+    channels: {
+      groupChat: {
+        name: 'channel',
+        ...channels.channel,
+      },
+      groupChatThread: {
+        name: 'thread',
+        ...channels.thread,
+      },
+    },
+    actions: {
+      createReplyThread: {
+        name: 'createReplyThread',
+        title: 'Create a reply thread',
+        description: 'Create a reply thread for a channel message',
+      },
+    },
+  }))

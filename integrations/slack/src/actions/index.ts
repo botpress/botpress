@@ -1,4 +1,5 @@
 import { addReaction } from './add-reaction'
+import { createReplyThread } from './create-reply-thread'
 import { findTarget } from './find-target'
 import { retrieveMessage } from './retrieve-message'
 import { startDmConversation } from './start-dm'
@@ -17,4 +18,5 @@ export default {
   updateChannelTopic,
   startTypingIndicator,
   stopTypingIndicator,
+  createReplyThread,
 } satisfies bp.IntegrationProps['actions']
