@@ -1,5 +1,4 @@
 import { RuntimeError, z } from '@botpress/sdk'
-import { channel } from 'integration.definition'
 import { hasAtleastOne } from 'src/misc/util'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
@@ -29,7 +28,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   }
 
   const { conversation } = await client.getOrCreateConversation({
-    channel,
+    channel: 'whatsapp',
     tags: {
       botPhoneNumberId,
       userPhone,

@@ -1,4 +1,3 @@
-import { channel } from 'integration.definition'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { getAccessToken } from '../../auth'
 import { WhatsAppMessage, WhatsAppValue, WhatsAppPayloadSchema } from '../../misc/types'
@@ -49,7 +48,7 @@ async function _handleIncomingMessage(
   logger: bp.Logger
 ) {
   const { conversation } = await client.getOrCreateConversation({
-    channel,
+    channel: 'whatsapp',
     tags: {
       userPhone: message.from,
       botPhoneNumberId: value.metadata.phone_number_id,

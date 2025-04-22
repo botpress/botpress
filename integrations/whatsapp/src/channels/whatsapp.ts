@@ -21,7 +21,7 @@ import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import * as bp from '.botpress'
 
-export const channel: bp.IntegrationProps['channels']['channel'] = {
+export const whatsapp: bp.IntegrationProps['channels']['whatsapp'] = {
   messages: {
     text: async ({ payload, ...props }) => {
       await _send({ ...props, message: new Text(payload.text) })
@@ -30,12 +30,6 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
       await _send({
         ...props,
         message: new Image(payload.imageUrl.trim(), false),
-      })
-    },
-    markdown: async ({ payload, ...props }) => {
-      await _send({
-        ...props,
-        message: new Text(payload.markdown),
       })
     },
     audio: async ({ payload, ...props }) => {

@@ -3,8 +3,6 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import typingIndicator from 'bp_modules/typing-indicator'
 
-export const channel = 'channel' // TODO: Rename to "whatsapp" once support for integration versioning is finished.
-
 export const INTEGRATION_NAME = 'whatsapp'
 
 const commonConfigSchema = z.object({
@@ -116,12 +114,11 @@ export default new IntegrationDefinition({
     fallbackHandlerScript: 'fallbackHandler.vrl',
   },
   channels: {
-    [channel]: {
+    whatsapp: {
       title: 'WhatsApp conversation',
       description: 'Conversation between a WhatsApp user and the bot',
       messages: {
         ...messages.defaults,
-        markdown: messages.markdown, // TODO: Remove
         file: {
           schema: messages.defaults.file.schema.extend({
             filename: z.string().optional(),

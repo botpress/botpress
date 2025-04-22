@@ -1,6 +1,6 @@
-import { channel } from './channel'
+import { whatsapp } from './whatsapp'
 import * as bp from '.botpress'
 
 export default {
-  channel,
+  whatsapp,
 } satisfies bp.IntegrationProps['channels']
