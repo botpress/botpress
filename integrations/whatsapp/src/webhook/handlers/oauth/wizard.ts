@@ -2,7 +2,6 @@ import { Response, z } from '@botpress/sdk'
 import { trackIntegrationEvent } from 'src/misc/tracking'
 import { getSubpath } from 'src/misc/util'
 import * as bp from '../../../../.botpress'
-import { getOAuthConfigId } from '../../../../integration.definition'
 import { MetaOauthClient } from '../../../auth'
 import { generateButtonDialog, generateSelectDialog, getInterstitialUrl, redirectTo } from './html-utils'
 
@@ -83,7 +82,7 @@ const _handleWizardSetup = async (props: WizardStepHandlerProps): Promise<Respon
       '&state=' +
       ctx.webhookId +
       '&config_id=' +
-      getOAuthConfigId() +
+      bp.secrets.OAUTH_CONFIG_ID +
       '&override_default_response_type=true' +
       '&response_type=code'
   )

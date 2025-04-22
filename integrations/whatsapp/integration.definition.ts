@@ -204,15 +204,17 @@ export default new IntegrationDefinition({
       description: 'Access token for internal Meta App',
     },
     NUMBER_PIN: {
-      // TODO: Global to the app? Remove if not necessary
       description: '6 Digits Pin used for phone number registration',
+    },
+    OAUTH_CONFIG_ID: {
+      description: 'The OAuth configuration ID for the Meta app',
+    },
+    VERIFY_TOKEN: {
+      description: 'The verify token for the Meta Webhooks subscription',
     },
     SEGMENT_KEY: {
       description: 'Tracking key for general product analytics',
       optional: true,
-    },
-    VERIFY_TOKEN: {
-      description: 'The verify token for the Meta Webhooks subscription',
     },
   },
   entities: {
@@ -236,12 +238,3 @@ export default new IntegrationDefinition({
       },
     },
   }))
-
-// TODO: Add a secret instead?
-export const getOAuthConfigId = () => {
-  if (process.env.BP_WEBHOOK_URL?.includes('dev')) {
-    return '1535672497288913'
-  }
-
-  return '1620101672166859'
-}
