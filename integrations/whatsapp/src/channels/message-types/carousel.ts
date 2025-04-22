@@ -2,7 +2,7 @@ import * as card from './card'
 import { channels } from '.botpress'
 import * as bp from '.botpress'
 
-export type Carousel = channels.channel.carousel.Carousel
+export type Carousel = channels.whatsapp.carousel.Carousel
 
 export function* generateOutgoingMessages(carousel: Carousel, logger: bp.Logger) {
   for (const i of carousel.items) {
