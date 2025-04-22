@@ -15,6 +15,11 @@ export default new sdk.PluginDefinition({
         .title('Enable Threading')
         .describe('Whether to enable threading for Slack bot replies')
         .default(true),
+      ignoreMessagesWithoutMention: sdk.z
+        .boolean()
+        .title('Ignore Messages Without Mention?')
+        .describe('Whether to ignore messages that do not mention the bot directly')
+        .default(true),
     }),
   },
   actions: {},

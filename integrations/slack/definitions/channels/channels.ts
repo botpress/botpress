@@ -32,6 +32,10 @@ const messageTags = {
     title: 'Channel ID',
     description: 'The Slack ID of the channel where the message was sent',
   },
+  mentionsBot: {
+    title: 'Mentions Bot?',
+    description: 'Whether the message mentions the Slack App bot',
+  },
 } as const satisfies Record<string, Required<sdk.TagDefinition>>
 
 export const channels = {
