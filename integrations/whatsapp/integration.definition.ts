@@ -212,8 +212,7 @@ export default new IntegrationDefinition({
       optional: true,
     },
     VERIFY_TOKEN: {
-      description: 'The verify token for the Meta Webhooks subscription, optional since its only useful for oAuth.',
-      optional: true,
+      description: 'The verify token for the Meta Webhooks subscription',
     },
   },
   entities: {
