@@ -1,11 +1,11 @@
 import { ClientTypedMessageComponent } from 'whatsapp-api-js/lib/types/types'
-import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 import { Text, Interactive, ActionButtons, Header, Image, Button } from 'whatsapp-api-js/messages'
-import { UnreachableCaseError, chunkArray } from '../../misc/util'
+import { UnreachableCaseError, chunkArray, hasAtleastOne } from '../../misc/util'
 import * as body from './interactive/body'
 import * as button from './interactive/button'
 import * as footer from './interactive/footer'
 import { channels } from '.botpress'
+import * as bp from '.botpress'
 
 type Card = channels.channel.card.Card
 
@@ -21,8 +21,10 @@ const SAY_PREFIX = 's:'
 
 const INTERACTIVE_MAX_BUTTONS_COUNT = 3
 
-export function* generateOutgoingMessages(card: Card) {
-  const actions = card.actions as Action[]
+type ActionsChunk = ReturnType<typeof chunkArray<ActionSay | ActionPostback>>[number]
+
+export function* generateOutgoingMessages(card: Card, logger: bp.Logger) {
+  const actions = card.actions
 
   if (actions.length === 0) {
     // No actions, so we can't display an interactive message
@@ -38,7 +40,7 @@ export function* generateOutgoingMessages(card: Card) {
 
   if (urlActions.length === 0) {
     // All actions are either postback or say
-    for (const m of _generateButtonInteractiveMessages(card, nonUrlActions)) {
+    for (const m of _generateButtonInteractiveMessages(card, nonUrlActions, logger)) {
       yield m
     }
     return
@@ -58,7 +60,7 @@ export function* generateOutgoingMessages(card: Card) {
   }
 
   // We have have a mix of URL, postback and say actions
-  for (const m of _generateButtonInteractiveMessages(card, nonUrlActions)) {
+  for (const m of _generateButtonInteractiveMessages(card, nonUrlActions, logger)) {
     yield m
   }
 
@@ -87,24 +89,44 @@ function _isNotActionUrl(action: Action): action is ActionSay | ActionPostback {
   return !_isActionURL(action)
 }
 
-function* _generateButtonInteractiveMessages(card: Card, actions: Array<ActionSay | ActionPostback>) {
+function* _generateButtonInteractiveMessages(
+  card: Card,
+  actions: Array<ActionSay | ActionPostback>,
+  logger: bp.Logger
+) {
   const [firstChunk, ...followingChunks] = chunkArray(actions, INTERACTIVE_MAX_BUTTONS_COUNT)
   if (firstChunk) {
-    const buttons: Button[] = _createButtons(firstChunk)
-    yield new Interactive(
-      new ActionButtons(...(buttons as AtLeastOne<Button>)),
-      body.create(card.title),
-      card.imageUrl ? new Header(new Image(card.imageUrl, false)) : undefined,
-      card.subtitle ? footer.create(card.subtitle) : undefined
-    )
+    const actionButtons = _createActionButtons(firstChunk)
+    if (actionButtons) {
+      yield new Interactive(
+        actionButtons,
+        body.create(card.title),
+        card.imageUrl ? new Header(new Image(card.imageUrl, false)) : undefined,
+        card.subtitle ? footer.create(card.subtitle) : undefined
+      )
+    } else {
+      logger.debug('No buttons in chunk, skipping first chunk')
+    }
   }
 
   if (followingChunks) {
     for (const chunk of followingChunks) {
-      const buttons: Button[] = _createButtons(chunk)
-      yield new Interactive(new ActionButtons(...(buttons as AtLeastOne<Button>)), body.create(card.title))
+      const actionsButtons = _createActionButtons(chunk)
+      if (!actionsButtons) {
+        logger.debug('No buttons in chunk, skipping')
+        continue
+      }
+      yield new Interactive(actionsButtons, body.create(card.title))
     }
   }
+}
+
+function _createActionButtons(actionsChunk: ActionsChunk): ActionButtons | undefined {
+  const buttons = _createButtons(actionsChunk)
+  if (hasAtleastOne(buttons)) {
+    return new ActionButtons(...buttons)
+  }
+  return undefined
 }
 
 function _createButtons(nonURLActions: Array<ActionSay | ActionPostback>) {

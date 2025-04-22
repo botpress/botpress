@@ -13,7 +13,6 @@ import {
   Template,
   Reaction,
 } from 'whatsapp-api-js/messages'
-import { ServerErrorResponse, ServerSentMessageResponse } from 'whatsapp-api-js/types'
 import { getAccessToken } from '../auth'
 import { sleep } from '../misc/util'
 import * as card from './message-types/card'
@@ -67,11 +66,11 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         message: new Location(payload.longitude, payload.latitude),
       })
     },
-    carousel: async ({ payload, ...props }) => {
-      await _sendMany({ ...props, generator: carousel.generateOutgoingMessages(payload) })
+    carousel: async ({ payload, logger, ...props }) => {
+      await _sendMany({ ...props, logger, generator: carousel.generateOutgoingMessages(payload, logger) })
     },
-    card: async ({ payload, ...props }) => {
-      await _sendMany({ ...props, generator: card.generateOutgoingMessages(payload) })
+    card: async ({ payload, logger, ...props }) => {
+      await _sendMany({ ...props, logger, generator: card.generateOutgoingMessages(payload, logger) })
     },
     dropdown: async ({ payload, logger, ...props }) => {
       await _sendMany({
@@ -147,27 +146,22 @@ async function _send({ client, ctx, conversation, message, ack, logger }: SendMe
   }
 
   const feedback = await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, message)
-  const errorResponse = feedback as ServerErrorResponse
-
-  if (errorResponse?.error) {
-    logger.forBot().error(`Failed to send ${messageType} message from bot to WhatsApp. Reason:`, errorResponse?.error)
+  if ('error' in feedback) {
+    logger.forBot().error(`Failed to send ${messageType} message from bot to WhatsApp. Reason:`, feedback.error.message)
     return
   }
 
-  const messageId = (feedback as ServerSentMessageResponse)?.messages?.[0]?.id
-
-  if (messageId) {
-    logger.forBot().debug(`Successfully sent ${messageType} message from bot to WhatsApp:`, message)
-    await ack({ tags: { id: messageId } })
-  } else {
+  if (!('messages' in feedback)) {
     logger
       .forBot()
-      .warn(
-        `A ${messageType} message from the bot was sent to WhatsApp but the message ID wasn't found in their response. Response: ${JSON.stringify(
-          feedback
-        )}`
+      .error(
+        `A ${messageType} message from the bot was sent to WhatsApp but no messages were found in their response. Response: ${JSON.stringify(feedback)}`
       )
+    return
   }
+
+  logger.forBot().debug(`Successfully sent ${messageType} message from bot to WhatsApp:`, message)
+  await ack({ tags: { id: feedback.messages[0].id } })
 }
 
 async function _sendMany({

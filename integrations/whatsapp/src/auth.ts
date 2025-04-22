@@ -1,4 +1,4 @@
-import { z } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
 import * as bp from '.botpress'
 
@@ -135,7 +135,7 @@ export class MetaOauthClient {
 
 export const getAccessToken = async (client: bp.Client, ctx: bp.Context): Promise<string> => {
   if (ctx.configurationType === 'manualApp') {
-    return ctx.configuration.accessToken as string
+    return ctx.configuration.accessToken
   }
 
   const {
@@ -144,7 +144,11 @@ export const getAccessToken = async (client: bp.Client, ctx: bp.Context): Promis
     },
   } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
 
-  return accessToken as string
+  if (!accessToken) {
+    throw new RuntimeError('Access token not found in saved credentials')
+  }
+
+  return accessToken
 }
 
 export function getVerifyToken(ctx: bp.Context): string | undefined {

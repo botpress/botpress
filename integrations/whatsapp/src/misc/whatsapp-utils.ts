@@ -1,6 +1,6 @@
+import { RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 import WhatsAppAPI from 'whatsapp-api-js'
-import { ServerErrorResponse, ServerMediaRetrieveResponse } from 'whatsapp-api-js/types'
 import { getAccessToken } from '../auth'
 import * as bp from '.botpress'
 
@@ -11,7 +11,10 @@ export async function getMediaUrl(whatsappMediaId: string, client: bp.Client, ct
   const accessToken = await getAccessToken(client, ctx)
   const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
   const media = await whatsapp.retrieveMedia(whatsappMediaId)
-  return (media as Exclude<ServerMediaRetrieveResponse, ServerErrorResponse>).url
+  if (!('url' in media)) {
+    throw new RuntimeError(`Failed to retrieve media URL for media ID "${whatsappMediaId}": ${media.error.message}`)
+  }
+  return media.url
 }
 
 export async function sendTypingIndicator(

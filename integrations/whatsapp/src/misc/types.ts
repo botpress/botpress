@@ -1,93 +1,142 @@
-export type WhatsAppPayload = {
-  object: string
-  entry: WhatsAppEntry[]
-}
+import { z } from '@botpress/sdk'
 
-type WhatsAppEntry = {
-  id: string
-  changes: WhatsAppChanges[]
-}
+const WhatsAppContactSchema = z.object({
+  wa_id: z.string(),
+  profile: z.object({
+    name: z.string(),
+  }),
+})
 
-type WhatsAppChanges = {
-  value: WhatsAppValue
-  field: string
-}
+const WhatsAppBaseMessageSchema = z.object({
+  from: z.string(),
+  id: z.string(),
+  timestamp: z.string(),
+  type: z.string(),
+  errors: z
+    .array(
+      z.object({
+        code: z.number(),
+        title: z.string(),
+        message: z.string(),
+        error_data: z.object({
+          details: z.string(),
+        }),
+      })
+    )
+    .optional(),
+})
 
-export type WhatsAppValue = {
-  messaging_product: string
-  metadata: {
-    display_phone_number: string
-    phone_number_id: string
-  }
-  contacts: WhatsAppProfile[]
-  messages: WhatsAppMessage[]
-}
+const WhatsAppMessageInteractiveSchema = z.union([
+  z.object({
+    type: z.literal('button_reply'),
+    button_reply: z.object({
+      id: z.string(),
+      title: z.string(),
+    }),
+  }),
+  z.object({
+    type: z.literal('list_reply'),
+    list_reply: z.object({
+      id: z.string(),
+      title: z.string(),
+      description: z.string(),
+    }),
+  }),
+])
 
-type WhatsAppProfile = {
-  profile: {
-    name: string
-  }
-  wa_id: string
-}
-
-export type WhatsAppMessage = {
-  from: string
-  id: string
-  timestamp: string
-  text?: {
-    body: string
-  }
-  image?: {
-    mime_type: string
-    body: string
-    sha256: string
-    id: string
-  }
-  button?: {
-    payload: string
-    text: string
-  }
-  location?: {
-    address: string
-    latitude: string
-    longitude: string
-    name: string
-    url: string
-  }
-  document?: {
-    filename: string
-    mime_type: string
-    sha256: string
-    id: string
-  }
-  audio?: {
+const WhatsAppMessageSchema = z.union([
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('text'),
+    text: z.object({
+      body: z.string(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('image'),
+    image: z.object({
+      caption: z.string().optional(),
+      sha256: z.string(),
+      id: z.string(),
+      mime_type: z.string(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('button'),
+    button: z.object({
+      payload: z.string(),
+      text: z.string(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('location'),
+    location: z.object({
+      address: z.string().optional(),
+      latitude: z.number(),
+      longitude: z.number(),
+      name: z.string().optional(),
+      url: z.string().optional(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('document'),
+    document: z.object({
+      caption: z.string().optional(),
+      filename: z.string(),
+      sha256: z.string(),
+      mime_type: z.string(),
+      id: z.string(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('audio'),
     //could be audio file, or voice note
-    mime_type: string
-    sha256: string
-    id: string
-    voice: boolean
-  }
-  video?: {
-    mime_type: string
-    sha256: string
-    id: string
-  }
-  errors?: {
-    code: number
-    title: string
-  }
-  interactive?: {
-    type: string
-    button_reply?: {
-      id: string
-      title: string
-    }
-    list_reply?: {
-      id: string
-      title: string
-      description: string
-    }
-  }
-  //contacts?: not implemented - long and didn't find a use case for it
-  type: string
-}
+    audio: z.object({
+      id: z.string(),
+      mime_type: z.string(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('video'),
+    video: z.object({
+      caption: z.string().optional(),
+      sha256: z.string(),
+      id: z.string(),
+      mime_type: z.string(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.literal('interactive'),
+    interactive: WhatsAppMessageInteractiveSchema,
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.union([z.literal('sticker'), z.literal('order'), z.literal('system'), z.literal('unknown')]),
+  }),
+])
+export type WhatsAppMessage = z.infer<typeof WhatsAppMessageSchema>
+
+const WhatsAppValueSchema = z.object({
+  messaging_product: z.literal('whatsapp'),
+  metadata: z.object({
+    display_phone_number: z.string(),
+    phone_number_id: z.string(),
+  }),
+  contacts: z.array(WhatsAppContactSchema).optional(),
+  messages: z.array(WhatsAppMessageSchema).optional(),
+})
+export type WhatsAppValue = z.infer<typeof WhatsAppValueSchema>
+
+const WhatsAppChangesSchema = z.object({
+  value: WhatsAppValueSchema,
+  field: z.literal('messages'),
+})
+
+const WhatsAppEntrySchema = z.object({
+  id: z.string(),
+  changes: z.array(WhatsAppChangesSchema),
+})
+
+export const WhatsAppPayloadSchema = z.object({
+  object: z.literal('whatsapp_business_account'),
+  entry: z.array(WhatsAppEntrySchema),
+})
+export type WhatsAppPayload = z.infer<typeof WhatsAppPayloadSchema>

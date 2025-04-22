@@ -1,3 +1,5 @@
+import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
+
 export class UnreachableCaseError extends Error {
   public constructor(val: never) {
     super(`Unreachable case: ${val}`)
@@ -35,4 +37,7 @@ export function getSubpath(path: string) {
     subpath = subpath.slice(0, -1)
   }
   return subpath ? subpath : undefined
+}
+export const hasAtleastOne = <T>(obj: T[]): obj is AtLeastOne<T> => {
+  return obj.length > 0
 }

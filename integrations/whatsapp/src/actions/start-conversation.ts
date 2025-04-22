@@ -1,7 +1,7 @@
 import { RuntimeError, z } from '@botpress/sdk'
 import { channel } from 'integration.definition'
+import { hasAtleastOne } from 'src/misc/util'
 import WhatsAppAPI from 'whatsapp-api-js'
-import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAccessToken } from '../auth'
 import * as bp from '.botpress'
@@ -101,8 +101,4 @@ function _parseTemplateVariablesJSON(
   }
 
   return validationResult.data
-}
-
-const hasAtleastOne = <T>(obj: T[]): obj is AtLeastOne<T> => {
-  return obj.length > 0
 }
