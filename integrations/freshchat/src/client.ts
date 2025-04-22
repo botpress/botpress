@@ -1,6 +1,6 @@
-import { RuntimeError } from '@botpress/client'
-import axios, { Axios } from 'axios'
-import {
+import * as sdk from '@botpress/sdk'
+import axios, { type Axios } from 'axios'
+import type {
   FreshchatMessage,
   FreshchatAgent,
   FreshchatChannel,
@@ -49,24 +49,88 @@ class FreshchatClient {
     return data
   }
 
-  public async sendMessage(fromUserId: string | null, freshchatConversationId: string, message: string) {
-    await this._client.post(`/conversations/${freshchatConversationId}/messages`, {
-      message_parts: [{ text: { content: message } }],
-      message_type: 'normal',
-      user_id: fromUserId,
-      actor_type: fromUserId?.length ? 'user' : 'system',
-      actor_id: fromUserId,
+  public async setConversationAsResolved(freshchatConversationId: string) {
+    await this._client.put(`/conversations/${freshchatConversationId}`, {
+      status: 'resolved',
     })
   }
 
-  public async getUserByEmail(email: string): Promise<FreshchatUser | undefined> {
+  public async sendMessage(fromUserId: string | null, freshchatConversationId: string, message: string) {
+    const response = await this._client.post<FreshchatMessage & { id: string }>(
+      `/conversations/${freshchatConversationId}/messages`,
+      {
+        message_parts: [{ text: { content: message } }],
+        message_type: 'normal',
+        user_id: fromUserId,
+        actor_type: fromUserId?.length ? 'user' : 'system',
+        actor_id: fromUserId,
+      }
+    )
+
+    const messageId = response.data.id
+
+    if (!messageId) {
+      throw new sdk.RuntimeError('Failed to send message')
+    }
+
+    return messageId
+  }
+
+  public async getOrCreateUser(props: {
+    name?: string
+    email?: string
+    pictureUrl?: string
+    botpressUserId: string
+  }): Promise<FreshchatUser> {
+    let user = await this._getUserByReferenceId(props.botpressUserId)
+
+    if (!user) {
+      user = await this._getUserByEmail(props.email)
+    }
+
+    if (!user) {
+      user = await this._createUser(props)
+    }
+
+    return user
+  }
+
+  private async _getUserByEmail(email?: string): Promise<FreshchatUser | undefined> {
+    if (!email) {
+      return undefined
+    }
     try {
       const result = await this._client.get('/users?email=' + email)
       return result?.data?.users[0]
     } catch (e: any) {
       this._logger.forBot().error('Failed to get user by email: ' + email, e.message, e?.response?.data)
-      throw new RuntimeError('Failed to get user by email ' + e.message)
+      throw new sdk.RuntimeError('Failed to get user by email ' + e.message)
     }
+  }
+
+  private async _getUserByReferenceId(referenceId: string): Promise<FreshchatUser | undefined> {
+    try {
+      const result = await this._client.get('/users?reference_id=' + referenceId)
+      return result?.data?.users[0]
+    } catch (e: any) {
+      this._logger.forBot().error('Failed to get user by reference_id: ' + referenceId, e.message, e?.response?.data)
+      throw new sdk.RuntimeError('Failed to get user by reference_id ' + e.message)
+    }
+  }
+
+  private async _createUser(props: {
+    name?: string
+    email?: string
+    pictureUrl?: string
+    botpressUserId: string
+  }): Promise<FreshchatUser> {
+    const result = await this._client.post('/users', {
+      email: props.email,
+      first_name: props.name,
+      reference_id: props.botpressUserId,
+      avatar: { url: props.pictureUrl },
+    })
+    return result.data
   }
 
   public async getChannels(): Promise<FreshchatChannel[]> {
@@ -75,7 +139,7 @@ class FreshchatClient {
       return result?.data?.channels
     } catch (e: any) {
       this._logger.forBot().error('Failed to get channels : ' + e.message, e?.response?.data)
-      throw new RuntimeError('Failed to get channels: ' + e.message)
+      throw new sdk.RuntimeError('Failed to get channels: ' + e.message)
     }
   }
 
@@ -96,11 +160,6 @@ class FreshchatClient {
       this._logger.forBot().error('Failed to get user by id: ' + id, e.message, e?.response?.data)
       throw e
     }
-  }
-
-  public async createUser(newUser: FreshchatUser): Promise<FreshchatUser> {
-    const result = await this._client.post('/users', newUser)
-    return result.data
   }
 }
 

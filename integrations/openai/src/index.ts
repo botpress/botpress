@@ -20,10 +20,79 @@ const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 //  https://openai.com/api/pricing/
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
+  'o4-mini-2025-04-16': {
+    name: 'GPT o4-mini',
+    description:
+      "o4-mini is OpenAI's latest small o-series model. It's optimized for fast, effective reasoning with exceptionally efficient performance in coding and visual tasks.",
+    tags: ['reasoning', 'vision'],
+    input: {
+      costPer1MTokens: 1.1,
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 4.4,
+      maxTokens: 100_000,
+    },
+  },
+  'o3-2025-04-16': {
+    name: 'GPT o3',
+    description:
+      'o3 is a well-rounded and powerful model across domains. It sets a new standard for math, science, coding, and visual reasoning tasks. It also excels at technical writing and instruction-following. Use it to think through multi-step problems that involve analysis across text, code, and images.',
+    tags: ['reasoning', 'vision'],
+    input: {
+      costPer1MTokens: 10,
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 40,
+      maxTokens: 100_000,
+    },
+  },
+  'gpt-4.1-2025-04-14': {
+    name: 'GPT 4.1',
+    description:
+      'GPT 4.1 is our flagship model for complex tasks. It is well suited for problem solving across domains. The knowledge cutoff is June 2024.',
+    tags: ['recommended', 'vision', 'general-purpose'],
+    input: {
+      costPer1MTokens: 2,
+      maxTokens: 1_047_576,
+    },
+    output: {
+      costPer1MTokens: 8,
+      maxTokens: 32768,
+    },
+  },
+  'gpt-4.1-mini-2025-04-14': {
+    name: 'GPT 4.1 Mini',
+    description:
+      'GPT 4.1 mini provides a balance between intelligence, speed, and cost that makes it an attractive model for many use cases. The knowledge cutoff is June 2024.',
+    tags: ['recommended', 'vision', 'general-purpose'],
+    input: {
+      costPer1MTokens: 0.4,
+      maxTokens: 1_047_576,
+    },
+    output: {
+      costPer1MTokens: 1.6,
+      maxTokens: 32768,
+    },
+  },
+  'gpt-4.1-nano-2025-04-14': {
+    name: 'GPT 4.1 Nano',
+    description: 'GPT-4.1 nano is the fastest, most cost-effective GPT 4.1 model. The knowledge cutoff is June 2024.',
+    tags: ['low-cost', 'vision', 'general-purpose'],
+    input: {
+      costPer1MTokens: 0.1,
+      maxTokens: 1_047_576,
+    },
+    output: {
+      costPer1MTokens: 0.4,
+      maxTokens: 32768,
+    },
+  },
   'o3-mini-2025-01-31': {
     name: 'GPT o3-mini',
     description:
-      'o3-mini is our most recent small reasoning model, providing high intelligence at the same cost and latency targets of o1-mini. o3-mini also supports key developer features, like Structured Outputs, function calling, Batch API, and more. Like other models in the o-series, it is designed to excel at science, math, and coding tasks. The knowledge cutoff for o3-mini models is October, 2023.',
+      'o3-mini is the most recent small reasoning model from OpenAI, providing high intelligence at the same cost and latency targets of o1-mini. o3-mini also supports key developer features, like Structured Outputs, function calling, Batch API, and more. Like other models in the o-series, it is designed to excel at science, math, and coding tasks. The knowledge cutoff for o3-mini models is October, 2023.',
     tags: ['reasoning', 'general-purpose'],
     input: {
       costPer1MTokens: 1.1,
@@ -94,7 +163,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     name: 'GPT-4o (August 2024)',
     description:
       "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
-    tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
     input: {
       costPer1MTokens: 2.5,
       maxTokens: 128_000,
@@ -108,7 +177,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     name: 'GPT-4o (May 2024)',
     description:
       "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
-    tags: ['vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
     input: {
       costPer1MTokens: 5,
       maxTokens: 128_000,

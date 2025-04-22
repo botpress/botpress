@@ -245,7 +245,7 @@ class WorkspaceResolver {
     }
 
     const workspace = await this._promptUserToSelectWorkspace()
-    return workspace.handle ?? (await this._assignHandleToWorkspace(workspace))
+    return workspace.handle || (await this._assignHandleToWorkspace(workspace))
   }
 
   private async _fetchWorkspaces(): Promise<void> {

@@ -24,6 +24,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
 
   await Promise.allSettled([
     upstreamCm.respond({
+      type: 'text',
       text: props.configuration.onHitlStoppedMessage ?? DEFAULT_HITL_STOPPED_MESSAGE,
     }),
     downstreamCm.setHitlInactive(conv.HITL_END_REASON.AGENT_CLOSED_TICKET),

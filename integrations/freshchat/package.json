@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.4.0"

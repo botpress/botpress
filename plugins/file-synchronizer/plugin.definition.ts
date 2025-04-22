@@ -51,36 +51,13 @@ const FILE_FILTER_PROPS = {
 
 export default new sdk.PluginDefinition({
   name: 'file-synchronizer',
-  version: '0.4.0',
+  version: '0.5.0',
   title: 'File Synchronizer',
   description: 'Synchronize files from external services to Botpress',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
     schema: sdk.z.object({
-      enablePeriodicSync: sdk.z
-        /*
-        .union([
-          sdk.z.object({
-            everyNHours: sdk.z.number().describe('The interval (in hours) at which to synchronize files.'),
-          }),
-          sdk.z.object({
-            everyNDays: sdk.z.number().describe('The interval (in days) at which to synchronize files.'),
-          }),
-          sdk.z.object({
-            cronExpression: sdk.z
-              .number()
-              .describe('A cron expression to specify the schedule at which to synchronize files.'),
-          }),
-        ])
-        */
-        .object({
-          everyNHours: sdk.z.number().describe('The interval (in hours) at which to synchronize files.'),
-        })
-        .optional()
-        .describe(
-          'Enable synchronisation using the provided schedule. Leave empty to disable periodic synchronization.'
-        ),
       enableRealTimeSync: sdk.z
         .boolean()
         .default(true)
@@ -115,29 +92,6 @@ export default new sdk.PluginDefinition({
     listItemsInFolder: {
       // Re-export the action from the files-readonly interface:
       ...filesReadonly.definition.actions.listItemsInFolder,
-    },
-  },
-  events: {
-    periodicSync: {
-      schema: sdk.z.object({}),
-    },
-  },
-  recurringEvents: {
-    periodicSync: {
-      type: 'periodicSync',
-      payload: {},
-      schedule: {
-        cron: '@hourly',
-      },
-    },
-  },
-  states: {
-    periodicSync: {
-      type: 'bot',
-      schema: sdk.z.object({
-        elapsedHoursSinceLastSync: sdk.z.number(),
-      }),
-      expiry: 172_800_000, // 2 days
     },
   },
   workflows: {

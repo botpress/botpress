@@ -90,12 +90,7 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx
   const zendeskClient = getZendeskClient(ctx.configuration)
 
   try {
-    const originalTicket = await zendeskClient.getTicket(ticketId)
     await zendeskClient.updateTicket(ticketId, {
-      comment: {
-        body: input.reason,
-        author_id: originalTicket.requester_id,
-      },
       status: 'closed',
     })
     return {}
