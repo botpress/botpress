@@ -35,9 +35,8 @@ export const configurations = {
       refreshToken: sdk.z
         .string()
         .secret()
-        .regex(/^xoxe[-]1/)
-        .title('Slack Bot Refresh Token')
-        .describe('Available in the app admin panel under OAuth & Permissions. Always starts with xoxe-1'),
+        .title('Slack Refresh Token or Bot Token')
+        .describe('Available in the app admin panel under OAuth & Permissions'),
       signingSecret: sdk.z
         .string()
         .secret()
