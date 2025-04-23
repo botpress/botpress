@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import { type OauthV2AccessResponse, WebClient as SlackWebClient } from '@slack/web-api'
+import { handleErrorsDecorator as handleErrors, redactSlackError } from './error-handling'
 import * as bp from '.botpress'
 
 type PrivateAuthState = {
@@ -44,6 +45,7 @@ export class SlackOAuthClient {
     this._logger = logger
   }
 
+  @handleErrors('Failed to refresh Slack credentials')
   public async getAuthState(): Promise<PublicAuthState> {
     await this._refreshAuthStateIfNeeded()
 
@@ -68,13 +70,17 @@ export class SlackOAuthClient {
     fromAuthorizationCode: async (authorizationCode: string) => {
       this._logger.forBot().debug('Exchanging authorization code for short-lived credentials...')
 
-      const response = await this._slackClient.oauth.v2.access({
-        client_id: this._clientId,
-        client_secret: this._clientSecret,
-        redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
-        grant_type: 'authorization_code',
-        code: authorizationCode,
-      })
+      const response = await this._slackClient.oauth.v2
+        .access({
+          client_id: this._clientId,
+          client_secret: this._clientSecret,
+          redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
+          grant_type: 'authorization_code',
+          code: authorizationCode,
+        })
+        .catch((thrown) => {
+          throw redactSlackError(thrown, 'Failed to exchange authorization code')
+        })
 
       this._currentAuthState = this._parseSlackOAuthResponse(response)
       await this._saveCredentialsV2()
@@ -91,12 +97,16 @@ export class SlackOAuthClient {
     fromRefreshToken: async (refreshToken: string) => {
       this._logger.forBot().debug('Exchanging refresh token for short-lived credentials...')
 
-      const response = await this._slackClient.oauth.v2.access({
-        client_id: this._clientId,
-        client_secret: this._clientSecret,
-        refresh_token: refreshToken,
-        grant_type: 'refresh_token',
-      })
+      const response = await this._slackClient.oauth.v2
+        .access({
+          client_id: this._clientId,
+          client_secret: this._clientSecret,
+          refresh_token: refreshToken,
+          grant_type: 'refresh_token',
+        })
+        .catch((thrown) => {
+          throw redactSlackError(thrown, 'Failed to exchange refresh token')
+        })
 
       this._currentAuthState = this._parseSlackOAuthResponse(response)
       await this._saveCredentialsV2()
@@ -114,10 +124,14 @@ export class SlackOAuthClient {
 
       const exchangeClient = new SlackWebClient(legacyBotToken)
 
-      const response = await exchangeClient.oauth.v2.exchange({
-        client_id: this._clientId,
-        client_secret: this._clientSecret,
-      })
+      const response = await exchangeClient.oauth.v2
+        .exchange({
+          client_id: this._clientId,
+          client_secret: this._clientSecret,
+        })
+        .catch((thrown) => {
+          throw redactSlackError(thrown, 'Failed to exchange bot token')
+        })
 
       this._currentAuthState = this._parseSlackOAuthResponse(response)
       await this._saveCredentialsV2()

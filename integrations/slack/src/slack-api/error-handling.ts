@@ -2,7 +2,8 @@ import { createAsyncFnWrapperWithErrorRedaction, createErrorHandlingDecorator } 
 import * as sdk from '@botpress/sdk'
 import * as slackWebApi from '@slack/web-api'
 
-const _redactSlackError = (error: Error, genericErrorMessage: string): sdk.RuntimeError => {
+export const redactSlackError = (thrown: unknown, genericErrorMessage: string): sdk.RuntimeError => {
+  const error = thrown instanceof Error ? thrown : new Error(String(thrown))
   let errorMessage = genericErrorMessage
 
   console.error('Slack error', { error, genericErrorMessage })
@@ -19,7 +20,16 @@ const _redactSlackError = (error: Error, genericErrorMessage: string): sdk.Runti
           ': an HTTP error occurred whilst communicating with Slack. Please report this error to Botpress.'
         break
       case slackWebApi.ErrorCode.PlatformError:
-        errorMessage += `: ${error.message}.\n\nError details:\n${JSON.stringify((error as any).data ?? {})}`
+        if ('data' in error && 'error' in (error.data as {})) {
+          switch ((error.data as { error: string }).error) {
+            case 'token_rotation_not_enabled':
+              errorMessage +=
+                ': Token rotation is not enabled. Please check your Slack app OAuth settings and opt in to token rotation.'
+              break
+            default:
+              errorMessage += `: ${error.message}.\n\nError details:\n${JSON.stringify(error.data)}`
+          }
+        }
         break
       case slackWebApi.ErrorCode.RateLimitedError:
         errorMessage += ': Slack rate limited the request. Please try again later.'
@@ -33,6 +43,6 @@ const _redactSlackError = (error: Error, genericErrorMessage: string): sdk.Runti
   return new sdk.RuntimeError(errorMessage)
 }
 
-export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction(_redactSlackError)
+export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction(redactSlackError)
 
 export const handleErrorsDecorator = createErrorHandlingDecorator(wrapAsyncFnWithTryCatch)
