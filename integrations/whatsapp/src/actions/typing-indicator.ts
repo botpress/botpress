@@ -60,7 +60,7 @@ const _getMessageInfos = async (client: bp.Client, messageId: string) => {
   })
   const { id: whatsappMessageId } = message.tags
   if (!whatsappMessageId) {
-    throw new RuntimeError('Missing Whatsapp message id in the message tags')
+    throw new RuntimeError('Missing WhatsApp message id in the message tags')
   }
   return { whatsappMessageId }
 }
