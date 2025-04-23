@@ -2,18 +2,20 @@ import * as sdk from '@botpress/sdk'
 import slack from './bp_modules/slack'
 
 export default new sdk.PluginDefinition({
-  name: 'slack-reply-as-thread',
+  name: 'slack-conversation-manager',
   version: '0.1.0',
-  title: 'Reply as Thread',
-  description: 'Reply to slack messages in a thread instead of in the channel',
+  title: 'Slack Conversation Manager',
+  description: 'Tweak the way your bot interacts with Slack conversations',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
     schema: sdk.z.object({
       enableThreading: sdk.z
         .boolean()
-        .title('Enable Threading')
-        .describe('Whether to enable threading for Slack bot replies')
+        .title('Enable Reply Threading')
+        .describe(
+          'Whether to enable threading for Slack bot replies. When enabled, the bot replies in a thread instead of in the main channel'
+        )
         .default(true),
       ignoreMessagesWithoutMention: sdk.z
         .boolean()

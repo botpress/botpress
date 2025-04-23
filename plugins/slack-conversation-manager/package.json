@@ -1,5 +1,5 @@
 {
-  "name": "@botpresshub/slack-reply-as-thread",
+  "name": "@botpresshub/slack-conversation-manager",
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp add -y && bp build"
