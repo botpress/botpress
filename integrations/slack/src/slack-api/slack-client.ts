@@ -75,6 +75,23 @@ export class SlackClient {
     return await SlackClient._createNewInstance({ logger, oAuthClient })
   }
 
+  public static async createFromLegacyBotToken({
+    ctx,
+    client,
+    logger,
+    legacyBotToken,
+  }: {
+    client: bp.Client
+    ctx: bp.Context
+    logger: bp.Logger
+    legacyBotToken: string
+  }) {
+    const oAuthClient = new SlackOAuthClient({ ctx, client, logger })
+    await oAuthClient.requestShortLivedCredentials.fromLegacyBotToken(legacyBotToken)
+
+    return await SlackClient._createNewInstance({ logger, oAuthClient })
+  }
+
   private static async _createNewInstance({
     logger,
     oAuthClient,

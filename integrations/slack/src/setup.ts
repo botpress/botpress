@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/client'
+import * as sdk from '@botpress/client'
 import { isValidUrl } from './misc/utils'
 import { SlackClient } from './slack-api'
 import * as bp from '.botpress'
@@ -38,7 +38,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       !ctx.configuration.clientId ||
       !ctx.configuration.clientSecret
     ) {
-      throw new RuntimeError(
+      throw new sdk.RuntimeError(
         'Missing configuration: Refresh Token, Signing Secret, Client ID, and Client Secret are all required when using manual configuration'
       )
     }
@@ -53,12 +53,21 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       return
     }
 
-    slackClient = await SlackClient.createFromRefreshToken({
-      client,
-      ctx,
-      logger,
-      refreshToken: ctx.configuration.refreshToken,
-    })
+    _validateTokenType(ctx)
+
+    slackClient = ctx.configuration.refreshToken.startsWith('xoxb-')
+      ? await SlackClient.createFromLegacyBotToken({
+          client,
+          ctx,
+          logger,
+          legacyBotToken: ctx.configuration.refreshToken,
+        })
+      : await SlackClient.createFromRefreshToken({
+          client,
+          ctx,
+          logger,
+          refreshToken: ctx.configuration.refreshToken,
+        })
     await _saveOriginalRefreshToken(client, ctx, ctx.configuration.refreshToken)
   } else {
     slackClient = await SlackClient.createFromStates({ client, ctx, logger })
@@ -69,7 +78,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
   const hasRequiredScopes = slackClient.hasAllScopes(REQUIRED_SLACK_SCOPES)
 
   if (!hasRequiredScopes) {
-    throw new RuntimeError(
+    throw new sdk.RuntimeError(
       `Missing required scopes: ${REQUIRED_SLACK_SCOPES.join(', ')}. Please reauthorize the app with the required scopes.`
     )
   }
@@ -96,6 +105,31 @@ const _getPreviouslyRegisteredToken = async (client: bp.Client, ctx: bp.Context)
     return state.payload.originalRefreshToken
   } catch {}
   return
+}
+
+const _validateTokenType = (ctx: bp.Context) => {
+  if (ctx.configurationType !== 'refreshToken') return
+
+  if (ctx.configuration.refreshToken.startsWith('xapp-')) {
+    throw new sdk.RuntimeError(
+      'App-level tokens (tokens beginning with xapp) are not supported. Please provide either a bot refresh token or a bot access token.'
+    )
+  } else if (ctx.configuration.refreshToken.startsWith('xoxp-')) {
+    throw new sdk.RuntimeError(
+      'User tokens (tokens beginning with xoxp) are not supported. Please provide either a bot refresh token or a bot access token.'
+    )
+  } else if (ctx.configuration.refreshToken.startsWith('xoxe.xoxb-1-')) {
+    throw new sdk.RuntimeError(
+      'Rotating bot tokens (tokens beginning with xoxe.xoxb) are not supported. Please provide either a bot refresh token or a bot access token.'
+    )
+  } else if (
+    !ctx.configuration.refreshToken.startsWith('xoxe-1-') &&
+    !ctx.configuration.refreshToken.startsWith('xoxb-')
+  ) {
+    throw new sdk.RuntimeError(
+      'Unknown Slack token type. Please provide either a bot refresh token or a bot access token.'
+    )
+  }
 }
 
 const _saveOriginalRefreshToken = async (client: bp.Client, ctx: bp.Context, refreshToken: string) => {
