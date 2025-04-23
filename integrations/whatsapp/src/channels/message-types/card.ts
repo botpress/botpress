@@ -1,6 +1,7 @@
 import { ClientTypedMessageComponent } from 'whatsapp-api-js/lib/types/types'
 import { Text, Interactive, ActionButtons, Header, Image, Button } from 'whatsapp-api-js/messages'
-import { UnreachableCaseError, chunkArray, hasAtleastOne } from '../../misc/util'
+import { WHATSAPP } from '../../misc/constants'
+import { chunkArray, hasAtleastOne } from '../../misc/util'
 import * as body from './interactive/body'
 import * as button from './interactive/button'
 import * as footer from './interactive/footer'
@@ -15,11 +16,6 @@ type ActionSay = SDKAction & { action: 'say' }
 type ActionPostback = SDKAction & { action: 'postback' }
 
 type Action = ActionSay | ActionURL | ActionPostback
-
-const POSTBACK_PREFIX = 'p:'
-const SAY_PREFIX = 's:'
-
-const INTERACTIVE_MAX_BUTTONS_COUNT = 3
 
 type ActionsChunk = ReturnType<typeof chunkArray<ActionSay | ActionPostback>>[number]
 
@@ -94,7 +90,7 @@ function* _generateButtonInteractiveMessages(
   actions: Array<ActionSay | ActionPostback>,
   logger: bp.Logger
 ) {
-  const [firstChunk, ...followingChunks] = chunkArray(actions, INTERACTIVE_MAX_BUTTONS_COUNT)
+  const [firstChunk, ...followingChunks] = chunkArray(actions, WHATSAPP.INTERACTIVE_MAX_BUTTONS_COUNT)
   if (firstChunk) {
     const actionButtons = _createActionButtons(firstChunk)
     if (actionButtons) {
@@ -132,16 +128,7 @@ function _createActionButtons(actionsChunk: ActionsChunk): ActionButtons | undef
 function _createButtons(nonURLActions: Array<ActionSay | ActionPostback>) {
   const buttons: Button[] = []
   for (const action of nonURLActions) {
-    switch (action.action) {
-      case 'postback':
-        buttons.push(button.create({ id: `${POSTBACK_PREFIX}${action.value}`, title: action.label }))
-        break
-      case 'say':
-        buttons.push(button.create({ id: `${SAY_PREFIX}${action.value}`, title: action.label }))
-        break
-      default:
-        throw new UnreachableCaseError(action)
-    }
+    buttons.push(button.create({ id: action.value, title: action.label }))
   }
   return buttons
 }

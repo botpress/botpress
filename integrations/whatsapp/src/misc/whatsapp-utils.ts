@@ -2,10 +2,8 @@ import { RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { getAccessToken } from '../auth'
+import { WHATSAPP } from './constants'
 import * as bp from '.botpress'
-
-const WHATSAPP_API_VERSION = 'v22.0'
-const WHATSAPP_API_URL = `https://graph.facebook.com/${WHATSAPP_API_VERSION}`
 
 export async function getMediaUrl(whatsappMediaId: string, client: bp.Client, ctx: bp.Context): Promise<string> {
   const accessToken = await getAccessToken(client, ctx)
@@ -24,7 +22,7 @@ export async function sendTypingIndicator(
   ctx: bp.Context
 ) {
   await axios.post(
-    `${WHATSAPP_API_URL}/${phoneNumberId}/messages`,
+    `${WHATSAPP.API_URL}/${phoneNumberId}/messages`,
     {
       messaging_product: 'whatsapp',
       status: 'read',

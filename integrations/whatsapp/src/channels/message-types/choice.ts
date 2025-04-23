@@ -1,3 +1,4 @@
+import { WHATSAPP } from 'src/misc/constants'
 import { Text, Interactive, ActionButtons, Button } from 'whatsapp-api-js/messages'
 import { chunkArray, hasAtleastOne, truncate } from '../../misc/util'
 import * as body from './interactive/body'
@@ -6,9 +7,6 @@ import * as bp from '.botpress'
 
 type Choice = bp.channels.whatsapp.choice.Choice
 type Option = Choice['options'][number]
-
-export const INTERACTIVE_MAX_BUTTONS_COUNT = 3
-const BUTTON_LABEL_MAX_LENGTH = 20
 
 export function* generateOutgoingMessages({
   payload: { text, options },
@@ -20,13 +18,13 @@ export function* generateOutgoingMessages({
   if (options.length === 0) {
     yield new Text(text)
   } else {
-    const chunks = chunkArray(options, INTERACTIVE_MAX_BUTTONS_COUNT)
+    const chunks = chunkArray(options, WHATSAPP.INTERACTIVE_MAX_BUTTONS_COUNT)
 
-    if (options.length > INTERACTIVE_MAX_BUTTONS_COUNT) {
+    if (options.length > WHATSAPP.INTERACTIVE_MAX_BUTTONS_COUNT) {
       logger
         .forBot()
         .info(
-          `Splitting ${options.length} choices into groups of ${INTERACTIVE_MAX_BUTTONS_COUNT} buttons each due to a limitation of WhatsApp.`
+          `Splitting ${options.length} choices into groups of ${WHATSAPP.INTERACTIVE_MAX_BUTTONS_COUNT} buttons each due to a limitation of WhatsApp.`
         )
     }
 
@@ -44,5 +42,5 @@ export function* generateOutgoingMessages({
 
 function _createButton(option: Option) {
   const safeValue = option.value.trim() // WhatsApp doesn't allow trailing spaces in button IDs
-  return button.create({ id: safeValue, title: truncate(option.label, BUTTON_LABEL_MAX_LENGTH) })
+  return button.create({ id: safeValue, title: truncate(option.label, WHATSAPP.BUTTON_LABEL_MAX_LENGTH) })
 }

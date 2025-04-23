@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
+import { WHATSAPP } from 'src/misc/constants'
 import WhatsAppAPI from 'whatsapp-api-js'
 import {
   Text,
@@ -74,7 +75,7 @@ export const whatsapp: bp.IntegrationProps['channels']['whatsapp'] = {
       })
     },
     choice: async ({ payload, logger, ...props }) => {
-      if (payload.options.length <= choice.INTERACTIVE_MAX_BUTTONS_COUNT) {
+      if (payload.options.length <= WHATSAPP.INTERACTIVE_MAX_BUTTONS_COUNT) {
         await _sendMany({
           ...props,
           logger,

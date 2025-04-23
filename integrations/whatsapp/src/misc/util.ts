@@ -1,11 +1,5 @@
 import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 
-export class UnreachableCaseError extends Error {
-  public constructor(val: never) {
-    super(`Unreachable case: ${val}`)
-  }
-}
-
 export function chunkArray<T>(array: T[], chunkSize: number) {
   const chunks: T[][] = []
   if (chunkSize <= 0) {
