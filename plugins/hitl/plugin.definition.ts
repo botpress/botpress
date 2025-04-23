@@ -16,7 +16,7 @@ export const DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE =
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.7.2',
+  version: '0.7.3',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
