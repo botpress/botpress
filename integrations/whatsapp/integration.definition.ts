@@ -68,7 +68,6 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configurations: {
     manual: {
-      // TODO: Rename
       title: 'Manual Configuration',
       description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
       schema: z
