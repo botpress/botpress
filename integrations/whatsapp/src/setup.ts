@@ -5,10 +5,10 @@ import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async (input) => {
   await identifyBot(input.ctx.botId, {
-    [INTEGRATION_NAME + 'OauthType']: input.ctx.configurationType === 'manualApp' ? 'manual' : 'oauth',
+    [INTEGRATION_NAME + 'OauthType']: input.ctx.configurationType === 'manual' ? 'manual' : 'oauth',
   })
 
-  if (input.ctx.configurationType !== 'manualApp') {
+  if (input.ctx.configurationType !== 'manual') {
     return // nothing more to do if we're not using manual configuration
   }
 
@@ -51,5 +51,5 @@ async function _checkManualConfiguration(accessToken: string) {
 
   const appId = (await appResponse.json()).id
 
-  return !!appId // todo check if webhook is configured, this may require a permission change.
+  return !!appId // TODO: check if webhook is configured, this may require a permission change.
 }

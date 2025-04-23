@@ -134,7 +134,7 @@ export class MetaOauthClient {
 }
 
 export const getAccessToken = async (client: bp.Client, ctx: bp.Context): Promise<string> => {
-  if (ctx.configurationType === 'manualApp') {
+  if (ctx.configurationType === 'manual') {
     return ctx.configuration.accessToken
   }
 
@@ -153,12 +153,12 @@ export const getAccessToken = async (client: bp.Client, ctx: bp.Context): Promis
 
 export function getVerifyToken(ctx: bp.Context): string | undefined {
   // Should normally be verified in the fallbackHandler script with OAuth and Sandbox
-  return ctx.configurationType === 'manualApp' ? ctx.configuration.verifyToken : bp.secrets.VERIFY_TOKEN
+  return ctx.configurationType === 'manual' ? ctx.configuration.verifyToken : bp.secrets.VERIFY_TOKEN
 }
 
 export const getClientSecret = (ctx: bp.Context): string | undefined => {
   let value: string | undefined
-  if (ctx.configurationType === 'manualApp') {
+  if (ctx.configurationType === 'manual') {
     value = ctx.configuration.clientSecret
   } else {
     value = bp.secrets.CLIENT_SECRET
@@ -168,7 +168,7 @@ export const getClientSecret = (ctx: bp.Context): string | undefined => {
 }
 
 export const getDefaultBotPhoneNumberId = async (client: bp.Client, ctx: bp.Context) => {
-  if (ctx.configurationType === 'manualApp') {
+  if (ctx.configurationType === 'manual') {
     return ctx.configuration.defaultBotPhoneNumberId
   }
 

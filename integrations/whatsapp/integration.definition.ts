@@ -67,7 +67,7 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   readme: 'hub.md',
   configurations: {
-    manualApp: {
+    manual: {
       // TODO: Rename
       title: 'Manual Configuration',
       description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
