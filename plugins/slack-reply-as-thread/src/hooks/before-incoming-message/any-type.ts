@@ -16,6 +16,11 @@ export const handleMessage: bp.HookHandlers['before_incoming_message']['*'] = as
 
   const { conversation: parentConversation } = await props.client.getConversation({ id: props.data.conversationId })
 
+  if (parentConversation.integration !== 'slack') {
+    props.logger.debug('Ignoring message routing logic for non-Slack conversations')
+    return consts.LET_BOT_HANDLE_EVENT
+  }
+
   const { shouldForkToReplyThread, shouldPreventBotFromReplying } = getMessageRouting({
     configuration: props.configuration,
     message: { ...props.data, tags: _expandTags(props.data.tags) },
