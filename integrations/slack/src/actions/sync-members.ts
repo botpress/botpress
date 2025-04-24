@@ -3,40 +3,25 @@ import { createOrUpdateUser } from '@botpress/common'
 import { isApiError } from '@botpress/sdk'
 import { Member } from '@slack/web-api/dist/response/UsersListResponse'
 import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
-import { SlackScopes } from 'src/misc/slack-scopes'
-import { getSyncState, saveSyncState } from 'src/misc/utils'
 import * as bp from '.botpress'
 
-export const syncMembers = wrapActionAndInjectSlackClient('syncMembers', {
-  async action({ logger, ctx, client, slackClient }, {}) {
-    let { usersLastSyncTs } = await getSyncState(client, ctx)
+export const syncMembers = wrapActionAndInjectSlackClient(
+  { actionName: 'syncMembers', errorMessage: 'Failed to sync Slack users' },
+  async ({ logger, ctx, client, slackClient }, {}) => {
+    let { usersLastSyncTs } = await _getSyncState(client, ctx)
     logger.forBot().debug(`Last sync timestamp for Slack users: ${usersLastSyncTs}`)
 
-    const allMembers: Member[] = []
-    const getAllMembers = async (cursor?: string) => {
-      await SlackScopes.ensureHasAllScopes({
-        client,
-        ctx,
-        requiredScopes: ['users:read'],
-        operation: 'users.list',
-      })
-      const res = await slackClient.users.list({ cursor })
-      allMembers.push(...(res.members ?? []))
-      if (res.response_metadata?.next_cursor) {
-        logger.forBot().debug(`Fetching next page of Slack members... (${allMembers.length}/?)`)
-        await getAllMembers(res.response_metadata.next_cursor)
-      }
-    }
+    const unsortedMembers: Member[] = await slackClient.enumerateAllMembers().collect()
 
-    await getAllMembers()
-
-    const membersToSync = allMembers
-      .filter((x) => !x.deleted && (x.updated ?? 0) > (usersLastSyncTs ?? -1))
+    const recentlyUpdatedMembers = unsortedMembers
+      .filter((x) => (x.updated ?? 0) > (usersLastSyncTs ?? -1))
       .sort((a, b) => (a.updated ?? 0) - (b.updated ?? 0))
 
-    logger.forBot().debug(`Found ${membersToSync.length}/${allMembers.length} members to sync in Slack workspace`)
+    logger
+      .forBot()
+      .debug(`Found ${recentlyUpdatedMembers.length}/${unsortedMembers.length} members to sync in Slack workspace`)
 
-    for (const slackMember of membersToSync) {
+    for (const slackMember of recentlyUpdatedMembers) {
       logger
         .forBot()
         .debug('Syncing Slack user to Botpress...', { user: slackMember.name, updated: slackMember.updated })
@@ -44,18 +29,17 @@ export const syncMembers = wrapActionAndInjectSlackClient('syncMembers', {
         const user = await syncSlackUserToBotpressUser(slackMember, client)
         logger.forBot().debug(`Synced Slack user ${user.name} (${user.id})`)
         usersLastSyncTs = Math.max(usersLastSyncTs ?? 0, slackMember.updated ?? 0)
-        await saveSyncState(client, ctx, { usersLastSyncTs })
+        await _saveSyncState(client, ctx, { usersLastSyncTs })
       } catch (err) {
         logger.forBot().error(`Failed to sync Slack user ${slackMember.name}`, err)
       }
     }
 
-    logger.forBot().debug(`Synced ${membersToSync.length} Slack users to Botpress`)
+    logger.forBot().debug(`Synced ${recentlyUpdatedMembers.length} Slack users to Botpress`)
 
-    return { syncedCount: membersToSync.length }
-  },
-  errorMessage: 'Failed to sync Slack users',
-})
+    return { syncedCount: recentlyUpdatedMembers.length }
+  }
+)
 
 const syncSlackUserToBotpressUser = async (member: Member, botpressClient: bp.Client): Promise<User> => {
   try {
@@ -96,4 +80,20 @@ const syncSlackUserToBotpressUser = async (member: Member, botpressClient: bp.Cl
     }
     throw err
   }
+}
+
+type SyncState = { usersLastSyncTs?: number }
+
+const _getSyncState = async (client: bp.Client, ctx: bp.Context): Promise<SyncState> => {
+  const {
+    state: { payload },
+  } = await client.getState({ type: 'integration', name: 'sync', id: ctx.integrationId }).catch(() => ({
+    state: { payload: {} as any },
+  }))
+
+  return payload as SyncState
+}
+
+const _saveSyncState = async (client: bp.Client, ctx: bp.Context, state: SyncState) => {
+  await client.setState({ type: 'integration', name: 'sync', id: ctx.integrationId, payload: state })
 }

@@ -1,6 +1,6 @@
-import type { Context } from '.botpress'
 import { IntegrationLogger } from '@botpress/sdk'
 import { ConfluenceClient } from 'src/client'
+import type { Context } from '.botpress'
 
 type PageCommentPublisherArgs = {
   payload: Record<string, unknown>

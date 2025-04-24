@@ -1,6 +1,6 @@
-import type { configuration } from '.botpress'
 import axios from 'axios'
 import type { Page } from 'definitions/entities/page'
+import type { configuration } from '.botpress'
 
 export const ConfluenceClient = ({ user, host, apiToken }: configuration.Configuration) => {
   const auth = Buffer.from(`${user}:${apiToken}`).toString('base64')

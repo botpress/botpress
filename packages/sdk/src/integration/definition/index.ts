@@ -328,7 +328,7 @@ export class IntegrationDefinition<
         schema: mergeObjectSchemas(a.input.schema, b.input.schema),
       },
       output: {
-        schema: mergeObjectSchemas(a.input.schema, b.output.schema),
+        schema: mergeObjectSchemas(a.output.schema, b.output.schema),
       },
     }
   }

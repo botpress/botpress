@@ -108,6 +108,7 @@ const webSearch = {
       ),
     }),
   },
+  billable: true,
   cacheable: true,
 }
 
