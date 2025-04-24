@@ -12,8 +12,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.1.0
-        version: 1.1.0(openapi-types@12.1.3)
+        specifier: 1.4.0
+        version: 1.4.0(openapi-types@12.1.3)
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -1892,10 +1892,10 @@ importers:
         specifier: 0.5.1
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.4.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.0.5
+        specifier: 4.0.6
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2004,10 +2004,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.4.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.5
+        specifier: 4.0.6
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2020,10 +2020,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.4.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.5
+        specifier: 4.0.6
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2036,7 +2036,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.0.5
+        specifier: 4.0.6
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2049,10 +2049,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.4.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.5
+        specifier: 4.0.6
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2065,10 +2065,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.4.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.5
+        specifier: 4.0.6
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2167,7 +2167,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.4.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^0.13.5
@@ -2198,7 +2198,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.4.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2241,7 +2241,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.14
+        specifier: 0.1.15
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -4132,8 +4132,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@1.1.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-J+HK6vR/OcDgro6t4Z9p6kKX1zfYO6qPdGq+Qt1A8equrfOJzin6PND4qHaGorkxwgCjwjrDbcyMF8YXPzoZRQ==}
+  /@botpress/api@1.4.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-0XEDsikprP3/ngt6spiS323dQ2wy+MyhdCfHKvR5HMhw9xdOf94rh16y3vlynC9dL7fJVcq6NXlIfp8nexFEEg==}
     dependencies:
       '@bpinternal/opapi': 0.14.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -11021,6 +11021,7 @@ packages:
 
   /formidable@2.1.2:
     resolution: {integrity: sha512-CM3GuJ57US06mlpQ47YcunuUZ9jpm8Vx+P2CGt2j7HpgkKZO/DJYQ0Bobim8G6PFQmK5lOqOOdUXboU+h73A4g==}
+    deprecated: 'ACTION REQUIRED: SWITCH TO v3 - v1 and v2 are VULNERABLE! v1 is DEPRECATED FOR OVER 2 YEARS! Use formidable@latest or try formidable-mini for fresh projects'
     dependencies:
       dezalgo: 1.0.4
       hexoid: 1.0.0

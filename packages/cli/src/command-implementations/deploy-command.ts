@@ -261,6 +261,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const createBody = {
       ...(await apiUtils.prepareCreatePluginBody(pluginDef)),
       ...(await this.preparePluginDependencies(pluginDef, api)),
+      public: this.argv.public,
       icon,
       readme,
       code: {
