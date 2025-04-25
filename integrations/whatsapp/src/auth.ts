@@ -12,7 +12,7 @@ export class MetaOauthClient {
     this._clientSecret = bp.secrets.CLIENT_SECRET
   }
 
-  public async getAccessToken(code: string, redirectUri?: string): Promise<string> {
+  public async exchangeAuthorizationCodeForAccessToken(code: string, redirectUri?: string): Promise<string> {
     const query = new URLSearchParams({
       client_id: this._clientId,
       client_secret: this._clientSecret,
@@ -134,15 +134,15 @@ export class MetaOauthClient {
 }
 
 export const getAccessToken = async (client: bp.Client, ctx: bp.Context): Promise<string> => {
+  let accessToken: string | undefined
   if (ctx.configurationType === 'manual') {
-    return ctx.configuration.accessToken
+    accessToken = ctx.configuration.accessToken
+  } else if (ctx.configurationType === 'sandbox') {
+    accessToken = bp.secrets.SANDBOX_ACCESS_TOKEN
+  } else {
+    const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    accessToken = state.payload.accessToken
   }
-
-  const {
-    state: {
-      payload: { accessToken },
-    },
-  } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
 
   if (!accessToken) {
     throw new RuntimeError('Access token not found in saved credentials')
@@ -151,15 +151,26 @@ export const getAccessToken = async (client: bp.Client, ctx: bp.Context): Promis
   return accessToken
 }
 
-export function getVerifyToken(ctx: bp.Context): string | undefined {
+export function getVerifyToken(ctx: bp.Context): string {
   // Should normally be verified in the fallbackHandler script with OAuth and Sandbox
-  return ctx.configurationType === 'manual' ? ctx.configuration.verifyToken : bp.secrets.VERIFY_TOKEN
+  let verifyToken: string
+  if (ctx.configurationType === 'manual') {
+    verifyToken = ctx.configuration.verifyToken
+  } else if (ctx.configurationType === 'sandbox') {
+    verifyToken = bp.secrets.SANDBOX_VERIFY_TOKEN
+  } else {
+    verifyToken = bp.secrets.VERIFY_TOKEN
+  }
+
+  return verifyToken
 }
 
 export const getClientSecret = (ctx: bp.Context): string | undefined => {
   let value: string | undefined
   if (ctx.configurationType === 'manual') {
     value = ctx.configuration.clientSecret
+  } else if (ctx.configurationType === 'sandbox') {
+    value = bp.secrets.SANDBOX_CLIENT_SECRET
   } else {
     value = bp.secrets.CLIENT_SECRET
   }
@@ -168,12 +179,18 @@ export const getClientSecret = (ctx: bp.Context): string | undefined => {
 }
 
 export const getDefaultBotPhoneNumberId = async (client: bp.Client, ctx: bp.Context) => {
+  let defaultBotPhoneNumberId: string | undefined
   if (ctx.configurationType === 'manual') {
-    return ctx.configuration.defaultBotPhoneNumberId
+    defaultBotPhoneNumberId = ctx.configuration.defaultBotPhoneNumberId
+  } else if (ctx.configurationType === 'sandbox') {
+    defaultBotPhoneNumberId = bp.secrets.SANDBOX_PHONE_NUMBER_ID
+  } else {
+    const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    defaultBotPhoneNumberId = state.payload.defaultBotPhoneNumberId
   }
 
-  const {
-    state: { payload },
-  } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
-  return payload.defaultBotPhoneNumberId
+  if (!defaultBotPhoneNumberId) {
+    throw new RuntimeError('Default bot phone number ID not found in saved credentials')
+  }
+  return defaultBotPhoneNumberId
 }

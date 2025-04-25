@@ -100,6 +100,11 @@ export default new IntegrationDefinition({
         })
         .merge(commonConfigSchema),
     },
+    sandbox: {
+      title: 'Sandbox',
+      description: 'Sandbox configuration, for testing purposes only',
+      schema: commonConfigSchema,
+    },
   },
   configuration: {
     identifier: {
@@ -194,22 +199,34 @@ export default new IntegrationDefinition({
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: {
-      description: 'The client ID of your Meta app.',
+      description: 'The client ID of the OAuth Meta app',
     },
     CLIENT_SECRET: {
-      description: 'The client secret of your Meta app.',
+      description: 'The client secret of the OAuth Meta app.',
+    },
+    OAUTH_CONFIG_ID: {
+      description: 'The OAuth configuration ID for the OAuth Meta app',
+    },
+    VERIFY_TOKEN: {
+      description: 'The verify token for the OAuth Meta App Webhooks subscription',
     },
     ACCESS_TOKEN: {
-      description: 'Access token for internal Meta App',
+      description: 'Access token for the internal Meta App',
     },
     NUMBER_PIN: {
       description: '6 Digits Pin used for phone number registration',
     },
-    OAUTH_CONFIG_ID: {
-      description: 'The OAuth configuration ID for the Meta app',
+    SANDBOX_CLIENT_SECRET: {
+      description: 'The client secret of the Sandbox Meta app',
     },
-    VERIFY_TOKEN: {
-      description: 'The verify token for the Meta Webhooks subscription',
+    SANDBOX_VERIFY_TOKEN: {
+      description: 'The verify token for the Sandbox Meta App Webhooks subscription',
+    },
+    SANDBOX_ACCESS_TOKEN: {
+      description: 'Access token for the Sandbox Meta App',
+    },
+    SANDBOX_PHONE_NUMBER_ID: {
+      description: 'Phone number ID of the Sandbox WhatsApp Business profile',
     },
     SEGMENT_KEY: {
       description: 'Tracking key for general product analytics',

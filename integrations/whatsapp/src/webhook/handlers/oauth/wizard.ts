@@ -98,7 +98,7 @@ const _handleWizardGetAccessToken = async (props: WizardStepHandlerProps): Promi
   }
   const oauthClient = new MetaOauthClient(logger)
   const redirectUri = _getOAuthRedirectUri() // Needs to be the same as the one used to get the code
-  const accessToken = await oauthClient.getAccessToken(code, redirectUri)
+  const accessToken = await oauthClient.exchangeAuthorizationCodeForAccessToken(code, redirectUri)
   if (!accessToken) {
     throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
   }

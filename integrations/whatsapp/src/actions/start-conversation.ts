@@ -13,13 +13,17 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   client,
   logger,
 }) => {
+  // Prevent the use of billable resources through the sandbox account
+  if (ctx.configurationType === 'sandbox') {
+    _logForBotAndThrow('Starting a conversation is not supported in sandbox mode', logger)
+  }
+
   const { userPhone, templateName, templateVariablesJson } = input.conversation
   const botPhoneNumberId = input.conversation.botPhoneNumberId
     ? input.conversation.botPhoneNumberId
-    : await getDefaultBotPhoneNumberId(client, ctx)
-  if (!botPhoneNumberId) {
-    _logForBotAndThrow('No bot phone number ID available', logger)
-  }
+    : await getDefaultBotPhoneNumberId(client, ctx).catch(() => {
+        _logForBotAndThrow('No default bot phone number ID available', logger)
+      })
 
   const templateLanguage = input.conversation.templateLanguage ? input.conversation.templateLanguage : 'en_US'
   let templateVariables: z.infer<typeof TemplateVariablesSchema> = []

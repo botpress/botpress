@@ -3,31 +3,42 @@ import { INTEGRATION_NAME } from 'integration.definition'
 import { identifyBot, trackIntegrationEvent } from './misc/tracking'
 import * as bp from '.botpress'
 
-export const register: bp.IntegrationProps['register'] = async (input) => {
-  await identifyBot(input.ctx.botId, {
-    [INTEGRATION_NAME + 'OauthType']: input.ctx.configurationType === 'manual' ? 'manual' : 'oauth',
+export const register: bp.IntegrationProps['register'] = async (props) => {
+  await identifyBot(props.ctx.botId, {
+    [INTEGRATION_NAME + 'OauthType']: props.ctx.configurationType,
   })
 
-  if (input.ctx.configurationType !== 'manual') {
+  // Always make sure a bot is dissociated from WhatsApp conversations once the configuration type changes
+  // TODO: Should this be done automatically in the backend?
+  const configureIntegrationProps: Parameters<typeof props.client.configureIntegration>[0] = {
+    sandboxIdentifiers: null,
+  }
+  // Ensure that requests sent to a profile associated with a bot via OAuth are not received by the bot
+  // TODO: Should this also be done automatically in the backend?
+  if (props.ctx.configurationType === 'sandbox') {
+    configureIntegrationProps.identifier = undefined // FIXME: This doesn't remove the identifier
+  }
+  await props.client.configureIntegration(configureIntegrationProps)
+  if (props.ctx.configurationType !== 'manual') {
     return // nothing more to do if we're not using manual configuration
   }
 
-  const { accessToken, clientSecret, defaultBotPhoneNumberId, verifyToken } = input.ctx.configuration
+  const { accessToken, clientSecret, defaultBotPhoneNumberId, verifyToken } = props.ctx.configuration
 
   if (accessToken && clientSecret && defaultBotPhoneNumberId && verifyToken) {
     // let's check the credentials
     const isValidConfiguration = await _checkManualConfiguration(accessToken)
     if (!isValidConfiguration) {
-      await trackIntegrationEvent(input.ctx.botId, 'manualSetupStep', {
+      await trackIntegrationEvent(props.ctx.botId, 'manualSetupStep', {
         status: 'failure',
       })
       throw new RuntimeError('Error! Please check your credentials and webhook.')
     }
-    await trackIntegrationEvent(input.ctx.botId, 'manualSetupStep', {
+    await trackIntegrationEvent(props.ctx.botId, 'manualSetupStep', {
       status: 'success',
     })
   } else {
-    await trackIntegrationEvent(input.ctx.botId, 'manualSetupStep', {
+    await trackIntegrationEvent(props.ctx.botId, 'manualSetupStep', {
       status: 'incomplete',
     })
     throw new RuntimeError('Error! Please add the missing fields and save.')
