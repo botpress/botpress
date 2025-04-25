@@ -16,8 +16,8 @@ export const filesReadonlyListItemsInFolder: bp.IntegrationProps['actions']['fil
     parentId: item.parentId || undefined,
     absolutePath: item._links.webui || undefined,
     sizeInBytes: undefined,
-    lastModifiedDate: item.version.createdAt || undefined,
-    contentHash: item.version.number.toString() || undefined,
+    lastModifiedDate: item.version?.createdAt || undefined,
+    contentHash: item.version?.number.toString() || undefined,
   }))
 
   return {

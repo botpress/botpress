@@ -5,7 +5,7 @@ import deletable from './bp_modules/deletable'
 import filesReadonly from './bp_modules/files-readonly'
 import readable from './bp_modules/readable'
 import updatable from './bp_modules/updatable'
-import { actions, entities } from './definitions'
+import { entities } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'confluence',
@@ -22,7 +22,7 @@ export default new IntegrationDefinition({
       webhookUrl: z.string().describe('The url to post the bot answers to.').title('Webhook URL'),
     }),
   },
-  actions,
+  actions: {},
   entities,
   channels: {
     comment: {
