@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { convertAtlassianDocumentToMarkdown } from './confluenceToMarkdown'
-import { convertMarkdownToHtml } from './markdownToHtml'
+// import { convertMarkdownToHtml } from './markdownToHtml'
 
 // Launch using npx ts-node run.ts
 
@@ -14,20 +14,20 @@ import { convertMarkdownToHtml } from './markdownToHtml'
 const fileName = 'jsonExample'
 const PATH = __dirname + path.sep + 'testFiles'
 
-const file = fs.readFileSync(path.join(PATH, fileName + '.json'), 'utf-8')
-const markdown = convertAtlassianDocumentToMarkdown(JSON.parse(file))
-const html = convertMarkdownToHtml(markdown)
+// const file = fs.readFileSync(path.join(PATH, fileName + '.json'), 'utf-8')
+// const markdown = convertAtlassianDocumentToMarkdown(JSON.parse(file))
+// const html = convertMarkdownToHtml(markdown)
 
-const request = {
-  spaceId: '131074',
-  status: 'current',
-  title: 'test post convertion',
-  parentId: null,
-  body: {
-    representation: 'storage',
-    value: html,
-  },
-}
+// const request = {
+//   spaceId: '131074',
+//   status: 'current',
+//   title: 'test post convertion',
+//   parentId: null,
+//   body: {
+//     representation: 'storage',
+//     value: html,
+//   },
+// }
 
 const host = 'https://botpress.atlassian.net'
 const auth = Buffer.from('').toString('base64')
@@ -37,11 +37,11 @@ const config = {
     'Content-Type': 'application/json',
   },
 }
-const response = axios.delete(`${host}/wiki/api/v2/pages/4980737`, config)
+axios.delete(`${host}/wiki/api/v2/pages/4980737`, config)
 
-console.log('====================================')
-console.log(html)
-console.log('====================================')
+// console.log('====================================')
+// console.log(html)
+// console.log('====================================')
 // fs.writeFileSync(path.join(PATH, fileName + '.md'), markdown)
 
 /*
