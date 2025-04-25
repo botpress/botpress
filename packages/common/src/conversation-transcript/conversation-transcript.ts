@@ -33,7 +33,8 @@ export const buildConversationTranscript = async ({
 const DEFAULT_TRANSCRIPT_FORMATTER: TranscriptFormatter = (extractedMessages) => {
   const formattedMessages = extractedMessages.map((message) => {
     const emoji = message.isBot ? '🤖' : '👤'
-    const header = `${emoji} ${message.user.name}:`
+    const name = message.user.name ?? (message.isBot ? 'Botpress' : 'User')
+    const header = `${emoji} ${name}:`
     const body = message.text.join('\n')
 
     return `${header}\n${body}`
