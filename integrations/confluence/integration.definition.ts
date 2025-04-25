@@ -25,7 +25,7 @@ export default new IntegrationDefinition({
   actions,
   entities,
   channels: {
-    webhook: {
+    comment: {
       conversation: {
         tags: {
           id: { title: 'Conversation ID', description: 'The ID of the conversation in confluence' },

@@ -50,7 +50,7 @@ export default new bp.Integration({
     const { userId, conversationId, text } = parseResult.data
 
     const { conversation } = await client.getOrCreateConversation({
-      channel: 'webhook',
+      channel: 'comment',
       tags: {
         id: conversationId,
       },
