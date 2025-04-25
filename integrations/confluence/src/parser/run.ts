@@ -37,7 +37,8 @@ const config = {
     'Content-Type': 'application/json',
   },
 }
-axios.delete(`${host}/wiki/api/v2/pages/4980737`, config)
+
+void axios.delete(`${host}/wiki/api/v2/pages/4980737`, config)
 
 // console.log('====================================')
 // console.log(html)

@@ -1,6 +1,6 @@
-import * as bp from '.botpress'
 import { ConfluenceClient } from 'src/client'
 import { debugLog, errorLog } from 'src/logger'
+import * as bp from '.botpress'
 
 export const createPage: bp.IntegrationProps['actions']['createPage'] = async ({ input, logger, ctx }) => {
   const pageId = input.item.id
