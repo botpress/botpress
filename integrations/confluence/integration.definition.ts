@@ -19,13 +19,15 @@ export default new IntegrationDefinition({
       host: z.string().describe('Host URI. Format is https://your_workspace_name.atlassian.net').title('Host'),
       user: z.string().describe('Email of the user').title('User Email'),
       apiToken: z.string().describe('API Token').title('API Token'),
-      webhookUrl: z.string().describe('The url to post the bot answers to.'),
+      webhookUrl: z.string().describe('The url to post the bot answers to.').title('Webhook URL'),
     }),
   },
   actions,
   entities,
   channels: {
     comment: {
+      title: 'Comments',
+      description: 'Comments on pages',
       conversation: {
         tags: {
           id: { title: 'Conversation ID', description: 'The ID of the conversation in confluence' },
