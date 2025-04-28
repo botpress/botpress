@@ -40,6 +40,8 @@ export const integrationHandler =
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
 
+    const [, traceId] = (req.headers['traceparent'] || '').split('-')
+
     const vanillaClient = new Client({
       botId: ctx.botId,
       integrationId: ctx.integrationId,
@@ -47,7 +49,7 @@ export const integrationHandler =
       headers: extractTracingHeaders(req.headers),
     })
     const client = new IntegrationSpecificClient<BaseIntegration>(vanillaClient)
-    const logger = new IntegrationLogger()
+    const logger = new IntegrationLogger({ traceId })
 
     const props = {
       ctx,
