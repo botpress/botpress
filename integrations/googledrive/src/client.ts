@@ -54,9 +54,10 @@ type TryWatchAllOutput = {
 const MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS = 86400 * 1000 // 24 hours
 const MAX_EXPORT_FILE_SIZE_BYTES = 10000000 // 10MB, as per the Google Drive API doc
 const MYDRIVE_ID_ALIAS = 'root'
-const PAGE_SIZE = 10
+const PAGE_SIZE = 100
 const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
-const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size'
+const GOOGLE_API_FILE_FIELDS =
+  'id, name, mimeType, parents, size, sha256Checksum, md5Checksum, version, trashed, modifiedTime'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
 export class Client {
   private constructor(
@@ -157,6 +158,28 @@ export class Client {
       searchQuery: `'${folderId}' in parents`,
     })
     return await Promise.all(files.map((f) => this._getCompleteFile(f)))
+  }
+
+  public async getChildrenSubset({
+    folderId,
+    extraQuery,
+    nextToken,
+  }: {
+    folderId: string
+    extraQuery?: string
+    nextToken?: string
+  }): Promise<{ files: BaseDiscriminatedFile[]; nextToken?: string }> {
+    try {
+      const { items: files, meta } = await this._listBaseGenericFiles({
+        nextToken,
+        args: {
+          searchQuery: `'${folderId}' in parents` + (extraQuery ? ` and ${extraQuery}` : ''),
+        },
+      })
+      return { files, nextToken: meta.nextToken }
+    } catch {
+      return { files: [], nextToken: undefined }
+    }
   }
 
   public async createFile({ name, parentId, mimeType }: CreateFileArgs): Promise<File> {
@@ -359,13 +382,8 @@ export class Client {
    * Removes internal fields and adds computed attributes
    */
   private async _getCompleteFileFromBaseFile(file: BaseNormalFile): Promise<File> {
-    const { id, mimeType, name, parentId, size } = file
     return {
-      id,
-      mimeType,
-      name,
-      parentId,
-      size,
+      ...file,
       path: await this._getFilePath({ type: 'normal', ...file }),
     }
   }
@@ -399,9 +417,10 @@ export class Client {
     const listResponse = await this._googleClient.files.list({
       corpora: 'user',
       fields: GOOGLE_API_FILELIST_FIELDS,
-      q: searchQuery,
+      q: (searchQuery ?? '') + (searchQuery?.length ? ' and ' : '') + 'trashed != true',
       pageToken: nextToken,
       pageSize: PAGE_SIZE,
+      spaces: 'drive',
     })
 
     const newNextToken = listResponse.data.nextPageToken ?? undefined
