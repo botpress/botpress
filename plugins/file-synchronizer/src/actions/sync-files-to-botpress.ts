@@ -16,6 +16,11 @@ export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpess
     excludeFiles: props.input.excludeFiles ?? props.configuration.excludeFiles,
   })
 
+  if (allFiles.length === 0) {
+    props.logger.info('No files to sync.')
+    return { status: 'queued' }
+  }
+
   props.logger.info('Preparing sync job...')
   const jobMeta = await _prepareSyncJob(props, allFiles)
   const jobFileId = await SyncQueue.jobFileManager.updateSyncQueue(
