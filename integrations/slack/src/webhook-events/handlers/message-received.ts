@@ -76,6 +76,31 @@ export const handleEvent = async ({
     userId: botpressUser.id,
     conversationId: botpressConversation.id,
   })
+
+  if (botpressConversation.channel === 'channel' && ctx.configuration.createReplyThread?.enabled) {
+    const { conversation: threadConversation } = await client.getOrCreateConversation({
+      channel: 'thread',
+      tags: { id: slackEvent.channel, thread: slackEvent.ts, isBotReplyThread: 'true' },
+      discriminateByTags: ['id', 'thread'],
+    })
+
+    await client.getOrCreateMessage({
+      tags: {
+        ts: slackEvent.ts,
+        userId: slackEvent.user,
+        channelId: slackEvent.channel,
+        mentionsBot: mentionsBot ? 'true' : undefined,
+        forkedToThread: 'true',
+      },
+      discriminateByTags: ['ts', 'channelId', 'forkedToThread'],
+      type: 'text',
+      payload: {
+        text: slackEvent.text!,
+      },
+      userId: botpressUser.id,
+      conversationId: threadConversation.id,
+    })
+  }
 }
 
 const _isBotMentionedInMessage = async ({
