@@ -1,5 +1,6 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import filesReadonly from './bp_modules/files-readonly'
 import {
   fileSchema,
   createFileArgSchema,
@@ -23,7 +24,7 @@ export default new IntegrationDefinition({
   name: 'googledrive',
   title: 'Google Drive',
   description: 'Access and manage your Google Drive files from your bot.',
-  version: '0.0.4',
+  version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -193,4 +194,17 @@ export default new IntegrationDefinition({
       description: 'The secret used to sign webhook tokens. Should be a high-entropy string that only Botpress knows',
     },
   },
-})
+}).extend(filesReadonly, ({}) => ({
+  entities: {},
+  actions: {
+    listItemsInFolder: { name: 'filesReadonlyListItemsInFolder' },
+    transferFileToBotpress: { name: 'filesReadonlyTransferFileToBotpress' },
+  },
+  events: {
+    fileCreated: { name: 'filesReadonlyFileCreated' },
+    fileUpdated: { name: 'filesReadonlyFileUpdated' },
+    fileDeleted: { name: 'filesReadonlyFileDeleted' },
+    folderDeletedRecursive: { name: 'filesReadonlyFolderDeletedRecursive' },
+    aggregateFileChanges: { name: 'filesReadonlyAggregateFileChanges' },
+  },
+}))
