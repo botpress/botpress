@@ -22,7 +22,7 @@ const TagsForCreatingConversation = {
   templateLanguage: {
     title: 'Message Template language (optional)',
     description:
-      'Language of the Whatsapp Message Template to start the conversation with. Defaults to "en_US" (U.S. English).',
+      'Language of the Whatsapp Message Template to start the conversation with. Defaults to "en" (English).',
   },
   templateVariables: {
     title: 'Message Template variables (optional)',
