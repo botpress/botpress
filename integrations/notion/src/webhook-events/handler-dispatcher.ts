@@ -28,12 +28,19 @@ const _validatePayloadSignature = (props: bp.HandlerProps) => {
     return
   }
 
-  const bodySignatureFromBotpress = crypto
-    .createHmac('sha256', bp.secrets.WEBHOOK_VERIFICATION_SECRET)
-    .update(props.req.body ?? '')
-    .digest('hex')
+  const bodySignatureFromBotpress =
+    'sha256=' +
+    crypto
+      .createHmac('sha256', bp.secrets.WEBHOOK_VERIFICATION_SECRET)
+      .update(props.req.body ?? '')
+      .digest('hex')
 
-  if (bodySignatureFromNotion !== bodySignatureFromBotpress) {
+  const payloadSignatureMatchesExpectedSignature = crypto.timingSafeEqual(
+    Buffer.from(bodySignatureFromNotion),
+    Buffer.from(bodySignatureFromBotpress)
+  )
+
+  if (!payloadSignatureMatchesExpectedSignature) {
     throw new sdk.RuntimeError('Notion signature does not match the expected signature')
   }
 }
