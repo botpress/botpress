@@ -1,3 +1,5 @@
+// This file contains constants that are exported for public use.
+
 export const botIdHeader = 'x-bot-id'
 export const botUserIdHeader = 'x-bot-user-id'
 export const integrationIdHeader = 'x-integration-id'
