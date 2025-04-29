@@ -77,7 +77,13 @@ export const handleEvent = async ({
     conversationId: botpressConversation.id,
   })
 
-  if (botpressConversation.channel === 'channel' && ctx.configuration.createReplyThread?.enabled) {
+  const isSentInChannel = slackEvent.channel === 'channel'
+  const isThreadingEnabled = ctx.configuration.createReplyThread?.enabled ?? false
+  const threadingRequiresMention = ctx.configuration.createReplyThread?.onlyOnBotMention ?? false
+
+  const shouldForkToReplyThread = isSentInChannel && isThreadingEnabled && (!threadingRequiresMention || mentionsBot)
+
+  if (shouldForkToReplyThread) {
     const { conversation: threadConversation } = await client.getOrCreateConversation({
       channel: 'thread',
       tags: { id: slackEvent.channel, thread: slackEvent.ts, isBotReplyThread: 'true' },

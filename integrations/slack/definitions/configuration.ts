@@ -20,6 +20,11 @@ const SHARED_CONFIGURATION = {
         .default(false)
         .title('Reply Threading Enabled')
         .describe('When enabled, the bot will forward incoming messages to threads'),
+      onlyOnBotMention: sdk.z
+        .boolean()
+        .default(false)
+        .title('Require Bot Mention for Reply Threading')
+        .describe('When enabled, the bot will only forward messages to threads when mentioned'),
     })
     .optional()
     .title('Proactive Threads')
