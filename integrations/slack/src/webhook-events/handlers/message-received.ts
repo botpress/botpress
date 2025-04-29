@@ -52,11 +52,14 @@ export const handleEvent = async ({
     return
   }
 
+  const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
+
   await client.getOrCreateMessage({
     tags: {
       ts: slackEvent.ts,
       userId: slackEvent.user,
       channelId: slackEvent.channel,
+      mentionsBot: mentionsBot ? 'true' : undefined,
     },
     discriminateByTags: ['ts', 'channelId'],
     type: 'text',
@@ -73,4 +76,50 @@ export const handleEvent = async ({
     userId: botpressUser.id,
     conversationId: botpressConversation.id,
   })
+}
+
+const _isBotMentionedInMessage = async ({
+  slackEvent,
+  client,
+  ctx,
+}: {
+  slackEvent: AllMessageEvents
+  client: bp.Client
+  ctx: bp.Context
+}) => {
+  if (slackEvent.subtype || !slackEvent.text) {
+    return false
+  }
+
+  const slackBotId = await _getSlackBotIdFromStates(client, ctx)
+
+  if (!slackBotId) {
+    return false
+  }
+
+  return (
+    slackEvent.text.includes(`<@${slackBotId}>`) ||
+    (slackEvent.blocks?.some(
+      (block) =>
+        'elements' in block &&
+        block.elements.some(
+          (element) =>
+            'elements' in element &&
+            element.elements.some((subElement) => subElement.type === 'user' && subElement.user_id === slackBotId)
+        )
+    ) ??
+      false)
+  )
+}
+
+const _getSlackBotIdFromStates = async (client: bp.Client, ctx: bp.Context) => {
+  try {
+    const { state } = await client.getState({
+      type: 'integration',
+      name: 'oAuthCredentialsV2',
+      id: ctx.integrationId,
+    })
+    return state.payload.botUserId
+  } catch {}
+  return
 }
