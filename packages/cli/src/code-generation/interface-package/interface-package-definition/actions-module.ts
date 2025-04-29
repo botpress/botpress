@@ -35,12 +35,15 @@ export class ActionModule extends ReExportVariableModule {
   public constructor(actionName: string, action: types.ActionDefinition) {
     super({
       exportName: strings.varName(actionName),
-      extraProps: gen.primitiveRecordToTypescriptValues({
-        title: action.title,
-        description: action.description,
-        billable: action.billable,
-        cacheable: action.cacheable,
-      }),
+      extraProps: {
+        ...gen.primitiveRecordToTypescriptValues({
+          title: action.title,
+          description: action.description,
+          billable: action.billable,
+          cacheable: action.cacheable,
+        }),
+        ...(action.attributes ? { attributes: gen.stringifySingleLine(action.attributes) } : undefined),
+      },
     })
 
     const inputModule = new ActionInputModule(action.input)
