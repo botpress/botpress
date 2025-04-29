@@ -64,6 +64,7 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
   billable?: boolean
   cacheable?: boolean
+  attributes?: Record<string, string>
 }
 
 export type StateType = 'integration' | 'conversation' | 'user'

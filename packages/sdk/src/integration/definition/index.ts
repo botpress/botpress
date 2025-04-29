@@ -100,7 +100,7 @@ type ChannelsOfPackage<TPackage extends InterfacePackage> = {
 }
 
 export type ActionOverrideProps = utils.types.AtLeastOneProperty<
-  Pick<Required<ActionDefinition>, 'title' | 'description' | 'billable' | 'cacheable'> & {
+  Pick<Required<ActionDefinition>, 'title' | 'description' | 'billable' | 'cacheable' | 'attributes'> & {
     name: string
   }
 >
