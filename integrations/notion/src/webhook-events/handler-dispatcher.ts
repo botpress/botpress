@@ -1,17 +1,26 @@
 import * as sdk from '@botpress/sdk'
 import * as crypto from 'crypto'
-import { handleOAuthCallback, isOAuthCallback } from './handlers/oauth-callback'
-import { isWebhookVerificationRequest, handleWebhookVerificationRequest } from './handlers/webhook-verification'
+import * as handlers from './handlers'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
-  if (isWebhookVerificationRequest(props)) {
-    return await handleWebhookVerificationRequest(props)
-  } else if (isOAuthCallback(props)) {
-    return await handleOAuthCallback(props)
+  if (handlers.isWebhookVerificationRequest(props)) {
+    return await handlers.handleWebhookVerificationRequest(props)
+  } else if (handlers.isOAuthCallback(props)) {
+    return await handlers.handleOAuthCallback(props)
   }
 
   _validatePayloadSignature(props)
+
+  if (handlers.isDatabaseDeletedEvent(props)) {
+    return await handlers.handleDatabaseDeletedEvent(props)
+  } else if (handlers.isPageCreatedEvent(props)) {
+    return await handlers.handlePageCreatedEvent(props)
+  } else if (handlers.isPageDeletedEvent(props)) {
+    return await handlers.handlePageDeletedEvent(props)
+  } else if (handlers.isPageMovedEvent(props)) {
+    return await handlers.handlePageMovedEvent(props)
+  }
 
   throw new sdk.RuntimeError('Unsupported webhook event')
 }
