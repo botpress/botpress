@@ -9,3 +9,8 @@ export const configurationTypeHeader = 'x-bp-configuration-type'
 export const configurationHeader = 'x-bp-configuration'
 export const operationHeader = 'x-bp-operation'
 export const typeHeader = 'x-bp-type'
+
+export const WELL_KNOWN_ATTRIBUTES = {
+  HIDDEN_IN_STUDIO: { 'x-bp-hidden-in-studio': 'true' },
+  AWAIT_RETURN: { 'x-bp-await-return': 'true' },
+} as const
