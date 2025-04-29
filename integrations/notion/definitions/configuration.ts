@@ -8,7 +8,9 @@ export const configuration = {
   },
 } as const satisfies sdk.IntegrationDefinitionProps['configuration']
 
-export const identifier = {} as const satisfies sdk.IntegrationDefinitionProps['identifier']
+export const identifier = {
+  extractScript: 'extract.vrl',
+} as const satisfies sdk.IntegrationDefinitionProps['identifier']
 
 export const configurations = {
   customApp: {
