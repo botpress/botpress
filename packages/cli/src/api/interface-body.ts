@@ -49,6 +49,18 @@ export const prepareUpdateInterfaceBody = (
   remoteInterface: client.Interface
 ): types.UpdateInterfaceRequestBody => {
   const actions = utils.records.setNullOnMissingValues(localInterface.actions, remoteInterface.actions)
+
+  for (const [actionName, action] of Object.entries(actions)) {
+    if (!action || !remoteInterface.actions[actionName]) {
+      continue
+    }
+
+    action.attributes = utils.records.setNullOnMissingValues(
+      action.attributes,
+      remoteInterface.actions[actionName].attributes
+    )
+  }
+
   const events = utils.records.setNullOnMissingValues(localInterface.events, remoteInterface.events)
   const entities = utils.records.setNullOnMissingValues(localInterface.entities, remoteInterface.entities)
 
