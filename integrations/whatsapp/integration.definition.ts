@@ -22,7 +22,7 @@ const TagsForCreatingConversation = {
   templateLanguage: {
     title: 'Message Template language (optional)',
     description:
-      'Language of the Whatsapp Message Template to start the conversation with. Defaults to "en_US" (U.S. English).',
+      'Language of the Whatsapp Message Template to start the conversation with. Defaults to "en" (English).',
   },
   templateVariables: {
     title: 'Message Template variables (optional)',
@@ -41,7 +41,7 @@ const commonConfigSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '3.0.0',
+  version: '3.0.1',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',

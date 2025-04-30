@@ -28,7 +28,7 @@ export async function startConversation(
   }
 ): Promise<Pick<Conversation, 'id'>> {
   const { channel, phoneNumberId, userPhone, templateName, templateVariablesJson } = params
-  const templateLanguage = params.templateLanguage || 'en_US'
+  const templateLanguage = params.templateLanguage || 'en'
 
   const { client, ctx, logger } = dependencies
 
