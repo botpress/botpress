@@ -32,7 +32,7 @@ const messageSchema = sdk.z.union(messagePayloadSchemas as Tuple<sdk.AnyZodObjec
 
 export default new sdk.InterfaceDefinition({
   name: 'hitl',
-  version: '1.0.0',
+  version: '1.1.0',
   entities: {},
   events: {
     hitlAssigned: {
@@ -156,6 +156,7 @@ export default new sdk.InterfaceDefinition({
         audio: withUserId(sdk.messages.defaults.audio),
         video: withUserId(sdk.messages.defaults.video),
         file: withUserId(sdk.messages.defaults.file),
+        bloc: withUserId(sdk.messages.defaults.bloc),
       },
     },
   },
