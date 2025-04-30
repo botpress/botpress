@@ -11,6 +11,6 @@ export const operationHeader = 'x-bp-operation'
 export const typeHeader = 'x-bp-type'
 
 export const WELL_KNOWN_ATTRIBUTES = {
-  HIDDEN_IN_STUDIO: { 'x-bp-hidden-in-studio': 'true' },
-  AWAIT_RETURN: { 'x-bp-await-return': 'true' },
+  HIDDEN_IN_STUDIO: { bpActionHiddenInStudio: 'true' },
+  AWAIT_RETURN: { bpActionAwaitReturn: 'true' },
 } as const
