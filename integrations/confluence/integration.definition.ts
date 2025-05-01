@@ -1,4 +1,4 @@
-import { IntegrationDefinition, z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 
 import creatable from './bp_modules/creatable'
 import deletable from './bp_modules/deletable'
@@ -7,7 +7,7 @@ import readable from './bp_modules/readable'
 import updatable from './bp_modules/updatable'
 import { entities } from './definitions'
 
-export default new IntegrationDefinition({
+export default new sdk.IntegrationDefinition({
   name: 'confluence',
   version: '3.2.0',
   readme: 'hub.md',
@@ -16,9 +16,9 @@ export default new IntegrationDefinition({
   description: 'Manage your files and folders effortlessly.',
   configuration: {
     schema: z.object({
-      host: z.string().describe('Host URI. Format is https://your_workspace_name.atlassian.net').title('Host'),
-      user: z.string().describe('Email of the user').title('User Email'),
-      apiToken: z.string().describe('API Token').title('API Token'),
+      host: sdk.z.string().describe('Host URI. Format is https://your_workspace_name.atlassian.net').title('Host'),
+      user: sdk.z.string().describe('Email of the user').title('User Email'),
+      apiToken: sdk.z.string().describe('API Token').title('API Token'),
     }),
   },
   actions: {},
@@ -34,8 +34,8 @@ export default new IntegrationDefinition({
       },
       messages: {
         text: {
-          schema: z.object({
-            text: z.string(),
+          schema: sdk.z.object({
+            text: sdk.z.string(),
           }),
         },
       },
@@ -69,7 +69,13 @@ export default new IntegrationDefinition({
   .extend(filesReadonly, ({}) => ({
     entities: {},
     actions: {
-      listItemsInFolder: { name: 'filesReadonlyListItemsInFolder' },
-      transferFileToBotpress: { name: 'filesReadonlyTransferFileToBotpress' },
+      listItemsInFolder: {
+        name: 'filesReadonlyListItemsInFolder',
+        attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+      },
+      transferFileToBotpress: {
+        name: 'filesReadonlyTransferFileToBotpress',
+        attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+      },
     },
   }))

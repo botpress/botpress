@@ -1,5 +1,5 @@
 export * as messages from './message'
-export * from './const'
+export * from './public-consts'
 export * from './serve'
 export * from './zui'
 
