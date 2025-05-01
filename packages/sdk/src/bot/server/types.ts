@@ -74,6 +74,17 @@ type _OutgoingCallActionResponses<TBot extends common.BaseBot> = {
   >
 }
 
+type _IncomingCallActionRequest<TBot extends common.BaseBot> = {
+  [K in utils.StringKeys<TBot['actions']>]: utils.Merge<
+    client.ClientInputs['callAction'],
+    { type: K; input: TBot['actions'][K]['input'] }
+  >
+}
+
+type _IncomingCallActionResponses<TBot extends common.BaseBot> = {
+  [K in utils.StringKeys<TBot['actions']>]: { output: TBot['actions'][K]['output'] }
+}
+
 export type AnyIncomingEvent<TBot extends common.BaseBot> = utils.ValueOf<_IncomingEvents<TBot>>
 export type AnyIncomingMessage<TBot extends common.BaseBot> = utils.ValueOf<_IncomingMessages<TBot>>
 export type AnyOutgoingMessageRequest<TBot extends common.BaseBot> = utils.ValueOf<_OutgoingMessageRequests<TBot>>
@@ -81,6 +92,10 @@ export type AnyOutgoingMessageResponse<TBot extends common.BaseBot> = utils.Valu
 export type AnyOutgoingCallActionRequest<TBot extends common.BaseBot> = utils.ValueOf<_OutgoingCallActionRequests<TBot>>
 export type AnyOutgoingCallActionResponse<TBot extends common.BaseBot> = utils.ValueOf<
   _OutgoingCallActionResponses<TBot>
+>
+export type AnyIncomingCallActionRequest<TBot extends common.BaseBot> = utils.ValueOf<_IncomingCallActionRequest<TBot>>
+export type AnyIncomingCallActionResponse<TBot extends common.BaseBot> = utils.ValueOf<
+  _IncomingCallActionResponses<TBot>
 >
 
 export type IncomingEvents<TBot extends common.BaseBot> = _IncomingEvents<TBot> & {
@@ -103,6 +118,12 @@ export type OutgoingCallActionRequests<TBot extends common.BaseBot> = _OutgoingC
 }
 export type OutgoingCallActionResponses<TBot extends common.BaseBot> = _OutgoingCallActionResponses<TBot> & {
   '*': AnyOutgoingCallActionResponse<TBot>
+}
+export type IncomingCallActionRequest<TBot extends common.BaseBot> = _IncomingCallActionRequest<TBot> & {
+  '*': AnyIncomingCallActionRequest<TBot>
+}
+export type IncomingCallActionResponses<TBot extends common.BaseBot> = _IncomingCallActionResponses<TBot> & {
+  '*': AnyIncomingCallActionResponse<TBot>
 }
 
 export type BotClient<TBot extends common.BaseBot> = BotSpecificClient<TBot>
@@ -216,8 +237,6 @@ type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = 
  *   - after_register
  *   - before_state_expired
  *   - after_state_expired
- *   - before_incoming_call_action
- *   - after_incoming_call_action
  */
 export type HookDefinitions<TBot extends common.BaseBot> = {
   before_incoming_event: HookDefinition<{
@@ -236,6 +255,10 @@ export type HookDefinitions<TBot extends common.BaseBot> = {
     stoppable: false
     data: _OutgoingCallActionRequests<TBot> & { '*': AnyOutgoingCallActionRequest<TBot> }
   }>
+  before_incoming_call_action: HookDefinition<{
+    stoppable: false
+    data: _IncomingCallActionRequest<TBot> & { '*': AnyIncomingCallActionRequest<TBot> }
+  }>
   after_incoming_event: HookDefinition<{
     stoppable: true
     data: _IncomingEvents<TBot> & { '*': AnyIncomingEvent<TBot> }
@@ -251,6 +274,10 @@ export type HookDefinitions<TBot extends common.BaseBot> = {
   after_outgoing_call_action: HookDefinition<{
     stoppable: false
     data: _OutgoingCallActionResponses<TBot> & { '*': AnyOutgoingCallActionResponse<TBot> }
+  }>
+  after_incoming_call_action: HookDefinition<{
+    stoppable: false
+    data: _IncomingCallActionResponses<TBot> & { '*': AnyIncomingCallActionResponse<TBot> }
   }>
 }
 

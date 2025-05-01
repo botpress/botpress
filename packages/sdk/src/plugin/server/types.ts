@@ -62,12 +62,30 @@ type _OutgoingCallActionResponses<TPlugin extends common.BasePlugin> = {
   >
 }
 
+type _IncomingCallActionRequest<TPlugin extends common.BasePlugin> = {
+  [K in utils.StringKeys<TPlugin['actions']>]: utils.Merge<
+    client.ClientInputs['callAction'],
+    { type: K; input: TPlugin['actions'][K]['input'] }
+  >
+}
+
+type _IncomingCallActionResponses<TPlugin extends common.BasePlugin> = {
+  [K in utils.StringKeys<TPlugin['actions']>]: { output: TPlugin['actions'][K]['output'] }
+}
+
 export type AnyIncomingEvent<_TPlugin extends common.BasePlugin> = client.Event
 export type AnyIncomingMessage<_TPlugin extends common.BasePlugin> = client.Message
 export type AnyOutgoingMessageRequest<_TPlugin extends common.BasePlugin> = client.ClientInputs['createMessage']
 export type AnyOutgoingMessageResponse<_TPlugin extends common.BasePlugin> = client.ClientOutputs['createMessage']
 export type AnyOutgoingCallActionRequest<_TPlugin extends common.BasePlugin> = client.ClientInputs['callAction']
 export type AnyOutgoingCallActionResponse<_TPlugin extends common.BasePlugin> = client.ClientOutputs['callAction']
+export type AnyIncomingCallActionRequest<_TPlugin extends common.BasePlugin> = {
+  type: string
+  input: Record<string, unknown>
+}
+export type AnyIncomingCallActionResponse<_TPlugin extends common.BasePlugin> = {
+  output: Record<string, unknown>
+}
 
 export type IncomingEvents<TPlugin extends common.BasePlugin> = _IncomingEvents<TPlugin> & {
   '*': AnyIncomingEvent<TPlugin>
@@ -89,6 +107,12 @@ export type OutgoingCallActionRequests<TPlugin extends common.BasePlugin> = _Out
 }
 export type OutgoingCallActionResponses<TPlugin extends common.BasePlugin> = _OutgoingCallActionResponses<TPlugin> & {
   '*': AnyOutgoingCallActionResponse<TPlugin>
+}
+export type IncomingCallActionRequest<TPlugin extends common.BasePlugin> = _IncomingCallActionRequest<TPlugin> & {
+  '*': AnyIncomingCallActionRequest<TPlugin>
+}
+export type IncomingCallActionResponse<TPlugin extends common.BasePlugin> = _IncomingCallActionResponses<TPlugin> & {
+  '*': AnyIncomingCallActionResponse<TPlugin>
 }
 
 // TODO: some ressources should be strongly type while leaving room for unknown definitions
@@ -211,6 +235,10 @@ export type HookDefinitions<TPlugin extends common.BasePlugin> = {
     stoppable: false
     data: _OutgoingCallActionRequests<TPlugin> & { '*': AnyOutgoingCallActionRequest<TPlugin> }
   }>
+  before_incoming_call_action: HookDefinition<{
+    stoppable: true
+    data: _IncomingCallActionRequest<TPlugin> & { '*': AnyIncomingCallActionRequest<TPlugin> }
+  }>
   after_incoming_event: HookDefinition<{
     stoppable: true
     data: _IncomingEvents<TPlugin> & { '*': AnyIncomingEvent<TPlugin> }
@@ -226,6 +254,10 @@ export type HookDefinitions<TPlugin extends common.BasePlugin> = {
   after_outgoing_call_action: HookDefinition<{
     stoppable: false
     data: _OutgoingCallActionResponses<TPlugin> & { '*': AnyOutgoingCallActionResponse<TPlugin> }
+  }>
+  after_incoming_call_action: HookDefinition<{
+    stoppable: true
+    data: _IncomingCallActionResponses<TPlugin> & { '*': AnyIncomingCallActionResponse<TPlugin> }
   }>
 }
 

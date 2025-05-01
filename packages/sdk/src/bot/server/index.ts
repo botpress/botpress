@@ -249,19 +249,44 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
 
 const onActionTriggered = async ({ ctx, logger, req, client, self }: types.ServerProps): Promise<Response> => {
   type AnyActionPayload = utils.ValueOf<types.ActionHandlerPayloads<common.BaseBot>>
-  const { input, type } = parseBody<AnyActionPayload>(req)
+  let { input, type } = parseBody<AnyActionPayload>(req)
 
   if (!type) {
     throw new Error('Missing action type')
   }
 
-  const action = self.actionHandlers[type]
+  // TODO: how to make this run even when the action is called in-memory?
+  const beforeIncomingCallActionHooks = self.hookHandlers.before_incoming_call_action[type] ?? []
+  for (const handler of beforeIncomingCallActionHooks) {
+    const hookOutput = await handler({
+      ctx,
+      logger,
+      client,
+      data: input,
+      ..._getBotTools({ client }),
+    })
+    input = hookOutput?.data?.input ?? input
+    type = hookOutput?.data?.type ?? type
+  }
 
+  const action = self.actionHandlers[type]
   if (!action) {
     throw new Error(`Action ${type} not found`)
   }
 
-  const output = await action({ ctx, logger, input, client, type, ..._getBotTools({ client }) })
+  let output = await action({ ctx, logger, input, client, type, ..._getBotTools({ client }) })
+
+  const afterIncomingCallActionHooks = self.hookHandlers.after_incoming_call_action[type] ?? []
+  for (const handler of afterIncomingCallActionHooks) {
+    const hookOutput = await handler({
+      ctx,
+      logger,
+      client,
+      data: output,
+      ..._getBotTools({ client }),
+    })
+    output = hookOutput?.data ?? output
+  }
 
   const response = { output }
   return {

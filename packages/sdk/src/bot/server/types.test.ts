@@ -45,6 +45,122 @@ test('MessageRequest with base bot should be any record', () => {
   >
 })
 
+test('IncomingCallActionRequest with FooBarBazBot should be strict type', () => {
+  type Actual = types.IncomingCallActionRequest<FooBarBazBot>
+  type Expected = {
+    act: {
+      type: 'act'
+      input: { arguments: Record<string, unknown> }
+    }
+    do: {
+      type: 'do'
+      input: { parameters: Record<string, number> }
+    }
+    '*':
+      | {
+          type: 'act'
+          input: { arguments: Record<string, unknown> }
+        }
+      | {
+          type: 'do'
+          input: { parameters: Record<string, number> }
+        }
+  }
+
+  type _assertion = utils.AssertAll<
+    [
+      utils.AssertExtends<Actual, Expected>,
+      utils.AssertExtends<Expected, Actual>,
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
+    ]
+  >
+})
+
+test('IncomingCallActionRequest with EmptyBot should be never', () => {
+  type Actual = types.IncomingCallActionRequest<EmptyBot>
+  type Expected = {
+    '*': never
+  }
+  type _assertion = utils.AssertAll<
+    [
+      utils.AssertExtends<Actual, Expected>,
+      utils.AssertExtends<Expected, Actual>,
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
+    ]
+  >
+})
+
+test('IncomingCallActionRequest with BaseBot should be record', () => {
+  type Actual = types.IncomingCallActionRequest<common.BaseBot>
+  type Expected = {
+    [key: string]: { type: string; input: any }
+    '*': { type: string; input: any }
+  }
+  type _assertion = utils.AssertAll<
+    [
+      utils.AssertExtends<Actual, Expected>,
+      utils.AssertExtends<Expected, Actual>,
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
+    ]
+  >
+})
+
+test('IncomingCallActionResponses with FooBarBazBot should be strict type', () => {
+  type Actual = types.IncomingCallActionResponses<FooBarBazBot>
+  type Expected = {
+    act: {
+      output: { result: unknown }
+    }
+    do: {
+      output: { result: number }
+    }
+    '*':
+      | {
+          output: { result: unknown }
+        }
+      | {
+          output: { result: number }
+        }
+  }
+
+  type _assertion = utils.AssertAll<
+    [
+      utils.AssertExtends<Actual, Expected>,
+      utils.AssertExtends<Expected, Actual>,
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
+    ]
+  >
+})
+
+test('IncomingCallActionResponses with EmptyBot should be never', () => {
+  type Actual = types.IncomingCallActionResponses<EmptyBot>
+  type Expected = {
+    '*': never
+  }
+  type _assertion = utils.AssertAll<
+    [
+      utils.AssertExtends<Actual, Expected>,
+      utils.AssertExtends<Expected, Actual>,
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
+    ]
+  >
+})
+
+test('IncomingCallActionResponses with BaseBot should be record', () => {
+  type Actual = types.IncomingCallActionResponses<common.BaseBot>
+  type Expected = {
+    [key: string]: { output: any }
+    '*': { output: any }
+  }
+  type _assertion = utils.AssertAll<
+    [
+      utils.AssertExtends<Actual, Expected>,
+      utils.AssertExtends<Expected, Actual>,
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
+    ]
+  >
+})
+
 test('Bot should only require to implement actions that are not already implemented by plugins', () => {
   type DoSomethingPlugin = plugin.DefaultPlugin<{
     actions: {
@@ -68,7 +184,7 @@ test('Bot should only require to implement actions that are not already implemen
   type ActualUnimplementedActions = types.UnimplementedActionHandlers<FooBarBazBot, Plugins>
 
   type ExpectedImplementedActions = 'doSomething' | 'makeSomething'
-  type ExpectedUnimplementedActions = 'act'
+  type ExpectedUnimplementedActions = 'act' | 'do'
 
   type _assertion = utils.AssertAll<
     [
