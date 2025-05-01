@@ -37,6 +37,7 @@ type GenericActionDefinition<
   cacheable?: boolean
   input: { schema: GenericZuiSchema<EntityReferences<TEntities>, TAction> }
   output: { schema: GenericZuiSchema<EntityReferences<TEntities>, ZuiObjectSchema> }
+  attributes?: Record<string, string>
 }
 
 export type InterfaceDefinitionProps<

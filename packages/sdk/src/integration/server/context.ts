@@ -7,7 +7,7 @@ import {
   integrationIdHeader,
   operationHeader,
   webhookIdHeader,
-} from '../../const'
+} from '../../consts'
 import { IntegrationContext } from './types'
 
 export const integrationOperationSchema = z.enum([

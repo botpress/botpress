@@ -5,8 +5,8 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "1.5.0",
-    "@botpress/sdk": "4.0.7"
+    "@botpress/client": "1.6.0",
+    "@botpress/sdk": "4.1.0"
   },
   "devDependencies": {
     "@types/node": "^18.19.67",
