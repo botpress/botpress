@@ -9,14 +9,12 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
   })
 
   // Always make sure a bot is dissociated from WhatsApp conversations once the configuration type changes
-  // TODO: Should this be done automatically in the backend?
   const configureIntegrationProps: Parameters<typeof props.client.configureIntegration>[0] = {
     sandboxIdentifiers: null,
   }
   // Ensure that requests sent to a profile associated with a bot via OAuth are not received by the bot
-  // TODO: Should this also be done automatically in the backend?
   if (props.ctx.configurationType === 'sandbox') {
-    configureIntegrationProps.identifier = undefined // FIXME: This doesn't remove the identifier
+    configureIntegrationProps.identifier = null
   }
   await props.client.configureIntegration(configureIntegrationProps)
   if (props.ctx.configurationType !== 'manual') {
