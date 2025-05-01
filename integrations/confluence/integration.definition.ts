@@ -9,7 +9,7 @@ import { entities } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'confluence',
-  version: '3.1.0',
+  version: '3.2.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   title: 'Confluence',
@@ -19,7 +19,6 @@ export default new IntegrationDefinition({
       host: z.string().describe('Host URI. Format is https://your_workspace_name.atlassian.net').title('Host'),
       user: z.string().describe('Email of the user').title('User Email'),
       apiToken: z.string().describe('API Token').title('API Token'),
-      webhookUrl: z.string().describe('The url to post the bot answers to.').title('Webhook URL'),
     }),
   },
   actions: {},
