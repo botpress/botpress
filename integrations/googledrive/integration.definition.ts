@@ -1,4 +1,4 @@
-import { IntegrationDefinition, z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import filesReadonly from './bp_modules/files-readonly'
 import {
@@ -20,18 +20,18 @@ import {
   fileChannelSchema,
 } from './src/schemas'
 
-export default new IntegrationDefinition({
+export default new sdk.IntegrationDefinition({
   name: 'googledrive',
   title: 'Google Drive',
   description: 'Access and manage your Google Drive files from your bot.',
-  version: '0.1.0',
+  version: '0.1.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
-    schema: z.object({}),
+    schema: sdk.z.object({}),
   },
   actions: {
     listFiles: {
@@ -97,7 +97,7 @@ export default new IntegrationDefinition({
         schema: deleteFileArgSchema,
       },
       output: {
-        schema: z.object({}),
+        schema: sdk.z.object({}),
       },
     },
     uploadFileData: {
@@ -107,7 +107,7 @@ export default new IntegrationDefinition({
         schema: uploadFileDataArgSchema,
       },
       output: {
-        schema: z.object({}),
+        schema: sdk.z.object({}),
       },
     },
     downloadFileData: {
@@ -124,10 +124,10 @@ export default new IntegrationDefinition({
       title: 'Sync Channels',
       description: 'Sync channels for file change subscriptions',
       input: {
-        schema: z.object({}),
+        schema: sdk.z.object({}),
       },
       output: {
-        schema: z.object({}),
+        schema: sdk.z.object({}),
       },
     },
   },
@@ -156,8 +156,8 @@ export default new IntegrationDefinition({
   states: {
     configuration: {
       type: 'integration',
-      schema: z.object({
-        refreshToken: z
+      schema: sdk.z.object({
+        refreshToken: sdk.z
           .string()
           .title('Refresh token')
           .describe('The refresh token to use to authenticate with Google. It gets exchanged for a bearer token'),
@@ -165,18 +165,18 @@ export default new IntegrationDefinition({
     },
     filesCache: {
       type: 'integration',
-      schema: z.object({
-        filesCache: z
-          .record(z.string(), baseDiscriminatedFileSchema)
+      schema: sdk.z.object({
+        filesCache: sdk.z
+          .record(sdk.z.string(), baseDiscriminatedFileSchema)
           .title('Files cache')
           .describe('Map of known files'),
       }),
     },
     filesChannelsCache: {
       type: 'integration',
-      schema: z.object({
-        filesChannelsCache: z
-          .record(z.string(), fileChannelSchema)
+      schema: sdk.z.object({
+        filesChannelsCache: sdk.z
+          .record(sdk.z.string(), fileChannelSchema)
           .title('Files change subscription channels')
           .describe('Serialized set of channels for file change subscriptions'),
       }),
@@ -197,8 +197,14 @@ export default new IntegrationDefinition({
 }).extend(filesReadonly, ({}) => ({
   entities: {},
   actions: {
-    listItemsInFolder: { name: 'filesReadonlyListItemsInFolder' },
-    transferFileToBotpress: { name: 'filesReadonlyTransferFileToBotpress' },
+    listItemsInFolder: {
+      name: 'filesReadonlyListItemsInFolder',
+      attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+    },
+    transferFileToBotpress: {
+      name: 'filesReadonlyTransferFileToBotpress',
+      attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+    },
   },
   events: {
     fileCreated: { name: 'filesReadonlyFileCreated' },

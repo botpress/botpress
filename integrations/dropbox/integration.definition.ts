@@ -1,11 +1,11 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import filesReadonly from './bp_modules/files-readonly'
 import { actions, configuration, entities, secrets, states } from './definitions'
 
-export default new IntegrationDefinition({
+export default new sdk.IntegrationDefinition({
   name: 'dropbox',
   title: 'Dropbox',
-  version: '1.1.1',
+  version: '1.1.2',
   description: 'Manage your files and folders effortlessly.',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -17,7 +17,13 @@ export default new IntegrationDefinition({
 }).extend(filesReadonly, ({}) => ({
   entities: {},
   actions: {
-    listItemsInFolder: { name: 'filesReadonlyListItemsInFolder' },
-    transferFileToBotpress: { name: 'filesReadonlyTransferFileToBotpress' },
+    listItemsInFolder: {
+      name: 'filesReadonlyListItemsInFolder',
+      attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+    },
+    transferFileToBotpress: {
+      name: 'filesReadonlyTransferFileToBotpress',
+      attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+    },
   },
 }))
