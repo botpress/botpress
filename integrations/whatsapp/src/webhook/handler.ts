@@ -3,6 +3,7 @@ import * as crypto from 'crypto'
 import { getClientSecret } from 'src/auth'
 import { messagesHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
+import { isSandboxCommand, sandboxHandler } from './handlers/sandbox'
 import { subscribeHandler } from './handlers/subscribe'
 import * as bp from '.botpress'
 
@@ -10,6 +11,10 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   const { req } = props
   if (req.path.startsWith('/oauth')) {
     return await oauthCallbackHandler(props)
+  }
+
+  if (isSandboxCommand(props)) {
+    return await sandboxHandler(props)
   }
 
   props.logger.debug('Received request with body:', req.body ?? '[empty]')
