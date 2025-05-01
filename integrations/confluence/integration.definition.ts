@@ -15,7 +15,7 @@ export default new sdk.IntegrationDefinition({
   title: 'Confluence',
   description: 'Manage your files and folders effortlessly.',
   configuration: {
-    schema: z.object({
+    schema: sdk.z.object({
       host: sdk.z.string().describe('Host URI. Format is https://your_workspace_name.atlassian.net').title('Host'),
       user: sdk.z.string().describe('Email of the user').title('User Email'),
       apiToken: sdk.z.string().describe('API Token').title('API Token'),
