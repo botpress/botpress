@@ -1,7 +1,7 @@
 import { Client } from '@botpress/client'
 import { getBigCommerceClient, BigCommerceClient } from '../client'
-import { PRODUCT_TABLE_SCHEMA, PRODUCTS_TABLE_NAME as PRODUCT_TABLE } from '../schemas/products'
 import { getProductImageUrl, BigCommerceProductImage, stripHtmlTags } from '../index'
+import { PRODUCT_TABLE_SCHEMA, PRODUCTS_TABLE_NAME as PRODUCT_TABLE } from '../schemas/products'
 import * as bp from '.botpress'
 
 type BigCommerceProduct = {

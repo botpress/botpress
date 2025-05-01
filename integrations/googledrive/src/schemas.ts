@@ -16,6 +16,8 @@ export const commonFileAttrSchema = z.object({
 
 export const baseNormalFileSchema = commonFileAttrSchema.extend({
   size: z.number().nonnegative().describe('The size in bytes of the file'),
+  contentHash: z.string().optional().describe('The hash of the file content, or version/revision number'),
+  lastModifiedDate: z.string().datetime().optional().describe('The last modified date of the file in RFC 3339 format'),
 })
 
 export const baseFolderFileSchema = commonFileAttrSchema.extend({

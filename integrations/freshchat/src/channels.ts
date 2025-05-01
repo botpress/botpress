@@ -104,6 +104,52 @@ export const channels = {
           })
         }
       ),
+
+      bloc: wrapChannel(
+        { channelName: 'hitl', messageType: 'bloc' },
+        async ({ ack, payload, freshchatClient, freshchatUserId, freshchatConversationId }) => {
+          for (const item of payload.items) {
+            switch (item.type) {
+              case 'text':
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, item.payload.text)
+                break
+              case 'markdown':
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, item.payload.markdown)
+                break
+              case 'image':
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, item.payload.imageUrl)
+                break
+              case 'video':
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, item.payload.videoUrl)
+                break
+              case 'audio':
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, item.payload.audioUrl)
+                break
+              case 'file':
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, item.payload.fileUrl)
+                break
+              case 'location':
+                const { title, address, latitude, longitude } = item.payload
+                const messageParts = []
+
+                if (title) {
+                  messageParts.push(title, '')
+                }
+                if (address) {
+                  messageParts.push(address, '')
+                }
+                messageParts.push(`Latitude: ${latitude}`, `Longitude: ${longitude}`)
+
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, messageParts.join('\n'))
+                break
+              default:
+                item satisfies never
+            }
+          }
+
+          await ack({ tags: {} })
+        }
+      ),
     },
   },
 } satisfies bp.IntegrationProps['channels']

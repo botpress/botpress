@@ -7,7 +7,7 @@ import { actions, events, configuration, channels, states, user } from './src/de
 export default new IntegrationDefinition({
   name: 'zendesk',
   title: 'Zendesk',
-  version: '2.0.1',
+  version: '2.1.0',
   icon: 'icon.svg',
   description:
     'Optimize your support workflow. Trigger workflows from ticket updates as well as manage tickets, access conversations, and engage with customers.',

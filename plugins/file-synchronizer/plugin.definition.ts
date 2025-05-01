@@ -51,7 +51,7 @@ const FILE_FILTER_PROPS = {
 
 export default new sdk.PluginDefinition({
   name: 'file-synchronizer',
-  version: '0.5.0',
+  version: '0.5.2',
   title: 'File Synchronizer',
   description: 'Synchronize files from external services to Botpress',
   icon: 'icon.svg',

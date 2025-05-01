@@ -69,7 +69,7 @@
                       "type": "mention",
                       "attrs": {
                         "id": "70121:29631700-ff93-4041-90ae-06e63683e093",
-                        "text": "@Quentin Ackermann"
+                        "text": "@Michael Masson"
                       }
                     }
                   ]
@@ -994,7 +994,7 @@
         {
           "type": "inlineCard",
           "attrs": {
-            "url": "https://ackermannquentin.atlassian.net/wiki/pages/resumedraft.action?draftId=131178"
+            "url": "https://botpress.atlassian.net/wiki/pages/resumedraft.action?draftId=131178"
           }
         }
       ]

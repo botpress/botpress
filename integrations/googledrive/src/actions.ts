@@ -1,11 +1,12 @@
-import { RuntimeError } from '@botpress/sdk'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import { Stream } from 'stream'
 import { Client as DriveClient } from './client'
 import { wrapWithTryCatch } from './error-handling'
 import { FileChannelsCache } from './file-channels-cache'
 import { FileEventHandler } from './file-event-handler'
+import { downloadToBotpress } from './files-api-utils'
 import { FilesCache } from './files-cache'
+import { filesReadonlyActions } from './files-readonly/actions'
 import * as bp from '.botpress'
 
 type ActionPropsAndTools<T extends bp.AnyActionProps> = {
@@ -109,42 +110,17 @@ const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = wra
   const props = await createActionPropsAndTools(baseProps)
   const { driveClient, input } = props
   const { id, index } = input
-  const content = await driveClient.downloadFileData({ id })
-  const { mimeType, dataSize, dataType, data } = content
-  const uploadParams = {
-    key: id,
-    contentType: mimeType,
-    index,
-  }
-  let bpFileId: string
-  if (dataType === 'stream') {
-    const upsertResp = await props.client.upsertFile({
-      ...uploadParams,
-      size: dataSize,
-    })
-    const { uploadUrl } = upsertResp.file
-    bpFileId = upsertResp.file.id
-    const headers = {
-      'Content-Type': mimeType,
-      'Content-Length': dataSize,
-    }
-    await axios
-      .put(uploadUrl, data, {
-        maxBodyLength: dataSize,
-        headers,
-      })
-      .catch((reason: AxiosError) => {
-        throw new RuntimeError(`Error uploading file stream to ${uploadUrl}: ${reason}`)
-      })
-  } else {
-    const uploadResp = await props.client.uploadFile({
-      ...uploadParams,
-      content: data,
-    })
-    bpFileId = uploadResp.file.id
-  }
+
+  const { botpressFileId } = await downloadToBotpress({
+    botpressFileKey: id,
+    googleDriveFileId: id,
+    client: props.client,
+    driveClient,
+    indexFile: index,
+  })
+
   await saveAllCaches(props)
-  return { bpFileId }
+  return { bpFileId: botpressFileId }
 }, 'Error downloading file')
 
 const syncChannels: bp.IntegrationProps['actions']['syncChannels'] = wrapWithTryCatch(async (baseProps) => {
@@ -167,4 +143,6 @@ export default {
   uploadFileData,
   downloadFileData,
   syncChannels,
+
+  ...filesReadonlyActions,
 } as const satisfies bp.IntegrationProps['actions']

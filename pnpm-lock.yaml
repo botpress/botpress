@@ -12,8 +12,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.4.0
-        version: 1.4.0(openapi-types@12.1.3)
+        specifier: 1.8.0
+        version: 1.8.0(openapi-types@12.1.3)
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -580,6 +580,13 @@ importers:
       axios:
         specifier: 1.8.4
         version: 1.8.4
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
+    devDependencies:
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
 
   integrations/dalle:
     dependencies:
@@ -1889,10 +1896,10 @@ importers:
         specifier: 0.5.1
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.6.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.0.6
+        specifier: 4.1.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2001,10 +2008,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.6.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.6
+        specifier: 4.1.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2017,10 +2024,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.6.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.6
+        specifier: 4.1.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2033,7 +2040,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.0.6
+        specifier: 4.1.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2046,10 +2053,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.6.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.6
+        specifier: 4.1.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2062,10 +2069,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.6.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.6
+        specifier: 4.1.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2164,7 +2171,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.6.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^0.13.5
@@ -2195,7 +2202,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.6.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2238,7 +2245,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.15
+        specifier: 0.1.16
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -4129,8 +4136,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@1.4.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-0XEDsikprP3/ngt6spiS323dQ2wy+MyhdCfHKvR5HMhw9xdOf94rh16y3vlynC9dL7fJVcq6NXlIfp8nexFEEg==}
+  /@botpress/api@1.8.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-xZ6GY9Grr75mU/xO5EYl/ILEBrc+3J6yqUAu13SsEAEtRZLYZNG/ouI0LrhvTk8BPCHIuUimKzfNUZVOPWZOVA==}
     dependencies:
       '@bpinternal/opapi': 0.14.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -7638,6 +7645,10 @@ packages:
       '@types/node': 18.19.76
     dev: false
 
+  /@types/linkify-it@5.0.0:
+    resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
+    dev: true
+
   /@types/lodash-es@4.17.12:
     resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
     dependencies:
@@ -7652,6 +7663,17 @@ packages:
 
   /@types/mailchimp__mailchimp_marketing@3.0.10:
     resolution: {integrity: sha512-UMeHXH1XQUuj6PBWQzripZhH7ENEFMHiH55aGXKKuqhM29kF//xHWwqazY/zwT8TWKHvXAmIg/MKT8ZM1pFWrw==}
+    dev: true
+
+  /@types/markdown-it@14.1.2:
+    resolution: {integrity: sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==}
+    dependencies:
+      '@types/linkify-it': 5.0.0
+      '@types/mdurl': 2.0.0
+    dev: true
+
+  /@types/mdurl@2.0.0:
+    resolution: {integrity: sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==}
     dev: true
 
   /@types/mime@1.3.2:
@@ -13047,6 +13069,12 @@ packages:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
     dev: true
 
+  /linkify-it@5.0.0:
+    resolution: {integrity: sha512-5aHCbzQRADcdP+ATqnDuhhJ/MRIqDkZX5pyjFHRRysS8vZ5AbqGEoFIb6pYHPZ+L/OC2Lc+xT8uHVVR5CAK/wQ==}
+    dependencies:
+      uc.micro: 2.1.0
+    dev: false
+
   /lint-staged@15.4.3:
     resolution: {integrity: sha512-FoH1vOeouNh1pw+90S+cnuoFwRfUD9ijY2GKy5h7HS3OR7JVir2N2xrsa0+Twc1B7cW72L+88geG5cW4wIhn7g==}
     engines: {node: '>=18.12.0'}
@@ -13293,6 +13321,18 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
+  /markdown-it@14.1.0:
+    resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
+    hasBin: true
+    dependencies:
+      argparse: 2.0.1
+      entities: 4.5.0
+      linkify-it: 5.0.0
+      mdurl: 2.0.0
+      punycode.js: 2.3.1
+      uc.micro: 2.1.0
+    dev: false
+
   /marked@13.0.2:
     resolution: {integrity: sha512-J6CPjP8pS5sgrRqxVRvkCIkZ6MFdRIjDkwUwgJ9nL2fbmM6qGQeB2C16hi8Cc9BOzj6xXzy0jyi0iPIfnMHYzA==}
     engines: {node: '>= 18'}
@@ -13316,6 +13356,10 @@ packages:
     dependencies:
       marked: 7.0.4
       react: 18.3.1
+    dev: false
+
+  /mdurl@2.0.0:
+    resolution: {integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==}
     dev: false
 
   /media-typer@0.3.0:
@@ -14361,6 +14405,11 @@ packages:
     dependencies:
       end-of-stream: 1.4.4
       once: 1.4.0
+    dev: false
+
+  /punycode.js@2.3.1:
+    resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
+    engines: {node: '>=6'}
     dev: false
 
   /punycode@2.3.0:
@@ -16086,6 +16135,10 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true
+
+  /uc.micro@2.1.0:
+    resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
+    dev: false
 
   /uglify-js@3.19.3:
     resolution: {integrity: sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ==}

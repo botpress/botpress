@@ -19,7 +19,16 @@ const Options = z.object({
 declare module '@botpress/zai' {
   interface Zai {
     /** Checks wether a condition is true or not */
-    check(input: unknown, condition: string, options?: Options): Promise<boolean>
+    check(
+      input: unknown,
+      condition: string,
+      options?: Options
+    ): Promise<{
+      /** Whether the condition is true or not */
+      value: boolean
+      /** The explanation of the decision */
+      explanation: string
+    }>
   }
 }
 
@@ -67,7 +76,7 @@ Zai.prototype.check = async function (this: Zai, input, condition, _options) {
 
   const exactMatch = examples.find((x) => x.key === Key)
   if (exactMatch) {
-    return exactMatch.output
+    return { explanation: exactMatch.explanation ?? '', value: exactMatch.output }
   }
 
   const defaultExamples = [
@@ -165,6 +174,13 @@ In your "Analysis", please refer to the Expert Examples # to justify your decisi
   }
 
   let finalAnswer: boolean
+  const explanation = answer
+    .replace(TRUE, '')
+    .replace(FALSE, '')
+    .replace(END, '')
+    .replace('Final Answer:', '')
+    .replace('Analysis:', '')
+    .trim()
 
   if (hasTrue && hasFalse) {
     // If both TRUE and FALSE are present, we need to check which one was answered last
@@ -193,9 +209,12 @@ In your "Analysis", please refer to the Expert Examples # to justify your decisi
         },
       },
       output: finalAnswer,
-      explanation: answer.replace(TRUE, '').replace(FALSE, '').replace(END, '').replace('Final Answer:', '').trim(),
+      explanation,
     })
   }
 
-  return finalAnswer
+  return {
+    value: finalAnswer,
+    explanation: explanation.trim(),
+  }
 }
