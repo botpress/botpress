@@ -59,7 +59,7 @@ const _handleJoinCommand = async (props: bp.HandlerProps) => {
   await whatsapp.sendMessage(
     botPhoneNumberId,
     userPhoneNumber,
-    new Text('Conversation connected to bot. You can now send messages. To disconnect, send "//leave".')
+    new Text('Conversation connected to bot. You can now send messages. To disconnect, send this message: //leave')
   )
   return
 }
@@ -78,7 +78,7 @@ const _handleLeaveCommand = async (props: bp.HandlerProps) => {
   const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
 
   await whatsapp.markAsRead(botPhoneNumberId, message.id)
-  await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, new Text('Conversation disconnected from bot.'))
+  await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, new Text('Conversation disconnected from bot'))
   return
 }
 
