@@ -8,6 +8,7 @@ type TPlugin = sdk.DefaultPlugin<bp.TPlugin>
 export type SyncQueueItem = models.FileWithPath & {
   status: 'pending' | 'newly-synced' | 'already-synced' | 'errored'
   errorMessage?: string
+  shouldIndex: boolean
 }
 export type SyncQueue = SyncQueueItem[]
 

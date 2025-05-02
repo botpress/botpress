@@ -1,8 +1,7 @@
 import * as sdk from '@botpress/sdk'
-import { describe, it, expect, vi, type Mocked, type Mock } from 'vitest'
+import { describe, it, expect, vi, type Mocked } from 'vitest'
 import { processQueueFile, type ProcessFileProps } from './file-processor'
 import type * as types from '../types'
-import { MAX_FILE_SIZE_BYTES } from '../consts'
 
 const FILE_1 = {
   id: 'file1',
@@ -14,6 +13,7 @@ const FILE_1 = {
   contentHash: 'hash1',
   status: 'pending',
   parentId: 'abcde',
+  shouldIndex: false,
 } as const satisfies types.SyncQueueItem
 
 const FILE_2 = {
@@ -26,6 +26,7 @@ const FILE_2 = {
   contentHash: 'hash2',
   status: 'pending',
   parentId: 'abcde',
+  shouldIndex: false,
 } as const satisfies types.SyncQueueItem
 
 const EXISTING_FILE = 'dummy-id'
@@ -64,13 +65,13 @@ describe.concurrent('processQueue', () => {
     mocks.integration.transferFileToBotpress.mockResolvedValueOnce({ botpressFileId: FILE_2.id })
 
     // Act
-    const result = await processQueueFile({
+    const result = processQueueFile({
       fileToSync: FILE_1,
       ...mocks,
     })
 
     // Assert
-    expect(result).toMatchObject({ status: 'already-synced' })
+    await expect(result).resolves.toMatchObject({ status: 'already-synced' })
     expect(mocks.integration.transferFileToBotpress).not.toHaveBeenCalled()
     expect(mocks.fileRepository.deleteFile).not.toHaveBeenCalled()
   })
@@ -94,13 +95,13 @@ describe.concurrent('processQueue', () => {
     mocks.integration.transferFileToBotpress.mockResolvedValueOnce({ botpressFileId: FILE_1.id })
 
     // Act
-    const result = await processQueueFile({
+    const result = processQueueFile({
       fileToSync: FILE_1,
       ...mocks,
     })
 
     // Assert
-    expect(result).toMatchObject({ status: 'newly-synced' })
+    await expect(result).resolves.toMatchObject({ status: 'newly-synced' })
     expect(mocks.fileRepository.deleteFile).toHaveBeenCalledWith({ id: EXISTING_FILE })
     expect(mocks.integration.transferFileToBotpress).toHaveBeenCalledTimes(1)
   })
@@ -122,13 +123,13 @@ describe.concurrent('processQueue', () => {
     })
 
     // Act
-    const result = await processQueueFile({
+    const result = processQueueFile({
       fileToSync: FILE_1,
       ...mocks,
     })
 
     // Assert
-    expect(result).toMatchObject({ status: 'already-synced' })
+    await expect(result).resolves.toMatchObject({ status: 'already-synced' })
     expect(mocks.fileRepository.deleteFile).not.toHaveBeenCalled()
     expect(mocks.integration.transferFileToBotpress).not.toHaveBeenCalled()
   })
@@ -150,13 +151,13 @@ describe.concurrent('processQueue', () => {
     })
 
     // Act
-    const result = await processQueueFile({
+    const result = processQueueFile({
       fileToSync: FILE_1,
       ...mocks,
     })
 
     // Assert
-    expect(result).toMatchObject({ status: 'already-synced' })
+    await expect(result).resolves.toMatchObject({ status: 'already-synced' })
     expect(mocks.fileRepository.deleteFile).not.toHaveBeenCalled()
     expect(mocks.integration.transferFileToBotpress).not.toHaveBeenCalled()
   })
@@ -179,13 +180,13 @@ describe.concurrent('processQueue', () => {
     mocks.integration.transferFileToBotpress.mockResolvedValueOnce({ botpressFileId: FILE_1.id })
 
     // Act
-    const result = await processQueueFile({
+    const result = processQueueFile({
       fileToSync: FILE_1,
       ...mocks,
     })
 
     // Assert
-    expect(result).toMatchObject({ status: 'newly-synced' })
+    await expect(result).resolves.toMatchObject({ status: 'newly-synced' })
     expect(mocks.fileRepository.deleteFile).toHaveBeenCalledWith({ id: EXISTING_FILE })
     expect(mocks.integration.transferFileToBotpress).toHaveBeenCalledTimes(1)
   })
@@ -199,13 +200,13 @@ describe.concurrent('processQueue', () => {
     mocks.integration.transferFileToBotpress.mockRejectedValueOnce(new Error('Transfer failed'))
 
     // Act
-    const result = await processQueueFile({
+    const result = processQueueFile({
       fileToSync: FILE_1,
       ...mocks,
     })
 
     // Assert
-    expect(result).toMatchObject({ status: 'errored', errorMessage: 'Transfer failed' })
+    await expect(result).resolves.toMatchObject({ status: 'errored', errorMessage: 'Transfer failed' })
     expect(mocks.integration.transferFileToBotpress).toHaveBeenCalledTimes(1)
     expect(mocks.fileRepository.updateFileMetadata).not.toHaveBeenCalled()
   })
@@ -217,12 +218,13 @@ describe.concurrent('processQueue', () => {
     mocks.integration.transferFileToBotpress.mockResolvedValueOnce({ botpressFileId: FILE_1.id })
 
     // Act
-    await processQueueFile({
+    const result = processQueueFile({
       fileToSync: FILE_1,
       ...mocks,
     })
 
     // Assert
+    await expect(result).resolves.toMatchObject({ status: 'newly-synced' })
     expect(mocks.fileRepository.updateFileMetadata).toHaveBeenCalledWith({
       id: FILE_1.id,
       tags: {

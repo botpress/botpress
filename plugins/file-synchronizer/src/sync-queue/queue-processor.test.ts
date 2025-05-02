@@ -14,6 +14,7 @@ const FILE_1 = {
   contentHash: 'hash1',
   status: 'pending',
   parentId: 'abcde',
+  shouldIndex: false,
 } as const satisfies types.SyncQueueItem
 
 const FILE_2 = {
@@ -26,6 +27,7 @@ const FILE_2 = {
   contentHash: 'hash2',
   status: 'pending',
   parentId: 'abcde',
+  shouldIndex: false,
 } as const satisfies types.SyncQueueItem
 
 const LARGE_FILE = {
@@ -36,6 +38,7 @@ const LARGE_FILE = {
   sizeInBytes: MAX_FILE_SIZE_BYTES - 200,
   status: 'pending',
   parentId: 'abcde',
+  shouldIndex: false,
 } as const satisfies types.SyncQueueItem
 
 describe.concurrent('processQueue', () => {
@@ -62,13 +65,13 @@ describe.concurrent('processQueue', () => {
     mocks.integration.transferFileToBotpress.mockResolvedValueOnce({ botpressFileId: FILE_2.id })
 
     // Act
-    const result = await processQueue({
+    const result = processQueue({
       syncQueue: [FILE_1, FILE_2],
       ...mocks,
     })
 
     // Assert
-    expect(result).toEqual({ finished: 'all' })
+    await expect(result).resolves.toEqual({ finished: 'all' })
     expect(mocks.integration.transferFileToBotpress).toHaveBeenCalledTimes(2)
     expect(mocks.fileRepository.updateFileMetadata).toHaveBeenCalledTimes(2)
     expect(mocks.updateSyncQueue).toHaveBeenCalledTimes(1)
@@ -87,13 +90,13 @@ describe.concurrent('processQueue', () => {
     mocks.integration.transferFileToBotpress.mockResolvedValueOnce({ botpressFileId: LARGE_FILE.id })
 
     // Act
-    const result = await processQueue({
+    const result = processQueue({
       syncQueue: [FILE_1, LARGE_FILE, FILE_2],
       ...mocks,
     })
 
     // Assert
-    expect(result).toEqual({ finished: 'batch' })
+    await expect(result).resolves.toEqual({ finished: 'batch' })
     expect(mocks.integration.transferFileToBotpress).toHaveBeenCalledTimes(2)
     expect(mocks.updateSyncQueue).toHaveBeenCalledTimes(1)
 
@@ -114,13 +117,13 @@ describe.concurrent('processQueue', () => {
     mocks.integration.transferFileToBotpress.mockResolvedValueOnce({ botpressFileId: FILE_2.id })
 
     // Act
-    const result = await processQueue({
+    const result = processQueue({
       syncQueue: [FILE_1, FILE_2],
       ...mocks,
     })
 
     // Assert
-    expect(result).toEqual({ finished: 'all' })
+    await expect(result).resolves.toEqual({ finished: 'all' })
     expect(mocks.integration.transferFileToBotpress).toHaveBeenCalledTimes(2)
     expect(mocks.fileRepository.updateFileMetadata).toHaveBeenCalledTimes(1)
 
