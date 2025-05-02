@@ -77,15 +77,19 @@ export const botHandler =
           }
           return res
         },
-        callAction: async (res) => {
-          const afterOutgoingCallActionHooks = bot.hookHandlers.after_outgoing_call_action[res.output.type] ?? []
+        callAction: async (res, req) => {
+          const { type } = req
+          const afterOutgoingCallActionHooks = bot.hookHandlers.after_outgoing_call_action[type] ?? []
           for (const handler of afterOutgoingCallActionHooks) {
             const client = new BotSpecificClient(vanillaClient)
             const hookOutput = await handler({
               client,
               ctx,
               logger,
-              data: res,
+              data: {
+                type,
+                ...res,
+              },
               ..._getBotTools({ client }),
             })
             res = hookOutput?.data ?? res

@@ -58,19 +58,16 @@ type _OutgoingCallActionRequests<TPlugin extends common.BasePlugin> = {
 type _OutgoingCallActionResponses<TPlugin extends common.BasePlugin> = {
   [K in utils.StringKeys<bot.EnumerateActionOutputs<TPlugin>>]: utils.Merge<
     client.ClientOutputs['callAction'],
-    { output: bot.EnumerateActionOutputs<TPlugin>[K] }
+    { type: K; output: bot.EnumerateActionOutputs<TPlugin>[K] }
   >
 }
 
 type _IncomingCallActionRequest<TPlugin extends common.BasePlugin> = {
-  [K in utils.StringKeys<TPlugin['actions']>]: utils.Merge<
-    client.ClientInputs['callAction'],
-    { type: K; input: TPlugin['actions'][K]['input'] }
-  >
+  [K in utils.StringKeys<TPlugin['actions']>]: { type: K; input: TPlugin['actions'][K]['input'] }
 }
 
 type _IncomingCallActionResponses<TPlugin extends common.BasePlugin> = {
-  [K in utils.StringKeys<TPlugin['actions']>]: { output: TPlugin['actions'][K]['output'] }
+  [K in utils.StringKeys<TPlugin['actions']>]: { type: K; output: TPlugin['actions'][K]['output'] }
 }
 
 export type AnyIncomingEvent<_TPlugin extends common.BasePlugin> = client.Event

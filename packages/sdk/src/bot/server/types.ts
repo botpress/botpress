@@ -70,19 +70,16 @@ type _OutgoingCallActionRequests<TBot extends common.BaseBot> = {
 type _OutgoingCallActionResponses<TBot extends common.BaseBot> = {
   [K in utils.StringKeys<common.EnumerateActionOutputs<TBot>>]: utils.Merge<
     client.ClientOutputs['callAction'],
-    { output: common.EnumerateActionOutputs<TBot>[K] }
+    { type: K; output: common.EnumerateActionOutputs<TBot>[K] }
   >
 }
 
 type _IncomingCallActionRequest<TBot extends common.BaseBot> = {
-  [K in utils.StringKeys<TBot['actions']>]: utils.Merge<
-    client.ClientInputs['callAction'],
-    { type: K; input: TBot['actions'][K]['input'] }
-  >
+  [K in utils.StringKeys<TBot['actions']>]: { type: K; input: TBot['actions'][K]['input'] }
 }
 
 type _IncomingCallActionResponses<TBot extends common.BaseBot> = {
-  [K in utils.StringKeys<TBot['actions']>]: { output: TBot['actions'][K]['output'] }
+  [K in utils.StringKeys<TBot['actions']>]: { type: K; output: TBot['actions'][K]['output'] }
 }
 
 export type AnyIncomingEvent<TBot extends common.BaseBot> = utils.ValueOf<_IncomingEvents<TBot>>

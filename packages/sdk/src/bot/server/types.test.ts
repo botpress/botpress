@@ -108,17 +108,15 @@ test('IncomingCallActionRequest with BaseBot should be record', () => {
 test('IncomingCallActionResponses with FooBarBazBot should be strict type', () => {
   type Actual = types.IncomingCallActionResponses<FooBarBazBot>
   type Expected = {
-    act: {
-      output: { result: unknown }
-    }
-    do: {
-      output: { result: number }
-    }
+    act: { type: 'act'; output: { result: unknown } }
+    do: { type: 'do'; output: { result: number } }
     '*':
       | {
+          type: 'act'
           output: { result: unknown }
         }
       | {
+          type: 'do'
           output: { result: number }
         }
   }
@@ -149,8 +147,8 @@ test('IncomingCallActionResponses with EmptyBot should be never', () => {
 test('IncomingCallActionResponses with BaseBot should be record', () => {
   type Actual = types.IncomingCallActionResponses<common.BaseBot>
   type Expected = {
-    [key: string]: { output: any }
-    '*': { output: any }
+    [key: string]: { type: string; output: any }
+    '*': { type: string; output: any }
   }
   type _assertion = utils.AssertAll<
     [
