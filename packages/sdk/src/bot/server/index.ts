@@ -259,7 +259,7 @@ const onActionTriggered = async ({ ctx, logger, req, client, self }: types.Serve
     throw new Error('Missing action type')
   }
 
-  // TODO: how to make this run even when the action is called in-memory?
+  // TODO: this should probably run even if the action is called in memory
   const beforeIncomingCallActionHooks = self.hookHandlers.before_incoming_call_action[type] ?? []
   for (const handler of beforeIncomingCallActionHooks) {
     const hookOutput = await handler({
