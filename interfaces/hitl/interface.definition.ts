@@ -32,7 +32,7 @@ const messageSchema = sdk.z.union(messagePayloadSchemas as Tuple<sdk.AnyZodObjec
 
 export default new sdk.InterfaceDefinition({
   name: 'hitl',
-  version: '1.1.1',
+  version: '1.1.2',
   entities: {},
   events: {
     hitlAssigned: {

@@ -2,7 +2,7 @@ import { z, InterfaceDefinition } from '@botpress/sdk'
 
 export default new InterfaceDefinition({
   name: 'proactiveUser',
-  version: '0.0.2',
+  version: '0.0.3',
   entities: {
     user: {
       title: 'User',
