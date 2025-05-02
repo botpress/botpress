@@ -60,6 +60,7 @@ export const filesReadonlyActions = {
       googleDriveFileId: props.input.file.id,
       client: props.client,
       driveClient,
+      indexFile: props.input.shouldIndex,
     })
 
     return { botpressFileId }

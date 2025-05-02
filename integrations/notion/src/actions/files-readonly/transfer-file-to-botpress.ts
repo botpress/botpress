@@ -4,7 +4,7 @@ import * as mapping from '../../files-readonly/mapping'
 
 export const filesReadonlyTransferFileToBotpress = wrapAction(
   { actionName: 'filesReadonlyTransferFileToBotpress', errorMessage: 'Failed to transfer file to Botpress' },
-  async ({ notionClient, client }, { file, fileKey }) => {
+  async ({ notionClient, client }, { file, fileKey, shouldIndex }) => {
     if (!file.id.startsWith(mapping.PREFIXES.PAGE)) {
       throw new sdk.RuntimeError(`Invalid fileId: ${file.id}`)
     }
@@ -15,6 +15,7 @@ export const filesReadonlyTransferFileToBotpress = wrapAction(
     const { file: uploadedFile } = await client.uploadFile({
       key: fileKey,
       content: markdown,
+      index: shouldIndex,
     })
 
     return { botpressFileId: uploadedFile.id }
