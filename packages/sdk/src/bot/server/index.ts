@@ -289,7 +289,8 @@ const onActionTriggered = async ({ ctx, logger, req, client, self }: types.Serve
       data: output,
       ..._getBotTools({ client }),
     })
-    output = hookOutput?.data ?? output
+    type = hookOutput?.data?.type ?? type
+    output = hookOutput?.data?.output ?? output
   }
 
   const response = { output }
