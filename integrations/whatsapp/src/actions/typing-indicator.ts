@@ -14,7 +14,7 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
   const { conversationId, messageId } = input
   const { phoneNumberId, userPhone } = await getConversationInfos(client, conversationId)
   const { whatsappMessageId } = await getMessageInfos(client, messageId)
-  await whatsapp.markAsRead(phoneNumberId, whatsappMessageId, "text")
+  await whatsapp.markAsRead(phoneNumberId, whatsappMessageId, 'text')
   if (ctx.configuration.typingIndicatorEmoji) {
     await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId, '👀'))
   }
