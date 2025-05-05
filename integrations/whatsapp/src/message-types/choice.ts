@@ -1,4 +1,4 @@
-import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
+import { AtLeastOne } from 'whatsapp-api-js/lib/utils'
 import { Text, Interactive, ActionButtons, Button } from 'whatsapp-api-js/messages'
 import * as body from '../interactive/body'
 import * as button from '../interactive/button'
