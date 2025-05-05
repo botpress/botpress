@@ -105,7 +105,7 @@ export type ActionOverrideProps = utils.types.AtLeastOneProperty<
   }
 >
 export type EventOverrideProps = utils.types.AtLeastOneProperty<
-  Pick<Required<EventDefinition>, 'title' | 'description'> & {
+  Pick<Required<EventDefinition>, 'title' | 'description' | 'attributes'> & {
     name: string
   }
 >
