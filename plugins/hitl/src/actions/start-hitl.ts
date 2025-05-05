@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import { DEFAULT_HITL_HANDOFF_MESSAGE } from '../../plugin.definition'
+import * as configuration from '../configuration'
 import * as conv from '../conv-manager'
 import * as user from '../user-linker'
 import * as bp from '.botpress'
@@ -42,7 +43,12 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
     return {}
   }
 
-  await _sendHandoffMessage(props, upstreamCm)
+  const sessionConfig = await configuration.configureNewHitlSession({
+    ...props,
+    upstreamConversationId,
+    configurationOverrides: props.input.configurationOverrides,
+  })
+  await _sendHandoffMessage(upstreamCm, sessionConfig)
 
   const users = new user.UserLinker(props)
   const downstreamUserId = await users.getDownstreamUserId(upstreamUserId, { email: upstreamUserEmail })
@@ -60,13 +66,16 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
   await _linkConversations(props, upstreamConversationId, downstreamConversationId)
   await _saveStartMessageId(props, lastMessageByUser)
   await _activateHitl(upstreamCm, downstreamCm)
-  await _startHitlTimeout(props, upstreamCm, downstreamCm, upstreamUserId)
+  await _startHitlTimeout(props, upstreamCm, downstreamCm, upstreamUserId, sessionConfig)
 
   return {}
 }
 
-const _sendHandoffMessage = (props: Props, upstreamCm: conv.ConversationManager): Promise<void> =>
-  upstreamCm.respond({ type: 'text', text: props.configuration.onHitlHandoffMessage ?? DEFAULT_HITL_HANDOFF_MESSAGE })
+const _sendHandoffMessage = (
+  upstreamCm: conv.ConversationManager,
+  sessionConfig: bp.configuration.Configuration
+): Promise<void> =>
+  upstreamCm.respond({ type: 'text', text: sessionConfig.onHitlHandoffMessage ?? DEFAULT_HITL_HANDOFF_MESSAGE })
 
 const _buildMessageHistory = async (
   props: Props,
@@ -138,9 +147,10 @@ const _startHitlTimeout = async (
   props: Props,
   upstreamCm: conv.ConversationManager,
   downstreamCm: conv.ConversationManager,
-  upstreamUserId: string
+  upstreamUserId: string,
+  sessionConfig: bp.configuration.Configuration
 ) => {
-  const { agentAssignedTimeoutSeconds } = props.configuration
+  const { agentAssignedTimeoutSeconds } = sessionConfig
 
   if (!agentAssignedTimeoutSeconds) {
     return
