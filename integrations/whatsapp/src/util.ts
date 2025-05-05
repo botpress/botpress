@@ -1,4 +1,4 @@
-import WhatsAppAPI from 'whatsapp-api-js'
+import { WhatsAppAPI } from 'whatsapp-api-js'
 import { ServerErrorResponse, ServerMediaRetrieveResponse } from 'whatsapp-api-js/types'
 import { getAccessToken } from './misc/whatsapp'
 import { IntegrationCtx, Client } from './types'

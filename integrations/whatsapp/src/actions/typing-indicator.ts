@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { getAccessToken } from 'src/misc/whatsapp'
-import WhatsAppAPI from 'whatsapp-api-js'
+import { WhatsAppAPI } from 'whatsapp-api-js'
 import { Reaction } from 'whatsapp-api-js/messages'
 import * as bp from '.botpress'
 
@@ -14,7 +14,7 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
   const { conversationId, messageId } = input
   const { phoneNumberId, userPhone } = await getConversationInfos(client, conversationId)
   const { whatsappMessageId } = await getMessageInfos(client, messageId)
-  await whatsapp.markAsRead(phoneNumberId, whatsappMessageId)
+  await whatsapp.markAsRead(phoneNumberId, whatsappMessageId, 'text')
   if (ctx.configuration.typingIndicatorEmoji) {
     await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId, '👀'))
   }

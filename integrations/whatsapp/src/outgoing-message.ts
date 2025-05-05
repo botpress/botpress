@@ -1,4 +1,4 @@
-import WhatsAppAPI from 'whatsapp-api-js'
+import { WhatsAppAPI } from 'whatsapp-api-js'
 import {
   Text,
   Audio,
