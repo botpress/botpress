@@ -1,7 +1,7 @@
 import { z, InterfaceDefinition } from '@botpress/sdk'
 
 export default new InterfaceDefinition({
-  name: 'proactiveConversation',
+  name: 'proactive-conversation',
   version: '0.0.3',
   entities: {
     conversation: {

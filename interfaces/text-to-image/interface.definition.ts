@@ -3,7 +3,7 @@ import * as common from '@botpress/common'
 import { z, InterfaceDefinition } from '@botpress/sdk'
 
 export default new InterfaceDefinition({
-  name: 'textToImage',
+  name: 'text-to-image',
   version: '2.1.1',
   entities: {
     imageModelRef: {
