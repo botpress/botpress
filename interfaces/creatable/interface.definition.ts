@@ -6,7 +6,7 @@ const withId = (schema: z.ZodTypeAny) => z.intersection(schema, baseItem)
 
 export default new InterfaceDefinition({
   name: 'creatable',
-  version: '0.0.1',
+  version: '0.0.2',
   entities: {
     item: {
       schema: baseItem,

@@ -17,5 +17,7 @@ plugin.on.afterIncomingEvent('*', async (x) => log('after_incoming_event', x.dat
 plugin.on.afterIncomingMessage('*', async (x) => log('after_incoming_message', x.data))
 plugin.on.afterOutgoingMessage('*', async (x) => log('after_outgoing_message', x.data))
 plugin.on.afterOutgoingCallAction('*', async (x) => log('after_call_action', x.data))
+plugin.on.beforeIncomingCallAction('*', async (x) => log('before_incoming_call_action', x.data))
+plugin.on.afterIncomingCallAction('*', async (x) => log('after_incoming_call_action', x.data))
 
 export default plugin

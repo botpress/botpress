@@ -8,6 +8,8 @@ export const prepareCreateInterfaceBody = async (
 ): Promise<types.CreateInterfaceRequestBody> => ({
   name: intrface.name,
   version: intrface.version,
+  title: 'title' in intrface ? intrface.title : undefined,
+  description: 'description' in intrface ? intrface.description : undefined,
   entities: intrface.entities
     ? await utils.records.mapValuesAsync(intrface.entities, async (entity) => ({
         ...entity,

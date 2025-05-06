@@ -2,8 +2,8 @@
 import * as sdk from '@botpress/sdk'
 
 export default new sdk.InterfaceDefinition({
-  name: 'typingIndicator',
-  version: '0.0.2',
+  name: 'typing-indicator',
+  version: '0.0.3',
   entities: {},
   events: {},
   actions: {

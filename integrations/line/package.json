@@ -20,6 +20,6 @@
     "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
-    "typingIndicator": "../../interfaces/typing-indicator"
+    "typing-indicator": "../../interfaces/typing-indicator"
   }
 }

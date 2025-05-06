@@ -140,32 +140,18 @@ function* _generateCTAUrlInteractiveMessages(card: Card, actions: ActionURL[]) {
     if (actionNumber === 1) {
       // First CTA URL button will be in a WhatsApp card
       yield new Interactive(
-        new InteractiveCtaUrl(action.value, action.label),
+        new ActionCTA(action.label, action.value),
         body.create(card.subtitle ?? action.value),
         card.title ? new Header(card.title) : undefined
       )
     } else {
       // Subsequent CTA URL buttons will be standalone
       yield new Interactive(
-        new InteractiveCtaUrl(action.value, action.label),
+        new ActionCTA(action.label, action.value),
         body.create('\u200B') // Zero width space character used to force the interactive message to be sent (WhatsApp documentation says body is optional but it's not actually true)
       )
     }
 
     actionNumber++
-  }
-}
-
-class InteractiveCtaUrl implements ClientTypedMessageComponent {
-  public readonly name: string
-  public readonly parameters: { url: string; display_text: string }
-
-  public constructor(url: string, displayText: string) {
-    this.name = 'cta_url'
-    this.parameters = { url, display_text: displayText }
-  }
-
-  public get _type() {
-    return this.name
   }
 }

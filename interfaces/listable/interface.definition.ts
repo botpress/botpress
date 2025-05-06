@@ -7,7 +7,7 @@ const nextToken = z.string().optional()
 
 export default new InterfaceDefinition({
   name: 'listable',
-  version: '0.0.1',
+  version: '0.0.2',
   entities: {
     item: {
       schema: baseItem,

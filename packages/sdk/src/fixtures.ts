@@ -171,6 +171,14 @@ export type FooBarBazBot = DefaultBot<{
         result: unknown
       }
     }
+    do: {
+      input: {
+        parameters: Record<string, number>
+      }
+      output: {
+        result: number
+      }
+    }
   }
   states: {
     currentUser: {

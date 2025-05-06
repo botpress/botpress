@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import WhatsAppAPI from 'whatsapp-api-js'
+import { WhatsAppAPI } from 'whatsapp-api-js'
 import { Reaction } from 'whatsapp-api-js/messages'
 import { getAccessToken } from '../auth'
 import { sendTypingIndicator } from '../misc/whatsapp-utils'
