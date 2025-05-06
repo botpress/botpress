@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/client'
+import { buildConversationTranscript } from '@botpress/common'
 import { getFreshchatClient } from 'src/client'
 import * as bp from '.botpress'
-import { buildConversationTranscript } from '@botpress/common'
 
 export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ ctx, client, input, logger }) => {
   try {
