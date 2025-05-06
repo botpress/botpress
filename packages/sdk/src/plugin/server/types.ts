@@ -62,7 +62,7 @@ type _OutgoingCallActionResponses<TPlugin extends common.BasePlugin> = {
   >
 }
 
-type _IncomingCallActionRequest<TPlugin extends common.BasePlugin> = {
+type _IncomingCallActionRequests<TPlugin extends common.BasePlugin> = {
   [K in utils.StringKeys<TPlugin['actions']>]: { type: K; input: TPlugin['actions'][K]['input'] }
 }
 
@@ -75,12 +75,15 @@ export type AnyIncomingMessage<_TPlugin extends common.BasePlugin> = client.Mess
 export type AnyOutgoingMessageRequest<_TPlugin extends common.BasePlugin> = client.ClientInputs['createMessage']
 export type AnyOutgoingMessageResponse<_TPlugin extends common.BasePlugin> = client.ClientOutputs['createMessage']
 export type AnyOutgoingCallActionRequest<_TPlugin extends common.BasePlugin> = client.ClientInputs['callAction']
-export type AnyOutgoingCallActionResponse<_TPlugin extends common.BasePlugin> = client.ClientOutputs['callAction']
+export type AnyOutgoingCallActionResponse<_TPlugin extends common.BasePlugin> = client.ClientOutputs['callAction'] & {
+  type: string
+}
 export type AnyIncomingCallActionRequest<_TPlugin extends common.BasePlugin> = {
   type: string
   input: Record<string, unknown>
 }
 export type AnyIncomingCallActionResponse<_TPlugin extends common.BasePlugin> = {
+  type: string
   output: Record<string, unknown>
 }
 
@@ -105,7 +108,7 @@ export type OutgoingCallActionRequests<TPlugin extends common.BasePlugin> = _Out
 export type OutgoingCallActionResponses<TPlugin extends common.BasePlugin> = _OutgoingCallActionResponses<TPlugin> & {
   '*': AnyOutgoingCallActionResponse<TPlugin>
 }
-export type IncomingCallActionRequest<TPlugin extends common.BasePlugin> = _IncomingCallActionRequest<TPlugin> & {
+export type IncomingCallActionRequest<TPlugin extends common.BasePlugin> = _IncomingCallActionRequests<TPlugin> & {
   '*': AnyIncomingCallActionRequest<TPlugin>
 }
 export type IncomingCallActionResponse<TPlugin extends common.BasePlugin> = _IncomingCallActionResponses<TPlugin> & {
@@ -234,7 +237,7 @@ export type HookDefinitions<TPlugin extends common.BasePlugin> = {
   }>
   before_incoming_call_action: HookDefinition<{
     stoppable: true
-    data: _IncomingCallActionRequest<TPlugin> & { '*': AnyIncomingCallActionRequest<TPlugin> }
+    data: _IncomingCallActionRequests<TPlugin> & { '*': AnyIncomingCallActionRequest<TPlugin> }
   }>
   after_incoming_event: HookDefinition<{
     stoppable: true
