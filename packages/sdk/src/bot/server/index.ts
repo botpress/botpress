@@ -77,15 +77,19 @@ export const botHandler =
           }
           return res
         },
-        callAction: async (res) => {
-          const afterOutgoingCallActionHooks = bot.hookHandlers.after_outgoing_call_action[res.output.type] ?? []
+        callAction: async (res, req) => {
+          const { type } = req
+          const afterOutgoingCallActionHooks = bot.hookHandlers.after_outgoing_call_action[type] ?? []
           for (const handler of afterOutgoingCallActionHooks) {
             const client = new BotSpecificClient(vanillaClient)
             const hookOutput = await handler({
               client,
               ctx,
               logger,
-              data: res,
+              data: {
+                type,
+                ...res,
+              },
               ..._getBotTools({ client }),
             })
             res = hookOutput?.data ?? res
@@ -249,19 +253,51 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
 
 const onActionTriggered = async ({ ctx, logger, req, client, self }: types.ServerProps): Promise<Response> => {
   type AnyActionPayload = utils.ValueOf<types.ActionHandlerPayloads<common.BaseBot>>
-  const { input, type } = parseBody<AnyActionPayload>(req)
+  let { input, type } = parseBody<AnyActionPayload>(req)
 
   if (!type) {
     throw new Error('Missing action type')
   }
 
-  const action = self.actionHandlers[type]
+  // TODO: this should probably run even if the action is called in memory
+  const beforeIncomingCallActionHooks = self.hookHandlers.before_incoming_call_action[type] ?? []
+  for (const handler of beforeIncomingCallActionHooks) {
+    const hookOutput = await handler({
+      ctx,
+      logger,
+      client,
+      data: {
+        type,
+        input,
+      },
+      ..._getBotTools({ client }),
+    })
+    input = hookOutput?.data?.input ?? input
+    type = hookOutput?.data?.type ?? type
+  }
 
+  const action = self.actionHandlers[type]
   if (!action) {
     throw new Error(`Action ${type} not found`)
   }
 
-  const output = await action({ ctx, logger, input, client, type, ..._getBotTools({ client }) })
+  let output = await action({ ctx, logger, input, client, type, ..._getBotTools({ client }) })
+
+  const afterIncomingCallActionHooks = self.hookHandlers.after_incoming_call_action[type] ?? []
+  for (const handler of afterIncomingCallActionHooks) {
+    const hookOutput = await handler({
+      ctx,
+      logger,
+      client,
+      data: {
+        type,
+        output,
+      },
+      ..._getBotTools({ client }),
+    })
+    type = hookOutput?.data?.type ?? type
+    output = hookOutput?.data?.output ?? output
+  }
 
   const response = { output }
   return {

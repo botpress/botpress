@@ -107,7 +107,7 @@ export class BotSpecificClient<TBot extends common.BaseBot> implements types.Cli
 
     const after = this._hooks.after[operation]
     if (after) {
-      res = await after(res)
+      res = await after(res, req)
     }
 
     return res
