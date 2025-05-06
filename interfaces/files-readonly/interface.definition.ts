@@ -44,7 +44,7 @@ const NEXT_TOKEN = z.string().optional().describe('The token to get the next pag
 
 export default new InterfaceDefinition({
   name: 'files-readonly',
-  version: '0.2.0',
+  version: '0.2.1',
   actions: {
     listItemsInFolder: {
       title: 'List items in folder',

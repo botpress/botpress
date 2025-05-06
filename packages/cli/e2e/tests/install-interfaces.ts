@@ -26,9 +26,9 @@ export const installAllInterfaces: Test = {
       'listable',
       'llm',
       'readable',
-      'speechToText',
-      'textToImage',
-      'typingIndicator',
+      'speech-to-text',
+      'text-to-image',
+      'typing-indicator',
       'updatable',
     ]
 
