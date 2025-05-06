@@ -1,4 +1,5 @@
 import { DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE } from '../../../plugin.definition'
+import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
 import * as consts from '../consts'
 import * as bp from '.botpress'
@@ -22,6 +23,10 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
   }
 
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
+  const sessionConfig = await configuration.retrieveSessionConfig({
+    ...props,
+    upstreamConversationId,
+  })
 
   const { user: humanAgentUser } = await props.client.getUser({ id: humanAgentUserId })
   const humanAgentName = humanAgentUser?.name ?? 'A Human Agent'
@@ -29,7 +34,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
   await Promise.all([
     upstreamCm.respond({
       type: 'text',
-      text: props.configuration.onHumanAgentAssignedMessage ?? DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE,
+      text: sessionConfig.onHumanAgentAssignedMessage ?? DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE,
     }),
     downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),

@@ -32,7 +32,7 @@ const messageSchema = sdk.z.union(messagePayloadSchemas as Tuple<sdk.AnyZodObjec
 
 export default new sdk.InterfaceDefinition({
   name: 'hitl',
-  version: '1.1.0',
+  version: '1.1.2',
   entities: {},
   events: {
     hitlAssigned: {
@@ -65,6 +65,9 @@ export default new sdk.InterfaceDefinition({
   actions: {
     // TODO: allow for an interface to extend 'proactiveUser' and reuse its actions
     createUser: {
+      attributes: {
+        ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO,
+      },
       title: 'Create external user', // <= this is a downstream user
       description: 'Create an end user in the external service and in Botpress',
       input: {
@@ -86,6 +89,9 @@ export default new sdk.InterfaceDefinition({
       },
     },
     startHitl: {
+      attributes: {
+        ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO,
+      },
       title: 'Start new HITL session', // <= this is a downstream conversation / ticket
       description: 'Create a new HITL session in the external service and in Botpress',
       input: {
@@ -131,6 +137,9 @@ export default new sdk.InterfaceDefinition({
       },
     },
     stopHitl: {
+      attributes: {
+        ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO,
+      },
       title: 'Stop HITL session',
       description: 'Stop an existing HITL session in the external service',
       input: {

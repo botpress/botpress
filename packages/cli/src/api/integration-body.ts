@@ -62,6 +62,18 @@ export const prepareUpdateIntegrationBody = (
   remoteIntegration: client.Integration
 ): types.UpdateIntegrationRequestBody => {
   const actions = utils.records.setNullOnMissingValues(localIntegration.actions, remoteIntegration.actions)
+
+  for (const [actionName, action] of Object.entries(actions)) {
+    if (!action || !remoteIntegration.actions[actionName]) {
+      continue
+    }
+
+    action.attributes = utils.records.setNullOnMissingValues(
+      action.attributes,
+      remoteIntegration.actions[actionName].attributes
+    )
+  }
+
   const events = utils.records.setNullOnMissingValues(localIntegration.events, remoteIntegration.events)
   const states = utils.records.setNullOnMissingValues(localIntegration.states, remoteIntegration.states)
   const entities = utils.records.setNullOnMissingValues(localIntegration.entities, remoteIntegration.entities)

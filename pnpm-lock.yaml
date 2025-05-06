@@ -12,8 +12,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.5.1
-        version: 1.5.1(openapi-types@12.1.3)
+        specifier: 1.10.0
+        version: 1.10.0(openapi-types@12.1.3)
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -1547,8 +1547,8 @@ importers:
         specifier: ^6.14.1
         version: 6.14.1
       whatsapp-api-js:
-        specifier: ^1.0.5
-        version: 1.0.5
+        specifier: ^5.3.0
+        version: 5.3.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1899,10 +1899,10 @@ importers:
         specifier: 0.5.1
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.5.0
+        specifier: 1.7.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.0.7
+        specifier: 4.2.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2011,10 +2011,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.5.0
+        specifier: 1.7.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.7
+        specifier: 4.2.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2027,10 +2027,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.5.0
+        specifier: 1.7.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.7
+        specifier: 4.2.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2043,7 +2043,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.0.7
+        specifier: 4.2.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2056,10 +2056,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.5.0
+        specifier: 1.7.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.7
+        specifier: 4.2.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2072,10 +2072,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.5.0
+        specifier: 1.7.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.7
+        specifier: 4.2.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2174,7 +2174,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.5.0
+        specifier: 1.7.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^0.13.5
@@ -2205,7 +2205,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.5.0
+        specifier: 1.7.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -4139,8 +4139,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@1.5.1(openapi-types@12.1.3):
-    resolution: {integrity: sha512-VgplalpqHEzVkZMNQnQv+tJIN6aOncku81i35TtfyRaR7yeN1zwqcBriOEIHn0mAosxDKBLEVEBZO0S1xA/r1w==}
+  /@botpress/api@1.10.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-Qjk0ymGJNufLj3HIyjAfRqIz2tr0dhpAc2E06/Kr84Z79kyQkQF3nLFD89ZcACUNnPC+YaxCGa1SVlIYOeIrRw==}
     dependencies:
       '@bpinternal/opapi': 0.14.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -16573,9 +16573,9 @@ packages:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
     dev: true
 
-  /whatsapp-api-js@1.0.5:
-    resolution: {integrity: sha512-cuxRRf1pi/ztICjpqw52yHycpoaLF2M74+2A8YMq1lDyuNsy0+4tIXNxoxDMJZxCBkSV8sDMsPK4F7oHjPFYzw==}
-    engines: {node: '>14.21'}
+  /whatsapp-api-js@5.3.0:
+    resolution: {integrity: sha512-Rw2pfh0qsbQ1FT+Y4F9Lc8pfoyT80ghVE7xAXDESYknQNfjwawb/lCI3SXN/+sE9wrn7y7ob5CDPLNO9JfwsVg==}
+    engines: {node: '>=16'}
     dev: false
 
   /whatwg-url@5.0.0:

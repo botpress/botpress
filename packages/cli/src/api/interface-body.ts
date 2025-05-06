@@ -8,6 +8,8 @@ export const prepareCreateInterfaceBody = async (
 ): Promise<types.CreateInterfaceRequestBody> => ({
   name: intrface.name,
   version: intrface.version,
+  title: 'title' in intrface ? intrface.title : undefined,
+  description: 'description' in intrface ? intrface.description : undefined,
   entities: intrface.entities
     ? await utils.records.mapValuesAsync(intrface.entities, async (entity) => ({
         ...entity,
@@ -48,7 +50,23 @@ export const prepareUpdateInterfaceBody = (
   localInterface: types.CreateInterfaceRequestBody & { id: string },
   remoteInterface: client.Interface
 ): types.UpdateInterfaceRequestBody => {
-  const actions = utils.records.setNullOnMissingValues(localInterface.actions, remoteInterface.actions)
+  const actions = utils.records.setNullOnMissingValues(
+    localInterface.actions,
+    remoteInterface.actions
+  ) as types.CreateInterfaceRequestBody['actions'] &
+    Pick<NonNullable<types.UpdateInterfaceRequestBody['actions']>, 'attributes'>
+
+  for (const [actionName, action] of Object.entries(actions)) {
+    if (!action || !remoteInterface.actions[actionName]) {
+      continue
+    }
+
+    action.attributes = utils.records.setNullOnMissingValues(
+      action.attributes,
+      remoteInterface.actions[actionName].attributes
+    )
+  }
+
   const events = utils.records.setNullOnMissingValues(localInterface.events, remoteInterface.events)
   const entities = utils.records.setNullOnMissingValues(localInterface.entities, remoteInterface.entities)
 

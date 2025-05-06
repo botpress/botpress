@@ -67,6 +67,7 @@ export type IntegrationDefinition = PackageRef & {
       output: {
         schema: Schema
       }
+      attributes?: Record<string, string>
     }
   >
   entities?: Record<string, TitleDescription & { schema: Schema }>
@@ -89,6 +90,7 @@ export type InterfaceDefinition = PackageRef & {
       cacheable?: boolean
       input: { schema: Schema }
       output: { schema: Schema }
+      attributes?: Record<string, string>
     }
   >
   channels?: Record<string, TitleDescription & { messages: Record<string, TitleDescription & { schema: Schema }> }>
