@@ -1122,6 +1122,18 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/monday-com:
+    dependencies:
+      '@botpress/client':
+        specifier: 1.7.0
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.4.0
+        version: 1.8.4
+
   integrations/notion:
     dependencies:
       '@botpress/client':
