@@ -50,6 +50,11 @@ export const configuration = {
         description: 'ID of the Knowledge Base you wish to synchronize with your Zendesk KB',
       })
       .optional(),
+    ignoreNonHitlTickets: z
+      .boolean()
+      .optional()
+      .title('Ignore non-HITL tickets')
+      .describe('Ignore tickets that were not created by the startHitl action'),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 
