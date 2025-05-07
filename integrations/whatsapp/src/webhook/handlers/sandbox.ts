@@ -1,7 +1,6 @@
 import { z } from '@botpress/sdk'
-import { getAccessToken } from 'src/auth'
+import { getAuthenticatedWhatsappClient } from 'src/auth'
 import { WhatsAppPayloadSchema, WhatsAppValue } from 'src/misc/types'
-import WhatsAppAPI from 'whatsapp-api-js'
 import { Text } from 'whatsapp-api-js/messages'
 import * as bp from '.botpress'
 
@@ -52,10 +51,9 @@ const _handleJoinCommand = async (props: bp.HandlerProps) => {
 
   const userPhoneNumber = message.from
   const botPhoneNumberId = value.metadata.phone_number_id
-  const accessToken = await getAccessToken(client, ctx)
-  const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
+  const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
 
-  await whatsapp.markAsRead(botPhoneNumberId, message.id)
+  await whatsapp.markAsRead(botPhoneNumberId, message.id, 'text')
   await whatsapp.sendMessage(
     botPhoneNumberId,
     userPhoneNumber,
@@ -74,10 +72,9 @@ const _handleLeaveCommand = async (props: bp.HandlerProps) => {
 
   const userPhoneNumber = message.from
   const botPhoneNumberId = value.metadata.phone_number_id
-  const accessToken = await getAccessToken(client, ctx)
-  const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
+  const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
 
-  await whatsapp.markAsRead(botPhoneNumberId, message.id)
+  await whatsapp.markAsRead(botPhoneNumberId, message.id, 'text')
   await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, new Text('Conversation disconnected from bot'))
   return
 }

@@ -1,4 +1,4 @@
-import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
+import { AtLeastOne } from 'whatsapp-api-js/lib/utils'
 
 export function chunkArray<T>(array: T[], chunkSize: number) {
   const chunks: T[][] = []

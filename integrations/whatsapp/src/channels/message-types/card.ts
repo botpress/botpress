@@ -1,5 +1,4 @@
-import { ClientTypedMessageComponent } from 'whatsapp-api-js/lib/types/types'
-import { Text, Interactive, ActionButtons, Header, Image, Button } from 'whatsapp-api-js/messages'
+import { Text, Interactive, ActionButtons, Header, Image, Button, ActionCTA } from 'whatsapp-api-js/messages'
 import { WHATSAPP } from '../../misc/constants'
 import { chunkArray, hasAtleastOne } from '../../misc/util'
 import * as body from './interactive/body'

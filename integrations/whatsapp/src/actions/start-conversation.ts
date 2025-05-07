@@ -1,8 +1,7 @@
 import { RuntimeError, z } from '@botpress/sdk'
 import { hasAtleastOne } from 'src/misc/util'
-import WhatsAppAPI from 'whatsapp-api-js'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
-import { getDefaultBotPhoneNumberId, getAccessToken } from '../auth'
+import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
 import * as bp from '.botpress'
 
 const TemplateVariablesSchema = z.array(z.string().or(z.number()))
@@ -39,7 +38,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     },
   })
 
-  const whatsapp = new WhatsAppAPI({ token: await getAccessToken(client, ctx), secure: false })
+  const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const language = new Language(templateLanguage)
   const bodyParams: BodyParameter[] = templateVariables.map((variable) => ({
     type: 'text',

@@ -1,5 +1,7 @@
 import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
+import { WhatsAppAPI } from 'whatsapp-api-js'
+import { WHATSAPP } from './misc/constants'
 import * as bp from '.botpress'
 
 export class MetaOauthClient {
@@ -149,6 +151,11 @@ export const getAccessToken = async (client: bp.Client, ctx: bp.Context): Promis
   }
 
   return accessToken
+}
+
+export const getAuthenticatedWhatsappClient = async (client: bp.Client, ctx: bp.Context): Promise<WhatsAppAPI> => {
+  const token = await getAccessToken(client, ctx)
+  return new WhatsAppAPI({ token, secure: false, v: WHATSAPP.API_VERSION })
 }
 
 export function getVerifyToken(ctx: bp.Context): string {

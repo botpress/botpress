@@ -1,6 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
 import { WHATSAPP } from 'src/misc/constants'
-import WhatsAppAPI from 'whatsapp-api-js'
 import {
   Text,
   Audio,
@@ -14,7 +13,7 @@ import {
   Template,
   Reaction,
 } from 'whatsapp-api-js/messages'
-import { getAccessToken } from '../auth'
+import { getAuthenticatedWhatsappClient } from '../auth'
 import { sleep } from '../misc/util'
 import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
@@ -119,9 +118,7 @@ type SendMessageProps = {
 }
 
 async function _send({ client, ctx, conversation, message, ack, logger }: SendMessageProps) {
-  const accessToken = await getAccessToken(client, ctx)
-
-  const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
+  const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const botPhoneNumberId = conversation.tags.botPhoneNumberId
   const userPhoneNumber = conversation.tags.userPhone
   const messageType = message._type
@@ -142,7 +139,12 @@ async function _send({ client, ctx, conversation, message, ack, logger }: SendMe
 
   const feedback = await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, message)
   if ('error' in feedback) {
-    logger.forBot().error(`Failed to send ${messageType} message from bot to WhatsApp. Reason:`, feedback.error.message)
+    logger
+      .forBot()
+      .error(
+        `Failed to send ${messageType} message from bot to WhatsApp. Reason:`,
+        feedback.error?.message ?? 'Unknown error'
+      )
     return
   }
 

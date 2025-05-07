@@ -1,5 +1,4 @@
-import WhatsAppAPI from 'whatsapp-api-js'
-import { getAccessToken } from '../../auth'
+import { getAuthenticatedWhatsappClient } from 'src/auth'
 import { WhatsAppMessage, WhatsAppValue, WhatsAppPayloadSchema } from '../../misc/types'
 import { getMediaUrl } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
@@ -23,11 +22,9 @@ export const messagesHandler = async (props: bp.HandlerProps) => {
         }
 
         for (const message of change.value.messages) {
-          const accessToken = await getAccessToken(client, ctx)
-          const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
+          const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
           const phoneNumberId = change.value.metadata.phone_number_id
           await whatsapp.markAsRead(phoneNumberId, message.id)
-
           await _handleIncomingMessage(message, change.value, ctx, client, logger)
         }
       }
