@@ -1,5 +1,4 @@
 import { isApiError, Client, RuntimeError, Message, State } from '@botpress/client'
-import { log } from '../../log'
 import { retryConfig } from '../../retry'
 import { Request, Response, parseBody } from '../../serve'
 import * as utils from '../../utils/type-utils'
@@ -136,8 +135,7 @@ export const botHandler =
     }
   }
 
-const onPing = async ({ ctx }: types.ServerProps): Promise<Response> => {
-  log.info(`Received ${ctx.operation} operation for bot ${ctx.botId} of type ${ctx.type}`)
+const onPing = async (_: types.ServerProps): Promise<Response> => {
   return SUCCESS_RESPONSE
 }
 
@@ -148,8 +146,6 @@ const onUnregister = async (_: types.ServerProps): Promise<Response> => SUCCESS_
 const onEventReceived = async (serverProps: types.ServerProps): Promise<Response> => {
   const { ctx, logger, req, client, self } = serverProps
   const common: types.CommonHandlerProps<common.BaseBot> = { client, ctx, logger, ..._getBotTools({ client }) }
-
-  log.debug(`Received event ${ctx.type}`)
 
   type AnyEventPayload = utils.ValueOf<types.EventPayloads<common.BaseBot>>
   const body = parseBody<AnyEventPayload>(req)
