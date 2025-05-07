@@ -1,5 +1,4 @@
-import * as client from '@botpress/client'
-import { log } from '../../log'
+import { isApiError, Client, RuntimeError, Message, State } from '@botpress/client'
 import { retryConfig } from '../../retry'
 import { Request, Response, parseBody } from '../../serve'
 import * as utils from '../../utils/type-utils'
@@ -20,7 +19,7 @@ export const botHandler =
     const ctx = extractContext(req.headers)
     const logger = new BotLogger()
 
-    const vanillaClient = new client.Client({
+    const vanillaClient = new Client({
       botId: ctx.botId,
       retry: retryConfig,
     })
@@ -107,24 +106,36 @@ export const botHandler =
       self: bot,
     }
 
-    switch (ctx.operation) {
-      case 'action_triggered':
-        return await onActionTriggered(props)
-      case 'event_received':
-        return await onEventReceived(props)
-      case 'register':
-        return await onRegister(props)
-      case 'unregister':
-        return await onUnregister(props)
-      case 'ping':
-        return await onPing(props)
-      default:
-        throw new Error(`Unknown operation ${ctx.operation}`)
+    try {
+      switch (ctx.operation) {
+        case 'action_triggered':
+          return await onActionTriggered(props)
+        case 'event_received':
+          return await onEventReceived(props)
+        case 'register':
+          return await onRegister(props)
+        case 'unregister':
+          return await onUnregister(props)
+        case 'ping':
+          return await onPing(props)
+        default:
+          throw new Error(`Unknown operation ${ctx.operation}`)
+      }
+    } catch (error) {
+      if (isApiError(error)) {
+        const runtimeError = error.type === 'Runtime' ? error : new RuntimeError(error.message, error)
+        logger.error(runtimeError.message)
+
+        return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
+      }
+
+      const runtimeError = new RuntimeError('An unexpected error occurred in the bot.')
+      logger.error(runtimeError.message)
+      return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
     }
   }
 
-const onPing = async ({ ctx }: types.ServerProps): Promise<Response> => {
-  log.info(`Received ${ctx.operation} operation for bot ${ctx.botId} of type ${ctx.type}`)
+const onPing = async (_: types.ServerProps): Promise<Response> => {
   return SUCCESS_RESPONSE
 }
 
@@ -135,8 +146,6 @@ const onUnregister = async (_: types.ServerProps): Promise<Response> => SUCCESS_
 const onEventReceived = async (serverProps: types.ServerProps): Promise<Response> => {
   const { ctx, logger, req, client, self } = serverProps
   const common: types.CommonHandlerProps<common.BaseBot> = { client, ctx, logger, ..._getBotTools({ client }) }
-
-  log.debug(`Received event ${ctx.type}`)
 
   type AnyEventPayload = utils.ValueOf<types.EventPayloads<common.BaseBot>>
   const body = parseBody<AnyEventPayload>(req)
@@ -154,7 +163,7 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
 
   if (ctx.type === 'message_created') {
     const event = body.event
-    let message: client.Message = event.payload.message
+    let message: Message = event.payload.message
 
     common.logger = common.logger.with({
       messageId: message.id,
@@ -203,7 +212,7 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
 
   if (ctx.type === 'state_expired') {
     const event = body.event
-    const state: client.State = event.payload.state
+    const state: State = event.payload.state
     const statePayload: utils.ValueOf<types.StateExpiredPayloads<common.BaseBot>> = {
       ...common,
       state: state as types.IncomingStates<common.BaseBot>[string],
