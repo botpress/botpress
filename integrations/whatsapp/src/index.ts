@@ -10,6 +10,7 @@ import { Audio, Document, Image, Location, Text, Video } from 'whatsapp-api-js/m
 import { createConversationHandler as createConversation } from './conversation'
 import { handleIncomingMessage } from './incoming-message'
 import * as card from './message-types/card'
+import * as image from './message-types/image'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
@@ -54,7 +55,7 @@ const integration = new bp.Integration({
       throw new RuntimeError('Error! Please add the missing fields and save.')
     }
   },
-  unregister: async () => {},
+  unregister: async () => { },
   actions,
   createConversation, // This is not needed for the `startConversation` action above, it's only for allowing bots to start conversations by calling `client.createConversation()` directly.
   channels: {
@@ -66,7 +67,7 @@ const integration = new bp.Integration({
         image: async ({ payload, ...props }) => {
           await outgoing.send({
             ...props,
-            message: new Image(payload.imageUrl.trim(), false),
+            message: image.generateOutgoingMessage({ payload, ...props }),
           })
         },
         markdown: async ({ payload, ...props }) => {
