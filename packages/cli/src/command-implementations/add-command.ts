@@ -131,23 +131,25 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
     if (this._pkgCouldBe(ref, 'integration')) {
-      const integration = await api.findIntegration(ref)
+      const integration = await api.findPublicOrPrivateIntegration(ref)
       if (integration) {
         const { name, version } = integration
         return { type: 'integration', pkg: { integration, name, version } }
       }
     }
     if (this._pkgCouldBe(ref, 'interface')) {
-      const intrface = await api.findPublicInterface(ref)
+      const intrface = await api.findPublicOrPrivateInterface(ref)
       if (intrface) {
         const { name, version } = intrface
         return { type: 'interface', pkg: { interface: intrface, name, version } }
       }
     }
     if (this._pkgCouldBe(ref, 'plugin')) {
-      const plugin = await api.findPublicPlugin(ref)
+      const plugin = await api.findPublicOrPrivatePlugin(ref)
       if (plugin) {
-        const { code } = await api.client.getPluginCode({ id: plugin.id, platform: 'node' })
+        const { code } = plugin.public
+          ? await api.client.getPublicPluginCode({ id: plugin.id, platform: 'node' })
+          : await api.client.getPluginCode({ id: plugin.id, platform: 'node' })
         const { name, version } = plugin
         return {
           type: 'plugin',
