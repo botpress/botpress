@@ -9,7 +9,7 @@ import { entities } from './definitions'
 
 export default new sdk.IntegrationDefinition({
   name: 'confluence',
-  version: '3.2.0',
+  version: '3.3.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   title: 'Confluence',

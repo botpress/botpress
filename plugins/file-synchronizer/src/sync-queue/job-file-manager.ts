@@ -7,6 +7,7 @@ import * as bp from '.botpress'
 const QUEUE_ITEM = models.FILE_WITH_PATH.extend({
   status: sdk.z.enum(['pending', 'newly-synced', 'already-synced', 'errored']),
   errorMessage: sdk.z.string().optional(),
+  shouldIndex: sdk.z.boolean(),
 })
 
 export const getSyncQueue = async (
