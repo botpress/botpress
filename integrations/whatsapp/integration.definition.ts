@@ -35,7 +35,7 @@ const startConversationProps = {
           .optional()
           .title('Message Template language')
           .describe(
-            'Language of the WhatsApp Message Template to start the conversation with. Defaults to "en_US" (U.S. English)'
+            'Language of the WhatsApp Message Template to start the conversation with. Defaults to "en" (English)'
           ),
         templateVariablesJson: z
           .string()
