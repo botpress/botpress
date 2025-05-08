@@ -9,6 +9,7 @@ export type SyncQueueItem = models.FileWithPath & {
   status: 'pending' | 'newly-synced' | 'already-synced' | 'errored'
   errorMessage?: string
   shouldIndex: boolean
+  addToKbId?: string
 }
 export type SyncQueue = SyncQueueItem[]
 

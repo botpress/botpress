@@ -26,12 +26,12 @@ const FILE_FILTER_PROPS = {
             ),
           applyOptionsToMatchedFiles: sdk.z
             .object({
-              index: sdk.z
-                .boolean()
+              addToKbId: sdk.z
+                .string()
                 .optional()
-                .title('Index in Vector Storage')
+                .title('Knowledge Base ID')
                 .describe(
-                  'Whether to index the file in vector storage. Only certain file formats are currently supported for indexing. Note that if a file is indexed, it will count towards both the Vector DB Storage quota and the File Storage quota of the workspace.'
+                  'The ID of the knowledge base to add the file to. Note that files added to knowledge bases will count towards both the Vector DB Storage quota and the File Storage quota of the workspace.'
                 ),
             })
             .optional()

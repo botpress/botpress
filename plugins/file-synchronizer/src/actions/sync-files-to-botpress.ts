@@ -45,7 +45,7 @@ const _isSyncAlreadyInProgress = async (props: bp.ActionHandlerProps) => {
   return runningWorkflows.length > 0
 }
 
-type FileWithOptions = models.FileWithPath & { shouldIndex: boolean }
+type FileWithOptions = models.FileWithPath & { shouldIndex: boolean; addToKbId?: string }
 
 const _enumerateAllFilesRecursive = async (
   props: bp.ActionHandlerProps,
@@ -69,7 +69,12 @@ const _enumerateAllFilesRecursive = async (
       files.push(...(await _enumerateAllFilesRecursive(props, configuration, item.id, `${itemPath}/`)))
     } else {
       props.logger.debug('Including file', itemPath)
-      files.push({ ...item, absolutePath: itemPath, shouldIndex: globMatchResult.shouldApplyOptions.index ?? false })
+      files.push({
+        ...item,
+        absolutePath: itemPath,
+        shouldIndex: (globMatchResult.shouldApplyOptions.addToKbId?.length ?? 0) > 0,
+        addToKbId: globMatchResult.shouldApplyOptions.addToKbId,
+      })
     }
   }
 

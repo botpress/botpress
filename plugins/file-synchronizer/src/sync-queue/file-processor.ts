@@ -131,6 +131,7 @@ const _transferFileToBotpress = async (props: ProcessFileProps, fileToSync: type
         externalContentHash: fileToSync.contentHash ?? null,
         externalPath: fileToSync.absolutePath,
         externalParentId: fileToSync.parentId ?? null,
+        ...(fileToSync.addToKbId !== undefined ? { kbId: fileToSync.addToKbId } : {}),
       },
     })
   } catch (thrown: unknown) {

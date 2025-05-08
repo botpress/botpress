@@ -238,4 +238,33 @@ describe.concurrent('processQueue', () => {
       },
     })
   })
+
+  it('should assign to kb if needed after transferring file', async () => {
+    // Arrange
+    const mocks = getMocks()
+    mocks.fileRepository.listFiles.mockResolvedValueOnce({ files: [] })
+    mocks.integration.transferFileToBotpress.mockResolvedValueOnce({ botpressFileId: FILE_1.id })
+
+    // Act
+    const result = processQueueFile({
+      fileToSync: { ...FILE_1, addToKbId: 'kb1' },
+      ...mocks,
+    })
+
+    // Assert
+    await expect(result).resolves.toMatchObject({ status: 'newly-synced' })
+    expect(mocks.fileRepository.updateFileMetadata).toHaveBeenCalledWith({
+      id: FILE_1.id,
+      tags: {
+        integrationName: 'test-integration',
+        externalId: FILE_1.id,
+        externalModifiedDate: FILE_1.lastModifiedDate,
+        externalSize: FILE_1.sizeInBytes.toString(),
+        externalContentHash: FILE_1.contentHash,
+        externalPath: FILE_1.absolutePath,
+        externalParentId: FILE_1.parentId,
+        kbId: 'kb1',
+      },
+    })
+  })
 })

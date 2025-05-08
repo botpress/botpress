@@ -16,7 +16,12 @@ export const handleEvent: bp.EventHandlers['files-readonly:fileCreated'] = async
 
   await SyncQueue.fileProcessor.processQueueFile({
     fileRepository: props.client,
-    fileToSync: { ...createdFile, status: 'pending', shouldIndex: globMatchResult.shouldApplyOptions.index ?? false },
+    fileToSync: {
+      ...createdFile,
+      status: 'pending',
+      shouldIndex: (globMatchResult.shouldApplyOptions.addToKbId?.length ?? 0) > 0,
+      addToKbId: globMatchResult.shouldApplyOptions.addToKbId,
+    },
     integration: {
       ...props.interfaces['files-readonly'],
       transferFileToBotpress: props.actions['files-readonly'].transferFileToBotpress,

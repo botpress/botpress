@@ -1,4 +1,4 @@
-import { describe, it, expect, should } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { matchItem } from './glob-matcher'
 import type * as models from '../../definitions/models'
 import { MAX_FILE_SIZE_BYTES } from '../consts'
@@ -50,7 +50,7 @@ describe.concurrent('matchItem', () => {
       // Arrange
       const itemPath = 'src/data/included-file.txt'
       const configuration = createConfiguration({
-        includeFiles: [{ pathGlobPattern: '**/included-*.txt', applyOptionsToMatchedFiles: { index: true } }],
+        includeFiles: [{ pathGlobPattern: '**/included-*.txt', applyOptionsToMatchedFiles: { addToKbId: 'kbId' } }],
       })
       const item = createFileItem({ name: 'included-file.txt' })
 
@@ -60,7 +60,7 @@ describe.concurrent('matchItem', () => {
       // Assert
       expect(result).toMatchObject({
         shouldBeIgnored: false,
-        shouldApplyOptions: { index: true },
+        shouldApplyOptions: { addToKbId: 'kbId' },
       })
     })
 
