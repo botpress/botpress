@@ -32,10 +32,13 @@ const messageSchema = sdk.z.union(messagePayloadSchemas as Tuple<sdk.AnyZodObjec
 
 export default new sdk.InterfaceDefinition({
   name: 'hitl',
-  version: '1.1.2',
+  version: '1.1.3',
   entities: {},
   events: {
     hitlAssigned: {
+      attributes: {
+        ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO,
+      },
       schema: () =>
         sdk.z.object({
           // Also known as downstreamConversationId:
@@ -52,6 +55,9 @@ export default new sdk.InterfaceDefinition({
         }),
     },
     hitlStopped: {
+      attributes: {
+        ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO,
+      },
       schema: () =>
         sdk.z.object({
           // Also known as downstreamConversationId:

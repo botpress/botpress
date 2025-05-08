@@ -48,7 +48,14 @@ export const prepareUpdateBotBody = (
   ...localBot,
   states: utils.records.setNullOnMissingValues(localBot.states, remoteBot.states),
   recurringEvents: utils.records.setNullOnMissingValues(localBot.recurringEvents, remoteBot.recurringEvents),
-  events: utils.records.setNullOnMissingValues(localBot.events, remoteBot.events),
+  events: utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localBot.events, remoteBot.events),
+    remoteItems: remoteBot.events,
+  }),
+  actions: utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localBot.actions, remoteBot.actions),
+    remoteItems: remoteBot.actions,
+  }),
   user: {
     ...localBot.user,
     tags: utils.records.setNullOnMissingValues(localBot.user?.tags, remoteBot.user?.tags),

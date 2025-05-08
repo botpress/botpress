@@ -34,7 +34,9 @@ export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = 
   }
 }[keyof TEvents]
 
-export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent>
+export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent> & {
+  attributes?: Record<string, string>
+}
 
 export type ConfigurationDefinition<TConfig extends BaseConfig = BaseConfig> = SchemaDefinition<TConfig>
 
@@ -55,6 +57,7 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   description?: string
   input: SchemaDefinition<TAction>
   output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
+  attributes?: Record<string, string>
 }
 
 export type WorkflowDefinition<TWorkflow extends BaseWorkflows[string] = BaseWorkflows[string]> = {

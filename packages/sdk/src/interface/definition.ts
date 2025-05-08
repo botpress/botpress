@@ -14,6 +14,7 @@ type EntityReferences<TEntities extends BaseEntities> = {
 
 type GenericEventDefinition<TEntities extends BaseEntities, TEvent extends BaseEvents[string] = BaseEvents[string]> = {
   schema: GenericZuiSchema<EntityReferences<TEntities>, TEvent>
+  attributes?: Record<string, string>
 }
 
 type GenericChannelDefinition<
