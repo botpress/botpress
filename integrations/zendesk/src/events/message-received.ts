@@ -1,23 +1,32 @@
 import { createOrUpdateUser } from '@botpress/common'
 import type { ZendeskClient } from '../client'
 import type { TriggerPayload } from '../triggers'
+import { retrieveHitlConversation } from './hitl-ticket-filter'
 import * as bp from '.botpress'
 
 export const executeMessageReceived = async ({
   zendeskClient,
   zendeskTrigger,
   client,
+  ctx,
+  logger,
 }: {
   zendeskClient: ZendeskClient
   zendeskTrigger: TriggerPayload
   client: bp.Client
+  ctx: bp.Context
+  logger: bp.Logger
 }) => {
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'hitl',
-    tags: {
-      id: zendeskTrigger.ticketId,
-    },
+  const conversation = await retrieveHitlConversation({
+    zendeskTrigger,
+    client,
+    ctx,
+    logger,
   })
+
+  if (!conversation) {
+    return
+  }
 
   const isAlreadyDelivered = await _isMessageAlreadyDelivered({
     conversationId: conversation.id,
