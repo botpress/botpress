@@ -24,7 +24,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
         _logForBotAndThrow('No default bot phone number ID available', logger)
       })
 
-  const templateLanguage = input.conversation.templateLanguage ? input.conversation.templateLanguage : 'en_US'
+  const templateLanguage = input.conversation.templateLanguage || 'en'
   let templateVariables: z.infer<typeof TemplateVariablesSchema> = []
   if (templateVariablesJson) {
     templateVariables = _parseTemplateVariablesJSON(templateVariablesJson, logger)
