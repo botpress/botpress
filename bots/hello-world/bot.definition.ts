@@ -5,6 +5,11 @@ import telegram from './bp_modules/telegram'
 import webhook from './bp_modules/webhook'
 
 export default new sdk.BotDefinition({
+  configuration: {
+    schema: sdk.z.object({
+      botName: sdk.z.string().title('Bot Name').describe('The name of the bot'),
+    }),
+  },
   actions: {
     sayHello: {
       title: 'Say Hello',

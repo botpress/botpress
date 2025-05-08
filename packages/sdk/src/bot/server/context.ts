@@ -25,10 +25,31 @@ export const extractContext = (headers: Record<string, string | undefined>): Bot
     throw new Error('Missing operation headers')
   }
 
+  const configuration = _parseConfig(base64Configuration)
   return {
     botId,
     operation,
     type,
-    configuration: base64Configuration ? JSON.parse(Buffer.from(base64Configuration, 'base64').toString('utf-8')) : {},
+    configuration,
   }
+}
+
+const configurationSchema = z
+  .object({
+    payload: z.string(),
+  })
+  .strip()
+
+/**
+ * The bridge should send the configuration payload only as it does for integrations.
+ * However, many bots that depend on this configuration header are already deployed and running.
+ * Changing the header format would be highly breaking.
+ * Therefore, we extract the header payload here.
+ */
+const _parseConfig = (base64ConfigHeader: string): object => {
+  const configHeader: string = Buffer.from(base64ConfigHeader, 'base64').toString('utf-8')
+  const parsedConfig = JSON.parse(configHeader)
+  const validatedConfig = configurationSchema.parse(parsedConfig)
+  const parsedConfigPayload = JSON.parse(validatedConfig.payload)
+  return parsedConfigPayload
 }

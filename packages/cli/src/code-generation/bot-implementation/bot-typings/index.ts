@@ -3,6 +3,7 @@ import * as consts from '../../consts'
 import { IntegrationTypingsModule } from '../../integration-implementation/integration-typings'
 import { Module, ReExportTypeModule } from '../../module'
 import { ActionsModule } from './actions-module'
+import { ConfigurationModule } from './configuration-module'
 import { EventsModule } from './events-module'
 import { StatesModule } from './states-module'
 import { TablesModule } from './tables-module'
@@ -29,6 +30,7 @@ type BotTypingsIndexDependencies = {
   actionsModule: ActionsModule
   tablesModule: TablesModule
   workflowsModule: WorkflowsModule
+  configurationModule: ConfigurationModule
 }
 
 export class BotTypingsModule extends Module {
@@ -64,6 +66,10 @@ export class BotTypingsModule extends Module {
     workflowsModule.unshift('workflows')
     this.pushDep(workflowsModule)
 
+    const configurationModule = new ConfigurationModule(bot.configuration)
+    configurationModule.unshift('configuration')
+    this.pushDep(configurationModule)
+
     this._dependencies = {
       integrationsModule,
       eventsModule,
@@ -71,37 +77,49 @@ export class BotTypingsModule extends Module {
       actionsModule,
       tablesModule,
       workflowsModule,
+      configurationModule,
     }
   }
 
   public async getContent() {
-    const { integrationsModule, eventsModule, statesModule, actionsModule, tablesModule, workflowsModule } =
-      this._dependencies
+    const {
+      integrationsModule,
+      eventsModule,
+      statesModule,
+      actionsModule,
+      tablesModule,
+      workflowsModule,
+      configurationModule,
+    } = this._dependencies
 
     const integrationsImport = integrationsModule.import(this)
     const eventsImport = eventsModule.import(this)
     const statesImport = statesModule.import(this)
-    const actionsImport = actionsModule
     const tablesImport = tablesModule.import(this)
-    const workflowsImport = workflowsModule
+    const actionsImport = actionsModule.import(this)
+    const workflowsImport = workflowsModule.import(this)
+    const configurationImport = configurationModule.import(this)
 
     return [
       consts.GENERATED_HEADER,
       `import * as ${integrationsModule.name} from './${integrationsImport}'`,
-      `import * as ${eventsModule.name} from './${eventsModule.name}'`,
-      `import * as ${statesModule.name} from './${statesModule.name}'`,
-      `import * as ${actionsModule.name} from './${actionsImport.name}'`,
+      `import * as ${eventsModule.name} from './${eventsImport}'`,
+      `import * as ${statesModule.name} from './${statesImport}'`,
+      `import * as ${actionsModule.name} from './${actionsImport}'`,
       `import * as ${tablesModule.name} from './${tablesImport}'`,
-      `import * as ${workflowsModule.name} from './${workflowsImport.name}'`,
+      `import * as ${workflowsModule.name} from './${workflowsImport}'`,
+      `import * as ${configurationModule.name} from './${configurationImport}'`,
       '',
       `export * as ${integrationsModule.name} from './${integrationsImport}'`,
       `export * as ${eventsModule.name} from './${eventsImport}'`,
       `export * as ${statesModule.name} from './${statesImport}'`,
-      `export * as ${actionsModule.name} from './${actionsImport.name}'`,
+      `export * as ${actionsModule.name} from './${actionsImport}'`,
       `export * as ${tablesModule.name} from './${tablesImport}'`,
-      `export * as ${workflowsModule.name} from './${workflowsImport.name}'`,
+      `export * as ${workflowsModule.name} from './${workflowsImport}'`,
+      `export * as ${configurationModule.name} from './${configurationImport}'`,
       '',
       'export type TBot = {',
+      `  configuration: ${configurationModule.name}.${configurationModule.exportName}`,
       `  integrations: ${integrationsModule.name}.${integrationsModule.exportName}`,
       `  events: ${eventsModule.name}.${eventsModule.exportName}`,
       `  states: ${statesModule.name}.${statesModule.exportName}`,

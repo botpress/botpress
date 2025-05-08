@@ -8,13 +8,11 @@ import * as common from '../common'
 import type * as workflowProxy from '../workflow-proxy/types'
 
 export type BotOperation = 'event_received' | 'register' | 'unregister' | 'ping' | 'action_triggered'
-export type BotContext = {
+export type BotContext<TBot extends common.BaseBot = common.BaseBot> = {
   botId: string
   type: string
   operation: BotOperation
-  configuration: {
-    payload: string
-  }
+  configuration: Partial<TBot['configuration']>
 }
 
 type _IncomingEvents<TBot extends common.BaseBot> = {
@@ -126,7 +124,7 @@ export type IncomingCallActionResponses<TBot extends common.BaseBot> = _Incoming
 export type BotClient<TBot extends common.BaseBot> = BotSpecificClient<TBot>
 
 export type CommonHandlerProps<TBot extends common.BaseBot> = {
-  ctx: BotContext
+  ctx: BotContext<TBot>
   logger: BotLogger
   client: BotClient<TBot>
 
