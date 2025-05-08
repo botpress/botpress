@@ -58,7 +58,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       throw new errors.BotpressCLIError('Readme must be a Markdown file')
     }
 
-    const integration = await api.findIntegration({ type: 'name', name, version })
+    const integration = await api.findPublicOrPrivateIntegration({ type: 'name', name, version })
     if (integration && integration.workspaceId !== api.workspaceId) {
       throw new errors.BotpressCLIError(
         `Public integration ${name} v${version} is already deployed in another workspace.`
@@ -170,7 +170,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
 
     const { name, version } = interfaceDeclaration
-    const intrface = await api.findPublicInterface({ type: 'name', name, version })
+    const intrface = await api.findPublicOrPrivateInterface({ type: 'name', name, version })
 
     let message: string
     if (intrface) {
@@ -249,7 +249,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       throw new errors.BotpressCLIError('Readme must be a Markdown file')
     }
 
-    const plugin = await api.findPublicPlugin({ type: 'name', name, version })
+    const plugin = await api.findPublicOrPrivatePlugin({ type: 'name', name, version })
 
     let message: string
     if (plugin) {

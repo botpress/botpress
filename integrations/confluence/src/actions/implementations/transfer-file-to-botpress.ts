@@ -5,7 +5,7 @@ import { convertAtlassianDocumentToMarkdown } from 'src/parser/confluenceToMarkd
 import * as bp from '.botpress'
 
 export const filesReadonlyTransferFileToBotpress: bp.IntegrationProps['actions']['filesReadonlyTransferFileToBotpress'] =
-  async ({ logger, client, ctx, input: { file, fileKey } }) => {
+  async ({ logger, client, ctx, input: { file, fileKey, shouldIndex } }) => {
     debugLog(logger, 'filesReadonlyTransferFileToBotpress', 'Transferring file to botpress')
     const confluenceClient = ConfluenceClient(ctx.configuration)
     const content = await confluenceClient.getPage({ pageId: parseInt(file.id) })
@@ -24,7 +24,7 @@ export const filesReadonlyTransferFileToBotpress: bp.IntegrationProps['actions']
       key: fileKey,
       content: markdown,
       contentType: 'text/plain',
-      index: true,
+      index: shouldIndex ?? true,
     })
 
     return { botpressFileId: uploadedFile.id }
