@@ -65,10 +65,13 @@ const integration = new bp.Integration({
           await outgoing.send({ ...props, message: new Text(payload.text) })
         },
         image: async ({ payload, ...props }) => {
-          await outgoing.send({
-            ...props,
-            message: image.generateOutgoingMessage({ payload, ...props }),
-          })
+          const msg = await image.generateOutgoingMessage({ payload, ...props });
+          if (msg) {
+            await outgoing.send({
+              ...props,
+              message: msg,
+            })
+          }
         },
         markdown: async ({ payload, ...props }) => {
           await outgoing.send({
