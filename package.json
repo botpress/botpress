@@ -2,6 +2,7 @@
   "name": "botpress",
   "private": true,
   "scripts": {
+    "start": "npx botpress start",
     "build": "turbo run generate && turbo run build",
     "bump": "depsynky bump --ignore-dev && pnpm -w install",
     "test": "vitest --run",
@@ -32,7 +33,7 @@
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.564.0",
     "@botpress/api": "1.13.1",
-    "@botpress/cli": "workspace:*",
+    "@botpress/cli": "workspace:^",
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@bpinternal/depsynky": "0.2.0",
