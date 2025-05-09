@@ -3,14 +3,14 @@ import * as bp from '.botpress'
 
 export const handleEvent: bp.EventHandlers['files-readonly:fileDeleted'] = async (props) => {
   const deletedFile = props.event.payload.file
-  const shouldIgnore = SyncQueue.globMatcher.shouldItemBeIgnored({
+  const globMatchResult = SyncQueue.globMatcher.matchItem({
     configuration: props.configuration,
     item: deletedFile,
     itemPath: deletedFile.absolutePath,
   })
 
-  if (shouldIgnore) {
-    props.logger.debug(`Ignoring file ${deletedFile.absolutePath} because it does not match any include pattern`)
+  if (globMatchResult.shouldBeIgnored) {
+    props.logger.debug(`Ignoring file ${deletedFile.absolutePath}. Reason: ${globMatchResult.reason}`)
     return
   }
 

@@ -9,17 +9,37 @@ type GlobMatcherProps = {
   itemPath: string
 }
 
-const SHOULD_EXCLUDE_FILE = true
-const SHOULD_INCLUDE_FILE = false
+type GlobMatchResult =
+  | {
+      shouldBeIgnored: false
+      shouldApplyOptions: Exclude<
+        GlobMatcherProps['configuration']['includeFiles'][number]['applyOptionsToMatchedFiles'],
+        undefined
+      >
+    }
+  | {
+      shouldBeIgnored: true
+      reason: 'matches-exclude-pattern' | 'unmet-include-requirements' | 'does-not-match-any-pattern'
+    }
 
-export const shouldItemBeIgnored = ({ configuration, item, itemPath }: GlobMatcherProps) => {
+export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): GlobMatchResult => {
   for (const { pathGlobPattern } of configuration.excludeFiles) {
     if (picomatch.isMatch(itemPath, pathGlobPattern)) {
-      return SHOULD_EXCLUDE_FILE
+      return {
+        shouldBeIgnored: true,
+        reason: 'matches-exclude-pattern',
+      }
     }
   }
 
-  for (const { pathGlobPattern, maxSizeInBytes, modifiedAfter } of configuration.includeFiles) {
+  let matchesButHasUnmetRequirements = false
+
+  for (const {
+    pathGlobPattern,
+    maxSizeInBytes,
+    modifiedAfter,
+    applyOptionsToMatchedFiles,
+  } of configuration.includeFiles) {
     if (!picomatch.isMatch(itemPath, pathGlobPattern)) {
       continue
     }
@@ -32,10 +52,19 @@ export const shouldItemBeIgnored = ({ configuration, item, itemPath }: GlobMatch
           item.lastModifiedDate !== undefined &&
           new Date(item.lastModifiedDate) < new Date(modifiedAfter)))
 
-    if (!isFileWithUnmetRequirements) {
-      return SHOULD_INCLUDE_FILE
+    if (isFileWithUnmetRequirements) {
+      matchesButHasUnmetRequirements = true
+      continue
+    }
+
+    return {
+      shouldBeIgnored: false,
+      shouldApplyOptions: applyOptionsToMatchedFiles ?? {},
     }
   }
 
-  return SHOULD_EXCLUDE_FILE
+  return {
+    shouldBeIgnored: true,
+    reason: matchesButHasUnmetRequirements ? 'unmet-include-requirements' : 'does-not-match-any-pattern',
+  }
 }

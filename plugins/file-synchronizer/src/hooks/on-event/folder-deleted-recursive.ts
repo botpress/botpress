@@ -3,14 +3,14 @@ import * as bp from '.botpress'
 
 export const handleEvent: bp.EventHandlers['files-readonly:folderDeletedRecursive'] = async (props) => {
   const deletedFolder = props.event.payload.folder
-  const shouldIgnore = SyncQueue.globMatcher.shouldItemBeIgnored({
+  const globMatchResult = SyncQueue.globMatcher.matchItem({
     configuration: props.configuration,
     item: deletedFolder,
     itemPath: deletedFolder.absolutePath,
   })
 
-  if (shouldIgnore) {
-    props.logger.debug(`Ignoring folder ${deletedFolder.absolutePath} because it does not match any include pattern`)
+  if (globMatchResult.shouldBeIgnored) {
+    props.logger.debug(`Ignoring folder ${deletedFolder.absolutePath}. Reason: ${globMatchResult.reason}`)
     return
   }
 
