@@ -8,7 +8,20 @@ export default new IntegrationDefinition({
   version: '0.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
-  events: {},
+  states: {
+    webhooks: {
+      type: 'integration',
+      schema: z.object({
+        registered: z.array(
+          z.object({
+            name: z.enum(['createItem']),
+            boardId: z.string(),
+            webhookId: z.string(),
+          })
+        ),
+      }),
+    },
+  },
   actions: {
     createItem: {
       title: 'Create Item',

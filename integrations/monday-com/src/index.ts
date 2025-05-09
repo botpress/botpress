@@ -1,8 +1,8 @@
 import { z } from '@botpress/sdk'
-import { AxiosError } from 'axios'
 import * as actions from 'src/actions'
 import { getClient, getVanillaClient } from './utils'
 import * as bp from '.botpress'
+import { States } from '.botpress/implementation/typings/states'
 
 export default new bp.Integration({
   register: async (event) => {
@@ -14,24 +14,20 @@ export default new bp.Integration({
     const client = getClient(event.ctx.configuration)
     const webhookUrl = event.webhookUrl
 
+    event.logger.info('start')
+    const stateResponse = await event.client.getOrSetState({
+      id: event.ctx.integrationId,
+      type: 'integration',
+      name: 'webhooks',
+      payload: {
+        registered: [],
+      },
+    })
+    const registered = stateResponse.state.payload.registered
+    const new_webhooks: Array<States['webhooks']['payload']['registered'][number]> = []
+
     for (const boardId of event.ctx.configuration.boardIds) {
-      const existingWebhooksResponse = await client.post('', {
-        query: `query($boardId: ID!) {
-          webhooks(board_id: $boardId) {
-            id
-            event
-            board_id
-            config
-          }
-        }`,
-        variables: { boardId },
-      })
-
-      const existingWebhooks = existingWebhooksResponse.data.data.webhooks
-
-      event.logger.info('Existing webhooks:', JSON.stringify(existingWebhooks, null, 2))
-
-      try {
+      if (!registered.find((webhook) => webhook.name === 'createItem' && webhook.boardId === boardId)) {
         const createWebhookResponse = await client.post('', {
           query: `mutation($boardId: ID!, $webhookUrl: String!, $event: WebhookEventType!) {
           create_webhook (board_id: $boardId, url: $webhookUrl, event: $event) {
@@ -46,21 +42,59 @@ export default new bp.Integration({
           },
         })
 
-        event.logger.info('Create webhook response:', JSON.stringify(createWebhookResponse.data, null, 2))
-      } catch (err) {
-        if (err instanceof AxiosError) {
-          event.logger.error('Failed to create the webhook.')
-          event.logger.error(err.message, JSON.stringify(err.response?.data, null, 2))
-        } else {
-          event.logger.error('Unknown error', JSON.stringify(err, null, 2))
-        }
+        new_webhooks.push({
+          name: 'createItem',
+          boardId,
+          webhookId: createWebhookResponse.data.data.create_webhook.id,
+        })
       }
     }
+
+    if (new_webhooks.length > 0) {
+      await event.client.setState({
+        id: event.ctx.integrationId,
+        type: 'integration',
+        name: 'webhooks',
+        payload: {
+          registered: [...registered, ...new_webhooks],
+        },
+      })
+    }
   },
-  unregister: async () => {
-    /**
-     * TODO: Remove integrations we added
-     */
+  unregister: async (event) => {
+    const client = getClient(event.ctx.configuration)
+
+    try {
+      const stateResponse = await event.client.getState({
+        id: event.ctx.integrationId,
+        type: 'integration',
+        name: 'webhooks',
+      })
+      const registered = stateResponse.state.payload.registered
+
+      for (const webhook of registered) {
+        event.logger.info('delete webhook', {
+          boardId: webhook.boardId,
+          webhookId: webhook.webhookId,
+          name: webhook.name,
+        })
+        await client
+          .post('', {
+            query: `mutation($webhookId: ID!) {
+          delete_webhook (id: $webhookId) { id }
+        }`,
+            variables: {
+              webhookId: webhook.webhookId,
+            },
+          })
+          .catch((err) => {
+            event.logger.forBot().error(JSON.stringify(err, null, 2))
+            event.logger.forBot().error('Could not delete Monday.com webhook with ID ', webhook.webhookId)
+          })
+      }
+    } catch {
+      // TODO should we just let uninstallation continue or is it beneficial to raise an error here?
+    }
   },
   actions,
   channels: {},
@@ -78,7 +112,6 @@ export default new bp.Integration({
         2
       )
     )
-
     if (event.req.method !== 'POST' || !event.req.body) {
       return {
         status: 400,
