@@ -1,7 +1,15 @@
+import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import { getAuthenticatedWhatsappClient } from 'src/auth'
 import { WhatsAppMessage, WhatsAppValue, WhatsAppPayloadSchema } from '../../misc/types'
 import { getMediaUrl } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
+
+type IncomingMessages = {
+  [TMessage in keyof bp.channels.channel.Messages]: {
+    type: TMessage
+    payload: bp.channels.channel.Messages[TMessage]
+  }
+}
 
 export const messagesHandler = async (props: bp.HandlerProps) => {
   const { req, ctx, client, logger } = props
@@ -45,7 +53,7 @@ async function _handleIncomingMessage(
   logger: bp.Logger
 ) {
   const { conversation } = await client.getOrCreateConversation({
-    channel: 'whatsapp',
+    channel: 'channel',
     tags: {
       userPhone: message.from,
       botPhoneNumberId: value.metadata.phone_number_id,
@@ -66,125 +74,58 @@ async function _handleIncomingMessage(
     name: contact?.profile.name,
   })
 
-  if (message.type === 'text') {
-    logger.forBot().debug('Received text message from WhatsApp:', message.text.body)
-
-    await client.createMessage({
+  const createMessage = async ({
+    type,
+    payload,
+    incomingMessageType,
+  }: ValueOf<IncomingMessages> & { incomingMessageType?: string }) => {
+    logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
+    return client.createMessage({
       tags: { id: message.id },
-      type: 'text',
-      payload: { text: message.text.body },
+      type,
+      payload,
       userId: user.id,
       conversationId: conversation.id,
     })
-  } else if (message.type === 'button') {
-    logger.forBot().debug('Received button message from WhatsApp:', message.button)
-
-    await client.createMessage({
-      tags: { id: message.id },
-      type: 'text',
-      payload: {
-        text: message.button.text,
-      },
-      userId: user.id,
-      conversationId: conversation.id,
+  }
+  const { type } = message
+  if (type === 'text') {
+    await createMessage({ type, payload: { text: message.text.body } })
+  } else if (type === 'button') {
+    await createMessage({ type: 'text', payload: { text: message.button.text } })
+  } else if (type === 'location') {
+    const { latitude, longitude, address, name } = message.location
+    await createMessage({
+      type,
+      payload: { latitude: Number(latitude), longitude: Number(longitude), title: name, address },
     })
-  } else if (message.type === 'location') {
-    logger.forBot().debug('Received location message from WhatsApp:', JSON.stringify(message.location))
-
-    await client.createMessage({
-      tags: { id: message.id },
-      type: 'location',
-      payload: {
-        latitude: Number(message.location.latitude),
-        longitude: Number(message.location.longitude),
-        address: message.location.address,
-        title: message.location.name,
-      },
-      userId: user.id,
-      conversationId: conversation.id,
-    })
-  } else if (message.type === 'image') {
-    logger.forBot().debug('Received image message from WhatsApp:', message.image)
-
+  } else if (type === 'image') {
     const imageUrl = await getMediaUrl(message.image.id, client, ctx)
-
-    await client.createMessage({
-      tags: { id: message.id },
-      type: 'image',
-      payload: { imageUrl },
-      userId: user.id,
-      conversationId: conversation.id,
-    })
-  } else if (message.type === 'audio') {
-    logger.forBot().debug('Received audio message from WhatsApp:', message.audio)
-
+    await createMessage({ type, payload: { imageUrl } })
+  } else if (type === 'audio') {
     const audioUrl = await getMediaUrl(message.audio.id, client, ctx)
-
-    await client.createMessage({
-      tags: { id: message.id },
-      type: 'audio',
-      payload: { audioUrl },
-      userId: user.id,
-      conversationId: conversation.id,
-    })
-  } else if (message.type === 'document') {
-    logger.forBot().debug('Received document message from WhatsApp:', message.document)
-
+    await createMessage({ type, payload: { audioUrl } })
+  } else if (type === 'document') {
     const documentUrl = await getMediaUrl(message.document.id, client, ctx)
-
-    await client.createMessage({
-      tags: { id: message.id },
-      type: 'file',
-      payload: {
-        fileUrl: documentUrl,
-        filename: message.document.filename,
-      },
-      userId: user.id,
-      conversationId: conversation.id,
-    })
-  } else if (message.type === 'video') {
-    logger.forBot().debug('Received video message from WhatsApp:', message.video)
-
+    await createMessage({ type: 'file', payload: { fileUrl: documentUrl, filename: message.document.filename } })
+  } else if (type === 'video') {
     const videoUrl = await getMediaUrl(message.video.id, client, ctx)
-
-    await client.createMessage({
-      tags: { id: message.id },
-      type: 'video',
-      payload: { videoUrl },
-      userId: user.id,
-      conversationId: conversation.id,
-    })
+    await createMessage({ type, payload: { videoUrl } })
   } else if (message.type === 'interactive') {
     if (message.interactive.type === 'button_reply') {
-      logger.forBot().debug('Received button reply from WhatsApp:', message.interactive.button_reply)
-
-      await client.createMessage({
-        tags: { id: message.id },
+      await createMessage({
         type: 'text',
-        payload: {
-          text: message.interactive.button_reply.id,
-          // TODO: declare in definition
-          // metadata: message.interactive.button_reply?.title,
-        },
-        userId: user.id,
-        conversationId: conversation.id,
+        payload: { text: message.interactive.button_reply.id }, // TODO: Add label
+        incomingMessageType: type,
       })
     } else if (message.interactive.type === 'list_reply') {
-      logger.forBot().debug('Received list reply from WhatsApp:', message.interactive.list_reply)
-
-      await client.createMessage({
-        tags: { id: message.id },
+      await createMessage({
         type: 'text',
-        payload: {
-          text: message.interactive.list_reply.id,
-          // TODO: declare in definition
-          // metadata: message.interactive.list_reply?.title,
-        },
-        userId: user.id,
-        conversationId: conversation.id,
+        payload: { text: message.interactive.list_reply.id }, // TODO: Add label
+        incomingMessageType: type,
       })
     }
   } else {
-    logger.forBot().warn(`Unhandled message type ${message.type}: ${JSON.stringify(message)}`)
+    logger.forBot().warn(`Unhandled message type ${type}: ${JSON.stringify(message)}`)
   }
 }

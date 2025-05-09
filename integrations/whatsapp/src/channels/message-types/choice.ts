@@ -5,7 +5,7 @@ import * as body from './interactive/body'
 import * as button from './interactive/button'
 import * as bp from '.botpress'
 
-type Choice = bp.channels.whatsapp.choice.Choice
+type Choice = bp.channels.channel.choice.Choice
 type Option = Choice['options'][number]
 
 export function* generateOutgoingMessages({

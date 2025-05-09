@@ -3,7 +3,7 @@ import { chunkArray, hasAtleastOne, truncate } from '../../misc/util'
 import * as body from './interactive/body'
 import * as bp from '.botpress'
 
-type Dropdown = bp.channels.whatsapp.dropdown.Dropdown
+type Dropdown = bp.channels.channel.dropdown.Dropdown
 
 const INTERACTIVE_MAX_ACTIONS_COUNT = 10
 const ACTION_LABEL_MAX_LENGTH = 24

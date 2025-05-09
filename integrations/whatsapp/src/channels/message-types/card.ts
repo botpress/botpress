@@ -7,7 +7,7 @@ import * as footer from './interactive/footer'
 import { channels } from '.botpress'
 import * as bp from '.botpress'
 
-type Card = channels.whatsapp.card.Card
+type Card = channels.channel.card.Card
 
 type SDKAction = Card['actions'][number]
 type ActionURL = SDKAction & { action: 'url' }

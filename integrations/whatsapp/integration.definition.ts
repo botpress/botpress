@@ -118,7 +118,7 @@ export default new IntegrationDefinition({
     fallbackHandlerScript: 'fallbackHandler.vrl',
   },
   channels: {
-    whatsapp: {
+    channel: {
       title: 'WhatsApp conversation',
       description: 'Conversation between a WhatsApp user and the bot',
       messages: {
