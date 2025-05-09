@@ -1,4 +1,4 @@
-expectedSignature = slice!(.headers."x-hub-signature-256", strlen("sha256="))
+expectedSignature = split(to_string!(.headers."x-hub-signature-256"), "=")[1]
 actualSignature = encode_base16(hmac(to_string!(.body), to_string!(.secrets.SANDBOX_CLIENT_SECRET)))
 if actualSignature != expectedSignature {
   null
