@@ -1,13 +1,4 @@
-import { WhatsAppAPI } from 'whatsapp-api-js'
-import { ServerErrorResponse, ServerMediaRetrieveResponse } from 'whatsapp-api-js/types'
-import { getAccessToken } from './misc/whatsapp'
-import { IntegrationCtx, Client } from './types'
-
-export class UnreachableCaseError extends Error {
-  public constructor(val: never) {
-    super(`Unreachable case: ${val}`)
-  }
-}
+import { AtLeastOne } from 'whatsapp-api-js/lib/utils'
 
 export function chunkArray<T>(array: T[], chunkSize: number) {
   const chunks: T[][] = []
@@ -34,21 +25,13 @@ export function truncate(input: string, maxLength: number) {
   return truncated
 }
 
-export async function getWhatsAppMediaUrl(
-  whatsappMediaId: string,
-  client: Client,
-  ctx: IntegrationCtx
-): Promise<string> {
-  const accessToken = await getAccessToken(client, ctx)
-  const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
-  const media = await whatsapp.retrieveMedia(whatsappMediaId)
-  return (media as Exclude<ServerMediaRetrieveResponse, ServerErrorResponse>).url
-}
-
 export function getSubpath(path: string) {
   let subpath = '/' + path.split('/').slice(2).join('/')
   if (subpath.slice(-1) === '/') {
     subpath = subpath.slice(0, -1)
   }
   return subpath ? subpath : undefined
+}
+export const hasAtleastOne = <T>(obj: T[]): obj is AtLeastOne<T> => {
+  return obj.length > 0
 }

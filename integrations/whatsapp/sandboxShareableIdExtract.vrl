@@ -1,0 +1,2 @@
+body = parse_json!(.body)
+body.entry[0].changes[0].value.messages[0].text.body

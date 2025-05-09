@@ -1,6 +1,7 @@
-import { z } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
-import { getGlobalWebhookUrl } from '../index'
+import { WhatsAppAPI } from 'whatsapp-api-js'
+import { WHATSAPP } from './misc/constants'
 import * as bp from '.botpress'
 
 export class MetaOauthClient {
@@ -13,13 +14,16 @@ export class MetaOauthClient {
     this._clientSecret = bp.secrets.CLIENT_SECRET
   }
 
-  public async getAccessToken(code: string, redirectUri?: string): Promise<string> {
+  public async exchangeAuthorizationCodeForAccessToken(code: string, redirectUri?: string): Promise<string> {
     const query = new URLSearchParams({
       client_id: this._clientId,
       client_secret: this._clientSecret,
-      redirect_uri: redirectUri ?? getGlobalWebhookUrl(),
       code,
     })
+
+    if (redirectUri) {
+      query.append('redirect_uri', redirectUri)
+    }
 
     const res = await axios.get(`https://graph.facebook.com/${this._version}/oauth/access_token?${query.toString()}`)
     const data = z
@@ -132,23 +136,48 @@ export class MetaOauthClient {
 }
 
 export const getAccessToken = async (client: bp.Client, ctx: bp.Context): Promise<string> => {
-  if (ctx.configurationType === 'manualApp') {
-    return ctx.configuration.accessToken as string
+  let accessToken: string | undefined
+  if (ctx.configurationType === 'manual') {
+    accessToken = ctx.configuration.accessToken
+  } else if (ctx.configurationType === 'sandbox') {
+    accessToken = bp.secrets.SANDBOX_ACCESS_TOKEN
+  } else {
+    const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    accessToken = state.payload.accessToken
   }
 
-  const {
-    state: {
-      payload: { accessToken },
-    },
-  } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+  if (!accessToken) {
+    throw new RuntimeError('Access token not found in saved credentials')
+  }
 
-  return accessToken as string
+  return accessToken
 }
 
-export const getSecret = (ctx: bp.Context): string | undefined => {
+export const getAuthenticatedWhatsappClient = async (client: bp.Client, ctx: bp.Context): Promise<WhatsAppAPI> => {
+  const token = await getAccessToken(client, ctx)
+  return new WhatsAppAPI({ token, secure: false, v: WHATSAPP.API_VERSION })
+}
+
+export function getVerifyToken(ctx: bp.Context): string {
+  // Should normally be verified in the fallbackHandler script with OAuth and Sandbox
+  let verifyToken: string
+  if (ctx.configurationType === 'manual') {
+    verifyToken = ctx.configuration.verifyToken
+  } else if (ctx.configurationType === 'sandbox') {
+    verifyToken = bp.secrets.SANDBOX_VERIFY_TOKEN
+  } else {
+    verifyToken = bp.secrets.VERIFY_TOKEN
+  }
+
+  return verifyToken
+}
+
+export const getClientSecret = (ctx: bp.Context): string | undefined => {
   let value: string | undefined
-  if (ctx.configurationType === 'manualApp') {
+  if (ctx.configurationType === 'manual') {
     value = ctx.configuration.clientSecret
+  } else if (ctx.configurationType === 'sandbox') {
+    value = bp.secrets.SANDBOX_CLIENT_SECRET
   } else {
     value = bp.secrets.CLIENT_SECRET
   }
@@ -156,13 +185,19 @@ export const getSecret = (ctx: bp.Context): string | undefined => {
   return value?.length ? value : undefined
 }
 
-export const getPhoneNumberId = async (client: bp.Client, ctx: bp.Context) => {
-  if (ctx.configurationType === 'manualApp') {
-    return ctx.configuration.phoneNumberId
+export const getDefaultBotPhoneNumberId = async (client: bp.Client, ctx: bp.Context) => {
+  let defaultBotPhoneNumberId: string | undefined
+  if (ctx.configurationType === 'manual') {
+    defaultBotPhoneNumberId = ctx.configuration.defaultBotPhoneNumberId
+  } else if (ctx.configurationType === 'sandbox') {
+    defaultBotPhoneNumberId = bp.secrets.SANDBOX_PHONE_NUMBER_ID
+  } else {
+    const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    defaultBotPhoneNumberId = state.payload.defaultBotPhoneNumberId
   }
 
-  const {
-    state: { payload },
-  } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
-  return payload.phoneNumberId
+  if (!defaultBotPhoneNumberId) {
+    throw new RuntimeError('Default bot phone number ID not found in saved credentials')
+  }
+  return defaultBotPhoneNumberId
 }
