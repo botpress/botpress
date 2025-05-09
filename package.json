@@ -33,7 +33,7 @@
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.564.0",
     "@botpress/api": "1.13.1",
-    "@botpress/cli": "workspace:*",
+    "@botpress/cli": "^1.13.1",
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@bpinternal/depsynky": "0.2.0",
