@@ -127,7 +127,7 @@ const handleProductCreateOrUpdate = async (
     price: product.price,
     sale_price: product.sale_price,
     retail_price: product.retail_price,
-    cost_price: product.cost_price,
+    total_sold: product.total_sold || 0,
     weight: product.weight,
     type: product.type,
     inventory_level: product.inventory_level,
