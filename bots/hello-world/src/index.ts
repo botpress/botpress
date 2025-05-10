@@ -6,9 +6,10 @@ const truncate = (str: string, maxLength: number = 500): string =>
 
 const bot = new bp.Bot({
   actions: {
-    sayHello: async ({ input }) => {
+    sayHello: async ({ input, ctx }) => {
+      const botName = ctx.configuration.botName || 'Hello-World'
       const name = input?.name || 'World'
-      return { message: `Hello, ${name}!` }
+      return { message: `Hello, ${name}! This is ${botName} speaking.` }
     },
   },
 })

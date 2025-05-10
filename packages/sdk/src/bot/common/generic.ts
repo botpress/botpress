@@ -27,6 +27,7 @@ export type BaseState = {
 }
 
 export type BaseBot = {
+  configuration: any
   integrations: Record<string, BaseIntegration>
   events: Record<string, any>
   states: Record<string, BaseState>
@@ -37,6 +38,7 @@ export type BaseBot = {
 
 export type InputBaseBot = utils.DeepPartial<BaseBot>
 export type DefaultBot<B extends InputBaseBot> = {
+  configuration: utils.Default<B['configuration'], BaseBot['configuration']>
   events: utils.Default<B['events'], BaseBot['events']>
   states: utils.Default<B['states'], BaseBot['states']>
   actions: utils.Default<B['actions'], BaseBot['actions']>

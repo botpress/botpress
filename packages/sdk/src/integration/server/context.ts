@@ -61,6 +61,6 @@ export const extractContext = (headers: Record<string, string | undefined>): Int
     webhookId,
     operation,
     configurationType: configurationType ?? null,
-    configuration: base64Configuration ? JSON.parse(Buffer.from(base64Configuration, 'base64').toString('utf-8')) : {},
+    configuration: JSON.parse(Buffer.from(base64Configuration, 'base64').toString('utf-8')),
   }
 }
