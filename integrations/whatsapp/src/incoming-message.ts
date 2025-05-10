@@ -46,6 +46,7 @@ export async function handleIncomingMessage(
           type: 'text',
           payload: {
             text: message.button.text,
+            payload: message.button.payload,
           },
           userId: user.id,
           conversationId: conversation.id,
