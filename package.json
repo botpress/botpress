@@ -30,6 +30,9 @@
     "**/*.{json,yaml,yml,md}": "prettier --write",
     "**/*.test.ts": "vitest --run"
   },
+  "dependencies": {
+  "@botpress/cli": "^4.5.0"
+  },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.564.0",
     "@botpress/api": "1.13.1",
