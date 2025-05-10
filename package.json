@@ -2,7 +2,7 @@
   "name": "botpress",
   "private": true,
   "scripts": {
-    "start": "npx botpress start",
+    "start": "botpress start",
     "build": "turbo run generate && turbo run build",
     "bump": "depsynky bump --ignore-dev && pnpm -w install",
     "test": "vitest --run",
