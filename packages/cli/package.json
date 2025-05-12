@@ -22,7 +22,7 @@
     "@apidevtools/json-schema-ref-parser": "^11.7.0",
     "@botpress/chat": "0.5.1",
     "@botpress/client": "1.11.0",
-    "@botpress/sdk": "4.4.1",
+    "@botpress/sdk": "4.4.2",
     "@bpinternal/const": "^0.1.0",
     "@bpinternal/tunnel": "^0.1.1",
     "@bpinternal/yargs-extra": "^0.0.3",
