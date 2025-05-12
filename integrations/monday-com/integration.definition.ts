@@ -14,7 +14,7 @@ export default new IntegrationDefinition({
       schema: z.object({
         registered: z.array(
           z.object({
-            name: z.enum(['createItem']),
+            name: z.enum(['create_item', 'item_deleted']),
             boardId: z.string(),
             webhookId: z.string(),
           })

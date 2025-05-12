@@ -22,27 +22,31 @@ export default new bp.Integration({
       },
     })
     const registered = stateResponse.state.payload.registered
-    const new_webhooks: Array<States['webhooks']['payload']['registered'][number]> = []
+    const newWebhooks: Array<States['webhooks']['payload']['registered'][number]> = []
+
+    const webhooksToRegister = ['create_item', 'item_deleted'] as const
 
     for (const boardId of ctx.configuration.boardIds) {
-      if (!registered.find((webhook) => webhook.name === 'createItem' && webhook.boardId === boardId)) {
-        const result = await monday.createWebhook('create_item', webhookUrl, boardId)
+      for (const webhookName of webhooksToRegister) {
+        if (!registered.find((webhook) => webhook.name === webhookName && webhook.boardId === boardId)) {
+          const result = await monday.createWebhook(webhookName, webhookUrl, boardId)
 
-        new_webhooks.push({
-          name: 'createItem',
-          boardId,
-          webhookId: result.create_webhook.id,
-        })
+          newWebhooks.push({
+            name: webhookName,
+            boardId,
+            webhookId: result.create_webhook.id,
+          })
+        }
       }
     }
 
-    if (new_webhooks.length > 0) {
+    if (newWebhooks.length > 0) {
       await client.setState({
         id: ctx.integrationId,
         type: 'integration',
         name: 'webhooks',
         payload: {
-          registered: [...registered, ...new_webhooks],
+          registered: [...registered, ...newWebhooks],
         },
       })
     }
@@ -122,52 +126,82 @@ export default new bp.Integration({
       }
     }
 
-    const eventSchema = z.object({
-      event: z.object({
-        app: z.literal('monday'),
-        type: z.enum(['create_pulse']),
-        triggerTime: z.coerce.date(),
-        subscriptionId: z.number(),
-        isRetry: z.boolean(),
-        userId: z.number(),
-        originalTriggerUuid: z.string().nullable(),
-        boardId: z.number(),
-        pulseId: z.number(),
-        pulseName: z.string(),
-        groupId: z.string(),
-        groupName: z.string(),
-        groupColor: z.string(),
-        isTopGroup: z.boolean(),
-        columnValues: z.record(z.string(), z.unknown()),
-        triggerUuid: z.string(),
-      }),
+    const baseEventSchema = z.object({
+      app: z.literal('monday'),
+      triggerTime: z.coerce.date(),
+      subscriptionId: z.number(),
+      isRetry: z.boolean(),
+      userId: z.number(),
+      originalTriggerUuid: z.string().nullable(),
+      triggerUuid: z.string(),
     })
-    const eventResult = eventSchema.safeParse(jsonBody)
+    const createItemSchema = baseEventSchema.extend({
+      type: z.literal('create_pulse'),
+      boardId: z.number(),
+      pulseId: z.number(),
+      pulseName: z.string(),
+      groupId: z.string(),
+      groupName: z.string(),
+      groupColor: z.string(),
+      isTopGroup: z.boolean(),
+      columnValues: z.record(z.string(), z.unknown()),
+    })
+    const deleteItemSchema = baseEventSchema.extend({
+      type: z.literal('delete_pulse'),
+      boardId: z.number(),
+      itemId: z.number(),
+      itemName: z.string(),
+    })
+
+    const eventSchema = z.discriminatedUnion('type', [createItemSchema, deleteItemSchema])
+
+    const webhookRequestSchema = z.object({ event: eventSchema })
+
+    const eventResult = webhookRequestSchema.safeParse(jsonBody)
     if (eventResult.success) {
       const mondayEvent = eventResult.data.event
 
       event.logger.info('Monday event: ', JSON.stringify(mondayEvent, null, 2))
 
-      const bpClient = getVanillaClient(event.client)
-      const response = await bpClient.upsertTableRows({
-        table: 'MondayItemsTable',
-        keyColumn: 'itemId',
-        rows: [
-          {
-            boardId: mondayEvent.boardId.toString(),
-            itemId: mondayEvent.pulseId.toString(),
-            name: mondayEvent.pulseName,
-          },
-        ],
-      })
-      if (response.errors) {
-        for (const err of response.errors) {
-          event.logger.error('upsert error', err)
+      if (mondayEvent.type === 'create_pulse') {
+        const bpClient = getVanillaClient(event.client)
+        const response = await bpClient.upsertTableRows({
+          table: 'MondayItemsTable',
+          keyColumn: 'itemId',
+          rows: [
+            {
+              boardId: mondayEvent.boardId.toString(),
+              itemId: mondayEvent.pulseId.toString(),
+              name: mondayEvent.pulseName,
+            },
+          ],
+        })
+        if (response.errors) {
+          for (const err of response.errors) {
+            event.logger.error('upsert error', err)
+          }
         }
+        event.logger.info('inserted', response.inserted.length)
+        event.logger.info('updated', response.updated.length)
+        return { status: 200, body: 'Handled event ' + mondayEvent.type }
+      } else if (mondayEvent.type === 'delete_pulse') {
+        const bpClient = getVanillaClient(event.client)
+        const result = await bpClient.findTableRows({
+          table: 'MondayItemsTable',
+          filter: {
+            itemId: {
+              $eq: String(mondayEvent.itemId),
+            },
+          },
+        })
+
+        await bpClient.deleteTableRows({
+          table: 'MondayItemsTable',
+          ids: result.rows.map((row) => row.id),
+        })
+
+        return { status: 200, body: 'Handled event ' + mondayEvent.type }
       }
-      event.logger.info('inserted', response.inserted.length)
-      event.logger.info('updated', response.updated.length)
-      return { status: 200, body: 'Handled event ' + mondayEvent.type }
     } else {
       event.logger.error(eventResult.error)
       event.logger.error(eventResult.error.toString())

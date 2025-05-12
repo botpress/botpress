@@ -14,6 +14,8 @@ export type Item = {
   name: string
 }
 
+export const webhookNames = ['create_item', 'item_deleted'] as const
+
 export class MondayClient {
   private constructor(private readonly _client: Axios) {}
 
@@ -44,7 +46,7 @@ export class MondayClient {
   }
 
   public async createWebhook(
-    webhookEvent: 'create_item',
+    webhookEvent: (typeof webhookNames)[number],
     webhookUrl: string,
     boardId: string
   ): Promise<GRAPHQL_QUERIES['createWebhook'][QUERY_RESPONSE]> {

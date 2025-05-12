@@ -59,7 +59,7 @@ export const GRAPHQL_QUERIES = {
     [QUERY_INPUT]: {} as {
       boardId: string
       webhookUrl: string
-      event: 'create_item'
+      event: string
     },
     [QUERY_RESPONSE]: {} as {
       create_webhook: {
