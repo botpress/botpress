@@ -1,6 +1,6 @@
 {
   "name": "@botpress/sdk",
-  "version": "4.4.2",
+  "version": "4.5.0",
   "description": "Botpress SDK",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -16,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "1.11.0",
+    "@botpress/client": "1.12.0",
     "browser-or-node": "^2.1.1"
   },
   "devDependencies": {
