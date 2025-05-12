@@ -1,23 +1,20 @@
 import { z } from '@botpress/sdk'
 import * as actions from 'src/actions'
 import { MondayClient } from './misc/monday-client'
-import { getVanillaClient } from './utils'
+import { ensureMondayItemsTableExists, getVanillaClient } from './utils'
 import * as bp from '.botpress'
 import { States } from '.botpress/implementation/typings/states'
 
 export default new bp.Integration({
   register: async (event) => {
-    /**
-     * This is called when an integration configuration is saved.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
+    await ensureMondayItemsTableExists(event.client)
+
+    const webhookUrl = event.webhookUrl
 
     const client = MondayClient.create({
       personalAccessToken: event.ctx.configuration.personalAccessToken,
     })
-    const webhookUrl = event.webhookUrl
 
-    event.logger.info('start')
     const stateResponse = await event.client.getOrSetState({
       id: event.ctx.integrationId,
       type: 'integration',
@@ -53,6 +50,8 @@ export default new bp.Integration({
     }
   },
   unregister: async (event) => {
+    // TODO clear out MondayItemsTable
+
     const client = MondayClient.create({
       personalAccessToken: event.ctx.configuration.personalAccessToken,
     })

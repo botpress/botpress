@@ -1,20 +1,12 @@
-import { createItemSchema, itemsTableSchema, syncItemsSchema } from 'src/misc/custom-schemas'
+import { createItemSchema, syncItemsSchema } from 'src/misc/custom-schemas'
 import { MondayClient } from 'src/misc/monday-client'
 import { getVanillaClient } from 'src/utils'
-import { IntegrationProps, Client as EventClient } from '.botpress'
+import { IntegrationProps } from '.botpress'
 
 type CreateItem = IntegrationProps['actions']['createItem']
 type SyncItems = IntegrationProps['actions']['syncItems']
 
-const ensureMondayItemsTableExists = async (client: EventClient) =>
-  await getVanillaClient(client).getOrCreateTable({
-    table: 'MondayItemsTable',
-    schema: itemsTableSchema.toJsonSchema({ target: 'jsonSchema7' }),
-  })
-
 export const syncItems: SyncItems = async (event) => {
-  await ensureMondayItemsTableExists(event.client)
-
   const input = syncItemsSchema.parse(event.input)
   const client = MondayClient.create({
     personalAccessToken: event.ctx.configuration.personalAccessToken,
@@ -46,8 +38,6 @@ export const syncItems: SyncItems = async (event) => {
 }
 
 export const createItem: CreateItem = async (event) => {
-  await ensureMondayItemsTableExists(event.client)
-
   const input = createItemSchema.parse(event.input)
 
   const client = MondayClient.create({
