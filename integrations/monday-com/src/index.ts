@@ -1,6 +1,7 @@
 import { z } from '@botpress/sdk'
 import * as actions from 'src/actions'
-import { getClient, getVanillaClient } from './utils'
+import { MondayClient } from './misc/monday-client'
+import { getVanillaClient } from './utils'
 import * as bp from '.botpress'
 import { States } from '.botpress/implementation/typings/states'
 
@@ -11,7 +12,9 @@ export default new bp.Integration({
      * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
      */
 
-    const client = getClient(event.ctx.configuration)
+    const client = MondayClient.create({
+      personalAccessToken: event.ctx.configuration.personalAccessToken,
+    })
     const webhookUrl = event.webhookUrl
 
     event.logger.info('start')
@@ -28,24 +31,12 @@ export default new bp.Integration({
 
     for (const boardId of event.ctx.configuration.boardIds) {
       if (!registered.find((webhook) => webhook.name === 'createItem' && webhook.boardId === boardId)) {
-        const createWebhookResponse = await client.post('', {
-          query: `mutation($boardId: ID!, $webhookUrl: String!, $event: WebhookEventType!) {
-          create_webhook (board_id: $boardId, url: $webhookUrl, event: $event) {
-            id
-            board_id
-          }
-        }`,
-          variables: {
-            boardId,
-            webhookUrl,
-            event: 'create_item',
-          },
-        })
+        const result = await client.createWebhook('create_item', webhookUrl, boardId)
 
         new_webhooks.push({
           name: 'createItem',
           boardId,
-          webhookId: createWebhookResponse.data.data.create_webhook.id,
+          webhookId: result.create_webhook.id,
         })
       }
     }
@@ -62,7 +53,9 @@ export default new bp.Integration({
     }
   },
   unregister: async (event) => {
-    const client = getClient(event.ctx.configuration)
+    const client = MondayClient.create({
+      personalAccessToken: event.ctx.configuration.personalAccessToken,
+    })
 
     try {
       const stateResponse = await event.client.getState({
@@ -78,19 +71,10 @@ export default new bp.Integration({
           webhookId: webhook.webhookId,
           name: webhook.name,
         })
-        await client
-          .post('', {
-            query: `mutation($webhookId: ID!) {
-          delete_webhook (id: $webhookId) { id }
-        }`,
-            variables: {
-              webhookId: webhook.webhookId,
-            },
-          })
-          .catch((err) => {
-            event.logger.forBot().error(JSON.stringify(err, null, 2))
-            event.logger.forBot().error('Could not delete Monday.com webhook with ID ', webhook.webhookId)
-          })
+        await client.deleteWebhook(webhook.webhookId).catch((err) => {
+          event.logger.forBot().error(JSON.stringify(err, null, 2))
+          event.logger.forBot().error('Could not delete Monday.com webhook with ID ', webhook.webhookId)
+        })
       }
     } catch {
       // TODO should we just let uninstallation continue or is it beneficial to raise an error here?
