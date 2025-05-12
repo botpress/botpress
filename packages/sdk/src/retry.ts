@@ -30,32 +30,36 @@ const _getRetryAfterSeconds = (headers: client.axios.RawAxiosResponseHeaders) =>
       continue
     }
 
-    const headerValueString = String(headerValue)
-
-    try {
-      // NOTE: retry-after can be either a number of seconds or a date string:
-      if (_isDateString(headerValueString)) {
-        const futureDate = new Date(headerValueString)
-
-        if (isNaN(futureDate.getTime())) {
-          continue
-        }
-
-        const currentDate = new Date()
-        const secondsDiff = Math.max(0, Math.floor((futureDate.getTime() - currentDate.getTime()) / 1000))
-
-        return secondsDiff
-      }
-
-      // If it's a number, we assume it's in seconds:
-      else if (headerValueString.length > 0) {
-        return parseInt(headerValueString, 10)
-      }
-    } catch {
-      continue
-    }
+    return _parseHeaderToSeconds(String(headerValue))
   }
+
   return
 }
 
-const _isDateString = (value: string): boolean => value.includes(' ')
+const _parseHeaderToSeconds = (headerValue: string): number | undefined => {
+  // NOTE: retry-after can be either a number of seconds or a date string:
+  const secondsDiff = _isDateString(headerValue)
+    ? _parseDateToSeconds(headerValue)
+    : headerValue.length > 0
+      ? parseInt(headerValue, 10)
+      : undefined
+
+  return secondsDiff === undefined || isNaN(secondsDiff) ? undefined : secondsDiff
+}
+
+const _isDateString = (headerValue: string): boolean => headerValue.includes(' ')
+
+const _parseDateToSeconds = (headerValue: string): number | undefined => {
+  const futureDate = _parseDateString(headerValue)
+  if (!futureDate) {
+    return
+  }
+
+  const currentDate = new Date()
+  return Math.max(0, Math.floor((futureDate.getTime() - currentDate.getTime()) / 1000))
+}
+
+const _parseDateString = (headerValue: string): Date | undefined => {
+  const date = new Date(headerValue)
+  return isNaN(date.getTime()) ? undefined : date
+}
