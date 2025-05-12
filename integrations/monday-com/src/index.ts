@@ -6,17 +6,15 @@ import * as bp from '.botpress'
 import { States } from '.botpress/implementation/typings/states'
 
 export default new bp.Integration({
-  register: async (event) => {
-    await ensureMondayItemsTableExists(event.client)
+  register: async ({ webhookUrl, ctx, client }) => {
+    await ensureMondayItemsTableExists(client)
 
-    const webhookUrl = event.webhookUrl
-
-    const client = MondayClient.create({
-      personalAccessToken: event.ctx.configuration.personalAccessToken,
+    const monday = MondayClient.create({
+      personalAccessToken: ctx.configuration.personalAccessToken,
     })
 
-    const stateResponse = await event.client.getOrSetState({
-      id: event.ctx.integrationId,
+    const stateResponse = await client.getOrSetState({
+      id: ctx.integrationId,
       type: 'integration',
       name: 'webhooks',
       payload: {
@@ -26,9 +24,9 @@ export default new bp.Integration({
     const registered = stateResponse.state.payload.registered
     const new_webhooks: Array<States['webhooks']['payload']['registered'][number]> = []
 
-    for (const boardId of event.ctx.configuration.boardIds) {
+    for (const boardId of ctx.configuration.boardIds) {
       if (!registered.find((webhook) => webhook.name === 'createItem' && webhook.boardId === boardId)) {
-        const result = await client.createWebhook('create_item', webhookUrl, boardId)
+        const result = await monday.createWebhook('create_item', webhookUrl, boardId)
 
         new_webhooks.push({
           name: 'createItem',
@@ -39,8 +37,8 @@ export default new bp.Integration({
     }
 
     if (new_webhooks.length > 0) {
-      await event.client.setState({
-        id: event.ctx.integrationId,
+      await client.setState({
+        id: ctx.integrationId,
         type: 'integration',
         name: 'webhooks',
         payload: {
@@ -49,30 +47,30 @@ export default new bp.Integration({
       })
     }
   },
-  unregister: async (event) => {
+  unregister: async ({ client, ctx, logger }) => {
     // TODO clear out MondayItemsTable
 
-    const client = MondayClient.create({
-      personalAccessToken: event.ctx.configuration.personalAccessToken,
+    const monday = MondayClient.create({
+      personalAccessToken: ctx.configuration.personalAccessToken,
     })
 
     try {
-      const stateResponse = await event.client.getState({
-        id: event.ctx.integrationId,
+      const stateResponse = await client.getState({
+        id: ctx.integrationId,
         type: 'integration',
         name: 'webhooks',
       })
       const registered = stateResponse.state.payload.registered
 
       for (const webhook of registered) {
-        event.logger.info('delete webhook', {
+        logger.info('delete webhook', {
           boardId: webhook.boardId,
           webhookId: webhook.webhookId,
           name: webhook.name,
         })
-        await client.deleteWebhook(webhook.webhookId).catch((err) => {
-          event.logger.forBot().error(JSON.stringify(err, null, 2))
-          event.logger.forBot().error('Could not delete Monday.com webhook with ID ', webhook.webhookId)
+        await monday.deleteWebhook(webhook.webhookId).catch((err) => {
+          logger.forBot().error(JSON.stringify(err, null, 2))
+          logger.forBot().error('Could not delete Monday.com webhook with ID ', webhook.webhookId)
         })
       }
     } catch {

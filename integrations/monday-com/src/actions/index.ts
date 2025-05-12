@@ -8,14 +8,14 @@ type SyncItems = IntegrationProps['actions']['syncItems']
 
 export const syncItems: SyncItems = async (event) => {
   const input = syncItemsSchema.parse(event.input)
-  const client = MondayClient.create({
+  const monday = MondayClient.create({
     personalAccessToken: event.ctx.configuration.personalAccessToken,
   })
-  const bpClient = getVanillaClient(event.client)
+  const client = getVanillaClient(event.client)
 
-  for await (const batch of client.getItems(input.boardId)) {
+  for await (const batch of monday.getItems(input.boardId)) {
     event.logger.info('upserted', batch.length)
-    const response = await bpClient.upsertTableRows({
+    const response = await client.upsertTableRows({
       table: 'MondayItemsTable',
       keyColumn: 'itemId',
       rows: batch.map((item) => ({
