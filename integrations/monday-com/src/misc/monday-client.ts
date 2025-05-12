@@ -72,50 +72,29 @@ export class MondayClient {
   }
 
   public async *getItems(boardId: string): AsyncGenerator<Array<Item>> {
-    let response = await this._client.post('', {
-      query: `query GetItems($boardId: ID!) {
-      boards(ids: [$boardId]) {
-        items_page(limit: 5) {
-          cursor
-          items {
-            id
-            name
-            group { id }
-          }
-        }
-      }
-    }`,
-      variables: { boardId },
+    const limit = 25
+
+    const result = await this._executeGraphqlQuery('getItemsPage', {
+      limit,
+      boardId,
     })
+    if (result.boards.length === 0) return
+    if (result.boards[0]!.items_page.items.length === 0) return
 
-    if (response.data.data.boards.length === 0) return
-    if (response.data.data.boards[0].items_page.items.length === 0) return
-
-    yield response.data.data.boards[0].items_page.items
-    let cursor = response.data.data.boards[0].items_page.cursor
+    yield result.boards[0]!.items_page.items
+    let cursor = result.boards[0]!.items_page.cursor
 
     while (cursor !== null) {
-      response = await this._client.post('', {
-        query: `query GetItems($boardId: ID!, $cursor: String!) {
-          boards(ids: [$boardId]) {
-            items_page(limit: 25, cursor: $cursor) {
-              cursor
-              items {
-                id
-                name
-                group { id }
-              }
-            }
-          }
-  }`,
-        variables: { boardId, cursor },
+      const next_result = await this._executeGraphqlQuery('getNextItemsPage', {
+        limit,
+        boardId,
+        cursor,
       })
 
-      if (response.data.data.boards.length === 0) return
-      if (response.data.data.boards[0].items_page.items.length === 0) return
-
-      yield response.data.data.boards[0].items_page.items
-      cursor = response.data.data.boards[0].items_page.cursor
+      if (next_result.boards.length === 0) return
+      if (next_result.boards[0]!.items_page.items.length === 0) return
+      yield next_result.boards[0]!.items_page.items
+      cursor = next_result.boards[0]!.items_page.cursor
     }
   }
 }

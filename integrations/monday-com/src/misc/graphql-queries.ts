@@ -8,6 +8,46 @@ type GraphQLQuery<TInput, TResponse> = {
 }
 
 export const GRAPHQL_QUERIES = {
+  getItemsPage: {
+    query: `query GetItems($boardId: ID!) {
+      boards(ids: [$boardId]) {
+        items_page(limit: 5) {
+          cursor
+          items {
+            id
+            name
+            group { id }
+          }
+        }
+      }
+    }`,
+    [QUERY_INPUT]: {} as { limit: number; boardId: string },
+    [QUERY_RESPONSE]: {} as {
+      boards: Array<{
+        items_page: { cursor: string | null; items: Array<{ id: string; name: string; group: { id: string } }> }
+      }>
+    },
+  },
+  getNextItemsPage: {
+    query: `query GetItems($boardId: ID!, $cursor: String!) {
+      boards(ids: [$boardId]) {
+        items_page(limit: 25, cursor: $cursor) {
+          cursor
+          items {
+            id
+            name
+            group { id }
+          }
+        }
+      }
+    }`,
+    [QUERY_INPUT]: {} as { limit: number; boardId: string; cursor: string },
+    [QUERY_RESPONSE]: {} as {
+      boards: Array<{
+        items_page: { cursor: string | null; items: Array<{ id: string; name: string; group: { id: string } }> }
+      }>
+    },
+  },
   createWebhook: {
     query: `
       mutation CreateWebhook($boardId: ID!, $webhookUrl: String!, $event: WebhookEventType!) {
