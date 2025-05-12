@@ -7,7 +7,6 @@ import {
   GetChannelByName,
   GetMessageByName,
   MessageTags,
-  WithOptionalPrefix,
   WithRequiredPrefix,
   TagsOfMessage,
 } from './sub-types'
@@ -95,7 +94,7 @@ export type CreateEvent<TIntegration extends common.BaseIntegration> = <TEvent e
   x: utils.Merge<
     Arg<client.Client['createEvent']>,
     {
-      type: WithOptionalPrefix<utils.Cast<TEvent, string>, TIntegration['name']>
+      type: utils.Cast<TEvent, string>
       payload: TIntegration['events'][TEvent]
     }
   >
