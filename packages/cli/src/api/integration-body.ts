@@ -85,6 +85,8 @@ export const prepareUpdateIntegrationBody = (
     remoteIntegration.configurations
   )
 
+  const readme = localIntegration.readme
+  const icon = localIntegration.icon
   return {
     ..._maybeRemoveVrlScripts(localIntegration, remoteIntegration),
     actions,
@@ -95,6 +97,8 @@ export const prepareUpdateIntegrationBody = (
     channels,
     interfaces,
     configurations,
+    readme,
+    icon,
   }
 }
 
