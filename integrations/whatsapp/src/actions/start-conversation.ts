@@ -31,7 +31,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   }
 
   const { conversation } = await client.getOrCreateConversation({
-    channel: 'whatsapp',
+    channel: 'channel',
     tags: {
       botPhoneNumberId,
       userPhone,
