@@ -172,5 +172,6 @@ export default new bp.Integration({
     }
 
     event satisfies never
+    throw new Error('Unreachable')
   },
 })
