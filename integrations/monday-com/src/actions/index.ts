@@ -1,4 +1,3 @@
-import { createItemSchema, syncItemsSchema } from 'src/misc/custom-schemas'
 import { MondayClient } from 'src/misc/monday-client'
 import { getVanillaClient } from 'src/utils'
 import { IntegrationProps } from '.botpress'
@@ -7,19 +6,21 @@ type CreateItem = IntegrationProps['actions']['createItem']
 type SyncItems = IntegrationProps['actions']['syncItems']
 
 export const syncItems: SyncItems = async (event) => {
-  const input = syncItemsSchema.parse(event.input)
+  const boardId = event.input.boardId
+
   const monday = MondayClient.create({
     personalAccessToken: event.ctx.configuration.personalAccessToken,
   })
+
   const client = getVanillaClient(event.client)
 
-  for await (const batch of monday.getItems(input.boardId)) {
+  for await (const batch of monday.getItems(boardId)) {
     event.logger.info('upserted', batch.length)
     const response = await client.upsertTableRows({
       table: 'MondayItemsTable',
       keyColumn: 'itemId',
       rows: batch.map((item) => ({
-        boardId: input.boardId,
+        boardId,
         itemId: item.id,
         name: item.name,
       })),
@@ -37,11 +38,9 @@ export const syncItems: SyncItems = async (event) => {
   return {}
 }
 
-export const createItem: CreateItem = async (event) => {
-  const input = createItemSchema.parse(event.input)
-
+export const createItem: CreateItem = async ({ input, ctx }) => {
   const client = MondayClient.create({
-    personalAccessToken: event.ctx.configuration.personalAccessToken,
+    personalAccessToken: ctx.configuration.personalAccessToken,
   })
 
   await client.createItem(input.boardId, {

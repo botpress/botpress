@@ -1,6 +1,7 @@
 import { z } from '@botpress/sdk'
 
 export type Webhook = z.infer<typeof webhookSchema>
+export type WebhookNames = (typeof webhookNames)[number]
 
 const baseEventSchema = z.object({
   app: z.literal('monday'),
@@ -34,10 +35,10 @@ export const webhookRequestSchema = z.object({ event: eventSchema })
 
 export const challengeRequestSchema = z.object({ challenge: z.string().min(1) })
 
-export const webhooks = ['create_item', 'item_deleted'] as const
+export const webhookNames = ['create_item', 'item_deleted'] as const
 
 export const webhookSchema = z.object({
-  name: z.enum(webhooks),
+  name: z.enum(webhookNames),
   boardId: z.string(),
   webhookId: z.string(),
 })

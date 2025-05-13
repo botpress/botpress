@@ -1,4 +1,5 @@
 import axios, { Axios } from 'axios'
+import { WebhookNames } from './custom-schemas'
 import { GRAPHQL_QUERIES, QUERY_INPUT, QUERY_RESPONSE } from './graphql-queries'
 
 export type MondayClientConfiguration = {
@@ -13,8 +14,6 @@ export type Item = {
   id: string
   name: string
 }
-
-export const webhookNames = ['create_item', 'item_deleted'] as const
 
 export class MondayClient {
   private constructor(private readonly _client: Axios) {}
@@ -46,7 +45,7 @@ export class MondayClient {
   }
 
   public async createWebhook(
-    webhookEvent: (typeof webhookNames)[number],
+    webhookEvent: WebhookNames,
     webhookUrl: string,
     boardId: string
   ): Promise<GRAPHQL_QUERIES['createWebhook'][QUERY_RESPONSE]> {
@@ -80,8 +79,7 @@ export class MondayClient {
       limit,
       boardId,
     })
-    if (result.boards.length === 0) return
-    if (result.boards[0]!.items_page.items.length === 0) return
+    if (result.boards.length === 0 || result.boards[0]!.items_page.items.length === 0) return
 
     yield result.boards[0]!.items_page.items
     let cursor = result.boards[0]!.items_page.cursor
