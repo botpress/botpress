@@ -48,13 +48,6 @@ export type TagsOfMessage<
 /**
  * @deprecated Integration's should no longer use their name as prefix for event types or tags.
  */
-export type WithRequiredPrefix<TTags extends string, TPrefix extends string> = string extends TTags
+export type WithPrefix<TTags extends string, TPrefix extends string> = string extends TTags
   ? string
   : utils.Join<[TPrefix, ':', TTags]>
-
-/**
- * @deprecated Integration's should no longer use their name as prefix for event types or tags.
- */
-export type WithOptionalPrefix<TTags extends string, TPrefix extends string> =
-  | TTags
-  | WithRequiredPrefix<TTags, TPrefix>
