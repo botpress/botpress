@@ -125,11 +125,11 @@ export default new IntegrationDefinition({
         ...messages.defaults,
         text: {
           schema: messages.defaults.text.schema.extend({
-            label: z
+            value: z
               .string()
               .optional()
-              .title('label')
-              .describe('Text that is displayed to the user, such as on buttons or in lists'),
+              .title('value')
+              .describe('Underlying value of the message, if any (e.g. button payload, list reply payload, etc.)'),
           }),
         },
         file: {

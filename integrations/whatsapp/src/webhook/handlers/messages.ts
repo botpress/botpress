@@ -95,8 +95,8 @@ async function _handleIncomingMessage(
     await createMessage({
       type: 'text',
       payload: {
-        text: message.button.payload,
-        label: message.button.text,
+        value: message.button.payload,
+        text: message.button.text,
       },
     })
   } else if (type === 'location') {
@@ -119,17 +119,17 @@ async function _handleIncomingMessage(
     await createMessage({ type, payload: { videoUrl } })
   } else if (message.type === 'interactive') {
     if (message.interactive.type === 'button_reply') {
-      const { id: text, title: label } = message.interactive.button_reply
+      const { id: value, title: text } = message.interactive.button_reply
       await createMessage({
         type: 'text',
-        payload: { text, label },
+        payload: { value, text },
         incomingMessageType: type,
       })
     } else if (message.interactive.type === 'list_reply') {
-      const { id: text, title: label } = message.interactive.list_reply
+      const { id: value, title: text } = message.interactive.list_reply
       await createMessage({
         type: 'text',
-        payload: { text, label },
+        payload: { value, text },
         incomingMessageType: type,
       })
     }
