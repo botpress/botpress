@@ -12,13 +12,16 @@ export default new IntegrationDefinition({
     webhooks: {
       type: 'integration',
       schema: z.object({
-        registered: z.array(
-          z.object({
-            name: z.enum(['create_item', 'item_deleted']),
-            boardId: z.string(),
-            webhookId: z.string(),
-          })
-        ),
+        registered: z
+          .array(
+            z.object({
+              name: z.enum(['create_item', 'item_deleted']),
+              boardId: z.string(),
+              webhookId: z.string(),
+            })
+          )
+          .title('Registered Webhooks')
+          .describe('Webhooks in the Monday.com platform which have been auto-registered by the Botpress integration.'),
       }),
     },
   },
