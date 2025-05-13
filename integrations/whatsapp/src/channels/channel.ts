@@ -47,7 +47,8 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
     file: async ({ payload, ...props }) => {
       const title = payload.title?.trim()
       const url = payload.fileUrl.trim()
-      let filename = payload.filename?.trim() ?? title ?? 'file'
+      const inputFilename = payload.filename?.trim()
+      let filename = inputFilename || title || 'file'
       const fileExtension = _extractFileExtension(filename)
       if (!fileExtension) {
         filename += _extractFileExtension(url) ?? ''
