@@ -3,6 +3,7 @@ import { BaseLogger } from '../../base-logger'
 type IntegrationLogOptions = {
   userId?: string
   conversationId?: string
+  traceId?: string
   visibleToBotOwners?: boolean
 }
 

@@ -17,6 +17,7 @@ export type ProcessQueueProps = {
     transferFileToBotpress: (params: {
       file: models.FileWithPath
       fileKey: string
+      shouldIndex: boolean
     }) => Promise<{ botpressFileId: string }>
   }
   updateSyncQueue: (props: { syncQueue: types.SyncQueue }) => Promise<unknown>

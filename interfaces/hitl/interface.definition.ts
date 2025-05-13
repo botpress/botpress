@@ -32,10 +32,13 @@ const messageSchema = sdk.z.union(messagePayloadSchemas as Tuple<sdk.AnyZodObjec
 
 export default new sdk.InterfaceDefinition({
   name: 'hitl',
-  version: '1.0.0',
+  version: '1.1.3',
   entities: {},
   events: {
     hitlAssigned: {
+      attributes: {
+        ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO,
+      },
       schema: () =>
         sdk.z.object({
           // Also known as downstreamConversationId:
@@ -52,6 +55,9 @@ export default new sdk.InterfaceDefinition({
         }),
     },
     hitlStopped: {
+      attributes: {
+        ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO,
+      },
       schema: () =>
         sdk.z.object({
           // Also known as downstreamConversationId:
@@ -65,6 +71,9 @@ export default new sdk.InterfaceDefinition({
   actions: {
     // TODO: allow for an interface to extend 'proactiveUser' and reuse its actions
     createUser: {
+      attributes: {
+        ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO,
+      },
       title: 'Create external user', // <= this is a downstream user
       description: 'Create an end user in the external service and in Botpress',
       input: {
@@ -86,6 +95,9 @@ export default new sdk.InterfaceDefinition({
       },
     },
     startHitl: {
+      attributes: {
+        ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO,
+      },
       title: 'Start new HITL session', // <= this is a downstream conversation / ticket
       description: 'Create a new HITL session in the external service and in Botpress',
       input: {
@@ -131,6 +143,9 @@ export default new sdk.InterfaceDefinition({
       },
     },
     stopHitl: {
+      attributes: {
+        ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO,
+      },
       title: 'Stop HITL session',
       description: 'Stop an existing HITL session in the external service',
       input: {
@@ -156,6 +171,7 @@ export default new sdk.InterfaceDefinition({
         audio: withUserId(sdk.messages.defaults.audio),
         video: withUserId(sdk.messages.defaults.video),
         file: withUserId(sdk.messages.defaults.file),
+        bloc: withUserId(sdk.messages.defaults.bloc),
       },
     },
   },

@@ -14,13 +14,17 @@ export type ApiClientFactory = {
   newClient: (props: ApiClientProps, logger: Logger) => ApiClient
 }
 
-export type PublicIntegration = client.Integration
+export type PublicIntegration = client.Integration & { public: true }
 export type PrivateIntegration = client.Integration & { workspaceId: string }
-export type Integration = client.Integration & { workspaceId?: string }
+export type PublicOrPrivateIntegration = client.Integration & { workspaceId?: string }
 export type IntegrationSummary = client.ClientOutputs['listIntegrations']['integrations'][number]
 export type BotSummary = client.ClientOutputs['listBots']['bots'][number]
-export type Interface = client.Interface
-export type Plugin = client.Plugin
+export type PublicInterface = client.Interface & { public: true }
+export type PrivateInterface = client.Interface & { workspaceId: string }
+export type PublicOrPrivateInterface = client.Interface & { workspaceId?: string }
+export type PublicPlugin = client.Plugin & { public: true }
+export type PrivatePlugin = client.Plugin & { workspaceId: string }
+export type PublicOrPrivatePlugin = client.Plugin & { workspaceId?: string }
 
 export type CreateBotRequestBody = client.ClientInputs['createBot']
 export type UpdateBotRequestBody = client.ClientInputs['updateBot']

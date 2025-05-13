@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/client'
+import { buildConversationTranscript } from '@botpress/common'
 import { getFreshchatClient } from 'src/client'
 import * as bp from '.botpress'
 
@@ -51,26 +52,15 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       message_parts: [
         {
           text: {
-            content: `Transcript:
-            ${
-              messageHistory
-                ?.map((message) => {
-                  let text = ''
-
-                  if (message.type !== 'text') {
-                    text = `(Event: ${message.type})`
-                  } else {
-                    text = message.payload.text
-                  }
-
-                  const origin =
-                    message.source.type === 'bot' ? 'Bot: ' : message.source.userId === user.id ? 'User: ' : ''
-
-                  return `${origin}${text}`
-                })
-                .join('\n') || '-'
-            }
-          `,
+            content:
+              'Transcript:\n\n' +
+              (await buildConversationTranscript({
+                ctx,
+                client,
+                messages: messageHistory,
+                customTranscriptFormatter: (msgs) =>
+                  msgs.map((msg) => (msg.isBot ? 'Bot: ' : 'User: ') + msg.text.join('\n')).join('\n\n'),
+              })),
           },
         },
       ],

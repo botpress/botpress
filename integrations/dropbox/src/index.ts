@@ -76,12 +76,13 @@ const integration = new bp.Integration({
 
     filesReadonlyTransferFileToBotpress: wrapAction(
       { actionName: 'filesReadonlyTransferFileToBotpress' },
-      async ({ dropboxClient, client }, { file: fileToTransfer, fileKey }) => {
+      async ({ dropboxClient, client }, { file: fileToTransfer, fileKey, shouldIndex }) => {
         const fileBuffer = await dropboxClient.getFileContents({ path: fileToTransfer.id })
 
         const { file: uploadedFile } = await client.uploadFile({
           key: fileKey,
           content: fileBuffer,
+          index: shouldIndex,
         })
 
         return { botpressFileId: uploadedFile.id }

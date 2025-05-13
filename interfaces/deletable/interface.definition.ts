@@ -5,7 +5,7 @@ const baseItem = z.object({ id: z.string() })
 
 export default new InterfaceDefinition({
   name: 'deletable',
-  version: '0.0.1',
+  version: '0.0.2',
   entities: {
     item: {
       schema: baseItem,

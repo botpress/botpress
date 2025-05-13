@@ -7,6 +7,20 @@ import * as bp from '.botpress'
 export const handleEvent: bp.EventHandlers['files-readonly:aggregateFileChanges'] = async (props) => {
   const modifiedItems = props.event.payload.modifiedItems
 
+  for (const deletedItem of modifiedItems.deleted) {
+    if (deletedItem.type === 'file') {
+      await handleFileDeleted({
+        ...props,
+        event: { ...props.event, type: 'files-readonly:fileDeleted', payload: { file: deletedItem } },
+      })
+    } else {
+      await handleFolderDeletedRecursive({
+        ...props,
+        event: { ...props.event, type: 'files-readonly:folderDeletedRecursive', payload: { folder: deletedItem } },
+      })
+    }
+  }
+
   for (const createdItem of modifiedItems.created) {
     if (createdItem.type !== 'file') {
       continue
@@ -27,19 +41,5 @@ export const handleEvent: bp.EventHandlers['files-readonly:aggregateFileChanges'
       ...props,
       event: { ...props.event, type: 'files-readonly:fileUpdated', payload: { file: updatedItem } },
     })
-  }
-
-  for (const deletedItem of modifiedItems.deleted) {
-    if (deletedItem.type === 'file') {
-      await handleFileDeleted({
-        ...props,
-        event: { ...props.event, type: 'files-readonly:fileDeleted', payload: { file: deletedItem } },
-      })
-    } else {
-      await handleFolderDeletedRecursive({
-        ...props,
-        event: { ...props.event, type: 'files-readonly:folderDeletedRecursive', payload: { folder: deletedItem } },
-      })
-    }
   }
 }

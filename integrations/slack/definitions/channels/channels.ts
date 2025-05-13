@@ -32,6 +32,14 @@ const messageTags = {
     title: 'Channel ID',
     description: 'The Slack ID of the channel where the message was sent',
   },
+  mentionsBot: {
+    title: 'Mentions Bot?',
+    description: 'Whether the message mentions the Slack App bot',
+  },
+  forkedToThread: {
+    title: 'Forked to Thread?',
+    description: 'Whether the message created a thread',
+  },
 } as const satisfies Record<string, Required<sdk.TagDefinition>>
 
 export const channels = {
@@ -66,6 +74,10 @@ export const channels = {
         thread: {
           title: 'Thread ID',
           description: 'The Slack ID of the thread',
+        },
+        isBotReplyThread: {
+          title: 'Is Bot Reply Thread?',
+          description: 'Whether the thread is a bot reply thread',
         },
       },
     },

@@ -1,11 +1,12 @@
 import { RuntimeError } from '@botpress/sdk'
 import { ConfluenceClient } from 'src/client'
+import { debugLog } from 'src/logger'
 import { convertAtlassianDocumentToMarkdown } from 'src/parser/confluenceToMarkdown'
 import * as bp from '.botpress'
 
 export const filesReadonlyTransferFileToBotpress: bp.IntegrationProps['actions']['filesReadonlyTransferFileToBotpress'] =
-  async ({ logger, client, ctx, input: { file, fileKey } }) => {
-    logger.debug('Transferring file to Botpress')
+  async ({ logger, client, ctx, input: { file, fileKey, shouldIndex } }) => {
+    debugLog(logger, 'filesReadonlyTransferFileToBotpress', 'Transferring file to botpress')
     const confluenceClient = ConfluenceClient(ctx.configuration)
     const content = await confluenceClient.getPage({ pageId: parseInt(file.id) })
 
@@ -23,7 +24,7 @@ export const filesReadonlyTransferFileToBotpress: bp.IntegrationProps['actions']
       key: fileKey,
       content: markdown,
       contentType: 'text/plain',
-      index: true,
+      index: shouldIndex ?? true,
     })
 
     return { botpressFileId: uploadedFile.id }

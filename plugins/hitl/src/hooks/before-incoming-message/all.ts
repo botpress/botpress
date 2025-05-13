@@ -5,6 +5,7 @@ import {
   DEFAULT_USER_HITL_CLOSE_COMMAND,
   DEFAULT_USER_HITL_COMMAND_MESSAGE,
 } from 'plugin.definition'
+import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
 import type * as types from '../../types'
 import * as consts from '../consts'
@@ -31,17 +32,6 @@ const _handleDownstreamMessage = async (
     return consts.STOP_EVENT_HANDLING // we don't want the bot to chat with the human agent in a closed ticket
   }
 
-  const messagePayload = _getMessagePayloadIfSupported(props.data)
-
-  if (!messagePayload) {
-    props.logger.with(props.data).error('Downstream conversation received a non-text message')
-    await downstreamCm.respond({
-      type: 'text',
-      text: props.configuration.onIncompatibleMsgTypeMessage ?? DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
-    })
-    return consts.STOP_EVENT_HANDLING
-  }
-
   const upstreamConversationId = downstreamConversation.tags['upstream']
 
   if (!upstreamConversationId) {
@@ -51,6 +41,22 @@ const _handleDownstreamMessage = async (
       reasonShownToUser: 'Something went wrong, you are not connected to a human agent...',
       props,
     })
+  }
+
+  const sessionConfig = await configuration.retrieveSessionConfig({
+    ...props,
+    upstreamConversationId,
+  })
+
+  const messagePayload = _getMessagePayloadIfSupported(props.data)
+
+  if (!messagePayload) {
+    props.logger.with(props.data).error('Downstream conversation received a non-text message')
+    await downstreamCm.respond({
+      type: 'text',
+      text: sessionConfig.onIncompatibleMsgTypeMessage ?? DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
+    })
+    return consts.STOP_EVENT_HANDLING
   }
 
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
@@ -74,6 +80,11 @@ const _handleUpstreamMessage = async (
   if (!isHitlActive) {
     return consts.LET_BOT_HANDLE_EVENT
   }
+
+  const sessionConfig = await configuration.retrieveSessionConfig({
+    ...props,
+    upstreamConversationId: upstreamCm.conversationId,
+  })
 
   const messagePayload = _getMessagePayloadIfSupported(props.data)
 
@@ -110,10 +121,10 @@ const _handleUpstreamMessage = async (
 
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
 
-  if (_isHitlCloseCommand(props)) {
-    await _handleHitlCloseCommand(props, { downstreamCm, upstreamCm })
+  if (_isHitlCloseCommand(props, sessionConfig)) {
+    await _handleHitlCloseCommand(props, { downstreamCm, upstreamCm, sessionConfig })
 
-    if (props.configuration.flowOnHitlStopped) {
+    if (sessionConfig.flowOnHitlStopped) {
       // the bot will continue the conversation without the patient having to send another message
       await upstreamCm.continueWorkflow()
     }
@@ -145,20 +156,31 @@ const _abortHitlSession = async ({
   return consts.STOP_EVENT_HANDLING
 }
 
-const _isHitlCloseCommand = (props: bp.HookHandlerProps['before_incoming_message']) => {
-  const closeCommand = props.configuration.userHitlCloseCommand || DEFAULT_USER_HITL_CLOSE_COMMAND
+const _isHitlCloseCommand = (
+  props: bp.HookHandlerProps['before_incoming_message'],
+  sessionConfig: bp.configuration.Configuration
+) => {
+  const closeCommand = sessionConfig.userHitlCloseCommand || DEFAULT_USER_HITL_CLOSE_COMMAND
 
-  const inputText: string = props.data.payload.text
-  return inputText.trim().toLowerCase() === closeCommand.trim().toLowerCase()
+  const inputText: string | undefined = props.data.payload.text
+  return inputText && inputText.trim().toLowerCase() === closeCommand.trim().toLowerCase()
 }
 
 const _handleHitlCloseCommand = async (
   props: bp.HookHandlerProps['before_incoming_message'],
-  { downstreamCm, upstreamCm }: { downstreamCm: conv.ConversationManager; upstreamCm: conv.ConversationManager }
+  {
+    downstreamCm,
+    upstreamCm,
+    sessionConfig,
+  }: {
+    downstreamCm: conv.ConversationManager
+    upstreamCm: conv.ConversationManager
+    sessionConfig: bp.configuration.Configuration
+  }
 ) => {
   await downstreamCm.respond({
     type: 'text',
-    text: props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
+    text: sessionConfig.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   })
 
   await Promise.allSettled([
@@ -178,6 +200,6 @@ const _handleHitlCloseCommand = async (
 
   await upstreamCm.respond({
     type: 'text',
-    text: props.configuration.onUserHitlCloseMessage ?? DEFAULT_USER_HITL_COMMAND_MESSAGE,
+    text: sessionConfig.onUserHitlCloseMessage ?? DEFAULT_USER_HITL_COMMAND_MESSAGE,
   })
 }

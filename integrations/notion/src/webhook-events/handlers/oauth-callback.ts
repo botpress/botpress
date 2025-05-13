@@ -1,7 +1,7 @@
 import { NotionClient } from '../../notion-api'
 import * as bp from '.botpress'
 
-export const isOAuthCallback = (props: bp.HandlerProps) => props.req.path.startsWith('/oauth')
+export const isOAuthCallback = (props: bp.HandlerProps): boolean => props.req.path.startsWith('/oauth')
 
 export const handleOAuthCallback: bp.IntegrationProps['handler'] = async ({ client, ctx, req }) => {
   const searchParams = new URLSearchParams(req.query)

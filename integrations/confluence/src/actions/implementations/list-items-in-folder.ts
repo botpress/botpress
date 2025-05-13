@@ -10,14 +10,14 @@ export const filesReadonlyListItemsInFolder: bp.IntegrationProps['actions']['fil
   const { items, token } = await client.getPages()
 
   const mappedItems = items.map((item): Actions['filesReadonlyListItemsInFolder']['output']['items'][number] => ({
-    id: item.id,
+    id: item.id ?? '0',
     type: 'file',
-    name: item.title,
+    name: item.title ?? 'Temporary title',
     parentId: item.parentId || undefined,
     absolutePath: item._links.webui || undefined,
     sizeInBytes: undefined,
-    lastModifiedDate: item.version.createdAt || undefined,
-    contentHash: undefined,
+    lastModifiedDate: item.version?.createdAt || undefined,
+    contentHash: item.version?.number.toString() || undefined,
   }))
 
   return {

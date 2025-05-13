@@ -16,6 +16,11 @@ export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpess
     excludeFiles: props.input.excludeFiles ?? props.configuration.excludeFiles,
   })
 
+  if (allFiles.length === 0) {
+    props.logger.info('No files to sync.')
+    return { status: 'queued' }
+  }
+
   props.logger.info('Preparing sync job...')
   const jobMeta = await _prepareSyncJob(props, allFiles)
   const jobFileId = await SyncQueue.jobFileManager.updateSyncQueue(
@@ -40,20 +45,23 @@ const _isSyncAlreadyInProgress = async (props: bp.ActionHandlerProps) => {
   return runningWorkflows.length > 0
 }
 
+type FileWithOptions = models.FileWithPath & { shouldIndex: boolean; addToKbId?: string }
+
 const _enumerateAllFilesRecursive = async (
   props: bp.ActionHandlerProps,
   configuration: Pick<bp.configuration.Configuration, 'includeFiles' | 'excludeFiles'>,
   folderId?: string,
   path: string = '/'
-): Promise<models.FileWithPath[]> => {
+): Promise<FileWithOptions[]> => {
   const items = await _getFolderItems(props, folderId)
-  const files: models.FileWithPath[] = []
+  const files: FileWithOptions[] = []
 
   for (const item of items) {
     const itemPath = `${path}${item.name}`
+    const globMatchResult = SyncQueue.globMatcher.matchItem({ configuration, item, itemPath })
 
-    if (SyncQueue.globMatcher.shouldItemBeIgnored({ configuration, item, itemPath })) {
-      props.logger.debug('Ignoring item', { itemPath })
+    if (globMatchResult.shouldBeIgnored) {
+      props.logger.debug('Ignoring item', { itemPath, reason: globMatchResult.reason })
       continue
     }
 
@@ -61,7 +69,12 @@ const _enumerateAllFilesRecursive = async (
       files.push(...(await _enumerateAllFilesRecursive(props, configuration, item.id, `${itemPath}/`)))
     } else {
       props.logger.debug('Including file', itemPath)
-      files.push({ ...item, absolutePath: itemPath })
+      files.push({
+        ...item,
+        absolutePath: itemPath,
+        shouldIndex: (globMatchResult.shouldApplyOptions.addToKbId?.length ?? 0) > 0,
+        addToKbId: globMatchResult.shouldApplyOptions.addToKbId,
+      })
     }
   }
 
@@ -85,7 +98,7 @@ const _getFolderItems = async (props: bp.ActionHandlerProps, folderId?: string):
   return items
 }
 
-const _prepareSyncJob = async (props: bp.ActionHandlerProps, filesToSync: models.FileWithPath[]) => {
+const _prepareSyncJob = async (props: bp.ActionHandlerProps, filesToSync: FileWithOptions[]) => {
   const integrationName = props.interfaces['files-readonly'].name
   const syncJobId = await randomUUID()
 

@@ -101,6 +101,52 @@ export default {
           await ack({ tags: { zendeskCommentId: String(zendeskCommentId) } })
         }
       ),
+
+      bloc: wrapChannel(
+        { channelName: 'hitl', messageType: 'bloc' },
+        async ({ ack, payload, ticketId, zendeskAuthorId, zendeskClient }) => {
+          for (const item of payload.items) {
+            switch (item.type) {
+              case 'text':
+                await zendeskClient.createPlaintextComment(ticketId, zendeskAuthorId, item.payload.text)
+                break
+              case 'markdown':
+                await zendeskClient.createPlaintextComment(ticketId, zendeskAuthorId, item.payload.markdown)
+                break
+              case 'image':
+                await zendeskClient.createPlaintextComment(ticketId, zendeskAuthorId, item.payload.imageUrl)
+                break
+              case 'video':
+                await zendeskClient.createPlaintextComment(ticketId, zendeskAuthorId, item.payload.videoUrl)
+                break
+              case 'audio':
+                await zendeskClient.createPlaintextComment(ticketId, zendeskAuthorId, item.payload.audioUrl)
+                break
+              case 'file':
+                await zendeskClient.createPlaintextComment(ticketId, zendeskAuthorId, item.payload.fileUrl)
+                break
+              case 'location':
+                const { title, address, latitude, longitude } = item.payload
+                const messageParts = []
+
+                if (title) {
+                  messageParts.push(title, '')
+                }
+                if (address) {
+                  messageParts.push(address, '')
+                }
+                messageParts.push(`Latitude: ${latitude}`, `Longitude: ${longitude}`)
+
+                await zendeskClient.createPlaintextComment(ticketId, zendeskAuthorId, messageParts.join('\n'))
+                break
+              default:
+                item satisfies never
+            }
+          }
+
+          await ack({ tags: {} })
+        }
+      ),
     },
   },
 } satisfies bp.IntegrationProps['channels']

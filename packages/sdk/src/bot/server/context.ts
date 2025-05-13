@@ -1,5 +1,5 @@
 import { z } from '@bpinternal/zui'
-import { botIdHeader, configurationHeader, operationHeader, typeHeader } from '../../const'
+import { botIdHeader, configurationHeader, operationHeader, typeHeader } from '../../consts'
 import { BotContext } from './types'
 
 const botOperationSchema = z.enum(['event_received', 'register', 'unregister', 'ping', 'action_triggered'])

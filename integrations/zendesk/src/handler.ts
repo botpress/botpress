@@ -40,12 +40,12 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
   switch (zendeskTrigger.type) {
     case 'newMessage':
-      return await executeMessageReceived({ zendeskClient, zendeskTrigger, client })
+      return await executeMessageReceived({ zendeskClient, zendeskTrigger, client, ctx, logger })
     case 'ticketAssigned':
-      return await executeTicketAssigned({ zendeskTrigger, client })
+      return await executeTicketAssigned({ zendeskTrigger, client, ctx, logger })
     case 'ticketSolved':
-      await executeMessageReceived({ zendeskClient, zendeskTrigger, client })
-      return await executeTicketSolved({ zendeskTrigger, client })
+      await executeMessageReceived({ zendeskClient, zendeskTrigger, client, ctx, logger })
+      return await executeTicketSolved({ zendeskTrigger, client, ctx, logger })
 
     default:
       logger.forBot().warn('Unsupported trigger type: ' + zendeskTrigger.type)

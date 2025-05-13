@@ -4,6 +4,12 @@ import { BotpressDocumentation, getClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
 import { check } from '@botpress/vai'
 
+const getValues = <T extends Record<string, { value: boolean }>>(records: T) =>
+  Object.entries(records).reduce((acc, [key, value]) => {
+    acc[key] = value.value
+    return acc
+  }, {}) as Record<keyof T, boolean>
+
 describe('zai.label', { timeout: 60_000 }, () => {
   const zai = getZai()
 
@@ -22,7 +28,7 @@ describe('zai.label', { timeout: 60_000 }, () => {
       }
     )
 
-    expect(labels).toMatchInlineSnapshot(`
+    expect(getValues(labels)).toMatchInlineSnapshot(`
       {
         "bad_person": false,
         "good_person": true,
@@ -41,47 +47,49 @@ describe('zai.label', { timeout: 60_000 }, () => {
       is_french: 'is the person french?',
     }
 
-    const initial = await zai.label(`Sylvain Perron has no criminal record.`, labels)
+    const initial = getValues(await zai.label(`Sylvain Perron has no criminal record.`, labels))
 
     expect(initial.canadian).toBe(false)
     expect(initial.is_french).toBe(false)
     expect(initial.bad_person).toBe(false)
     expect(initial.is_human).toBe(true)
 
-    const second = await zai.label(`Sylvain Perron has no criminal record.`, labels, {
-      examples: [
-        {
-          input: 'Sylvain Pellerin has no criminal record.',
-          labels: {
-            is_french: {
-              label: 'ABSOLUTELY_YES',
-              explanation: 'Important: Sylvain Pellerin is a common French name.',
-            },
-            canadian: {
-              label: 'ABSOLUTELY_YES',
-              explanation: 'Important: We assume all person named Sylvain are Canadian (business rule).',
-            },
-          },
-        },
-        {
-          input: 'Sylvain Bouchard is a criminal.',
-          labels: {
-            bad_person: {
-              label: 'PROBABLY_YES',
-              explanation: 'Important: Sylvain Bouchard is a criminal, so probably a bad person.',
-            },
-            is_french: {
-              label: 'ABSOLUTELY_YES',
-              explanation: 'Important: Sylvain is a common French name.',
-            },
-            canadian: {
-              label: 'ABSOLUTELY_YES',
-              explanation: 'Important: We assume all person named Sylvain are Canadian (business rule).',
+    const second = getValues(
+      await zai.label(`Sylvain Perron has no criminal record.`, labels, {
+        examples: [
+          {
+            input: 'Sylvain Pellerin has no criminal record.',
+            labels: {
+              is_french: {
+                label: 'ABSOLUTELY_YES',
+                explanation: 'Important: Sylvain Pellerin is a common French name.',
+              },
+              canadian: {
+                label: 'ABSOLUTELY_YES',
+                explanation: 'Important: We assume all person named Sylvain are Canadian (business rule).',
+              },
             },
           },
-        },
-      ],
-    })
+          {
+            input: 'Sylvain Bouchard is a criminal.',
+            labels: {
+              bad_person: {
+                label: 'PROBABLY_YES',
+                explanation: 'Important: Sylvain Bouchard is a criminal, so probably a bad person.',
+              },
+              is_french: {
+                label: 'ABSOLUTELY_YES',
+                explanation: 'Important: Sylvain is a common French name.',
+              },
+              canadian: {
+                label: 'ABSOLUTELY_YES',
+                explanation: 'Important: We assume all person named Sylvain are Canadian (business rule).',
+              },
+            },
+          },
+        ],
+      })
+    )
 
     expect(second.canadian).toBe(true)
     expect(second.is_french).toBe(true)
@@ -105,7 +113,7 @@ describe('zai.label', { timeout: 60_000 }, () => {
       has_hitl: 'does the text mention HITL (human in the loop)?',
     })
 
-    expect(labels).toMatchInlineSnapshot(`
+    expect(getValues(labels)).toMatchInlineSnapshot(`
       {
         "contains_js_code": true,
         "contains_lua_code": false,
@@ -166,9 +174,9 @@ describe('zai.learn.label', { timeout: 60_000 }, () => {
       is_french: 'is the person french?',
     })
 
-    expect(value.is_human).toBe(true)
-    expect(value.is_french).toBe(false)
-    expect(value.canadian).toBe(false)
+    expect(value.is_human.value).toBe(true)
+    expect(value.is_french.value).toBe(false)
+    expect(value.canadian.value).toBe(false)
 
     let rows = await client.findTableRows({ table: tableName })
     expect(rows.rows.length).toBe(1)
@@ -226,9 +234,9 @@ describe('zai.learn.label', { timeout: 60_000 }, () => {
       is_french: 'is the person french?',
     })
 
-    expect(second.is_human).toBe(true)
-    expect(second.is_french).toBe(true)
-    expect(second.canadian).toBe(true)
+    expect(second.is_human.value).toBe(true)
+    expect(second.is_french.value).toBe(true)
+    expect(second.canadian.value).toBe(true)
 
     rows = await client.findTableRows({ table: tableName })
     expect(rows.rows.length).toBe(3)

@@ -42,17 +42,17 @@ export const PREFIXES = {
   PAGE: 'page:',
   DB: 'db:',
 } as const
-const PAGE_FILE_NAME = 'page.mdx'
+export const PAGE_FILE_NAME = 'page.mdx'
 
 export const mapEntities = (entities: types.NotionItem[]): FilesReadonlyEntity[] => entities.map(_mapEntity)
 
 const _mapEntity = (entity: types.NotionItem): FilesReadonlyEntity =>
-  entity.object === 'page' || 'child_page' in entity ? _mapPageToFolder(entity) : _mapDatabaseToFolder(entity)
+  entity.object === 'page' || 'child_page' in entity ? mapPageToFolder(entity) : mapDatabaseToFolder(entity)
 
-const _mapPageToFolder = (page: types.NotionPage | types.NotionChildPage): FilesReadonlyFolder => ({
+export const mapPageToFolder = (page: types.NotionPage | types.NotionChildPage): FilesReadonlyFolder => ({
   type: 'folder',
   id: PREFIXES.PAGE_FOLDER + page.id,
-  name: _getPageTitle(page),
+  name: getPageTitle(page),
   parentId: _getParentId(page),
 })
 
@@ -64,14 +64,14 @@ export const mapPageToFile = (page: types.NotionPage | types.NotionChildPage): F
   lastModifiedDate: page.last_edited_time,
 })
 
-const _mapDatabaseToFolder = (db: types.NotionDatabase | types.NotionChildDatabase): FilesReadonlyFolder => ({
+export const mapDatabaseToFolder = (db: types.NotionDatabase | types.NotionChildDatabase): FilesReadonlyFolder => ({
   type: 'folder',
   id: PREFIXES.DB_FOLDER + db.id,
-  name: _getDatabaseTitle(db),
+  name: getDatabaseTitle(db),
   parentId: _getParentId(db),
 })
 
-const _getPageTitle = (page: types.NotionPage | types.NotionChildPage): string => {
+export const getPageTitle = (page: types.NotionPage | types.NotionChildPage): string => {
   if (page.object === 'block') {
     return page.child_page.title
   }
@@ -82,7 +82,7 @@ const _getPageTitle = (page: types.NotionPage | types.NotionChildPage): string =
   return titleProperty?.title[0]?.plain_text ?? `Untitled Page (${_uuidToShortId(page.id)})`
 }
 
-const _getDatabaseTitle = (db: types.NotionDatabase | types.NotionChildDatabase): string => {
+export const getDatabaseTitle = (db: types.NotionDatabase | types.NotionChildDatabase): string => {
   return db.object === 'block'
     ? db.child_database.title
     : (db.title[0]?.plain_text ?? `Untitled Database (${_uuidToShortId(db.id)})`)
