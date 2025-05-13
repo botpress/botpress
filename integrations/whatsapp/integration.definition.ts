@@ -123,6 +123,15 @@ export default new IntegrationDefinition({
       description: 'Conversation between a WhatsApp user and the bot',
       messages: {
         ...messages.defaults,
+        text: {
+          schema: messages.defaults.text.schema.extend({
+            label: z
+              .string()
+              .optional()
+              .title('label')
+              .describe('Text that is displayed to the user, such as on buttons or in lists'),
+          }),
+        },
         file: {
           schema: messages.defaults.file.schema.extend({
             filename: z.string().optional(),
