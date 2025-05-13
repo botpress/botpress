@@ -45,13 +45,16 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
       })
     },
     file: async ({ payload, ...props }) => {
-      const url = new URL(payload.fileUrl.trim())
-      const extension = url.pathname.includes('.') ? (url.pathname.split('.').pop()?.toLowerCase() ?? '') : ''
-      const filename = 'file' + (extension ? `.${extension}` : '')
-
+      const title = payload.title?.trim()
+      const url = payload.fileUrl.trim()
+      let filename = payload.filename?.trim() ?? title ?? 'file'
+      const fileExtension = _extractFileExtension(filename)
+      if (!fileExtension) {
+        filename += _extractFileExtension(url) ?? ''
+      }
       await _send({
         ...props,
-        message: new Document(payload.fileUrl.trim(), false, payload.title, filename),
+        message: new Document(url, false, title, filename),
       })
     },
     location: async ({ payload, ...props }) => {
@@ -179,4 +182,9 @@ async function _sendMany({
   } catch (err) {
     logger.forBot().error('Failed to generate messages for sending to WhatsApp. Reason:', err)
   }
+}
+
+function _extractFileExtension(filename: string): string | undefined {
+  const filenameParts = filename.split('.')
+  return filenameParts.length > 1 ? `.${filenameParts.at(-1)}` : undefined
 }
