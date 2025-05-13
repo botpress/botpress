@@ -10,7 +10,7 @@ export default new IntegrationDefinition({
   name: 'monday-com',
   title: 'Monday.com',
   description: 'Manage items in Monday.com boards.',
-  version: '0.0.1',
+  version: '1.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   states: {
