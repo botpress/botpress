@@ -1,5 +1,54 @@
 import { z } from '@botpress/sdk'
 
+export type Webhook = z.infer<typeof webhookSchema>
+
+const baseEventSchema = z.object({
+  app: z.literal('monday'),
+  triggerTime: z.coerce.date(),
+  subscriptionId: z.number(),
+  isRetry: z.boolean(),
+  userId: z.number(),
+  originalTriggerUuid: z.string().nullable(),
+  triggerUuid: z.string(),
+})
+const createItemEventSchema = baseEventSchema.extend({
+  type: z.literal('create_pulse'),
+  boardId: z.number(),
+  pulseId: z.number(),
+  pulseName: z.string(),
+  groupId: z.string(),
+  groupName: z.string(),
+  groupColor: z.string(),
+  isTopGroup: z.boolean(),
+  columnValues: z.record(z.string(), z.unknown()),
+})
+const deleteItemEventSchema = baseEventSchema.extend({
+  type: z.literal('delete_pulse'),
+  boardId: z.number(),
+  itemId: z.number(),
+  itemName: z.string(),
+})
+const eventSchema = z.discriminatedUnion('type', [createItemEventSchema, deleteItemEventSchema])
+
+export const webhookRequestSchema = z.object({ event: eventSchema })
+
+export const challengeRequestSchema = z.object({ challenge: z.string().min(1) })
+
+export const webhooks = ['create_item', 'item_deleted'] as const
+
+export const webhookSchema = z.object({
+  name: z.enum(webhooks),
+  boardId: z.string(),
+  webhookId: z.string(),
+})
+
+export const registeredWebhooksSchema = z.object({
+  webhooks: z
+    .array(webhookSchema)
+    .title('Registered Webhooks')
+    .describe('Webhooks in the Monday.com platform which have been auto-registered by the Botpress integration.'),
+})
+
 export const configurationSchema = z.object({
   personalAccessToken: z
     .string()

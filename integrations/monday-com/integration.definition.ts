@@ -1,5 +1,10 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { configurationSchema, createItemSchema, syncItemsSchema } from 'src/misc/custom-schemas'
+import {
+  configurationSchema,
+  createItemSchema,
+  syncItemsSchema,
+  registeredWebhooksSchema,
+} from 'src/misc/custom-schemas'
 
 export default new IntegrationDefinition({
   name: 'monday-com',
@@ -11,18 +16,7 @@ export default new IntegrationDefinition({
   states: {
     webhooks: {
       type: 'integration',
-      schema: z.object({
-        registered: z
-          .array(
-            z.object({
-              name: z.enum(['create_item', 'item_deleted']),
-              boardId: z.string(),
-              webhookId: z.string(),
-            })
-          )
-          .title('Registered Webhooks')
-          .describe('Webhooks in the Monday.com platform which have been auto-registered by the Botpress integration.'),
-      }),
+      schema: registeredWebhooksSchema,
     },
   },
   actions: {
