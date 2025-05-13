@@ -110,7 +110,7 @@ export type ListEvents<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['listEvents']>,
     {
-      type?: WithPrefix<utils.Cast<keyof TIntegration['events'], string>, TIntegration['name']>
+      type?: utils.Cast<keyof TIntegration['events'], string>
     }
   >
 ) => Res<client.Client['listEvents']>
