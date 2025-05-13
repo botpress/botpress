@@ -20,7 +20,7 @@ export default new bp.Integration({
         registered: [],
       },
     })
-    const registered = stateResponse.state.payload.registered
+    const { registered } = stateResponse.state.payload
     const newWebhooks: Webhook[] = []
 
     for (const boardId of ctx.configuration.boardIds) {

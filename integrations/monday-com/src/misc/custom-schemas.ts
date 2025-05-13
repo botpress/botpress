@@ -43,7 +43,7 @@ export const webhookSchema = z.object({
 })
 
 export const registeredWebhooksSchema = z.object({
-  webhooks: z
+  registered: z
     .array(webhookSchema)
     .title('Registered Webhooks')
     .describe('Webhooks in the Monday.com platform which have been auto-registered by the Botpress integration.'),
