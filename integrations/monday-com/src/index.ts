@@ -49,7 +49,11 @@ export default new bp.Integration({
     }
   },
   unregister: async ({ client, ctx, logger }) => {
-    // TODO clear out MondayItemsTable
+    const vanillaClient = getVanillaClient(client)
+
+    await vanillaClient.deleteTable({
+      table: 'MondayItemsTable',
+    })
 
     const monday = MondayClient.create({
       personalAccessToken: ctx.configuration.personalAccessToken,
