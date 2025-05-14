@@ -6,14 +6,14 @@ import * as crypto from 'node:crypto'
 import queryString from 'query-string'
 import actions from 'src/actions'
 import { WhatsAppAPI } from 'whatsapp-api-js'
-import { Audio, Document, Image, Location, Text, Video } from 'whatsapp-api-js/messages'
+import { Audio, Document, Location, Text, Video } from 'whatsapp-api-js/messages'
 import { createConversationHandler as createConversation } from './conversation'
 import { handleIncomingMessage } from './incoming-message'
 import * as card from './message-types/card'
-import * as image from './message-types/image'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
+import * as image from './message-types/image'
 import { checkManualConfiguration } from './misc/check-manual-config'
 import { getInterstitialUrl, redirectTo } from './misc/html-utils'
 import { getAccessToken, getSecret } from './misc/whatsapp'
@@ -55,7 +55,7 @@ const integration = new bp.Integration({
       throw new RuntimeError('Error! Please add the missing fields and save.')
     }
   },
-  unregister: async () => { },
+  unregister: async () => {},
   actions,
   createConversation, // This is not needed for the `startConversation` action above, it's only for allowing bots to start conversations by calling `client.createConversation()` directly.
   channels: {
@@ -65,7 +65,7 @@ const integration = new bp.Integration({
           await outgoing.send({ ...props, message: new Text(payload.text) })
         },
         image: async ({ payload, ...props }) => {
-          const msg = await image.generateOutgoingMessage({ payload, ...props });
+          const msg = await image.generateOutgoingMessage({ payload, ...props })
           if (msg) {
             await outgoing.send({
               ...props,
