@@ -4,7 +4,11 @@ The WhatsApp integration allows your AI-powered chatbot to seamlessly connect wi
 
 ## Migrating from 3.x to 4.x
 
-### _postback_ and _say_ messages
+### Interactive messages values
+
+In version 4.0 of WhatsApp, all incoming button and list reply messages will include both the text displayed to the user (_text_) and the payload (_value_). Use `event.payload.text` to retrieve the label of a button or choice, and use `event.payload.value` to access the underlying value.
+
+### _postback_ and _say_ messages prefix
 
 In version 4.0 of WhatsApp, _postback_ and _say_ messages no longer use the prefixes `p:` or `s:`. If your bot relied on these prefixes for logic or transitions, you can update it to depend solely on the value set for the postback.
 
