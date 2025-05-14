@@ -108,16 +108,16 @@ async function _handleIncomingMessage(
       payload: { latitude: Number(latitude), longitude: Number(longitude), title: name, address },
     })
   } else if (type === 'image') {
-    const imageUrl = await downloadWhatsappMedia(message.image.id, client, ctx)
+    const imageUrl = await _getOrDownloadWhatsappMedia(message.image.id, client, ctx)
     await createMessage({ type, payload: { imageUrl } })
   } else if (type === 'audio') {
-    const audioUrl = await downloadWhatsappMedia(message.audio.id, client, ctx)
+    const audioUrl = await _getOrDownloadWhatsappMedia(message.audio.id, client, ctx)
     await createMessage({ type, payload: { audioUrl } })
   } else if (type === 'document') {
-    const documentUrl = await downloadWhatsappMedia(message.document.id, client, ctx)
+    const documentUrl = await _getOrDownloadWhatsappMedia(message.document.id, client, ctx)
     await createMessage({ type: 'file', payload: { fileUrl: documentUrl, filename: message.document.filename } })
   } else if (type === 'video') {
-    const videoUrl = await downloadWhatsappMedia(message.video.id, client, ctx)
+    const videoUrl = await _getOrDownloadWhatsappMedia(message.video.id, client, ctx)
     await createMessage({ type, payload: { videoUrl } })
   } else if (message.type === 'interactive') {
     if (message.interactive.type === 'button_reply') {
@@ -140,12 +140,20 @@ async function _handleIncomingMessage(
   }
 }
 
-// TODO: Add config to prevent downloading and use Meta's URL instead
-async function downloadWhatsappMedia(whatsappMediaId: string, client: bp.Client, ctx: bp.Context) {
+async function _getOrDownloadWhatsappMedia(whatsappMediaId: string, client: bp.Client, ctx: bp.Context) {
+  if (ctx.configuration.downloadMedia) {
+    return await _downloadWhatsappMedia(whatsappMediaId, client, ctx)
+  } else {
+    const { url } = await getMediaInfos(whatsappMediaId, client, ctx)
+    return url
+  }
+}
+
+async function _downloadWhatsappMedia(whatsappMediaId: string, client: bp.Client, ctx: bp.Context) {
   const { url, mimeType, fileSize } = await getMediaInfos(whatsappMediaId, client, ctx)
   const { file } = await client.upsertFile({
     key: 'whatsapp-media_' + whatsappMediaId,
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(), // TODO: Make this configurable
+    expiresAt: _getMediaExpiry(ctx),
     contentType: mimeType,
     accessPolicies: ['public_content'],
     publicContentImmediatelyAccessible: true,
@@ -183,4 +191,13 @@ async function downloadWhatsappMedia(whatsappMediaId: string, client: bp.Client,
     })
 
   return file.url
+}
+
+function _getMediaExpiry(ctx: bp.Context) {
+  const expiryDelayHours = ctx.configuration.downloadedMediaExpiry || 0
+  if (expiryDelayHours === 0) {
+    return undefined
+  }
+  const expiresAt = new Date(Date.now() + expiryDelayHours * 60 * 60 * 1000)
+  return expiresAt.toISOString()
 }
