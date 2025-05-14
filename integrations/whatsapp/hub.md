@@ -4,6 +4,10 @@ The WhatsApp integration allows your AI-powered chatbot to seamlessly connect wi
 
 ## Migrating from 3.x to 4.x
 
+### Automatic downloading of media files
+
+Previously, accessing the content of media messages (such as images, videos, audio and documents) required authenticating with the WhatsApp API using a valid token. In version 4.0 of WhatsApp, the _Download Media_ parameter enables automatic downloading of media files. These downloaded files do not require authentication for access. However, they do count against your workspace's file storage. To continue using the WhatsApp API URLs, set the _Download Media_ parameter to disabled. The _Downloaded Media Expiry_ parameter allows you to set an expiry time for downloaded files.
+
 ### Interactive messages values
 
 In version 4.0 of WhatsApp, all incoming button and list reply messages will include both the text displayed to the user (_text_) and the payload (_value_). Use `event.payload.text` to retrieve the label of a button or choice, and use `event.payload.value` to access the underlying value.

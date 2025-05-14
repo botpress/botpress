@@ -11,6 +11,21 @@ const commonConfigSchema = z.object({
     .default(false)
     .title('Typing Indicator Emoji')
     .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
+  downloadMedia: z
+    .boolean()
+    .default(true)
+    .title('Download Media')
+    .describe(
+      'Automatically download media files using the Files API for content access. If disabled, temporary WhatsApp media URLs will be used, which require authentication with a valid access token.'
+    ),
+  downloadedMediaExpiry: z
+    .number()
+    .default(24)
+    .optional()
+    .title('Downloaded Media Expiry')
+    .describe(
+      'Expiry time in hours for downloaded media files. An expiry time of 0 means the files will never expire.'
+    ),
 })
 
 const startConversationProps = {
