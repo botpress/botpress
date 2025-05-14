@@ -9,6 +9,7 @@ type Aliases = Record<string, { name: string }>
 type TitleDescription = { title?: string; description?: string }
 type Tags = { tags: Record<string, {}> }
 type InputOutput = { input: { schema: Schema }; output: { schema: Schema } }
+type Attributes = { attributes?: Record<string, string> }
 
 export type File = { path: string; content: string }
 
@@ -55,20 +56,20 @@ export type IntegrationDefinition = PackageRef & {
       schema: Schema
     }
   >
-  events?: Record<string, TitleDescription & { schema: Schema }>
+  events?: Record<string, TitleDescription & Attributes & { schema: Schema }>
   actions?: Record<
     string,
-    TitleDescription & {
-      billable?: boolean
-      cacheable?: boolean
-      input: {
-        schema: Schema
+    TitleDescription &
+      Attributes & {
+        billable?: boolean
+        cacheable?: boolean
+        input: {
+          schema: Schema
+        }
+        output: {
+          schema: Schema
+        }
       }
-      output: {
-        schema: Schema
-      }
-      attributes?: Record<string, string>
-    }
   >
   entities?: Record<string, TitleDescription & { schema: Schema }>
   user?: {
@@ -82,16 +83,16 @@ export type IntegrationDefinition = PackageRef & {
 
 export type InterfaceDefinition = PackageRef & {
   entities?: Record<string, TitleDescription & { schema: Schema }>
-  events?: Record<string, TitleDescription & { schema: Schema }>
+  events?: Record<string, TitleDescription & Attributes & { schema: Schema }>
   actions?: Record<
     string,
-    TitleDescription & {
-      billable?: boolean
-      cacheable?: boolean
-      input: { schema: Schema }
-      output: { schema: Schema }
-      attributes?: Record<string, string>
-    }
+    TitleDescription &
+      Attributes & {
+        billable?: boolean
+        cacheable?: boolean
+        input: { schema: Schema }
+        output: { schema: Schema }
+      }
   >
   channels?: Record<string, TitleDescription & { messages: Record<string, TitleDescription & { schema: Schema }> }>
 }
@@ -107,8 +108,8 @@ export type PluginDefinition = PackageRef & {
   user?: { tags: Record<string, {}> }
   conversation?: Tags
   states?: Record<string, TitleDescription & { type: client.State['type']; schema: Schema }>
-  events?: Record<string, TitleDescription & { schema: Schema }>
-  actions?: Record<string, TitleDescription & InputOutput>
+  events?: Record<string, TitleDescription & Attributes & { schema: Schema }>
+  actions?: Record<string, TitleDescription & Attributes & InputOutput>
   workflows?: Record<string, TitleDescription & Tags & InputOutput>
   dependencies?: {
     interfaces?: Record<string, PackageRef>

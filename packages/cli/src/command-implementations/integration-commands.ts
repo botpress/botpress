@@ -1,6 +1,6 @@
 import chalk from 'chalk'
 import _ from 'lodash'
-import { ApiClient, Integration } from 'src/api/client'
+import { ApiClient, PublicOrPrivateIntegration } from 'src/api/client'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { NamePackageRef, parsePackageRef } from '../package-ref'
@@ -19,7 +19,7 @@ export class GetIntegrationCommand extends GlobalCommand<GetIntegrationCommandDe
     }
 
     try {
-      const integration = await api.findIntegration(parsedRef)
+      const integration = await api.findPublicOrPrivateIntegration(parsedRef)
       if (integration) {
         this.logger.success(`Integration ${chalk.bold(this.argv.integrationRef)}:`)
         this.logger.json(integration)
@@ -92,7 +92,7 @@ export class DeleteIntegrationCommand extends GlobalCommand<DeleteIntegrationCom
   }
 
   private _findIntegration = async (api: ApiClient, parsedRef: NamePackageRef) => {
-    let integration: Integration | undefined
+    let integration: PublicOrPrivateIntegration | undefined
 
     try {
       integration = await api.findPrivateIntegration(parsedRef)

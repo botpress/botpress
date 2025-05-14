@@ -24,6 +24,19 @@ const FILE_FILTER_PROPS = {
             .describe(
               'Filter the items by modified date. Only files modified after the specified date will be synchronized.'
             ),
+          applyOptionsToMatchedFiles: sdk.z
+            .object({
+              addToKbId: sdk.z
+                .string()
+                .optional()
+                .title('Knowledge Base ID')
+                .describe(
+                  'The ID of the knowledge base to add the file to. Note that files added to knowledge bases will count towards both the Vector DB Storage quota and the File Storage quota of the workspace.'
+                ),
+            })
+            .optional()
+            .title('Apply to Matched Files')
+            .describe('Options to apply to the matched files.'),
         })
         .title('Include Criteria')
         .describe('A file must match all criteria to be synchronized.')
@@ -51,7 +64,7 @@ const FILE_FILTER_PROPS = {
 
 export default new sdk.PluginDefinition({
   name: 'file-synchronizer',
-  version: '0.5.2',
+  version: '0.6.0',
   title: 'File Synchronizer',
   description: 'Synchronize files from external services to Botpress',
   icon: 'icon.svg',

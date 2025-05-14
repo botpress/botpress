@@ -32,8 +32,6 @@ export type PackageRef = ApiPackageRef | LocalPackageRef
 
 const LATEST_TAG = 'latest'
 
-export const isLatest = (ref: NamePackageRef): boolean => ref.version === LATEST_TAG
-
 export const formatPackageRef = (ref: PackageRef): string => {
   if (ref.type === 'path') {
     return ref.path

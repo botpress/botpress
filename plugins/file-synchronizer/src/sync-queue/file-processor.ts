@@ -15,6 +15,7 @@ export type ProcessFileProps = {
     transferFileToBotpress: (params: {
       file: models.FileWithPath
       fileKey: string
+      shouldIndex: boolean
     }) => Promise<{ botpressFileId: string }>
   }
 }
@@ -117,6 +118,7 @@ const _transferFileToBotpress = async (props: ProcessFileProps, fileToSync: type
     const { botpressFileId } = await props.integration.transferFileToBotpress({
       file: fileToSync,
       fileKey: `${props.integration.name}:${fileToSync.absolutePath}`,
+      shouldIndex: fileToSync.shouldIndex,
     })
 
     await props.fileRepository.updateFileMetadata({
@@ -129,6 +131,7 @@ const _transferFileToBotpress = async (props: ProcessFileProps, fileToSync: type
         externalContentHash: fileToSync.contentHash ?? null,
         externalPath: fileToSync.absolutePath,
         externalParentId: fileToSync.parentId ?? null,
+        ...(fileToSync.addToKbId !== undefined ? { kbId: fileToSync.addToKbId } : {}),
       },
     })
   } catch (thrown: unknown) {

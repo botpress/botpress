@@ -4,7 +4,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'webhook',
-  version: '1.1.0',
+  version: '1.1.1',
   title: 'Webhook',
   description: 'Use webhooks to send and receive data from external systems and trigger workflows.',
   icon: 'icon.svg',

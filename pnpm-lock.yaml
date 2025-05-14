@@ -12,8 +12,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.11.0
-        version: 1.11.0(openapi-types@12.1.3)
+        specifier: 1.15.0
+        version: 1.15.0(openapi-types@12.1.3)
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -1543,9 +1543,6 @@ importers:
       preact-render-to-string:
         specifier: ^6.5.7
         version: 6.5.7(preact@10.23.1)
-      query-string:
-        specifier: ^6.14.1
-        version: 6.14.1
       whatsapp-api-js:
         specifier: ^5.3.0
         version: 5.3.0
@@ -1899,10 +1896,10 @@ importers:
         specifier: 0.5.1
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.9.0
+        specifier: 1.12.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.3.4
+        specifier: 4.6.1
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2011,10 +2008,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.9.0
+        specifier: 1.12.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.3.4
+        specifier: 4.6.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2027,10 +2024,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.9.0
+        specifier: 1.12.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.3.4
+        specifier: 4.6.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2043,7 +2040,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.3.4
+        specifier: 4.6.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2056,10 +2053,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.9.0
+        specifier: 1.12.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.3.4
+        specifier: 4.6.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2072,10 +2069,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.9.0
+        specifier: 1.12.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.3.4
+        specifier: 4.6.1
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2174,7 +2171,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.9.0
+        specifier: 1.12.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^0.13.5
@@ -2205,7 +2202,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.9.0
+        specifier: 1.12.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2248,7 +2245,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.18
+        specifier: 0.1.19
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -4139,8 +4136,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@1.11.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-P6qanSpJmIcdj2VdA929TS4ZEmzOXBzEp1jvoo6Y/CYWGC1tEryWFAn6UMMZnYxP1lTBa8oGw4duRmTb72k7lw==}
+  /@botpress/api@1.15.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-rkGuCjC1DXS/W6DafaJ7+ukgB+7Ixn/Eu4KJIUktJJ8y3EgWpP6vVyjBqrthl0xMfuH0xBbqe7ZC5zBgMhaNfw==}
     dependencies:
       '@bpinternal/opapi': 0.14.0(openapi-types@12.1.3)
     transitivePeerDependencies:

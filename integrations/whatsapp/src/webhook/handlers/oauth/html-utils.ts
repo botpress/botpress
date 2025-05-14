@@ -4,7 +4,7 @@ import { render } from 'preact-render-to-string'
 import ButtonDialogPage from './pages/button-dialog'
 import SelectDialogPage from './pages/select-dialog'
 
-export const generateHtml = ({
+const generateHtml = ({
   htmlHeader,
   body,
   options,

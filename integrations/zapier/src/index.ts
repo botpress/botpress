@@ -105,7 +105,7 @@ async function handleIntegrationEvent(event: IntegrationEvent, ctx: bp.Context, 
 
 export async function handleEvent(event: Event, client: Client) {
   await client.createEvent({
-    type: 'zapier:event',
+    type: 'event',
     payload: event,
   })
 }

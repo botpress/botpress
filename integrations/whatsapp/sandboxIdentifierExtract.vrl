@@ -1,0 +1,8 @@
+expectedSignature = split(to_string!(.headers."x-hub-signature-256"), "=")[1]
+actualSignature = encode_base16(hmac(to_string!(.body), to_string!(.secrets.SANDBOX_CLIENT_SECRET)))
+if actualSignature != expectedSignature {
+  null
+} else {
+  body = parse_json!(.body)
+  body.entry[0].changes[0].value.contacts[0].wa_id
+}
