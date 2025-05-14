@@ -7,7 +7,6 @@ import {
   GetChannelByName,
   GetMessageByName,
   MessageTags,
-  WithPrefix,
   TagsOfMessage,
 } from './sub-types'
 
@@ -84,7 +83,7 @@ type EventResponse<TIntegration extends common.BaseIntegration, TEvent extends k
   event: utils.Merge<
     Awaited<Res<client.Client['getEvent']>>['event'],
     {
-      type: WithPrefix<utils.Cast<TEvent, string>, TIntegration['name']>
+      type: utils.Cast<TEvent, string>
       payload: TIntegration['events'][TEvent]
     }
   >
