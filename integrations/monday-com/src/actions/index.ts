@@ -14,12 +14,13 @@ export const syncItems: SyncItems = async (event) => {
 
   const client = getVanillaClient(event.client)
 
-  for await (const batch of monday.getItems(boardId)) {
-    event.logger.info('upserted', batch.length)
+  const page = await monday.getItemsPage(boardId, event.input.nextToken)
+
+  if (page.items.length > 0) {
     const response = await client.upsertTableRows({
       table: 'MondayItemsTable',
       keyColumn: 'itemId',
-      rows: batch.map((item) => ({
+      rows: page.items.map((item) => ({
         boardId,
         itemId: item.id,
         name: item.name,
@@ -32,10 +33,10 @@ export const syncItems: SyncItems = async (event) => {
     }
     event.logger.info('inserted', response.inserted.length)
     event.logger.info('updated', response.updated.length)
+    event.logger.info('done upserting')
   }
-  event.logger.info('done upserting')
 
-  return {}
+  return { nextToken: page.nextToken }
 }
 
 export const createItem: CreateItem = async ({ input, ctx }) => {

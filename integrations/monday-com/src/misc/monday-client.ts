@@ -15,6 +15,11 @@ export type Item = {
   name: string
 }
 
+export type ItemsPageResponse = {
+  items: Item[]
+  nextToken: string | undefined
+}
+
 export class MondayClient {
   private constructor(private readonly _client: Axios) {}
 
@@ -72,29 +77,30 @@ export class MondayClient {
     })
   }
 
-  public async *getItems(boardId: string): AsyncGenerator<Array<Item>> {
+  public async getItemsPage(boardId: string, nextToken: string | undefined = undefined): Promise<ItemsPageResponse> {
     const limit = 25
 
-    const result = await this._executeGraphqlQuery('getItemsPage', {
-      limit,
-      boardId,
-    })
-    if (result.boards.length === 0 || result.boards[0]!.items_page.items.length === 0) return
+    const result = nextToken
+      ? await this._executeGraphqlQuery('getNextItemsPage', { limit, boardId, cursor: nextToken })
+      : await this._executeGraphqlQuery('getItemsPage', { limit, boardId })
 
-    yield result.boards[0]!.items_page.items
-    let cursor = result.boards[0]!.items_page.cursor
+    if (result.boards.length === 0) return { items: [], nextToken: undefined }
 
-    while (cursor !== null) {
-      const next_result = await this._executeGraphqlQuery('getNextItemsPage', {
-        limit,
-        boardId,
-        cursor,
-      })
+    return {
+      items: result.boards[0]!.items_page.items,
+      nextToken: result.boards[0]!.items_page.cursor || undefined,
+    }
+  }
 
-      if (next_result.boards.length === 0) return
-      if (next_result.boards[0]!.items_page.items.length === 0) return
-      yield next_result.boards[0]!.items_page.items
-      cursor = next_result.boards[0]!.items_page.cursor
+  public async *getItems(boardId: string): AsyncGenerator<Array<Item>> {
+    let page = await this.getItemsPage(boardId)
+    if (page.items.length === 0) return
+    yield page.items
+
+    while (page.nextToken) {
+      page = await this.getItemsPage(boardId, page.nextToken)
+      if (page.items.length === 0) return
+      yield page.items
     }
   }
 }

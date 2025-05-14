@@ -24,13 +24,15 @@ export default new IntegrationDefinition({
       title: 'Create Item',
       description: 'Create a new item.',
       input: { schema: createItemSchema },
-      output: { schema: z.object({}) },
+      output: {
+        schema: z.object({}),
+      },
     },
     syncItems: {
       title: 'Sync Items',
       description: 'Retrieve items from a Monday.com board and store them in a Botpress table.',
-      input: { schema: syncItemsSchema },
-      output: { schema: z.object({}) },
+      input: { schema: syncItemsSchema.input },
+      output: { schema: syncItemsSchema.output },
     },
   },
   configuration: {

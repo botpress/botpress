@@ -78,9 +78,15 @@ export const createItemSchema = z.object({
   itemName: z.string().min(1).title('Name').describe("The new item's name."),
 })
 
-export const syncItemsSchema = z.object({
-  boardId: z
-    .string()
-    .title('Board ID')
-    .describe("The board's unique identifier. Items will be synced from this board."),
-})
+export const syncItemsSchema = {
+  input: z.object({
+    boardId: z
+      .string()
+      .title('Board ID')
+      .describe("The board's unique identifier. Items will be synced from this board."),
+    nextToken: z.string().optional().title('Next Token').describe('The token to use to get the next page of items'),
+  }),
+  output: z.object({
+    nextToken: z.string().optional().title('Next Token').describe('The token to use to get the next page of items'),
+  }),
+}
