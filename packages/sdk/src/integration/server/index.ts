@@ -26,18 +26,30 @@ type ServerProps = CommonHandlerProps<BaseIntegration> & {
   instance: IntegrationHandlers<BaseIntegration>
 }
 
+const extractTracingHeaders = (headers: Record<string, string | undefined>) => {
+  return ['traceparent', 'tracestate', 'sentry-trace'].reduce<Record<string, string>>((acc, header) => {
+    if (headers[header]) {
+      acc[header] = headers[header]
+    }
+    return acc
+  }, {})
+}
+
 export const integrationHandler =
   (instance: IntegrationHandlers<BaseIntegration>) =>
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
 
+    const [, traceId] = (req.headers['traceparent'] || '').split('-')
+
     const vanillaClient = new Client({
       botId: ctx.botId,
       integrationId: ctx.integrationId,
       retry: retryConfig,
+      headers: extractTracingHeaders(req.headers),
     })
     const client = new IntegrationSpecificClient<BaseIntegration>(vanillaClient)
-    const logger = new IntegrationLogger()
+    const logger = new IntegrationLogger({ traceId })
 
     const props = {
       ctx,

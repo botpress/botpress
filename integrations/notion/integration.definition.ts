@@ -6,7 +6,7 @@ export default new sdk.IntegrationDefinition({
   name: 'notion',
   description: 'Add pages and comments, manage databases, and engage in discussions — all within your chatbot.',
   title: 'Notion',
-  version: '2.0.0',
+  version: '2.2.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   actions,
@@ -19,7 +19,13 @@ export default new sdk.IntegrationDefinition({
 }).extend(filesReadonly, ({}) => ({
   entities: {},
   actions: {
-    listItemsInFolder: { name: 'filesReadonlyListItemsInFolder' },
-    transferFileToBotpress: { name: 'filesReadonlyTransferFileToBotpress' },
+    listItemsInFolder: {
+      name: 'filesReadonlyListItemsInFolder',
+      attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+    },
+    transferFileToBotpress: {
+      name: 'filesReadonlyTransferFileToBotpress',
+      attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+    },
   },
 }))

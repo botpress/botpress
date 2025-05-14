@@ -53,8 +53,14 @@ export const prepareUpdatePluginBody = (
   localPlugin: types.UpdatePluginRequestBody,
   remotePlugin: client.Plugin
 ): types.UpdatePluginRequestBody => {
-  const actions = utils.records.setNullOnMissingValues(localPlugin.actions, remotePlugin.actions)
-  const events = utils.records.setNullOnMissingValues(localPlugin.events, remotePlugin.events)
+  const actions = utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localPlugin.actions, remotePlugin.actions),
+    remoteItems: remotePlugin.actions,
+  })
+  const events = utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localPlugin.events, remotePlugin.events),
+    remoteItems: remotePlugin.events,
+  })
   const states = utils.records.setNullOnMissingValues(localPlugin.states, remotePlugin.states)
 
   return {

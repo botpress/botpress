@@ -56,5 +56,5 @@ jobs:
       - name: Publish Zai
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
-          path: './packages/vai'
+          path: './packages/zai'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'

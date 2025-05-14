@@ -54,7 +54,8 @@ runs:
             plugin=$(basename $plugin_path)
             exists=$(./.github/scripts/plugin-exists.sh $plugin)
 
-            base_command="bp deploy -v -y" # all plugins are public right now            
+            base_command="bp deploy -v -y --public"
+            
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying plugin: ### $plugin ###\n"
                 pnpm retry -n 2 -- pnpm -F "{plugins/$plugin}" -c exec -- "$base_command"

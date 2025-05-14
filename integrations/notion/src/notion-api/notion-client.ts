@@ -151,6 +151,13 @@ export class NotionClient {
     return 'parent' in page ? page : undefined
   }
 
+  @handleErrors('Failed to get database')
+  public async getDatabase({ databaseId }: { databaseId: string }) {
+    const db = await this._notion.databases.retrieve({ database_id: databaseId })
+
+    return 'parent' in db ? db : undefined
+  }
+
   @handleErrors('Failed to enumerate database children')
   public async enumerateDatabaseChildren({ databaseId, nextToken }: { databaseId: string; nextToken?: string }) {
     const { next_cursor, results } = await this._notion.databases.query({

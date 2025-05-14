@@ -7,7 +7,7 @@ describe('zai.check', { timeout: 60_000 }, () => {
 
   it('basic check on a string', async () => {
     const value = await zai.check('This text is very clearly written in English.', 'is an english sentence')
-    expect(value).toBe(true)
+    expect(value.value).toBe(true)
   })
 
   it('text that is too long gets truncated', async () => {
@@ -18,8 +18,8 @@ describe('zai.check', { timeout: 60_000 }, () => {
 
     const isAboutBirds = await zai.check(BotpressDocumentation, 'is a book about birds and their species')
 
-    expect(isBotpressDocumentation).toBe(true)
-    expect(isAboutBirds).toBe(false)
+    expect(isBotpressDocumentation.value).toBe(true)
+    expect(isAboutBirds.value).toBe(false)
   })
 
   it('works with any input type', async () => {
@@ -27,8 +27,8 @@ describe('zai.check', { timeout: 60_000 }, () => {
     const american = await zai.check(sly, 'person lives in north america')
     const european = await zai.check(sly, 'person lives in europe')
 
-    expect(american).toBe(true)
-    expect(european).toBe(false)
+    expect(american.value).toBe(true)
+    expect(european.value).toBe(false)
   })
 
   it('check with examples', async () => {
@@ -57,12 +57,12 @@ describe('zai.check', { timeout: 60_000 }, () => {
     const nike = await zai.check('Nike', 'competes with us', { examples })
     const adidas = await zai.check('Adidas', 'competes with us', { examples })
 
-    expect(moveworks).toBe(true)
-    expect(ada).toBe(true)
-    expect(voiceflow).toBe(true)
+    expect(moveworks.value).toBe(true)
+    expect(ada.value).toBe(true)
+    expect(voiceflow.value).toBe(true)
 
-    expect(nike).toBe(false)
-    expect(adidas).toBe(false)
+    expect(nike.value).toBe(false)
+    expect(adidas.value).toBe(false)
   })
 })
 
@@ -100,7 +100,7 @@ describe('zai.learn.check', { timeout: 60_000 }, () => {
       tableName,
     })
 
-    const value = await zai.learn(taskId).check(`What's up`, 'is a greeting')
+    const { value } = await zai.learn(taskId).check(`What's up`, 'is a greeting')
     expect(value).toBe(true)
 
     let rows = await client.findTableRows({ table: tableName })
@@ -114,7 +114,7 @@ describe('zai.learn.check', { timeout: 60_000 }, () => {
       instructions: 'is a greeting',
       input: 'what is up',
       output: false,
-      explanation: `"What's up" is our business scenario is NOT considered an official greeting.`,
+      explanation: `"What's up" in our business scenario is NOT considered an official greeting.`,
       metadata,
       status: 'approved',
     })
@@ -143,7 +143,7 @@ describe('zai.learn.check', { timeout: 60_000 }, () => {
       status: 'approved',
     })
 
-    const second = await zai.learn(taskId).check(`What's up`, 'is a greeting')
+    const { value: second } = await zai.learn(taskId).check(`What's up`, 'is a greeting')
     expect(second).toBe(false)
 
     rows = await client.findTableRows({ table: tableName })

@@ -458,7 +458,7 @@ type ClientHooksBefore = {
 }
 
 type ClientHooksAfter = {
-  [K in client.Operation]?: (x: client.ClientOutputs[K]) => Promise<client.ClientOutputs[K]>
+  [K in client.Operation]?: (y: client.ClientOutputs[K], x: client.ClientInputs[K]) => Promise<client.ClientOutputs[K]>
 }
 
 export type ClientHooks = {

@@ -100,12 +100,12 @@ type ChannelsOfPackage<TPackage extends InterfacePackage> = {
 }
 
 export type ActionOverrideProps = utils.types.AtLeastOneProperty<
-  Pick<Required<ActionDefinition>, 'title' | 'description' | 'billable' | 'cacheable'> & {
+  Pick<Required<ActionDefinition>, 'title' | 'description' | 'billable' | 'cacheable' | 'attributes'> & {
     name: string
   }
 >
 export type EventOverrideProps = utils.types.AtLeastOneProperty<
-  Pick<Required<EventDefinition>, 'title' | 'description'> & {
+  Pick<Required<EventDefinition>, 'title' | 'description' | 'attributes'> & {
     name: string
   }
 >
@@ -328,7 +328,7 @@ export class IntegrationDefinition<
         schema: mergeObjectSchemas(a.input.schema, b.input.schema),
       },
       output: {
-        schema: mergeObjectSchemas(a.input.schema, b.output.schema),
+        schema: mergeObjectSchemas(a.output.schema, b.output.schema),
       },
     }
   }

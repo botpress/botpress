@@ -37,7 +37,7 @@ export default new sdk.BotDefinition({
     },
   })
   .addPlugin(hitl, {
-    configuration: {},
+    configuration: { flowOnHitlStopped: false },
     interfaces: {
       hitl: {
         id: zendesk.id,

@@ -6,7 +6,6 @@ import { z } from '@bpinternal/zui'
 import { check } from '@botpress/vai'
 
 import { TableAdapter } from '../src/adapters/botpress-table'
-import { console } from 'inspector'
 
 describe('zai.extract', () => {
   const zai = getZai()

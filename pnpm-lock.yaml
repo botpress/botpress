@@ -12,8 +12,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.1.0
-        version: 1.1.0(openapi-types@12.1.3)
+        specifier: 1.15.0
+        version: 1.15.0(openapi-types@12.1.3)
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -566,6 +566,28 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  integrations/confluence:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: 1.8.4
+        version: 1.8.4
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
+    devDependencies:
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
+
   integrations/dalle:
     dependencies:
       '@botpress/client':
@@ -637,6 +659,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -650,9 +675,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../../packages/common
       '@botpresshub/hitl':
         specifier: workspace:*
         version: link:../../interfaces/hitl
@@ -1521,12 +1543,9 @@ importers:
       preact-render-to-string:
         specifier: ^6.5.7
         version: 6.5.7(preact@10.23.1)
-      query-string:
-        specifier: ^6.14.1
-        version: 6.14.1
       whatsapp-api-js:
-        specifier: ^1.0.5
-        version: 1.0.5
+        specifier: ^5.3.0
+        version: 5.3.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1877,10 +1896,10 @@ importers:
         specifier: 0.5.1
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.12.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.0.4
+        specifier: 4.6.1
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -1989,10 +2008,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.12.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.4
+        specifier: 4.6.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2005,10 +2024,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.12.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.4
+        specifier: 4.6.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2021,7 +2040,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.0.4
+        specifier: 4.6.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2034,10 +2053,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.12.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.4
+        specifier: 4.6.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2050,10 +2069,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.12.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.4
+        specifier: 4.6.1
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2152,7 +2171,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.12.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^0.13.5
@@ -2183,7 +2202,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.3.0
+        specifier: 1.12.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2226,7 +2245,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.14
+        specifier: 0.1.19
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -4117,8 +4136,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@1.1.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-J+HK6vR/OcDgro6t4Z9p6kKX1zfYO6qPdGq+Qt1A8equrfOJzin6PND4qHaGorkxwgCjwjrDbcyMF8YXPzoZRQ==}
+  /@botpress/api@1.15.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-rkGuCjC1DXS/W6DafaJ7+ukgB+7Ixn/Eu4KJIUktJJ8y3EgWpP6vVyjBqrthl0xMfuH0xBbqe7ZC5zBgMhaNfw==}
     dependencies:
       '@bpinternal/opapi': 0.14.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -4340,8 +4359,8 @@ packages:
     peerDependencies:
       type-fest: ^4.12.0
     dependencies:
-      axios: 1.7.9
-      axios-case-converter: 1.1.1(axios@1.7.9)
+      axios: 1.8.4
+      axios-case-converter: 1.1.1(axios@1.8.4)
       axios-retry: 3.9.1
       runtypes: 6.7.0
       ts-custom-error: 3.3.1
@@ -5366,7 +5385,7 @@ packages:
     dependencies:
       '@types/node': 22.10.2
     optionalDependencies:
-      axios: 1.7.9
+      axios: 1.8.4
     transitivePeerDependencies:
       - debug
     dev: false
@@ -7468,7 +7487,7 @@ packages:
     resolution: {integrity: sha512-9JgOaunvQdsQ/qW2OPmE5+hCeUB52lQSolecrFrthct55QekhmXEwT203s20RL+UHtCQc15y3VXpby9E7Kkh/g==}
     deprecated: This is a stub types definition. axios provides its own type definitions, so you do not need this installed.
     dependencies:
-      axios: 1.7.9
+      axios: 1.8.4
     transitivePeerDependencies:
       - debug
     dev: true
@@ -7626,6 +7645,10 @@ packages:
       '@types/node': 18.19.76
     dev: false
 
+  /@types/linkify-it@5.0.0:
+    resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
+    dev: true
+
   /@types/lodash-es@4.17.12:
     resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
     dependencies:
@@ -7640,6 +7663,17 @@ packages:
 
   /@types/mailchimp__mailchimp_marketing@3.0.10:
     resolution: {integrity: sha512-UMeHXH1XQUuj6PBWQzripZhH7ENEFMHiH55aGXKKuqhM29kF//xHWwqazY/zwT8TWKHvXAmIg/MKT8ZM1pFWrw==}
+    dev: true
+
+  /@types/markdown-it@14.1.2:
+    resolution: {integrity: sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==}
+    dependencies:
+      '@types/linkify-it': 5.0.0
+      '@types/mdurl': 2.0.0
+    dev: true
+
+  /@types/mdurl@2.0.0:
+    resolution: {integrity: sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==}
     dev: true
 
   /@types/mime@1.3.2:
@@ -8462,12 +8496,12 @@ packages:
     resolution: {integrity: sha512-NmWvPnx0F1SfrQbYwOi7OeaNGokp9XhzNioJ/CSBs8Qa4vxug81mhJEAVZwxXuBmYB5KDRfMq/F3RR0BIU7sWg==}
     dev: false
 
-  /axios-case-converter@1.1.1(axios@1.7.9):
+  /axios-case-converter@1.1.1(axios@1.8.4):
     resolution: {integrity: sha512-v13pB7cYryh/7f4TKxN/gniD2hwqPQcjip29Hk3J9iwsnA37Rht2Hkn5VyrxynxlKdMNSIfGk6I9D6G28oTRyQ==}
     peerDependencies:
       axios: '>=1.0.0 <2.0.0'
     dependencies:
-      axios: 1.7.9
+      axios: 1.8.4
       camel-case: 4.1.2
       header-case: 2.0.4
       snake-case: 3.0.4
@@ -8671,6 +8705,15 @@ packages:
 
   /axios@1.7.9:
     resolution: {integrity: sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==}
+    dependencies:
+      follow-redirects: 1.15.6(debug@4.4.0)
+      form-data: 4.0.2
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
+  /axios@1.8.4:
+    resolution: {integrity: sha512-eBSYY4Y68NNlHbHBMdeDmKNtDgXWhQsJcGqzO3iLUM0GraQFSS9cVgPX5I9b3lbdFKyYoAEGAZF1DwhTaljNAw==}
     dependencies:
       follow-redirects: 1.15.6(debug@4.4.0)
       form-data: 4.0.2
@@ -10997,6 +11040,7 @@ packages:
 
   /formidable@2.1.2:
     resolution: {integrity: sha512-CM3GuJ57US06mlpQ47YcunuUZ9jpm8Vx+P2CGt2j7HpgkKZO/DJYQ0Bobim8G6PFQmK5lOqOOdUXboU+h73A4g==}
+    deprecated: 'ACTION REQUIRED: SWITCH TO v3 - v1 and v2 are VULNERABLE! v1 is DEPRECATED FOR OVER 2 YEARS! Use formidable@latest or try formidable-mini for fresh projects'
     dependencies:
       dezalgo: 1.0.4
       hexoid: 1.0.0
@@ -13025,6 +13069,12 @@ packages:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
     dev: true
 
+  /linkify-it@5.0.0:
+    resolution: {integrity: sha512-5aHCbzQRADcdP+ATqnDuhhJ/MRIqDkZX5pyjFHRRysS8vZ5AbqGEoFIb6pYHPZ+L/OC2Lc+xT8uHVVR5CAK/wQ==}
+    dependencies:
+      uc.micro: 2.1.0
+    dev: false
+
   /lint-staged@15.4.3:
     resolution: {integrity: sha512-FoH1vOeouNh1pw+90S+cnuoFwRfUD9ijY2GKy5h7HS3OR7JVir2N2xrsa0+Twc1B7cW72L+88geG5cW4wIhn7g==}
     engines: {node: '>=18.12.0'}
@@ -13271,6 +13321,18 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
+  /markdown-it@14.1.0:
+    resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
+    hasBin: true
+    dependencies:
+      argparse: 2.0.1
+      entities: 4.5.0
+      linkify-it: 5.0.0
+      mdurl: 2.0.0
+      punycode.js: 2.3.1
+      uc.micro: 2.1.0
+    dev: false
+
   /marked@13.0.2:
     resolution: {integrity: sha512-J6CPjP8pS5sgrRqxVRvkCIkZ6MFdRIjDkwUwgJ9nL2fbmM6qGQeB2C16hi8Cc9BOzj6xXzy0jyi0iPIfnMHYzA==}
     engines: {node: '>= 18'}
@@ -13294,6 +13356,10 @@ packages:
     dependencies:
       marked: 7.0.4
       react: 18.3.1
+    dev: false
+
+  /mdurl@2.0.0:
+    resolution: {integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==}
     dev: false
 
   /media-typer@0.3.0:
@@ -14339,6 +14405,11 @@ packages:
     dependencies:
       end-of-stream: 1.4.4
       once: 1.4.0
+    dev: false
+
+  /punycode.js@2.3.1:
+    resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
+    engines: {node: '>=6'}
     dev: false
 
   /punycode@2.3.0:
@@ -15634,7 +15705,7 @@ packages:
   /trello.js@1.2.7:
     resolution: {integrity: sha512-fFk5pQ8UvnTkGgLfSHKDpmejIx460yiSjG99hjvnj4XLdGsrmSNTKTTiD8or+2uAQ6+mJgq8q4Ztj34r7z0qFQ==}
     dependencies:
-      axios: 1.7.9
+      axios: 1.8.4
       form-data: 4.0.0
       tslib: 2.6.2
     transitivePeerDependencies:
@@ -16064,6 +16135,10 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true
+
+  /uc.micro@2.1.0:
+    resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
+    dev: false
 
   /uglify-js@3.19.3:
     resolution: {integrity: sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ==}
@@ -16495,9 +16570,9 @@ packages:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
     dev: true
 
-  /whatsapp-api-js@1.0.5:
-    resolution: {integrity: sha512-cuxRRf1pi/ztICjpqw52yHycpoaLF2M74+2A8YMq1lDyuNsy0+4tIXNxoxDMJZxCBkSV8sDMsPK4F7oHjPFYzw==}
-    engines: {node: '>14.21'}
+  /whatsapp-api-js@5.3.0:
+    resolution: {integrity: sha512-Rw2pfh0qsbQ1FT+Y4F9Lc8pfoyT80ghVE7xAXDESYknQNfjwawb/lCI3SXN/+sE9wrn7y7ob5CDPLNO9JfwsVg==}
+    engines: {node: '>=16'}
     dev: false
 
   /whatwg-url@5.0.0:
