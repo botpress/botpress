@@ -78,7 +78,7 @@ export class MondayClient {
   }
 
   public async getItemsPage(boardId: string, nextToken: string | undefined = undefined): Promise<ItemsPageResponse> {
-    const limit = 25
+    const limit = 500
 
     const result = nextToken
       ? await this._executeGraphqlQuery('getNextItemsPage', { limit, boardId, cursor: nextToken })
