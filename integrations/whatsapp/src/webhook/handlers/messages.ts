@@ -110,6 +110,9 @@ async function _handleIncomingMessage(
   } else if (type === 'image') {
     const imageUrl = await _getOrDownloadWhatsappMedia(message.image.id, client, ctx)
     await createMessage({ type, payload: { imageUrl } })
+  } else if (type === 'sticker') {
+    const stickerUrl = await _getOrDownloadWhatsappMedia(message.sticker.id, client, ctx)
+    await createMessage({ type: 'image', payload: { imageUrl: stickerUrl } })
   } else if (type === 'audio') {
     const audioUrl = await _getOrDownloadWhatsappMedia(message.audio.id, client, ctx)
     await createMessage({ type, payload: { audioUrl } })
@@ -135,6 +138,9 @@ async function _handleIncomingMessage(
         incomingMessageType: type,
       })
     }
+  } else if (message.type === 'unsupported' || message.type === 'unknown') {
+    const errors = message.errors?.map((err) => `${err.message} (${err.error_data.details})`).join('\n')
+    logger.forBot().warn(`Received message type ${message.type} by WhatsApp, errors: ${errors ?? 'none'}`)
   } else {
     logger.forBot().warn(`Unhandled message type ${type}: ${JSON.stringify(message)}`)
   }
