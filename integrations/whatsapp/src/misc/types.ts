@@ -109,7 +109,16 @@ const WhatsAppMessageSchema = z.union([
     interactive: WhatsAppMessageInteractiveSchema,
   }),
   WhatsAppBaseMessageSchema.extend({
-    type: z.union([z.literal('sticker'), z.literal('order'), z.literal('system'), z.literal('unknown')]),
+    type: z.literal('sticker'),
+    sticker: z.object({
+      mime_type: z.string(),
+      sha256: z.string(),
+      id: z.string(),
+      animated: z.boolean(),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
+    type: z.union([z.literal('order'), z.literal('system'), z.literal('unknown'), z.literal('unsupported')]), // 'unsupported' is not documented but can be received
   }),
 ])
 export type WhatsAppMessage = z.infer<typeof WhatsAppMessageSchema>
