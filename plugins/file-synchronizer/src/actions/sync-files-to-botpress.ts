@@ -10,10 +10,18 @@ export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpess
     return { status: 'already-running' }
   }
 
+  const includeFiles = props.input.includeFiles ?? props.configuration.includeFiles
+  const excludeFiles = props.input.excludeFiles ?? props.configuration.excludeFiles
+
+  props.logger.info('Syncing files to Botpress...', {
+    includeFiles,
+    excludeFiles,
+  })
+
   props.logger.info('Enumerating files...')
   const allFiles = await _enumerateAllFilesRecursive(props, {
-    includeFiles: props.input.includeFiles ?? props.configuration.includeFiles,
-    excludeFiles: props.input.excludeFiles ?? props.configuration.excludeFiles,
+    includeFiles,
+    excludeFiles,
   })
 
   if (allFiles.length === 0) {

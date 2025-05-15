@@ -46,7 +46,10 @@ export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): 
 
     const isFileWithUnmetRequirements =
       item.type === 'file' &&
-      ((maxSizeInBytes !== undefined && item.sizeInBytes !== undefined && item.sizeInBytes > maxSizeInBytes) ||
+      ((maxSizeInBytes !== undefined &&
+        maxSizeInBytes > 0 &&
+        item.sizeInBytes !== undefined &&
+        item.sizeInBytes > maxSizeInBytes) ||
         (item.sizeInBytes !== undefined && item.sizeInBytes > MAX_FILE_SIZE_BYTES) ||
         (modifiedAfter !== undefined &&
           item.lastModifiedDate !== undefined &&
