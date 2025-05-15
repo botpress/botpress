@@ -24,7 +24,7 @@ export default new sdk.IntegrationDefinition({
   name: 'googledrive',
   title: 'Google Drive',
   description: 'Access and manage your Google Drive files from your bot.',
-  version: '0.2.0',
+  version: '0.3.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -192,6 +192,9 @@ export default new sdk.IntegrationDefinition({
     },
     WEBHOOK_SECRET: {
       description: 'The secret used to sign webhook tokens. Should be a high-entropy string that only Botpress knows',
+    },
+    FILE_PICKER_API_KEY: {
+      description: 'The API key used to access the Google Picker API',
     },
   },
 }).extend(filesReadonly, ({}) => ({

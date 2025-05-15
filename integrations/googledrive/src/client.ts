@@ -511,12 +511,19 @@ export class Client {
     return indexableContentType ?? defaultContentType
   }
 
-  private _getFilePath = async (file: BaseDiscriminatedFile): Promise<string[]> => {
+  private _getFilePath = async (file: BaseDiscriminatedFile, pathAcc?: string[]): Promise<string[]> => {
+    const path = [file.name, ...(pathAcc ?? [])]
+
     if (!file.parentId) {
-      return [file.name]
+      return path
     }
 
-    const parent = await this._getOrFetchFile(file.parentId)
-    return [...(await this._getFilePath(parent)), file.name]
+    try {
+      const parent = await this._getOrFetchFile(file.parentId)
+
+      return await this._getFilePath(parent, path)
+    } catch {
+      return path
+    }
   }
 }
