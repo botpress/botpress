@@ -19,6 +19,7 @@ import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
+import * as image from './message-types/image'
 import * as bp from '.botpress'
 
 export const channel: bp.IntegrationProps['channels']['channel'] = {
@@ -26,10 +27,14 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
     text: async ({ payload, ...props }) => {
       await _send({ ...props, message: new Text(payload.text) })
     },
-    image: async ({ payload, ...props }) => {
+    image: async ({ payload, logger, ...props }) => {
       await _send({
         ...props,
-        message: new Image(payload.imageUrl.trim(), false),
+        logger,
+        message: await image.generateOutgoingMessage({
+          payload,
+          logger,
+        }),
       })
     },
     audio: async ({ payload, ...props }) => {
@@ -118,10 +123,15 @@ type SendMessageProps = {
   conversation: bp.AnyMessageProps['conversation']
   ack: bp.AnyMessageProps['ack']
   logger: bp.AnyMessageProps['logger']
-  message: OutgoingMessage
+  message?: OutgoingMessage
 }
 
 async function _send({ client, ctx, conversation, message, ack, logger }: SendMessageProps) {
+  if (!message) {
+    logger.forBot().debug('No message to send')
+    return
+  }
+
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
   const botPhoneNumberId = conversation.tags.botPhoneNumberId
   const userPhoneNumber = conversation.tags.userPhone

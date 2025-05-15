@@ -1,19 +1,23 @@
 import axios from 'axios'
-import { Sticker, Image } from 'whatsapp-api-js/messages'
-import * as types from '../types'
-import { channels } from '.botpress'
+import * as WhatsappMessages from 'whatsapp-api-js/messages'
+import * as bp from '.botpress'
 
-type BPImage = channels.channel.image.Image
-
+type Image = bp.channels.channel.image.Image
 type ImageMessageProps = {
-  payload: BPImage
-  logger: types.Logger
-  [key: string]: any
+  payload: Image
+  logger: bp.Logger
 }
 
-function parseWebPDimensions(buffer: Buffer): { width: number; height: number } | null {
+type ImageDimensions = {
+  width: number
+  height: number
+}
+
+const MAX_STICKER_FILE_SIZE = 512 * 1024 // 512 KB
+
+function parseWebPDimensions(buffer: Buffer): ImageDimensions | undefined {
   if (buffer.toString('utf8', 0, 4) !== 'RIFF' || buffer.toString('utf8', 8, 12) !== 'WEBP') {
-    return null
+    return undefined
   }
 
   const chunkHeader = buffer.toString('utf8', 12, 16)
@@ -33,7 +37,7 @@ function parseWebPDimensions(buffer: Buffer): { width: number; height: number } 
     const b2 = buffer[23]
     const b3 = buffer[24]
     if (!(b0 && b1 && b2 && b3)) {
-      return null
+      return undefined
     }
 
     const width = 1 + (((b1 & 0x3f) << 8) | b0)
@@ -48,7 +52,7 @@ function parseWebPDimensions(buffer: Buffer): { width: number; height: number } 
     return { width, height }
   }
 
-  return null
+  return undefined
 }
 
 /**
@@ -57,42 +61,56 @@ function parseWebPDimensions(buffer: Buffer): { width: number; height: number } 
 export async function generateOutgoingMessage({
   payload,
   logger,
-}: ImageMessageProps): Promise<Image | Sticker | undefined> {
+}: ImageMessageProps): Promise<WhatsappMessages.Image | WhatsappMessages.Sticker | undefined> {
   const url = payload.imageUrl.trim()
-  const isWebp = url.toLowerCase().endsWith('.webp')
-
-  if (!isWebp) {
-    logger.forBot().info('Sending WhatsApp image message (not webp)')
-    return new Image(url, false)
+  if (url.toLowerCase().endsWith('.webp')) {
+    return await _generateSticker(payload, logger)
+  } else {
+    return _generateImage(payload, logger)
   }
+}
 
-  try {
-    const response = await axios.get(url, { responseType: 'arraybuffer' })
-    const buffer = Buffer.from(response.data)
+function _generateImage(payload: Image, logger: bp.Logger): WhatsappMessages.Image | undefined {
+  logger.forBot().debug('Sending WhatsApp Image')
+  const url = payload.imageUrl.trim()
+  return new WhatsappMessages.Image(url, false)
+}
 
-    const isUnderSizeLimit = buffer.length < 512 * 1024 // 512 KB
-    const dimensions = parseWebPDimensions(buffer)
-
-    if (dimensions?.width === 512 && dimensions.height === 512 && isUnderSizeLimit) {
-      logger.forBot().info('Sending WhatsApp sticker message (valid webp, size and dimensions ok)')
-      return new Sticker(url, false)
-    } else if (!isUnderSizeLimit) {
-      logger
-        .forBot()
-        .warn(
-          `Image is too big for a sticker. Current size is ${buffer.length} bytes. Must be smaller than ${512 * 1024} bytes`
-        )
-      return undefined
-    } else {
-      logger
-        .forBot()
-        .warn(
-          `Image does not meet WhatsApp size requirements. Current size is ${dimensions?.width} wide by ${dimensions?.height} high. Expected dimensions are 512 x 512`
-        )
-      return undefined
-    }
-  } catch (error) {
-    logger.forBot().error('Error processing image for sticker:', error)
+async function _generateSticker(payload: Image, logger: bp.Logger): Promise<WhatsappMessages.Sticker | undefined> {
+  // Check if the image is a valid WebP format and meets WhatsApp requirements,
+  // as invalid WebP images (stickers) are silently ignored by WhatsApp.
+  const url = payload.imageUrl.trim()
+  const downloadResponse = await axios.get(url, { responseType: 'arraybuffer' })
+  const buffer = Buffer.from(downloadResponse.data)
+  if (buffer.length > MAX_STICKER_FILE_SIZE) {
+    logger
+      .forBot()
+      .warn(
+        `Image is too big for a sticker. Current size is ${buffer.length} bytes. Must be smaller than ${MAX_STICKER_FILE_SIZE} bytes`
+      )
     return undefined
   }
+
+  let dimensions: ImageDimensions | undefined = undefined
+  try {
+    dimensions = parseWebPDimensions(buffer)
+  } catch (error: any) {
+    logger.forBot().error('Error parsing WebP dimensions:', error?.message ?? '[unknown error]')
+    return undefined
+  }
+
+  if (!dimensions) {
+    logger.forBot().warn('Image is not in a valid WebP format')
+    return undefined
+  } else if (dimensions.width !== 512 || dimensions.height !== 512) {
+    logger
+      .forBot()
+      .warn(
+        `Image does not meet WhatsApp size requirements (Current ${dimensions.width}x${dimensions.height}, Expected 512x512)`
+      )
+    return undefined
+  }
+
+  logger.forBot().debug('Sending WhatsApp Sticker')
+  return new WhatsappMessages.Sticker(url, false)
 }
