@@ -13,7 +13,7 @@ export const filesReadonlyActions = {
     } else if (props.input.filters?.itemType === 'folder') {
       query.push(`mimeType = '${APP_GOOGLE_FOLDER_MIMETYPE}'`)
     } else {
-      query.push(`mimeType != '${APP_GOOGLE_SHORTCUT_MIMETYPE}''`)
+      query.push(`mimeType != '${APP_GOOGLE_SHORTCUT_MIMETYPE}'`)
     }
 
     if (props.input.filters?.maxSizeInBytes) {

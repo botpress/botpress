@@ -105,6 +105,32 @@ describe.concurrent('matchItem', () => {
       })
     })
 
+    it('should ignore maxSizeInBytes when set to 0', () => {
+      // Arrange
+      const itemPath = 'src/data/valid-file.txt'
+      const maxSizeInBytes = 0
+      const configuration = createConfiguration({
+        includeFiles: [
+          {
+            pathGlobPattern: '**/valid-*.txt',
+            maxSizeInBytes,
+          },
+        ],
+      })
+      const item = createFileItem({
+        name: 'valid-file.txt',
+        sizeInBytes: 100,
+      })
+
+      // Act
+      const result = matchItem({ configuration, item, itemPath })
+
+      // Assert
+      expect(result).toMatchObject({
+        shouldBeIgnored: false,
+      })
+    })
+
     it('should exclude when file size exceeds MAX_FILE_SIZE_BYTES', () => {
       // Arrange
       const itemPath = 'src/data/large-file.txt'
