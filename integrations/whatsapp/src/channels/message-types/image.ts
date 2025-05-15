@@ -15,7 +15,7 @@ type ImageDimensions = {
 
 const MAX_STICKER_FILE_SIZE = 512 * 1024 // 512 KB
 
-function parseWebPDimensions(buffer: Buffer): ImageDimensions | undefined {
+function _parseWebPDimensions(buffer: Buffer): ImageDimensions | undefined {
   if (buffer.toString('utf8', 0, 4) !== 'RIFF' || buffer.toString('utf8', 8, 12) !== 'WEBP') {
     return undefined
   }
@@ -93,7 +93,7 @@ async function _generateSticker(payload: Image, logger: bp.Logger): Promise<What
 
   let dimensions: ImageDimensions | undefined = undefined
   try {
-    dimensions = parseWebPDimensions(buffer)
+    dimensions = _parseWebPDimensions(buffer)
   } catch (error: any) {
     logger.forBot().error('Error parsing WebP dimensions:', error?.message ?? '[unknown error]')
     return undefined
