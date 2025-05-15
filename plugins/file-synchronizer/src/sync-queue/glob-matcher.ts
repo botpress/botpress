@@ -34,28 +34,12 @@ export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): 
 
   let matchesButHasUnmetRequirements = false
 
-  for (const {
-    pathGlobPattern,
-    maxSizeInBytes,
-    modifiedAfter,
-    applyOptionsToMatchedFiles,
-  } of configuration.includeFiles) {
+  for (const { pathGlobPattern, applyOptionsToMatchedFiles, ...requirements } of configuration.includeFiles) {
     if (!picomatch.isMatch(itemPath, pathGlobPattern)) {
       continue
     }
 
-    const isFileWithUnmetRequirements =
-      item.type === 'file' &&
-      ((maxSizeInBytes !== undefined &&
-        maxSizeInBytes > 0 &&
-        item.sizeInBytes !== undefined &&
-        item.sizeInBytes > maxSizeInBytes) ||
-        (item.sizeInBytes !== undefined && item.sizeInBytes > MAX_FILE_SIZE_BYTES) ||
-        (modifiedAfter !== undefined &&
-          item.lastModifiedDate !== undefined &&
-          new Date(item.lastModifiedDate) < new Date(modifiedAfter)))
-
-    if (isFileWithUnmetRequirements) {
+    if (_isFileWithUnmetRequirements(item, requirements)) {
       matchesButHasUnmetRequirements = true
       continue
     }
@@ -70,4 +54,33 @@ export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): 
     shouldBeIgnored: true,
     reason: matchesButHasUnmetRequirements ? 'unmet-include-requirements' : 'does-not-match-any-pattern',
   }
+}
+
+type FileRequirements = Omit<
+  GlobMatcherProps['configuration']['includeFiles'][number],
+  'pathGlobPattern' | 'applyOptionsToMatchedFiles'
+>
+
+const _isFileWithUnmetRequirements = (
+  item: models.FolderItem,
+  { maxSizeInBytes, modifiedAfter }: FileRequirements
+): boolean => {
+  if (item.type !== 'file') {
+    return false
+  }
+
+  const exceedsUserDefinedMaxSize =
+    maxSizeInBytes !== undefined &&
+    maxSizeInBytes > 0 &&
+    item.sizeInBytes !== undefined &&
+    item.sizeInBytes > maxSizeInBytes
+
+  const exceedsBotpressDefinedMaxSize = item.sizeInBytes !== undefined && item.sizeInBytes > MAX_FILE_SIZE_BYTES
+
+  const isItemOlderThanGivenDate =
+    modifiedAfter !== undefined &&
+    item.lastModifiedDate !== undefined &&
+    new Date(item.lastModifiedDate) < new Date(modifiedAfter)
+
+  return exceedsUserDefinedMaxSize || exceedsBotpressDefinedMaxSize || isItemOlderThanGivenDate
 }
