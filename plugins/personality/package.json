@@ -8,7 +8,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "dedent": "^1.5.3",
+    "dedent": "^1.6.0",
     "json5": "^2.2.3",
     "jsonrepair": "^3.10.0"
   },
