@@ -36,13 +36,3 @@ actions.whatsapp.startConversation({
   }
 })
 ```
-
-### Note on image messages:
-
-WhatsApp imposes [strict restrictions on stickers:](https://developers.facebook.com/docs/whatsapp/cloud-api/messages/sticker-messages)
-
-1. Only .webp format allowed
-2. Smaller than 512 kb
-3. Exactly 512 x 512 size
-
-If any of the above criteria are broken by a .webp image, you get a warning in the log and the image is not sent.
