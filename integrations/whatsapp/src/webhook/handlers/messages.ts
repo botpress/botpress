@@ -2,7 +2,8 @@ import { RuntimeError } from '@botpress/client'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
 import { getAccessToken, getAuthenticatedWhatsappClient } from 'src/auth'
-import { WhatsAppMessage, WhatsAppValue, WhatsAppPayloadSchema } from '../../misc/types'
+import { getMessageFromWhatsappMessageId } from 'src/misc/util'
+import { WhatsAppMessage, WhatsAppValue } from '../../misc/types'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
 
@@ -13,36 +14,17 @@ type IncomingMessages = {
   }
 }
 
-export const messagesHandler = async (props: bp.HandlerProps) => {
-  const { req, ctx, client, logger } = props
-  if (!req.body) {
-    logger.debug('Handler received an empty body, so the message was ignored')
-    return
-  }
+export const messagesHandler = async (
+  message: NonNullable<WhatsAppValue['messages']>[number],
+  value: WhatsAppValue,
+  props: bp.HandlerProps
+) => {
+  const { ctx, client, logger } = props
 
-  try {
-    const data = JSON.parse(req.body)
-    const payload = WhatsAppPayloadSchema.parse(data)
-
-    for (const { changes } of payload.entry) {
-      for (const change of changes) {
-        if (!change.value.messages) {
-          // If the change doesn't contain messages we can ignore it, as we don't currently process other change types (such as statuses or errors).
-          continue
-        }
-
-        for (const message of change.value.messages) {
-          const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
-          const phoneNumberId = change.value.metadata.phone_number_id
-          await whatsapp.markAsRead(phoneNumberId, message.id)
-          await _handleIncomingMessage(message, change.value, ctx, client, logger)
-        }
-      }
-    }
-  } catch (e: any) {
-    logger.debug('Error while handling request:', e)
-    return { status: 500, body: 'Error while handling request: ' + e.message }
-  }
+  const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
+  const phoneNumberId = value.metadata.phone_number_id
+  await whatsapp.markAsRead(phoneNumberId, message.id)
+  await _handleIncomingMessage(message, value, ctx, client, logger)
 
   return { status: 200 }
 }
@@ -80,19 +62,36 @@ async function _handleIncomingMessage(
     type,
     payload,
     incomingMessageType,
-  }: ValueOf<IncomingMessages> & { incomingMessageType?: string }) => {
+    replyTo,
+  }: ValueOf<IncomingMessages> & { incomingMessageType?: string; replyTo?: string }) => {
     logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
     return client.createMessage({
-      tags: { id: message.id },
+      tags: { id: message.id, replyTo },
       type,
       payload,
       userId: user.id,
       conversationId: conversation.id,
     })
   }
+
+  const replyToWhatsAppId = message.context?.id
+  const replyToMessage = replyToWhatsAppId
+    ? await getMessageFromWhatsappMessageId(replyToWhatsAppId, client)
+    : undefined
+  if (replyToWhatsAppId && !replyToMessage) {
+    // Only thing we can do is log
+    // We can't fetch a message from the API if we didn't receive it on the webhook
+    logger
+      .forBot()
+      .warn(
+        `No Botpress message was found for the referenced message with WhatsApp message ID ${replyToWhatsAppId}. The bot may not be able to retrieve the context.`
+      )
+  }
+  const replyTo = replyToMessage?.id
+
   const { type } = message
   if (type === 'text') {
-    await createMessage({ type, payload: { text: message.text.body } })
+    await createMessage({ type, payload: { text: message.text.body }, replyTo })
   } else if (type === 'button') {
     await createMessage({
       type: 'text',
@@ -100,28 +99,34 @@ async function _handleIncomingMessage(
         value: message.button.payload,
         text: message.button.text,
       },
+      replyTo,
     })
   } else if (type === 'location') {
     const { latitude, longitude, address, name } = message.location
     await createMessage({
       type,
       payload: { latitude: Number(latitude), longitude: Number(longitude), title: name, address },
+      replyTo,
     })
   } else if (type === 'image') {
     const imageUrl = await _getOrDownloadWhatsappMedia(message.image.id, client, ctx)
-    await createMessage({ type, payload: { imageUrl } })
+    await createMessage({ type, payload: { imageUrl }, replyTo })
   } else if (type === 'sticker') {
     const stickerUrl = await _getOrDownloadWhatsappMedia(message.sticker.id, client, ctx)
-    await createMessage({ type: 'image', payload: { imageUrl: stickerUrl } })
+    await createMessage({ type: 'image', payload: { imageUrl: stickerUrl }, replyTo })
   } else if (type === 'audio') {
     const audioUrl = await _getOrDownloadWhatsappMedia(message.audio.id, client, ctx)
-    await createMessage({ type, payload: { audioUrl } })
+    await createMessage({ type, payload: { audioUrl }, replyTo })
   } else if (type === 'document') {
     const documentUrl = await _getOrDownloadWhatsappMedia(message.document.id, client, ctx)
-    await createMessage({ type: 'file', payload: { fileUrl: documentUrl, filename: message.document.filename } })
+    await createMessage({
+      type: 'file',
+      payload: { fileUrl: documentUrl, filename: message.document.filename },
+      replyTo,
+    })
   } else if (type === 'video') {
     const videoUrl = await _getOrDownloadWhatsappMedia(message.video.id, client, ctx)
-    await createMessage({ type, payload: { videoUrl } })
+    await createMessage({ type, payload: { videoUrl }, replyTo })
   } else if (message.type === 'interactive') {
     if (message.interactive.type === 'button_reply') {
       const { id: value, title: text } = message.interactive.button_reply
@@ -129,6 +134,7 @@ async function _handleIncomingMessage(
         type: 'text',
         payload: { value, text },
         incomingMessageType: type,
+        replyTo,
       })
     } else if (message.interactive.type === 'list_reply') {
       const { id: value, title: text } = message.interactive.list_reply
@@ -136,6 +142,7 @@ async function _handleIncomingMessage(
         type: 'text',
         payload: { value, text },
         incomingMessageType: type,
+        replyTo,
       })
     }
   } else if (message.type === 'unsupported' || message.type === 'unknown') {
