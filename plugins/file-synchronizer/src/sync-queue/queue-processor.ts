@@ -1,8 +1,8 @@
 import * as sdk from '@botpress/sdk'
 import type * as models from '../../definitions/models'
-import { MAX_FILE_SIZE_BYTES } from '../consts'
 import type * as types from '../types'
 import { processQueueFile } from './file-processor'
+import { findBatchEndCursor } from './queue-batching'
 
 export type ProcessQueueProps = {
   syncQueue: Readonly<types.SyncQueue>
@@ -26,7 +26,7 @@ export type ProcessQueueProps = {
 export const processQueue = async (props: ProcessQueueProps) => {
   const syncQueue = structuredClone(props.syncQueue) as types.SyncQueue
   const startCursor = syncQueue.findIndex((file) => file.status === 'pending') ?? syncQueue.length - 1
-  const endCursor = _findBatchEndCursor(startCursor, syncQueue)
+  const { endCursor } = findBatchEndCursor({ startCursor, files: syncQueue })
   const filesInBatch = syncQueue.slice(startCursor, endCursor)
 
   for (const fileToSync of filesInBatch) {
@@ -41,26 +41,4 @@ export const processQueue = async (props: ProcessQueueProps) => {
   }
 
   return { finished: 'all' } as const
-}
-
-const _findBatchEndCursor = (startCursor: number, filesToSync: types.SyncQueue) => {
-  const maxBatchSize = MAX_FILE_SIZE_BYTES
-
-  let currentBatchSize = 0
-
-  for (let newCursor = startCursor; newCursor < filesToSync.length; newCursor++) {
-    const fileToSync = filesToSync[newCursor]!
-
-    if (fileToSync.sizeInBytes === undefined) {
-      continue
-    }
-
-    currentBatchSize += fileToSync.sizeInBytes
-
-    if (currentBatchSize > maxBatchSize) {
-      return newCursor
-    }
-  }
-
-  return filesToSync.length
 }
