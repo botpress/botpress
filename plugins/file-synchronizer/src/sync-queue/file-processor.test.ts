@@ -264,6 +264,9 @@ describe.concurrent('processQueue', () => {
         externalPath: FILE_1.absolutePath,
         externalParentId: FILE_1.parentId,
         kbId: 'kb1',
+        modalities: '["text"]',
+        source: 'knowledge-base',
+        title: FILE_1.name,
       },
     })
   })
