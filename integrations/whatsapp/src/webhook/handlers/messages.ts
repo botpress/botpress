@@ -61,10 +61,11 @@ async function _handleIncomingMessage(
     type,
     payload,
     incomingMessageType,
-  }: ValueOf<IncomingMessages> & { incomingMessageType?: string }) => {
+    replyTo,
+  }: ValueOf<IncomingMessages> & { incomingMessageType?: string; replyTo?: string }) => {
     logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
     return client.createMessage({
-      tags: { id: message.id },
+      tags: { id: message.id, replyTo },
       type,
       payload,
       userId: user.id,
@@ -72,8 +73,9 @@ async function _handleIncomingMessage(
     })
   }
   const { type } = message
+  const replyTo = message.context?.id
   if (type === 'text') {
-    await createMessage({ type, payload: { text: message.text.body } })
+    await createMessage({ type, payload: { text: message.text.body }, replyTo })
   } else if (type === 'button') {
     await createMessage({
       type: 'text',
@@ -81,28 +83,34 @@ async function _handleIncomingMessage(
         value: message.button.payload,
         text: message.button.text,
       },
+      replyTo,
     })
   } else if (type === 'location') {
     const { latitude, longitude, address, name } = message.location
     await createMessage({
       type,
       payload: { latitude: Number(latitude), longitude: Number(longitude), title: name, address },
+      replyTo,
     })
   } else if (type === 'image') {
     const imageUrl = await _getOrDownloadWhatsappMedia(message.image.id, client, ctx)
-    await createMessage({ type, payload: { imageUrl } })
+    await createMessage({ type, payload: { imageUrl }, replyTo })
   } else if (type === 'sticker') {
     const stickerUrl = await _getOrDownloadWhatsappMedia(message.sticker.id, client, ctx)
-    await createMessage({ type: 'image', payload: { imageUrl: stickerUrl } })
+    await createMessage({ type: 'image', payload: { imageUrl: stickerUrl }, replyTo })
   } else if (type === 'audio') {
     const audioUrl = await _getOrDownloadWhatsappMedia(message.audio.id, client, ctx)
-    await createMessage({ type, payload: { audioUrl } })
+    await createMessage({ type, payload: { audioUrl }, replyTo })
   } else if (type === 'document') {
     const documentUrl = await _getOrDownloadWhatsappMedia(message.document.id, client, ctx)
-    await createMessage({ type: 'file', payload: { fileUrl: documentUrl, filename: message.document.filename } })
+    await createMessage({
+      type: 'file',
+      payload: { fileUrl: documentUrl, filename: message.document.filename },
+      replyTo,
+    })
   } else if (type === 'video') {
     const videoUrl = await _getOrDownloadWhatsappMedia(message.video.id, client, ctx)
-    await createMessage({ type, payload: { videoUrl } })
+    await createMessage({ type, payload: { videoUrl }, replyTo })
   } else if (message.type === 'interactive') {
     if (message.interactive.type === 'button_reply') {
       const { id: value, title: text } = message.interactive.button_reply
@@ -110,6 +118,7 @@ async function _handleIncomingMessage(
         type: 'text',
         payload: { value, text },
         incomingMessageType: type,
+        replyTo,
       })
     } else if (message.interactive.type === 'list_reply') {
       const { id: value, title: text } = message.interactive.list_reply
@@ -117,6 +126,7 @@ async function _handleIncomingMessage(
         type: 'text',
         payload: { value, text },
         incomingMessageType: type,
+        replyTo,
       })
     }
   } else if (message.type === 'unsupported' || message.type === 'unknown') {
