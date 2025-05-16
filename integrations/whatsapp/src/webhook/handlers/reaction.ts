@@ -22,26 +22,25 @@ export const reactionHandler = async (reactionMessage: WhatsAppReactionMessage, 
   }
 
   const previousReaction = message.tags.reaction
-  const reactionToRemove = previousReaction && currentReaction !== previousReaction ? previousReaction : undefined
-  if (reactionToRemove) {
+  const reactionHasChanged = currentReaction !== previousReaction
+  if (previousReaction && reactionHasChanged) {
     await _handleReaction({
       message,
       reactionEventType: 'reactionRemoved',
       userId: reactionMessage.from,
       newReactionTagValue: undefined,
-      eventReaction: reactionToRemove,
+      eventReaction: previousReaction,
       ...props,
     })
   }
 
-  const reactionToAdd = currentReaction && currentReaction !== previousReaction ? currentReaction : undefined
-  if (reactionToAdd) {
+  if (currentReaction && reactionHasChanged) {
     await _handleReaction({
       message,
       reactionEventType: 'reactionAdded',
       userId: reactionMessage.from,
-      newReactionTagValue: reactionToAdd,
-      eventReaction: reactionToAdd,
+      newReactionTagValue: currentReaction,
+      eventReaction: currentReaction,
       ...props,
     })
   }
