@@ -12,6 +12,14 @@ const WhatsAppBaseMessageSchema = z.object({
   id: z.string(),
   timestamp: z.string(),
   type: z.string(),
+  context: z
+    .object({
+      forwarded: z.boolean().optional(),
+      frequently_forwarded: z.boolean().optional(),
+      from: z.string().optional(),
+      id: z.string().optional(),
+    })
+    .optional(),
   errors: z
     .array(
       z.object({
@@ -118,10 +126,24 @@ const WhatsAppMessageSchema = z.union([
     }),
   }),
   WhatsAppBaseMessageSchema.extend({
+    type: z.literal('reaction'), // not documented but can be received
+    reaction: z.object({
+      message_id: z.string(),
+      emoji: z
+        .string()
+        .optional()
+        .title('Emoji')
+        .describe('The emoji used in the reaction or undefined reaction was removed'),
+    }),
+  }),
+  WhatsAppBaseMessageSchema.extend({
     type: z.union([z.literal('order'), z.literal('system'), z.literal('unknown'), z.literal('unsupported')]), // 'unsupported' is not documented but can be received
   }),
 ])
 export type WhatsAppMessage = z.infer<typeof WhatsAppMessageSchema>
+export type WhatsAppReactionMessage = WhatsAppMessage & {
+  type: 'reaction'
+}
 
 const WhatsAppValueSchema = z.object({
   messaging_product: z.literal('whatsapp'),

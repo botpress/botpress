@@ -1,14 +1,16 @@
 import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getClientSecret } from 'src/auth'
+import { WhatsAppPayload, WhatsAppPayloadSchema } from 'src/misc/types'
 import { messagesHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
+import { reactionHandler } from './handlers/reaction'
 import { isSandboxCommand, sandboxHandler } from './handlers/sandbox'
 import { subscribeHandler } from './handlers/subscribe'
 import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
-  const { req } = props
+  const { req, logger } = props
   if (req.path.startsWith('/oauth')) {
     return await oauthCallbackHandler(props)
   }
@@ -27,7 +29,37 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   if (validationResult.error) {
     return { status: 401, body: validationResult.message }
   }
-  return await messagesHandler(props)
+
+  if (!req.body) {
+    logger.debug('Handler received an empty body, so the message was ignored')
+    return
+  }
+
+  let payload: WhatsAppPayload
+  try {
+    const data = JSON.parse(req.body)
+    payload = WhatsAppPayloadSchema.parse(data)
+  } catch (e: any) {
+    logger.debug('Error while handling request:', e)
+    return { status: 500, body: 'Error while handling request: ' + e.message }
+  }
+
+  const value = payload.entry[0]?.changes[0]?.value
+  if (!value) {
+    logger.debug('No value found in the payload, ignoring message')
+    return
+  }
+
+  const messages = value.messages
+  if (messages) {
+    for (const message of messages) {
+      if (message.type === 'reaction') {
+        await reactionHandler(message, props)
+      } else {
+        await messagesHandler(message, value, props)
+      }
+    }
+  }
 }
 
 const _validateRequestAuthentication = (

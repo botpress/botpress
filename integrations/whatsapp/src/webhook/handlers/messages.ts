@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
 import { getAccessToken, getAuthenticatedWhatsappClient } from 'src/auth'
-import { WhatsAppMessage, WhatsAppValue, WhatsAppPayloadSchema } from '../../misc/types'
+import { WhatsAppMessage, WhatsAppValue } from '../../misc/types'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
 
@@ -13,36 +13,17 @@ type IncomingMessages = {
   }
 }
 
-export const messagesHandler = async (props: bp.HandlerProps) => {
-  const { req, ctx, client, logger } = props
-  if (!req.body) {
-    logger.debug('Handler received an empty body, so the message was ignored')
-    return
-  }
+export const messagesHandler = async (
+  message: NonNullable<WhatsAppValue['messages']>[number],
+  value: WhatsAppValue,
+  props: bp.HandlerProps
+) => {
+  const { ctx, client, logger } = props
 
-  try {
-    const data = JSON.parse(req.body)
-    const payload = WhatsAppPayloadSchema.parse(data)
-
-    for (const { changes } of payload.entry) {
-      for (const change of changes) {
-        if (!change.value.messages) {
-          // If the change doesn't contain messages we can ignore it, as we don't currently process other change types (such as statuses or errors).
-          continue
-        }
-
-        for (const message of change.value.messages) {
-          const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
-          const phoneNumberId = change.value.metadata.phone_number_id
-          await whatsapp.markAsRead(phoneNumberId, message.id)
-          await _handleIncomingMessage(message, change.value, ctx, client, logger)
-        }
-      }
-    }
-  } catch (e: any) {
-    logger.debug('Error while handling request:', e)
-    return { status: 500, body: 'Error while handling request: ' + e.message }
-  }
+  const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
+  const phoneNumberId = value.metadata.phone_number_id
+  await whatsapp.markAsRead(phoneNumberId, message.id)
+  await _handleIncomingMessage(message, value, ctx, client, logger)
 
   return { status: 200 }
 }
