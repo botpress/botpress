@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
 import { getAccessToken, getAuthenticatedWhatsappClient } from 'src/auth'
+import { getMessageFromWhatsappMessageId } from 'src/misc/util'
 import { WhatsAppMessage, WhatsAppValue } from '../../misc/types'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
@@ -72,8 +73,14 @@ async function _handleIncomingMessage(
       conversationId: conversation.id,
     })
   }
+
+  const replyToWhatsAppId = message.context?.id
+  const replyToMessage = replyToWhatsAppId
+    ? await getMessageFromWhatsappMessageId(replyToWhatsAppId, client)
+    : undefined
+  const replyTo = replyToMessage?.id
+
   const { type } = message
-  const replyTo = message.context?.id
   if (type === 'text') {
     await createMessage({ type, payload: { text: message.text.body }, replyTo })
   } else if (type === 'button') {

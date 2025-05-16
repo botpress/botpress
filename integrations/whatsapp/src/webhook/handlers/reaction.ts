@@ -1,7 +1,8 @@
 import { WhatsAppReactionMessage } from 'src/misc/types'
+import { getMessageFromWhatsappMessageId } from 'src/misc/util'
 import * as bp from '.botpress'
 
-type Message = Awaited<ReturnType<bp.Client['listMessages']>>['messages'][number]
+type Message = NonNullable<Awaited<ReturnType<typeof getMessageFromWhatsappMessageId>>>
 type ReactionEventTypes = 'reactionAdded' | 'reactionRemoved'
 type CommonReactionHandlerProps = {
   message: Message
@@ -15,7 +16,7 @@ export const reactionHandler = async (reactionMessage: WhatsAppReactionMessage, 
   const { client, logger } = props
   logger.forBot().debug('Received reaction message')
   const { message_id: messageId, emoji: currentReaction } = reactionMessage.reaction
-  const message = await _getMessageFromWhatsappMessageId(messageId, client)
+  const message = await getMessageFromWhatsappMessageId(messageId, client)
   if (!message) {
     logger.forBot().warn('No associated message found for reaction, ignoring reaction')
     return
@@ -81,13 +82,4 @@ const _handleReaction = async ({
     conversationId: message.conversationId,
     userId: user.id,
   })
-}
-
-const _getMessageFromWhatsappMessageId = async (messageId: string, client: bp.Client): Promise<Message | undefined> => {
-  const { messages } = await client.listMessages({
-    tags: {
-      id: messageId,
-    },
-  })
-  return messages[0]
 }
