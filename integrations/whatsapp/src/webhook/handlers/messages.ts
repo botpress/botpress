@@ -78,6 +78,15 @@ async function _handleIncomingMessage(
   const replyToMessage = replyToWhatsAppId
     ? await getMessageFromWhatsappMessageId(replyToWhatsAppId, client)
     : undefined
+  if (replyToWhatsAppId && !replyToMessage) {
+    // Only thing we can do is log
+    // We can't fetch a message from the API if we didn't receive it on the webhook
+    logger
+      .forBot()
+      .warn(
+        `No Botpress message was found for the referenced message with WhatsApp message ID ${replyToWhatsAppId}. The bot may not be able to retrieve the context.`
+      )
+  }
   const replyTo = replyToMessage?.id
 
   const { type } = message
