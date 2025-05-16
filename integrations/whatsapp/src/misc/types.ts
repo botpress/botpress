@@ -133,7 +133,7 @@ const WhatsAppMessageSchema = z.union([
         .string()
         .optional()
         .title('Emoji')
-        .describe('The emoji used in the reaction or undefined reaction was removed'),
+        .describe('The emoji used in the reaction or undefined if the reaction was removed'),
     }),
   }),
   WhatsAppBaseMessageSchema.extend({
