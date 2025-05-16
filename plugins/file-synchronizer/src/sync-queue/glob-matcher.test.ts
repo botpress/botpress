@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { matchItem } from './glob-matcher'
 import type * as models from '../../definitions/models'
-import { MAX_FILE_SIZE_BYTES } from '../consts'
+import { MAX_BATCH_SIZE_BYTES } from '../consts'
 import type * as bp from '.botpress'
 
 describe.concurrent('matchItem', () => {
@@ -131,13 +131,13 @@ describe.concurrent('matchItem', () => {
       })
     })
 
-    it('should exclude when file size exceeds MAX_FILE_SIZE_BYTES', () => {
+    it('should allow files larger than MAX_BATCH_SIZE_BYTES', () => {
       // Arrange
       const itemPath = 'src/data/large-file.txt'
       const configuration = createConfiguration({ includeFiles: [{ pathGlobPattern: '**/large-*.txt' }] })
       const item = createFileItem({
         name: 'large-file.txt',
-        sizeInBytes: MAX_FILE_SIZE_BYTES + 1,
+        sizeInBytes: MAX_BATCH_SIZE_BYTES + 1,
       })
 
       // Act
@@ -145,8 +145,7 @@ describe.concurrent('matchItem', () => {
 
       // Assert
       expect(result).toMatchObject({
-        shouldBeIgnored: true,
-        reason: 'unmet-include-requirements',
+        shouldBeIgnored: false,
       })
     })
 

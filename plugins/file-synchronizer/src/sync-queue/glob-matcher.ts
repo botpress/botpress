@@ -1,6 +1,5 @@
 import * as picomatch from 'picomatch'
 import type * as models from '../../definitions/models'
-import { MAX_FILE_SIZE_BYTES } from '../consts'
 import * as bp from '.botpress'
 
 type GlobMatcherProps = {
@@ -75,12 +74,10 @@ const _isFileWithUnmetRequirements = (
     item.sizeInBytes !== undefined &&
     item.sizeInBytes > maxSizeInBytes
 
-  const exceedsBotpressDefinedMaxSize = item.sizeInBytes !== undefined && item.sizeInBytes > MAX_FILE_SIZE_BYTES
-
   const isItemOlderThanGivenDate =
     modifiedAfter !== undefined &&
     item.lastModifiedDate !== undefined &&
     new Date(item.lastModifiedDate) < new Date(modifiedAfter)
 
-  return exceedsUserDefinedMaxSize || exceedsBotpressDefinedMaxSize || isItemOlderThanGivenDate
+  return exceedsUserDefinedMaxSize || isItemOlderThanGivenDate
 }
