@@ -116,7 +116,7 @@ const _prepareSyncJob = async (props: bp.ActionHandlerProps, filesToSync: FileWi
       syncType: 'manual',
       syncInitiatedAt: new Date().toISOString(),
     },
-    syncQueue: filesToSync.map((file): types.SyncQueueItem => ({ ...file, status: 'pending' })) as types.SyncQueue,
+    syncQueue: filesToSync.map((file): types.SyncQueueItem => ({ ...file, status: 'pending' })),
     syncFileKey: `file-synchronizer:${integrationName}:/${syncJobId}.jsonl`,
   } as const
 }
