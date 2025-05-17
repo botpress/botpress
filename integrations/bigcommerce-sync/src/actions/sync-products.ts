@@ -11,7 +11,6 @@ type BigCommerceProduct = {
   price?: number
   sale_price?: number
   retail_price?: number
-  cost_price?: number
   weight?: number
   type?: string
   inventory_level?: number
@@ -25,6 +24,7 @@ type BigCommerceProduct = {
   description?: string
   images?: Array<BigCommerceProductImage>
   custom_url?: { url: string }
+  total_sold?: number
 }
 
 function processProductsPage(
@@ -137,7 +137,7 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
         price: product.price,
         sale_price: product.sale_price,
         retail_price: product.retail_price,
-        cost_price: product.cost_price,
+        total_sold: product.total_sold || 0,
         weight: product.weight,
         type: product.type,
         inventory_level: product.inventory_level,

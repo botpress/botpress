@@ -7,7 +7,7 @@ export const PRODUCT_TABLE_SCHEMA = {
     price: { type: 'number' },
     sale_price: { type: 'number' },
     retail_price: { type: 'number' },
-    cost_price: { type: 'number' },
+    total_sold: { type: 'number' },
     weight: { type: 'number' },
     type: { type: 'string' },
     inventory_level: { type: 'number' },
