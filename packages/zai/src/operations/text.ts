@@ -2,8 +2,8 @@
 import { z } from '@bpinternal/zui'
 
 import { clamp } from 'lodash-es'
-import { Zai } from '../zai'
-import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
+import { Zai } from '../zai.js'
+import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants.js'
 
 export type Options = z.input<typeof Options>
 const Options = z.object({
