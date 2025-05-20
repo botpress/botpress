@@ -10,10 +10,18 @@ export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpess
     return { status: 'already-running' }
   }
 
+  const includeFiles = props.input.includeFiles ?? props.configuration.includeFiles
+  const excludeFiles = props.input.excludeFiles ?? props.configuration.excludeFiles
+
+  props.logger.info('Syncing files to Botpress...', {
+    includeFiles,
+    excludeFiles,
+  })
+
   props.logger.info('Enumerating files...')
   const allFiles = await _enumerateAllFilesRecursive(props, {
-    includeFiles: props.input.includeFiles ?? props.configuration.includeFiles,
-    excludeFiles: props.input.excludeFiles ?? props.configuration.excludeFiles,
+    includeFiles,
+    excludeFiles,
   })
 
   if (allFiles.length === 0) {
@@ -108,7 +116,7 @@ const _prepareSyncJob = async (props: bp.ActionHandlerProps, filesToSync: FileWi
       syncType: 'manual',
       syncInitiatedAt: new Date().toISOString(),
     },
-    syncQueue: filesToSync.map((file): types.SyncQueueItem => ({ ...file, status: 'pending' })) as types.SyncQueue,
+    syncQueue: filesToSync.map((file): types.SyncQueueItem => ({ ...file, status: 'pending' })),
     syncFileKey: `file-synchronizer:${integrationName}:/${syncJobId}.jsonl`,
   } as const
 }
