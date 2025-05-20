@@ -74,14 +74,9 @@ export const parseBaseGeneric = (unvalidatedFile: UnvalidatedGoogleDriveFile): B
 
 export const parseBaseNormal = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseNormalFile => {
   const commmonFileAttr = parseCommonFileAttr(unvalidatedFile)
-  const { size: sizeStr } = unvalidatedFile
-  if (!sizeStr) {
-    throw new RuntimeError(
-      `Size is missing in Schema$File from the API response for file with name=${commmonFileAttr.name}`
-    )
-  }
+  const { size: sizeStr, sha256Checksum, md5Checksum, version, modifiedTime } = unvalidatedFile
 
-  const size = parseInt(sizeStr)
+  const size = parseInt(sizeStr ?? '0')
   if (isNaN(size)) {
     throw new RuntimeError(
       `Invalid size returned in Schema$File from the API response for file with name=${commmonFileAttr.name} (size=${sizeStr})`
@@ -91,6 +86,8 @@ export const parseBaseNormal = (unvalidatedFile: UnvalidatedGoogleDriveFile): Ba
   const parseResult = baseNormalFileSchema.safeParse({
     ...commmonFileAttr,
     size,
+    contentHash: (sha256Checksum || md5Checksum || version) ?? undefined,
+    lastModifiedDate: modifiedTime ?? undefined,
   })
   if (parseResult.error) {
     throw new RuntimeError('Error validating Schema$File received from the API response')

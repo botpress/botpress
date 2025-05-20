@@ -1,4 +1,4 @@
-> The Botpress app for Zapier is currently in BETA. In order to use Botpress in your Zaps please [click here to obtain access](https://zapier.com/developer/public-invite/179950/2d89a44be6d7ddcae4ae23df0be19b3c/) to the private beta in Zapier.
+> The Botpress app for Zapier is currently in BETA. In order to use Botpress in your Zaps please [click here to obtain access](https://zapier.com/developer/public-invite/179950/04ff1359293c7c382bbfe0806b1212f7/) to the private beta in Zapier.
 
 ---
 

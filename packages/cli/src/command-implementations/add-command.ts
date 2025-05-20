@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import * as fslib from 'fs'
 import * as pathlib from 'path'
-import { ApiClient } from '../api'
+import * as apiUtils from '../api'
 import * as codegen from '../code-generation'
 import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
@@ -131,24 +131,35 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
     if (this._pkgCouldBe(ref, 'integration')) {
-      const integration = await api.findIntegration(ref)
+      const integration = await api.findPublicOrPrivateIntegration(ref)
       if (integration) {
         const { name, version } = integration
-        return { type: 'integration', pkg: { source: 'remote', integration, name, version } }
+        return { type: 'integration', pkg: { integration, name, version } }
       }
     }
     if (this._pkgCouldBe(ref, 'interface')) {
-      const intrface = await api.findPublicInterface(ref)
+      const intrface = await api.findPublicOrPrivateInterface(ref)
       if (intrface) {
         const { name, version } = intrface
-        return { type: 'interface', pkg: { source: 'remote', interface: intrface, name, version } }
+        return { type: 'interface', pkg: { interface: intrface, name, version } }
       }
     }
     if (this._pkgCouldBe(ref, 'plugin')) {
-      const plugin = await api.findPublicPlugin(ref)
+      const plugin = await api.findPublicOrPrivatePlugin(ref)
       if (plugin) {
+        const { code } = plugin.public
+          ? await api.client.getPublicPluginCode({ id: plugin.id, platform: 'node' })
+          : await api.client.getPluginCode({ id: plugin.id, platform: 'node' })
         const { name, version } = plugin
-        return { type: 'plugin', pkg: { source: 'remote', plugin, name, version } }
+        return {
+          type: 'plugin',
+          pkg: {
+            name,
+            version,
+            plugin,
+            code,
+          },
+        }
       }
     }
     return
@@ -169,17 +180,29 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         this.logger.warn(`Installing integration "${name}" with dev version "${projectDevId}"`)
         devId = projectDevId
       }
+
+      let createIntegrationReqBody = await this._getProjectCmd(ref.path).prepareCreateIntegrationBody(
+        projectDefinition.definition
+      )
+      createIntegrationReqBody = {
+        ...createIntegrationReqBody,
+        interfaces: utils.records.mapValues(projectDefinition.definition.interfaces ?? {}, (i) => ({
+          id: '', // TODO: do this better
+          ...i,
+        })),
+      }
       return {
         type: 'integration',
-        pkg: { source: 'local', path: absPath, devId, name, version },
+        pkg: { path: absPath, devId, name, version, integration: createIntegrationReqBody },
       }
     }
 
     if (projectDefinition?.type === 'interface') {
       const { name, version } = projectDefinition.definition
+      const createInterfaceReqBody = await apiUtils.prepareCreateInterfaceBody(projectDefinition.definition)
       return {
         type: 'interface',
-        pkg: { source: 'local', path: absPath, name, version },
+        pkg: { path: absPath, name, version, interface: createInterfaceReqBody },
       }
     }
 
@@ -191,14 +214,34 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       }
 
       const { name, version } = projectDefinition.definition
+      const code = projectImplementation
+
+      const createPluginReqBody = await apiUtils.prepareCreatePluginBody(projectDefinition.definition)
       return {
         type: 'plugin',
         pkg: {
-          source: 'local',
           path: absPath,
-          implementationCode: projectImplementation,
           name,
           version,
+          code,
+          plugin: {
+            ...createPluginReqBody,
+            dependencies: {
+              interfaces: await utils.promises.awaitRecord(
+                utils.records.mapValues(
+                  projectDefinition.definition.interfaces ?? {},
+                  apiUtils.prepareCreateInterfaceBody
+                )
+              ),
+              integrations: await utils.promises.awaitRecord(
+                utils.records.mapValues(
+                  projectDefinition.definition.integrations ?? {},
+                  apiUtils.prepareCreateIntegrationBody
+                )
+              ),
+            },
+            recurringEvents: projectDefinition.definition.recurringEvents,
+          },
         },
       }
     }
@@ -234,25 +277,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     implementation?: string
     devId?: string
   }> {
-    // this is a hack to avoid refactoring the project command class
-    class AnyProjectCommand extends ProjectCommand<ProjectCommandDefinition> {
-      public async run(): Promise<void> {
-        throw new errors.BotpressCLIError('Not implemented')
-      }
-
-      public async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
-        return super.readProjectDefinitionFromFS()
-      }
-
-      public get projectCache(): utils.cache.FSKeyValueCache<ProjectCache> {
-        return super.projectCache
-      }
-    }
-
-    const cmd = new AnyProjectCommand(ApiClient, this.prompt, this.logger, {
-      ...this.argv,
-      workDir,
-    })
+    const cmd = this._getProjectCmd(workDir)
 
     const definition = await cmd.readProjectDefinitionFromFS().catch((thrown) => {
       if (thrown instanceof errors.ProjectDefinitionNotFoundError) {
@@ -263,7 +288,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     const devId = await cmd.projectCache.get('devId')
 
-    const implementationAbsPath = utils.path.join(workDir, consts.fromWorkDir.outFile)
+    const implementationAbsPath = utils.path.join(workDir, consts.fromWorkDir.outFileCJS)
     if (!fslib.existsSync(implementationAbsPath)) {
       return { definition, devId }
     }
@@ -281,5 +306,33 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       return true // ref does not specify the package type
     }
     return ref.pkg === pkgType
+  }
+
+  private _getProjectCmd(workDir: string): _AnyProjectCommand {
+    return new _AnyProjectCommand(apiUtils.ApiClient, this.prompt, this.logger, {
+      ...this.argv,
+      workDir,
+    })
+  }
+}
+
+// this is a hack to avoid refactoring the project command class
+class _AnyProjectCommand extends ProjectCommand<ProjectCommandDefinition> {
+  public async run(): Promise<void> {
+    throw new errors.BotpressCLIError('Not implemented')
+  }
+
+  public async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
+    return super.readProjectDefinitionFromFS()
+  }
+
+  public async prepareCreateIntegrationBody(
+    integrationDef: sdk.IntegrationDefinition
+  ): Promise<apiUtils.CreateIntegrationRequestBody> {
+    return super.prepareCreateIntegrationBody(integrationDef)
+  }
+
+  public get projectCache(): utils.cache.FSKeyValueCache<ProjectCache> {
+    return super.projectCache
   }
 }

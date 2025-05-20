@@ -11,18 +11,20 @@ export type ModuleProps = {
 
 export abstract class Module {
   private _localDependencies: Module[] = []
+  private _customTypeName: string | undefined
 
   public get path(): string {
-    return this._def.path
+    return this._def.path.split(pathlib.sep).map(strings.fileName).join(pathlib.sep)
   }
 
   /**
-   * @returns file name without extension
+   * @returns module name (equivalent to unescaped file name without extension)
    */
   public get name(): string {
-    const basename = pathlib.basename(this.path)
+    const path = this._def.path
+    const basename = pathlib.basename(path)
     if (basename === consts.INDEX_FILE || basename === consts.INDEX_DECLARATION_FILE) {
-      const dirPath = pathlib.dirname(this.path)
+      const dirPath = pathlib.dirname(path)
       const dirname = pathlib.basename(dirPath)
       return dirname
     }
@@ -42,9 +44,22 @@ export abstract class Module {
     return [...this._localDependencies]
   }
 
+  public get typeName(): string {
+    return this._customTypeName ?? this.name
+  }
+
+  public get importAlias(): string {
+    return this.typeName.split(pathlib.sep).map(strings.importAlias).join('__')
+  }
+
   protected constructor(private _def: ModuleProps) {}
 
   public abstract getContent(): Promise<string>
+
+  public setCustomTypeName(alias: string): this {
+    this._customTypeName = alias
+    return this
+  }
 
   public pushDep(...dependencies: Module[]): this {
     this._localDependencies.push(...dependencies)
@@ -96,8 +111,7 @@ export class ReExportTypeModule extends Module {
     let content = consts.GENERATED_HEADER
 
     for (const m of this.deps) {
-      const { name } = m
-      const importAlias = strings.importAlias(name)
+      const { importAlias } = m
       const importFrom = m.import(this)
       content += `import * as ${importAlias} from "./${importFrom}";\n`
       content += `export * as ${importAlias} from "./${importFrom}";\n`
@@ -106,9 +120,8 @@ export class ReExportTypeModule extends Module {
     content += '\n'
 
     content += `export type ${this.exportName} = {\n`
-    for (const { name, exportName: exports } of this.deps) {
-      const importAlias = strings.importAlias(name)
-      content += `  "${name}": ${importAlias}.${exports};\n`
+    for (const { importAlias, typeName, exportName: exports } of this.deps) {
+      content += `  "${typeName}": ${importAlias}.${exports};\n`
     }
     content += '}'
 
@@ -119,19 +132,21 @@ export class ReExportTypeModule extends Module {
 }
 
 export class ReExportVariableModule extends Module {
-  protected constructor(def: { exportName: string }) {
+  private _extraProps: Record<string, string> = {}
+
+  protected constructor(def: { exportName: string; extraProps?: Record<string, string> }) {
     super({
       ...def,
       path: consts.INDEX_FILE,
     })
+    this._extraProps = def.extraProps ?? {}
   }
 
   public async getContent(): Promise<string> {
     let content = consts.GENERATED_HEADER
 
     for (const m of this.deps) {
-      const { name } = m
-      const importAlias = strings.importAlias(name)
+      const { importAlias } = m
       const importFrom = m.import(this)
       content += `import * as ${importAlias} from "./${importFrom}";\n`
       content += `export * as ${importAlias} from "./${importFrom}";\n`
@@ -139,10 +154,15 @@ export class ReExportVariableModule extends Module {
 
     content += '\n'
 
+    const depProps: Record<string, string> = Object.fromEntries(
+      this.deps.map(({ name, exportName, importAlias }) => [name, `${importAlias}.${exportName}`])
+    )
+
+    const allProps = { ...depProps, ...this._extraProps }
+
     content += `export const ${this.exportName} = {\n`
-    for (const { name, exportName: exports } of this.deps) {
-      const importAlias = strings.importAlias(name)
-      content += `  "${name}": ${importAlias}.${exports},\n`
+    for (const [key, value] of Object.entries(allProps)) {
+      content += `  "${key}": ${value},\n`
     }
     content += '}'
 

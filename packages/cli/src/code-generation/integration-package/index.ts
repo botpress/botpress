@@ -1,4 +1,3 @@
-import * as utils from '../../utils'
 import * as consts from '../consts'
 import * as gen from '../generators'
 import * as types from '../typings'
@@ -8,8 +7,8 @@ const generateIntegrationPackageModule = (
   definitionImport: string,
   pkg: types.IntegrationInstallablePackage
 ): string => {
-  const id = pkg.source === 'remote' ? pkg.integration.id : pkg.devId
-  const uri = pkg.source === 'local' ? utils.path.win32.escapeBackslashes(pkg.path) : undefined
+  const id = pkg.integration.id ?? pkg.devId
+  const uri = pkg.path
 
   const tsId = gen.primitiveToTypescriptValue(id)
   const tsUri = gen.primitiveToTypescriptValue(uri)
@@ -20,7 +19,7 @@ const generateIntegrationPackageModule = (
     consts.GENERATED_HEADER,
     'import * as sdk from "@botpress/sdk"',
     '',
-    `import definition from "${utils.path.win32.escapeBackslashes(definitionImport)}"`,
+    `import definition from "${definitionImport}"`,
     '',
     'export default {',
     '  type: "integration",',
@@ -33,9 +32,7 @@ const generateIntegrationPackageModule = (
   ].join('\n')
 }
 
-const generateIntegrationPackageFromRemote = async (
-  pkg: Extract<types.IntegrationInstallablePackage, { source: 'remote' }>
-): Promise<types.File[]> => {
+export const generateIntegrationPackage = async (pkg: types.IntegrationInstallablePackage): Promise<types.File[]> => {
   const definitionDir = 'definition'
   const definitionModule = new IntegrationPackageDefinitionModule(pkg.integration)
   definitionModule.unshift(definitionDir)
@@ -48,24 +45,4 @@ const generateIntegrationPackageFromRemote = async (
       content: generateIntegrationPackageModule(`./${definitionDir}`, pkg),
     },
   ]
-}
-
-const generateIntegrationPackageFromLocal = async (
-  pkg: Extract<types.IntegrationInstallablePackage, { source: 'local' }>
-): Promise<types.File[]> => {
-  let definitionImport: string = utils.path.join(pkg.path, consts.fromWorkDir.integrationDefinition)
-  definitionImport = utils.path.rmExtension(definitionImport)
-  return [
-    {
-      path: consts.INDEX_FILE,
-      content: generateIntegrationPackageModule(definitionImport, pkg),
-    },
-  ]
-}
-
-export const generateIntegrationPackage = async (pkg: types.IntegrationInstallablePackage): Promise<types.File[]> => {
-  if (pkg.source === 'remote') {
-    return generateIntegrationPackageFromRemote(pkg)
-  }
-  return generateIntegrationPackageFromLocal(pkg)
 }

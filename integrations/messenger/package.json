@@ -12,11 +12,11 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@slack/web-api": "^6.8.0",
     "axios": "^1.6.2",
+    "marked": "^15.0.1",
     "messaging-api-messenger": "^1.1.0",
-    "preact": "^10.23.1",
-    "preact-render-to-string": "^6.5.7",
+    "preact": "^10.26.6",
+    "preact-render-to-string": "^6.5.13",
     "query-string": "^6.14.1"
   },
   "devDependencies": {

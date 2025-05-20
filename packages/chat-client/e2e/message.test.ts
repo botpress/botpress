@@ -64,7 +64,7 @@ test('api allows sending and receiving messages using botpress IDs', async () =>
     client,
     conversationId,
   })
-}, 20_000)
+})
 
 test('api allows sending and receiving messages using foreign IDs', async () => {
   const userId = utils.getUserFid()
@@ -77,7 +77,7 @@ test('api allows sending and receiving messages using foreign IDs', async () => 
     client,
     conversationId,
   })
-}, 20_000)
+})
 
 test('api allows sending and receiving messages using remotly generated JWTs', async () => {
   const userId = utils.getUserFid()
@@ -91,7 +91,7 @@ test('api allows sending and receiving messages using remotly generated JWTs', a
     client,
     conversationId,
   })
-}, 20_000)
+})
 
 test('api allows deleting a message', async () => {
   const client = await chat.Client.connect({ apiUrl })
@@ -130,4 +130,59 @@ test('api allows deleting a message', async () => {
       id: createdMessage.id,
     })
   ).rejects.toThrow(chat.ResourceNotFoundError)
-}, 20_000)
+})
+
+test('api allows sending and receiving messages with metadata', async () => {
+  type Message = Awaited<ReturnType<chat.Client['listMessages']>>['messages'][number]
+  const metadata = { foo: 'bar' }
+
+  const client = await chat.Client.connect({ apiUrl })
+
+  const { conversation } = await client.createConversation({})
+  const { id: conversationId } = conversation
+
+  const sendMessagePromise = client.createMessage({
+    conversationId,
+    payload: { type: 'text', text: 'metadata' }, // hello-bot forwards metadata when message is 'metadata'
+    metadata,
+  })
+
+  const listener = await client.listenConversation({ id: conversationId })
+
+  const receiveSelfMessagePromise = new Promise<Message>((resolve) =>
+    listener.on('message_created', (m) => {
+      if (m.userId === client.user.id) {
+        resolve(m)
+      }
+    })
+  )
+
+  const receiveBotMessagePromise = new Promise<Message>((resolve) =>
+    listener.on('message_created', (m) => {
+      if (m.userId !== client.user.id) {
+        resolve(m)
+      }
+    })
+  )
+
+  const [sentMessage, receivedSelfMessage, receivedBotMessage] = await Promise.all([
+    sendMessagePromise,
+    receiveSelfMessagePromise,
+    receiveBotMessagePromise,
+  ])
+
+  expect(sentMessage.message.metadata).toEqual(metadata)
+  expect(receivedSelfMessage.metadata).toEqual(metadata)
+  expect(receivedBotMessage.metadata).toEqual(metadata)
+  expect(sentMessage.message.payload).not.toHaveProperty('metadata')
+  expect(receivedSelfMessage.payload).not.toHaveProperty('metadata')
+  expect(receivedBotMessage.payload).not.toHaveProperty('metadata')
+
+  const fetchedMessages = await client.listMessages({ conversationId }).then((r) => r.messages)
+
+  const fetchedSelfMessages = fetchedMessages.filter((m) => m.userId === client.user.id)
+  expect(fetchedSelfMessages.length).toBe(1)
+
+  const [fetchedSelfMessage] = fetchedSelfMessages
+  expect(fetchedSelfMessage!.metadata).toEqual(metadata)
+})

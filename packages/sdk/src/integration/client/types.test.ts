@@ -1,10 +1,20 @@
 import * as client from '@botpress/client'
-import { DefaultChannel, DefaultIntegration, BaseIntegration } from '../types'
+import { BaseIntegration } from '../common'
 import { describe, test } from 'vitest'
 import * as utils from '../../utils/type-utils'
 import * as types from './types'
+import { FooBarBazIntegration } from '../../fixtures'
 
-describe('ClientOperations', () => {
+const _mockClient = <TIntegration extends BaseIntegration>() =>
+  new Proxy<types.ClientOperations<TIntegration>>({} as any, {
+    get: () => {
+      return async () => {
+        return {}
+      }
+    },
+  })
+
+describe.concurrent('ClientOperations', () => {
   test('createConversation of IntegrationSpecificClient extends general', () => {
     type Specific = types.ClientOperations<BaseIntegration>['createConversation']
     type General = client.Client['createConversation']
@@ -133,22 +143,22 @@ describe('ClientOperations', () => {
   test('getState of IntegrationSpecificClient extends general', () => {
     type Specific = types.ClientOperations<BaseIntegration>['getState']
     type General = client.Client['getState']
-    type _assertion = utils.AssertExtends<Specific, General>
+    type _assertion = utils.AssertTrue<utils.IsStricterFunction<Specific, General>>
   })
   test('setState of IntegrationSpecificClient extends general', () => {
     type Specific = types.ClientOperations<BaseIntegration>['setState']
     type General = client.Client['setState']
-    type _assertion = utils.AssertExtends<Specific, General>
+    type _assertion = utils.AssertTrue<utils.IsStricterFunction<Specific, General>>
   })
   test('getOrSetState of IntegrationSpecificClient extends general', () => {
     type Specific = types.ClientOperations<BaseIntegration>['getOrSetState']
     type General = client.Client['getOrSetState']
-    type _assertion = utils.AssertExtends<Specific, General>
+    type _assertion = utils.AssertTrue<utils.IsStricterFunction<Specific, General>>
   })
   test('patchState of IntegrationSpecificClient extends general', () => {
     type Specific = types.ClientOperations<BaseIntegration>['patchState']
     type General = client.Client['patchState']
-    type _assertion = utils.AssertExtends<Specific, General>
+    type _assertion = utils.AssertTrue<utils.IsStricterFunction<Specific, General>>
   })
   test('configureIntegration of IntegrationSpecificClient extends general', () => {
     type Specific = types.ClientOperations<BaseIntegration>['configureIntegration']
@@ -184,5 +194,99 @@ describe('ClientOperations', () => {
     type Specific = types.ClientOperations<BaseIntegration>['updateFileMetadata']
     type General = client.Client['updateFileMetadata']
     type _assertion = utils.AssertExtends<Specific, General>
+  })
+
+  test('getMessage response should include all possible message tags', () => {
+    type Actual = types.ClientOutputs<FooBarBazIntegration>['getMessage']['message']['tags']
+    type Expected = {
+      fooMessageTag1?: string | undefined
+      fooMessageTag2?: string | undefined
+      fooMessageTag3?: string | undefined
+      barMessageTag1?: string | undefined
+      barMessageTag2?: string | undefined
+      barMessageTag3?: string | undefined
+      bazMessageTag1?: string | undefined
+      bazMessageTag2?: string | undefined
+      bazMessageTag3?: string | undefined
+    }
+    type _assertion = utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+  })
+
+  test('getOrCreateConversation with FooBarBazIntegration stricly enforces allowed tags', () => {
+    const client = _mockClient<FooBarBazIntegration>()
+
+    client.getOrCreateConversation({
+      channel: 'channelFoo',
+      tags: { fooConversationTag1: '1', fooConversationTag2: '2' },
+      discriminateByTags: ['fooConversationTag1'],
+    })
+
+    client.getOrCreateConversation({
+      channel: 'channelFoo',
+      // @ts-expect-error only tags of the channelFoo channel can be set
+      tags: { fooConversationTag1: '1', fooConversationTag2: '2', fooConversationTag4: '4' },
+      discriminateByTags: ['fooConversationTag1'],
+    })
+
+    client.getOrCreateConversation({
+      channel: 'channelFoo',
+      tags: { fooConversationTag1: '1', fooConversationTag2: '2' },
+      // @ts-expect-error only tags set in the tags object can be used to discriminate
+      discriminateByTags: ['fooConversationTag3'],
+    })
+  })
+
+  test('getOrCreateMessage with FooBarBazIntegration stricly enforces allowed tags', () => {
+    const client = _mockClient<FooBarBazIntegration>()
+
+    client.getOrCreateMessage({
+      conversationId: '',
+      userId: '',
+      type: 'messageFoo',
+      payload: { foo: 'foo' },
+      tags: { fooMessageTag1: '1' },
+      discriminateByTags: ['fooMessageTag1'],
+    })
+
+    client.getOrCreateMessage({
+      conversationId: '',
+      userId: '',
+      type: 'messageFoo',
+      payload: { foo: 'a' },
+      // @ts-expect-error only tags of the channelFoo channel can be set
+      tags: { fooMessageTag1: '1', fooMessageTag4: '4' },
+      discriminateByTags: ['fooMessageTag1'],
+    })
+
+    client.getOrCreateMessage({
+      conversationId: '',
+      userId: '',
+      type: 'messageFoo',
+      payload: { foo: 'a' },
+      tags: { fooMessageTag1: '1', fooMessageTag2: '2' },
+      // @ts-expect-error only tags set in the tags object can be used to discriminate
+      discriminateByTags: ['fooMessageTag3'],
+    })
+  })
+
+  test('getOrCreateUser with FooBarBazIntegration stricly enforces allowed tags', () => {
+    const client = _mockClient<FooBarBazIntegration>()
+
+    client.getOrCreateUser({
+      tags: { fooUserTag1: '1', fooUserTag2: '2', fooUserTag3: '3' },
+      discriminateByTags: ['fooUserTag1'],
+    })
+
+    client.getOrCreateUser({
+      // @ts-expect-error only defined user tags can be used
+      tags: { fooUserTag1: '1', fooUserTag2: '2', fooUserTag4: '4' },
+      discriminateByTags: ['fooUserTag1'],
+    })
+
+    client.getOrCreateUser({
+      tags: { fooUserTag1: '1', fooUserTag2: '2' },
+      // @ts-expect-error only tags set in the tags object can be used to discriminate
+      discriminateByTags: ['fooUserTag3'],
+    })
   })
 })

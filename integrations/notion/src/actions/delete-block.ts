@@ -1,16 +1,8 @@
-import * as notion from '../notion'
-import * as bp from '.botpress'
+import { wrapAction } from '../action-wrapper'
 
-export const deleteBlock: bp.IntegrationProps['actions']['deleteBlock'] = async ({ ctx, input }) => {
-  try {
-    const response = await notion.deleteBlock(ctx, input.blockId)
-    if (response) {
-      console.info('Successfully deleted the block')
-      return {}
-    } else {
-      return {}
-    }
-  } catch {
-    return {}
+export const deleteBlock = wrapAction(
+  { actionName: 'deleteBlock', errorMessage: 'Failed to delete block' },
+  async ({ notionClient }, { blockId }) => {
+    await notionClient.deleteBlock({ blockId })
   }
-}
+)

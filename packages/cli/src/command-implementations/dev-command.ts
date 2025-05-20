@@ -5,15 +5,10 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
-import { prepareCreateBotBody, prepareUpdateBotBody } from '../api/bot-body'
-import type { ApiClient } from '../api/client'
-import {
-  prepareUpdateIntegrationBody,
-  CreateIntegrationBody,
-  prepareCreateIntegrationBody,
-} from '../api/integration-body'
+import * as apiUtils from '../api'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
+import * as tables from '../tables'
 import * as utils from '../utils'
 import { Worker } from '../worker'
 import { BuildCommand } from './build-command'
@@ -22,6 +17,7 @@ import { ProjectCommand, ProjectDefinition } from './project-command'
 const DEFAULT_BOT_PORT = 8075
 const DEFAULT_INTEGRATION_PORT = 8076
 const TUNNEL_HELLO_INTERVAL = 5000
+const FILEWATCHER_DEBOUNCE_MS = 2000
 
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
@@ -138,6 +134,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
         },
         {
           ignore: [this.projectPaths.abs.outDir],
+          debounceMs: FILEWATCHER_DEBOUNCE_MS,
         }
       )
 
@@ -157,7 +154,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
   }
 
-  private _restart = async (api: ApiClient, worker: Worker, tunnelUrl: string) => {
+  private _restart = async (api: apiUtils.ApiClient, worker: Worker, tunnelUrl: string) => {
     try {
       await this._runBuild()
     } catch (thrown) {
@@ -170,7 +167,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     await worker.reload()
   }
 
-  private _deploy = async (api: ApiClient, tunnelUrl: string) => {
+  private _deploy = async (api: apiUtils.ApiClient, tunnelUrl: string) => {
     const projectDef = await this.readProjectDefinitionFromFS()
 
     if (projectDef.type === 'interface') {
@@ -199,10 +196,9 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private _spawnWorker = async (env: Record<string, string>, port: number) => {
-    const outfile = this.projectPaths.abs.outFile
+    const outfile = this.projectPaths.abs.outFileCJS
     const importPath = utils.path.toUnix(outfile)
-    const requireFrom = utils.path.rmExtension(importPath)
-    const code = `require('${requireFrom}').default.start(${port})`
+    const code = `require('${importPath}').default.start(${port})`
     const worker = await Worker.spawn(
       {
         type: 'code',
@@ -222,7 +218,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private async _deployDevIntegration(
-    api: ApiClient,
+    api: apiUtils.ApiClient,
     externalUrl: string,
     integrationDef: sdk.IntegrationDefinition
   ): Promise<void> {
@@ -247,21 +243,14 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
 
-    let createIntegrationBody: CreateIntegrationBody = await prepareCreateIntegrationBody(integrationDef)
-    createIntegrationBody = {
-      ...createIntegrationBody,
+    const createIntegrationBody = {
+      ...(await this.prepareCreateIntegrationBody(integrationDef)),
+      ...(await this.prepareIntegrationDependencies(integrationDef, api)),
       url: externalUrl,
-      configuration: await this.readIntegrationConfigDefinition(createIntegrationBody.configuration),
-      configurations: await utils.promises.awaitRecord(
-        utils.records.mapValues(
-          createIntegrationBody.configurations ?? {},
-          this.readIntegrationConfigDefinition.bind(this)
-        )
-      ),
     }
 
     if (integration) {
-      const updateIntegrationBody = prepareUpdateIntegrationBody(
+      const updateIntegrationBody = apiUtils.prepareUpdateIntegrationBody(
         { ...createIntegrationBody, id: integration.id },
         integration
       )
@@ -283,7 +272,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     await this.projectCache.set('devId', integration.id)
   }
 
-  private async _deployDevBot(api: ApiClient, externalUrl: string, botDef: sdk.BotDefinition): Promise<void> {
+  private async _deployDevBot(api: apiUtils.ApiClient, externalUrl: string, botDef: sdk.BotDefinition): Promise<void> {
     const devId = await this.projectCache.get('devId')
 
     let bot: client.Bot | undefined = undefined
@@ -323,13 +312,12 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const updateLine = this.logger.line()
     updateLine.started('Deploying dev bot...')
 
-    const integrationInstances = await this.fetchBotIntegrationInstances(botDef, api)
-    const updateBotBody = prepareUpdateBotBody(
+    const updateBotBody = apiUtils.prepareUpdateBotBody(
       {
-        ...(await prepareCreateBotBody(botDef)),
+        ...(await apiUtils.prepareCreateBotBody(botDef)),
+        ...(await this.prepareBotDependencies(botDef, api)),
         id: bot.id,
         url: externalUrl,
-        integrations: integrationInstances,
       },
       bot
     )
@@ -339,6 +327,9 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     })
     updateLine.success(`Dev Bot deployed with id "${updatedBot.id}" at "${externalUrl}"`)
     updateLine.commit()
+
+    const tablesPublisher = new tables.TablesPublisher({ api, logger: this.logger, prompt: this.prompt })
+    await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition: botDef })
 
     this.displayWebhookUrls(updatedBot)
   }

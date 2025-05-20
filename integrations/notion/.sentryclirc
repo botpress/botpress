@@ -1,0 +1,5 @@
+[defaults]
+project=integration-notion
+
+[auth]
+dsn=https://e13977e1aa9210d00b80cad3baeba052@o363631.ingest.us.sentry.io/4509084003729408

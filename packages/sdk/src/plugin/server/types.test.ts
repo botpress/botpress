@@ -1,9 +1,8 @@
 import { test } from 'vitest'
 import * as client from '@botpress/client'
 import * as utils from '../../utils/type-utils'
-import * as common from '../types/generic'
+import * as common from '../common'
 import * as types from './types'
-import * as plugin from '../../plugin'
 import { EmptyPlugin, FooBarBazPlugin } from '../../fixtures'
 
 test('MessageRequest with implemented plugin should be loose type', () => {

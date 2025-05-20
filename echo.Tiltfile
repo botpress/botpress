@@ -227,7 +227,7 @@ dc_resource(name='run-dynamodb', labels=['run'])
 local_resource(
   name='run-chat-integration',
   serve_cmd=" ".join([
-    "pnpm -F @botpresshub/chat exec bp dev",
+    "pnpm -F @botpresshub/chat exec bp dev -v",
     "--secrets SIGNAL_URL=http://localhost:%s" % PUSHPIN_PRIVATE_PORT,
     "--secrets AUTH_ENCRYPTION_KEY=%s" % AUTH_ENCRYPTION_KEY,
     '--secrets FID_STORE_CONFIG="%s"' % encode_base64(encode_json({
@@ -265,7 +265,7 @@ local_resource(
 
 local_resource(
   name='run-echo-bot',
-  cmd="pnpm -F echo exec bp add --use-dev -y",
+  cmd="pnpm -F echo exec bp add --use-dev -y -v",
   serve_cmd="pnpm -F echo exec bp dev -y --tunnel-url %s --port %s" % (API.bp_tunnel_url, ECHO_BOT_PORT),
   serve_env={
     BP_HOME_ENV.key: BP_HOME_ENV.value,
@@ -283,7 +283,7 @@ local_resource(
   cmd=" ".join([
     'wh_id=$(pnpm ts-node -T ./scripts/fetch-chat-wh.ts);',
     'API_URL=http://localhost:%s/$wh_id' % PUSHPIN_PUBLIC_PORT,
-    'pnpm run -F chat test:e2e'
+    'pnpm run -F @botpress/chat test:e2e'
   ]),
   env={
     BP_HOME_ENV.key: BP_HOME_ENV.value,

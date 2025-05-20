@@ -1,4 +1,5 @@
 import * as consts from './consts'
+import { ProjectTemplates } from './project-templates'
 import type { CommandOption, CommandSchema } from './typings'
 
 // command options
@@ -19,6 +20,12 @@ const noBuild = {
   description: 'Skip the build step',
   default: false,
 } satisfies CommandOption
+
+const dryRun = {
+  type: 'boolean',
+  description: 'Ask the API not to perform the actual operation',
+  default: false,
+} as const satisfies CommandOption
 
 const apiUrl = {
   type: 'string',
@@ -175,6 +182,7 @@ const deploySchema = {
   ...secretsSchema,
   botId: { type: 'string', description: 'The bot ID to deploy. Only used when deploying a bot' },
   noBuild,
+  dryRun,
   createNewBot: { type: 'boolean', description: 'Create a new bot when deploying. Only used when deploying a bot' },
   sourceMap,
   minify,
@@ -315,6 +323,11 @@ const initSchema = {
   ...globalSchema,
   workDir,
   type: { type: 'string', choices: ['bot', 'integration', 'plugin'] as const },
+  template: {
+    type: 'string',
+    choices: ProjectTemplates.getAllChoices(),
+    description: 'The template to use',
+  },
   name: { type: 'string', description: 'The name of the project' },
 } satisfies CommandSchema
 

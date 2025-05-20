@@ -6,7 +6,7 @@ export const INTEGRATION_NAME = 'messenger'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.1.1',
+  version: '3.0.2',
   title: 'Messenger',
   description: 'Give your bot access to one of the world’s largest messaging platform.',
   icon: 'icon.svg',
@@ -14,47 +14,36 @@ export default new IntegrationDefinition({
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
+      required: true,
     },
-    schema: z
-      .object({
-        useManualConfiguration: z
-          .boolean()
-          .optional()
-          .title('Use Manual Configuration')
-          .describe('Skip oAuth and supply details from a Meta App'),
+    schema: z.object({}),
+  },
+  configurations: {
+    manualApp: {
+      title: 'Manual Configuration',
+      description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
+      schema: z.object({
         verifyToken: z
           .string()
-          .optional()
           .title('Verify Token')
-          .describe('Token used for verification when subscribing to webhooks'),
+          .min(1)
+          .describe(
+            'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
+          ),
         accessToken: z
           .string()
-          .optional()
           .title('Access Token')
+          .min(1)
           .describe('Access Token from a System Account that has permission to the Meta app'),
-        clientId: z
-          .string()
-          .optional()
-          .title('Client ID')
-          .describe('Meta app client ID used by Meta to identify the app to authenticate with'),
+        clientId: z.string().title('Client ID').min(1).describe('Meta app client id'),
         clientSecret: z
           .string()
-          .optional()
           .title('Client Secret')
+          .optional()
           .describe('Meta app secret used for webhook signature check'),
-        pageId: z.string().optional().describe('Id from the Facebook page').title('Page ID'),
-      })
-      .hidden((formData) => {
-        const showConfig = !formData?.useManualConfiguration
-
-        return {
-          verifyToken: showConfig,
-          accessToken: showConfig,
-          clientId: showConfig,
-          clientSecret: showConfig,
-          pageId: showConfig,
-        }
+        pageId: z.string().min(1).describe('Id from the Facebook page').title('Page ID'),
       }),
+    },
   },
   identifier: {
     extractScript: 'extract.vrl',
@@ -108,11 +97,15 @@ export default new IntegrationDefinition({
     ACCESS_TOKEN: {
       description: 'Access token for internal Meta App',
     },
+    VERIFY_TOKEN: {
+      description: 'The verify token for the Meta Webhooks subscription, optional since its only useful for oAuth.',
+      optional: true,
+    },
   },
   user: {
     tags: { id: { title: 'User ID', description: 'The Messenger ID of the user' } },
   },
-}).extend(typingIndicator, () => ({}))
+}).extend(typingIndicator, () => ({ entities: {} }))
 
 export const getOAuthConfigId = () => {
   if (process.env.BP_WEBHOOK_URL?.includes('dev')) {

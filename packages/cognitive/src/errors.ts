@@ -29,13 +29,19 @@ export const getActionFromError = (error: any): Action => {
     return 'abort'
   }
 
-  if (error.type === 'Internal' || error.subtype === 'UPSTREAM_PROVIDER_FAILED') {
+  const subtype = (error.metadata as any)?.subtype
+  if (error.type === 'Internal' || subtype === 'UPSTREAM_PROVIDER_FAILED') {
     // The model is degraded, so we want to try another model
     return 'fallback'
   }
 
   return 'abort'
 }
+
+export const isNotFoundError = (error: any): boolean => isBotpressError(error) && error.type === 'ResourceNotFound'
+
+export const isForbiddenOrUnauthorizedError = (error: any): boolean =>
+  isBotpressError(error) && (error.type === 'Forbidden' || error.type === 'Unauthorized')
 
 export const isBotpressError = (error: any): error is BotpressError =>
   typeof error === 'object' &&

@@ -1,41 +1,16 @@
-import type { Client, Integration } from '@botpress/client'
-import type * as sdk from '@botpress/sdk'
+import * as client from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
-
-export type CreateIntegrationBody = Parameters<Client['createIntegration']>[0]
-export type UpdateIntegrationBody = Parameters<Client['updateIntegration']>[0]
-
-type UpdateIntegrationChannelsBody = NonNullable<UpdateIntegrationBody['channels']>
-type UpdateIntegrationChannelBody = UpdateIntegrationChannelsBody[string]
-
-type Channels = Integration['channels']
-type Channel = Integration['channels'][string]
+import * as types from './types'
 
 export const prepareCreateIntegrationBody = async (
-  integration: sdk.IntegrationDefinition
-): Promise<CreateIntegrationBody> => ({
+  integration: sdk.IntegrationDefinition | sdk.IntegrationPackage['definition']
+): Promise<types.CreateIntegrationRequestBody> => ({
   name: integration.name,
   version: integration.version,
-  title: integration.title,
-  description: integration.description,
-  icon: integration.icon,
-  readme: integration.readme,
+  title: 'title' in integration ? integration.title : undefined,
+  description: 'description' in integration ? integration.description : undefined,
   user: integration.user,
-  identifier: integration.identifier,
-  secrets: undefined,
-  interfaces: {},
-  configuration: integration.configuration
-    ? {
-        ...integration.configuration,
-        schema: await utils.schema.mapZodToJsonSchema(integration.configuration),
-      }
-    : undefined,
-  configurations: integration.configurations
-    ? await utils.records.mapValuesAsync(integration.configurations, async (configuration) => ({
-        ...configuration,
-        schema: await utils.schema.mapZodToJsonSchema(configuration),
-      }))
-    : undefined,
   events: integration.events
     ? await utils.records.mapValuesAsync(integration.events, async (event) => ({
         ...event,
@@ -78,12 +53,22 @@ export const prepareCreateIntegrationBody = async (
     : undefined,
 })
 
+type UpdateIntegrationChannelsBody = NonNullable<types.UpdateIntegrationRequestBody['channels']>
+type UpdateIntegrationChannelBody = UpdateIntegrationChannelsBody[string]
+type Channels = client.Integration['channels']
+type Channel = client.Integration['channels'][string]
 export const prepareUpdateIntegrationBody = (
-  localIntegration: UpdateIntegrationBody,
-  remoteIntegration: Integration
-): UpdateIntegrationBody => {
-  const actions = utils.records.setNullOnMissingValues(localIntegration.actions, remoteIntegration.actions)
-  const events = utils.records.setNullOnMissingValues(localIntegration.events, remoteIntegration.events)
+  localIntegration: types.UpdateIntegrationRequestBody,
+  remoteIntegration: client.Integration
+): types.UpdateIntegrationRequestBody => {
+  const actions = utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localIntegration.actions, remoteIntegration.actions),
+    remoteItems: remoteIntegration.actions,
+  })
+  const events = utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localIntegration.events, remoteIntegration.events),
+    remoteItems: remoteIntegration.events,
+  })
   const states = utils.records.setNullOnMissingValues(localIntegration.states, remoteIntegration.states)
   const entities = utils.records.setNullOnMissingValues(localIntegration.entities, remoteIntegration.entities)
   const user = {
@@ -91,7 +76,7 @@ export const prepareUpdateIntegrationBody = (
     tags: utils.records.setNullOnMissingValues(localIntegration.user?.tags, remoteIntegration.user?.tags),
   }
 
-  const channels = prepareUpdateIntegrationChannelsBody(localIntegration.channels ?? {}, remoteIntegration.channels)
+  const channels = _prepareUpdateIntegrationChannelsBody(localIntegration.channels ?? {}, remoteIntegration.channels)
 
   const interfaces = utils.records.setNullOnMissingValues(localIntegration.interfaces, remoteIntegration.interfaces)
 
@@ -100,8 +85,10 @@ export const prepareUpdateIntegrationBody = (
     remoteIntegration.configurations
   )
 
+  const readme = localIntegration.readme
+  const icon = localIntegration.icon
   return {
-    ...localIntegration,
+    ..._maybeRemoveVrlScripts(localIntegration, remoteIntegration),
     actions,
     events,
     states,
@@ -110,10 +97,54 @@ export const prepareUpdateIntegrationBody = (
     channels,
     interfaces,
     configurations,
+    readme,
+    icon,
   }
 }
 
-const prepareUpdateIntegrationChannelsBody = (
+const _maybeRemoveVrlScripts = (
+  localIntegration: types.UpdateIntegrationRequestBody,
+  remoteIntegration: client.Integration
+): types.UpdateIntegrationRequestBody => {
+  const newIntegration = structuredClone(localIntegration)
+
+  if (
+    remoteIntegration.configuration?.identifier?.linkTemplateScript &&
+    !localIntegration.configuration?.identifier?.linkTemplateScript
+  ) {
+    newIntegration.configuration ??= remoteIntegration.configuration
+    newIntegration.configuration.identifier ??= remoteIntegration.configuration.identifier
+    newIntegration.configuration.identifier.linkTemplateScript = null
+    newIntegration.configuration.identifier.required = false
+  }
+
+  if (remoteIntegration.identifier.extractScript && !localIntegration.identifier?.extractScript) {
+    newIntegration.identifier ??= remoteIntegration.identifier
+    newIntegration.identifier.extractScript = null
+  }
+
+  if (remoteIntegration.identifier.fallbackHandlerScript && !localIntegration.identifier?.fallbackHandlerScript) {
+    newIntegration.identifier ??= remoteIntegration.identifier
+    newIntegration.identifier.fallbackHandlerScript = null
+  }
+
+  for (const configName of Object.keys(localIntegration.configurations ?? {})) {
+    if (
+      remoteIntegration.configurations[configName]?.identifier.linkTemplateScript &&
+      !localIntegration.configurations?.[configName]?.identifier?.linkTemplateScript
+    ) {
+      newIntegration.configurations ??= remoteIntegration.configurations
+      newIntegration.configurations[configName] ??= remoteIntegration.configurations[configName]
+      newIntegration.configurations[configName].identifier ??= remoteIntegration.configurations[configName].identifier
+      newIntegration.configurations[configName].identifier.linkTemplateScript = null
+      newIntegration.configurations[configName].identifier.required = false
+    }
+  }
+
+  return newIntegration
+}
+
+const _prepareUpdateIntegrationChannelsBody = (
   localChannels: UpdateIntegrationChannelsBody,
   remoteChannels: Channels
 ): UpdateIntegrationChannelsBody => {
@@ -123,7 +154,7 @@ const prepareUpdateIntegrationChannelsBody = (
   for (const [channelName, [localChannel, remoteChannel]] of Object.entries(zipped)) {
     if (localChannel && remoteChannel) {
       // channel has to be updated
-      channelBody[channelName] = prepareUpdateIntegrationChannelBody(localChannel, remoteChannel)
+      channelBody[channelName] = _prepareUpdateIntegrationChannelBody(localChannel, remoteChannel)
     } else if (localChannel) {
       // channel has to be created
       channelBody[channelName] = localChannel
@@ -138,7 +169,7 @@ const prepareUpdateIntegrationChannelsBody = (
   return channelBody
 }
 
-const prepareUpdateIntegrationChannelBody = (
+const _prepareUpdateIntegrationChannelBody = (
   localChannel: UpdateIntegrationChannelBody,
   remoteChannel: Channel
 ): UpdateIntegrationChannelBody => ({

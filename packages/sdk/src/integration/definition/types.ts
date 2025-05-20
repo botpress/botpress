@@ -32,6 +32,7 @@ export type AdditionalConfigurationDefinition<TConfig extends BaseConfigs[string
 export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent> & {
   title?: string
   description?: string
+  attributes?: Record<string, string>
 }
 
 export type MessageDefinition<TMessage extends BaseMessages[string] = BaseMessages[string]> = SchemaDefinition<TMessage>
@@ -64,10 +65,13 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
   billable?: boolean
   cacheable?: boolean
+  attributes?: Record<string, string>
 }
 
+export type StateType = 'integration' | 'conversation' | 'user'
+
 export type StateDefinition<TState extends BaseStates[string] = BaseStates[string]> = SchemaDefinition<TState> & {
-  type: 'integration' | 'conversation' | 'user'
+  type: StateType
 }
 
 export type UserDefinition = Partial<{
@@ -102,14 +106,19 @@ export type ResolvedInterface<
   channels: { [K in keyof TChannels]: ChannelDefinition<TChannels[K]> }
 }
 
-export type InterfaceImplementationStatement<
+/**
+ * A.K.A. Interface Implementation Statetement
+ * Used by an integration to explicitly declare that it implements an interface
+ */
+export type InterfaceExtension<
   TEntities extends BaseEntities = BaseEntities,
   TActions extends BaseActions = BaseActions,
   TEvents extends BaseEvents = BaseEvents,
   TChannels extends BaseChannels = BaseChannels,
 > = {
-  name: string
-  version: string
+  id?: string // id of the interface to implement
+  name: string // name of the interface to implement
+  version: string // version of the interface to implement
   entities: { [K in keyof TEntities]: { name: string } }
   actions: { [K in keyof TActions]: { name: string } }
   events: { [K in keyof TEvents]: { name: string } }

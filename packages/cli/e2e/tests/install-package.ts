@@ -6,6 +6,7 @@ import * as uuid from 'uuid'
 import * as apiUtils from '../../src/api'
 import impl from '../../src/command-implementations'
 import defaults from '../defaults'
+import * as retry from '../retry'
 import { Test, TestProps } from '../typings'
 import * as utils from '../utils'
 
@@ -79,7 +80,9 @@ const initBot = async (props: TestProps, definitionFile: string) => {
   }
   const botName = uuid.v4().replace(/-/g, '')
   const botDir = pathlib.join(tmpDir, botName)
-  await impl.init({ ...argv, workDir: tmpDir, name: botName, type: 'bot' }).then(utils.handleExitCode)
+  await impl
+    .init({ ...argv, workDir: tmpDir, name: botName, type: 'bot', template: 'empty' })
+    .then(utils.handleExitCode)
   await utils.fixBotpressDependencies({ workDir: botDir, target: dependencies })
   await utils.npmInstall({ workDir: botDir }).then(utils.handleExitCode)
   await fslib.promises.writeFile(pathlib.join(botDir, 'bot.definition.ts'), definitionFile)
@@ -99,7 +102,12 @@ export const addIntegration: Test = {
       ...creds,
     }
 
-    const bpClient = new client.Client({ apiUrl: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
+    const bpClient = new client.Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
 
     const integrationSuffix = uuid.v4().replace(/-/g, '')
     const name = `myintegration${integrationSuffix}`

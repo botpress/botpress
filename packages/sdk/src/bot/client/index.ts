@@ -1,5 +1,5 @@
 import * as client from '@botpress/client'
-import * as common from '../types'
+import * as common from '../common'
 import * as types from './types'
 
 export * from './types'
@@ -29,6 +29,7 @@ export class BotSpecificClient<TBot extends common.BaseBot> implements types.Cli
     this._run('getParticipant', x)) as types.GetParticipant<TBot>
   public removeParticipant: types.RemoveParticipant<TBot> = ((x) =>
     this._run('removeParticipant', x)) as types.RemoveParticipant<TBot>
+  public createEvent: types.CreateEvent<TBot> = ((x) => this._run('createEvent', x)) as types.CreateEvent<TBot>
   public getEvent: types.GetEvent<TBot> = ((x) => this._run('getEvent', x)) as types.GetEvent<TBot>
   public listEvents: types.ListEvents<TBot> = ((x) => this._run('listEvents', x)) as types.ListEvents<TBot>
   public createMessage: types.CreateMessage<TBot> = ((x) => this._run('createMessage', x)) as types.CreateMessage<TBot>
@@ -57,6 +58,24 @@ export class BotSpecificClient<TBot extends common.BaseBot> implements types.Cli
   public searchFiles: types.SearchFiles<TBot> = ((x) => this._run('searchFiles', x)) as types.SearchFiles<TBot>
   public trackAnalytics: types.TrackAnalytics<TBot> = ((x) =>
     this._run('trackAnalytics', x)) as types.TrackAnalytics<TBot>
+  public getTableRow: types.GetTableRow<TBot> = ((x) => this._run('getTableRow', x)) as types.GetTableRow<TBot>
+  public createTableRows: types.CreateTableRows<TBot> = ((x) =>
+    this._run('createTableRows', x)) as types.CreateTableRows<TBot>
+  public findTableRows: types.FindTableRows<TBot> = ((x) => this._run('findTableRows', x)) as types.FindTableRows<TBot>
+  public deleteTableRows: types.DeleteTableRows<TBot> = ((x) =>
+    this._run('deleteTableRows', x)) as types.DeleteTableRows<TBot>
+  public updateTableRows: types.UpdateTableRows<TBot> = ((x) =>
+    this._run('updateTableRows', x)) as types.UpdateTableRows<TBot>
+  public upsertTableRows: types.UpsertTableRows<TBot> = ((x) =>
+    this._run('upsertTableRows', x)) as types.UpsertTableRows<TBot>
+  public createWorkflow: types.CreateWorkflow<TBot> = ((x) =>
+    this._run('createWorkflow', x)) as types.CreateWorkflow<TBot>
+  public getWorkflow: types.GetWorkflow<TBot> = ((x) => this._run('getWorkflow', x)) as types.GetWorkflow<TBot>
+  public updateWorkflow: types.UpdateWorkflow<TBot> = ((x) =>
+    this._run('updateWorkflow', x)) as types.UpdateWorkflow<TBot>
+  public deleteWorkflow: types.DeleteWorkflow<TBot> = ((x) =>
+    this._run('deleteWorkflow', x)) as types.DeleteWorkflow<TBot>
+  public listWorkflows: types.ListWorkflows<TBot> = ((x) => this._run('listWorkflows', x)) as types.ListWorkflows<TBot>
 
   /**
    * @deprecated Use `callAction` to delegate the conversation creation to an integration.
@@ -88,7 +107,7 @@ export class BotSpecificClient<TBot extends common.BaseBot> implements types.Cli
 
     const after = this._hooks.after[operation]
     if (after) {
-      res = await after(res)
+      res = await after(res, req)
     }
 
     return res

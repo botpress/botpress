@@ -16,3 +16,13 @@ test('zip objects should return both values only when key is defined in both obj
 
   expect(zipped).toEqual(expected)
 })
+
+test('mapValuesAsync should return a new object with the values mapped asynchronously', async () => {
+  const obj = { a: 1, b: 2, c: 3 }
+
+  const mapped = await recordUtils.mapValuesAsync(obj, async (v) => v * 2)
+
+  const expected = { a: 2, b: 4, c: 6 }
+
+  expect(mapped).toEqual(expected)
+})

@@ -66,7 +66,25 @@ test('api allows adding and removing conversation participants', async () => {
       },
     })
   ).rejects.toThrow(chat.ForbiddenError)
-}, 20_000)
+})
+
+test('api forbids non-participants from listing participants', async () => {
+  const client = new chat.Client({ apiUrl })
+
+  const user1 = await client.createUser({})
+  const user2 = await client.createUser({})
+  const user3 = await client.createUser({})
+
+  const { conversation } = await client.createConversation({ 'x-user-key': user1.key })
+  await client.addParticipant({ 'x-user-key': user1.key, conversationId: conversation.id, userId: user2.user.id })
+
+  const promise1 = client.listParticipants({ 'x-user-key': user1.key, conversationId: conversation.id })
+  await expect(promise1).resolves.toBeTruthy()
+  const promise2 = client.listParticipants({ 'x-user-key': user2.key, conversationId: conversation.id })
+  await expect(promise2).resolves.toBeTruthy()
+  const promise3 = client.listParticipants({ 'x-user-key': user3.key, conversationId: conversation.id })
+  await expect(promise3).rejects.toThrow(chat.ForbiddenError)
+})
 
 test('signal listener is disconnected when participant is removed', async () => {
   const client = new chat.Client({ apiUrl })
@@ -122,4 +140,20 @@ test('signal listener is disconnected when participant is removed', async () => 
 
   await listener2.disconnect()
   listener2.cleanup()
-}, 20_000)
+})
+
+test('api forbids removing owner from conversation participants', async () => {
+  const client = new chat.Client({ apiUrl })
+
+  const { user: user1, key: userKey1 } = await client.createUser({})
+
+  const { conversation } = await client.createConversation({ 'x-user-key': userKey1 })
+
+  await expect(
+    client.removeParticipant({
+      'x-user-key': userKey1,
+      conversationId: conversation.id,
+      userId: user1.id,
+    })
+  ).rejects.toThrow(chat.InvalidPayloadError)
+})

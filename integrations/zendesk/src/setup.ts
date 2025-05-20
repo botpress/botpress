@@ -1,3 +1,4 @@
+import { isApiError } from '@botpress/client'
 import { getZendeskClient } from './client'
 import { uploadArticlesToKb } from './misc/upload-articles-to-kb'
 import { deleteKbArticles } from './misc/utils'
@@ -25,12 +26,17 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
     role: 'end-user',
     external_id: ctx.botUserId,
     name: 'Botpress',
+    // FIXME: use a PNG image hosted on the Botpress CDN
+    remote_photo_url: 'https://app.botpress.dev/favicon/bp.svg',
   })
 
   await client.updateUser({
     id: ctx.botUserId,
+    pictureUrl: 'https://app.botpress.dev/favicon/bp.svg',
+    name: 'Botpress',
     tags: {
       id: `${user.id}`,
+      role: 'bot-user',
     },
   })
 
@@ -65,11 +71,24 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
 export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, client, logger }) => {
   const zendeskClient = getZendeskClient(ctx.configuration)
 
-  const { state } = await client.getState({
-    id: ctx.integrationId,
-    name: 'subscriptionInfo',
-    type: 'integration',
-  })
+  const { state } = await client
+    .getState({
+      id: ctx.integrationId,
+      name: 'subscriptionInfo',
+      type: 'integration',
+    })
+    .catch((thrown) => {
+      if (isApiError(thrown) && thrown.type === 'ResourceNotFound') {
+        return { state: null }
+      }
+      logger.forBot().error('Could not get subscription info state', thrown)
+      throw thrown
+    })
+
+  if (state === null) {
+    logger.forBot().warn('Nothing to unregister')
+    return
+  }
 
   if (state.payload.subscriptionId?.length) {
     await zendeskClient.unsubscribeWebhook(state.payload.subscriptionId).catch((err) => {

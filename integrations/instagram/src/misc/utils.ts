@@ -84,7 +84,3 @@ export function getChoiceMessage(payload: Choice | Dropdown): TextMessageWithQui
     })),
   }
 }
-
-export const getGlobalOauthWebhookUrl = () => {
-  return `${process.env.BP_WEBHOOK_URL}/oauth`
-}

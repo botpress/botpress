@@ -1,12 +1,18 @@
+import { Table } from '@botpress/client'
+import * as consts from '../consts'
 import { IntegrationPackage, PluginPackage } from '../package'
+import { PluginInterfaceExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
-import { ValueOf, Writable } from '../utils/type-utils'
+import * as utils from '../utils'
+import { ValueOf, Writable, Merge, StringKeys } from '../utils/type-utils'
 import z, { ZuiObjectSchema } from '../zui'
 
 type BaseConfig = ZuiObjectSchema
 type BaseStates = Record<string, ZuiObjectSchema>
 type BaseEvents = Record<string, ZuiObjectSchema>
 type BaseActions = Record<string, ZuiObjectSchema>
+type BaseTables = Record<string, ZuiObjectSchema>
+type BaseWorkflows = Record<string, ZuiObjectSchema>
 
 export type TagDefinition = {
   title?: string
@@ -28,7 +34,9 @@ export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = 
   }
 }[keyof TEvents]
 
-export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent>
+export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent> & {
+  attributes?: Record<string, string>
+}
 
 export type ConfigurationDefinition<TConfig extends BaseConfig = BaseConfig> = SchemaDefinition<TConfig>
 
@@ -49,17 +57,34 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   description?: string
   input: SchemaDefinition<TAction>
   output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
+  attributes?: Record<string, string>
 }
+
+export type WorkflowDefinition<TWorkflow extends BaseWorkflows[string] = BaseWorkflows[string]> = {
+  title?: string
+  description?: string
+  input: SchemaDefinition<TWorkflow>
+  output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
+  tags?: Record<string, TagDefinition>
+}
+
+export type TableDefinition<TTable extends BaseTables[string] = BaseTables[string]> = Merge<
+  Omit<Table, 'id' | 'createdAt' | 'updatedAt' | 'name'>,
+  {
+    schema: TTable
+  }
+>
 
 export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
   enabled: boolean
+  disabledChannels?: StringKeys<NonNullable<I['definition']['channels']>>[]
 } & (
   | {
       configurationType?: null
       configuration: z.infer<NonNullable<I['definition']['configuration']>['schema']>
     }
   | ValueOf<{
-      [K in keyof NonNullable<I['definition']['configurations']>]: {
+      [K in StringKeys<NonNullable<I['definition']['configurations']>>]: {
         configurationType: K
         configuration: z.infer<NonNullable<I['definition']['configurations']>[K]['schema']>
       }
@@ -67,10 +92,10 @@ export type IntegrationConfigInstance<I extends IntegrationPackage = Integration
 )
 
 export type PluginConfigInstance<P extends PluginPackage = PluginPackage> = {
+  alias?: string
   configuration: z.infer<NonNullable<P['definition']['configuration']>['schema']>
   interfaces: {
-    // TODO: this configuration should be strongly typed so that only the integrations that implement the interface are allowed
-    [I in keyof NonNullable<P['definition']['interfaces']>]: { name: string; version: string }
+    [I in keyof NonNullable<P['definition']['interfaces']>]: PluginInterfaceExtension
   }
 }
 
@@ -81,6 +106,8 @@ export type BotDefinitionProps<
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
+  TTables extends BaseTables = BaseTables,
+  TWorkflows extends BaseWorkflows = BaseWorkflows,
 > = {
   integrations?: {
     [K: string]: IntegrationInstance
@@ -102,12 +129,25 @@ export type BotDefinitionProps<
   actions?: {
     [K in keyof TActions]: ActionDefinition<TActions[K]>
   }
+  tables?: {
+    [K in keyof TTables]: TableDefinition<TTables[K]>
+  }
+
+  /**
+   * # EXPERIMENTAL
+   * This API is experimental and may change in the future.
+   */
+  workflows?: {
+    [K in keyof TWorkflows]: WorkflowDefinition<TWorkflows[K]>
+  }
 }
 
 export class BotDefinition<
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
+  TTables extends BaseTables = BaseTables,
+  TWorkflows extends BaseWorkflows = BaseWorkflows,
 > {
   public readonly integrations: this['props']['integrations']
   public readonly plugins: this['props']['plugins']
@@ -119,7 +159,9 @@ export class BotDefinition<
   public readonly events: this['props']['events']
   public readonly recurringEvents: this['props']['recurringEvents']
   public readonly actions: this['props']['actions']
-  public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions>) {
+  public readonly tables: this['props']['tables']
+  public readonly workflows: this['props']['workflows']
+  public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables, TWorkflows>) {
     this.integrations = props.integrations
     this.plugins = props.plugins
     this.user = props.user
@@ -130,6 +172,8 @@ export class BotDefinition<
     this.events = props.events
     this.recurringEvents = props.recurringEvents
     this.actions = props.actions
+    this.tables = props.tables
+    this.workflows = props.workflows
   }
 
   public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
@@ -141,8 +185,9 @@ export class BotDefinition<
     self.integrations[integrationPkg.name] = {
       enabled: config.enabled,
       ...integrationPkg,
-      configurationType: config.configurationType as string,
+      configurationType: config.configurationType,
       configuration: config.configuration,
+      disabledChannels: config.disabledChannels,
     }
     return this
   }
@@ -153,8 +198,10 @@ export class BotDefinition<
       self.plugins = {}
     }
 
-    self.plugins[pluginPkg.name] = {
+    const key = config.alias ?? pluginPkg.name
+    self.plugins[key] = {
       ...pluginPkg,
+      alias: config.alias,
       configuration: config.configuration,
       interfaces: config.interfaces,
     }
@@ -162,10 +209,13 @@ export class BotDefinition<
     self.user = this._mergeUser(self.user, pluginPkg.definition.user)
     self.conversation = this._mergeConversation(self.conversation, pluginPkg.definition.conversation)
     self.message = this._mergeMessage(self.message, pluginPkg.definition.message)
-    self.states = this._mergeStates(self.states, pluginPkg.definition.states)
-    self.events = this._mergeEvents(self.events, pluginPkg.definition.events)
     self.recurringEvents = this._mergeRecurringEvents(self.recurringEvents, pluginPkg.definition.recurringEvents)
-    self.actions = this._mergeActions(self.actions, pluginPkg.definition.actions)
+    self.tables = this._mergeTables(self.tables, pluginPkg.definition.tables)
+    self.workflows = this._mergeWorkflows(self.workflows, pluginPkg.definition.workflows)
+
+    self.states = this._mergeStates(self.states, this._prefixKeys(pluginPkg.definition.states, config.alias))
+    self.events = this._mergeEvents(self.events, this._prefixKeys(pluginPkg.definition.events, config.alias))
+    self.actions = this._mergeActions(self.actions, this._prefixKeys(pluginPkg.definition.actions, config.alias))
 
     return this
   }
@@ -244,5 +294,32 @@ export class BotDefinition<
       ...actions1,
       ...actions2,
     }
+  }
+
+  private _mergeTables = (
+    tables1: BotDefinitionProps['tables'],
+    tables2: BotDefinitionProps['tables']
+  ): BotDefinitionProps['tables'] => {
+    return {
+      ...tables1,
+      ...tables2,
+    }
+  }
+
+  private _mergeWorkflows = (
+    workflows1: BotDefinitionProps['workflows'],
+    workflows2: BotDefinitionProps['workflows']
+  ): BotDefinitionProps['workflows'] => {
+    return {
+      ...workflows1,
+      ...workflows2,
+    }
+  }
+
+  private _prefixKeys = <T extends Record<string, any> | undefined>(obj: T, alias: string | undefined): T => {
+    if (!obj || !alias) {
+      return obj
+    }
+    return utils.records.mapKeys(obj, (key) => `${alias}${consts.PLUGIN_PREFIX_SEPARATOR}${key}`) as T
   }
 }

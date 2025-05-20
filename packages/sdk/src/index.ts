@@ -1,5 +1,5 @@
 export * as messages from './message'
-export * from './const'
+export * from './public-consts'
 export * from './serve'
 export * from './zui'
 
@@ -55,6 +55,8 @@ export {
   ConversationDefinition as BotConversationDefinition,
   MessageDefinition as BotMessageDefinition,
   ActionDefinition as BotActionDefinition,
+  TableDefinition as BotTableDefinition,
+  WorkflowDefinition as BotWorkflowDefinition,
   BotLogger,
 } from './bot'
 
@@ -68,7 +70,11 @@ export {
   //
   DefaultPlugin,
   PluginDefinition,
+  PluginDefinitionProps,
   PluginImplementation as Plugin,
+  PluginImplementationProps as PluginProps,
+  PluginRuntimeProps,
+  PluginHandlers,
 } from './plugin'
 
 export {

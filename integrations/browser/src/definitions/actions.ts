@@ -14,12 +14,18 @@ const captureScreenshot = {
     }),
   },
   cacheable: true,
+  billable: true,
 }
 
 const fullPage = z.object({
   url: z.string(),
   content: z.string(),
+  favicon: z.string().optional(),
+  title: z.string().optional(),
+  description: z.string().optional(),
 })
+
+export type FullPage = z.infer<typeof fullPage>
 
 const browsePages = {
   title: 'Browse Pages',
@@ -27,6 +33,13 @@ const browsePages = {
   input: {
     schema: z.object({
       urls: z.array(z.string()),
+      waitFor: z
+        .number()
+        .optional()
+        .default(350)
+        .describe(
+          'Time to wait before extracting the content (in milliseconds). Set this value higher for dynamic pages.'
+        ),
     }),
   },
   output: {
@@ -35,6 +48,7 @@ const browsePages = {
     }),
   },
   cacheable: true,
+  billable: true,
 }
 
 const domainNameRegex = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i
@@ -94,6 +108,7 @@ const webSearch = {
       ),
     }),
   },
+  billable: true,
   cacheable: true,
 }
 

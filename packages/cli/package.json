@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "2.2.2",
+  "version": "4.5.4",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run bundle && pnpm run template:gen",
@@ -20,10 +20,10 @@
   "main": "dist/index.js",
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^11.7.0",
-    "@botpress/chat": "0.4.7",
-    "@botpress/client": "0.41.0",
-    "@botpress/sdk": "2.4.2",
-    "@bpinternal/const": "^0.0.20",
+    "@botpress/chat": "0.5.1",
+    "@botpress/client": "1.12.0",
+    "@botpress/sdk": "4.6.1",
+    "@bpinternal/const": "^0.1.0",
     "@bpinternal/tunnel": "^0.1.1",
     "@bpinternal/yargs-extra": "^0.0.3",
     "@parcel/watcher": "^2.1.0",
@@ -36,7 +36,6 @@
     "bluebird": "^3.7.2",
     "boxen": "5.1.2",
     "chalk": "^4.1.2",
-    "chokidar": "^3.5.3",
     "dotenv": "^16.4.4",
     "esbuild": "^0.16.12",
     "handlebars": "^4.7.8",
@@ -44,11 +43,9 @@
     "lodash": "^4.17.21",
     "prettier": "^3.4.2",
     "prompts": "^2.4.2",
-    "radash": "^9.5.0",
     "semver": "^7.3.8",
     "uuid": "^9.0.0",
     "verror": "^1.10.1",
-    "winston": "^3.8.2",
     "yn": "^4.0.0"
   },
   "devDependencies": {
@@ -64,6 +61,7 @@
     "tmp": "^0.2.1"
   },
   "engines": {
-    "node": ">=18"
-  }
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.6.2"
 }

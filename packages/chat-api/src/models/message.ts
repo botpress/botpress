@@ -103,6 +103,7 @@ export const messageSchema = schema(
     }),
     userId: schema(z.string(), { description: 'ID of the [User](#schema_user)' }),
     conversationId: schema(z.string(), { description: 'ID of the [Conversation](#schema_conversation)' }),
+    metadata: schema(z.record(z.any()).optional(), { description: 'Metadata of the message' }),
   }),
   {
     description:

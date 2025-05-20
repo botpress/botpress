@@ -2,7 +2,6 @@ import { Request } from '@botpress/sdk'
 import queryString from 'query-string'
 import * as bp from '../../.botpress'
 import { getOAuthConfigId } from '../../integration.definition'
-import { getGlobalWebhookUrl } from '../index'
 import { MetaClient } from './client'
 import { generateButtonDialog, generateSelectDialog, getInterstitialUrl, redirectTo } from './html-utils'
 
@@ -19,7 +18,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
       description:
         'This wizard will reset your configuration, so the bot will stop working on Messenger until a new configuration is put in place, continue?',
       buttons: [
-        { display: 'Yes', type: 'primary', action: 'NAVIGATE', payload: `${req.path}?wizard-step=setup` },
+        { display: 'Yes', type: 'primary', action: 'NAVIGATE', payload: getWizardStepUrl('setup', ctx) },
         { display: 'No', type: 'secondary', action: 'CLOSE_WINDOW' },
       ],
     })
@@ -38,9 +37,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
         'client_id=' +
         bp.secrets.CLIENT_ID +
         '&redirect_uri=' +
-        getGlobalWebhookUrl() +
-        '&state=' +
-        ctx.webhookId +
+        getWizardStepUrl(undefined, ctx) +
         '&config_id=' +
         getOAuthConfigId() +
         '&override_default_response_type=true' +
@@ -53,7 +50,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
   if (wizardStep === 'get-access-token') {
     const code = query['code'] as string
     if (code) {
-      accessToken = await metaClient.getAccessToken(code)
+      accessToken = await metaClient.getAccessToken(code, `${process.env.BP_WEBHOOK_URL}/oauth`)
       await patchCredentialsState(client, ctx, { accessToken })
     }
 
@@ -74,12 +71,15 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
         return generateSelectDialog({
           title: 'Select Page',
           description: 'Choose a Facebook Page to use in this bot:',
-          settings: { targetUrl: `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}` },
+          settings: { targetUrl: getWizardStepUrl(undefined, ctx) },
           select: {
             key: 'pageId',
             options: pages.map((page) => ({ id: page.id, display: page.name })),
           },
-          additionalData: [{ key: 'wizard-step', value: 'verify-page' }],
+          additionalData: [
+            { key: 'wizard-step', value: 'verify-page' },
+            { key: 'state', value: ctx.webhookId },
+          ],
         })
       }
     }
@@ -102,6 +102,23 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
       identifier: pageId,
     })
 
+    return generateButtonDialog({
+      title: 'Configuration Complete',
+      description: `
+Your configuration is now complete and the selected Facebook page will start answering as this bot, you can open it on Messenger and test it.
+
+**Here are some things to verify if you are unable to talk with your bot on Messenger**
+
+- Confirm if you are talking with the page that was selected for this bot
+- Double check if you published this bot
+      `,
+      buttons: [
+        { display: 'Okay', type: 'primary', action: 'NAVIGATE', payload: getWizardStepUrl('wrap-up-finish', ctx) },
+      ],
+    })
+  }
+
+  if (wizardStep === 'wrap-up-finish') {
     return redirectTo(getInterstitialUrl(true))
   }
 
@@ -137,4 +154,18 @@ const getCredentialsState = async (client: bp.Client, ctx: bp.Context) => {
   } catch {
     return {}
   }
+}
+
+const getWizardStepUrl = (step?: string, ctx?: bp.Context) => {
+  let url = `${process.env.BP_WEBHOOK_URL}/oauth?`
+
+  if (step?.length) {
+    url += `&wizard-step=${step}`
+  }
+
+  if (ctx) {
+    url += `&state=${ctx.webhookId}`
+  }
+
+  return url
 }

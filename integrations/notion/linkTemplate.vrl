@@ -1,0 +1,13 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+env = to_string!(.env)
+
+clientId = "1c8d872b-594c-8091-bc5a-0037a3cc5f94"
+
+if env == "production" {
+  clientId = "1c8d872b-594c-8080-8623-0037a51e20ae"
+}
+
+redirectUri = "{{ webhookUrl }}/oauth"
+
+"https://api.notion.com/v1/oauth/authorize?client_id={{ clientId }}&response_type=code&owner=user&redirect_uri={{ redirectUri }}&state={{ webhookId }}"

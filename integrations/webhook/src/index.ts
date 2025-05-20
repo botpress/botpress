@@ -56,11 +56,12 @@ const integration = new bp.Integration({
     } catch {}
 
     await client.createEvent({
-      type: 'webhook:event',
+      type: 'event',
       payload: {
         body,
         query: query as Record<string, any>,
         method,
+        headers: req.headers as Record<string, string>,
         path: req.path,
       },
     })

@@ -14,7 +14,7 @@
 [Cloud](https://app.botpress.cloud) •
 [Documentation](https://botpress.com/docs) •
 [Integrations](#integrations) •
-[Agents](#agents)
+[Plugins](#plugins)
 
 <img src="https://user-images.githubusercontent.com/10071388/248040379-8aee1b03-c483-4040-8ee0-741554310e88.png" width="800">
   
@@ -27,7 +27,7 @@ This repository contains:
 - [**Integrations**](#integrations) – all public integrations on the [Botpress Hub](https://app.botpress.cloud/hub) maintained by Botpress
 - [**Devtools**](#devtools) – all Botpress Cloud dev tools (CLI, SDK, API Client)
 - [**Bots**](#bots) - some example of bots "_as code_" made only using the SDK and the CLI
-- [**Agents**](#agents) – all public agents on the [Botpress Studio](https://studio.botpress.cloud) **(coming soon)**
+- [**Plugins**](#plugins) – all plugins on the [Botpress Studio](https://studio.botpress.cloud) **(coming soon)**
 
 ## Contributing
 
@@ -41,7 +41,7 @@ For any problem related to on-premise Botpress v12, please see the [Botpress v12
 
 ## Integrations
 
-The [`/integrations`](./integrations) folder contains all our public and open-source integrations. We invite the community to contribute their own integrations to Botpress Cloud.
+The [`/integrations`](./integrations) folder contains all our public and open-source integrations. We invite the community to contribute to our integrations or to publish their own to the [Botpress Hub](https://app.botpress.cloud/hub).
 
 ### Integration Development
 
@@ -93,19 +93,19 @@ The [`/bots`](./bots) folder contains examples of bots "_as code_" made only usi
 
 However it can be useful for experienced developers who want to build bots in a more programmatic way.
 
-It is also used internally by the Botress team since the Studio and CLI both use the same underlying primitives.
+It is also used internally by the Botpress team since the Studio and SDK both use the same underlying primitives.
+
+## Plugins
+
+Coming soon.
 
 ## Devtools
 
-| **Package**                                                          | **Description**                                 | **Docs**                                           | **Code**               |
-| -------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------- | ---------------------- |
-| [`@botpress/cli`](https://www.npmjs.com/package/@botpress/cli)       | Build and deploy private or public integrations | [Docs](https://botpress.com/docs/integration/cli/) | [Code](./packages/cli) |
-| [`@botpress/client`](https://www.npmjs.com/package/@botpress/client) | Type-safe client to consume the Botpress APIs   | [Docs]()                                           | [Code]()               |
-| [`@botpress/sdk`](https://www.npmjs.com/package/@botpress/sdk)       | SDK used by to build integrations               | [Docs]()                                           | [Code]()               |
-
-## Agents
-
-Coming soon.
+| **Package**                                                          | **Description**                                         | **Docs**                                           | **Code**               |
+| -------------------------------------------------------------------- | ------------------------------------------------------- | -------------------------------------------------- | ---------------------- |
+| [`@botpress/cli`](https://www.npmjs.com/package/@botpress/cli)       | Build, Deploy and Manage Bots, Integrations and Plugins | [Docs](https://botpress.com/docs/integration/cli/) | [Code](./packages/cli) |
+| [`@botpress/client`](https://www.npmjs.com/package/@botpress/client) | Type-safe clients to consume the Botpress APIs          | [Docs]()                                           | [Code]()               |
+| [`@botpress/sdk`](https://www.npmjs.com/package/@botpress/sdk)       | SDK used by to build integrations                       | [Docs]()                                           | [Code]()               |
 
 ## Local Development
 

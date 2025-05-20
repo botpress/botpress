@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cognitive",
-  "version": "0.1.1",
+  "version": "0.1.19",
   "description": "Wrapper around the Botpress Client to call LLMs",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -8,7 +8,6 @@
   "license": "MIT",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "generate": "ts-node -T ./types.ts ./src/gen",
     "build:type": "tsup --tsconfig tsconfig.build.json ./src/index.ts --dts-resolve --dts-only --clean",
     "build:neutral": "ts-node -T ./build.ts --neutral",
     "build": "pnpm build:type && pnpm build:neutral && size-limit",
@@ -40,5 +39,9 @@
     "esbuild": "^0.16.12",
     "size-limit": "^11.1.6",
     "tsup": "^8.0.2"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.6.2"
 }

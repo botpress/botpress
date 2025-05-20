@@ -1,13 +1,15 @@
-import type { Client, Interface } from '@botpress/client'
-import type * as sdk from '@botpress/sdk'
+import * as client from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
+import * as types from './types'
 
-export type CreateInterfaceBody = Parameters<Client['createInterface']>[0]
-export type UpdateInterfaceBody = Parameters<Client['updateInterface']>[0]
-
-export const prepareCreateInterfaceBody = async (intrface: sdk.InterfaceDefinition): Promise<CreateInterfaceBody> => ({
+export const prepareCreateInterfaceBody = async (
+  intrface: sdk.InterfaceDefinition | sdk.InterfacePackage['definition']
+): Promise<types.CreateInterfaceRequestBody> => ({
   name: intrface.name,
   version: intrface.version,
+  title: 'title' in intrface ? intrface.title : undefined,
+  description: 'description' in intrface ? intrface.description : undefined,
   entities: intrface.entities
     ? await utils.records.mapValuesAsync(intrface.entities, async (entity) => ({
         ...entity,
@@ -42,23 +44,23 @@ export const prepareCreateInterfaceBody = async (intrface: sdk.InterfaceDefiniti
         })),
       }))
     : {},
-  nameTemplate: intrface.templateName
-    ? {
-        script: intrface.templateName,
-        language: 'handlebars',
-      }
-    : undefined,
 })
 
 export const prepareUpdateInterfaceBody = (
-  localInterface: CreateInterfaceBody & { id: string },
-  remoteInterface: Interface
-): UpdateInterfaceBody => {
-  const actions = utils.records.setNullOnMissingValues(localInterface.actions, remoteInterface.actions)
-  const events = utils.records.setNullOnMissingValues(localInterface.events, remoteInterface.events)
+  localInterface: types.CreateInterfaceRequestBody & { id: string },
+  remoteInterface: client.Interface
+): types.UpdateInterfaceRequestBody => {
+  const actions = utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localInterface.actions, remoteInterface.actions),
+    remoteItems: remoteInterface.actions,
+  })
+  const events = utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localInterface.events, remoteInterface.events),
+    remoteItems: remoteInterface.events,
+  })
   const entities = utils.records.setNullOnMissingValues(localInterface.entities, remoteInterface.entities)
 
-  const currentChannels: UpdateInterfaceBody['channels'] = localInterface.channels
+  const currentChannels: types.UpdateInterfaceRequestBody['channels'] = localInterface.channels
     ? utils.records.mapValues(localInterface.channels, (channel, channelName) => ({
         ...channel,
         messages: utils.records.setNullOnMissingValues(

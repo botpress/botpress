@@ -1,21 +1,28 @@
 import type { TriggerPayload } from 'src/triggers'
+import { retrieveHitlConversation } from './hitl-ticket-filter'
 import * as bp from '.botpress'
 
 export const executeTicketSolved = async ({
   zendeskTrigger,
   client,
+  ctx,
+  logger,
 }: {
   zendeskTrigger: TriggerPayload
   client: bp.Client
+  ctx: bp.Context
+  logger: bp.Logger
 }) => {
-  const { ticketId } = zendeskTrigger
-
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'hitl',
-    tags: {
-      id: ticketId,
-    },
+  const conversation = await retrieveHitlConversation({
+    zendeskTrigger,
+    client,
+    ctx,
+    logger,
   })
+
+  if (!conversation) {
+    return
+  }
 
   await client.createEvent({
     type: 'hitlStopped',

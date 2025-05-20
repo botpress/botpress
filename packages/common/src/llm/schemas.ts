@@ -66,6 +66,7 @@ export const ModelSchema = ModelRefSchema.extend({
       'roleplay',
       'storytelling',
       'reasoning',
+      'preview',
     ])
   ),
   input: z.object({
@@ -81,6 +82,10 @@ export const ModelSchema = ModelRefSchema.extend({
 export const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
   z.object({
     model: modelRefSchema.describe('Model to use for content generation').optional(),
+    reasoningEffort: z
+      .enum(['low', 'medium', 'high'])
+      .optional()
+      .describe('Reasoning effort level to use for models that support reasoning'),
     systemPrompt: z.string().optional().describe('Optional system prompt to guide the model'),
     messages: z.array(MessageSchema).describe('Array of messages for the model to process'),
     responseFormat: z

@@ -21,12 +21,21 @@
     "check": "pnpm check:sherif && pnpm check:dep && pnpm check:format && pnpm check:lint && pnpm check:type",
     "fix": "pnpm fix:sherif && pnpm fix:dep && pnpm fix:oxlint && pnpm fix:format && pnpm fix:lint"
   },
+  "lint-staged": {
+    "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}": [
+      "oxlint -c .oxlintrc.json --fix --fix-suggestions",
+      "prettier --write"
+    ],
+    "**/*.{json,yaml,yml,md}": "prettier --write",
+    "**/*.test.ts": "vitest --run"
+  },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.564.0",
+    "@botpress/api": "1.15.0",
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "@bpinternal/depsynky": "^0.1.0",
+    "@bpinternal/depsynky": "0.2.0",
     "@bpinternal/readiness": "^0.0.16",
     "@stylistic/eslint-plugin": "^2.12.1",
     "@types/node": "^18.19.67",
@@ -40,9 +49,12 @@
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-unused-imports": "^4.1.4",
     "globals": "^15.14.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
     "oxlint": "^0.15.5",
     "prettier": "^3.4.2",
     "retry-cli": "^0.7.0",
+    "semver": "^7.3.8",
     "sherif": "1.0.1",
     "ts-node": "^10.9.2",
     "turbo": "^2.3.3",

@@ -4,6 +4,7 @@ import * as uuid from 'uuid'
 import impl from '../../src/command-implementations'
 import { ApiBot, fetchAllBots } from '../api'
 import defaults from '../defaults'
+import * as retry from '../retry'
 import { Test } from '../typings'
 import * as utils from '../utils'
 
@@ -27,9 +28,16 @@ export const createDeployBot: Test = {
       ...creds,
     }
 
-    const client = new Client({ apiUrl: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
+    const client = new Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
 
-    await impl.init({ ...argv, workDir: baseDir, name: botName, type: 'bot' }).then(utils.handleExitCode)
+    await impl
+      .init({ ...argv, workDir: baseDir, name: botName, type: 'bot', template: 'empty' })
+      .then(utils.handleExitCode)
     await utils.fixBotpressDependencies({ workDir: botDir, target: dependencies })
     await utils.npmInstall({ workDir: botDir }).then(utils.handleExitCode)
     await impl.build({ ...argv, workDir: botDir }).then(utils.handleExitCode)

@@ -5,25 +5,8 @@ import * as bp from '.botpress'
 export type LLMInput = bp.interfaces.llm.actions.generateContent.input.Input
 export type LLMOutput = bp.interfaces.llm.actions.generateContent.output.Output
 
-export type LLMMessage = LLMInput['messages'][number]
-export type LLMChoice = LLMOutput['choices'][number]
-
-export type GenerateContentProps = {
-  client: bp.Client
-  input: LLMInput
-  integrationName: string
-}
-
-export const generateContent = async (props: GenerateContentProps): Promise<LLMOutput> => {
-  const { client, input, integrationName } = props
-  const response = await client.callAction({
-    type: `${integrationName}:generateContent`,
-    input,
-  })
-  return response.output
-}
-
-export type PredictResponse = {
+type LLMChoice = LLMOutput['choices'][number]
+type PredictResponse = {
   success: boolean
   json: object
 }

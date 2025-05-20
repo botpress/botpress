@@ -7,7 +7,7 @@ export const createMessage: types.AuthenticatedOperations['createMessage'] = asy
   const fidHandler = fid.handlers.createMessage(props, foreignReq)
   const req = await fidHandler.mapRequest()
 
-  const { conversationId, payload } = req.body
+  const { conversationId, payload, metadata } = req.body
   const { userId } = req.auth
 
   const { participant } = await props.apiUtils.findParticipant({ id: conversationId, userId: req.auth.userId })
@@ -20,7 +20,10 @@ export const createMessage: types.AuthenticatedOperations['createMessage'] = asy
     conversationId,
     tags: {},
     userId,
-    payload,
+    payload: {
+      ...payload,
+      metadata,
+    },
   })
 
   const res = await fidHandler.mapResponse({

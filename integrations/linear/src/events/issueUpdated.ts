@@ -1,11 +1,10 @@
 import { LinearIssueEvent } from '../misc/linear'
 import { getUserAndConversation } from '../misc/utils'
 import * as bp from '.botpress'
-import { Client } from '.botpress'
 
 type IssueProps = {
   linearEvent: LinearIssueEvent
-  client: Client
+  client: bp.Client
   ctx: bp.Context
 }
 

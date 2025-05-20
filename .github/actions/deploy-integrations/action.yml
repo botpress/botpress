@@ -19,6 +19,11 @@ input:
     description: 'Force re-deploying integrations'
     default: false
     required: false
+  dry_run:
+    type: boolean
+    description: 'Ask the backend to perform validation without actually deploying'
+    default: false
+    required: false
   sentry_auth_token:
     description: 'Sentry auth token'
     required: true
@@ -28,60 +33,6 @@ input:
   cloud_ops_workspace_id:
     description: 'Cloud Ops workspace id'
     required: true
-  googledrive_secrets:
-    description: 'Google Drive secrets'
-    required: false
-  gmail_secrets:
-    description: 'Gmail secrets'
-    required: false
-  gsheets_secrets:
-    description: 'Google Sheets secrets'
-    required: false
-  googlecalendar_secrets:
-    description: 'Google Calendar secrets'
-    required: false
-  linear_secrets:
-    description: 'Linear secrets'
-    required: false
-  slack_secrets:
-    description: 'Slack secrets'
-    required: false
-  whatsapp_secrets:
-    description: 'Whatsapp secrets'
-    required: false
-  charts_secrets:
-    description: 'Charts secrets'
-    required: false
-  pdf_secrets:
-    description: 'PDF secrets'
-    required: false
-  browser_secrets:
-    description: 'Browser secrets'
-    required: false
-  openai_secrets:
-    description: 'OpenAI secrets'
-    required: false
-  groq_secrets:
-    description: 'Groq secrets'
-    required: false
-  todoist_secrets:
-    description: 'Todoist secrets'
-    required: false
-  cerebras_secrets:
-    description: 'Cerebras secrets'
-    required: false
-  messenger_secrets:
-    description: 'Messenger secrets'
-    required: false
-  github_secrets:
-    description: 'Github secrets'
-    required: false
-  intercom_secrets:
-    description: 'Intercom secrets'
-    required: false
-  instagram_secrets:
-    description: 'Instagram secrets'
-    required: false
 
 runs:
   using: 'composite'
@@ -123,7 +74,8 @@ runs:
         # deploy
 
         redeploy=${{ inputs.force == 'true' && 1 || 0 }}
-        all_filters="-F '{integrations/*}' -F '!asana' ${{ inputs.extra_filter }}"
+        dryrun="${{ inputs.dry_run == 'true' && '--dryRun' || '' }}"
+        all_filters="-F '{integrations/*}' -F '!asana' -F '!charts' ${{ inputs.extra_filter }}"
         list_integrations_cmd="pnpm list $all_filters --json"
         integration_paths=$(eval $list_integrations_cmd | jq -r "map(".path") | .[]")
 
@@ -131,59 +83,14 @@ runs:
             integration=$(basename $integration_path)
             exists=$(./.github/scripts/integration-exists.sh $integration)
 
-            base_command="bp deploy -v -y --noBuild --public"
-            if [ $integration == "googledrive" ]; then
-                base_command="$base_command ${{ inputs.googledrive_secrets }}"
-            elif [ $integration == "gmail" ]; then
-                base_command="$base_command ${{ inputs.gmail_secrets }}"
-            elif [ $integration == "gsheets" ]; then
-                base_command="$base_command ${{ inputs.gsheets_secrets }}"
-            elif [ $integration == "googlecalendar" ]; then
-                base_command="$base_command ${{ inputs.googlecalendar_secrets }}"
-            elif [ $integration == "linear" ]; then
-                base_command="$base_command ${{ inputs.linear_secrets }}"
-            elif [ $integration == "slack" ]; then
-                base_command="$base_command ${{ inputs.slack_secrets }}"
-            elif [ $integration == "charts" ]; then
-                base_command="$base_command ${{ inputs.charts_secrets }}"
-            elif [ $integration == "whatsapp" ]; then
-                base_command="$base_command ${{ inputs.whatsapp_secrets }}"
-            elif [ $integration == "pdf-generator" ]; then
-                base_command="$base_command ${{ inputs.pdf_secrets }}"
-            elif [ $integration == "browser" ]; then
-                base_command="$base_command ${{ inputs.browser_secrets }}"
-            elif [ $integration == "openai" ]; then
-                base_command="$base_command ${{ inputs.openai_secrets }}"
-            elif [ $integration == "groq" ]; then
-                base_command="$base_command ${{ inputs.groq_secrets }}"
-            elif [ $integration == "anthropic" ]; then
-                base_command="$base_command ${{ inputs.anthropic_secrets }}"
-            elif [ $integration == "messenger" ]; then
-                base_command="$base_command ${{ inputs.messenger_secrets }}"
-            elif [ $integration == "fireworks-ai" ]; then
-                base_command="$base_command ${{ inputs.fireworks_ai_secrets }}"
-            elif [ $integration == "todoist" ]; then
-                base_command="$base_command ${{ inputs.todoist_secrets }}"
-            elif [ $integration == "cerebras" ]; then
-                base_command="$base_command ${{ inputs.cerebras_secrets }}"
-            elif [ $integration == "github" ]; then
-                base_command="$base_command ${{ inputs.github_secrets }}"
-            elif [ $integration == "google-ai" ]; then
-                base_command="$base_command ${{ inputs.google_ai_secrets }}"
-            elif [ $integration == "intercom" ]; then
-                base_command="$base_command ${{ inputs.intercom_secrets }} --allowDeprecated"
-            elif [ $integration == "line" ]; then
-                base_command="$base_command --allowDeprecated"
-            elif [ $integration == "instagram" ]; then
-                base_command="$base_command ${{ inputs.instagram_secrets }}"
-            fi
-
+            base_command="bp deploy -v -y --noBuild --public --allowDeprecated $dryrun"
+            
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying integration: ### $integration ###\n"
-                pnpm retry -n 2 -- pnpm -F "@botpresshub/$integration" -c exec -- "$base_command"
+                pnpm retry -n 2 -- pnpm -F "{integrations/$integration}" -c exec -- "$base_command"
             elif [ $redeploy -eq 1 ]; then
                 echo -e "\nRe-deploying integration: ### $integration ###\n"
-                pnpm retry -n 2 -- pnpm -F "@botpresshub/$integration" -c exec -- "$base_command"
+                pnpm retry -n 2 -- pnpm -F "{integrations/$integration}" -c exec -- "$base_command"
             else
                 echo -e "\nSkipping integration: ### $integration ###\n"
             fi

@@ -43,4 +43,4 @@ test('api allows sending and receiving custom events', async () => {
 
   expect(eventFetched).toEqual(eventSent)
   expect(eventReceived.payload).toEqual(eventSent.payload) // hello bot just passes the payload through
-}, 20_000)
+})

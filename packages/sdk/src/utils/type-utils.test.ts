@@ -1,5 +1,149 @@
-import { test } from 'vitest'
+import { test, describe } from 'vitest'
 import * as utils from './type-utils'
+
+describe('AtLeastOne<T>', () => {
+  test('should not allow less than one element', () => {
+    type A = utils.AtLeastOne<number>
+    type B = []
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertNotExtends<B, A>,
+      ]
+    >
+  })
+
+  test('should allow one element', () => {
+    type A = utils.AtLeastOne<number>
+    type B = [1]
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertExtends<B, A>,
+      ]
+    >
+  })
+
+  test('should allow 2+ elements', () => {
+    type A = utils.AtLeastOne<number>
+    type B = [1, 3, 4, 5, 6]
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertExtends<B, A>,
+      ]
+    >
+  })
+})
+
+describe('AtLeastOneProperty<T>', () => {
+  test('should not allow less than one property', () => {
+    type A = utils.AtLeastOneProperty<{ foo: number; bar: string }>
+    type B = {}
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertNotExtends<B, A>,
+      ]
+    >
+  })
+
+  test('should allow one property', () => {
+    type A = utils.AtLeastOneProperty<{ foo: number; bar: string }>
+    type B = { foo: 1 }
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertExtends<B, A>,
+      ]
+    >
+  })
+
+  test('should allow 2+ properties', () => {
+    type A = utils.AtLeastOneProperty<{ foo: number; bar: string }>
+    type B = { foo: 1; bar: 'bar' }
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertExtends<B, A>,
+      ]
+    >
+  })
+
+  test('should disallow properties that do not exist in T', () => {
+    type HasExactKeys<T, U> = [keyof T] extends [keyof U] ? ([keyof U] extends [keyof T] ? true : false) : false
+    type IsInvalidAtLeastOne<T, U> = T extends U ? (HasExactKeys<T, U> extends true ? false : true) : true
+
+    type A = utils.AtLeastOneProperty<{ foo: number; bar: string }>
+    type B = { foo: 1; baz: 'baz' }
+    type _assertion = utils.AssertAll<
+      [
+        //
+        IsInvalidAtLeastOne<B, A>,
+      ]
+    >
+  })
+
+  test('when T is undefined, should not allow any properties', () => {
+    type A = utils.AtLeastOneProperty<undefined>
+    type B = {}
+    type C = { foo: 1 }
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertExtends<B, A>,
+        utils.AssertExtends<A, B>,
+        utils.AssertNotExtends<A, C>,
+      ]
+    >
+  })
+})
+
+describe('ExactlyOneProperty<T>', () => {
+  test('should not allow less than one property', () => {
+    type A = utils.ExactlyOneProperty<{ foo: number; bar: string }>
+    type B = {}
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertNotExtends<B, A>,
+      ]
+    >
+  })
+
+  test('should allow one property', () => {
+    type A = utils.ExactlyOneProperty<{ foo: number; bar: string }>
+    type B = { foo: 1 }
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertExtends<B, A>,
+      ]
+    >
+  })
+
+  test('should not allow 2+ properties', () => {
+    type A = utils.ExactlyOneProperty<{ foo: number; bar: string }>
+    type B = { foo: 1; bar: 'bar' }
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertNotExtends<B, A>,
+      ]
+    >
+  })
+
+  test('should disallow properties that do not exist in T', () => {
+    type A = utils.ExactlyOneProperty<{ foo: number; bar: string }>
+    type B = { baz: 'baz' }
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertNotExtends<B, A>,
+      ]
+    >
+  })
+})
 
 test('SafeCast should not cast if T extends U', () => {
   type A = utils.SafeCast<'foo', string>
@@ -162,4 +306,35 @@ test('deep partial should make all properties optional', () => {
       utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
+})
+
+test('IsStricterFunction and function extension', () => {
+  type Foo = { foo: string }
+  type FooPrime = Foo & { metadata: object }
+
+  type Bar = { bar: number }
+  type BarPrime = Bar & { metadata: object }
+
+  type A = (a: Foo) => Bar
+  type B = (a: FooPrime) => Bar
+  type C = (a: Foo) => BarPrime
+
+  type _assertion = utils.AssertAll<
+    [
+      //
+      utils.IsExtend<A, B>,
+      utils.IsExtend<C, A>,
+      utils.Not<utils.IsExtend<B, A>>,
+      utils.IsStricterFunction<B, A>,
+    ]
+  >
+})
+
+test('Normalize Function should not change function type', () => {
+  type MyFunc = (a: string, b: number) => Promise<{ c: boolean }>
+
+  type Expected = MyFunc
+  type Actual = utils.Normalize<MyFunc>
+
+  type _assertion = utils.AssertTrue<utils.IsIdentical<Actual, Expected>>
 })

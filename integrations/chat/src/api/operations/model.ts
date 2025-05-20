@@ -24,12 +24,14 @@ export const mapUser = (user: types.User): ChatUser => {
 export type ChatMessage = types.OperationOutputs['createMessage']['body']['message']
 export const mapMessage = (message: types.Message): ChatMessage => {
   const { type } = message
+  const { metadata, ...payload } = message.payload
   return {
     id: message.id,
     createdAt: message.createdAt,
     conversationId: message.conversationId,
     userId: message.userId,
-    payload: { type, ...message.payload } as ChatMessage['payload'],
+    payload: { type, ...payload } as ChatMessage['payload'],
+    metadata,
   }
 }
 

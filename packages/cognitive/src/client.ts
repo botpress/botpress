@@ -3,20 +3,28 @@ import { createNanoEvents, Unsubscribe } from 'nanoevents'
 
 import { ExtendedClient, getExtendedClient } from './bp-client'
 import { getActionFromError } from './errors'
-import { type GenerateContentOutput } from './gen'
 import { InterceptorManager } from './interceptors'
 import {
+  DOWNTIME_THRESHOLD_MINUTES,
   getBestModels,
   getFastModels,
+  Model,
   ModelPreferences,
   ModelProvider,
   ModelRef,
   pickModel,
   RemoteModelProvider,
 } from './models'
+import { GenerateContentOutput } from './schemas.gen'
 import { CognitiveProps, Events, InputProps, Request, Response } from './types'
 
 export class Cognitive {
+  public ['$$IS_COGNITIVE'] = true
+
+  public static isCognitiveClient(obj: any): obj is Cognitive {
+    return obj?.$$IS_COGNITIVE === true
+  }
+
   public interceptors = {
     request: new InterceptorManager<Request>(),
     response: new InterceptorManager<Response>(),
@@ -27,16 +35,27 @@ export class Cognitive {
   private _provider: ModelProvider
   private _events = createNanoEvents<Events>()
   private _downtimes: ModelPreferences['downtimes'] = []
+  private _models: Model[] = []
 
   public constructor(props: CognitiveProps) {
     this._client = getExtendedClient(props.client)
     this._provider = props.provider ?? new RemoteModelProvider(props.client)
+  }
 
-    // debug('new cognitive client instance created')
+  public get client(): ExtendedClient {
+    return this._client
   }
 
   public on<K extends keyof Events>(this: this, event: K, cb: Events[K]): Unsubscribe {
     return this._events.on(event, cb)
+  }
+
+  public async fetchInstalledModels(): Promise<Model[]> {
+    if (!this._models.length) {
+      this._models = await this._provider.fetchInstalledModels()
+    }
+
+    return this._models
   }
 
   public async fetchPreferences(): Promise<ModelPreferences> {
@@ -50,7 +69,7 @@ export class Cognitive {
       return this._preferences
     }
 
-    const models = await this._provider.fetchInstalledModels()
+    const models = await this.fetchInstalledModels()
 
     this._preferences = {
       best: getBestModels(models).map((m) => m.ref),
@@ -65,9 +84,20 @@ export class Cognitive {
 
   public async setPreferences(preferences: ModelPreferences, save: boolean = false): Promise<void> {
     this._preferences = preferences
+
     if (save) {
       await this._provider.saveModelPreferences(preferences)
     }
+  }
+
+  private _cleanupOldDowntimes(): void {
+    const now = Date.now()
+    const thresholdMs = 1000 * 60 * DOWNTIME_THRESHOLD_MINUTES
+
+    this._preferences!.downtimes = this._preferences!.downtimes.filter((downtime) => {
+      const downtimeStart = new Date(downtime.startedAt).getTime()
+      return now - downtimeStart <= thresholdMs
+    })
   }
 
   private async _selectModel(ref: string): Promise<{ integration: string; model: string }> {
@@ -93,6 +123,18 @@ export class Cognitive {
     }
 
     return parseRef(pickModel([ref as ModelRef, ...preferences.best, ...preferences.fast], downtimes))
+  }
+
+  public async getModelDetails(model: string) {
+    await this.fetchInstalledModels()
+    const { integration, model: modelName } = await this._selectModel(model)
+    const def = this._models.find((m) => m.integration === integration && (m.name === modelName || m.id === modelName))
+    if (!def) {
+      console.info('Models:', this._models)
+      throw new Error(`Model ${modelName} not found`)
+    }
+
+    return def
   }
 
   public async generateContent(input: InputProps): Promise<Response> {
@@ -154,6 +196,8 @@ export class Cognitive {
               startedAt: new Date().toISOString(),
               reason: 'Model is down',
             })
+
+            this._cleanupOldDowntimes()
 
             await this._provider.saveModelPreferences({
               ...(this._preferences ?? { best: [], downtimes: [], fast: [] }),

@@ -14,6 +14,7 @@ type EntityReferences<TEntities extends BaseEntities> = {
 
 type GenericEventDefinition<TEntities extends BaseEntities, TEvent extends BaseEvents[string] = BaseEvents[string]> = {
   schema: GenericZuiSchema<EntityReferences<TEntities>, TEvent>
+  attributes?: Record<string, string>
 }
 
 type GenericChannelDefinition<
@@ -37,6 +38,7 @@ type GenericActionDefinition<
   cacheable?: boolean
   input: { schema: GenericZuiSchema<EntityReferences<TEntities>, TAction> }
   output: { schema: GenericZuiSchema<EntityReferences<TEntities>, ZuiObjectSchema> }
+  attributes?: Record<string, string>
 }
 
 export type InterfaceDefinitionProps<
@@ -49,6 +51,11 @@ export type InterfaceDefinitionProps<
 > = {
   name: TName
   version: TVersion
+
+  title?: string
+  description?: string
+  icon?: string
+  readme?: string
 
   entities?: {
     [K in keyof TEntities]: EntityDefinition<TEntities[K]>
@@ -63,8 +70,6 @@ export type InterfaceDefinitionProps<
   channels?: {
     [K in keyof TChannels]: GenericChannelDefinition<TEntities, TChannels[K]>
   }
-
-  templateName?: string
 }
 
 export class InterfaceDefinition<
@@ -78,20 +83,26 @@ export class InterfaceDefinition<
   public readonly name: this['props']['name']
   public readonly version: this['props']['version']
 
+  public readonly title: this['props']['title']
+  public readonly description: this['props']['description']
+  public readonly icon: this['props']['icon']
+  public readonly readme: this['props']['readme']
+
   public readonly entities: { [K in keyof TEntities]: EntityDefinition<TEntities[K]> }
   public readonly events: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
   public readonly actions: { [K in keyof TActions]: ActionDefinition<TActions[K]> }
   public readonly channels: { [K in keyof TChannels]: ChannelDefinition<TChannels[K]> }
-
-  public readonly templateName: this['props']['templateName']
 
   public constructor(
     public readonly props: InterfaceDefinitionProps<TName, TVersion, TEntities, TActions, TEvents, TChannels>
   ) {
     this.name = props.name
     this.version = props.version
+    this.icon = props.icon
+    this.title = props.title
+    this.description = props.description
+    this.readme = props.readme
     this.entities = props.entities ?? ({} as this['entities'])
-    this.templateName = props.templateName
 
     const entityReferences = this._getEntityReference(this.entities)
 

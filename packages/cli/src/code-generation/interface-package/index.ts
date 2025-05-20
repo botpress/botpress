@@ -1,12 +1,11 @@
-import * as utils from '../../utils'
 import * as consts from '../consts'
 import * as gen from '../generators'
 import * as types from '../typings'
 import { InterfacePackageDefinitionModule } from './interface-package-definition'
 
 const generateInterfacePackageModule = (definitionImport: string, pkg: types.InterfaceInstallablePackage): string => {
-  const id = pkg.source === 'remote' ? pkg.interface.id : undefined
-  const uri = pkg.source === 'local' ? utils.path.win32.escapeBackslashes(pkg.path) : undefined
+  const id = pkg.interface.id
+  const uri = pkg.path
 
   const tsId = gen.primitiveToTypescriptValue(id)
   const tsUri = gen.primitiveToTypescriptValue(uri)
@@ -16,7 +15,7 @@ const generateInterfacePackageModule = (definitionImport: string, pkg: types.Int
     consts.GENERATED_HEADER,
     'import * as sdk from "@botpress/sdk"',
     '',
-    `import definition from "${utils.path.win32.escapeBackslashes(definitionImport)}"`,
+    `import definition from "${definitionImport}"`,
     '',
     'export default {',
     '  type: "interface",',
@@ -29,9 +28,7 @@ const generateInterfacePackageModule = (definitionImport: string, pkg: types.Int
   ].join('\n')
 }
 
-const generateInterfacePackageFromRemote = async (
-  pkg: Extract<types.InterfaceInstallablePackage, { source: 'remote' }>
-): Promise<types.File[]> => {
+export const generateInterfacePackage = async (pkg: types.InterfaceInstallablePackage): Promise<types.File[]> => {
   const definitionDir = 'definition'
   const definitionModule = new InterfacePackageDefinitionModule(pkg.interface)
   definitionModule.unshift(definitionDir)
@@ -44,24 +41,4 @@ const generateInterfacePackageFromRemote = async (
       content: generateInterfacePackageModule(`./${definitionDir}`, pkg),
     },
   ]
-}
-
-const generateInterfacePackageFromLocal = async (
-  pkg: Extract<types.InterfaceInstallablePackage, { source: 'local' }>
-): Promise<types.File[]> => {
-  let definitionImport: string = utils.path.join(pkg.path, consts.fromWorkDir.interfaceDefinition)
-  definitionImport = utils.path.rmExtension(definitionImport)
-  return [
-    {
-      path: consts.INDEX_FILE,
-      content: generateInterfacePackageModule(definitionImport, pkg),
-    },
-  ]
-}
-
-export const generateInterfacePackage = async (pkg: types.InterfaceInstallablePackage): Promise<types.File[]> => {
-  if (pkg.source === 'remote') {
-    return generateInterfacePackageFromRemote(pkg)
-  }
-  return generateInterfacePackageFromLocal(pkg)
 }

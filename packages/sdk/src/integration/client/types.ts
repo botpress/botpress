@@ -1,28 +1,17 @@
 import * as client from '@botpress/client'
 import * as utils from '../../utils/type-utils'
-import * as common from '../types'
-
-type GetChannelByName<
-  TIntegration extends common.BaseIntegration,
-  TChannelName extends keyof TIntegration['channels'],
-> = utils.Cast<TIntegration['channels'][TChannelName], common.ChannelDefinition>
-
-/**
- * @deprecated Integration's should no longer use their name as prefix for event types or tags.
- */
-type WithRequiredPrefix<TTags extends string, TPrefix extends string> = string extends TTags
-  ? string
-  : utils.Join<[TPrefix, ':', TTags]>
-
-/**
- * @deprecated Integration's should no longer use their name as prefix for event types or tags.
- */
-type WithOptionalPrefix<TTags extends string, TPrefix extends string> = TTags | WithRequiredPrefix<TTags, TPrefix>
+import * as common from '../common'
+import {
+  EnumerateMessages,
+  ConversationTags,
+  GetChannelByName,
+  GetMessageByName,
+  MessageTags,
+  TagsOfMessage,
+} from './sub-types'
 
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
 type Res<F extends (...args: any[]) => any> = ReturnType<F>
-
-type AllChannels<TIntegration extends common.BaseIntegration> = utils.ValueOf<TIntegration['channels']>
 
 type ConversationResponse<
   TIntegration extends common.BaseIntegration,
@@ -62,16 +51,23 @@ export type ListConversations<TIntegration extends common.BaseIntegration> = <
 
 export type GetOrCreateConversation<TIntegration extends common.BaseIntegration> = <
   ChannelName extends keyof TIntegration['channels'],
->(x: {
-  channel: utils.Cast<ChannelName, string>
-  tags: common.ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags']>
-}) => Promise<ConversationResponse<TIntegration, ChannelName>>
+  TTags extends keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags'],
+>(
+  x: utils.Merge<
+    Arg<client.Client['getOrCreateConversation']>,
+    {
+      channel: utils.Cast<ChannelName, string>
+      tags: common.ToTags<TTags>
+      discriminateByTags?: NoInfer<utils.Cast<TTags[], string[]>>
+    }
+  >
+) => Promise<ConversationResponse<TIntegration, ChannelName>>
 
 export type UpdateConversation<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['updateConversation']>,
     {
-      tags?: common.ToTags<keyof AllChannels<TIntegration>['conversation']['tags']>
+      tags?: common.ToTags<ConversationTags<TIntegration>>
     }
   >
 ) => Promise<ConversationResponse<TIntegration>>
@@ -87,7 +83,7 @@ type EventResponse<TIntegration extends common.BaseIntegration, TEvent extends k
   event: utils.Merge<
     Awaited<Res<client.Client['getEvent']>>['event'],
     {
-      type: WithRequiredPrefix<utils.Cast<TEvent, string>, TIntegration['name']>
+      type: utils.Cast<TEvent, string>
       payload: TIntegration['events'][TEvent]
     }
   >
@@ -97,7 +93,7 @@ export type CreateEvent<TIntegration extends common.BaseIntegration> = <TEvent e
   x: utils.Merge<
     Arg<client.Client['createEvent']>,
     {
-      type: WithOptionalPrefix<utils.Cast<TEvent, string>, TIntegration['name']>
+      type: utils.Cast<TEvent, string>
       payload: TIntegration['events'][TEvent]
     }
   >
@@ -113,83 +109,72 @@ export type ListEvents<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['listEvents']>,
     {
-      type?: WithRequiredPrefix<utils.Cast<keyof TIntegration['events'], string>, TIntegration['name']>
+      type?: utils.Cast<keyof TIntegration['events'], string>
     }
   >
 ) => Res<client.Client['listEvents']>
 
 type MessageResponse<
   TIntegration extends common.BaseIntegration,
-  TChannel extends keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
+  TMessage extends keyof EnumerateMessages<TIntegration> = keyof EnumerateMessages<TIntegration>,
 > = {
   message: utils.Merge<
     Awaited<Res<client.Client['createMessage']>>['message'],
     {
       type: utils.Cast<TMessage, string>
-      payload: TIntegration['channels'][TChannel]['messages'][TMessage]
-      tags: common.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
+      payload: GetMessageByName<TIntegration, TMessage>['payload']
+      tags: common.ToTags<TagsOfMessage<TIntegration, TMessage>>
     }
   >
 }
 
 export type CreateMessage<TIntegration extends common.BaseIntegration> = <
-  TChannel extends keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
+  TMessage extends keyof EnumerateMessages<TIntegration>,
 >(
   x: utils.Merge<
     Arg<client.Client['createMessage']>,
     {
-      type: utils.Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
-      payload: TIntegration['channels'][TChannel]['messages'][TMessage]
-      tags: common.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
+      type: utils.Cast<TMessage, string>
+      payload: GetMessageByName<TIntegration, TMessage>['payload']
+      tags: common.ToTags<keyof GetMessageByName<TIntegration, TMessage>['tags']>
     }
   >
-) => Promise<MessageResponse<TIntegration, TChannel, TMessage>>
+) => Promise<MessageResponse<TIntegration, TMessage>>
 
 export type GetOrCreateMessage<TIntegration extends common.BaseIntegration> = <
-  TChannel extends keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
+  TMessage extends keyof EnumerateMessages<TIntegration>,
+  TTags extends keyof GetMessageByName<TIntegration, TMessage>['tags'],
 >(
   x: utils.Merge<
     Arg<client.Client['getOrCreateMessage']>,
     {
-      type: utils.Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
-      payload: TIntegration['channels'][TChannel]['messages'][TMessage]
-      tags: common.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
+      type: utils.Cast<TMessage, string>
+      payload: GetMessageByName<TIntegration, TMessage>['payload']
+      tags: common.ToTags<TTags>
+      // TODO: find a way to restrict discriminateByTags to tags present in x.tags
+      discriminateByTags?: NoInfer<utils.Cast<TTags[], string[]>>
     }
   >
-) => Promise<MessageResponse<TIntegration, TChannel, TMessage>>
+) => Promise<MessageResponse<TIntegration, TMessage>>
 
-export type GetMessage<TIntegration extends common.BaseIntegration> = (x: Arg<client.Client['getMessage']>) => Promise<
-  // TODO: should return a union of all possible message types like in `GetEvent`
-  MessageResponse<
-    TIntegration,
-    keyof TIntegration['channels'],
-    keyof utils.ValueOf<TIntegration['channels']>['messages']
-  >
->
+export type GetMessage<TIntegration extends common.BaseIntegration> = (
+  x: Arg<client.Client['getMessage']>
+) => Promise<MessageResponse<TIntegration>>
 
 export type UpdateMessage<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['updateMessage']>,
     {
-      tags: common.ToTags<keyof AllChannels<TIntegration>['message']['tags']>
+      tags: common.ToTags<MessageTags<TIntegration>>
     }
   >
-) => Promise<
-  MessageResponse<
-    TIntegration,
-    keyof TIntegration['channels'],
-    keyof utils.ValueOf<TIntegration['channels']>['messages']
-  >
->
+) => Promise<MessageResponse<TIntegration>>
 
 export type ListMessages<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['listMessages']>,
     {
-      tags?: common.ToTags<keyof AllChannels<TIntegration>['message']['tags']>
+      tags?: common.ToTags<MessageTags<TIntegration>>
     }
   >
 ) => Res<client.Client['listMessages']> // TODO: response should contain the tags
@@ -227,11 +212,14 @@ export type ListUsers<TIntegration extends common.BaseIntegration> = (
   >
 ) => Res<client.Client['listUsers']>
 
-export type GetOrCreateUser<TIntegration extends common.BaseIntegration> = (
+export type GetOrCreateUser<TIntegration extends common.BaseIntegration> = <
+  TTags extends keyof TIntegration['user']['tags'],
+>(
   x: utils.Merge<
     Arg<client.Client['getOrCreateUser']>,
     {
-      tags: common.ToTags<keyof TIntegration['user']['tags']>
+      tags: common.ToTags<TTags>
+      discriminateByTags?: NoInfer<utils.Cast<TTags[], string[]>>
     }
   >
 ) => Promise<UserResponse<TIntegration>>
@@ -251,7 +239,9 @@ type StateResponse<TIntegration extends common.BaseIntegration, TState extends k
   state: utils.Merge<
     Awaited<Res<client.Client['getState']>>['state'],
     {
-      payload: TIntegration['states'][TState]
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TIntegration['states'][TState]['type'], string>
+      payload: TIntegration['states'][TState]['payload']
     }
   >
   meta: {
@@ -263,7 +253,8 @@ export type GetState<TIntegration extends common.BaseIntegration> = <TState exte
   x: utils.Merge<
     Arg<client.Client['getState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
+      type: utils.Cast<TIntegration['states'][TState]['type'], string>
+      name: utils.Cast<TState, string>
     }
   >
 ) => Promise<StateResponse<TIntegration, TState>>
@@ -272,8 +263,9 @@ export type SetState<TIntegration extends common.BaseIntegration> = <TState exte
   x: utils.Merge<
     Arg<client.Client['setState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
-      payload: TIntegration['states'][TState] | null
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TIntegration['states'][TState]['type'], string>
+      payload: TIntegration['states'][TState]['payload'] | null
     }
   >
 ) => Promise<StateResponse<TIntegration, TState>>
@@ -282,8 +274,9 @@ export type GetOrSetState<TIntegration extends common.BaseIntegration> = <TState
   x: utils.Merge<
     Arg<client.Client['getOrSetState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
-      payload: TIntegration['states'][TState]
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TIntegration['states'][TState]['type'], string>
+      payload: TIntegration['states'][TState]['payload']
     }
   >
 ) => Promise<StateResponse<TIntegration, TState>>
@@ -292,8 +285,9 @@ export type PatchState<TIntegration extends common.BaseIntegration> = <TState ex
   x: utils.Merge<
     Arg<client.Client['patchState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
-      payload: Partial<TIntegration['states'][TState]>
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TIntegration['states'][TState]['type'], string>
+      payload: Partial<TIntegration['states'][TState]['payload']>
     }
   >
 ) => Promise<StateResponse<TIntegration, TState>>

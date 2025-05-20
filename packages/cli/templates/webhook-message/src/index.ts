@@ -2,12 +2,6 @@ import * as sdk from '@botpress/sdk'
 import axios from 'axios'
 import * as bp from '.botpress'
 
-const reqBodySchema = sdk.z.object({
-  userId: sdk.z.string(),
-  conversationId: sdk.z.string(),
-  text: sdk.z.string(),
-})
-
 export default new bp.Integration({
   register: async () => {
     /**
@@ -35,14 +29,17 @@ export default new bp.Integration({
             ctx: {
               configuration: { webhookUrl },
             },
-            conversation: { id: conversationId },
-            user: { id: userId },
+            conversation: {
+              id: botpressConversationId,
+              tags: { id: externalConversationId },
+            },
             payload: { text },
           } = props
 
+          props.logger.forBot().debug(`[${botpressConversationId}] sending message "${text}"`)
+
           const requestBody = {
-            userId,
-            conversationId,
+            conversationId: externalConversationId,
             text,
           }
 
@@ -77,7 +74,14 @@ export default new bp.Integration({
       }
     }
 
-    const parseResult = reqBodySchema.safeParse(parsedBody)
+    const parseResult = sdk.z
+      .object({
+        userId: sdk.z.string(),
+        conversationId: sdk.z.string(),
+        text: sdk.z.string(),
+      })
+      .safeParse(parsedBody)
+
     if (!parseResult.success) {
       return {
         status: 400,

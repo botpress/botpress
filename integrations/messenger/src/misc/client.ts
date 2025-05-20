@@ -1,6 +1,5 @@
 import { z } from '@botpress/sdk'
 import axios from 'axios'
-import { getGlobalWebhookUrl } from '../index'
 import * as bp from '.botpress'
 
 export class MetaClient {
@@ -14,11 +13,11 @@ export class MetaClient {
     this._clientSecret = bp.secrets.CLIENT_SECRET
   }
 
-  public async getAccessToken(code: string) {
+  public async getAccessToken(code: string, redirectUri: string) {
     const query = new URLSearchParams({
       client_id: this._clientId,
       client_secret: this._clientSecret,
-      redirect_uri: getGlobalWebhookUrl(),
+      redirect_uri: redirectUri,
       code,
     })
 
@@ -144,7 +143,7 @@ export async function getCredentials(
   client: bp.Client,
   ctx: bp.Context
 ): Promise<{ accessToken: string; clientSecret: string; clientId: string }> {
-  if (ctx.configuration.useManualConfiguration) {
+  if (ctx.configurationType === 'manualApp') {
     return {
       accessToken: ctx.configuration.accessToken || '',
       clientSecret: ctx.configuration.clientSecret || '',

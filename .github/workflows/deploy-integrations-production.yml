@@ -15,14 +15,11 @@ permissions:
 
 jobs:
   deploy-production:
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-22.04-8
     steps:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
-        with:
-          turbo_team: ${{ secrets.TURBO_TEAM }}
-          turbo_token: ${{ secrets.TURBO_TOKEN }}
       - name: Deploy Interfaces
         uses: ./.github/actions/deploy-interfaces
         with:
@@ -34,29 +31,16 @@ jobs:
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'production'
-          extra_filter: "-F '!intercom' -F '!instagram'"
+          extra_filter: "-F '!intercom' -F '!notion' -F '!whatsapp'"
           force: ${{ github.event.inputs.force == 'true' }}
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
-          googledrive_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GDRIVE_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GDRIVE_CLIENT_SECRET }} --secrets WEBHOOK_SECRET=${{ secrets.PRODUCTION_GDRIVE_WEBHOOK_SECRET }}'
-          gmail_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GMAIL_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GMAIL_CLIENT_SECRET }} --secrets TOPIC_NAME=${{ secrets.PRODUCTION_GMAIL_TOPIC_NAME }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.PRODUCTION_GMAIL_WEBHOOK_SHARED_SECRET }} --secrets WEBHOOK_SERVICE_ACCOUNT=${{ secrets.PRODUCTION_GMAIL_WEBHOOK_SERVICE_ACCOUNT }}'
-          gsheets_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GSHEETS_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GSHEETS_CLIENT_SECRET }}'
-          googlecalendar_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GOOGLECALENDAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GOOGLECALENDAR_CLIENT_SECRET }}'
-          linear_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_LINEAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_LINEAR_CLIENT_SECRET }} --secrets WEBHOOK_SIGNING_SECRET=${{ secrets.PRODUCTION_LINEAR_WEBHOOK_SIGNING_SECRET }}'
-          slack_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_SLACK_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_SLACK_CLIENT_SECRET }} --secrets SIGNING_SECRET=${{ secrets.PRODUCTION_SLACK_SIGNING_SECRET }}'
-          charts_secrets: '--secrets QUICKCHARTS_API_KEY=${{ secrets.QUICKCHARTS_API_KEY }}'
-          pdf_secrets: '--secrets PDFSHIFT_API_KEY=${{ secrets.PDFSHIFT_API_KEY }}'
-          browser_secrets: '--secrets FIRECRAWL_API_KEY=${{ secrets.FIRECRAWL_API_KEY }} --secrets SCREENSHOT_API_KEY=${{ secrets.SCREENSHOT_API_KEY }}'
-          openai_secrets: '--secrets OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}'
-          groq_secrets: '--secrets GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}'
-          whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.PRODUCTION_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.PRODUCTION_WHATSAPP_NUMBER_PIN }} --secrets SEGMENT_KEY=${{ secrets.PRODUCTION_WHATSAPP_SEGMENT_KEY }}'
-          anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
-          fireworks_ai_secrets: '--secrets FIREWORKS_AI_API_KEY=${{ secrets.FIREWORKS_AI_API_KEY }}'
-          todoist_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_TODOIST_CLIENT_SECRET }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.PRODUCTION_TODOIST_WEBHOOK_SHARED_SECRET }}'
-          cerebras_secrets: '--secrets CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}'
-          messenger_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_MESSENGER_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_MESSENGER_CLIENT_SECRET  }} --secrets ACCESS_TOKEN=${{ secrets.PRODUCTION_MESSENGER_ACCESS_TOKEN  }}'
-          github_secrets: "--secrets GITHUB_APP_ID=${{ secrets.PRODUCTION_GITHUB_APP_ID }} --secrets 'GITHUB_PRIVATE_KEY=${{ secrets.PRODUCTION_GITHUB_PRIVATE_KEY }}' --secrets GITHUB_WEBHOOK_SECRET=${{ secrets.PRODUCTION_GITHUB_WEBHOOK_SECRET }}"
-          google_ai_secrets: '--secrets GOOGLE_AI_API_KEY=${{ secrets.GOOGLE_AI_API_KEY }}'
-          intercom_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_INTERCOM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_INTERCOM_CLIENT_SECRET }}'
-          instagram_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_INSTAGRAM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_INSTAGRAM_CLIENT_SECRET }}'
+      - name: Deploy Plugins
+        uses: ./.github/actions/deploy-plugins
+        with:
+          environment: 'production'
+          extra_filter: "-F '!analytics' -F '!logger' -F '!personality' -F '!synchronizer' -F '!knowledge'"
+          force: ${{ github.event.inputs.force == 'true' }}
+          token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
+          cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
