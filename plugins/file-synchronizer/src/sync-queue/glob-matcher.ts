@@ -2,13 +2,13 @@ import * as picomatch from 'picomatch'
 import type * as models from '../../definitions/models'
 import * as bp from '.botpress'
 
-type GlobMatcherProps = {
+export type GlobMatcherProps = {
   configuration: Pick<bp.configuration.Configuration, 'includeFiles' | 'excludeFiles'>
   item: models.FolderItem
   itemPath: string
 }
 
-type GlobMatchResult =
+export type GlobMatchResult =
   | {
       shouldBeIgnored: false
       shouldApplyOptions: Exclude<
