@@ -20,6 +20,8 @@ export const handleEvent: bp.WorkflowHandlers['buildQueue'] = async (props) => {
   if (enumerationState !== undefined) {
     // Enumeration is still in progress
     props.logger.debug('Enumeration partially completed')
+    const timeIn5Minutes = new Date(Date.now() + 300_000).toISOString()
+    await props.workflow.update({ timeoutAt: timeIn5Minutes })
     return
   }
 
