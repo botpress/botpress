@@ -2260,8 +2260,8 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.19
-        version: 0.1.19
+        specifier: 0.1.20
+        version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
         version: 1.0.2
@@ -4160,14 +4160,6 @@ packages:
       - openapi-types
       - supports-color
     dev: true
-
-  /@botpress/cognitive@0.1.19:
-    resolution: {integrity: sha512-AAE4xjpeOIYanC9cUdJYTPP5nrJlAZAqe6y0Mhi98P/WCi/Tsru1wfJzGjScyNA5bEVS2gwAVsUc3PpyuI+CCQ==}
-    engines: {node: '>=18.0.0'}
-    dependencies:
-      exponential-backoff: 3.1.1
-      nanoevents: 9.1.0
-    dev: false
 
   /@bpinternal/const@0.1.0:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
