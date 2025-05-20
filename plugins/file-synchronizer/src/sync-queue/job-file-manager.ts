@@ -8,6 +8,7 @@ const QUEUE_ITEM = models.FILE_WITH_PATH.extend({
   status: sdk.z.enum(['pending', 'newly-synced', 'already-synced', 'errored']),
   errorMessage: sdk.z.string().optional(),
   shouldIndex: sdk.z.boolean(),
+  addToKbId: sdk.z.string().optional(),
 })
 
 export const getSyncQueue = async (

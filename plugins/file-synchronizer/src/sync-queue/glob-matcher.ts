@@ -1,6 +1,5 @@
 import * as picomatch from 'picomatch'
 import type * as models from '../../definitions/models'
-import { MAX_FILE_SIZE_BYTES } from '../consts'
 import * as bp from '.botpress'
 
 type GlobMatcherProps = {
@@ -24,6 +23,10 @@ type GlobMatchResult =
 
 export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): GlobMatchResult => {
   for (const { pathGlobPattern } of configuration.excludeFiles) {
+    if (!pathGlobPattern) {
+      continue
+    }
+
     if (picomatch.isMatch(itemPath, pathGlobPattern)) {
       return {
         shouldBeIgnored: true,
@@ -35,7 +38,7 @@ export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): 
   let matchesButHasUnmetRequirements = false
 
   for (const { pathGlobPattern, applyOptionsToMatchedFiles, ...requirements } of configuration.includeFiles) {
-    if (!picomatch.isMatch(itemPath, pathGlobPattern)) {
+    if (!pathGlobPattern || !picomatch.isMatch(itemPath, pathGlobPattern)) {
       continue
     }
 
@@ -75,12 +78,11 @@ const _isFileWithUnmetRequirements = (
     item.sizeInBytes !== undefined &&
     item.sizeInBytes > maxSizeInBytes
 
-  const exceedsBotpressDefinedMaxSize = item.sizeInBytes !== undefined && item.sizeInBytes > MAX_FILE_SIZE_BYTES
-
   const isItemOlderThanGivenDate =
     modifiedAfter !== undefined &&
+    modifiedAfter.length > 0 &&
     item.lastModifiedDate !== undefined &&
     new Date(item.lastModifiedDate) < new Date(modifiedAfter)
 
-  return exceedsUserDefinedMaxSize || exceedsBotpressDefinedMaxSize || isItemOlderThanGivenDate
+  return exceedsUserDefinedMaxSize || isItemOlderThanGivenDate
 }

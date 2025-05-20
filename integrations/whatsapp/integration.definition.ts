@@ -159,6 +159,14 @@ export default new IntegrationDefinition({
             title: 'Message ID',
             description: 'The WhatsApp message ID',
           },
+          reaction: {
+            title: 'Reaction',
+            description: 'A reaction added to the message',
+          },
+          replyTo: {
+            title: 'Reply To',
+            description: 'The ID of the message that this message is a reply to',
+          },
         },
       },
       conversation: {
@@ -197,7 +205,28 @@ export default new IntegrationDefinition({
       },
     },
   },
-  events: {},
+  events: {
+    reactionAdded: {
+      title: 'Reaction Added',
+      description: 'Triggered when a user adds a reaction to a message',
+      schema: z.object({
+        reaction: z.string().title('Reaction').describe('The reaction that was added'),
+        messageId: z.string().title('Message ID').describe('ID of the message that was reacted to'),
+        userId: z.string().optional().title('User ID').describe('ID of the user who added the reaction'),
+        conversationId: z.string().optional().title('Conversation ID').describe('ID of the conversation'),
+      }),
+    },
+    reactionRemoved: {
+      title: 'Reaction Removed',
+      description: 'Triggered when a user removes a reaction from a message',
+      schema: z.object({
+        reaction: z.string().title('Reaction').describe('The reaction that was removed'),
+        messageId: z.string().title('Message ID').describe('ID of the message that was reacted to'),
+        userId: z.string().optional().title('User ID').describe('ID of the user who removed the reaction'),
+        conversationId: z.string().optional().title('Conversation ID').describe('ID of the conversation'),
+      }),
+    },
+  },
   states: {
     credentials: {
       type: 'integration',
