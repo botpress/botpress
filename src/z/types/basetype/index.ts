@@ -52,15 +52,30 @@ import type { ObjectToZuiOptions } from '../../../transforms/object-to-zui'
 import { TypescriptGenerationOptions, toTypescript } from '../../../transforms/zui-to-typescript-type'
 import { toTypescriptSchema } from '../../../transforms/zui-to-typescript-schema'
 
+/**
+ * This type is not part of the original Zod library, it's been added in Zui to:
+ * - Brand the type as a ZuiType and avoid conflicts with 'zod' types
+ * - Simplify the type checks and inference for `infer`, `input`, and `output`
+ *
+ * The original `infer` type inference on ZodType takes a lot of compute because the TS compiler has to check all the methods and properties of the class.
+ * The fact that we add __type__ here allows the TS compiler to shortcircuit the type inference when it's not present and prevents infinite circular inferences
+ */
+type __ZodType<Output = any, Input = Output> = {
+  readonly __type__: 'ZuiType'
+  readonly _output: Output
+  readonly _input: Input
+}
+
 export type RefinementCtx = {
   addIssue: (arg: IssueData) => void
   path: (string | number)[]
 }
 export type ZodRawShape = { [k: string]: ZodTypeAny }
 export type ZodTypeAny = ZodType<any, any, any>
-export type TypeOf<T extends ZodType<any, any, any>> = T['_output']
-export type input<T extends ZodType<any, any, any>> = T['_input']
-export type output<T extends ZodType<any, any, any>> = T['_output']
+export type TypeOf<T extends __ZodType> = T['_output']
+export type OfType<O, T extends __ZodType> = T extends __ZodType<O> ? T : never
+export type input<T extends __ZodType> = T['_input']
+export type output<T extends __ZodType> = T['_output']
 export type { TypeOf as infer }
 export type Maskable<T = any> = boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean)
 export type CustomErrorParams = Partial<util.Omit<ZodCustomIssue, 'code'>>
@@ -145,7 +160,10 @@ export type SafeParseError<Input> = {
 
 export type SafeParseReturnType<Input, Output> = SafeParseSuccess<Output> | SafeParseError<Input>
 
-export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output> {
+export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output>
+  implements __ZodType<Output, Input>
+{
+  readonly __type__ = 'ZuiType'
   readonly _type!: Output
   readonly _output!: Output
   readonly _input!: Input
