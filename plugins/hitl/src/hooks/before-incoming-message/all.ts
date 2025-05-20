@@ -5,6 +5,7 @@ import {
   DEFAULT_USER_HITL_CLOSE_COMMAND,
   DEFAULT_USER_HITL_COMMAND_MESSAGE,
 } from 'plugin.definition'
+import { tryLinkWebchatUser } from 'src/webchat'
 import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
 import type * as types from '../../types'
@@ -62,7 +63,9 @@ const _handleDownstreamMessage = async (
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
 
   props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
-  await upstreamCm.respond({ ...messagePayload, userId: props.data.userId })
+
+  const upstreamUserId = await tryLinkWebchatUser(props, upstreamConversationId)
+  await upstreamCm.respond({ ...messagePayload, userId: upstreamUserId })
   return consts.STOP_EVENT_HANDLING
 }
 
