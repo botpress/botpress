@@ -11,7 +11,7 @@ const Example = z.object({
   reason: z.string().optional(),
 })
 
-export type Options = z.input<typeof Options>
+export type Options = (typeof Options)['_input']
 const Options = z.object({
   examples: z.array(Example).describe('Examples to check the condition against').default([]),
 })

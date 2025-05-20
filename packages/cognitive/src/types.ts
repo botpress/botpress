@@ -3,7 +3,6 @@ import { type GenerateContentInput, type GenerateContentOutput } from './schemas
 
 export type BotpressClientLike = {
   callAction(...params: any): Promise<any>
-  config: any
   constructor: Function
 }
 

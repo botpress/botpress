@@ -10,7 +10,7 @@ import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 import { JsonParsingError } from './errors'
 
-export type Options = z.input<typeof Options>
+export type Options = (typeof Options)['_input']
 const Options = z.object({
   instructions: z.string().optional().describe('Instructions to guide the user on how to extract the data'),
   chunkLength: z
@@ -22,10 +22,14 @@ const Options = z.object({
     .default(16_000),
 })
 
+type __Z<T extends any = any> = { _output: T }
+type OfType<O, T extends __Z = __Z<O>> = T extends __Z<O> ? T : never
+type AnyObjectOrArray = Record<string, unknown> | Array<unknown>
+
 declare module '@botpress/zai' {
   interface Zai {
     /** Extracts one or many elements from an arbitrary input */
-    extract<S extends z.AnyZodObject | z.ZodArray>(input: unknown, schema: S, options?: Options): Promise<z.TypeOf<S>>
+    extract<S extends OfType<AnyObjectOrArray>>(input: unknown, schema: S, options?: Options): Promise<S['_output']>
   }
 }
 
@@ -33,7 +37,13 @@ const START = '■json_start■'
 const END = '■json_end■'
 const NO_MORE = '■NO_MORE_ELEMENT■'
 
-Zai.prototype.extract = async function (this: Zai, input, schema, _options) {
+Zai.prototype.extract = async function <S extends OfType<AnyObjectOrArray>>(
+  this: Zai,
+  input: unknown,
+  _schema: S,
+  _options?: Options
+): Promise<S['_output']> {
+  let schema = _schema as any as z.ZodType
   const options = Options.parse(_options ?? {})
   const tokenizer = await this.getTokenizer()
   await this.fetchModelDetails()
@@ -83,9 +93,9 @@ Zai.prototype.extract = async function (this: Zai, input, schema, _options) {
     if (isArrayOfObjects) {
       const tokens = tokenizer.split(inputAsString)
       const chunks = chunk(tokens, options.chunkLength).map((x) => x.join(''))
-      const all = await Promise.all(chunks.map((chunk) => this.extract(chunk, originalSchema as z.AnyZodObject)))
+      const all = await Promise.all(chunks.map((chunk) => this.extract(chunk, originalSchema)))
 
-      return all.flat()
+      return all.flat() as any as S['_output']
     } else {
       // Truncate the input to fit the model's input size
       inputAsString = tokenizer.truncate(stringify(input), options.chunkLength)
@@ -137,7 +147,7 @@ Zai.prototype.extract = async function (this: Zai, input, schema, _options) {
 
   const exactMatch = examples.find((x) => x.key === Key)
   if (exactMatch) {
-    return exactMatch.output
+    return exactMatch.output as any as S['_output']
   }
 
   const defaultExample = isArrayOfObjects

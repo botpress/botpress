@@ -33,7 +33,7 @@ export const takeUntilTokens = <T>(arr: T[], tokens: number, count: (el: T) => n
   return result
 }
 
-export type GenerationMetadata = z.input<typeof GenerationMetadata>
+export type GenerationMetadata = (typeof GenerationMetadata)['_input']
 export const GenerationMetadata = z.object({
   model: z.string(),
   cost: z
