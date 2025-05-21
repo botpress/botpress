@@ -58,6 +58,8 @@ class CachedClient extends Client {
       return cached.value
     }
 
+    console.log('Cache miss', key, args, cache.size, cache.keys().toArray())
+
     const response = await this._client.callAction(...args)
     cache.set(key, { key, value: response })
 
