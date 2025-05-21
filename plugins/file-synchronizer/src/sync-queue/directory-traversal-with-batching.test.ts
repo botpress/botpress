@@ -257,7 +257,7 @@ describe.sequential('enumerateAllFilesRecursive duration handling', () => {
     vi.useRealTimers()
   })
 
-  it('should respect maximum execution time and return state', async () => {
+  it('should not proceed to the next batch in case of a timeout', async () => {
     // Arrange
     const mocks = _getMocks()
     const maximumExecutionTimeMs = 5_000 // 5 seconds
@@ -268,7 +268,7 @@ describe.sequential('enumerateAllFilesRecursive duration handling', () => {
         { id: 'file2', type: 'file', name: 'file2.txt' },
         { id: 'file3', type: 'file', name: 'file3.txt' },
       ],
-      meta: { nextToken: undefined },
+      meta: { nextToken: 'abcd' },
     })
 
     const resultPromise = enumerateAllFilesRecursive({
@@ -276,23 +276,51 @@ describe.sequential('enumerateAllFilesRecursive duration handling', () => {
       maximumExecutionTimeMs,
     })
 
-    // Advance time after the first file is processed:
+    // Advance time after the first batch is processed:
     vi.advanceTimersByTime(maximumExecutionTimeMs + 100)
 
-    const enumerationState = await resultPromise
+    void (await resultPromise)
 
     // Assert
     expect(mocks.integration.listItemsInFolder).toHaveBeenCalledTimes(1)
+  })
+
+  it('should process the entire current batch in case of a timeout', async () => {
+    // Arrange
+    const mocks = _getMocks()
+    const maximumExecutionTimeMs = 5_000 // 5 seconds
+
+    mocks.integration.listItemsInFolder.mockResolvedValueOnce({
+      items: [
+        { id: 'file1', type: 'file', name: 'file1.txt' },
+        { id: 'file2', type: 'file', name: 'file2.txt' },
+        { id: 'file3', type: 'file', name: 'file3.txt' },
+      ],
+      meta: { nextToken: 'abcd' },
+    })
+
+    const resultPromise = enumerateAllFilesRecursive({
+      ...mocks,
+      maximumExecutionTimeMs,
+    })
+
+    // Advance time after the first batch is processed:
+    vi.advanceTimersByTime(maximumExecutionTimeMs + 100)
+
+    void (await resultPromise)
+
+    // Assert
     expect(mocks.pushFilesToQueue).toHaveBeenCalledTimes(1)
     expect(mocks.pushFilesToQueue).toHaveBeenNthCalledWith(1, [
       expect.objectContaining({
         id: 'file1',
       }),
-    ]) // Only the first file should be processed
-    expect(enumerationState).toBeDefined()
-    expect(enumerationState).toStrictEqual({
-      pendingFolders: [{ absolutePath: '/' }],
-      currentFolderNextToken: undefined,
-    })
+      expect.objectContaining({
+        id: 'file2',
+      }),
+      expect.objectContaining({
+        id: 'file3',
+      }),
+    ])
   })
 })

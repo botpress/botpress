@@ -5,13 +5,7 @@ import * as bp from '.botpress'
 
 type FileWithOptions = models.FileWithPath & { shouldIndex: boolean; addToKbId?: string }
 
-export type EnumerationState = {
-  pendingFolders: {
-    folderId?: string
-    absolutePath: string
-  }[]
-  currentFolderNextToken?: string
-}
+export type EnumerationState = NonNullable<bp.workflows.buildQueue.output.Output['enumerationState']>
 
 type IntegrationActionProxy = Pick<
   bp.WorkflowHandlerProps['processQueue']['actions']['files-readonly'],
@@ -66,12 +60,6 @@ export const enumerateAllFilesRecursive = async ({
         _addFolderToEnumerationQueue(enumerationState, folderItem.id, itemPath)
       } else {
         _addFileToIncludedFiles(includedFiles, folderItem, itemPath, globMatchResult, logger)
-      }
-
-      if (_shouldPushBatchAndYieldCurrentState(startTime, includedFiles, maximumExecutionTimeMs)) {
-        enumerationState.currentFolderNextToken = nextToken
-        await pushFilesToSyncQueue(includedFiles)
-        return enumerationState
       }
     }
 
