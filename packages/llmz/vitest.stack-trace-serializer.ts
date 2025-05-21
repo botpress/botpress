@@ -29,7 +29,7 @@ const serializer = {
     }
 
     return false
-  }
+  },
 } satisfies SnapshotSerializer
 
 export default serializer as unknown

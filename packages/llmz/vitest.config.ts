@@ -10,10 +10,10 @@ function textLoader() {
         const content = fs.readFileSync(id, 'utf-8')
         return {
           code: `export default ${JSON.stringify(content)};`,
-          map: null
+          map: null,
         }
       }
-    }
+    },
   }
 }
 
@@ -25,17 +25,17 @@ function mdLoader() {
         const content = fs.readFileSync(id, 'utf-8')
         return {
           code: `export default ${JSON.stringify(content)};`,
-          map: null
+          map: null,
         }
       }
-    }
+    },
   }
 }
 
 export default defineConfig({
   plugins: [textLoader(), mdLoader()],
   resolve: {
-    extensions: ['.js', '.ts', '.json', '.txt', '.md']
+    extensions: ['.js', '.ts', '.json', '.txt', '.md'],
   },
   assetsInclude: '**/*.md',
   test: {
@@ -48,6 +48,6 @@ export default defineConfig({
     isolate: false,
     allowOnly: true,
     pool: 'forks',
-    setupFiles: './vitest.setup.ts'
-  }
+    setupFiles: './vitest.setup.ts',
+  },
 })

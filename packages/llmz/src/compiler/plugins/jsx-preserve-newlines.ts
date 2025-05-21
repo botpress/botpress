@@ -6,7 +6,7 @@ import {
   type JSXText,
   isJSXIdentifier,
   jsxIdentifier,
-  jsxText
+  jsxText,
 } from '@babel/types'
 
 const preserveJSXNewLines: PluginObj = {
@@ -38,8 +38,8 @@ const preserveJSXNewLines: PluginObj = {
       if (isJSXIdentifier(path.node.name)) {
         path.node.name = jsxIdentifier(path.node.name.name.toLowerCase())
       }
-    }
-  }
+    },
+  },
 }
 
 const postProcessing = (code: string) => {
@@ -49,5 +49,5 @@ const postProcessing = (code: string) => {
 
 export const JSXNewLines = {
   babelPlugin: preserveJSXNewLines,
-  postProcessing
+  postProcessing,
 }

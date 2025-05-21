@@ -11,7 +11,7 @@ import {
   init,
   isValidSchema,
   stripInvalidIdentifiers,
-  toValidObjectName
+  toValidObjectName,
 } from './utils.js'
 
 describe('Tokens', () => {
@@ -141,9 +141,9 @@ describe('awaitObject', () => {
       b: {
         c: Promise.resolve('c'),
         d: {
-          e: Promise.resolve('e')
-        }
-      }
+          e: Promise.resolve('e'),
+        },
+      },
     }
     const result = await awaitObject(obj)
 
