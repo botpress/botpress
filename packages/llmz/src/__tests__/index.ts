@@ -4,6 +4,28 @@ import { Cognitive } from '@botpress/cognitive'
 import fs from 'node:fs'
 import path from 'node:path'
 
+function stringifyWithSortedKeys(obj: any, space?: number): string {
+  function sortKeys(input: any): any {
+    if (Array.isArray(input)) {
+      return input.map(sortKeys)
+    } else if (input && typeof input === 'object' && input.constructor === Object) {
+      return Object.keys(input)
+        .sort()
+        .reduce(
+          (acc, key) => {
+            acc[key] = sortKeys(input[key])
+            return acc
+          },
+          {} as Record<string, any>
+        )
+    } else {
+      return input
+    }
+  }
+
+  return JSON.stringify(sortKeys(obj), null, space)
+}
+
 function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
   const lines = fs.readFileSync(filePath, 'utf-8').split(/\r?\n/).filter(Boolean)
 
@@ -29,7 +51,7 @@ class CachedClient extends Client {
   }
 
   public callAction = async (...args: Parameters<Client['callAction']>) => {
-    const key = fastHash(JSON.stringify(args))
+    const key = fastHash(stringifyWithSortedKeys(args))
     const cached = cache.get(key)
 
     if (cached) {
