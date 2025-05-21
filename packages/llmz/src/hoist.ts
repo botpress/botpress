@@ -2,6 +2,7 @@ import { CodeGenerator } from '@babel/generator'
 import { parse } from '@babel/parser'
 import { NodePath } from '@babel/traverse'
 
+// eslint-disable-next-line
 import Traverse from '@babel/traverse'
 import * as t from '@babel/types'
 import { upperFirst, cloneDeep } from 'lodash-es'
