@@ -28,7 +28,7 @@ Hi!
     expect(traces).toHaveLength(21)
     assert(result.error instanceof CodeExecutionError)
     expect(result.error.stacktrace).toMatchInlineSnapshot(`
-      "  001 | 
+      "001 | 
         002 | // line 1
         003 | for (let i = 0; i < 10; i++) {
         004 |   console.log(i) // line 3
@@ -42,8 +42,7 @@ Hi!
       ...^^^^^^^^^^
         012 |   }
         013 | }
-        014 | 
-      "
+        014 |"
     `)
     expect(
       result.traces
@@ -124,7 +123,7 @@ console.log( /* this is a comment */ test(5, 6));
     assert(result.error instanceof CodeExecutionError)
 
     expect(result.error.stacktrace).toMatchInlineSnapshot(`
-      "  001 | // -----------
+      "001 | // -----------
         002 | // this is a comment
         003 | // -----------
         004 | function test(a,b) {
@@ -140,8 +139,7 @@ console.log( /* this is a comment */ test(5, 6));
         013 | console.log(test(2, 6));
         014 | // -----------
       > 015 | console.log( /* this is a comment */ test(5, 6));
-      ...^^^^^^^^^^
-      "
+      ...^^^^^^^^^^"
     `)
     expect(result.lines_executed.join(' ')).toMatchInlineSnapshot(`"2,1 11,1 4,2 5,2 8,1 13,1 6,1"`)
   })
@@ -189,7 +187,7 @@ console.log( /* this is a comment */ test(5, 6));
       expect(result.signal).toBeInstanceOf(ExecuteSignal)
 
       expect(result.signal?.stack).toMatchInlineSnapshot(`
-        "  001 | // Comment here
+        "001 | // Comment here
           002 |       const a = 10;
           003 |       const b = 20;
           004 |       const c = a + b;
@@ -205,12 +203,11 @@ console.log( /* this is a comment */ test(5, 6));
         ...^^^^^^^^^^
           013 |       }
           014 |         
-          015 |       // This will be truncated from the stack trace
-        "
+          015 |       // This will be truncated from the stack trace"
       `)
 
       expect(result.signal?.truncatedCode).toMatchInlineSnapshot(`
-        "  001 | // Comment here
+        "001 | // Comment here
           002 |       const a = 10;
           003 |       const b = 20;
           004 |       const c = a + b;
@@ -223,8 +220,7 @@ console.log( /* this is a comment */ test(5, 6));
           010 | 
           011 |       if (c > 10) {
         > 012 |         doThrow()
-        ...^^^^^^^^^^
-        "
+        ...^^^^^^^^^^"
       `)
 
       expect(result.signal?.variables).toMatchInlineSnapshot(`
