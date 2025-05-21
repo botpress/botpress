@@ -292,4 +292,60 @@ describe('tool default values', () => {
       }
     `)
   })
+
+  it('tools input schemas', async () => {
+    const anySchema = new Tool({
+      name: 'anySchema',
+      input: z.any(),
+      handler: async () => {},
+    })
+
+    const unknownSchema = new Tool({
+      name: 'unknownSchema',
+      input: z.unknown(),
+      handler: async () => {},
+    })
+
+    const enumSchema = new Tool({
+      name: 'enumSchema',
+      input: z.enum(['a', 'b', 'c']),
+      handler: async () => {},
+    })
+
+    const neverSchema = new Tool({
+      name: 'neverSchema',
+      input: z.never(),
+      handler: async () => {},
+    })
+
+    const defaultValueSchema = new Tool({
+      name: 'defaultValueSchema',
+      input: z
+        .object({
+          a: z.number().default(1),
+          b: z.string().default('hello'),
+        })
+        .nullable()
+        .default({ a: 1, b: 'hello' }),
+      handler: async () => {},
+    })
+
+    expect(await anySchema.clone().getTypings()).toMatchInlineSnapshot(
+      `"declare function anySchema(any): Promise<void>"`
+    )
+    expect(await unknownSchema.clone().getTypings()).toMatchInlineSnapshot(
+      `"declare function unknownSchema(any): Promise<void>"`
+    )
+    expect(await enumSchema.clone().getTypings()).toMatchInlineSnapshot(`
+      "declare function enumSchema
+      ('a' | 'b' | 'c'): Promise<void>;"
+    `)
+    expect(await neverSchema.clone().getTypings()).toMatchInlineSnapshot(
+      `"declare function neverSchema(any): Promise<void>"`
+    )
+    expect(await defaultValueSchema.clone().getTypings()).toMatchInlineSnapshot(`
+      "declare function defaultValueSchema
+      ({ a: number; b: string } | null): Promise<void>;"
+    `)
+  })
 })

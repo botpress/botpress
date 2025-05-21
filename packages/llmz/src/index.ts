@@ -2,6 +2,9 @@ export { Tool } from './tool.js'
 export { Exit } from './exit.js'
 export { ObjectInstance } from './objects.js'
 
+export { Component, ContainerComponent, DefaultComponent, LeafComponent } from './component.js'
+export { DefaultComponents } from './component.default.js'
+
 import { type ExecutionProps } from './llmz.js'
 import { type ExecutionResult } from './types.js'
 
@@ -18,6 +21,7 @@ export const executeContext = async (props: ExecutionProps) => {
  */
 export const init = async () => {
   await import('./llmz.js')
+  await import('./component.js')
   await import('./tool.js')
   await import('./exit.js')
   await import('./jsx.js')

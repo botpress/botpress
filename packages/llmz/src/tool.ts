@@ -76,15 +76,19 @@ export class Tool<I = unknown, O = unknown> {
   }
 
   public clone() {
-    return <Tool<I, O>>new Tool({
-      name: this.name,
-      aliases: [...this.aliases],
-      description: this.description,
-      metadata: JSON.parse(JSON.stringify(this.metadata)),
-      input: z.fromJsonSchema(this.input) as unknown as ZuiType<I>,
-      output: z.fromJsonSchema(this.output) as unknown as ZuiType<O>,
-      handler: this._handler,
-    }).setStaticInputValues(this._staticInputValues as any)
+    try {
+      return <Tool<I, O>>new Tool({
+        name: this.name,
+        aliases: [...this.aliases],
+        description: this.description,
+        metadata: JSON.parse(JSON.stringify(this.metadata)),
+        input: this.input ? (z.fromJsonSchema(this.input) as unknown as ZuiType<I>) : undefined,
+        output: this.output ? (z.fromJsonSchema(this.output) as unknown as ZuiType<O>) : undefined,
+        handler: this._handler,
+      }).setStaticInputValues(this._staticInputValues as any)
+    } catch (e) {
+      throw new Error(`Failed to clone tool "${this.name}": ${e}`)
+    }
   }
 
   private _handler: (args: unknown) => Promise<unknown>
