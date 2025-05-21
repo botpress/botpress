@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import { randomUUID } from '../crypto'
 import * as bp from '.botpress'
 
@@ -9,6 +10,12 @@ export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpess
 
   const includeFiles = props.input.includeFiles ?? props.configuration.includeFiles
   const excludeFiles = props.input.excludeFiles ?? props.configuration.excludeFiles
+
+  if (includeFiles.length === 0) {
+    throw new sdk.RuntimeError(
+      'No include rules defined. Please define at least one include rule. For example, create a rule with glob pattern "**" to include all files.'
+    )
+  }
 
   props.logger.info('Syncing files to Botpress...', {
     includeFiles,
