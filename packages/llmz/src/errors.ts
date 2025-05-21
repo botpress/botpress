@@ -1,6 +1,7 @@
 import { JSONSchema } from '@bpinternal/zui'
 
 import { type Assignment } from './compiler/plugins/track-tool-calls.js'
+import { cleanStackTrace } from './stack-traces.js'
 
 type ErrorConstructor = new (...args: any[]) => Error
 
@@ -36,7 +37,7 @@ export namespace Signals {
     return JSON.stringify({
       name: error.constructor.name,
       message: error.message,
-      stack: error.stack,
+      stack: cleanStackTrace(error.stack ?? ''),
       properties: { ...error },
     })
   }
@@ -58,7 +59,7 @@ export namespace Signals {
 
         errorInstance.message = message
         errorInstance.name = name
-        errorInstance.stack = (error as Error)?.stack
+        errorInstance.stack = cleanStackTrace((error as Error)?.stack ?? '')
 
         Object.assign(errorInstance, properties)
         if (isWrappedError(errorInstance)) {

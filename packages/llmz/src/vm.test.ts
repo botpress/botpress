@@ -152,6 +152,9 @@ console.log( /* this is a comment */ test(5, 6));
    `
 
     await expect(() => runAsyncFunction({}, code)).rejects.toThrowError(InvalidCodeError)
+    await expect(() => runAsyncFunction({}, code)).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: {"name":"InvalidCodeError","message":"Unexpected token, expected \\"{\\" (2:25)","stack":"Error: Unexpected token, expected \\"{\\" (2:25)\\n    at Reflect.get (<anonymous>)","properties":{"code":"\\n\\n    const a = 'hello'\\n    const a = 'world'\\n   "}}]`
+    )
   })
 
   describe('signal handling', () => {

@@ -1,8 +1,12 @@
-export function cleanStackTrace(stack: string) {
+const isInternalLine = (line: string) => {
+  return line.includes('llmz/src/') || line.includes('\\llmz\\src\\') || line.includes('node_modules')
+}
+
+export function cleanStackTrace(stack: string, cleanInternal = true) {
   const lines = stack.split('\n')
 
   for (let i = 0; i < lines.length; i++) {
-    let line = lines[i]!
+    const line = lines[i]!
     let llmzIndex = line.indexOf('llmz/src/')
 
     if (llmzIndex === -1) {
@@ -24,5 +28,5 @@ export function cleanStackTrace(stack: string) {
     lines[i] = line.slice(0, lastSpaceIndex + 1) + maybeParen + line.slice(llmzIndex)
   }
 
-  return lines.filter((x) => !x.includes('node_modules')).join('\n')
+  return lines.filter((x) => !cleanInternal || !isInternalLine(x)).join('\n')
 }
