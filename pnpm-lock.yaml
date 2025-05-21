@@ -2281,6 +2281,9 @@ importers:
       '@types/node':
         specifier: ^18.19.67
         version: 18.19.67
+      diff:
+        specifier: ^8.0.1
+        version: 8.0.1
       dotenv:
         specifier: ^16.4.4
         version: 16.4.4
@@ -10412,6 +10415,11 @@ packages:
     engines: {node: '>=0.3.1'}
     dev: true
 
+  /diff@8.0.1:
+    resolution: {integrity: sha512-rEaM3KmVm78zE3dFZaop3aCQa2MTm+T4kcigUFLVU/KbOYdiY6JnL2g2puOYnct3QFw9pjZadaCbCZ1O8ArMlQ==}
+    engines: {node: '>=0.3.1'}
+    dev: true
+
   /dir-glob@3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
@@ -14977,7 +14985,7 @@ packages:
         optional: true
     dependencies:
       lilconfig: 3.1.3
-      ts-node: 10.9.2(@types/node@18.19.67)(typescript@5.6.3)
+      ts-node: 10.9.2(@types/node@18.19.67)(typescript@5.8.3)
       yaml: 2.7.0
     dev: true
 

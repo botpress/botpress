@@ -1,8 +1,9 @@
 import { Client } from '@botpress/client'
 import { Cognitive } from '@botpress/cognitive'
-
+import { diffLines } from 'diff'
 import fs from 'node:fs'
 import path from 'node:path'
+import { expect } from 'vitest'
 
 function stringifyWithSortedKeys(obj: any, space?: number): string {
   function sortKeys(input: any): any {
@@ -40,10 +41,14 @@ function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
   return map
 }
 
-const cache: Map<string, { key: string; value: any }> = readJSONL(path.resolve(__dirname, './cache.jsonl'), 'key')
+type CacheEntry = { key: string; value: any; test: string; input: string }
+
+const cache: Map<string, CacheEntry> = readJSONL(path.resolve(__dirname, './cache.jsonl'), 'key')
+const cacheByTest: Map<string, CacheEntry> = readJSONL(path.resolve(__dirname, './cache.jsonl'), 'test')
 
 class CachedClient extends Client {
   #client: Client
+  #callsByTest: Record<string, number> = {}
 
   public constructor(options: ConstructorParameters<typeof Client>[0]) {
     super(options)
@@ -51,6 +56,12 @@ class CachedClient extends Client {
   }
 
   public callAction = async (...args: Parameters<Client['callAction']>) => {
+    const currentTestName = expect.getState().currentTestName ?? 'default'
+    this.#callsByTest[currentTestName] ||= 0
+    this.#callsByTest[currentTestName]++
+
+    const testKey = `${currentTestName}-${this.#callsByTest[currentTestName]}`
+
     const key = fastHash(stringifyWithSortedKeys(args))
     const cached = cache.get(key)
 
@@ -58,15 +69,25 @@ class CachedClient extends Client {
       return cached.value
     }
 
-    console.log('Cache miss', key, args, cache.size, cache.keys().toArray())
+    if (cacheByTest.has(testKey)) {
+      console.log(`Cache miss for ${key} in test ${testKey}`)
+      console.log(
+        diffLines(
+          JSON.stringify(JSON.parse(cacheByTest.get(testKey)?.input!), null, 2),
+          JSON.stringify(JSON.parse(stringifyWithSortedKeys(args)), null, 2)
+        )
+      )
+    }
 
     const response = await this.#client.callAction(...args)
-    cache.set(key, { key, value: response })
+    cache.set(key, { key, value: response, test: testKey, input: stringifyWithSortedKeys(args) })
 
     fs.appendFileSync(
       path.resolve(__dirname, './cache.jsonl'),
       JSON.stringify({
+        test: testKey,
         key,
+        input: stringifyWithSortedKeys(args),
         value: response,
       }) + '\n'
     )
