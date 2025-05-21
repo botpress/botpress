@@ -56,7 +56,7 @@ const FILE_FILTER_PROPS = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'file-synchronizer',
-  version: '0.7.1',
+  version: '0.7.2',
   title: 'File Synchronizer',
   description: 'Synchronize files from external services to Botpress',
   icon: 'icon.svg',
@@ -107,6 +107,37 @@ export default new sdk.PluginDefinition({
     },
   },
   workflows: {
+    buildQueue: {
+      title: 'Build file sync queue',
+      description: 'Build the file sync queue and synchronize files to Botpress',
+      input: {
+        schema: sdk.z.object({
+          includeFiles: FILE_FILTER_PROPS.shape.includeFiles
+            .title('Include Rules Override')
+            .describe('If omitted, the global Include Rules will be used.'),
+          excludeFiles: FILE_FILTER_PROPS.shape.excludeFiles
+            .title('Exclude Rules Override')
+            .describe('If omitted, the global Exclude Rules will be used'),
+        }),
+      },
+      output: {
+        schema: sdk.z.object({}),
+      },
+      tags: {
+        syncJobId: {
+          title: 'Sync job ID',
+          description: 'The unique ID of the sync job',
+        },
+        syncType: {
+          title: 'Sync type',
+          description: 'The type of sync job',
+        },
+        syncInitiatedAt: {
+          title: 'Created at',
+          description: 'The date and time when the sync job was created',
+        },
+      },
+    },
     processQueue: {
       title: 'Process file sync queue',
       description: 'Process the file sync queue and synchronize files to Botpress',
@@ -132,6 +163,34 @@ export default new sdk.PluginDefinition({
           description: 'The date and time when the sync job was created',
         },
       },
+    },
+  },
+  states: {
+    buildQueueRuntimeState: {
+      type: 'workflow',
+      schema: sdk.z.object({
+        jobFileId: sdk.z.string().title('Job File').describe("The ID of the job's queue file"),
+        enumerationState: sdk.z
+          .object({
+            pendingFolders: sdk.z
+              .array(
+                sdk.z.object({
+                  folderId: sdk.z.string().optional().title('Folder ID').describe('The ID of the folder'),
+                  absolutePath: sdk.z.string().title('Absolute Path').describe('The absolute path of the folder'),
+                })
+              )
+              .title('Pending Folders')
+              .describe('Folders awaiting enumeration'),
+            currentFolderNextToken: sdk.z
+              .string()
+              .optional()
+              .title('Current Folder Paging Token')
+              .describe('The next token to use for pagination'),
+          })
+          .optional()
+          .title('Enumeration State')
+          .describe('The current state of the enumeration process'),
+      }),
     },
   },
   interfaces: {

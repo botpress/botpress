@@ -40,6 +40,21 @@ plugin.on.event('files-readonly:aggregateFileChanges', async (props) => {
   await hooks.onEvent.aggregateFileChanges.handleEvent(props)
 })
 
+plugin.on.workflowStart('buildQueue', async (props) => {
+  props.logger.info('buildQueue workflow started', props.workflow.tags)
+  await hooks.onWorkflowStart.buildQueue.handleEvent(props)
+})
+
+plugin.on.workflowContinue('buildQueue', async (props) => {
+  props.logger.info('buildQueue workflow continued', props.workflow.tags)
+  await hooks.onWorkflowContinue.buildQueue.handleEvent(props)
+})
+
+plugin.on.workflowTimeout('buildQueue', async (props) => {
+  props.logger.info('buildQueue workflow timed out', props.workflow.tags)
+  await hooks.onWorkflowTimeout.buildQueue.handleEvent(props)
+})
+
 plugin.on.workflowStart('processQueue', async (props) => {
   props.logger.info('processQueue workflow started', props.workflow.tags)
   await hooks.onWorkflowStart.processQueue.handleEvent(props)
