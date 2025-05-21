@@ -13,7 +13,6 @@
 !*.yaml
 !*.yml
 !*.md
-!*.md.ts
 
 # exclusions
 # **/*.d.ts
@@ -27,3 +26,4 @@ bp_modules
 .genenv/
 .genenv.*
 .turbo
+*.md.ts
