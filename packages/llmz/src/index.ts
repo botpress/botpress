@@ -5,6 +5,7 @@ export { VMInterruptSignal } from './errors.js'
 
 export { Component, ContainerComponent, DefaultComponent, LeafComponent } from './component.js'
 export { DefaultComponents } from './component.default.js'
+export { Snapshot } from './snapshots.js'
 
 import { type ExecutionProps } from './llmz.js'
 import { type ExecutionResult } from './types.js'
