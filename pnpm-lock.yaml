@@ -2222,7 +2222,7 @@ importers:
         version: 1.0.3
       '@bpinternal/zui':
         specifier: ^0.14.2
-        version: 0.14.2
+        version: 0.22.4
       bytes:
         specifier: ^3.1.2
         version: 3.1.2
@@ -4505,8 +4505,8 @@ packages:
       react:
         optional: true
 
-  /@bpinternal/zui@0.14.2:
-    resolution: {integrity: sha512-5XLjKHa3Z+NAd1Nz5NfroOHfs0GwMi8R+ZcQGi7zx4OD7RS1VIpcM3wTtwkjj9UjfGOD++8Fz99Dz4gV8t03mQ==}
+  /@bpinternal/zui@0.17.1:
+    resolution: {integrity: sha512-mvZbj0kNAOy6qdXmoeZzusOMAE+Rw44joyvdDu2W0zh99/MmSaXqJaVjf0Pyz4+JOyEcS+RU4xituHqBI7pWUg==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     peerDependencies:
       react: ^18.2.0
@@ -4515,8 +4515,8 @@ packages:
         optional: true
     dev: false
 
-  /@bpinternal/zui@0.17.1:
-    resolution: {integrity: sha512-mvZbj0kNAOy6qdXmoeZzusOMAE+Rw44joyvdDu2W0zh99/MmSaXqJaVjf0Pyz4+JOyEcS+RU4xituHqBI7pWUg==}
+  /@bpinternal/zui@0.22.4:
+    resolution: {integrity: sha512-CSsHZRvjjvpH4tCMmMi39pxOmyCervOr4xJw9O5DaYtEWrZ1itl8J/c5CIhy1xIZa4gKvTqmjU7vMPp+fTz8+Q==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     peerDependencies:
       react: ^18.2.0

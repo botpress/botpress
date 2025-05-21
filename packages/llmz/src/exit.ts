@@ -1,8 +1,9 @@
-import { type JSONSchema, type ZodType, z } from '@bpinternal/zui'
+import { type JSONSchema, z } from '@bpinternal/zui'
 import { uniq } from 'lodash-es'
+import { ZuiType } from './types.js'
 import { isJsonSchema, isValidIdentifier } from './utils.js'
 
-export class Exit {
+export class Exit<T = unknown> {
   public name: string
   public aliases: string[] = []
   public description: string
@@ -34,7 +35,7 @@ export class Exit {
       aliases: [...this.aliases],
       description: this.description,
       metadata: JSON.parse(JSON.stringify(this.metadata)),
-      schema: this.schema,
+      schema: this.zSchema,
     })
   }
 
@@ -43,7 +44,7 @@ export class Exit {
     aliases?: string[]
     description: string
     metadata?: Record<string, unknown>
-    schema?: JSONSchema | ZodType
+    schema?: ZuiType<T>
   }) {
     if (!isValidIdentifier(props.name)) {
       throw new Error(

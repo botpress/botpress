@@ -1,3 +1,4 @@
+import { Component } from 'src/component.js'
 import { Exit } from 'src/exit.js'
 import type { ObjectInstance } from '../objects.js'
 import { OAI } from '../openai.js'
@@ -12,6 +13,7 @@ export namespace LLMzPrompts {
     objects: ObjectInstance[]
     globalTools: Tool[]
     exits: Exit[]
+    components: Component[]
   }
 
   export type InvalidCodeProps = {

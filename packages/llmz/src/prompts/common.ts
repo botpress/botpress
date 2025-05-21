@@ -51,7 +51,9 @@ export const replacePlaceholders = (prompt: string, values: Record<string, unkno
     }
   })
 
-  const remaining = Object.keys(obj).filter((key) => key !== 'is_message_enabled' && key !== 'exits')
+  const remaining = Object.keys(obj).filter(
+    (key) => key !== 'is_message_enabled' && key !== 'exits' && key !== 'components'
+  )
 
   if (remaining.length) {
     throw new Error(`Missing placeholders: ${remaining.join(', ')}`)

@@ -256,3 +256,11 @@ export function isValidIdentifier(name: string): boolean {
 
   return /^[A-Z]{1,}[A-Z0-9_]{0,50}$/i.test(name)
 }
+
+export function isValidMessageName(name: string): boolean {
+  if (typeof name !== 'string') {
+    return false
+  }
+
+  return /^[A-Z]{1,50}$/i.test(name)
+}

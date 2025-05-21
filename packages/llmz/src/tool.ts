@@ -1,9 +1,10 @@
-import { type JSONSchema, type ZodType, type TypeOf, z } from '@bpinternal/zui'
+import { type JSONSchema, z } from '@bpinternal/zui'
 import { isEmpty, uniq } from 'lodash-es'
+import { ZuiType } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
 import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier } from './utils.js'
 
-export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSONSchema = any> {
+export class Tool<I = unknown, O = unknown> {
   private _staticInputValues?: unknown
 
   public name: string
@@ -13,7 +14,7 @@ export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSON
   public input?: JSONSchema
   public output?: JSONSchema
 
-  public setStaticInputValues(values: unknown | undefined): this {
+  public setStaticInputValues(values: Partial<I>): this {
     if (values === null || values === undefined) {
       this._staticInputValues = undefined
       return this
@@ -80,10 +81,10 @@ export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSON
       aliases: [...this.aliases],
       description: this.description,
       metadata: JSON.parse(JSON.stringify(this.metadata)),
-      input: this.input,
-      output: this.output,
+      input: z.fromJsonSchema(this.input) as unknown as ZuiType<I>,
+      output: z.fromJsonSchema(this.output) as unknown as ZuiType<O>,
       handler: this._handler,
-    }).setStaticInputValues(this._staticInputValues)
+    }).setStaticInputValues(this._staticInputValues as any)
   }
 
   private _handler: (args: unknown) => Promise<unknown>
@@ -93,12 +94,10 @@ export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSON
     aliases?: string[]
     description?: string
     metadata?: Record<string, unknown>
-    input?: I
-    output?: O
-    staticInputValues?: unknown
-    handler: (
-      args: I extends ZodType ? TypeOf<I> : I extends JSONSchema ? unknown : I
-    ) => O extends ZodType ? Promise<TypeOf<O>> : O extends JSONSchema ? Promise<unknown> : O
+    input?: ZuiType<I>
+    output?: ZuiType<O>
+    staticInputValues?: Partial<I>
+    handler: (args: I) => Promise<O>
   }) {
     if (!isValidIdentifier(props.name)) {
       throw new Error(
@@ -163,12 +162,10 @@ export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSON
     this.description = props.description
     this.metadata = props.metadata ?? {}
     this._handler = props.handler as any
-    this.setStaticInputValues(props.staticInputValues)
+    this.setStaticInputValues(props.staticInputValues as any)
   }
 
-  public async execute(
-    input: I extends ZodType ? TypeOf<I> : I extends JSONSchema ? unknown : I
-  ): Promise<O extends ZodType ? TypeOf<O> : unknown> {
+  public async execute(input: I): Promise<O> {
     const pInput = this.zInput.safeParse(input)
 
     if (!pInput.success) {
@@ -196,7 +193,7 @@ export class Tool<I extends ZodType | JSONSchema = any, O extends ZodType | JSON
     })
   }
 
-  public static withUniqueNames = (tools: Tool[]) => {
+  public static withUniqueNames = (tools: Tool<any, any>[]) => {
     const names = new Set<string>()
     return tools.map((tool) => {
       if (tools.filter((t) => t.name === tool.name).length === 1) {

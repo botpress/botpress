@@ -372,6 +372,7 @@ describe('objects', () => {
 
     expect(typings).toMatchInlineSnapshot(`
       "declare const MyObject: {
+        /** This is a record */
         address: /** This is a record */ {
           [key: number]: { street: string; number: number }
         }
@@ -417,7 +418,7 @@ describe('objects', () => {
     expect(typings).toMatchInlineSnapshot(`
       "declare const MyObject: {
         /** This is A */
-        a: /** This is A */ string
+        a: string
       }"
     `)
   })

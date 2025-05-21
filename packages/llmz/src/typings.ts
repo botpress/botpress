@@ -123,7 +123,7 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
       return sUnwrapZodRecursive(new KeyValue(schema.key + optionalToken, innerType), newOptions)
     }
 
-    const description = getMultilineComment(schema.value._def.description)
+    const description = getMultilineComment(schema.value._def.description || schema.value.description)
     const delimiter = description?.trim().length > 0 ? '\n' : ''
     const withoutDesc = schema.value.describe('')
 

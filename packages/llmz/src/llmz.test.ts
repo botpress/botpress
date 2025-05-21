@@ -8,17 +8,21 @@ import { ExecutionResult, Traces } from './types.js'
 import { getCachedCognitiveClient } from './__tests__/index.js'
 import { ObjectInstance } from './objects.js'
 import { Exit } from './exit.js'
+import { DefaultComponents } from './component.default.js'
 
 const client = getCachedCognitiveClient()
 
-const assertStatus = (result: ExecutionResult, status: ExecutionResult['status']) => {
+function assertStatus<S extends ExecutionResult['status']>(
+  result: ExecutionResult,
+  status: S
+): asserts result is ExecutionResult & { status: S } {
   const error = result.status === 'error' ? result.error : null
 
   if (result.status === 'error' && status !== 'error') {
     throw new Error(`Expected status to be "${status}" but got error: ${error}`)
   }
 
-  expect(result.status).toBe(status)
+  assert(result.status === status, `Expected status to be "${status}" but got "${result.status}"`)
 }
 
 const exec = (result: ExecutionResult) => {
@@ -92,7 +96,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     it('using a tool with no args', async () => {
       let greeted = false
 
-      const updatedContext = await llmz.executeContext({
+      const updatedContext: ExecutionResult = await llmz.executeContext({
         transcript: [
           {
             name: 'Lebowski',
@@ -106,6 +110,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       })
 
       assertStatus(updatedContext, 'success')
+
       expect(greeted).toBe(true)
     })
 
@@ -177,6 +182,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         options: { loop: 3 },
         instructions:
           'You are a calculator at the service of the user. You need to answer with the result of the operation as received by the tool, you cannot rely on traditional mathematics in this context.',
+        components: [DefaultComponents.Text],
         tools: [tPasswordProtectedAdd(661), tMessage()],
         transcript: [
           {
@@ -187,6 +193,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         ],
         client,
       })
+
       const res = exec(updatedContext)
 
       expect(res.firstIteration?.status.type).toBe('execution_error')
@@ -200,6 +207,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         options: { loop: 2 },
         instructions:
           'You are a calculator at the service of the user. You need to answer with the result of the operation and nothing else.',
+        components: [DefaultComponents.Text],
         tools: [
           tMessage(),
           new Tool({
@@ -497,7 +505,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
     const result = await llmz.executeContext({
       options: { loop: 3 },
-      exits: [eDone],
+      exits: [eDone] as const,
       instructions:
         'Fetch the Order ID, confirm with the user the Order ID, then once you have the user confirmation, delete the order. Make sure to confirm.',
       transcript: [{ name: 'User', role: 'user', content: 'I want to delete my order' }],
@@ -567,13 +575,13 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     })
 
     const ePlant = new Exit({
-      name: 'plant',
+      name: 'is_plant',
       description: 'the final result is a plant',
       schema: z.object({ plant: z.string(), color: z.string(), edible: z.boolean() }),
     })
 
     const eAnimal = new Exit({
-      name: 'animal',
+      name: 'is_animal',
       description: 'the final result is an animal',
       schema: z.object({ animal: z.string(), color: z.string(), domestic: z.boolean() }),
     })
@@ -600,7 +608,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       expect(result.iterations[1]!.status.type === 'exit_success' && result.iterations[1]!.status.exit_success)
         .toMatchInlineSnapshot(`
         {
-          "exit_name": "animal",
+          "exit_name": "is_animal",
           "return_value": {
             "animal": "Corgi",
             "color": "brown and white",
@@ -632,7 +640,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       expect(result.iterations[1]!.status.type === 'exit_success' && result.iterations[1]!.status.exit_success)
         .toMatchInlineSnapshot(`
         {
-          "exit_name": "plant",
+          "exit_name": "is_plant",
           "return_value": {
             "color": "green",
             "edible": false,
@@ -647,7 +655,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         options: { loop: 2 },
         exits: [ePlant, eAnimal],
         instructions:
-          'just call return { action: "plant", value: { edible: "yes" } } and nothing else. you already know the plant. Don\'t try to provide the plant name, it is already known.',
+          'just call return { action: "is_plant", value: { edible: "yes" } } and nothing else. you already know the plant. Don\'t try to provide the plant name, it is already known.',
         transcript: [
           {
             name: 'user',
@@ -660,20 +668,19 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       })
 
       expect(result.iterations).toHaveLength(2)
-      expect(result.iterations[0].status.type === 'exit_error' && result.iterations[0].error).toContain(
-        'Invalid return value'
-      )
-      expect(result.iterations[1].status.type === 'exit_success' && result.iterations[1].status).toMatchInlineSnapshot(`
+
+      const [firstIteration, lastIteration] = result.iterations
+
+      assert(firstIteration.isFailed())
+
+      expect(firstIteration.status.type === 'exit_error' && firstIteration.error).toContain('Invalid return value')
+      assert(lastIteration.hasExitedWith(ePlant))
+
+      expect(lastIteration.status.exit_success.return_value).toMatchInlineSnapshot(`
         {
-          "exit_success": {
-            "exit_name": "plant",
-            "return_value": {
-              "color": "",
-              "edible": true,
-              "plant": "",
-            },
-          },
-          "type": "exit_success",
+          "color": "",
+          "edible": true,
+          "plant": "",
         }
       `)
     })

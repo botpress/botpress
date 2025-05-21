@@ -1,4 +1,5 @@
 import { isPlainObject } from 'lodash-es'
+import { getComponentReference } from '../component.js'
 import { inspect } from '../inspect.js'
 import { OAI } from '../openai.js'
 import { wrapContent } from '../truncator.js'
@@ -25,7 +26,7 @@ const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
   const tool_names: string[] = []
   const readonly_vars: string[] = []
   const writeable_vars: string[] = []
-  let canTalk = false
+  const canTalk = props.components.length > 0
 
   // Parallelize the generation of typings for each object
   const objectTypingsPromise = props.objects.map((obj) => ({
@@ -60,9 +61,6 @@ const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
   for (const tool of props.globalTools) {
     dts += (await tool.getTypings()) + '\n'
     tool_names.push(tool.name)
-    if (tool.name?.toLowerCase() === 'message') {
-      canTalk = true
-    }
   }
 
   const exits: ExitType[] = []
@@ -117,6 +115,7 @@ ${variables_example}
       writeable_vars: writeable_vars.join(', '),
       variables_example,
       exits,
+      components: props.components.map(getComponentReference).join('\n\n'),
     }).trim(),
   }
 }

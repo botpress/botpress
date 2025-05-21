@@ -4,6 +4,7 @@ import { z } from '@bpinternal/zui'
 import { omit, clamp, isEqual, isPlainObject } from 'lodash-es'
 import ms from 'ms'
 
+import { Component } from './component.js'
 import { Context, Iteration } from './context.js'
 import {
   AssignmentError,
@@ -65,6 +66,7 @@ type Options = Partial<Pick<Context, 'loop' | 'temperature' | 'model'>>
 
 export type ExecutionProps = {
   instructions?: ValueOrGetter<string, Context>
+  components?: ValueOrGetter<Component[], Context>
   objects?: ValueOrGetter<ObjectInstance[], Context>
   tools?: ValueOrGetter<Tool[], Context>
   exits?: ValueOrGetter<Exit[], Context>
@@ -72,7 +74,7 @@ export type ExecutionProps = {
   options?: Options
   /** An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive) */
   client: Cognitive | BotpressClientLike
-  signal?: AbortController['signal']
+  signal?: AbortSignal
 } & ExecutionHooks
 
 const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
@@ -91,6 +93,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
     model: props.options?.model,
     transcript: props.transcript,
     exits: props.exits,
+    components: props.components,
   })
 
   try {

@@ -1,6 +1,7 @@
 import { type Cognitive } from '@botpress/cognitive'
 import { cloneDeep, isPlainObject } from 'lodash-es'
 import { ulid } from 'ulid'
+import { Component, assertValidComponent } from './component.js'
 import { LoopExceededError } from './errors.js'
 import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
@@ -23,6 +24,7 @@ export type IterationParameters = {
   objects: ObjectInstance[]
   exits: Exit[]
   instructions?: string
+  components: Component[]
 }
 
 export type IterationStatus =
@@ -79,11 +81,11 @@ export namespace IterationStatuses {
     }
   }
 
-  export type ExitSuccess = {
+  export type ExitSuccess<T = unknown> = {
     type: 'exit_success'
     exit_success: {
       exit_name: string
-      return_value: unknown
+      return_value: T
     }
   }
 
@@ -174,13 +176,30 @@ export class Iteration {
     model: string
   }
 
-  public get isSuccessful() {
+  public hasExited(this: this): this is this & { status: IterationStatuses.ExitSuccess } {
+    return (<IterationStatus['type'][]>['exit_success']).includes(this.status.type)
+  }
+
+  public hasExitedWith<R>(this: this, exit: Exit<R>): this is { status: IterationStatuses.ExitSuccess<R> } & this {
+    return this.status.type === 'exit_success' && this.status.exit_success.exit_name === exit.name
+  }
+
+  public isSuccessful(this: this): this is this & {
+    status: IterationStatuses.ExitSuccess | IterationStatuses.Callback | IterationStatuses.Thinking
+  } {
     return (<IterationStatus['type'][]>['callback_requested', 'exit_success', 'thinking_requested']).includes(
       this.status.type
     )
   }
 
-  public get isFailed() {
+  public isFailed(this: this): this is this & {
+    status:
+      | IterationStatuses.GenerationError
+      | IterationStatuses.ExecutionError
+      | IterationStatuses.InvalidCodeError
+      | IterationStatuses.ExitError
+      | IterationStatuses.Aborted
+  } {
     return (<IterationStatus['type'][]>[
       'generation_error',
       'invalid_code_error',
@@ -188,10 +207,6 @@ export class Iteration {
       'exit_error',
       'aborted',
     ]).includes(this.status.type)
-  }
-
-  public get isDone() {
-    return (<IterationStatus['type'][]>['callback_requested', 'exit_success']).includes(this.status.type)
   }
 
   public get duration() {
@@ -266,6 +281,7 @@ export class Context {
   public objects?: ValueOrGetter<ObjectInstance[], Context>
   public tools?: ValueOrGetter<Tool[], Context>
   public exits?: ValueOrGetter<Exit[], Context>
+  public components?: ValueOrGetter<Component[], Context>
 
   public appliedSnapshot?: SnapshotResult // TODO: re-implement me correctly
 
@@ -333,6 +349,7 @@ export class Context {
           instructions: parameters.instructions,
           transcript: parameters.transcript,
           exits: parameters.exits,
+          components: parameters.components,
         }),
         await this.version.getInitialUserMessage({
           globalTools: parameters.tools,
@@ -340,6 +357,7 @@ export class Context {
           instructions: parameters.instructions,
           transcript: parameters.transcript,
           exits: parameters.exits,
+          components: parameters.components,
         }),
       ]
     }
@@ -411,6 +429,7 @@ export class Context {
     const tools = Tool.withUniqueNames((await getValue(this.tools, this)) ?? [])
     const objects = (await getValue(this.objects, this)) ?? []
     const exits = (await getValue(this.exits, this)) ?? []
+    const components = (await getValue(this.components, this)) ?? []
 
     if (objects && objects.length > 100) {
       throw new Error('Too many objects. Expected at most 100 objects.')
@@ -420,8 +439,80 @@ export class Context {
       throw new Error('Too many tools. Expected at most 100 tools.')
     }
 
+    for (const component of components) {
+      assertValidComponent(component)
+    }
+
+    const ReservedToolNames = [
+      'think',
+      'listen',
+      'return',
+      'exit',
+      'action',
+      'function',
+      'callback',
+      'code',
+      'execute',
+      'jsx',
+      'object',
+      'string',
+      'number',
+      'boolean',
+      'array',
+    ]
+
+    const MessageTool = tools.find((x) => x.name.toLowerCase() === 'message' || x.aliases?.includes('message'))?.clone()
+
+    if (MessageTool && !components.length) {
+      throw new Error('The Message tool is only available in chat mode. Please provide at least one component.')
+    }
+
+    if (!MessageTool && components.length) {
+      throw new Error('When using components, you need to provide a tool called "Message"')
+    }
+
+    if (MessageTool && components.length) {
+      MessageTool.aliases = Array.from(
+        new Set([...MessageTool.aliases, ...components.flatMap((x) => [x.name, ...(x.aliases ?? [])])])
+      )
+    }
+
+    const nonMessageTools = tools.filter((x) => x.name.toLowerCase() !== 'message' && !x.aliases?.includes('message'))
+    const allTools = MessageTool ? [MessageTool, ...nonMessageTools] : nonMessageTools
+
+    for (const tool of nonMessageTools) {
+      for (let name of [...tool.aliases, tool.name]) {
+        name = name.toLowerCase()
+
+        if (ReservedToolNames.includes(name)) {
+          throw new Error(`Tool name "${name}" (${tool.name}) is reserved. Please choose a different name.`)
+        }
+
+        if (
+          components.find((x) => x.name.toLowerCase() === name || x.aliases?.map((x) => x.toLowerCase()).includes(name))
+        ) {
+          throw new Error(
+            `Tool name "${name}" (${tool.name}) is already used by a component. Please choose a different name.`
+          )
+        }
+
+        if (
+          exits.find((x) => x.name.toLowerCase() === name) ||
+          exits.find((x) => x.aliases?.map((x) => x.toLowerCase()).includes(name))
+        ) {
+          throw new Error(
+            `Tool name "${name}" (${tool.name}) is already used by an exit. Please choose a different name.`
+          )
+        }
+      }
+    }
+
     if (exits && exits.length > 100) {
       throw new Error('Too many exits. Expected at most 100 exits.')
+    }
+
+    if (components && components.length > 100) {
+      throw new Error('Too many components. Expected at most 100 components.')
     }
 
     if (instructions && instructions.length > 1_000_000) {
@@ -432,16 +523,17 @@ export class Context {
       throw new Error('Too many transcript messages. Expected at most 250 messages.')
     }
 
-    if (!tools.find((x) => x.name.toLowerCase() === 'message') && exits.length === 0) {
-      throw new Error("When no 'message' tool is present, at least one exit is required.")
+    if (!components.length && !exits.length) {
+      throw new Error('When no components are provided, at least one exit is required.')
     }
 
     return {
       transcript,
-      tools,
+      tools: allTools,
       objects,
       exits,
       instructions,
+      components,
     }
   }
 
@@ -451,6 +543,7 @@ export class Context {
     tools?: ValueOrGetter<Tool[], Context>
     exits?: ValueOrGetter<Exit[], Context>
     transcript?: ValueOrGetter<TranscriptMessage[], Context>
+    components?: ValueOrGetter<Component[], Context>
     loop?: number
     temperature?: number
     model?: Model
@@ -462,6 +555,7 @@ export class Context {
     this.objects = props.objects
     this.tools = props.tools
     this.exits = props.exits
+    this.components = props.components
 
     this.loop = props.loop ?? 3
     this.temperature = props.temperature ?? 0.7

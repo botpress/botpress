@@ -192,3 +192,9 @@ export type Tool = {
   output?: unknown
   metadata?: Record<string, any>
 }
+
+export type ZuiType<Output = any, Input = Output> = {
+  readonly __type__: 'ZuiType'
+  readonly _output: Output
+  readonly _input: Input
+}

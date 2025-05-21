@@ -199,20 +199,23 @@ describe('tool default values', () => {
         a: z.number(),
         b: z.number(),
       }),
+      output: z.number(),
       staticInputValues: {
         a: 10,
       },
       handler: async ({ a, b }) => {
         result = a + b
+        return result
       },
     })
 
-    await tool.execute({
+    const ret = await tool.execute({
       a: 1, // a will be hot swapped with 10
       b: 2, // b remains 2
     })
 
     expect(result).toBe(12)
+    expect(ret).toBe(12)
   })
 
   it('tool execution swaps input with default values (deeply nested)', async () => {
@@ -246,9 +249,9 @@ describe('tool default values', () => {
         callInputs = input
         const { operation, options } = input
         if (operation === 'add') {
-          return options.numbers.reduce((acc, n) => acc + n, 0)
+          return options.numbers?.reduce((acc, n) => acc + n, 0)
         } else {
-          return options.numbers.reduce((acc, n) => acc - n, 0)
+          return options.numbers?.reduce((acc, n) => acc - n, 0)
         }
       },
     })
