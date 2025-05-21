@@ -5,10 +5,10 @@ import JSON5 from 'json5'
 import { jsonrepair } from 'jsonrepair'
 
 import { chunk, isArray } from 'lodash-es'
-import { fastHash, stringify, takeUntilTokens } from '../utils'
-import { Zai } from '../zai'
-import { PROMPT_INPUT_BUFFER } from './constants'
-import { JsonParsingError } from './errors'
+import { fastHash, stringify, takeUntilTokens } from '../utils.js'
+import { Zai } from '../zai.js'
+import { PROMPT_INPUT_BUFFER } from './constants.js'
+import { JsonParsingError } from './errors.js'
 
 export type Options = z.input<typeof Options>
 const Options = z.object({

@@ -1,9 +1,9 @@
 // eslint-disable consistent-type-definitions
 import { z } from '@bpinternal/zui'
 
-import { fastHash, stringify, takeUntilTokens } from '../utils'
-import { Zai } from '../zai'
-import { PROMPT_INPUT_BUFFER } from './constants'
+import { fastHash, stringify, takeUntilTokens } from '../utils.js'
+import { Zai } from '../zai.js'
+import { PROMPT_INPUT_BUFFER } from './constants.js'
 
 type Example = z.input<typeof Example> & { instructions?: string }
 const Example = z.object({
