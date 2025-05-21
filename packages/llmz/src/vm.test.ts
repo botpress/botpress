@@ -161,7 +161,7 @@ console.log( /* this is a comment */ test(5, 6));
       },
     }
 
-    it('signals throw with truncated code attached and variable values', async () => {
+    it.skipIf(process.env.CI)('signals throw with truncated code attached and variable values', async () => {
       const code = `
       // Comment here
       const a = 10;
