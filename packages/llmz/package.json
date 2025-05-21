@@ -62,9 +62,9 @@
     "vitest": "^2.1.8"
   },
   "peerDependencies": {
-    "@botpress/cognitive": "^0.1.1",
-    "@bpinternal/thicktoken": "^1.0.3",
-    "@bpinternal/zui": "^0.14.2"
+    "@botpress/cognitive": "^0.1.20",
+    "@bpinternal/thicktoken": "^1.0.5",
+    "@bpinternal/zui": "^0.22.4"
   },
   "dependenciesMeta": {
     "@bpinternal/zui": {
