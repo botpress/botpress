@@ -1,6 +1,6 @@
 import { z } from '@bpinternal/zui'
 
-import { assert, describe, expect, it, vi } from 'vitest'
+import { beforeAll, afterAll, assert, describe, expect, it, vi } from 'vitest'
 import { llmz } from './llmz.js'
 import { Tool } from './tool.js'
 
@@ -9,7 +9,6 @@ import { getCachedCognitiveClient } from './__tests__/index.js'
 import { ObjectInstance } from './objects.js'
 import { Exit } from './exit.js'
 import { DefaultComponents } from './component.default.js'
-import { beforeAll } from 'vitest'
 
 const client = getCachedCognitiveClient()
 
