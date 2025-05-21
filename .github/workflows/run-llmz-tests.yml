@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'packages/llmz/**'
+      - '.github/workflows/run-llmz-tests.yml'
 
 permissions:
   id-token: write

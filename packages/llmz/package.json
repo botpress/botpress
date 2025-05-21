@@ -80,9 +80,5 @@
       "optional": false
     }
   },
-  "pnpm": {
-    "patchedDependencies": {
-      "source-map-js@1.2.1": "patches/source-map-js@1.2.1.patch"
-    }
-  }
+  "packageManager": "pnpm@8.6.2"
 }
