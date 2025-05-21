@@ -20,7 +20,8 @@ const ignores = [
     "**/gen/",
     "**/.turbo/",
     "**/.genenv/",
-    "**/.ignore.me.*"
+    "**/.ignore.me.*",
+    "**/*.md.ts"
 ];
 
 export default [{
