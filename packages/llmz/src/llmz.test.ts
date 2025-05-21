@@ -671,6 +671,9 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
       const [firstIteration, lastIteration] = result.iterations
 
+      assert(!!firstIteration)
+      assert(!!lastIteration)
+
       assert(firstIteration.isFailed())
 
       expect(firstIteration.status.type === 'exit_error' && firstIteration.error).toContain('Invalid return value')
