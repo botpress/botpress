@@ -33,9 +33,11 @@ function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
   const map = new Map<string, T>()
 
   for (const line of lines) {
-    const obj = JSON.parse(line) as T
-    const key = String(obj[keyProperty])
-    map.set(key, obj)
+    try {
+      const obj = JSON.parse(line) as T
+      const key = String(obj[keyProperty])
+      map.set(key, obj)
+    } catch {}
   }
 
   return map

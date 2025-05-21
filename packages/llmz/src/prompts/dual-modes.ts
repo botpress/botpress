@@ -2,6 +2,7 @@ import { isPlainObject } from 'lodash-es'
 import { getComponentReference } from '../component.js'
 import { inspect } from '../inspect.js'
 import { OAI } from '../openai.js'
+import { cleanStackTrace } from '../stack-traces.js'
 import { wrapContent } from '../truncator.js'
 
 import CHAT_SYSTEM_PROMPT_TEXT from './chat-mode/system.md.js'
@@ -199,7 +200,7 @@ ${wrapContent(props.message, { preserve: 'top', flex: 4 })}
 
 Stack Trace:
 \`\`\`
-${wrapContent(props.stacktrace, { flex: 6, preserve: 'top' })}
+${wrapContent(cleanStackTrace(props.stacktrace), { flex: 6, preserve: 'top' })}
 \`\`\`
 
 Let the user know that an error occurred, and if possible, try something else. Do not repeat yourself in the message.
@@ -300,7 +301,7 @@ let ${variable.name}: undefined | ${variable.type} = undefined;\n`
 ## Important message from the VM
 
 The execution of an asynchronous code block has been completed. Here's the code that was executed:
-${snapshot.stack.split('\n').slice(0, -1).join('\n')}
+${cleanStackTrace(snapshot.stack).split('\n').slice(0, -1).join('\n')}
 // ${resolve.description}
 \`\`\`tsx
 /**
@@ -351,7 +352,7 @@ const getSnapshotRejectedMessage = (props: LLMzPrompts.SnapshotRejectedProps): O
 
 An error occurred while executing the code. Here is the code that was executed so far:
 
-${snapshot.stack.split('\n').slice(0, -1).join('\n')}
+${cleanStackTrace(snapshot.stack).split('\n').slice(0, -1).join('\n')}
 
 ${reject.description}
 Here's the error:

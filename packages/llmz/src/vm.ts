@@ -1,5 +1,5 @@
 import { type Isolate } from 'isolated-vm'
-import { isFunction, maxBy, mapValues } from 'lodash-es'
+import { isFunction, mapValues, maxBy } from 'lodash-es'
 import { SourceMapConsumer } from 'source-map-js'
 
 import { compile, CompiledCode, Identifiers } from './compiler/index.js'
@@ -12,6 +12,7 @@ import {
   VMSignal,
 } from './errors.js'
 import { createJsxComponent, JsxComponent } from './jsx.js'
+import { cleanStackTrace } from './stack-traces.js'
 import { Trace, Traces, VMExecutionResult } from './types.js'
 
 // We do this because we want it to work in the browser
@@ -561,6 +562,9 @@ const handleError = (
       appendCode(`  ${paddedLineNumber} | ${line}\n`)
     }
   }
+
+  debugUserCode = cleanStackTrace(debugUserCode).trim()
+  truncatedCode = cleanStackTrace(truncatedCode).trim()
 
   if (err instanceof VMSignal) {
     err.stack = debugUserCode

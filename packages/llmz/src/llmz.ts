@@ -28,6 +28,7 @@ import { truncateWrappedContent } from './truncator.js'
 import { ExecutionResult, Trace } from './types.js'
 import { init, stripInvalidIdentifiers } from './utils.js'
 import { runAsyncFunction } from './vm.js'
+import { cleanStackTrace } from './stack-traces.js'
 
 const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : JSON.stringify(err))
 
@@ -131,7 +132,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
         iteration.end({
           type: 'execution_error',
           execution_error: {
-            stack: (err as Error).stack ?? 'No stack trace available',
+            stack: cleanStackTrace((err as Error).stack ?? 'No stack trace available'),
             message: 'An unexpected error occurred: ' + getErrorMessage(err),
           },
         })
@@ -404,7 +405,7 @@ const executeIteration = async ({
       type: 'execution_error',
       execution_error: {
         message: result.error.message,
-        stack: result.error.stack ?? 'No stack trace available',
+        stack: cleanStackTrace(result.error.stack ?? 'No stack trace available'),
       },
     })
   }
@@ -423,7 +424,7 @@ const executeIteration = async ({
       type: 'execution_error',
       execution_error: {
         message: result?.error?.message ?? 'Unknown error occurred',
-        stack: result.error.stack ?? 'No stack trace available',
+        stack: cleanStackTrace(result.error.stack ?? 'No stack trace available'),
       },
     })
   }
