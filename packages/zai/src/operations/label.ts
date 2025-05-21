@@ -22,7 +22,7 @@ type Example<T extends string> = {
   labels: Partial<Record<T, { label: Label; explanation?: string }>>
 }
 
-export type Options<T extends string> = Omit<z.input<typeof Options>, 'examples'> & {
+export type Options<T extends string> = Omit<(typeof Options)['_input'], 'examples'> & {
   examples?: Array<Partial<Example<T>>>
 }
 
