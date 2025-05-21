@@ -5,6 +5,14 @@ import { cleanStackTrace } from './stack-traces.js'
 
 type ErrorConstructor = new (...args: any[]) => Error
 
+export type ToolCall = {
+  name: string
+  inputSchema?: JSONSchema
+  outputSchema?: JSONSchema
+  input?: unknown
+  assignment?: Assignment
+}
+
 const errorClasses: { [key: string]: ErrorConstructor } = {}
 function registerErrorClass(name: string, errorClass: ErrorConstructor) {
   errorClasses[name] = errorClass
@@ -100,13 +108,7 @@ export class VMSignal extends Error {
 
 /** Interrupt means LLMz will provide a snapshot and pause execution until it is resumed */
 export class VMInterruptSignal extends VMSignal {
-  public toolCall?: {
-    name: string
-    inputSchema?: JSONSchema
-    outputSchema?: JSONSchema
-    input?: any
-    assignment?: Assignment
-  }
+  public toolCall?: ToolCall
 
   constructor(message: string) {
     super(message)

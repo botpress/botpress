@@ -2,7 +2,7 @@ import { type Cognitive } from '@botpress/cognitive'
 import { cloneDeep, isPlainObject } from 'lodash-es'
 import { ulid } from 'ulid'
 import { Component, assertValidComponent } from './component.js'
-import { LoopExceededError } from './errors.js'
+import { LoopExceededError, VMInterruptSignal } from './errors.js'
 import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
 import { HookedArray } from './handlers.js'
@@ -10,7 +10,7 @@ import { ObjectInstance } from './objects.js'
 import type { OAI } from './openai.js'
 import { DualModePrompt } from './prompts/dual-modes.js'
 import { Prompt } from './prompts/prompt.js'
-import { SnapshotResult } from './snapshots.js'
+import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
 import { TranscriptArray, TranscriptMessage } from './transcript.js'
 import { wrapContent } from './truncator.js'
@@ -76,8 +76,7 @@ export namespace IterationStatuses {
   export type Callback = {
     type: 'callback_requested'
     callback_requested: {
-      reason?: string
-      stack: string
+      signal: VMInterruptSignal
     }
   }
 
@@ -272,7 +271,6 @@ export class Iteration {
   }
 }
 
-// TODO: toString()
 export class Context {
   public id: string
 
@@ -283,13 +281,13 @@ export class Context {
   public exits?: ValueOrGetter<Exit[], Context>
   public components?: ValueOrGetter<Component[], Context>
 
-  public appliedSnapshot?: SnapshotResult // TODO: re-implement me correctly
-
   public version: Prompt = DualModePrompt
   public loop: number
   public temperature: number
   public model?: Model
   public metadata: Record<string, any>
+
+  public snapshot?: Snapshot
 
   public iteration: number = 0
   public iterations: Iteration[]
@@ -297,6 +295,12 @@ export class Context {
   public async nextIteration(): Promise<Iteration> {
     if (this.iterations.length >= this.loop) {
       throw new LoopExceededError()
+    }
+
+    if (this.snapshot && this.snapshot.status.type === 'pending') {
+      throw new Error(
+        `Cannot resume execution from a snapshot that is still pending: ${this.snapshot.id}. Please resolve() or reject() it first.`
+      )
     }
 
     const parameters = await this._refreshIterationParameters()
@@ -311,6 +315,7 @@ export class Context {
 
     this.iterations.push(iteration)
     this.iteration = this.iterations.length
+    this.snapshot = undefined
 
     return iteration
   }
@@ -335,6 +340,38 @@ export class Context {
 
   private async _getIterationMessages(parameters: IterationParameters): Promise<OAI.Message[]> {
     const lastIteration = this.iterations.at(-1)
+
+    if (this.snapshot?.status.type === 'resolved') {
+      return [
+        await this.version.getSystemMessage({
+          globalTools: parameters.tools,
+          objects: parameters.objects,
+          instructions: parameters.instructions,
+          transcript: parameters.transcript,
+          exits: parameters.exits,
+          components: parameters.components,
+        }),
+        await this.version.getSnapshotResolvedMessage({
+          snapshot: this.snapshot,
+        }),
+      ]
+    }
+
+    if (this.snapshot?.status.type === 'rejected') {
+      return [
+        await this.version.getSystemMessage({
+          globalTools: parameters.tools,
+          objects: parameters.objects,
+          instructions: parameters.instructions,
+          transcript: parameters.transcript,
+          exits: parameters.exits,
+          components: parameters.components,
+        }),
+        await this.version.getSnapshotRejectedMessage({
+          snapshot: this.snapshot,
+        }),
+      ]
+    }
 
     // TODO: truncate messages when too many / too long...
     // this can't work with loop = 100 for example
@@ -548,6 +585,7 @@ export class Context {
     temperature?: number
     model?: Model
     metadata?: Record<string, any>
+    snapshot?: Snapshot
   }) {
     this.id = `llmz_${ulid()}`
     this.transcript = props.transcript
@@ -562,6 +600,7 @@ export class Context {
     this.model = props.model
     this.iterations = []
     this.metadata = props.metadata ?? {}
+    this.snapshot = props.snapshot
 
     if (this.loop < 1 || this.loop > 100) {
       throw new Error('Invalid loop. Expected a number between 1 and 100.')

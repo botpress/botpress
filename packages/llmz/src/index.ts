@@ -1,6 +1,7 @@
 export { Tool } from './tool.js'
 export { Exit } from './exit.js'
 export { ObjectInstance } from './objects.js'
+export { VMInterruptSignal } from './errors.js'
 
 export { Component, ContainerComponent, DefaultComponent, LeafComponent } from './component.js'
 export { DefaultComponents } from './component.default.js'

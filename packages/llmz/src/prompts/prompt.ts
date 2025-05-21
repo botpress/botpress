@@ -2,7 +2,7 @@ import { Component } from 'src/component.js'
 import { Exit } from 'src/exit.js'
 import type { ObjectInstance } from '../objects.js'
 import { OAI } from '../openai.js'
-import { RejectCallback, ResolveCallback, SnapshotResult } from '../snapshots.js'
+import { Snapshot } from '../snapshots.js'
 import { type Tool } from '../tool.js'
 import type { TranscriptArray } from '../transcript.js'
 
@@ -32,12 +32,11 @@ export namespace LLMzPrompts {
   }
 
   export type SnapshotResolvedProps = {
-    result: SnapshotResult<ResolveCallback>
-    injectedVariables: Record<string, unknown>
+    snapshot: Snapshot
   }
 
   export type SnapshotRejectedProps = {
-    result: SnapshotResult<RejectCallback>
+    snapshot: Snapshot
   }
 }
 

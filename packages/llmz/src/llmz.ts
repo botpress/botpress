@@ -21,6 +21,8 @@ import { ValueOrGetter } from './getter.js'
 
 import { type ObjectInstance } from './objects.js'
 
+import { Snapshot } from './snapshots.js'
+import { cleanStackTrace } from './stack-traces.js'
 import { type Tool } from './tool.js'
 
 import { TranscriptMessage } from './transcript.js'
@@ -28,7 +30,6 @@ import { truncateWrappedContent } from './truncator.js'
 import { ExecutionResult, Trace } from './types.js'
 import { init, stripInvalidIdentifiers } from './utils.js'
 import { runAsyncFunction } from './vm.js'
-import { cleanStackTrace } from './stack-traces.js'
 
 const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : JSON.stringify(err))
 
@@ -76,6 +77,7 @@ export type ExecutionProps = {
   /** An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive) */
   client: Cognitive | BotpressClientLike
   signal?: AbortSignal
+  snapshot?: Snapshot
 } & ExecutionHooks
 
 const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
@@ -95,6 +97,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
     transcript: props.transcript,
     exits: props.exits,
     components: props.components,
+    snapshot: props.snapshot,
   })
 
   try {
@@ -154,15 +157,13 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
       }
 
       if (iteration.status.type === 'callback_requested') {
-        throw new Error('Callbacks are not yet implemented')
-        // TODO: implement snapshots
-        // return {
-        //   status: 'interrupted',
-        //   snapshot: createSnapshot({} as any) as any, // TODO: fixme
-        //   context: ctx,
-        //   iterations: ctx.iterations,
-        //   signal: {} as any, // TODO: fixme
-        // }
+        return {
+          status: 'interrupted',
+          context: ctx,
+          iterations: ctx.iterations,
+          signal: iteration.status.callback_requested.signal,
+          snapshot: Snapshot.fromSignal(iteration.status.callback_requested.signal),
+        }
       }
 
       // Retryable errors
@@ -443,8 +444,7 @@ const executeIteration = async ({
     return iteration.end({
       type: 'callback_requested',
       callback_requested: {
-        reason: result.signal.message,
-        stack: result.signal.truncatedCode,
+        signal: result.signal,
       },
     })
   }

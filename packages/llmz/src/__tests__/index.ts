@@ -71,7 +71,7 @@ class CachedClient extends Client {
       return cached.value
     }
 
-    if (cacheByTest.has(testKey)) {
+    if (process.env.CI && cacheByTest.has(testKey)) {
       console.log(`Cache miss for ${key} in test ${testKey}`)
       console.log(
         diffLines(

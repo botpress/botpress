@@ -269,14 +269,14 @@ Please continue with the conversation (■fn_start).
 }
 
 const getSnapshotResolvedMessage = (props: LLMzPrompts.SnapshotResolvedProps): OAI.Message => {
+  if (props.snapshot.status.type !== 'resolved') {
+    throw new Error('Snapshot is not resolved')
+  }
+
   let variablesMessage = ''
+  const injectedVariables: Record<string, unknown> = {}
 
-  const resolve = props.result.callback
-  const value = props.result.result
-  const injectedVariables = props.injectedVariables
-  const snapshot = props.result.snapshot
-
-  for (const variable of snapshot.variables) {
+  for (const variable of props.snapshot.variables) {
     if (!variable.truncated) {
       injectedVariables[variable.name] = variable.value
       variablesMessage += `
@@ -292,7 +292,10 @@ let ${variable.name}: undefined | ${variable.type} = undefined;\n`
     }
   }
 
-  const output = wrapContent(inspect(value)?.split('\n').join('\n * ') ?? '', { preserve: 'top', flex: 4 })
+  const output = wrapContent(inspect(props.snapshot.status.value)?.split('\n').join('\n * ') ?? '', {
+    preserve: 'top',
+    flex: 4,
+  })
 
   return {
     role: 'user',
@@ -301,8 +304,8 @@ let ${variable.name}: undefined | ${variable.type} = undefined;\n`
 ## Important message from the VM
 
 The execution of an asynchronous code block has been completed. Here's the code that was executed:
-${cleanStackTrace(snapshot.stack).split('\n').slice(0, -1).join('\n')}
-// ${resolve.description}
+${cleanStackTrace(props.snapshot.stack).split('\n').slice(0, -1).join('\n')}
+// Reason: ${props.snapshot.reason}
 \`\`\`tsx
 /**
  * Here's the output:
@@ -333,11 +336,11 @@ Expected output:
 }
 
 const getSnapshotRejectedMessage = (props: LLMzPrompts.SnapshotRejectedProps): OAI.Message => {
-  const reject = props.result.callback
-  const error = props.result.result
-  const snapshot = props.result.snapshot
+  if (props.snapshot.status.type !== 'rejected') {
+    throw new Error('Snapshot is not resolved')
+  }
 
-  const errorMessage = inspect(error) ?? 'Unknown Error'
+  const errorMessage = inspect(props.snapshot.status.error) ?? 'Unknown Error'
 
   const output = wrapContent(errorMessage.split('\n').join('\n * ') ?? 'Unknown Error', {
     preserve: 'both',
@@ -352,9 +355,9 @@ const getSnapshotRejectedMessage = (props: LLMzPrompts.SnapshotRejectedProps): O
 
 An error occurred while executing the code. Here is the code that was executed so far:
 
-${cleanStackTrace(snapshot.stack).split('\n').slice(0, -1).join('\n')}
+${cleanStackTrace(props.snapshot.stack).split('\n').slice(0, -1).join('\n')}
+// Reason: ${props.snapshot.reason}
 
-${reject.description}
 Here's the error:
 ${output}
 
