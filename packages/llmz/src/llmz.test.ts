@@ -9,6 +9,7 @@ import { getCachedCognitiveClient } from './__tests__/index.js'
 import { ObjectInstance } from './objects.js'
 import { Exit } from './exit.js'
 import { DefaultComponents } from './component.default.js'
+import { beforeAll } from 'vitest'
 
 const client = getCachedCognitiveClient()
 
@@ -92,6 +93,18 @@ const tPasswordProtectedAdd = (seed: number) =>
   })
 
 describe('llmz', { retry: 0, timeout: 10_000 }, () => {
+  let unsub = () => {}
+
+  beforeAll(() => {
+    unsub = client.on('error', (req, err) => {
+      console.error('Error from cognitive client', req, err)
+    })
+  })
+
+  afterAll(() => {
+    unsub()
+  })
+
   describe('executeContext', () => {
     it('using a tool with no args', async () => {
       let greeted = false
