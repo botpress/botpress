@@ -43,11 +43,11 @@ function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
 const cache: Map<string, { key: string; value: any }> = readJSONL(path.resolve(__dirname, './cache.jsonl'), 'key')
 
 class CachedClient extends Client {
-  private _client: Client
+  #client: Client
 
   public constructor(options: ConstructorParameters<typeof Client>[0]) {
     super(options)
-    this._client = new Client(options)
+    this.#client = new Client(options)
   }
 
   public callAction = async (...args: Parameters<Client['callAction']>) => {
@@ -60,7 +60,7 @@ class CachedClient extends Client {
 
     console.log('Cache miss', key, args, cache.size, cache.keys().toArray())
 
-    const response = await this._client.callAction(...args)
+    const response = await this.#client.callAction(...args)
     cache.set(key, { key, value: response })
 
     fs.appendFileSync(
