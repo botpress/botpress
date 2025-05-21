@@ -66,16 +66,16 @@ export class ConversationManager {
     })
   }
 
-  public async respond(messagePayload: types.MessagePayload): Promise<void> {
+  public async respond({ type, ...messagePayload }: types.MessagePayload): Promise<void> {
     await this._props.client.createMessage({
       // FIXME: in the future, we should use the provided UserId so that messages
       //        on Botpress appear to come from the agent/user instead of the
       //        bot user. For now, this is not possible because of checks in the
       //        backend.
+      type,
       userId: this._props.ctx.botId,
       conversationId: this._convId,
-      type: messagePayload.type,
-      payload: { ...messagePayload },
+      payload: messagePayload,
       tags: {},
     })
   }
