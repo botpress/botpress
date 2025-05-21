@@ -34,10 +34,13 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
       }))
     : undefined,
   states: bot.states
-    ? await utils.records.mapValuesAsync(bot.states, async (state) => ({
-        ...state,
-        schema: await utils.schema.mapZodToJsonSchema(state),
-      }))
+    ? (utils.records.filterValues(
+        await utils.records.mapValuesAsync(bot.states, async (state) => ({
+          ...state,
+          schema: await utils.schema.mapZodToJsonSchema(state),
+        })),
+        ({ type }) => type !== 'workflow'
+      ) as types.CreateBotRequestBody['states'])
     : undefined,
 })
 

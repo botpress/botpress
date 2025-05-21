@@ -236,6 +236,10 @@ export type FooBarBazPlugin = DefaultPlugin<{
       type: 'conversation'
       payload: { delta: null }
     }
+    epsilon: {
+      type: 'workflow'
+      payload: { epsilon: null }
+    }
   }
 }>
 
