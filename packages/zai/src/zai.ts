@@ -9,7 +9,7 @@ import { MemoryAdapter } from './adapters/memory'
 
 type ModelId = Required<Parameters<Cognitive['generateContent']>[0]['model']>
 
-type ActiveLearning = z.input<typeof ActiveLearning>
+type ActiveLearning = (typeof ActiveLearning)['_input']
 const ActiveLearning = z.object({
   enable: z.boolean().describe('Whether to enable active learning').default(false),
   tableName: z
@@ -30,7 +30,7 @@ const ActiveLearning = z.object({
     .default('default'),
 })
 
-type ZaiConfig = z.input<typeof ZaiConfig>
+type ZaiConfig = (typeof ZaiConfig)['_input']
 const ZaiConfig = z.object({
   client: z.custom<BotpressClientLike | Cognitive>(),
   userId: z.string().describe('The ID of the user consuming the API').optional(),

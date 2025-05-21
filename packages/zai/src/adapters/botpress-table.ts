@@ -25,12 +25,12 @@ const Props = z.object({
   tableName: z
     .string()
     .regex(
-      /^[a-zA-Z0-9_]{1,45}Table$/,
-      'Table name must be lowercase and contain only letters, numbers and underscores'
+      /^[a-zA-Z0-9_]{1,45}Table$/i,
+      'Table name must be lowercase and contain only letters, numbers and underscores. It must also end with "Table". Example: "ActiveLearningTable"'
     ),
 })
 
-export type TableSchema = z.input<typeof TableSchema>
+export type TableSchema = (typeof TableSchema)['_input']
 const TableSchema = z.object({
   taskType: z.string().describe('The type of the task (filter, extract, etc.)'),
   taskId: z.string(),
@@ -65,7 +65,7 @@ export class TableAdapter extends Adapter {
 
   private _status: 'initialized' | 'ready' | 'error'
 
-  public constructor(props: z.input<typeof Props>) {
+  public constructor(props: (typeof Props)['_input']) {
     super()
     props = Props.parse(props)
     this._client = props.client

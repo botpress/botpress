@@ -2389,7 +2389,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.19
+        specifier: 0.1.20
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0

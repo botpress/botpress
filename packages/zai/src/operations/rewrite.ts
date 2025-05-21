@@ -5,13 +5,13 @@ import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 
-type Example = z.input<typeof Example> & { instructions?: string }
+type Example = (typeof Example)['_input'] & { instructions?: string }
 const Example = z.object({
   input: z.string(),
   output: z.string(),
 })
 
-export type Options = z.input<typeof Options>
+export type Options = (typeof Options)['_input']
 const Options = z.object({
   examples: z.array(Example).default([]),
   length: z.number().min(10).max(16_000).optional().describe('The maximum number of tokens to generate'),
