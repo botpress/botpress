@@ -5,14 +5,14 @@ import * as bp from '.botpress'
 
 type FileWithOptions = models.FileWithPath & { shouldIndex: boolean; addToKbId?: string }
 
-export type EnumerationState = NonNullable<bp.workflows.buildQueue.output.Output['enumerationState']>
+export type EnumerationState = NonNullable<bp.states.States['buildQueueRuntimeState']['payload']['enumerationState']>
 
 type IntegrationActionProxy = Pick<
   bp.WorkflowHandlerProps['processQueue']['actions']['files-readonly'],
   'listItemsInFolder'
 >
 
-type EnumerateAllFilesRecursiveProps = {
+export type EnumerateAllFilesRecursiveProps = {
   logger: sdk.BotLogger
   integration: IntegrationActionProxy
   configuration: Pick<bp.configuration.Configuration, 'includeFiles' | 'excludeFiles'>
@@ -66,7 +66,7 @@ export const enumerateAllFilesRecursive = async ({
     if (nextToken) {
       enumerationState.currentFolderNextToken = nextToken
 
-      if (_shouldPushBatchAndYieldCurrentState(startTime, includedFiles, maximumExecutionTimeMs)) {
+      if (_isTimeoutReached(startTime, maximumExecutionTimeMs)) {
         await pushFilesToSyncQueue(includedFiles)
         return enumerationState
       }
@@ -80,11 +80,8 @@ export const enumerateAllFilesRecursive = async ({
   return undefined
 }
 
-const _shouldPushBatchAndYieldCurrentState = (
-  startTime: number,
-  includedFiles: FileWithOptions[],
-  maximumExecutionTimeMs: number
-): boolean => Date.now() - startTime >= maximumExecutionTimeMs && includedFiles.length > 0
+const _isTimeoutReached = (startTime: number, maximumExecutionTimeMs: number): boolean =>
+  Date.now() - startTime >= maximumExecutionTimeMs
 
 const _listFolderContents = async (integration: IntegrationActionProxy, enumerationState: EnumerationState) => {
   const folder = enumerationState.pendingFolders[0]!

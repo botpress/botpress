@@ -121,29 +121,7 @@ export default new sdk.PluginDefinition({
         }),
       },
       output: {
-        schema: sdk.z.object({
-          jobFileId: sdk.z.string().title('Job File').describe("The ID of the job's queue file"),
-          enumerationState: sdk.z
-            .object({
-              pendingFolders: sdk.z
-                .array(
-                  sdk.z.object({
-                    folderId: sdk.z.string().optional().title('Folder ID').describe('The ID of the folder'),
-                    absolutePath: sdk.z.string().title('Absolute Path').describe('The absolute path of the folder'),
-                  })
-                )
-                .title('Pending Folders')
-                .describe('Folders awaiting enumeration'),
-              currentFolderNextToken: sdk.z
-                .string()
-                .optional()
-                .title('Current Folder Paging Token')
-                .describe('The next token to use for pagination'),
-            })
-            .optional()
-            .title('Enumeration State')
-            .describe('The current state of the enumeration process'),
-        }),
+        schema: sdk.z.object({}),
       },
       tags: {
         syncJobId: {
@@ -185,6 +163,34 @@ export default new sdk.PluginDefinition({
           description: 'The date and time when the sync job was created',
         },
       },
+    },
+  },
+  states: {
+    buildQueueRuntimeState: {
+      type: 'workflow',
+      schema: sdk.z.object({
+        jobFileId: sdk.z.string().title('Job File').describe("The ID of the job's queue file"),
+        enumerationState: sdk.z
+          .object({
+            pendingFolders: sdk.z
+              .array(
+                sdk.z.object({
+                  folderId: sdk.z.string().optional().title('Folder ID').describe('The ID of the folder'),
+                  absolutePath: sdk.z.string().title('Absolute Path').describe('The absolute path of the folder'),
+                })
+              )
+              .title('Pending Folders')
+              .describe('Folders awaiting enumeration'),
+            currentFolderNextToken: sdk.z
+              .string()
+              .optional()
+              .title('Current Folder Paging Token')
+              .describe('The next token to use for pagination'),
+          })
+          .optional()
+          .title('Enumeration State')
+          .describe('The current state of the enumeration process'),
+      }),
     },
   },
   interfaces: {

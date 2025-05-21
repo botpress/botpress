@@ -7,7 +7,7 @@ export const handleEvent: bp.WorkflowHandlers['buildQueue'] = async (props) => {
   const syncFileKey = _generateFileKey(props)
   const jobFileId = await SyncQueue.jobFileManager.updateSyncQueue(props, syncFileKey, [], props.workflow.tags)
 
-  await props.workflow.update({ output: { jobFileId } })
+  await props.states.workflow.buildQueueRuntimeState.set(props.workflow.id, { jobFileId })
 }
 
 const _generateFileKey = (props: bp.WorkflowHandlerProps['buildQueue']) => {
