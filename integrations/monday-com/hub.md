@@ -1,34 +1,31 @@
-# Monday.com Integration
+# Monday Integration
 
-`@botpresshub/monday-com` is a Botpress integration that integrates with Monday.com, enabling your bots to interact with Monday.com items.
+`@botpresshub/monday` is a Botpress integration that integrates with Monday.com, enabling your bots to create Monday.com items.
 
 ## Configuration
 
 This integration makes use of a personal access token from Monday.com. You need to acquire your personal access token and provide it to the integration when you install it with your bot.
 
-### Monday.com
+### Monday
 
 Along with your personal access token, you will need to identify the Board IDs of the Monday.com Boards you would like your bot to interact with.
 
 #### Access token
 
-Please refer to the [Authentication Guide](https://developer.monday.com/api-reference/docs/authentication#get-your-token) in the Monday.com documentation to learn how to acquire your personal access token.
+Please refer to the [Authentication Guide](https://developer.monday.com/api-reference/docs/authentication#get-your-token) in the Monday documentation to learn how to acquire your personal access token.
 
 #### Board ID
 
-In order to find your Board ID, log into Monday.com and navigate to your Board. Then, inspect the URL in your address bar. See the following example:
+In order to find your Board ID, log into Monday and navigate to your Board. Then, inspect the URL in your address bar. See the following example:
 
 ```
 https://<your-workspace-id>.monday.com/boards/9012345678
 ```
 
-In the URL provided above, the Board ID would be `9012345678`. Keep this (and any other relevant board IDs) around for when you configure the Botpress integration.
+In the URL provided above, the Board ID would be `9012345678`. Keep this (and any other relevant board IDs) around for when configure actions using the Botpress integration.
 
 ### Botpress
 
-1. Install the Monday.com integration in your Botpress bot.
+1. Install the Monday integration in your Botpress bot.
 2. Paste the personal access token in the configuration field.
-3. Add any number of Board IDs to the configuration for which you'd like your bot to be made aware of.
-4. Save configuration.
-
-Your bot will register webhooks for the specified Monday.com boards to be notified of item updates.
+3. Save configuration.

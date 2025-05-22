@@ -1,5 +1,5 @@
 {
-  "name": "@botpresshub/monday-com",
+  "name": "@botpresshub/monday",
   "scripts": {
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",

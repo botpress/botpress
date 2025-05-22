@@ -1,24 +1,14 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import {
-  configurationSchema,
-  createItemSchema,
-  syncItemsSchema,
-  registeredWebhooksSchema,
-} from 'src/misc/custom-schemas'
+import { configurationSchema, createItemSchema } from 'src/misc/custom-schemas'
 
 export default new IntegrationDefinition({
-  name: 'monday-com',
-  title: 'Monday.com',
-  description: 'Manage items in Monday.com boards.',
+  name: 'monday',
+  title: 'Monday',
+  description: 'Manage items in Monday boards.',
   version: '1.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
-  states: {
-    webhooks: {
-      type: 'integration',
-      schema: registeredWebhooksSchema,
-    },
-  },
+  states: {},
   actions: {
     createItem: {
       title: 'Create Item',
@@ -27,12 +17,6 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({}),
       },
-    },
-    syncItems: {
-      title: 'Sync Items',
-      description: 'Retrieve items from a Monday.com board and store them in a Botpress table.',
-      input: { schema: syncItemsSchema.input },
-      output: { schema: syncItemsSchema.output },
     },
   },
   configuration: {
