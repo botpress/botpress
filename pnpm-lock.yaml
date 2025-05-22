@@ -1125,7 +1125,7 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
-  integrations/monday-com:
+  integrations/monday:
     dependencies:
       '@botpress/client':
         specifier: 1.12.0
