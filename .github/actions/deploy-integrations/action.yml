@@ -84,7 +84,7 @@ runs:
             exists=$(./.github/scripts/integration-exists.sh $integration)
 
             base_command="bp deploy -v -y --noBuild --public --allowDeprecated $dryrun"
-            
+
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying integration: ### $integration ###\n"
                 pnpm retry -n 2 -- pnpm -F "{integrations/$integration}" -c exec -- "$base_command"
@@ -93,5 +93,15 @@ runs:
                 pnpm retry -n 2 -- pnpm -F "{integrations/$integration}" -c exec -- "$base_command"
             else
                 echo -e "\nSkipping integration: ### $integration ###\n"
+            fi
+
+            # upload sandbox scripts
+            integration_name=$(pnpm bp read --json | jq -r ".name")
+            if [ $integration_implements_sandbox -eq 1 ]; then
+                echo -e "\nUploading integration sandbox scripts\n"
+                integration_version=$(pnpm bp read --json | jq -r ".version")
+                integration_implements_sandbox=$(./.github/scripts/integration-implements-sandbox.sh $integration)
+                base_upload_command="uploadSandboxScripts --apiUrl=$api_url --workspaceId=$CLOUD_OPS_WORKSPACE_ID --token=$TOKEN_CLOUD_OPS_ACCOUNT --userEmail='cloud-ops@botpress.com' --integrationName=$integration_name --integrationVersion=$integration_version --integrationPath=$integration_path"
+                pnpm retry -n 2 -- pnpm -F "{integrations/$integration}" -c exec -- $base_upload_command
             fi
         done
