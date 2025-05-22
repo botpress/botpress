@@ -7,8 +7,9 @@ const FILE_FILTER_PROPS = sdk.z.object({
       .object({
         pathGlobPattern: sdk.z
           .string()
+          .placeholder('Example: /path/to/folder/**')
           .describe(
-            'A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported.'
+            'A glob pattern to match against the file path. Only files that match the pattern will be synchronized. Any pattern supported by picomatch is supported. For example, use rule "**" to match all files, or enter a path like "/path/to/folder/**" to match all files in a specific folder.'
           ),
         maxSizeInBytes: sdk.z
           .number()
@@ -27,6 +28,7 @@ const FILE_FILTER_PROPS = sdk.z.object({
           .object({
             addToKbId: sdk.z
               .string()
+              .placeholder('Example: kb-2f0a7ea639')
               .optional()
               .title('Knowledge Base ID')
               .describe(
@@ -45,6 +47,7 @@ const FILE_FILTER_PROPS = sdk.z.object({
       .object({
         pathGlobPattern: sdk.z
           .string()
+          .placeholder('Example: /path/to/folder/**')
           .describe(
             'A glob pattern to match against the file path. Files that match the pattern will be ignored, even if they match the includeFiles configuration.'
           ),
@@ -56,7 +59,7 @@ const FILE_FILTER_PROPS = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'file-synchronizer',
-  version: '0.7.2',
+  version: '0.7.3',
   title: 'File Synchronizer',
   description: 'Synchronize files from external services to Botpress',
   icon: 'icon.svg',
