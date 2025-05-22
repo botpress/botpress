@@ -111,6 +111,31 @@ const appendValues = {
   output: {
     schema: z.object({
       spreadsheetId: z.string().title('Spreadsheet ID').describe('The spreadsheet the updates were applied to.'),
+      tableRange: z
+        .string()
+        .title('Table Range')
+        .describe(
+          'The range (in A1 notation) of the table that values are being appended to (before the values were appended). Empty if no table was found.'
+        ),
+      updates: z
+        .object({
+          spreadsheetId: z.string().title('Spreadsheet ID').describe('The spreadsheet the updates were applied to.'),
+          updatedRange: z
+            .string()
+            .title('Updated Range')
+            .describe('The range (in A1 notation) that updates were applied to.'),
+          updatedRows: z
+            .number()
+            .title('Updated Rows')
+            .describe('The number of rows where at least one cell in the row was updated.'),
+          updatedColumns: z
+            .number()
+            .title('Updated Columns')
+            .describe('The number of columns where at least one cell in the column was updated.'),
+          updatedCells: z.number().title('Updated Cells').describe('The number of cells updated.'),
+        })
+        .title('Updates')
+        .describe('The updates that were applied to the spreadsheet.'),
     }),
   },
 } as const satisfies ActionDef
