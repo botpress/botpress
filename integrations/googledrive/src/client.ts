@@ -155,7 +155,7 @@ export class Client {
 
   public async getChildren(folderId: string): Promise<GenericFile[]> {
     const files = await listAllItems(this._listBaseGenericFiles.bind(this), {
-      searchQuery: `'${folderId}' in parents`,
+      searchQuery: this._getParentsFilter(folderId),
     })
     return await Promise.all(files.map((f) => this._getCompleteFile(f)))
   }
@@ -173,13 +173,18 @@ export class Client {
       const { items: files, meta } = await this._listBaseGenericFiles({
         nextToken,
         args: {
-          searchQuery: `'${folderId}' in parents` + (extraQuery ? ` and ${extraQuery}` : ''),
+          searchQuery: this._getParentsFilter(folderId) + (extraQuery ? ` and ${extraQuery}` : ''),
         },
       })
       return { files, nextToken: meta.nextToken }
-    } catch {
+    } catch (thrown: unknown) {
+      console.error('Error whilst enumerating children', thrown)
       return { files: [], nextToken: undefined }
     }
+  }
+
+  private _getParentsFilter(parentId: string): string {
+    return parentId === 'root' ? "('root' in parents or sharedWithMe = true)" : `'${parentId}' in parents`
   }
 
   public async createFile({ name, parentId, mimeType }: CreateFileArgs): Promise<File> {
@@ -511,12 +516,19 @@ export class Client {
     return indexableContentType ?? defaultContentType
   }
 
-  private _getFilePath = async (file: BaseDiscriminatedFile): Promise<string[]> => {
+  private _getFilePath = async (file: BaseDiscriminatedFile, pathAcc?: string[]): Promise<string[]> => {
+    const path = [file.name, ...(pathAcc ?? [])]
+
     if (!file.parentId) {
-      return [file.name]
+      return path
     }
 
-    const parent = await this._getOrFetchFile(file.parentId)
-    return [...(await this._getFilePath(parent)), file.name]
+    try {
+      const parent = await this._getOrFetchFile(file.parentId)
+
+      return await this._getFilePath(parent, path)
+    } catch {
+      return path
+    }
   }
 }

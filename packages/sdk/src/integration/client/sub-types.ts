@@ -44,10 +44,3 @@ export type TagsOfMessage<
   TIntegration extends common.BaseIntegration,
   TMessageName extends keyof EnumerateMessages<TIntegration>,
 > = keyof utils.UnionToIntersection<GetMessageByName<TIntegration, TMessageName>['tags']>
-
-/**
- * @deprecated Integration's should no longer use their name as prefix for event types or tags.
- */
-export type WithPrefix<TTags extends string, TPrefix extends string> = string extends TTags
-  ? string
-  : utils.Join<[TPrefix, ':', TTags]>

@@ -1,7 +1,10 @@
+import { RuntimeError } from '@botpress/client'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
-import { getAuthenticatedWhatsappClient } from 'src/auth'
-import { WhatsAppMessage, WhatsAppValue, WhatsAppPayloadSchema } from '../../misc/types'
-import { getMediaUrl } from '../../misc/whatsapp-utils'
+import axios from 'axios'
+import { getAccessToken, getAuthenticatedWhatsappClient } from 'src/auth'
+import { getMessageFromWhatsappMessageId } from 'src/misc/util'
+import { WhatsAppMessage, WhatsAppValue } from '../../misc/types'
+import { getMediaInfos } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
 
 type IncomingMessages = {
@@ -11,36 +14,17 @@ type IncomingMessages = {
   }
 }
 
-export const messagesHandler = async (props: bp.HandlerProps) => {
-  const { req, ctx, client, logger } = props
-  if (!req.body) {
-    logger.debug('Handler received an empty body, so the message was ignored')
-    return
-  }
+export const messagesHandler = async (
+  message: NonNullable<WhatsAppValue['messages']>[number],
+  value: WhatsAppValue,
+  props: bp.HandlerProps
+) => {
+  const { ctx, client, logger } = props
 
-  try {
-    const data = JSON.parse(req.body)
-    const payload = WhatsAppPayloadSchema.parse(data)
-
-    for (const { changes } of payload.entry) {
-      for (const change of changes) {
-        if (!change.value.messages) {
-          // If the change doesn't contain messages we can ignore it, as we don't currently process other change types (such as statuses or errors).
-          continue
-        }
-
-        for (const message of change.value.messages) {
-          const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
-          const phoneNumberId = change.value.metadata.phone_number_id
-          await whatsapp.markAsRead(phoneNumberId, message.id)
-          await _handleIncomingMessage(message, change.value, ctx, client, logger)
-        }
-      }
-    }
-  } catch (e: any) {
-    logger.debug('Error while handling request:', e)
-    return { status: 500, body: 'Error while handling request: ' + e.message }
-  }
+  const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
+  const phoneNumberId = value.metadata.phone_number_id
+  await whatsapp.markAsRead(phoneNumberId, message.id)
+  await _handleIncomingMessage(message, value, ctx, client, logger)
 
   return { status: 200 }
 }
@@ -78,19 +62,36 @@ async function _handleIncomingMessage(
     type,
     payload,
     incomingMessageType,
-  }: ValueOf<IncomingMessages> & { incomingMessageType?: string }) => {
+    replyTo,
+  }: ValueOf<IncomingMessages> & { incomingMessageType?: string; replyTo?: string }) => {
     logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
     return client.createMessage({
-      tags: { id: message.id },
+      tags: { id: message.id, replyTo },
       type,
       payload,
       userId: user.id,
       conversationId: conversation.id,
     })
   }
+
+  const replyToWhatsAppId = message.context?.id
+  const replyToMessage = replyToWhatsAppId
+    ? await getMessageFromWhatsappMessageId(replyToWhatsAppId, client)
+    : undefined
+  if (replyToWhatsAppId && !replyToMessage) {
+    // Only thing we can do is log
+    // We can't fetch a message from the API if we didn't receive it on the webhook
+    logger
+      .forBot()
+      .warn(
+        `No Botpress message was found for the referenced message with WhatsApp message ID ${replyToWhatsAppId}. The bot may not be able to retrieve the context.`
+      )
+  }
+  const replyTo = replyToMessage?.id
+
   const { type } = message
   if (type === 'text') {
-    await createMessage({ type, payload: { text: message.text.body } })
+    await createMessage({ type, payload: { text: message.text.body }, replyTo })
   } else if (type === 'button') {
     await createMessage({
       type: 'text',
@@ -98,25 +99,34 @@ async function _handleIncomingMessage(
         value: message.button.payload,
         text: message.button.text,
       },
+      replyTo,
     })
   } else if (type === 'location') {
     const { latitude, longitude, address, name } = message.location
     await createMessage({
       type,
       payload: { latitude: Number(latitude), longitude: Number(longitude), title: name, address },
+      replyTo,
     })
   } else if (type === 'image') {
-    const imageUrl = await getMediaUrl(message.image.id, client, ctx)
-    await createMessage({ type, payload: { imageUrl } })
+    const imageUrl = await _getOrDownloadWhatsappMedia(message.image.id, client, ctx)
+    await createMessage({ type, payload: { imageUrl }, replyTo })
+  } else if (type === 'sticker') {
+    const stickerUrl = await _getOrDownloadWhatsappMedia(message.sticker.id, client, ctx)
+    await createMessage({ type: 'image', payload: { imageUrl: stickerUrl }, replyTo })
   } else if (type === 'audio') {
-    const audioUrl = await getMediaUrl(message.audio.id, client, ctx)
-    await createMessage({ type, payload: { audioUrl } })
+    const audioUrl = await _getOrDownloadWhatsappMedia(message.audio.id, client, ctx)
+    await createMessage({ type, payload: { audioUrl }, replyTo })
   } else if (type === 'document') {
-    const documentUrl = await getMediaUrl(message.document.id, client, ctx)
-    await createMessage({ type: 'file', payload: { fileUrl: documentUrl, filename: message.document.filename } })
+    const documentUrl = await _getOrDownloadWhatsappMedia(message.document.id, client, ctx)
+    await createMessage({
+      type: 'file',
+      payload: { fileUrl: documentUrl, filename: message.document.filename },
+      replyTo,
+    })
   } else if (type === 'video') {
-    const videoUrl = await getMediaUrl(message.video.id, client, ctx)
-    await createMessage({ type, payload: { videoUrl } })
+    const videoUrl = await _getOrDownloadWhatsappMedia(message.video.id, client, ctx)
+    await createMessage({ type, payload: { videoUrl }, replyTo })
   } else if (message.type === 'interactive') {
     if (message.interactive.type === 'button_reply') {
       const { id: value, title: text } = message.interactive.button_reply
@@ -124,6 +134,7 @@ async function _handleIncomingMessage(
         type: 'text',
         payload: { value, text },
         incomingMessageType: type,
+        replyTo,
       })
     } else if (message.interactive.type === 'list_reply') {
       const { id: value, title: text } = message.interactive.list_reply
@@ -131,9 +142,75 @@ async function _handleIncomingMessage(
         type: 'text',
         payload: { value, text },
         incomingMessageType: type,
+        replyTo,
       })
     }
+  } else if (message.type === 'unsupported' || message.type === 'unknown') {
+    const errors = message.errors?.map((err) => `${err.message} (${err.error_data.details})`).join('\n')
+    logger.forBot().warn(`Received message type ${message.type} by WhatsApp, errors: ${errors ?? 'none'}`)
   } else {
     logger.forBot().warn(`Unhandled message type ${type}: ${JSON.stringify(message)}`)
   }
+}
+
+async function _getOrDownloadWhatsappMedia(whatsappMediaId: string, client: bp.Client, ctx: bp.Context) {
+  if (ctx.configuration.downloadMedia) {
+    return await _downloadWhatsappMedia(whatsappMediaId, client, ctx)
+  } else {
+    const { url } = await getMediaInfos(whatsappMediaId, client, ctx)
+    return url
+  }
+}
+
+async function _downloadWhatsappMedia(whatsappMediaId: string, client: bp.Client, ctx: bp.Context) {
+  const { url, mimeType, fileSize } = await getMediaInfos(whatsappMediaId, client, ctx)
+  const { file } = await client.upsertFile({
+    key: 'whatsapp-media_' + whatsappMediaId,
+    expiresAt: _getMediaExpiry(ctx),
+    contentType: mimeType,
+    accessPolicies: ['public_content'],
+    publicContentImmediatelyAccessible: true,
+    size: fileSize,
+    tags: {
+      source: 'integration',
+      integration: 'whatsapp',
+      channel: 'channel',
+      whatsappMediaId,
+    },
+  })
+
+  const downloadResponse = await axios
+    .get(url, {
+      responseType: 'stream',
+      headers: {
+        Authorization: `Bearer ${await getAccessToken(client, ctx)}`,
+      },
+    })
+    .catch((err) => {
+      throw new RuntimeError(`Failed to download media: ${err.message}`)
+    })
+
+  await axios
+    .put(file.uploadUrl, downloadResponse.data, {
+      headers: {
+        'Content-Type': mimeType,
+        'Content-Length': fileSize,
+        'x-amz-tagging': 'public=true',
+      },
+      maxBodyLength: fileSize,
+    })
+    .catch((err) => {
+      throw new RuntimeError(`Failed to upload media: ${err.message}`)
+    })
+
+  return file.url
+}
+
+function _getMediaExpiry(ctx: bp.Context) {
+  const expiryDelayHours = ctx.configuration.downloadedMediaExpiry || 0
+  if (expiryDelayHours === 0) {
+    return undefined
+  }
+  const expiresAt = new Date(Date.now() + expiryDelayHours * 60 * 60 * 1000)
+  return expiresAt.toISOString()
 }

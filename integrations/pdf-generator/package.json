@@ -9,7 +9,7 @@
   "dependencies": {
     "@botpress/sdk": "workspace:*",
     "axios": "^1.7.2",
-    "marked": "^13.0.2"
+    "marked": "^15.0.1"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

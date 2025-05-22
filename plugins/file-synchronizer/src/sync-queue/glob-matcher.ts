@@ -1,15 +1,14 @@
 import * as picomatch from 'picomatch'
 import type * as models from '../../definitions/models'
-import { MAX_FILE_SIZE_BYTES } from '../consts'
 import * as bp from '.botpress'
 
-type GlobMatcherProps = {
+export type GlobMatcherProps = {
   configuration: Pick<bp.configuration.Configuration, 'includeFiles' | 'excludeFiles'>
   item: models.FolderItem
   itemPath: string
 }
 
-type GlobMatchResult =
+export type GlobMatchResult =
   | {
       shouldBeIgnored: false
       shouldApplyOptions: Exclude<
@@ -24,6 +23,10 @@ type GlobMatchResult =
 
 export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): GlobMatchResult => {
   for (const { pathGlobPattern } of configuration.excludeFiles) {
+    if (!pathGlobPattern) {
+      continue
+    }
+
     if (picomatch.isMatch(itemPath, pathGlobPattern)) {
       return {
         shouldBeIgnored: true,
@@ -34,25 +37,12 @@ export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): 
 
   let matchesButHasUnmetRequirements = false
 
-  for (const {
-    pathGlobPattern,
-    maxSizeInBytes,
-    modifiedAfter,
-    applyOptionsToMatchedFiles,
-  } of configuration.includeFiles) {
-    if (!picomatch.isMatch(itemPath, pathGlobPattern)) {
+  for (const { pathGlobPattern, applyOptionsToMatchedFiles, ...requirements } of configuration.includeFiles) {
+    if (!pathGlobPattern || !picomatch.isMatch(itemPath, pathGlobPattern)) {
       continue
     }
 
-    const isFileWithUnmetRequirements =
-      item.type === 'file' &&
-      ((maxSizeInBytes !== undefined && item.sizeInBytes !== undefined && item.sizeInBytes > maxSizeInBytes) ||
-        (item.sizeInBytes !== undefined && item.sizeInBytes > MAX_FILE_SIZE_BYTES) ||
-        (modifiedAfter !== undefined &&
-          item.lastModifiedDate !== undefined &&
-          new Date(item.lastModifiedDate) < new Date(modifiedAfter)))
-
-    if (isFileWithUnmetRequirements) {
+    if (_isFileWithUnmetRequirements(item, requirements)) {
       matchesButHasUnmetRequirements = true
       continue
     }
@@ -67,4 +57,32 @@ export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): 
     shouldBeIgnored: true,
     reason: matchesButHasUnmetRequirements ? 'unmet-include-requirements' : 'does-not-match-any-pattern',
   }
+}
+
+type FileRequirements = Omit<
+  GlobMatcherProps['configuration']['includeFiles'][number],
+  'pathGlobPattern' | 'applyOptionsToMatchedFiles'
+>
+
+const _isFileWithUnmetRequirements = (
+  item: models.FolderItem,
+  { maxSizeInBytes, modifiedAfter }: FileRequirements
+): boolean => {
+  if (item.type !== 'file') {
+    return false
+  }
+
+  const exceedsUserDefinedMaxSize =
+    maxSizeInBytes !== undefined &&
+    maxSizeInBytes > 0 &&
+    item.sizeInBytes !== undefined &&
+    item.sizeInBytes > maxSizeInBytes
+
+  const isItemOlderThanGivenDate =
+    modifiedAfter !== undefined &&
+    modifiedAfter.length > 0 &&
+    item.lastModifiedDate !== undefined &&
+    new Date(item.lastModifiedDate) < new Date(modifiedAfter)
+
+  return exceedsUserDefinedMaxSize || isItemOlderThanGivenDate
 }

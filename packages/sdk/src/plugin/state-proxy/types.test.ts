@@ -16,6 +16,9 @@ test('StateProxy of FooBarBazPlugin should reflect states of bot, integration an
     bot: {
       gamma: StateRepo<FooBarBazPlugin['states']['gamma']['payload']>
     }
+    workflow: {
+      epsilon: StateRepo<FooBarBazPlugin['states']['epsilon']['payload']>
+    }
   }>
 
   type Actual = StateProxy<FooBarBazPlugin>
@@ -36,6 +39,7 @@ test('StateProxy of EmptyPlugin should be almost empty', async () => {
     conversation: {}
     user: {}
     bot: {}
+    workflow: {}
   }
 
   type _assertion = utils.AssertAll<
@@ -54,6 +58,7 @@ test('StateProxy of BasePlugin should be a record', async () => {
     conversation: Record<string, StateRepo<any>>
     user: Record<string, StateRepo<any>>
     bot: Record<string, StateRepo<any>>
+    workflow: Record<string, StateRepo<any>>
   }
   type _assertion = utils.AssertAll<
     [

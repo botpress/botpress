@@ -11,6 +11,21 @@ const commonConfigSchema = z.object({
     .default(false)
     .title('Typing Indicator Emoji')
     .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
+  downloadMedia: z
+    .boolean()
+    .default(true)
+    .title('Download Media')
+    .describe(
+      'Automatically download media files using the Files API for content access. If disabled, temporary WhatsApp media URLs will be used, which require authentication with a valid access token.'
+    ),
+  downloadedMediaExpiry: z
+    .number()
+    .default(24)
+    .optional()
+    .title('Downloaded Media Expiry')
+    .describe(
+      'Expiry time in hours for downloaded media files. An expiry time of 0 means the files will never expire.'
+    ),
 })
 
 const startConversationProps = {
@@ -144,6 +159,14 @@ export default new IntegrationDefinition({
             title: 'Message ID',
             description: 'The WhatsApp message ID',
           },
+          reaction: {
+            title: 'Reaction',
+            description: 'A reaction added to the message',
+          },
+          replyTo: {
+            title: 'Reply To',
+            description: 'The ID of the message that this message is a reply to',
+          },
         },
       },
       conversation: {
@@ -182,7 +205,28 @@ export default new IntegrationDefinition({
       },
     },
   },
-  events: {},
+  events: {
+    reactionAdded: {
+      title: 'Reaction Added',
+      description: 'Triggered when a user adds a reaction to a message',
+      schema: z.object({
+        reaction: z.string().title('Reaction').describe('The reaction that was added'),
+        messageId: z.string().title('Message ID').describe('ID of the message that was reacted to'),
+        userId: z.string().optional().title('User ID').describe('ID of the user who added the reaction'),
+        conversationId: z.string().optional().title('Conversation ID').describe('ID of the conversation'),
+      }),
+    },
+    reactionRemoved: {
+      title: 'Reaction Removed',
+      description: 'Triggered when a user removes a reaction from a message',
+      schema: z.object({
+        reaction: z.string().title('Reaction').describe('The reaction that was removed'),
+        messageId: z.string().title('Message ID').describe('ID of the message that was reacted to'),
+        userId: z.string().optional().title('User ID').describe('ID of the user who removed the reaction'),
+        conversationId: z.string().optional().title('Conversation ID').describe('ID of the conversation'),
+      }),
+    },
+  },
   states: {
     credentials: {
       type: 'integration',

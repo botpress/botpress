@@ -1,4 +1,7 @@
 import { AtLeastOne } from 'whatsapp-api-js/lib/utils'
+import * as bp from '.botpress'
+
+type Message = Awaited<ReturnType<bp.Client['listMessages']>>['messages'][number]
 
 export function chunkArray<T>(array: T[], chunkSize: number) {
   const chunks: T[][] = []
@@ -34,4 +37,16 @@ export function getSubpath(path: string) {
 }
 export const hasAtleastOne = <T>(obj: T[]): obj is AtLeastOne<T> => {
   return obj.length > 0
+}
+
+export const getMessageFromWhatsappMessageId = async (
+  messageId: string,
+  client: bp.Client
+): Promise<Message | undefined> => {
+  const { messages } = await client.listMessages({
+    tags: {
+      id: messageId,
+    },
+  })
+  return messages[0]
 }
