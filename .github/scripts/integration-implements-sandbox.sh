@@ -8,10 +8,8 @@ integration_path="integrations/$integration"
 integration_def=$(pnpm bp read --work-dir $integration_path --json)
 
 has_sandbox=false
-sandbox_config=$(echo "$integration_def" | jq -r ".configurations.sandbox")
-sandbox_script="$integration_path/sandboxIdentifierExtractScript.vrl"
-
-if [ "$sandbox_config" != "null" ] && [ "$sandbox_config" != "" ] && [ -f "$sandbox_script" ]; then
+sandbox_script="$integration_path/sandboxIdentifierExtract.vrl"
+if [ -f "$sandbox_script" ]; then
   has_sandbox=true
 fi
 

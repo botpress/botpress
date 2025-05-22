@@ -1,7 +1,20 @@
 import 'dotenv/config'
 import { Client } from '@botpress/client'
 import axios from 'axios'
+import { spawnSync } from 'child_process'
 import fs from 'fs'
+
+const DEFAULT_API_URL = 'https://api.botpress.cloud'
+
+function readIntegrationDefinition(integrationPath: string): any {
+  const readCmdResult = spawnSync('pnpm', ['exec', 'bp', 'read', '--json', '--workDir', integrationPath])
+  if (readCmdResult.status !== 0) {
+    throw new Error(
+      `Failed to read integration definition: ${readCmdResult.error?.message || readCmdResult.stderr.toString() || 'Unknown error'}`
+    )
+  }
+  return JSON.parse(readCmdResult.stdout.toString())
+}
 
 async function doUpload() {
   // Parse named command line arguments
@@ -12,82 +25,81 @@ async function doUpload() {
   }, {})
 
   const userEmail = args.userEmail
-  const apiUrl = args.apiUrl || process.env.BP_API_URL || 'https://api.botpress.cloud'
+  const apiUrl = args.apiUrl || process.env.BP_API_URL || DEFAULT_API_URL
   let integrationId = args.integrationId || process.env.BP_INTEGRATION_ID
-  const integrationName = args.integrationName // TODO: Read from definition in the integration folder
-  const integrationVersion = args.integrationVersion
   const token = args.token || process.env.BP_TOKEN
   const workspaceId = args.workspaceId || process.env.BP_WORKSPACE_ID
 
-  const hasIntegrationInfos = integrationId || (integrationName && integrationVersion)
-  if (!userEmail || !apiUrl || !hasIntegrationInfos || !token || !workspaceId) {
-    console.error('Missing required arguments: userEmail, apiUrl, integrationId, token, workspaceId')
+  if (!userEmail || !token || !workspaceId) {
+    console.error('Missing required arguments: userEmail, token, workspaceId')
     console.error(
-      'Usage: pnpm run ts-node -T upload-sandbox-scripts.ts --userEmail=<email> --apiUrl=<apiUrl> --token=<token> --workspaceId=<workspaceId> {--integrationId=<id> | --integrationName=<name> --integrationVersion=<version>} [--integrationPath=<path>]\n' +
+      'Usage: pnpm run ts-node -T upload-sandbox-scripts.ts --userEmail=<email> --token=<token> --workspaceId=<workspaceId> [--apiUrl=<apiUrl>] [--integrationId=<id>] [--integrationPath=<path>]\n' +
         'integrationId, apiUrl, token, and workspaceId can also be set in the environment variables BP_INTEGRATION_ID, BP_API_URL, BP_TOKEN, BP_WORKSPACE_ID'
     )
     process.exit(1)
   }
 
-  if (!integrationId && integrationName && integrationVersion) {
-    // Fetch integrationId from the API using integrationName and integrationVersion
-    console.info('Fetching integration infos from the API...')
-    const client = new Client({ apiUrl, token })
-    const { integration } = await client.getIntegrationByName({
-      name: integrationName,
-      version: integrationVersion,
-    })
-    integrationId = integration.id
-  } else if (!integrationId) {
-    console.error(
-      'No integrationId found. Please provide either integrationId or integrationName and integrationVersion.'
-    )
-    process.exit(1)
+  if (apiUrl !== DEFAULT_API_URL) {
+    console.debug(`🔗 Using custom url ${apiUrl}`)
   }
-  console.info(`Integration ID: ${integrationId}`)
-
-  async function updateIntegrationSandbox(props: {
-    integrationId: string
-    sandbox: { identifierExtractScript: string; messageExtractScript: string }
-  }) {
-    const { integrationId, sandbox } = props
-    return await axios.put(
-      `${apiUrl}/v1/corporate/integrations/${integrationId}/sandbox`,
-      {
-        ...sandbox,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'x-user-email': userEmail,
-        },
-      }
-    )
+  if (integrationId) {
+    console.debug(`🧩 Using custom integration ID ${integrationId}`)
   }
 
   const integrationPath = args.integrationPath || '.'
+  console.info('Reading integration definition...')
+  const { name, version } = readIntegrationDefinition(integrationPath)
+
+  const client = new Client({ apiUrl, token, workspaceId })
+  let integration: Awaited<ReturnType<Client['getIntegrationByName']>>['integration']
+  console.info(`Fetching remote integration definition ${name} ${version}...`)
+  if (!integrationId) {
+    console.debug('No integration ID provided, searching by name and version')
+    const getIntegrationResponse = await client.getIntegrationByName({
+      name,
+      version,
+    })
+    integration = getIntegrationResponse.integration
+  } else {
+    console.debug('Integration ID provided, fetching by ID')
+    const getIntegrationResponse = await client.getIntegration({
+      id: integrationId,
+    })
+    integration = getIntegrationResponse.integration
+  }
+
+  integrationId = integration.id
+  console.info(`Integration ID: ${integrationId}`)
+  console.debug('Integration definition:', integration)
+  if (!integration.configurations['sandbox']) {
+    console.info('Integration does not implement the sandbox feature, no scripts to upload')
+    process.exit(0)
+  }
 
   const identifierExtractScriptPath = `${integrationPath}/sandboxIdentifierExtract.vrl`
   const messageExtractScriptPath = `${integrationPath}/sandboxShareableIdExtract.vrl`
-
-  // TODO: Skip if the integration doesn't implement the sandbox feature (config named `sandbox`, identifier extract script present)
-
   const identifierExtractScript = fs.readFileSync(identifierExtractScriptPath, 'utf8')
   const messageExtractScript = fs.readFileSync(messageExtractScriptPath, 'utf8')
 
-  return await updateIntegrationSandbox({
-    integrationId,
-    sandbox: {
+  return await await axios.put(
+    `${apiUrl}/v1/corporate/integrations/${integrationId}/sandbox`,
+    {
       identifierExtractScript,
       messageExtractScript,
     },
-  })
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'x-user-email': userEmail,
+      },
+    }
+  )
 }
 
 doUpload()
   .then((res) => {
-    console.info('Sandbox scripts updated successfully', res.data)
+    console.info('Sandbox scripts updated successfully:', res.data)
   })
   .catch((err) => {
-    console.error('Failed to update sandbox scripts', err)
+    console.error('Failed to update sandbox scripts:', err)
   })
