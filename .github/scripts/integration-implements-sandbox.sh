@@ -5,7 +5,6 @@ fi
 
 integration=$1
 integration_path="integrations/$integration"
-integration_def=$(pnpm bp read --work-dir $integration_path --json)
 
 has_sandbox=false
 sandbox_script="$integration_path/sandboxIdentifierExtract.vrl"
