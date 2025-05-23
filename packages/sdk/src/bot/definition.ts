@@ -19,7 +19,7 @@ export type TagDefinition = {
   description?: string
 }
 
-export type StateType = 'conversation' | 'user' | 'bot'
+export type StateType = 'conversation' | 'user' | 'bot' | 'workflow'
 
 export type StateDefinition<TState extends BaseStates[string] = BaseStates[string]> = SchemaDefinition<TState> & {
   type: StateType

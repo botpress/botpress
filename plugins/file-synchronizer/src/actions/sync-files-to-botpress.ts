@@ -1,7 +1,5 @@
-import type * as models from '../../definitions/models'
+import * as sdk from '@botpress/sdk'
 import { randomUUID } from '../crypto'
-import * as SyncQueue from '../sync-queue'
-import type * as types from '../types'
 import * as bp from '.botpress'
 
 export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpess'] = async (props) => {
@@ -13,110 +11,38 @@ export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpess
   const includeFiles = props.input.includeFiles ?? props.configuration.includeFiles
   const excludeFiles = props.input.excludeFiles ?? props.configuration.excludeFiles
 
+  if (includeFiles.length === 0) {
+    throw new sdk.RuntimeError(
+      'No include rules defined. Please define at least one include rule. For example, create a rule with glob pattern "**" to include all files.'
+    )
+  }
+
   props.logger.info('Syncing files to Botpress...', {
     includeFiles,
     excludeFiles,
   })
 
   props.logger.info('Enumerating files...')
-  const allFiles = await _enumerateAllFilesRecursive(props, {
-    includeFiles,
-    excludeFiles,
-  })
-
-  if (allFiles.length === 0) {
-    props.logger.info('No files to sync.')
-    return { status: 'queued' }
-  }
-
-  props.logger.info('Preparing sync job...')
-  const jobMeta = await _prepareSyncJob(props, allFiles)
-  const jobFileId = await SyncQueue.jobFileManager.updateSyncQueue(
-    props,
-    jobMeta.syncFileKey,
-    jobMeta.syncQueue,
-    jobMeta.tags
-  )
-
-  props.logger.info('Starting sync job...')
-  await props.workflows.processQueue.startNewInstance({
-    input: { jobFileId },
-    tags: jobMeta.tags,
+  await props.workflows.buildQueue.startNewInstance({
+    input: { includeFiles, excludeFiles },
+    tags: {
+      syncJobId: await randomUUID(),
+      syncType: 'manual',
+      syncInitiatedAt: new Date().toISOString(),
+    },
   })
 
   return { status: 'queued' }
 }
 
 const _isSyncAlreadyInProgress = async (props: bp.ActionHandlerProps) => {
-  const { workflows: runningWorkflows } = await props.workflows.processQueue.listInstances.running()
+  const { workflows: runningBuildQueueWorkflows } = await props.workflows.buildQueue.listInstances.running()
 
-  return runningWorkflows.length > 0
-}
-
-type FileWithOptions = models.FileWithPath & { shouldIndex: boolean; addToKbId?: string }
-
-const _enumerateAllFilesRecursive = async (
-  props: bp.ActionHandlerProps,
-  configuration: Pick<bp.configuration.Configuration, 'includeFiles' | 'excludeFiles'>,
-  folderId?: string,
-  path: string = '/'
-): Promise<FileWithOptions[]> => {
-  const items = await _getFolderItems(props, folderId)
-  const files: FileWithOptions[] = []
-
-  for (const item of items) {
-    const itemPath = `${path}${item.name}`
-    const globMatchResult = SyncQueue.globMatcher.matchItem({ configuration, item, itemPath })
-
-    if (globMatchResult.shouldBeIgnored) {
-      props.logger.debug('Ignoring item', { itemPath, reason: globMatchResult.reason })
-      continue
-    }
-
-    if (item.type === 'folder') {
-      files.push(...(await _enumerateAllFilesRecursive(props, configuration, item.id, `${itemPath}/`)))
-    } else {
-      props.logger.debug('Including file', itemPath)
-      files.push({
-        ...item,
-        absolutePath: itemPath,
-        shouldIndex: (globMatchResult.shouldApplyOptions.addToKbId?.length ?? 0) > 0,
-        addToKbId: globMatchResult.shouldApplyOptions.addToKbId,
-      })
-    }
+  if (runningBuildQueueWorkflows.length > 0) {
+    return true
   }
 
-  return files
-}
+  const { workflows: runningProcessQueueWorkflows } = await props.workflows.processQueue.listInstances.running()
 
-const _getFolderItems = async (props: bp.ActionHandlerProps, folderId?: string): Promise<models.FolderItem[]> => {
-  let nextToken: string | undefined = undefined
-  const items: models.FolderItem[] = []
-
-  do {
-    const { items: batchItems, meta } = await props.actions['files-readonly'].listItemsInFolder({
-      folderId,
-      nextToken,
-    })
-
-    items.push(...batchItems)
-    nextToken = meta.nextToken
-  } while (nextToken)
-
-  return items
-}
-
-const _prepareSyncJob = async (props: bp.ActionHandlerProps, filesToSync: FileWithOptions[]) => {
-  const integrationName = props.interfaces['files-readonly'].name
-  const syncJobId = await randomUUID()
-
-  return {
-    tags: {
-      syncJobId,
-      syncType: 'manual',
-      syncInitiatedAt: new Date().toISOString(),
-    },
-    syncQueue: filesToSync.map((file): types.SyncQueueItem => ({ ...file, status: 'pending' })),
-    syncFileKey: `file-synchronizer:${integrationName}:/${syncJobId}.jsonl`,
-  } as const
+  return runningProcessQueueWorkflows.length > 0
 }

@@ -42,10 +42,13 @@ export const prepareCreatePluginBody = async (
       }))
     : undefined,
   states: plugin.states
-    ? await utils.records.mapValuesAsync(plugin.states, async (state) => ({
-        ...state,
-        schema: await utils.schema.mapZodToJsonSchema(state),
-      }))
+    ? (utils.records.filterValues(
+        await utils.records.mapValuesAsync(plugin.states, async (state) => ({
+          ...state,
+          schema: await utils.schema.mapZodToJsonSchema(state),
+        })),
+        ({ type }) => type !== 'workflow'
+      ) as types.CreatePluginRequestBody['states'])
     : undefined,
 })
 

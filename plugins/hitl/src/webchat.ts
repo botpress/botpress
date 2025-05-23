@@ -21,19 +21,26 @@ type WebchatGetOrCreateUserInput = {
  * This workaround is extremely flaky. If we need this feature in another integration, we should do it properly.
  *
  * @param props hook handler props
- * @param webchatConversationId the upstream conversation id
+ * @param upstreamConversationId the upstream conversation id
  * @returns the fake upstream user id that the bot pretends to be when sending messages
  */
 export const tryLinkWebchatUser = async (
   props: bp.HookHandlerProps['before_incoming_message'],
-  webchatConversationId: string
+  upstreamConversationId: string
 ): Promise<string | undefined> => {
   const {
     data: { userId: downstreamUserId },
-    interfaces: { hitl },
   } = props
 
-  if (hitl.name !== 'webchat') {
+  const upstreamConversation = await props.client.getConversation({
+    id: upstreamConversationId,
+  })
+
+  const {
+    conversation: { integration: upstreamIntegration },
+  } = upstreamConversation
+
+  if (upstreamIntegration !== 'webchat') {
     // this only works when the hitl frontend is webchat
     return undefined
   }
@@ -54,7 +61,7 @@ export const tryLinkWebchatUser = async (
         email: downstreamUser.tags['email'],
         user: {
           id: downstreamUserId,
-          conversationId: webchatConversationId,
+          conversationId: upstreamConversationId,
         },
       } as WebchatGetOrCreateUserInput,
     })
