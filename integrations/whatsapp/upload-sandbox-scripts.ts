@@ -4,6 +4,8 @@ import axios from 'axios'
 import { spawnSync } from 'child_process'
 import fs from 'fs'
 
+type Args = Record<string, string | undefined>
+
 const DEFAULT_API_URL = 'https://api.botpress.cloud'
 
 function readIntegrationDefinition(integrationPath: string): any {
@@ -16,29 +18,29 @@ function readIntegrationDefinition(integrationPath: string): any {
   return JSON.parse(readCmdResult.stdout.toString())
 }
 
-async function doUpload() {
-  // Parse named command line arguments
-  const args = process.argv.slice(2).reduce<Record<string, string | undefined>>((acc, arg) => {
+function parseArgs(): Args {
+  return process.argv.slice(2).reduce<Record<string, string | undefined>>((acc, arg) => {
     const [key, value] = arg.split('=')
     if (key && value) acc[key.replace(/^--/, '')] = value
     return acc
   }, {})
+}
 
-  const userEmail = args.userEmail
-  const apiUrl = args.apiUrl || process.env.BP_API_URL || DEFAULT_API_URL
-  let integrationId = args.integrationId || process.env.BP_INTEGRATION_ID
-  const token = args.token || process.env.BP_TOKEN
-  const workspaceId = args.workspaceId || process.env.BP_WORKSPACE_ID
-
-  if (!userEmail || !token || !workspaceId) {
-    console.error('Missing required arguments: userEmail, token, workspaceId')
-    console.error(
-      'Usage: pnpm run ts-node -T upload-sandbox-scripts.ts --userEmail=<email> --token=<token> --workspaceId=<workspaceId> [--apiUrl=<apiUrl>] [--integrationId=<id>] [--integrationPath=<path>]\n' +
-        'integrationId, apiUrl, token, and workspaceId can also be set in the environment variables BP_INTEGRATION_ID, BP_API_URL, BP_TOKEN, BP_WORKSPACE_ID'
-    )
-    process.exit(1)
-  }
-
+async function uploadScripts({
+  apiUrl,
+  token,
+  workspaceId,
+  userEmail,
+  integrationId,
+  integrationPath,
+}: {
+  apiUrl: string
+  token: string
+  workspaceId: string
+  userEmail: string
+  integrationId?: string
+  integrationPath?: string
+}) {
   if (apiUrl !== DEFAULT_API_URL) {
     console.debug(`🔗 Using custom url ${apiUrl}`)
   }
@@ -46,7 +48,7 @@ async function doUpload() {
     console.debug(`🧩 Using custom integration ID ${integrationId}`)
   }
 
-  const integrationPath = args.integrationPath || '.'
+  integrationPath ||= '.'
   console.info('Reading integration definition...')
   const { name, version } = readIntegrationDefinition(integrationPath)
 
@@ -96,7 +98,30 @@ async function doUpload() {
   )
 }
 
-doUpload()
+const args = parseArgs()
+const apiUrl = args.apiUrl || process.env.BP_API_URL || DEFAULT_API_URL
+const token = args.token || process.env.BP_TOKEN
+const workspaceId = args.workspaceId || process.env.BP_WORKSPACE_ID
+const userEmail = args.userEmail
+const integrationId = args.integrationId || process.env.BP_INTEGRATION_ID
+const integrationPath = args.integrationPath
+if (!userEmail || !token || !workspaceId) {
+  console.error('Missing required arguments: userEmail, token, workspaceId')
+  console.error(
+    'Usage: pnpm run ts-node -T upload-sandbox-scripts.ts --userEmail=<email> --token=<token> --workspaceId=<workspaceId> [--apiUrl=<apiUrl>] [--integrationId=<id>] [--integrationPath=<path>]\n' +
+      'integrationId, apiUrl, token, and workspaceId can also be set in the environment variables BP_INTEGRATION_ID, BP_API_URL, BP_TOKEN, BP_WORKSPACE_ID'
+  )
+  process.exit(1)
+}
+
+uploadScripts({
+  apiUrl,
+  token,
+  workspaceId,
+  userEmail,
+  integrationId,
+  integrationPath,
+})
   .then((res) => {
     console.info('Sandbox scripts updated successfully:', res.data)
   })
