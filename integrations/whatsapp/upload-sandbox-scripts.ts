@@ -125,6 +125,15 @@ uploadScripts({
   .then((res) => {
     console.info('Sandbox scripts updated successfully:', res.data)
   })
-  .catch((err) => {
-    console.error('Failed to update sandbox scripts:', err)
+  .catch((error) => {
+    console.error('Failed to update sandbox scripts')
+    if (error.response) {
+      console.error('Error Data:', error.response.data)
+      console.error('Error Status:', error.response.status)
+      console.error('Error Headers:', error.response.headers)
+    } else if (error.request) {
+      console.error('Error Request:', error.request)
+    } else {
+      console.error('Error Message:', error.message)
+    }
   })
