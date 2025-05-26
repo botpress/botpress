@@ -5,7 +5,7 @@ import { createDeployBot } from './tests/create-deploy-bot'
 import { createDeployIntegration } from './tests/create-deploy-integration'
 import { devBot } from './tests/dev-bot'
 import { installAllInterfaces } from './tests/install-interfaces'
-import { addIntegration } from './tests/install-package'
+import { addIntegration, addPlugin } from './tests/install-package'
 import { requiredSecrets } from './tests/integration-secrets'
 import { prependWorkspaceHandle, enforceWorkspaceHandle } from './tests/manage-workspace-handle'
 import { Test } from './typings'
@@ -19,6 +19,7 @@ const tests: Test[] = [
   prependWorkspaceHandle,
   enforceWorkspaceHandle,
   addIntegration,
+  addPlugin,
   installAllInterfaces,
 ]
 
