@@ -18,7 +18,7 @@ export class GetPluginCommand extends GlobalCommand<GetPluginCommandDefinition> 
     }
 
     try {
-      const plugin = await api.findPublicPlugin(parsedRef)
+      const plugin = await api.findPublicOrPrivatePlugin(parsedRef)
       if (plugin) {
         this.logger.success(`Plugin ${chalk.bold(this.argv.pluginRef)}:`)
         this.logger.json(plugin)
@@ -64,7 +64,7 @@ export class DeletePluginCommand extends GlobalCommand<DeletePluginCommandDefini
 
     let plugin: client.Plugin | undefined
     try {
-      plugin = await api.findPublicPlugin(parsedRef)
+      plugin = await api.findPublicOrPrivatePlugin(parsedRef)
     } catch (thrown) {
       throw errors.BotpressCLIError.wrap(thrown, `Could not get plugin ${this.argv.pluginRef}`)
     }
