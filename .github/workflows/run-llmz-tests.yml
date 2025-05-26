@@ -21,7 +21,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          extra_filters: '-F @botpress/llmz'
+          extra_filters: '-F llmz'
       - name: Login
         env:
           BP_API_URL: 'https://api.botpress.dev'
