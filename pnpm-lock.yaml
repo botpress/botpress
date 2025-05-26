@@ -1128,7 +1128,7 @@ importers:
   integrations/monday:
     dependencies:
       '@botpress/client':
-        specifier: 1.13.0
+        specifier: workspace:*
         version: link:../../packages/client
       '@botpress/sdk':
         specifier: workspace:*
