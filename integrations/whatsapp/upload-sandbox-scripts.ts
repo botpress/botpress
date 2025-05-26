@@ -72,7 +72,6 @@ async function uploadScripts({
 
   integrationId = integration.id
   console.info(`Integration ID: ${integrationId}`)
-  console.debug('Integration definition:', integration)
   if (!integration.configurations['sandbox']) {
     console.info('Integration does not implement the sandbox feature, no scripts to upload')
     process.exit(0)
