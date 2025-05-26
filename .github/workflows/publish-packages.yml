@@ -58,3 +58,8 @@ jobs:
         with:
           path: './packages/zai'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'
+      - name: Publish LLMz
+        uses: botpress/gh-actions/publish-if-not-exists@master
+        with:
+          path: './packages/llmz'
+          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
