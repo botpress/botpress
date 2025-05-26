@@ -75,6 +75,7 @@ runs:
 
         redeploy=${{ inputs.force == 'true' && 1 || 0 }}
         dryrun="${{ inputs.dry_run == 'true' && '--dryRun' || '' }}"
+        is_dry_run=${{ inputs.dry_run == 'true' && 1 || 0 }}
         all_filters="-F '{integrations/*}' -F '!asana' -F '!charts' ${{ inputs.extra_filter }}"
         list_integrations_cmd="pnpm list $all_filters --json"
         integration_paths=$(eval $list_integrations_cmd | jq -r "map(".path") | .[]")
@@ -100,7 +101,7 @@ runs:
 
             # upload sandbox scripts
             integration_implements_sandbox=$(./.github/scripts/integration-implements-sandbox.sh $integration)
-            if [ $integration_implements_sandbox == "true" ] && [ $upload_sandbox_scripts == "true" ] && [ inputs.dry_run != 'true' ]; then
+            if [ $integration_implements_sandbox == "true" ] && [ $upload_sandbox_scripts == "true" ] && [ $is_dry_run -eq 0 ]; then
                 echo -e "\nUploading integration sandbox scripts\n"
                 base_upload_command="uploadSandboxScripts --apiUrl=$api_url --workspaceId=$CLOUD_OPS_WORKSPACE_ID --token=$TOKEN_CLOUD_OPS_ACCOUNT --userEmail=cloud-ops@botpress.com"
                 pnpm retry -n 2 -- pnpm -F "{integrations/$integration}" run -- $base_upload_command
