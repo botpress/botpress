@@ -236,6 +236,7 @@ function extractAndHoistTypes(ast: t.File) {
 
   // Hoist types that appear more than once
   typeMap.forEach((typeNode, typeString) => {
+    // eslint-disable-next-line no-lonely-if
     if ((typeCounts.get(typeString) || 0) > 1) {
       if (
         !hoistedTypes.some((ht) => {

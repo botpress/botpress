@@ -38,6 +38,10 @@
       "outputs": ["dist/**"],
       "dependsOn": ["generate", "^build"]
     },
+    "@botpress/llmz#build": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["generate", "^build"]
+    },
     "check:type": {},
     "check:bplint": {}
   }

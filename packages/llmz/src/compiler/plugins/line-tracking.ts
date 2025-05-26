@@ -1,3 +1,4 @@
+// eslint-disable no-lonely-if
 import type * as BabelCore from '@babel/core'
 import { callExpression, expressionStatement, identifier, numericLiteral } from '@babel/types'
 
