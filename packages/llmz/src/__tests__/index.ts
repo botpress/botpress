@@ -72,8 +72,8 @@ class CachedClient extends Client {
     }
 
     if (process.env.CI && cacheByTest.has(testKey)) {
-      console.log(`Cache miss for ${key} in test ${testKey}`)
-      console.log(
+      console.info(`Cache miss for ${key} in test ${testKey}`)
+      console.info(
         diffLines(
           JSON.stringify(JSON.parse(cacheByTest.get(testKey)?.input!), null, 2),
           JSON.stringify(JSON.parse(stringifyWithSortedKeys(args)), null, 2)

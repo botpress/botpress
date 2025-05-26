@@ -7,5 +7,5 @@ for (const file of files) {
   const content = readFileSync(file, 'utf-8')
   const compiled = `export default ${JSON.stringify(content)}`
   writeFileSync(file + '.ts', compiled)
-  console.log(`Compiled ${file} to ${file + '.ts'}`)
+  console.info(`Compiled ${file} to ${file + '.ts'}`)
 }
