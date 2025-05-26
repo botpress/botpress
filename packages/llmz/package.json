@@ -11,7 +11,8 @@
     }
   },
   "scripts": {
-    "build": "pnpm build:markdown && tsup && pnpm tsc --emitDeclarationOnly",
+    "generate": "pnpm build:markdown",
+    "build": "tsup && pnpm tsc --emitDeclarationOnly",
     "watch": "tsup --watch",
     "test": "vitest run --config vitest.config.ts",
     "test:update": "vitest -u run --config vitest.config.ts",
@@ -30,6 +31,7 @@
     "@babel/standalone": "^7.26.4",
     "@babel/traverse": "^7.26.4",
     "@babel/types": "^7.26.3",
+    "@botpress/client": "1.12.0",
     "bytes": "^3.1.2",
     "exponential-backoff": "^3.1.1",
     "handlebars": "^4.7.8",
@@ -41,7 +43,6 @@
     "ulid": "^2.3.0"
   },
   "devDependencies": {
-    "@botpress/client": "1.12.0",
     "@microsoft/api-extractor": "^7.49.0",
     "@types/babel__core": "^7.20.5",
     "@types/babel__generator": "^7.6.8",

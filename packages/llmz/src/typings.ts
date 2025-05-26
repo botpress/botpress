@@ -63,15 +63,13 @@ export async function getTypings(schema: z.Schema, options?: Options): Promise<s
 
   let wrappedSchema: z.Schema | Declaration = schema
 
-  if (options?.declaration) {
-    if (schema instanceof z.Schema) {
-      const title = 'title' in schema.ui ? (schema.ui.title as string) : null
-      if (!title) {
-        throw new Error('Only schemas with "title" Zui property can be declared.')
-      }
-
-      wrappedSchema = new Declaration(schema, title)
+  if (options?.declaration && schema instanceof z.Schema) {
+    const title = 'title' in schema.ui ? (schema.ui.title as string) : null
+    if (!title) {
+      throw new Error('Only schemas with "title" Zui property can be declared.')
     }
+
+    wrappedSchema = new Declaration(schema, title)
   }
   let dts = await sUnwrapZodRecursive(wrappedSchema, { ...options })
   dts = await formatTypings(dts, { throwOnError: false })
