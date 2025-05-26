@@ -113,8 +113,18 @@ test('catchall inference', () => {
     .catchall(z.number())
 
   const d1 = o1.parse({ first: 'asdf', num: 1243 })
-  util.assertEqual<number, (typeof d1)['asdf']>(true)
-  util.assertEqual<string, (typeof d1)['first']>(true)
+
+  const fnInput = (input: z.input<typeof o1>) => {}
+  const fnOutput = (input: z.output<typeof o1>) => {}
+
+  fnInput({ first: 'asdf', num: 1243 })
+  fnOutput({ first: 'asdf', num: 1243 })
+
+  const prop1 = d1.first
+  const prop2 = d1.num
+
+  util.assertEqual<string, typeof prop1>(true)
+  util.assertEqual<string | number | undefined, typeof prop2>(true)
 })
 
 test('catchall overrides strict', () => {

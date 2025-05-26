@@ -1,4 +1,4 @@
-import { unique } from '../../utils'
+import { unique, ValueOf } from '../../utils'
 import {
   ZodArray,
   ZodEnum,
@@ -49,7 +49,8 @@ export type mergeTypes<A, B> = {
 export type objectOutputType<
   Shape extends ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = objectUtil.flatten<objectUtil.addQuestionMarks<baseObjectOutputType<Shape>>> & UnknownKeysOutputType<UnknownKeys>
+> = UnknownKeysOutputType<UnknownKeys, Shape> &
+  objectUtil.flatten<objectUtil.addQuestionMarks<baseObjectOutputType<Shape>>>
 
 export type baseObjectOutputType<Shape extends ZodRawShape> = {
   [k in keyof Shape]: Shape[k]['_output']
@@ -58,19 +59,20 @@ export type baseObjectOutputType<Shape extends ZodRawShape> = {
 export type objectInputType<
   Shape extends ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = objectUtil.flatten<baseObjectInputType<Shape>> & UnknownKeysInputType<UnknownKeys>
+> = objectUtil.flatten<baseObjectInputType<Shape>> & UnknownKeysInputType<UnknownKeys, Shape>
+
 export type baseObjectInputType<Shape extends ZodRawShape> = objectUtil.addQuestionMarks<{
   [k in keyof Shape]: Shape[k]['_input']
 }>
 
-export type UnknownKeysInputType<T extends UnknownKeysParam> = T extends ZodTypeAny
-  ? { [k: string]: T['_input'] }
+export type UnknownKeysInputType<T extends UnknownKeysParam, S extends ZodRawShape> = T extends ZodTypeAny
+  ? { [k: string]: T['_input'] | ValueOf<baseObjectInputType<S>> } // extra properties cannot contradict the main properties
   : T extends 'passthrough'
     ? { [k: string]: unknown }
     : {}
 
-export type UnknownKeysOutputType<T extends UnknownKeysParam> = T extends ZodTypeAny
-  ? { [k: string]: T['_output'] }
+export type UnknownKeysOutputType<T extends UnknownKeysParam, S extends ZodRawShape> = T extends ZodTypeAny
+  ? { [k: string]: T['_output'] | ValueOf<baseObjectOutputType<S>> } // extra properties cannot contradict the main properties
   : T extends 'passthrough'
     ? { [k: string]: unknown }
     : {}
