@@ -107,6 +107,22 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
 
       const iteration = await ctx.nextIteration()
 
+      if (signal?.aborted) {
+        iteration.end({
+          type: 'aborted',
+          aborted: {
+            reason: signal.reason ?? 'The operation was aborted',
+          },
+        })
+
+        return {
+          status: 'error',
+          error: signal.reason ?? 'The operation was aborted',
+          context: ctx,
+          iterations: ctx.iterations,
+        }
+      }
+
       cleanups.push(
         iteration.traces.onPush((traces) => {
           for (const trace of traces) {

@@ -9,6 +9,7 @@ import { getCachedCognitiveClient } from './__tests__/index.js'
 import { ObjectInstance } from './objects.js'
 import { Exit } from './exit.js'
 import { DefaultComponents } from './component.default.js'
+import { ThinkSignal } from './errors.js'
 
 const client = getCachedCognitiveClient()
 
@@ -694,6 +695,80 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           "plant": "Monstera",
         }
       `)
+    })
+  })
+
+  describe('abort signals', () => {
+    it('can abort execution', async () => {
+      const controller = new AbortController()
+      const signal = controller.signal
+
+      const tLongRunning = new Tool({
+        name: 'longRunning',
+        description: 'A tool that runs for a long time',
+        input: z.void(), // No input
+        output: z.object({ token: z.string().describe('Authorization token') }),
+        handler: async () => {
+          // Simulate a long-running operation
+          await new Promise((resolve) => setTimeout(resolve, 50))
+          controller.abort('ABORTED')
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+          return { token: '123456' }
+        },
+      })
+
+      const result = await llmz.executeContext({
+        options: { loop: 2 },
+        exits: [eDone],
+        instructions: 'Do as the user asks',
+        transcript: [
+          {
+            name: 'user',
+            role: 'user',
+            content: 'Give me an authorization token',
+          },
+        ],
+        tools: [tLongRunning],
+        client,
+        signal,
+      })
+
+      assertStatus(result, 'error')
+      expect(result.iterations).toHaveLength(1)
+      expect(result.error).toMatch('ABORTED')
+    })
+
+    it('abort inside hooks stops loop', async () => {
+      const controller = new AbortController()
+      const signal = controller.signal
+      let times = 0
+
+      const tRecursive = new Tool({
+        name: 'recursive',
+        handler: async () => {
+          throw new ThinkSignal(`You called this tool ${++times} times. You need to call this tool again.`)
+        },
+      })
+
+      const result = await llmz.executeContext({
+        options: { loop: 10 },
+        exits: [eDone],
+        instructions: 'Call the recursive tool until it stops asking for more calls',
+        tools: [tRecursive],
+        onIterationEnd: async () => {
+          await new Promise((resolve) => setTimeout(resolve, 100))
+
+          if (times >= 3) {
+            controller.abort('ABORTED')
+          }
+        },
+        client,
+        signal,
+      })
+
+      assertStatus(result, 'error')
+      expect(result.iterations).toHaveLength(4)
+      expect(result.error).toMatch('ABORTED')
     })
   })
 })
