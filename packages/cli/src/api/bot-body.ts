@@ -72,4 +72,5 @@ export const prepareUpdateBotBody = (
     tags: utils.records.setNullOnMissingValues(localBot.message?.tags, remoteBot.message?.tags),
   },
   integrations: utils.records.setNullOnMissingValues(localBot.integrations, remoteBot.integrations),
+  plugins: utils.records.setNullOnMissingValues(localBot.plugins, remoteBot.plugins),
 })

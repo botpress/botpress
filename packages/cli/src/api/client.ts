@@ -206,6 +206,14 @@ export class ApiClient {
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
   }
 
+  public async getPublicOrPrivatePlugin(ref: ApiPackageRef): Promise<PublicOrPrivatePlugin> {
+    const plugin = await this.findPublicOrPrivatePlugin(ref)
+    if (!plugin) {
+      throw new Error(`Plugin "${formatPackageRef(ref)}" not found`)
+    }
+    return plugin
+  }
+
   public async findPublicOrPrivatePlugin(ref: ApiPackageRef): Promise<PublicOrPrivatePlugin | undefined> {
     const formatted = formatPackageRef(ref)
 

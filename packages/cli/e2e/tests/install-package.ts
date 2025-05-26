@@ -5,6 +5,7 @@ import * as pathlib from 'path'
 import * as uuid from 'uuid'
 import * as apiUtils from '../../src/api'
 import impl from '../../src/command-implementations'
+import { ApiBot, fetchAllBots } from '../api'
 import defaults from '../defaults'
 import * as retry from '../retry'
 import { Test, TestProps } from '../typings'
@@ -170,3 +171,121 @@ export const addIntegration: Test = {
     }
   },
 }
+
+export const addPlugin: Test = {
+  name: 'cli should allow installing a plugin',
+  handler: async (props) => {
+    const { tmpDir, workspaceHandle, logger, ...creds } = props
+    const argv = {
+      ...defaults,
+      botpressHome: getHomeDir({ tmpDir }),
+      confirm: true,
+      ...creds,
+    }
+
+    const bpClient = new client.Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
+
+    const pluginSuffix = uuid.v4().replace(/-/g, '')
+    const name = `myplugin${pluginSuffix}`
+    const pluginName = `${workspaceHandle}/${name}`
+    const pluginVersion = '0.1.0'
+    const pluginAlias = `alias-${uuid.v4().replace(/-/g, '')}`
+    const botName = uuid.v4()
+
+    const createPluginBody = await apiUtils.prepareCreatePluginBody(
+      new sdk.PluginDefinition({
+        name: pluginName,
+        version: pluginVersion,
+      })
+    )
+
+    const { plugin } = await bpClient.createPlugin({
+      ...createPluginBody,
+      code: { browser: 'export default {}', node: 'export default {}' },
+    })
+
+    let bot: ApiBot | undefined
+
+    try {
+      logger.info('Initializing bot')
+      const { botDir } = await initBot(
+        props,
+        [
+          'import * as sdk from "@botpress/sdk"',
+          `import aPlugin from "./bp_modules/${workspaceHandle}-${name}"`,
+          'export default new sdk.BotDefinition({}).addPlugin(aPlugin, {',
+          `  alias: '${pluginAlias}',`,
+          '  configuration: {},',
+          '  interfaces: {},',
+          '})',
+        ].join('\n')
+      )
+
+      logger.info('Logging in')
+      await impl.login(argv).then(utils.handleExitCode)
+
+      logger.info('Installing plugin')
+      await impl
+        .add({
+          ...argv,
+          packageType: undefined,
+          installPath: botDir,
+          packageRef: plugin.id,
+          useDev: false,
+        })
+        .then(utils.handleExitCode)
+
+      logger.info('Building bot')
+      await impl.build({ ...argv, workDir: botDir }).then(utils.handleExitCode)
+      await utils.tscCheck({ workDir: botDir }).then(utils.handleExitCode)
+
+      logger.info('Deploying bot')
+      await impl.bots.subcommands.create({ ...argv, name: botName, ifNotExists: false }).then(utils.handleExitCode)
+
+      bot = await fetchBot(bpClient, botName)
+      if (!bot) {
+        throw new Error(`Bot ${botName} should have been created`)
+      }
+
+      await impl.deploy({ ...argv, workDir: botDir, createNewBot: false, botId: bot.id }).then(utils.handleExitCode)
+
+      logger.info('Checking if plugin is installed')
+      const plugins = await bpClient.getBot({ id: bot.id }).then(({ bot }) => bot.plugins)
+
+      const isPluginInstalled = Object.entries(plugins).some(
+        ([alias, instance]) => alias === pluginAlias && instance.id === plugin.id
+      )
+
+      if (!isPluginInstalled) {
+        throw new Error(`Plugin ${plugin.id} should have been installed in bot ${bot.id}`)
+      }
+    } finally {
+      if (bot) {
+        await impl.bots.subcommands
+          .delete({
+            ...argv,
+            botRef: bot.id,
+          })
+          .catch(() => {
+            logger.warn(`Failed to delete bot ${bot!.id}`) // this is not the purpose of the test
+          })
+      }
+      await impl.plugins.subcommands
+        .delete({
+          ...argv,
+          pluginRef: plugin.id,
+        })
+        .catch(() => {
+          logger.warn(`Failed to delete plugin ${plugin.id}`) // this is not the purpose of the test
+        })
+    }
+  },
+}
+
+const fetchBot = async (client: client.Client, botName: string): Promise<ApiBot | undefined> =>
+  await fetchAllBots(client).then((bots) => bots.find(({ name }) => name === botName))
