@@ -9,11 +9,10 @@ import { Context, Iteration } from './context.js'
 import {
   AssignmentError,
   CodeExecutionError,
-  ExecuteSignal,
   InvalidCodeError,
   Signals,
   ThinkSignal,
-  VMInterruptSignal,
+  SnapshotSignal,
   VMSignal,
 } from './errors.js'
 import { Exit } from './exit.js'
@@ -56,11 +55,6 @@ export type ExecutionHooks = {
    */
   onIterationEnd?: (iteration: Iteration) => Promise<void> | void
   onTrace?: (event: { trace: Trace; iteration: number }) => void
-
-  // TODO: canLoop?(iteration: Iteration): boolean
-  // TODO: canExit?(iteration: Iteration): boolean
-
-  // TODO: validateExit?(exit: Exit, value: unknown): Promise<boolean>
   onExit?: (exit: Exit, value: unknown) => Promise<void> | void
 }
 
@@ -115,7 +109,6 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
 
       cleanups.push(
         iteration.traces.onPush((traces) => {
-          // TODO: unsubscribe after the iteration ends
           for (const trace of traces) {
             onTrace?.({ trace, iteration: ctx.iterations.length })
           }
@@ -212,11 +205,9 @@ const executeIteration = async ({
   cognitive: Cognitive
   abortSignal?: AbortController['signal']
 } & ExecutionHooks): Promise<void> => {
-  // TODO: expose "getTokenLimits()"
-
   let startedAt = Date.now()
   const traces = iteration.traces
-  const modelLimit = 128_000 // ctx.__options.model // TODO: fixme
+  const modelLimit = 128_000 // ctx.__options.model // TODO: fixme, ie. expose "getTokenLimits()" on the cognitive client
   const responseLengthBuffer = getModelOutputLimit(modelLimit)
 
   const messages = truncateWrappedContent({
@@ -247,14 +238,12 @@ const executeIteration = async ({
           }) as const
       ),
     stopSequences: ctx.version.getStopTokens(),
-  }) // TODO: handle errors here and mark iteration as failed for this reason
+  })
 
   const out =
     output.output.choices?.[0]?.type === 'text' && typeof output.output.choices?.[0].content === 'string'
       ? output.output.choices[0].content
       : null
-
-  // TODO: do better handling of the different types of errors and potentially retry the request
 
   if (!out) {
     throw new Error('No output from LLM')
@@ -276,11 +265,11 @@ const executeIteration = async ({
   }
 
   traces.push({
-    type: 'llm_call',
+    type: 'llm_call_success',
     started_at: startedAt,
     ended_at: iteration.llm.ended_at,
-    status: 'success',
     model: ctx.model ?? '',
+    code: iteration.code,
   })
 
   const vmContext = { ...stripInvalidIdentifiers(iteration.variables) }
@@ -440,7 +429,7 @@ const executeIteration = async ({
     })
   }
 
-  if (result.signal instanceof VMInterruptSignal) {
+  if (result.signal instanceof SnapshotSignal) {
     return iteration.end({
       type: 'callback_requested',
       callback_requested: {
@@ -572,7 +561,7 @@ function wrapTool({ tool, traces, object }: Props) {
         return true
       }
 
-      if (error instanceof VMInterruptSignal) {
+      if (error instanceof SnapshotSignal) {
         error.toolCall = {
           name: tool.name,
           inputSchema: tool.input,
@@ -589,19 +578,6 @@ function wrapTool({ tool, traces, object }: Props) {
           line: 0,
           ended_at: Date.now(),
         })
-        success = true
-        output = error
-        return true
-      }
-
-      if (error instanceof ExecuteSignal) {
-        traces.push({
-          type: 'execute_signal',
-          started_at: Date.now(),
-          line: 0,
-          ended_at: Date.now(),
-        })
-
         success = true
         output = error
         return true

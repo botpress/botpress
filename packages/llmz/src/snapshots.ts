@@ -1,6 +1,6 @@
 import { ulid } from 'ulid'
 
-import { ToolCall, VMInterruptSignal } from './errors.js'
+import { ToolCall, SnapshotSignal } from './errors.js'
 import { extractType, inspect } from './inspect.js'
 
 const MAX_SNAPSHOT_SIZE_BYTES = 4_000
@@ -50,7 +50,7 @@ export class Snapshot {
     this.#status = props.status
   }
 
-  public static fromSignal(signal: VMInterruptSignal): Snapshot {
+  public static fromSignal(signal: SnapshotSignal): Snapshot {
     const variables = Object.entries(signal.variables).map(([name, value]) => {
       const type = extractType(value)
       const bytes = JSON.stringify(value || '').length

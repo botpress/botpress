@@ -90,13 +90,16 @@ export class VMSignal extends Error {
    */
   public truncatedCode: string = ''
 
+  /** The current tool call, if any */
+  public toolCall?: ToolCall
+
   /**
    * Contains all the declared and executed variables during the VM execution
    * See file plugins/variable-extraction.ts for more details
    */
   public variables: { [key: string]: any } = {}
 
-  constructor(public message: string) {
+  public constructor(public message: string) {
     super(message)
     this.message = Signals.serializeError(this)
   }
@@ -106,19 +109,10 @@ export class VMSignal extends Error {
 // Interruption Signals
 //////////////////////////////////////////////////////////
 
-/** Interrupt means LLMz will provide a snapshot and pause execution until it is resumed */
-export class VMInterruptSignal extends VMSignal {
-  public toolCall?: ToolCall
-
-  constructor(message: string) {
+/** Request a snapshot from inside a tool call */
+export class SnapshotSignal extends VMSignal {
+  public constructor(message: string) {
     super(message)
-    this.message = Signals.serializeError(this)
-  }
-}
-
-export class ExecuteSignal extends VMInterruptSignal {
-  constructor() {
-    super('Execute Signal received')
     this.message = Signals.serializeError(this)
   }
 }
@@ -129,21 +123,22 @@ export class ExecuteSignal extends VMInterruptSignal {
 
 /** Loop means LLMz will continue the execution (unless it exhausted its iterations) */
 export class VMLoopSignal extends VMSignal {
-  constructor(message: string) {
+  public constructor(message: string) {
     super(message)
     this.message = Signals.serializeError(this)
   }
 }
 
 export class ThinkSignal extends VMLoopSignal {
-  constructor(
+  public constructor(
     public reason: string,
     public context?: any
   ) {
     super('Think signal received: ' + reason)
     this.message = Signals.serializeError(this)
   }
-  toString() {
+
+  public toString() {
     return Signals.serializeError(this)
   }
 }
@@ -153,7 +148,7 @@ export class ThinkSignal extends VMLoopSignal {
 //////////////////////////////////////////////////////////
 
 export class CodeExecutionError extends Error {
-  constructor(
+  public constructor(
     message: string,
     public code: string,
     public stacktrace: string
@@ -164,7 +159,7 @@ export class CodeExecutionError extends Error {
 }
 
 export class InvalidCodeError extends Error {
-  constructor(
+  public constructor(
     message: string,
     public code: string
   ) {
@@ -174,14 +169,14 @@ export class InvalidCodeError extends Error {
 }
 
 export class LoopExceededError extends Error {
-  constructor() {
+  public constructor() {
     super('Loop exceeded error')
     this.message = Signals.serializeError(this)
   }
 }
 
 export class CodeFormattingError extends Error {
-  constructor(
+  public constructor(
     message: string,
     public code: string
   ) {
@@ -191,23 +186,15 @@ export class CodeFormattingError extends Error {
   }
 }
 
-export class SkillExecutionError extends Error {
-  constructor(message?: string) {
-    super(message ?? 'Error occurred while executing a skill')
-    // DO NOT serialize this error, it's not meant to be serialized in the sandbox. This is a normal error, not a signal.
-  }
-}
-
 export class AssignmentError extends Error {
-  constructor(message: string) {
+  public constructor(message: string) {
     super(message)
     this.message = Signals.serializeError(this)
   }
 }
 
 registerErrorClass('VMSignal', VMSignal)
-registerErrorClass('VMInterruptSignal', VMInterruptSignal)
-registerErrorClass('ExecuteSignal', ExecuteSignal)
+registerErrorClass('SnapshotSignal', SnapshotSignal)
 registerErrorClass('VMLoopSignal', VMLoopSignal)
 registerErrorClass('ThinkSignal', ThinkSignal)
 registerErrorClass('CodeExecutionError', CodeExecutionError)

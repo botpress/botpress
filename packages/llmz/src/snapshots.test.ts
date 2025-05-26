@@ -7,7 +7,7 @@ import { z } from '@bpinternal/zui'
 
 import { getCachedCognitiveClient } from './__tests__/index.js'
 import { Exit } from './exit.js'
-import { VMInterruptSignal } from './errors.js'
+import { SnapshotSignal } from './errors.js'
 
 const client = getCachedCognitiveClient()
 
@@ -64,7 +64,7 @@ const tGetPaymentIntent = () =>
     input: z.object({ amount: z.number() }),
     output: z.object({ paymentIntent: z.string() }),
     handler: async () => {
-      throw new VMInterruptSignal('payment needed')
+      throw new SnapshotSignal('payment needed')
     },
   })
 
@@ -102,7 +102,7 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
 
   test('an execute signal creates a snapshot', async () => {
     assert(result.status === 'interrupted')
-    expect(result.signal).toBeInstanceOf(VMInterruptSignal)
+    expect(result.signal).toBeInstanceOf(SnapshotSignal)
     expect(result.snapshot).toBeDefined()
     expect(result.snapshot.reason).toBe('payment needed')
 

@@ -1,5 +1,5 @@
 import { Iteration, type Context } from './context.js'
-import { type VMInterruptSignal, type VMSignal } from './errors.js'
+import { type SnapshotSignal, type VMSignal } from './errors.js'
 import { type Snapshot } from './snapshots.js'
 
 export namespace Traces {
@@ -51,20 +51,6 @@ export namespace Traces {
     }
   >
 
-  export type ChainOfThought = TraceTemplate<
-    'chain_of_thought',
-    {
-      thought: string
-    }
-  >
-
-  export type ExecuteSignal = TraceTemplate<
-    'execute_signal',
-    {
-      line: number
-    }
-  >
-
   export type PropertyMutation = TraceTemplate<
     'property',
     {
@@ -90,15 +76,10 @@ export namespace Traces {
     }
   >
 
-  export type Introspection = TraceTemplate<'introspection', { title: string; content: string }>
-  export type LLMCallTrace = TraceTemplate<'llm_call', { status: 'success' | 'error'; model: string }>
+  export type LLMCallSuccess = TraceTemplate<'llm_call_success', { model: string; code: string }>
+
   export type AbortTrace = TraceTemplate<'abort_signal', { reason: string }>
-  export type MessageTrace = TraceTemplate<
-    'send_message', // TODO: fixme, doesn't belong here
-    { message: { type: string } & any; level: 'info' | 'error' | 'success' | 'prompt' }
-  >
   export type YieldTrace = TraceTemplate<'yield', { value: any }>
-  export type ReturnTrace = TraceTemplate<'return', { value: any }>
   export type InvalidCodeExceptionTrace = TraceTemplate<'invalid_code_exception', { message: string; code: string }>
 
   export type TraceTemplate<Type, Content> = { type: Type; started_at: number; ended_at?: number } & Content
@@ -109,16 +90,12 @@ export namespace Traces {
     | ToolCall
     | ToolSlow
     | PropertyMutation
-    | MessageTrace
     | YieldTrace
-    | ReturnTrace
-    | Introspection
-    | LLMCallTrace
+    | LLMCallSuccess
     | ThinkSignal
     | CodeExecution
     | CodeExecutionException
     | InvalidCodeExceptionTrace
-    | ExecuteSignal
     | AbortTrace
 }
 
@@ -158,7 +135,7 @@ export type PartialExecutionResult = {
   status: 'interrupted'
   iterations: Iteration[]
   context: Context
-  signal: VMInterruptSignal
+  signal: SnapshotSignal
   snapshot: Snapshot
 }
 

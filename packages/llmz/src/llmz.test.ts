@@ -44,9 +44,6 @@ const exec = (result: ExecutionResult) => {
     allCodeExecutions: getTracesOfType<Traces.CodeExecution>('code_execution'),
     allToolCalls: getTracesOfType<Traces.ToolCall>('tool_call') ?? [],
     allMessagesSent: [
-      ...getTracesOfType<Traces.MessageTrace>('send_message').map((x) =>
-        x.message.type === 'text' ? x.message.text : JSON.stringify(x.message)
-      ),
       ...getTracesOfType<Traces.ToolCall>('tool_call')
         .filter((x) => x.tool_name?.toLowerCase() === 'message')
         .map((x) => JSON.stringify(x.input)),
@@ -536,40 +533,6 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     `)
     expect(res.allToolCalls.map((x) => x.tool_name)).containSubset(['fetchOrder'])
   })
-
-  // TODO: fixme
-  // it('should continue executing after thinking', async () => {
-  //   const result = await llmz.executeContext({
-  //     options: { loop: 2 },
-  //     exits: [eDone],
-  //     instructions: 'Do as the user asks',
-  //     transcript: [
-  //       {
-  //         name: 'user',
-  //         role: 'user',
-  //         content: 'Can you "think" with this context ? ["adam", "eats", "bread"]. Assign it to a variable first',
-  //       },
-  //     ],
-  //     tools: [tNoop(() => {})],
-  //     client,
-  //   })
-
-  //   expect(result.iterations).toHaveLength(2)
-  //   assert(result.iterations[0]!.status === 'partial', 'First iteration should be partial')
-  //   expect(result.iterations[1]!.status).toBe('success')
-
-  //   const ctx = JSON.stringify(result.iterations[0]!.signal.context)
-  //   expect(ctx).toContain('adam')
-  //   expect(ctx).toContain('eats')
-  //   expect(ctx).toContain('bread')
-
-  //   const thought = result.iterations[1]!.messages.slice(-1)[0]
-  //   expect(thought?.content).toContain('## Important message from the VM')
-  //   expect(thought?.content).toContain('The assistant requested to think')
-  //   expect(thought?.content).toContain('adam')
-  //   expect(thought?.content).toContain('eats')
-  //   expect(thought?.content).toContain('bread')
-  // })
 
   describe('using the right exit', () => {
     const tAnimal = new Tool({

@@ -1,8 +1,8 @@
 {
-  "name": "@botpress/llmz",
+  "name": "llmz",
   "type": "module",
   "description": "LLMz – An LLM-native Typescript VM built on top of Zui",
-  "version": "0.0.1-beta.24",
+  "version": "0.0.2",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {

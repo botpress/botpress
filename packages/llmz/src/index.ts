@@ -1,7 +1,7 @@
 export { Tool } from './tool.js'
 export { Exit } from './exit.js'
 export { ObjectInstance } from './objects.js'
-export { VMInterruptSignal } from './errors.js'
+export { SnapshotSignal, ThinkSignal } from './errors.js'
 
 export { Component, ContainerComponent, DefaultComponent, LeafComponent } from './component.js'
 export { DefaultComponents } from './component.default.js'
@@ -9,6 +9,8 @@ export { Snapshot } from './snapshots.js'
 
 import { type ExecutionProps } from './llmz.js'
 import { type ExecutionResult } from './types.js'
+export { type ExecutionResult, Trace } from './types.js'
+export type { Iteration } from './context.js'
 
 export const executeContext = async (props: ExecutionProps) => {
   // Code splitting to improve import performance

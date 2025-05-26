@@ -2,7 +2,7 @@ import { type Cognitive } from '@botpress/cognitive'
 import { cloneDeep, isPlainObject } from 'lodash-es'
 import { ulid } from 'ulid'
 import { Component, assertValidComponent } from './component.js'
-import { LoopExceededError, VMInterruptSignal } from './errors.js'
+import { LoopExceededError, SnapshotSignal } from './errors.js'
 import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
 import { HookedArray } from './handlers.js'
@@ -76,7 +76,7 @@ export namespace IterationStatuses {
   export type Callback = {
     type: 'callback_requested'
     callback_requested: {
-      signal: VMInterruptSignal
+      signal: SnapshotSignal
     }
   }
 
@@ -242,9 +242,6 @@ export class Iteration {
     return this._parameters.tools.find((x) => x.name.toLowerCase() === 'message') !== undefined
   }
 
-  // TODO: isExitValid() --> check if exit is valid, check if chat mode, then 'listen' is valid
-  // TODO:
-
   public constructor(props: {
     id: string
     parameters: IterationParameters
@@ -399,9 +396,21 @@ export class Context {
       ]
     }
 
+    const lastIterationMessages = [
+      await this.version.getSystemMessage({
+        globalTools: parameters.tools,
+        objects: parameters.objects,
+        instructions: parameters.instructions,
+        transcript: parameters.transcript,
+        exits: parameters.exits,
+        components: parameters.components,
+      }),
+      ...lastIteration.messages.filter((x) => x.role !== 'system'),
+    ]
+
     if (lastIteration?.status.type === 'thinking_requested') {
       return [
-        ...lastIteration.messages,
+        ...lastIterationMessages,
         {
           role: 'assistant',
           content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
@@ -415,7 +424,7 @@ export class Context {
 
     if (lastIteration?.status.type === 'exit_error') {
       return [
-        ...lastIteration.messages,
+        ...lastIterationMessages,
         {
           role: 'assistant',
           content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
@@ -429,7 +438,7 @@ export class Context {
 
     if (lastIteration?.status.type === 'invalid_code_error') {
       return [
-        ...lastIteration.messages,
+        ...lastIterationMessages,
         {
           role: 'assistant',
           content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),
@@ -443,7 +452,7 @@ export class Context {
 
     if (lastIteration?.status.type === 'execution_error') {
       return [
-        ...lastIteration.messages,
+        ...lastIterationMessages,
         {
           role: 'assistant',
           content: wrapContent(lastIteration.llm?.output ?? '', { preserve: 'top', flex: 4, minTokens: 25 }),

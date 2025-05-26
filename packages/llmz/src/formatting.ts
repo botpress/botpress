@@ -38,7 +38,6 @@ export async function formatTypings(typings: string, options?: CodeFormatOptions
     return result
   } catch (err) {
     if (options?.throwOnError) {
-      // TODO: fix error here
       throw new CodeFormattingError(err instanceof Error ? err.message : (err?.toString() ?? 'Unknown Error'), typings)
     }
     return typings

@@ -3,14 +3,7 @@ import { isFunction, mapValues, maxBy } from 'lodash-es'
 import { SourceMapConsumer } from 'source-map-js'
 
 import { compile, CompiledCode, Identifiers } from './compiler/index.js'
-import {
-  AssignmentError,
-  CodeExecutionError,
-  InvalidCodeError,
-  Signals,
-  VMInterruptSignal,
-  VMSignal,
-} from './errors.js'
+import { AssignmentError, CodeExecutionError, InvalidCodeError, Signals, SnapshotSignal, VMSignal } from './errors.js'
 import { createJsxComponent, JsxComponent } from './jsx.js'
 import { cleanStackTrace } from './stack-traces.js'
 import { Trace, Traces, VMExecutionResult } from './types.js'
@@ -125,10 +118,10 @@ export async function runAsyncFunction(
     }
   }
 
-  let currentToolCall: VMInterruptSignal['toolCall'] | undefined
+  let currentToolCall: SnapshotSignal['toolCall'] | undefined
   context[Identifiers.ToolCallTrackerFnIdentifier] = (callId: number, type: 'start' | 'end', outputOrError?: any) => {
     const temp = Signals.maybeDeserializeError(outputOrError?.message)
-    if (type === 'end' && temp instanceof VMInterruptSignal && temp?.toolCall) {
+    if (type === 'end' && temp instanceof SnapshotSignal && temp?.toolCall) {
       currentToolCall = {
         ...temp.toolCall,
         assignment: transformed.toolCalls.get(callId)?.assignment,
@@ -498,7 +491,7 @@ const handleError = (
   /**
    * The current tool call that the error is associated with
    */
-  currentToolCall?: VMInterruptSignal['toolCall'] | undefined
+  currentToolCall?: SnapshotSignal['toolCall'] | undefined
 ) => {
   err = Signals.maybeDeserializeError(err)
   const lines = code.split('\n')
@@ -570,9 +563,7 @@ const handleError = (
     err.stack = debugUserCode
     err.truncatedCode = truncatedCode
     err.variables = mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter))
-    if (currentToolCall && err instanceof VMInterruptSignal) {
-      err.toolCall = currentToolCall
-    }
+    err.toolCall = currentToolCall
     throw err
   } else {
     traces.push({

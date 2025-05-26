@@ -1,6 +1,6 @@
 import { assert, describe, expect, it, vi } from 'vitest'
 
-import { CodeExecutionError, ExecuteSignal, InvalidCodeError } from './errors.js'
+import { CodeExecutionError, InvalidCodeError, VMSignal } from './errors.js'
 import { runAsyncFunction, USE_ISOLATED_VM } from './vm.js'
 import { Trace, Traces } from './types.js'
 
@@ -157,7 +157,7 @@ console.log( /* this is a comment */ test(5, 6));
   describe('signal handling', () => {
     const debugContext = {
       THROW_SIGNAL: () => {
-        throw new ExecuteSignal()
+        throw new VMSignal('This is a signal')
       },
     }
 
@@ -184,7 +184,7 @@ console.log( /* this is a comment */ test(5, 6));
 
       expect(result.success).toBe(true)
       expect(result.signal).toBeDefined()
-      expect(result.signal).toBeInstanceOf(ExecuteSignal)
+      expect(result.signal).toBeInstanceOf(VMSignal)
 
       expect(result.signal?.stack).toMatchInlineSnapshot(`
         "001 | // Comment here
