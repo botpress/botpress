@@ -18,6 +18,8 @@ export const handleEvent: bp.WorkflowHandlers['processQueue'] = async (props) =>
 
   if (finished === 'batch') {
     logger.info('Batch sync success. Continuing to next batch...')
+    const timeIn5Minutes = new Date(Date.now() + 300_000).toISOString()
+    await props.workflow.update({ timeoutAt: timeIn5Minutes })
     return
   }
 

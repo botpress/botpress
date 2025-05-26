@@ -4,6 +4,9 @@
 
 This integration makes Freshchat available as a channel for Human-in-the-loop on Botpress
 
+> 🤝 **Usage with HITL (Human in the Loop)**  
+> If you intend to use the Freshchat integration with HITL, ensure that you have the HITL plugin installed.
+
 ## Configuration
 
 You will need to have access to the **Admin Settings** (https://YOUR_COMPANY.freshworks.com/crm/sales/settings) page from Freshchat to configure this integration

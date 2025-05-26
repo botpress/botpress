@@ -54,9 +54,10 @@ type TryWatchAllOutput = {
 const MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS = 86400 * 1000 // 24 hours
 const MAX_EXPORT_FILE_SIZE_BYTES = 10000000 // 10MB, as per the Google Drive API doc
 const MYDRIVE_ID_ALIAS = 'root'
-const PAGE_SIZE = 10
+const PAGE_SIZE = 100
 const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
-const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size'
+const GOOGLE_API_FILE_FIELDS =
+  'id, name, mimeType, parents, size, sha256Checksum, md5Checksum, version, trashed, modifiedTime'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
 export class Client {
   private constructor(
@@ -154,9 +155,36 @@ export class Client {
 
   public async getChildren(folderId: string): Promise<GenericFile[]> {
     const files = await listAllItems(this._listBaseGenericFiles.bind(this), {
-      searchQuery: `'${folderId}' in parents`,
+      searchQuery: this._getParentsFilter(folderId),
     })
     return await Promise.all(files.map((f) => this._getCompleteFile(f)))
+  }
+
+  public async getChildrenSubset({
+    folderId,
+    extraQuery,
+    nextToken,
+  }: {
+    folderId: string
+    extraQuery?: string
+    nextToken?: string
+  }): Promise<{ files: BaseDiscriminatedFile[]; nextToken?: string }> {
+    try {
+      const { items: files, meta } = await this._listBaseGenericFiles({
+        nextToken,
+        args: {
+          searchQuery: this._getParentsFilter(folderId) + (extraQuery ? ` and ${extraQuery}` : ''),
+        },
+      })
+      return { files, nextToken: meta.nextToken }
+    } catch (thrown: unknown) {
+      console.error('Error whilst enumerating children', thrown)
+      return { files: [], nextToken: undefined }
+    }
+  }
+
+  private _getParentsFilter(parentId: string): string {
+    return parentId === 'root' ? "('root' in parents or sharedWithMe = true)" : `'${parentId}' in parents`
   }
 
   public async createFile({ name, parentId, mimeType }: CreateFileArgs): Promise<File> {
@@ -359,13 +387,8 @@ export class Client {
    * Removes internal fields and adds computed attributes
    */
   private async _getCompleteFileFromBaseFile(file: BaseNormalFile): Promise<File> {
-    const { id, mimeType, name, parentId, size } = file
     return {
-      id,
-      mimeType,
-      name,
-      parentId,
-      size,
+      ...file,
       path: await this._getFilePath({ type: 'normal', ...file }),
     }
   }
@@ -399,9 +422,10 @@ export class Client {
     const listResponse = await this._googleClient.files.list({
       corpora: 'user',
       fields: GOOGLE_API_FILELIST_FIELDS,
-      q: searchQuery,
+      q: (searchQuery ?? '') + (searchQuery?.length ? ' and ' : '') + 'trashed != true',
       pageToken: nextToken,
       pageSize: PAGE_SIZE,
+      spaces: 'drive',
     })
 
     const newNextToken = listResponse.data.nextPageToken ?? undefined
@@ -492,12 +516,19 @@ export class Client {
     return indexableContentType ?? defaultContentType
   }
 
-  private _getFilePath = async (file: BaseDiscriminatedFile): Promise<string[]> => {
+  private _getFilePath = async (file: BaseDiscriminatedFile, pathAcc?: string[]): Promise<string[]> => {
+    const path = [file.name, ...(pathAcc ?? [])]
+
     if (!file.parentId) {
-      return [file.name]
+      return path
     }
 
-    const parent = await this._getOrFetchFile(file.parentId)
-    return [...(await this._getFilePath(parent)), file.name]
+    try {
+      const parent = await this._getOrFetchFile(file.parentId)
+
+      return await this._getFilePath(parent, path)
+    } catch {
+      return path
+    }
   }
 }

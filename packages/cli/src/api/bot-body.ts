@@ -34,10 +34,13 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
       }))
     : undefined,
   states: bot.states
-    ? await utils.records.mapValuesAsync(bot.states, async (state) => ({
-        ...state,
-        schema: await utils.schema.mapZodToJsonSchema(state),
-      }))
+    ? (utils.records.filterValues(
+        await utils.records.mapValuesAsync(bot.states, async (state) => ({
+          ...state,
+          schema: await utils.schema.mapZodToJsonSchema(state),
+        })),
+        ({ type }) => type !== 'workflow'
+      ) as types.CreateBotRequestBody['states'])
     : undefined,
 })
 
@@ -48,7 +51,14 @@ export const prepareUpdateBotBody = (
   ...localBot,
   states: utils.records.setNullOnMissingValues(localBot.states, remoteBot.states),
   recurringEvents: utils.records.setNullOnMissingValues(localBot.recurringEvents, remoteBot.recurringEvents),
-  events: utils.records.setNullOnMissingValues(localBot.events, remoteBot.events),
+  events: utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localBot.events, remoteBot.events),
+    remoteItems: remoteBot.events,
+  }),
+  actions: utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localBot.actions, remoteBot.actions),
+    remoteItems: remoteBot.actions,
+  }),
   user: {
     ...localBot.user,
     tags: utils.records.setNullOnMissingValues(localBot.user?.tags, remoteBot.user?.tags),
@@ -62,4 +72,5 @@ export const prepareUpdateBotBody = (
     tags: utils.records.setNullOnMissingValues(localBot.message?.tags, remoteBot.message?.tags),
   },
   integrations: utils.records.setNullOnMissingValues(localBot.integrations, remoteBot.integrations),
+  plugins: utils.records.setNullOnMissingValues(localBot.plugins, remoteBot.plugins),
 })

@@ -171,6 +171,14 @@ export type FooBarBazBot = DefaultBot<{
         result: unknown
       }
     }
+    do: {
+      input: {
+        parameters: Record<string, number>
+      }
+      output: {
+        result: number
+      }
+    }
   }
   states: {
     currentUser: {
@@ -227,6 +235,10 @@ export type FooBarBazPlugin = DefaultPlugin<{
     delta: {
       type: 'conversation'
       payload: { delta: null }
+    }
+    epsilon: {
+      type: 'workflow'
+      payload: { epsilon: null }
     }
   }
 }>

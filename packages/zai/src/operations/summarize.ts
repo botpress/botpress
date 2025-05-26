@@ -5,7 +5,7 @@ import { chunk } from 'lodash-es'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
-export type Options = z.input<typeof Options>
+export type Options = (typeof Options)['_input']
 const Options = z.object({
   prompt: z
     .string()

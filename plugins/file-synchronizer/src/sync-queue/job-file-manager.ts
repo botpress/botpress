@@ -7,12 +7,15 @@ import * as bp from '.botpress'
 const QUEUE_ITEM = models.FILE_WITH_PATH.extend({
   status: sdk.z.enum(['pending', 'newly-synced', 'already-synced', 'errored']),
   errorMessage: sdk.z.string().optional(),
+  shouldIndex: sdk.z.boolean(),
+  addToKbId: sdk.z.string().optional(),
 })
 
 export const getSyncQueue = async (
-  props: bp.WorkflowHandlerProps['processQueue']
+  props: bp.WorkflowHandlerProps['processQueue'] | bp.WorkflowHandlerProps['buildQueue'],
+  jobFileId?: string
 ): Promise<{ syncQueue: types.SyncQueue; key: string }> => {
-  const { jobFileContent, key } = await _retrieveJobFile(props).catch(async (thrown: unknown) => {
+  const { jobFileContent, key } = await _retrieveJobFile(props, jobFileId).catch(async (thrown: unknown) => {
     const err: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
     await props.workflow.setFailed({ failureReason: `Failed to retrieve job file: ${err.message}` })
     throw new Error(`Failed to retrieve job file: ${thrown}`)
@@ -34,9 +37,12 @@ export const getSyncQueue = async (
 }
 
 const _retrieveJobFile = async (
-  props: bp.WorkflowHandlerProps['processQueue']
+  props: bp.WorkflowHandlerProps['processQueue'] | bp.WorkflowHandlerProps['buildQueue'],
+  jobFileId?: string
 ): Promise<{ jobFileContent: string; key: string }> => {
-  const { file: jobFile } = await props.client.getFile({ id: props.workflow.input.jobFileId })
+  const { file: jobFile } = await props.client.getFile({
+    id: props.workflow.input.jobFileId ?? jobFileId,
+  })
   const jobFileContent = await fetch(jobFile.url).then((res) => res.text())
 
   return { jobFileContent, key: jobFile.key }
@@ -50,7 +56,7 @@ export const updateSyncQueue = async (
 ): Promise<string> => {
   const { file: jobFile } = await props.client.uploadFile({
     key,
-    content: syncQueue.map((item) => JSON.stringify(item)).join('\n'),
+    content: syncQueue.map((item) => JSON.stringify(item)).join('\n') + '\n',
     tags,
   })
 

@@ -6,4 +6,5 @@ export const SUPPORTED_MESSAGE_TYPES = [
   'video',
   'audio',
   'file',
+  'bloc',
 ] as const satisfies (keyof typeof sdk.messages.defaults)[]

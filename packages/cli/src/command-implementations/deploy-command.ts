@@ -58,7 +58,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       throw new errors.BotpressCLIError('Readme must be a Markdown file')
     }
 
-    const integration = await api.findIntegration({ type: 'name', name, version })
+    const integration = await api.findPublicOrPrivateIntegration({ type: 'name', name, version })
     if (integration && integration.workspaceId !== api.workspaceId) {
       throw new errors.BotpressCLIError(
         `Public integration ${name} v${version} is already deployed in another workspace.`
@@ -161,12 +161,16 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployInterface(api: apiUtils.ApiClient, interfaceDeclaration: sdk.InterfaceDefinition) {
-    if (!api.isBotpressWorkspace) {
-      throw new errors.BotpressCLIError('Your workspace is not allowed to deploy interfaces.')
+    if (interfaceDeclaration.icon && !interfaceDeclaration.icon.toLowerCase().endsWith('.svg')) {
+      throw new errors.BotpressCLIError('Icon must be an SVG file')
+    }
+
+    if (interfaceDeclaration.readme && !interfaceDeclaration.readme.toLowerCase().endsWith('.md')) {
+      throw new errors.BotpressCLIError('Readme must be a Markdown file')
     }
 
     const { name, version } = interfaceDeclaration
-    const intrface = await api.findPublicInterface({ type: 'name', name, version })
+    const intrface = await api.findPublicOrPrivateInterface({ type: 'name', name, version })
 
     let message: string
     if (intrface) {
@@ -182,7 +186,15 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
-    const createBody = await apiUtils.prepareCreateInterfaceBody(interfaceDeclaration)
+    const icon = await this.readProjectFile(interfaceDeclaration.icon, 'base64')
+    const readme = await this.readProjectFile(interfaceDeclaration.readme, 'base64')
+
+    const createBody = {
+      ...(await apiUtils.prepareCreateInterfaceBody(interfaceDeclaration)),
+      public: this.argv.public,
+      icon,
+      readme,
+    }
 
     const startedMessage = `Deploying interface ${chalk.bold(name)} v${version}...`
     const successMessage = 'Interface deployed'
@@ -237,7 +249,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       throw new errors.BotpressCLIError('Readme must be a Markdown file')
     }
 
-    const plugin = await api.findPublicPlugin({ type: 'name', name, version })
+    const plugin = await api.findPublicOrPrivatePlugin({ type: 'name', name, version })
 
     let message: string
     if (plugin) {

@@ -14,6 +14,7 @@ const LABELS = {
   PROBABLY_YES: 'PROBABLY_YES',
   ABSOLUTELY_YES: 'ABSOLUTELY_YES',
 } as const
+
 const ALL_LABELS = Object.values(LABELS).join(' | ')
 
 type Example<T extends string> = {
@@ -21,7 +22,7 @@ type Example<T extends string> = {
   labels: Partial<Record<T, { label: Label; explanation?: string }>>
 }
 
-export type Options<T extends string> = Omit<z.input<typeof Options>, 'examples'> & {
+export type Options<T extends string> = Omit<(typeof Options)['_input'], 'examples'> & {
   examples?: Array<Partial<Example<T>>>
 }
 
@@ -78,7 +79,11 @@ declare module '@botpress/zai' {
       labels: Labels<T>,
       options?: Options<T>
     ): Promise<{
-      [K in T]: boolean
+      [K in T]: {
+        explanation: string
+        value: boolean
+        confidence: number
+      }
     }>
   }
 }
@@ -98,6 +103,20 @@ const parseLabel = (label: string): Label => {
     return LABELS.ABSOLUTELY_YES
   }
   return LABELS.AMBIGUOUS
+}
+
+const getConfidence = (label: Label) => {
+  switch (label) {
+    case LABELS.ABSOLUTELY_NOT:
+    case LABELS.ABSOLUTELY_YES:
+      return 1
+
+    case LABELS.PROBABLY_NOT:
+    case LABELS.PROBABLY_YES:
+      return 0.5
+    default:
+      return 0
+  }
 }
 
 Zai.prototype.label = async function <T extends string>(this: Zai, input, _labels, _options) {
@@ -127,15 +146,21 @@ Zai.prototype.label = async function <T extends string>(this: Zai, input, _label
     // Merge all the labels together (those who are true will remain true)
     return allLabels.reduce((acc, x) => {
       Object.keys(x).forEach((key) => {
-        if (acc[key] === true) {
-          acc[key] = true
+        if (acc[key]?.value === true) {
+          acc[key] = acc[key]
+        } else if (x[key]?.value === true) {
+          acc[key] = x[key]
         } else {
           acc[key] = acc[key] || x[key]
         }
       })
       return acc
     }, {}) as {
-      [K in T]: boolean
+      [K in T]: {
+        explanation: string
+        value: boolean
+        confidence: number
+      }
     }
   }
 
@@ -152,9 +177,19 @@ Zai.prototype.label = async function <T extends string>(this: Zai, input, _label
 
   const convertToAnswer = (mapping: { [K in T]: { explanation: string; label: Label } }) => {
     return Object.keys(labels).reduce((acc, key) => {
-      acc[key] = mapping[key]?.label === 'ABSOLUTELY_YES' || mapping[key]?.label === 'PROBABLY_YES'
+      acc[key] = {
+        explanation: mapping[key]?.explanation ?? '',
+        value: mapping[key]?.label === LABELS.ABSOLUTELY_YES || mapping[key]?.label === LABELS.PROBABLY_YES,
+        confidence: getConfidence(mapping[key]?.label),
+      }
       return acc
-    }, {}) as { [K in T]: boolean }
+    }, {}) as {
+      [K in T]: {
+        explanation: string
+        value: boolean
+        confidence: number
+      }
+    }
   }
 
   const examples = taskId

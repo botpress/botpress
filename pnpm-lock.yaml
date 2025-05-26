@@ -12,8 +12,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.4.0
-        version: 1.4.0(openapi-types@12.1.3)
+        specifier: 1.16.0
+        version: 1.16.0(openapi-types@12.1.3)
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -580,6 +580,13 @@ importers:
       axios:
         specifier: 1.8.4
         version: 1.8.4
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
+    devDependencies:
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
 
   integrations/dalle:
     dependencies:
@@ -865,6 +872,9 @@ importers:
       '@types/uuid':
         specifier: ^9.0.1
         version: 9.0.1
+      preact:
+        specifier: ^10.26.6
+        version: 10.26.6
 
   integrations/groq:
     dependencies:
@@ -1093,17 +1103,17 @@ importers:
         specifier: ^1.6.2
         version: 1.6.2
       marked:
-        specifier: ^13.0.2
-        version: 13.0.2
+        specifier: ^15.0.1
+        version: 15.0.1
       messaging-api-messenger:
         specifier: ^1.1.0
         version: 1.1.0
       preact:
-        specifier: ^10.23.1
-        version: 10.23.1
+        specifier: ^10.26.6
+        version: 10.26.6
       preact-render-to-string:
-        specifier: ^6.5.7
-        version: 6.5.7(preact@10.23.1)
+        specifier: ^6.5.13
+        version: 6.5.13(preact@10.26.6)
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
@@ -1114,6 +1124,18 @@ importers:
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
+
+  integrations/monday:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.4.0
+        version: 1.8.4
 
   integrations/notion:
     dependencies:
@@ -1180,8 +1202,8 @@ importers:
         specifier: ^1.7.2
         version: 1.7.2
       marked:
-        specifier: ^13.0.2
-        version: 13.0.2
+        specifier: ^15.0.1
+        version: 15.0.1
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1528,20 +1550,17 @@ importers:
         specifier: ^1.6.2
         version: 1.6.8
       marked:
-        specifier: ^13.0.2
-        version: 13.0.2
+        specifier: ^15.0.1
+        version: 15.0.1
       preact:
-        specifier: ^10.23.1
-        version: 10.23.1
+        specifier: ^10.26.6
+        version: 10.26.6
       preact-render-to-string:
-        specifier: ^6.5.7
-        version: 6.5.7(preact@10.23.1)
-      query-string:
-        specifier: ^6.14.1
-        version: 6.14.1
+        specifier: ^6.5.13
+        version: 6.5.13(preact@10.26.6)
       whatsapp-api-js:
-        specifier: ^1.0.5
-        version: 1.0.5
+        specifier: ^5.3.0
+        version: 5.3.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1892,10 +1911,10 @@ importers:
         specifier: 0.5.1
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.13.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.0.6
+        specifier: 4.7.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2004,10 +2023,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.13.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.6
+        specifier: 4.7.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2020,10 +2039,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.13.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.6
+        specifier: 4.7.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2036,7 +2055,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.0.6
+        specifier: 4.7.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2049,10 +2068,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.13.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.6
+        specifier: 4.7.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2065,10 +2084,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.13.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.0.6
+        specifier: 4.7.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2160,14 +2179,26 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../sdk
+      dedent:
+        specifier: ^1.6.0
+        version: 1.6.0
+      marked:
+        specifier: ^15.0.1
+        version: 15.0.1
       openai:
         specifier: ^4.86.1
         version: 4.86.1(zod@3.22.4)
+      preact:
+        specifier: ^10.26.6
+        version: 10.26.6
+      preact-render-to-string:
+        specifier: ^6.5.13
+        version: 6.5.13(preact@10.26.6)
 
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.13.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^0.13.5
@@ -2198,7 +2229,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.4.0
+        specifier: 1.13.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2241,7 +2272,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.15
+        specifier: 0.1.20
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -2406,8 +2437,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       dedent:
-        specifier: ^1.5.3
-        version: 1.5.3
+        specifier: ^1.6.0
+        version: 1.6.0
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -4132,8 +4163,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@1.4.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-0XEDsikprP3/ngt6spiS323dQ2wy+MyhdCfHKvR5HMhw9xdOf94rh16y3vlynC9dL7fJVcq6NXlIfp8nexFEEg==}
+  /@botpress/api@1.16.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-9Y/fV6szNJDIb08Qi0s15uYswytl/LGMMzVyxjFP9VTYhWlTuxYXWB7xt5bXYF2slNGbduPYCgZDDL7t3z1j0g==}
     dependencies:
       '@bpinternal/opapi': 0.14.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -7641,6 +7672,10 @@ packages:
       '@types/node': 18.19.76
     dev: false
 
+  /@types/linkify-it@5.0.0:
+    resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
+    dev: true
+
   /@types/lodash-es@4.17.12:
     resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
     dependencies:
@@ -7655,6 +7690,17 @@ packages:
 
   /@types/mailchimp__mailchimp_marketing@3.0.10:
     resolution: {integrity: sha512-UMeHXH1XQUuj6PBWQzripZhH7ENEFMHiH55aGXKKuqhM29kF//xHWwqazY/zwT8TWKHvXAmIg/MKT8ZM1pFWrw==}
+    dev: true
+
+  /@types/markdown-it@14.1.2:
+    resolution: {integrity: sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==}
+    dependencies:
+      '@types/linkify-it': 5.0.0
+      '@types/mdurl': 2.0.0
+    dev: true
+
+  /@types/mdurl@2.0.0:
+    resolution: {integrity: sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==}
     dev: true
 
   /@types/mime@1.3.2:
@@ -9664,8 +9710,8 @@ packages:
     resolution: {integrity: sha512-Q6fKUPqnAHAyhiUgFU7BUzLiv0kd8saH9al7tnu5Q/okj6dnupxyTgFIBjVzJATdfIAm9NAsvXNzjaKa+bxVyA==}
     dev: true
 
-  /dedent@1.5.3:
-    resolution: {integrity: sha512-NHQtfOOW68WD8lgypbLA5oT+Bt0xXJhiYvoR6SmmNXZfpzOGXwdKWmcwG8N7PwVVWV3eF/68nmD9BaJSsTBhyQ==}
+  /dedent@1.6.0:
+    resolution: {integrity: sha512-F1Z+5UCFpmQUzJa11agbyPVMbpgT/qA3/SKyJ1jyBgm7dUcUEa8v9JwDkerSQXfakBwFljIxhOJqGkjUwZ9FSA==}
     peerDependencies:
       babel-plugin-macros: ^3.1.0
     peerDependenciesMeta:
@@ -13050,6 +13096,12 @@ packages:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
     dev: true
 
+  /linkify-it@5.0.0:
+    resolution: {integrity: sha512-5aHCbzQRADcdP+ATqnDuhhJ/MRIqDkZX5pyjFHRRysS8vZ5AbqGEoFIb6pYHPZ+L/OC2Lc+xT8uHVVR5CAK/wQ==}
+    dependencies:
+      uc.micro: 2.1.0
+    dev: false
+
   /lint-staged@15.4.3:
     resolution: {integrity: sha512-FoH1vOeouNh1pw+90S+cnuoFwRfUD9ijY2GKy5h7HS3OR7JVir2N2xrsa0+Twc1B7cW72L+88geG5cW4wIhn7g==}
     engines: {node: '>=18.12.0'}
@@ -13296,8 +13348,20 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /marked@13.0.2:
-    resolution: {integrity: sha512-J6CPjP8pS5sgrRqxVRvkCIkZ6MFdRIjDkwUwgJ9nL2fbmM6qGQeB2C16hi8Cc9BOzj6xXzy0jyi0iPIfnMHYzA==}
+  /markdown-it@14.1.0:
+    resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
+    hasBin: true
+    dependencies:
+      argparse: 2.0.1
+      entities: 4.5.0
+      linkify-it: 5.0.0
+      mdurl: 2.0.0
+      punycode.js: 2.3.1
+      uc.micro: 2.1.0
+    dev: false
+
+  /marked@15.0.1:
+    resolution: {integrity: sha512-VnnE19XO2Vb2oZeH8quAepfrb6Aaz4OoY8yZQACfuy/5KVJ0GxYC0Qxzz/iuc+g5UF7H0HJ+QROfvH26XeBdDA==}
     engines: {node: '>= 18'}
     hasBin: true
     dev: false
@@ -13319,6 +13383,10 @@ packages:
     dependencies:
       marked: 7.0.4
       react: 18.3.1
+    dev: false
+
+  /mdurl@2.0.0:
+    resolution: {integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==}
     dev: false
 
   /media-typer@0.3.0:
@@ -14268,17 +14336,16 @@ packages:
       xtend: 4.0.2
     dev: true
 
-  /preact-render-to-string@6.5.7(preact@10.23.1):
-    resolution: {integrity: sha512-nACZDdv/ZZciuldVYMcfGqr61DKJeaAfPx96hn6OXoBGhgtU2yGQkA0EpTzWH4SvnwF0syLsL4WK7AIp3Ruc1g==}
+  /preact-render-to-string@6.5.13(preact@10.26.6):
+    resolution: {integrity: sha512-iGPd+hKPMFKsfpR2vL4kJ6ZPcFIoWZEcBf0Dpm3zOpdVvj77aY8RlLiQji5OMrngEyaxGogeakTb54uS2FvA6w==}
     peerDependencies:
       preact: '>=10'
     dependencies:
-      preact: 10.23.1
+      preact: 10.26.6
     dev: false
 
-  /preact@10.23.1:
-    resolution: {integrity: sha512-O5UdRsNh4vdZaTieWe3XOgSpdMAmkIYBCT3VhQDlKrzyCm8lUYsk0fmVEvoQQifoOjFRTaHZO69ylrzTW2BH+A==}
-    dev: false
+  /preact@10.26.6:
+    resolution: {integrity: sha512-5SRRBinwpwkaD+OqlBDeITlRgvd8I8QlxHJw9AxSdMNV6O+LodN9nUyYGpSF7sadHjs6RzeFShMexC6DbtWr9g==}
 
   /prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -14364,6 +14431,11 @@ packages:
     dependencies:
       end-of-stream: 1.4.4
       once: 1.4.0
+    dev: false
+
+  /punycode.js@2.3.1:
+    resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
+    engines: {node: '>=6'}
     dev: false
 
   /punycode@2.3.0:
@@ -16090,6 +16162,10 @@ packages:
     hasBin: true
     dev: true
 
+  /uc.micro@2.1.0:
+    resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
+    dev: false
+
   /uglify-js@3.19.3:
     resolution: {integrity: sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ==}
     engines: {node: '>=0.8.0'}
@@ -16520,9 +16596,9 @@ packages:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
     dev: true
 
-  /whatsapp-api-js@1.0.5:
-    resolution: {integrity: sha512-cuxRRf1pi/ztICjpqw52yHycpoaLF2M74+2A8YMq1lDyuNsy0+4tIXNxoxDMJZxCBkSV8sDMsPK4F7oHjPFYzw==}
-    engines: {node: '>14.21'}
+  /whatsapp-api-js@5.3.0:
+    resolution: {integrity: sha512-Rw2pfh0qsbQ1FT+Y4F9Lc8pfoyT80ghVE7xAXDESYknQNfjwawb/lCI3SXN/+sE9wrn7y7ob5CDPLNO9JfwsVg==}
+    engines: {node: '>=16'}
     dev: false
 
   /whatwg-url@5.0.0:

@@ -20,7 +20,7 @@
     "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
-    "proactiveUser": "../../interfaces/proactive-user",
-    "proactiveConversation": "../../interfaces/proactive-conversation"
+    "proactive-user": "../../interfaces/proactive-user",
+    "proactive-conversation": "../../interfaces/proactive-conversation"
   }
 }

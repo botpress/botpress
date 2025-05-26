@@ -4,7 +4,7 @@ import { IntegrationPackage, PluginPackage } from '../package'
 import { PluginInterfaceExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
 import * as utils from '../utils'
-import { ValueOf, Writable, Merge } from '../utils/type-utils'
+import { ValueOf, Writable, Merge, StringKeys } from '../utils/type-utils'
 import z, { ZuiObjectSchema } from '../zui'
 
 type BaseConfig = ZuiObjectSchema
@@ -19,7 +19,7 @@ export type TagDefinition = {
   description?: string
 }
 
-export type StateType = 'conversation' | 'user' | 'bot'
+export type StateType = 'conversation' | 'user' | 'bot' | 'workflow'
 
 export type StateDefinition<TState extends BaseStates[string] = BaseStates[string]> = SchemaDefinition<TState> & {
   type: StateType
@@ -34,7 +34,9 @@ export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = 
   }
 }[keyof TEvents]
 
-export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent>
+export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent> & {
+  attributes?: Record<string, string>
+}
 
 export type ConfigurationDefinition<TConfig extends BaseConfig = BaseConfig> = SchemaDefinition<TConfig>
 
@@ -55,6 +57,7 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   description?: string
   input: SchemaDefinition<TAction>
   output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
+  attributes?: Record<string, string>
 }
 
 export type WorkflowDefinition<TWorkflow extends BaseWorkflows[string] = BaseWorkflows[string]> = {
@@ -74,13 +77,14 @@ export type TableDefinition<TTable extends BaseTables[string] = BaseTables[strin
 
 export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
   enabled: boolean
+  disabledChannels?: StringKeys<NonNullable<I['definition']['channels']>>[]
 } & (
   | {
       configurationType?: null
       configuration: z.infer<NonNullable<I['definition']['configuration']>['schema']>
     }
   | ValueOf<{
-      [K in keyof NonNullable<I['definition']['configurations']>]: {
+      [K in StringKeys<NonNullable<I['definition']['configurations']>>]: {
         configurationType: K
         configuration: z.infer<NonNullable<I['definition']['configurations']>[K]['schema']>
       }
@@ -181,8 +185,9 @@ export class BotDefinition<
     self.integrations[integrationPkg.name] = {
       enabled: config.enabled,
       ...integrationPkg,
-      configurationType: config.configurationType as string,
+      configurationType: config.configurationType,
       configuration: config.configuration,
+      disabledChannels: config.disabledChannels,
     }
     return this
   }

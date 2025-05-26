@@ -66,10 +66,12 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     before_incoming_message: {},
     before_outgoing_message: {},
     before_outgoing_call_action: {},
+    before_incoming_call_action: {},
     after_incoming_event: {},
     after_incoming_message: {},
     after_outgoing_message: {},
     after_outgoing_call_action: {},
+    after_incoming_call_action: {},
   }
   private _workflowHandlers: OrderedWorkflowHandlersMap<any> = {
     started: {},
@@ -355,6 +357,22 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       )
     },
 
+    /**
+     * # EXPERIMENTAL
+     * This API is experimental and may change in the future.
+     */
+    beforeIncomingCallAction: <
+      T extends utils.types.StringKeys<HookHandlersMap<TPlugin>['before_incoming_call_action']>,
+    >(
+      type: T,
+      handler: HookHandlers<TPlugin>['before_incoming_call_action'][T]
+    ) => {
+      this._hookHandlers.before_incoming_call_action[type] = utils.arrays.safePush(
+        this._hookHandlers.before_incoming_call_action[type],
+        { handler: handler as HookHandlers<any>['before_incoming_call_action'][string], order: this._registerOrder++ }
+      )
+    },
+
     afterIncomingEvent: <T extends utils.types.StringKeys<HookHandlersMap<TPlugin>['after_incoming_event']>>(
       type: T,
       handler: HookHandlers<TPlugin>['after_incoming_event'][T]
@@ -392,6 +410,20 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       this._hookHandlers.after_outgoing_call_action[type] = utils.arrays.safePush(
         this._hookHandlers.after_outgoing_call_action[type],
         { handler: handler as HookHandlers<any>['after_outgoing_call_action'][string], order: this._registerOrder++ }
+      )
+    },
+
+    /**
+     * # EXPERIMENTAL
+     * This API is experimental and may change in the future.
+     */
+    afterIncomingCallAction: <T extends utils.types.StringKeys<HookHandlersMap<TPlugin>['after_incoming_call_action']>>(
+      type: T,
+      handler: HookHandlers<TPlugin>['after_incoming_call_action'][T]
+    ) => {
+      this._hookHandlers.after_incoming_call_action[type] = utils.arrays.safePush(
+        this._hookHandlers.after_incoming_call_action[type],
+        { handler: handler as HookHandlers<any>['after_incoming_call_action'][string], order: this._registerOrder++ }
       )
     },
 

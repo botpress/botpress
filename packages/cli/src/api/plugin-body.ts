@@ -42,10 +42,13 @@ export const prepareCreatePluginBody = async (
       }))
     : undefined,
   states: plugin.states
-    ? await utils.records.mapValuesAsync(plugin.states, async (state) => ({
-        ...state,
-        schema: await utils.schema.mapZodToJsonSchema(state),
-      }))
+    ? (utils.records.filterValues(
+        await utils.records.mapValuesAsync(plugin.states, async (state) => ({
+          ...state,
+          schema: await utils.schema.mapZodToJsonSchema(state),
+        })),
+        ({ type }) => type !== 'workflow'
+      ) as types.CreatePluginRequestBody['states'])
     : undefined,
 })
 
@@ -53,8 +56,14 @@ export const prepareUpdatePluginBody = (
   localPlugin: types.UpdatePluginRequestBody,
   remotePlugin: client.Plugin
 ): types.UpdatePluginRequestBody => {
-  const actions = utils.records.setNullOnMissingValues(localPlugin.actions, remotePlugin.actions)
-  const events = utils.records.setNullOnMissingValues(localPlugin.events, remotePlugin.events)
+  const actions = utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localPlugin.actions, remotePlugin.actions),
+    remoteItems: remotePlugin.actions,
+  })
+  const events = utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localPlugin.events, remotePlugin.events),
+    remoteItems: remotePlugin.events,
+  })
   const states = utils.records.setNullOnMissingValues(localPlugin.states, remotePlugin.states)
 
   return {

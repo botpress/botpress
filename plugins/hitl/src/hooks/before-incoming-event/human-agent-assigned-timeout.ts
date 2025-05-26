@@ -1,4 +1,5 @@
 import { DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE, DEFAULT_USER_HITL_CANCELLED_MESSAGE } from '../../../plugin.definition'
+import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
 import * as consts from '../consts'
 import * as bp from '.botpress'
@@ -8,11 +9,6 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
     conversationId: upstreamConversationId,
     payload: { downstreamConversationId },
   } = props.data
-
-  if (!_isTimeoutElapsed(props)) {
-    props.logger.info('Human agent assigned timeout event ignored because the timeout has not lapsed yet')
-    return consts.STOP_EVENT_HANDLING
-  }
 
   if (!upstreamConversationId || !downstreamConversationId) {
     props.logger.error('Missing conversationId in event payload')
@@ -35,9 +31,19 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
     return consts.STOP_EVENT_HANDLING
   }
 
-  await _handleTimeout(props, upstreamCm, downstreamCm)
+  const sessionConfig = await configuration.retrieveSessionConfig({
+    ...props,
+    upstreamConversationId,
+  })
 
-  if (props.configuration.flowOnHitlStopped) {
+  if (!_isTimeoutElapsed(props, sessionConfig)) {
+    props.logger.info('Human agent assigned timeout event ignored because the timeout has not lapsed yet')
+    return consts.STOP_EVENT_HANDLING
+  }
+
+  await _handleTimeout(props, upstreamCm, downstreamCm, sessionConfig)
+
+  if (sessionConfig.flowOnHitlStopped) {
     // the bot will continue the conversation without the patient having to send another message
     await upstreamCm.continueWorkflow()
   }
@@ -45,8 +51,11 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
   return consts.STOP_EVENT_HANDLING
 }
 
-const _isTimeoutElapsed = (props: bp.HookHandlerProps['before_incoming_event']): boolean => {
-  if (!_isTimeoutEnabled(props)) {
+const _isTimeoutElapsed = (
+  props: bp.HookHandlerProps['before_incoming_event'],
+  sessionConfig: bp.configuration.Configuration
+): boolean => {
+  if (!_isTimeoutEnabled(sessionConfig)) {
     props.logger.info('Human agent assigned timeout is not enabled')
     return false
   }
@@ -54,23 +63,24 @@ const _isTimeoutElapsed = (props: bp.HookHandlerProps['before_incoming_event']):
   const now = Date.now()
   const timeWhenCreated = new Date(props.data.payload.sessionStartedAt).getTime()
   const elapsedSeconds = (now - timeWhenCreated) / 1000
-  const timeoutSeconds = props.configuration.agentAssignedTimeoutSeconds ?? 0
+  const timeoutSeconds = sessionConfig.agentAssignedTimeoutSeconds ?? 0
 
   return elapsedSeconds >= timeoutSeconds
 }
 
-const _isTimeoutEnabled = (props: bp.HookHandlerProps['before_incoming_event']): boolean =>
-  !!props.configuration.agentAssignedTimeoutSeconds
+const _isTimeoutEnabled = (sessionConfig: bp.configuration.Configuration): boolean =>
+  !!sessionConfig.agentAssignedTimeoutSeconds
 
 const _handleTimeout = async (
   props: bp.HookHandlerProps['before_incoming_event'],
   upstreamCm: conv.ConversationManager,
-  downstreamCm: conv.ConversationManager
+  downstreamCm: conv.ConversationManager,
+  sessionConfig: bp.configuration.Configuration
 ) => {
   await downstreamCm.respond({
     // TODO: We might want to add a custom message for the human agent.
     type: 'text',
-    text: props.configuration.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
+    text: sessionConfig.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   })
 
   await Promise.allSettled([
@@ -88,6 +98,6 @@ const _handleTimeout = async (
 
   await upstreamCm.respond({
     type: 'text',
-    text: props.configuration.onAgentAssignedTimeoutMessage ?? DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE,
+    text: sessionConfig.onAgentAssignedTimeoutMessage ?? DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE,
   })
 }

@@ -6,14 +6,14 @@ import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
-type Example = z.input<typeof Example>
+type Example = (typeof Example)['_input']
 const Example = z.object({
   input: z.any(),
   filter: z.boolean(),
   reason: z.string().optional(),
 })
 
-export type Options = z.input<typeof Options>
+export type Options = (typeof Options)['_input']
 const Options = z.object({
   tokensPerItem: z
     .number()

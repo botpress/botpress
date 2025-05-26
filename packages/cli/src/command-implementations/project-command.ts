@@ -343,12 +343,16 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     api: apiUtils.ApiClient
   ): Promise<Partial<apiUtils.UpdateBotRequestBody>> {
     const integrations = await this._fetchDependencies(botDef.integrations ?? {}, ({ name, version }) =>
-      api.getIntegration({ type: 'name', name, version })
+      api.getPublicOrPrivateIntegration({ type: 'name', name, version })
+    )
+    const plugins = await this._fetchDependencies(botDef.plugins ?? {}, ({ name, version }) =>
+      api.getPublicOrPrivatePlugin({ type: 'name', name, version })
     )
     return {
       integrations: _(integrations)
         .keyBy((i) => i.id)
         .value(),
+      plugins,
     }
   }
 
@@ -367,7 +371,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     api: apiUtils.ApiClient
   ): Promise<Partial<apiUtils.CreatePluginRequestBody>> {
     const integrations = await this._fetchDependencies(pluginDef.integrations ?? {}, ({ name, version }) =>
-      api.getIntegration({ type: 'name', name, version })
+      api.getPublicOrPrivateIntegration({ type: 'name', name, version })
     )
     const interfaces = await this._fetchDependencies(pluginDef.interfaces ?? {}, ({ name, version }) =>
       api.getPublicInterface({ type: 'name', name, version })

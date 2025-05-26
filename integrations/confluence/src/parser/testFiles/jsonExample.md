@@ -2,7 +2,7 @@
 Nous avons ajouté un exemple de contenu pour vous aider à démarrer les tests de votre plan de projet. Explorez ce contenu et modifiez-le pour vous l'approprier.
 ```
 
-| **🚗 Meneur**          | @Quentin Ackermann                               |
+| **🚗 Meneur**          | @Michael Masson                                  |
 | ---------------------- | ------------------------------------------------ |
 | **⚡️ Équipe**         | _Mentionnez les contributeurs (p. ex., @xavier)_ |
 |                        |
@@ -129,4 +129,4 @@ Description:
 
 ## 🔗 Supports connexes
 
-[https://ackermannquentin.atlassian.net/wiki/pages/resumedraft.action?draftId=131178](https://ackermannquentin.atlassian.net/wiki/pages/resumedraft.action?draftId=131178)
+[https://botpress.atlassian.net/wiki/pages/resumedraft.action?draftId=131178](https://botpress.atlassian.net/wiki/pages/resumedraft.action?draftId=131178)

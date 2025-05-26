@@ -7,8 +7,6 @@ import {
   GetChannelByName,
   GetMessageByName,
   MessageTags,
-  WithOptionalPrefix,
-  WithRequiredPrefix,
   TagsOfMessage,
 } from './sub-types'
 
@@ -85,7 +83,7 @@ type EventResponse<TIntegration extends common.BaseIntegration, TEvent extends k
   event: utils.Merge<
     Awaited<Res<client.Client['getEvent']>>['event'],
     {
-      type: WithRequiredPrefix<utils.Cast<TEvent, string>, TIntegration['name']>
+      type: utils.Cast<TEvent, string>
       payload: TIntegration['events'][TEvent]
     }
   >
@@ -95,7 +93,7 @@ export type CreateEvent<TIntegration extends common.BaseIntegration> = <TEvent e
   x: utils.Merge<
     Arg<client.Client['createEvent']>,
     {
-      type: WithOptionalPrefix<utils.Cast<TEvent, string>, TIntegration['name']>
+      type: utils.Cast<TEvent, string>
       payload: TIntegration['events'][TEvent]
     }
   >
@@ -111,7 +109,7 @@ export type ListEvents<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['listEvents']>,
     {
-      type?: WithRequiredPrefix<utils.Cast<keyof TIntegration['events'], string>, TIntegration['name']>
+      type?: utils.Cast<keyof TIntegration['events'], string>
     }
   >
 ) => Res<client.Client['listEvents']>
