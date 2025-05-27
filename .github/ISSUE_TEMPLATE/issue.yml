@@ -1,21 +1,23 @@
-name: Botpress DevTools or Public Integrations
-description: File a bug report or feature request for Botpress DevTools or Public Integrations
+name: Botpress Cloud
+description: File a bug report or feature request for Botpress Cloud
 body:
   - type: markdown
     attributes:
-      value: "Thank you for taking the time to fill out this issue report.\n\nKeep in mind this repository is meant for Developper focused tools, for public integrations developpement and eventually agent developpement (See the [README](https://github.com/botpress/botpress#this-repository) file for more details)."
+      value: "Thank you for taking the time to fill out this issue report.\n\nKeep in mind that you will get a faster response time by talking to use on [our Discord Server](https://discord.gg/botpress)."
   - type: checkboxes
     id: dx-related-confirmation
     attributes:
-      label: 'Make sure the issue is related to code located in this repository.'
-      description: 'When in doubt, please report the bug on [our Discord Server](https://discord.gg/botpress).'
+      label: 'Make sure the issue is related to Botpress Cloud.'
+      description: 'When in doubt, please reach out on [our Discord Server](https://discord.gg/botpress).'
       options:
-        - label: 'I confirm that the reported bug or feature request is not related to Botpress on premise version (v12 and below)'
+        - label: 'I confirm that the reported bug or feature request is not related to Botpress v12 and below (on premise version)'
           required: true
-        - label: 'I confirm that the reported bug or feature request is not related to the Botpress Studio'
-          required: true
-        - label: 'I confirm that the reported bug or feature request is not related to the Botpress Dashboard'
-          required: true
+  - type: input
+    id: report-id
+    attributes:
+      label: 'Report ID'
+      description: 'Directly in the Studio, click on the "Report a Problem" button in the bottom left corner to create a report. You can then copy the report ID. Providing a report ID will allow us to help you faster. This information is safe to share publicly.'
+      placeholder: 'e.g. report_0123456789ABCDEFGHIJKLMNOPQRS'
   - type: textarea
     id: issue-description
     attributes:
