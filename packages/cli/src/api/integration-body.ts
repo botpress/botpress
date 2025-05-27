@@ -51,6 +51,7 @@ export const prepareCreateIntegrationBody = async (
         schema: await utils.schema.mapZodToJsonSchema(entity),
       }))
     : undefined,
+  attributes: integration.attributes,
 })
 
 type UpdateIntegrationChannelsBody = NonNullable<types.UpdateIntegrationRequestBody['channels']>
@@ -87,6 +88,9 @@ export const prepareUpdateIntegrationBody = (
 
   const readme = localIntegration.readme
   const icon = localIntegration.icon
+
+  const attributes = utils.records.setNullOnMissingValues(localIntegration.attributes, remoteIntegration.attributes)
+
   return {
     ..._maybeRemoveVrlScripts(localIntegration, remoteIntegration),
     actions,
@@ -99,6 +103,7 @@ export const prepareUpdateIntegrationBody = (
     configurations,
     readme,
     icon,
+    attributes,
   }
 }
 
