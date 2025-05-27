@@ -81,8 +81,8 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
       aliases?: string[]
       description?: string
       metadata?: Record<string, unknown>
-      input?: IX | ((original: I | undefined) => IX)
-      output?: OX | ((original: O | undefined) => OX)
+      input: IX | ((original: I | undefined) => IX)
+      output: OX | ((original: O | undefined) => OX)
       staticInputValues?: Partial<TypeOf<IX>>
       handler: (args: TypeOf<IX>) => Promise<TypeOf<OX>>
     }> = {}
@@ -101,14 +101,14 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
             ? props.input?.(zInput)
             : props.input instanceof ZodType
               ? props.input
-              : zInput,
+              : (zInput as unknown as IX),
         output:
           typeof props.output === 'function'
             ? props.output?.(zOutput)
             : props.output instanceof ZodType
               ? props.output
-              : zOutput,
-        handler: this._handler,
+              : (zOutput as unknown as OX),
+        handler: (props.handler ?? this._handler) as (args: TypeOf<IX>) => Promise<TypeOf<OX>>,
       }).setStaticInputValues((props.staticInputValues as any) ?? (this._staticInputValues as any))
     } catch (e) {
       throw new Error(`Failed to clone tool "${this.name}": ${e}`)

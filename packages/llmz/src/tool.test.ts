@@ -424,6 +424,8 @@ describe('tool default values', () => {
   })
 
   it('tool clone and changing types', async () => {
+    let handlers: string[] = []
+
     const tool = new Tool({
       name: 'add',
       input: z.object({
@@ -432,6 +434,7 @@ describe('tool default values', () => {
       }),
       output: z.number(),
       handler: async ({ a, b }) => {
+        handlers.push(`tool original`)
         return a + b
       },
     })
@@ -439,13 +442,15 @@ describe('tool default values', () => {
     const newTool1 = tool.clone({
       input: (original) => original!.extend({ c: z.number().default(0) }),
       handler: async ({ a, b, c }) => {
+        handlers.push(`tool clone 1`)
         return a + b + c
       },
     })
 
     const newTool2 = tool.clone({
-      input: z.never(),
+      input: z.null(),
       handler: async () => {
+        handlers.push(`tool clone 2`)
         return 0
       },
     })
@@ -453,6 +458,7 @@ describe('tool default values', () => {
     const newTool3 = tool.clone({
       output: z.string(),
       handler: async () => {
+        handlers.push(`tool clone 3`)
         return '0'
       },
     })
@@ -474,7 +480,9 @@ describe('tool default values', () => {
     expect(await newTool1.getTypings()).toMatchInlineSnapshot(
       `"declare function add(args: { a: number; b: number; c: number }): Promise<number>"`
     )
-    expect(await newTool2.getTypings()).toMatchInlineSnapshot(`"declare function add(any): Promise<number>"`)
+    expect(await newTool2.getTypings()).toMatchInlineSnapshot(
+      `"declare function add(args: "null" | null): Promise<number>"`
+    )
     expect(await newTool3.getTypings()).toMatchInlineSnapshot(
       `"declare function add(args: { a: number; b: number }): Promise<string>"`
     )
@@ -484,5 +492,23 @@ describe('tool default values', () => {
     expect(await newTool5.getTypings()).toMatchInlineSnapshot(
       `"declare function add3(args: { a: number; b: number; c: 2 }): Promise<number>"`
     )
+
+    await tool.execute({ a: 1, b: 2 })
+    await newTool1.execute({ a: 1, b: 2, c: 3 })
+    await newTool2.execute(null)
+    await newTool3.execute({ a: 1, b: 2 })
+    await newTool4.execute({ b: 2, a: 1 })
+    await newTool5.execute({ a: 1, b: 2, c: 5 })
+
+    expect(handlers).toMatchInlineSnapshot(`
+      [
+        "tool original",
+        "tool clone 1",
+        "tool clone 2",
+        "tool clone 3",
+        "tool original",
+        "tool clone 1",
+      ]
+    `)
   })
 })
