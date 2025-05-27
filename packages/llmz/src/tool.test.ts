@@ -444,14 +444,14 @@ describe('tool default values', () => {
     })
 
     const newTool2 = tool.clone({
-      input: () => z.never(),
+      input: z.never(),
       handler: async () => {
         return 0
       },
     })
 
     const newTool3 = tool.clone({
-      output: () => z.string(),
+      output: z.string(),
       handler: async () => {
         return '0'
       },

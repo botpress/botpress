@@ -1,4 +1,4 @@
-import { type JSONSchema, TypeOf, z, ZodObject } from '@bpinternal/zui'
+import { type JSONSchema, TypeOf, z, ZodObject, ZodType } from '@bpinternal/zui'
 import { isEmpty, uniq } from 'lodash-es'
 import { ZuiType } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
@@ -81,8 +81,8 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
       aliases?: string[]
       description?: string
       metadata?: Record<string, unknown>
-      input?: (original: I | undefined) => IX
-      output?: (original: O | undefined) => OX
+      input?: IX | ((original: I | undefined) => IX)
+      output?: OX | ((original: O | undefined) => OX)
       staticInputValues?: Partial<TypeOf<IX>>
       handler: (args: TypeOf<IX>) => Promise<TypeOf<OX>>
     }> = {}
@@ -96,8 +96,18 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
         aliases: props.aliases ?? [...this.aliases],
         description: props.description ?? this.description,
         metadata: props.description ?? JSON.parse(JSON.stringify(this.metadata)),
-        input: props.input?.(zInput) ?? zInput,
-        output: props.output?.(zOutput) ?? zOutput,
+        input:
+          typeof props.input === 'function'
+            ? props.input?.(zInput)
+            : props.input instanceof ZodType
+              ? props.input
+              : zInput,
+        output:
+          typeof props.output === 'function'
+            ? props.output?.(zOutput)
+            : props.output instanceof ZodType
+              ? props.output
+              : zOutput,
         handler: this._handler,
       }).setStaticInputValues((props.staticInputValues as any) ?? (this._staticInputValues as any))
     } catch (e) {
