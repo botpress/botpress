@@ -56,6 +56,8 @@ export type PluginDefinitionProps<
   icon?: string
   readme?: string
 
+  attributes?: Record<string, string>
+
   integrations?: {
     [K in keyof TIntegrations]: IntegrationPackage
   }
@@ -109,6 +111,8 @@ export class PluginDefinition<
   public readonly icon: this['props']['icon']
   public readonly readme: this['props']['readme']
 
+  public readonly attributes: this['props']['attributes']
+
   public readonly integrations: this['props']['integrations']
   public readonly interfaces: this['props']['interfaces']
 
@@ -155,5 +159,6 @@ export class PluginDefinition<
     this.actions = props.actions
     this.tables = props.tables
     this.workflows = props.workflows
+    this.attributes = props.attributes
   }
 }
