@@ -3,7 +3,7 @@ description: File a bug report or feature request for Botpress Cloud
 body:
   - type: markdown
     attributes:
-      value: "Thank you for taking the time to fill out this issue report.\n\nKeep in mind that you will get a faster response time by talking to use on [our Discord Server](https://discord.gg/botpress)."
+      value: "Thank you for taking the time to fill out this issue report.\n\nKeep in mind that you will get a faster response time by talking to us on [our Discord Server](https://discord.gg/botpress)."
   - type: checkboxes
     id: dx-related-confirmation
     attributes:
