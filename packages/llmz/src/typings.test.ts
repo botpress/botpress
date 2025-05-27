@@ -14,6 +14,25 @@ describe('functions', () => {
     await expect(getTypings(fn, { declaration: true })).rejects.toThrow(/title/i)
   })
 
+  it('function with literals', async () => {
+    const fn = z
+      .function()
+      .args(z.literal('Hello, world!'))
+      .returns(z.number())
+      .title('greeting')
+      .describe('Add two numbers together.\nThis is a multiline description')
+
+    const typings = await getTypings(fn, { declaration: true })
+
+    expect(typings).toMatchInlineSnapshot(`
+      "/**
+       * Add two numbers together.
+       * This is a multiline description
+       */
+      declare function greeting(arg0: "Hello, world!"): number"
+    `)
+  })
+
   it('function with multi-line description', async () => {
     const fn = z
       .function()

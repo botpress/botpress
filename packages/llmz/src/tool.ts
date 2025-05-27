@@ -1,10 +1,10 @@
-import { type JSONSchema, z } from '@bpinternal/zui'
+import { type JSONSchema, TypeOf, z, ZodObject } from '@bpinternal/zui'
 import { isEmpty, uniq } from 'lodash-es'
 import { ZuiType } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
 import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier } from './utils.js'
 
-export class Tool<I = unknown, O = unknown> {
+export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
   private _staticInputValues?: unknown
 
   public name: string
@@ -14,7 +14,7 @@ export class Tool<I = unknown, O = unknown> {
   public input?: JSONSchema
   public output?: JSONSchema
 
-  public setStaticInputValues(values: Partial<I>): this {
+  public setStaticInputValues(values: Partial<TypeOf<I>>): this {
     if (values === null || values === undefined) {
       this._staticInputValues = undefined
       return this
@@ -75,17 +75,31 @@ export class Tool<I = unknown, O = unknown> {
     return this
   }
 
-  public clone() {
+  public clone<IX extends ZuiType = I, OX extends ZuiType = O>(
+    props: Partial<{
+      name: string
+      aliases?: string[]
+      description?: string
+      metadata?: Record<string, unknown>
+      input?: (original: I | undefined) => IX
+      output?: (original: O | undefined) => OX
+      staticInputValues?: Partial<TypeOf<IX>>
+      handler: (args: TypeOf<IX>) => Promise<TypeOf<OX>>
+    }> = {}
+  ): Tool<IX, OX> {
     try {
-      return <Tool<I, O>>new Tool({
-        name: this.name,
-        aliases: [...this.aliases],
-        description: this.description,
-        metadata: JSON.parse(JSON.stringify(this.metadata)),
-        input: this.input ? (z.fromJsonSchema(this.input) as unknown as ZuiType<I>) : undefined,
-        output: this.output ? (z.fromJsonSchema(this.output) as unknown as ZuiType<O>) : undefined,
+      const zInput = this.input ? (z.fromJsonSchema(this.input) as unknown as I) : undefined
+      const zOutput = this.output ? (z.fromJsonSchema(this.output) as unknown as O) : undefined
+
+      return <Tool<IX, OX>>new Tool({
+        name: props.name ?? this.name,
+        aliases: props.aliases ?? [...this.aliases],
+        description: props.description ?? this.description,
+        metadata: props.description ?? JSON.parse(JSON.stringify(this.metadata)),
+        input: props.input?.(zInput) ?? zInput,
+        output: props.output?.(zOutput) ?? zOutput,
         handler: this._handler,
-      }).setStaticInputValues(this._staticInputValues as any)
+      }).setStaticInputValues((props.staticInputValues as any) ?? (this._staticInputValues as any))
     } catch (e) {
       throw new Error(`Failed to clone tool "${this.name}": ${e}`)
     }
@@ -98,10 +112,10 @@ export class Tool<I = unknown, O = unknown> {
     aliases?: string[]
     description?: string
     metadata?: Record<string, unknown>
-    input?: ZuiType<I>
-    output?: ZuiType<O>
-    staticInputValues?: Partial<I>
-    handler: (args: I) => Promise<O>
+    input?: I
+    output?: O
+    staticInputValues?: Partial<TypeOf<I>>
+    handler: (args: TypeOf<I>) => Promise<TypeOf<O>>
   }) {
     if (!isValidIdentifier(props.name)) {
       throw new Error(
@@ -169,7 +183,7 @@ export class Tool<I = unknown, O = unknown> {
     this.setStaticInputValues(props.staticInputValues as any)
   }
 
-  public async execute(input: I): Promise<O> {
+  public async execute(input: TypeOf<I>): Promise<TypeOf<O>> {
     const pInput = this.zInput.safeParse(input)
 
     if (!pInput.success) {
@@ -184,8 +198,20 @@ export class Tool<I = unknown, O = unknown> {
   }
 
   public async getTypings(): Promise<string> {
-    const input = this.input ? z.fromJsonSchema(this.input) : undefined
+    let input = this.input ? z.fromJsonSchema(this.input) : undefined
     const output = this.output ? z.fromJsonSchema(this.output) : z.void()
+
+    if (
+      input?.naked() instanceof ZodObject &&
+      typeof this._staticInputValues === 'object' &&
+      !isEmpty(this._staticInputValues)
+    ) {
+      // If input is an object and static values are set, extend the input with those values
+      const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues)
+      input = (input as ZodObject).extend(inputExtensions)
+    } else if (this._staticInputValues !== undefined) {
+      input = convertObjectToZuiLiterals(this._staticInputValues) as typeof input
+    }
 
     const fnType = z
       .function(input as any, z.promise(output))

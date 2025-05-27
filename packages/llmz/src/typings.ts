@@ -140,6 +140,8 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
       return args
     }
 
+    const isLiteral = schema.schema.naked() instanceof z.ZodLiteral
+
     const typings = (await sUnwrapZodRecursive(schema.schema, newOptions)).trim()
     const startsWithPairs =
       (typings.startsWith('{') && typings.endsWith('}')) ||
@@ -149,7 +151,7 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
       (typings.startsWith('Record<') && typings.endsWith('>')) ||
       isArrayOfPrimitives(typings)
 
-    if (startsWithPairs) {
+    if (startsWithPairs || isLiteral) {
       return `args: ${typings}`
     } else {
       return typings

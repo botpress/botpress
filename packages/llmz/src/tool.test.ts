@@ -293,6 +293,80 @@ describe('tool default values', () => {
     `)
   })
 
+  it('tool typings with static input values', async () => {
+    const obj = new Tool({
+      name: 'add',
+      input: z.object({
+        a: z.number(),
+        b: z.number(),
+      }),
+      output: z.number(),
+      staticInputValues: {
+        a: 10,
+      },
+      handler: async ({ a, b }) => {
+        return a + b
+      },
+    })
+
+    const str = new Tool({
+      name: 'str',
+      input: z.string(),
+      staticInputValues: 'hello',
+      handler: async () => {},
+    })
+
+    const num = new Tool({
+      name: 'num',
+      input: z.number(),
+      staticInputValues: 42,
+      handler: async () => {},
+    })
+
+    const arr = new Tool({
+      name: 'arr',
+      input: z.array(z.string()),
+      staticInputValues: ['a', 'b', 'c'],
+      handler: async () => {},
+    })
+
+    const tuple = new Tool({
+      name: 'tuple',
+      input: z.tuple([z.string(), z.number()]),
+      staticInputValues: ['hello', 42],
+      handler: async () => {},
+    })
+
+    const bool = new Tool({
+      name: 'bool',
+      input: z.boolean(),
+      staticInputValues: true,
+      handler: async () => {},
+    })
+
+    const nullable = new Tool({
+      name: 'nullable',
+      input: z.string().nullable(),
+      staticInputValues: null,
+      handler: async () => {},
+    })
+
+    expect(await obj.getTypings()).toMatchInlineSnapshot(
+      `"declare function add(args: { a: 10; b: number }): Promise<number>"`
+    )
+    expect(await str.getTypings()).toMatchInlineSnapshot(`"declare function str(args: "hello"): Promise<void>"`)
+    expect(await num.getTypings()).toMatchInlineSnapshot(`"declare function num(args: 42): Promise<void>"`)
+    expect(await arr.getTypings()).toMatchInlineSnapshot(`"declare function arr(args: ["a", "b", "c"]): Promise<void>"`)
+    expect(await tuple.getTypings()).toMatchInlineSnapshot(
+      `"declare function tuple(args: ["hello", 42]): Promise<void>"`
+    )
+    expect(await bool.getTypings()).toMatchInlineSnapshot(`"declare function bool(args: true): Promise<void>"`)
+    expect(await nullable.getTypings()).toMatchInlineSnapshot(`
+      "declare function nullable
+      (string | null): Promise<void>;"
+    `)
+  })
+
   it('tools input schemas', async () => {
     const anySchema = new Tool({
       name: 'anySchema',
@@ -347,5 +421,68 @@ describe('tool default values', () => {
       "declare function defaultValueSchema
       ({ a: number; b: string } | null): Promise<void>;"
     `)
+  })
+
+  it('tool clone and changing types', async () => {
+    const tool = new Tool({
+      name: 'add',
+      input: z.object({
+        a: z.number(),
+        b: z.number(),
+      }),
+      output: z.number(),
+      handler: async ({ a, b }) => {
+        return a + b
+      },
+    })
+
+    const newTool1 = tool.clone({
+      input: (original) => original!.extend({ c: z.number().default(0) }),
+      handler: async ({ a, b, c }) => {
+        return a + b + c
+      },
+    })
+
+    const newTool2 = tool.clone({
+      input: () => z.never(),
+      handler: async () => {
+        return 0
+      },
+    })
+
+    const newTool3 = tool.clone({
+      output: () => z.string(),
+      handler: async () => {
+        return '0'
+      },
+    })
+
+    const newTool4 = tool.clone({
+      name: 'add2',
+      staticInputValues: {
+        a: 1,
+      },
+    })
+
+    const newTool5 = newTool1.clone({
+      name: 'add3',
+      staticInputValues: {
+        c: 2,
+      },
+    })
+
+    expect(await newTool1.getTypings()).toMatchInlineSnapshot(
+      `"declare function add(args: { a: number; b: number; c: number }): Promise<number>"`
+    )
+    expect(await newTool2.getTypings()).toMatchInlineSnapshot(`"declare function add(any): Promise<number>"`)
+    expect(await newTool3.getTypings()).toMatchInlineSnapshot(
+      `"declare function add(args: { a: number; b: number }): Promise<string>"`
+    )
+    expect(await newTool4.getTypings()).toMatchInlineSnapshot(
+      `"declare function add2(args: { a: 1; b: number }): Promise<number>"`
+    )
+    expect(await newTool5.getTypings()).toMatchInlineSnapshot(
+      `"declare function add3(args: { a: number; b: number; c: 2 }): Promise<number>"`
+    )
   })
 })
