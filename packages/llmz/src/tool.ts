@@ -95,7 +95,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
         name: props.name ?? this.name,
         aliases: props.aliases ?? [...this.aliases],
         description: props.description ?? this.description,
-        metadata: props.description ?? JSON.parse(JSON.stringify(this.metadata)),
+        metadata: JSON.parse(JSON.stringify(props.metadata ?? this.metadata)),
         input:
           typeof props.input === 'function'
             ? props.input?.(zInput)
