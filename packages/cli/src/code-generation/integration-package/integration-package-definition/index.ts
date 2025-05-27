@@ -99,6 +99,10 @@ export class IntegrationPackageDefinitionModule extends Module {
       creation: this._integration.user?.creation ?? { enabled: false, requiredTags: [] },
     }
 
+    const integrationAttributes = this._integration.attributes
+      ? stringifySingleLine(this._integration.attributes)
+      : '{}'
+
     content += [
       consts.GENERATED_HEADER,
       'import * as sdk from "@botpress/sdk"',
@@ -123,6 +127,7 @@ export class IntegrationPackageDefinitionModule extends Module {
       'export default {',
       `  name: "${this._integration.name}",`,
       `  version: "${this._integration.version}",`,
+      `  attributes: ${integrationAttributes},`,
       `  user: ${stringifySingleLine(user)},`,
       `  configuration: ${defaultConfigModule.name}.${defaultConfigModule.exportName},`,
       `  configurations: ${configurationsModule.name}.${configurationsModule.exportName},`,
