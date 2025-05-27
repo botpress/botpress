@@ -79,8 +79,17 @@ export async function generateContent(
     messages,
   }
 
-  if (modelId === 'claude-3-7-sonnet-reasoning-20250219') {
-    modelId = 'claude-3-7-sonnet-20250219' // NOTE: The "-reasoning" model ID doesn't really exist in Anthropic, we use it as a simple way for users to switch between the reasoning mode and the standard mode.
+  const isReasoningModel =
+    modelId === 'claude-3-7-sonnet-reasoning-20250219' || modelId === 'claude-sonnet-4-reasoning-20250514'
+
+  if (isReasoningModel) {
+    // NOTE: The "reasoning" model IDs don't really exist in Anthropic, we use it as a simple way for users to switch between the reasoning mode and the standard mode.
+    if (modelId === 'claude-3-7-sonnet-reasoning-20250219') {
+      modelId = 'claude-3-7-sonnet-20250219'
+    } else if (modelId === 'claude-sonnet-4-reasoning-20250514') {
+      modelId = 'claude-sonnet-4-20250514'
+    }
+
     request.model = modelId
     model = params.models[modelId]
 
