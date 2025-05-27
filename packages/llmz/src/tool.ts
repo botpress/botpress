@@ -234,6 +234,10 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
         }
       }
     }
+
+    throw new Error(
+      `Tool "${this.name}" failed after ${this.MAX_RETRIES} attempts. Last error: ${JSON.stringify(input)}`
+    )
   }
 
   public async getTypings(): Promise<string> {
