@@ -4,6 +4,14 @@ import { ZuiType } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
 import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier } from './utils.js'
 
+type ToolRetryInput<I> = {
+  input: I
+  attempt: number
+  error?: unknown
+}
+
+export type ToolRetryFn<I> = (args: ToolRetryInput<I>) => boolean | Promise<boolean>
+
 export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
   private _staticInputValues?: unknown
 
@@ -13,6 +21,9 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
   public metadata: Record<string, unknown>
   public input?: JSONSchema
   public output?: JSONSchema
+  public retry?: ToolRetryFn<TypeOf<I>>
+
+  public MAX_RETRIES = 1000
 
   public setStaticInputValues(values: Partial<TypeOf<I>>): this {
     if (values === null || values === undefined) {
@@ -85,6 +96,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
       output: OX | ((original: O | undefined) => OX)
       staticInputValues?: Partial<TypeOf<IX>>
       handler: (args: TypeOf<IX>) => Promise<TypeOf<OX>>
+      retry: ToolRetryFn<TypeOf<IX>>
     }> = {}
   ): Tool<IX, OX> {
     try {
@@ -109,6 +121,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
               ? props.output
               : (zOutput as unknown as OX),
         handler: (props.handler ?? this._handler) as (args: TypeOf<IX>) => Promise<TypeOf<OX>>,
+        retry: props.retry ?? this.retry,
       }).setStaticInputValues((props.staticInputValues as any) ?? (this._staticInputValues as any))
     } catch (e) {
       throw new Error(`Failed to clone tool "${this.name}": ${e}`)
@@ -126,6 +139,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
     output?: O
     staticInputValues?: Partial<TypeOf<I>>
     handler: (args: TypeOf<I>) => Promise<TypeOf<O>>
+    retry?: ToolRetryFn<TypeOf<I>>
   }) {
     if (!isValidIdentifier(props.name)) {
       throw new Error(
@@ -191,6 +205,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
     this.metadata = props.metadata ?? {}
     this._handler = props.handler as any
     this.setStaticInputValues(props.staticInputValues as any)
+    this.retry = props.retry
   }
 
   public async execute(input: TypeOf<I>): Promise<TypeOf<O>> {
@@ -200,11 +215,25 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
       throw new Error(`Tool "${this.name}" received invalid input: ${pInput.error.message}`)
     }
 
-    const result = (await this._handler(pInput.data)) as any
+    let attempt = 0
 
-    const pOutput = this.zOutput.safeParse(result)
+    while (attempt < this.MAX_RETRIES) {
+      try {
+        const result = (await this._handler(pInput.data)) as any
+        const pOutput = this.zOutput.safeParse(result)
+        return pOutput.success ? pOutput.data : result
+      } catch (err) {
+        const shouldRetry = await this.retry?.({
+          input: pInput.data,
+          attempt: ++attempt,
+          error: err,
+        })
 
-    return pOutput.success ? pOutput.data : result
+        if (!shouldRetry) {
+          throw err
+        }
+      }
+    }
   }
 
   public async getTypings(): Promise<string> {

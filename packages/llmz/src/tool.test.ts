@@ -511,4 +511,75 @@ describe('tool default values', () => {
       ]
     `)
   })
+
+  it('tool retry logic', async () => {
+    let attempts: string[] = []
+
+    const tool = new Tool({
+      name: 'retryTool',
+      input: z.object({
+        a: z.number(),
+      }),
+      output: z.number(),
+      handler: async ({ a }) => {
+        attempts.push(`attempt with a=${a}`)
+        if (attempts.length <= 3) {
+          throw new Error(`Simulated error on attempt ${attempts.length}`)
+        }
+        attempts.push(`SUCCESS attempt with a=${a}`)
+        return a * 2
+      },
+      retry: async ({ input, attempt }) => {
+        attempts.push(`retry called for attempt ${attempt} with input=${JSON.stringify(input)}`)
+        return true
+      },
+    })
+
+    const result = await tool.execute({ a: 3 })
+    expect(result).toBe(6)
+    expect(attempts).toMatchInlineSnapshot(`
+      [
+        "attempt with a=3",
+        "retry called for attempt 1 with input={"a":3}",
+        "attempt with a=3",
+        "retry called for attempt 2 with input={"a":3}",
+        "attempt with a=3",
+        "SUCCESS attempt with a=3",
+      ]
+    `)
+  })
+
+  it('tool retry logic (2)', async () => {
+    let attempts: string[] = []
+
+    const tool = new Tool({
+      name: 'retryTool',
+      input: z.object({
+        a: z.number(),
+      }),
+      output: z.number(),
+      handler: async ({ a }) => {
+        attempts.push(`attempt with a=${a}`)
+        if (attempts.length <= 3) {
+          throw new Error(`Simulated error on attempt ${attempts.length}`)
+        }
+        attempts.push(`SUCCESS attempt with a=${a}`)
+        return a * 2
+      },
+      retry: async ({ input, attempt }) => {
+        attempts.push(`retry called for attempt ${attempt} with input=${JSON.stringify(input)}`)
+        return attempt < 2
+      },
+    })
+
+    await expect(() => tool.execute({ a: 3 })).rejects.toThrow()
+    expect(attempts).toMatchInlineSnapshot(`
+      [
+        "attempt with a=3",
+        "retry called for attempt 1 with input={"a":3}",
+        "attempt with a=3",
+        "retry called for attempt 2 with input={"a":3}",
+      ]
+    `)
+  })
 })
