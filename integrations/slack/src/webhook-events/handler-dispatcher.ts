@@ -91,6 +91,9 @@ const _dispatchEvent = async ({ client, ctx, logger }: bp.HandlerProps, slackEve
     case 'member_left_channel':
       return await handlers.memberLeftChannel.handleEvent({ slackEvent, client })
 
+    case 'function_executed':
+      return await handlers.functionExecuted.handleEvent({ slackEvent, client, logger })
+
     default:
       logger.forBot().debug(`Ignoring unsupported event type ${slackEvent.type}`)
       return
