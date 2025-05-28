@@ -100,7 +100,7 @@ export type PluginConfigInstance<P extends PluginPackage = PluginPackage> = {
 }
 
 export type IntegrationInstance = IntegrationPackage & IntegrationConfigInstance
-export type PluginInstance = PluginPackage & PluginConfigInstance
+export type PluginInstance = PluginPackage & PluginConfigInstance & { alias: string }
 
 export type BotDefinitionProps<
   TStates extends BaseStates = BaseStates,
@@ -206,7 +206,7 @@ export class BotDefinition<
     const key = config.alias ?? pluginPkg.name
     self.plugins[key] = {
       ...pluginPkg,
-      alias: config.alias,
+      alias: key,
       configuration: config.configuration,
       interfaces: config.interfaces,
     }
