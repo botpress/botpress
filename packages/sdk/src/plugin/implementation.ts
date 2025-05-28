@@ -1,4 +1,5 @@
-import type {
+import * as client from '@botpress/client'
+import {
   MessageHandlersMap as BotMessageHandlersMap,
   EventHandlersMap as BotEventHandlersMap,
   StateExpiredHandlersMap as BotStateExpiredHandlersMap,
@@ -10,6 +11,8 @@ import type {
   WorkflowUpdateType,
 } from '../bot'
 import { WorkflowProxy, proxyWorkflows } from '../bot/workflow-proxy'
+import * as consts from '../consts'
+import { retryConfig } from '../retry'
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginConfiguration, PluginInterfaceExtensions, PluginRuntimeProps } from './common'
@@ -32,6 +35,7 @@ import {
   OrderedHookHandlersMap,
   OrderedWorkflowHandlersMap,
   ActionHandlerPayloads,
+  CommonHandlerProps,
   MessagePayloads,
   EventPayloads,
   StateExpiredPayloads,
@@ -52,6 +56,7 @@ type Tools<TPlugin extends BasePlugin = BasePlugin> = {
   states: StateProxy<TPlugin>
   workflows: WorkflowProxy<TPlugin>
   alias?: string
+  client: BotSpecificClient<TPlugin>
 }
 
 export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotHandlers<TPlugin> {
@@ -99,11 +104,12 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return this._runtimeProps
   }
 
-  private _getTools(client: BotSpecificClient<any>): Tools {
+  private _getTools(props: CommonHandlerProps<TPlugin>): Tools {
     const { configuration, interfaces, alias } = this._runtime
-    const actions = proxyActions(client, this._runtime) as ActionProxy<BasePlugin>
-    const states = proxyStates(client, this._runtime) as StateProxy<BasePlugin>
-    const workflows = proxyWorkflows(client) as WorkflowProxy<BasePlugin>
+    const client = this._getInjectedClient(props)
+    const actions = proxyActions(client, this._runtime)
+    const states = proxyStates(client, this._runtime)
+    const workflows = proxyWorkflows(client)
 
     return {
       configuration,
@@ -112,7 +118,20 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       states,
       alias,
       workflows,
+      client,
     }
+  }
+
+  private _getInjectedClient(props: CommonHandlerProps<TPlugin>): BotSpecificClient<any> {
+    const injectedHeaders = {
+      [consts.PLUGIN_ALIAS_HEADER]: this._runtime.alias,
+    }
+
+    const vanillaClient = new client.Client({ botId: props.ctx.botId, retry: retryConfig, headers: injectedHeaders })
+    const clientHooks = (props.client as any)._hooks
+    const newClient = new BotSpecificClient<TPlugin>(vanillaClient, clientHooks)
+
+    return newClient
   }
 
   public get actionHandlers(): BotActionHandlers<TPlugin> {
@@ -126,7 +145,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
             return undefined
           }
           return utils.functions.setName(
-            (input: ActionHandlerPayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+            (input: ActionHandlerPayloads<any>[string]) => handler({ ...input, ...this._getTools(input) }),
             handler.name
           )
         },
@@ -147,7 +166,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
             .sort((a, b) => a.order - b.order)
           return allHandlers.map(({ handler }) =>
             utils.functions.setName(
-              (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+              (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._getTools(input) }),
               handler.name
             )
           )
@@ -178,7 +197,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
           return allHandlers.map(({ handler }) =>
             utils.functions.setName(
-              (input: EventPayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+              (input: EventPayloads<any>[string]) => handler({ ...input, ...this._getTools(input) }),
               handler.name
             )
           )
@@ -201,7 +220,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
             .sort((a, b) => a.order - b.order)
           return allHandlers.map(({ handler }) =>
             utils.functions.setName(
-              (input: StateExpiredPayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+              (input: StateExpiredPayloads<any>[string]) => handler({ ...input, ...this._getTools(input) }),
               handler.name
             )
           )
@@ -242,7 +261,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                 return handlers.map(({ handler }) =>
                   utils.functions.setName(
                     (input: HookPayloads<any>[HookDefinitionType][string]) =>
-                      handler({ ...input, ...this._getTools(input.client) }),
+                      handler({ ...input, ...this._getTools(input) }),
                     handler.name
                   )
                 )
@@ -272,7 +291,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
                 return selfHandlers.map(({ handler }) =>
                   utils.functions.setName(
-                    (input: WorkflowPayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+                    (input: WorkflowPayloads<any>[string]) => handler({ ...input, ...this._getTools(input) }),
                     handler.name
                   )
                 )

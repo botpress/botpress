@@ -6,3 +6,5 @@ export * from './public-consts'
 // To export a constant, add it to the public-consts.ts file instead.
 
 export const PLUGIN_PREFIX_SEPARATOR = '#'
+
+export const PLUGIN_ALIAS_HEADER = 'x-bp-plugin-alias'
