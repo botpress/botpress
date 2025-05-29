@@ -25,47 +25,48 @@ const abort = new Exit({
 
 const memory: Record<string, any> = {}
 
-const objects = async () => [
-  new ObjectInstance({
-    name: 'user',
-    description: 'The user profile to keep up to date',
-    properties: [
-      {
-        name: 'name',
-        description: 'The name of the user',
-        type: z.string().describe('The name of the user').nullable(),
-        value: memory['name'] ?? null,
-        writable: true,
-      },
-      {
-        name: 'age',
-        description: 'The age of the user',
-        type: z
-          .number()
-          .describe('The age of the user')
-          .min(18, 'Sorry you must be at least 18 years old')
-          .max(40, 'Sorry you cannot be above 40 years old')
-          .nullable(),
-        value: memory['age'] ?? null,
-        writable: true,
-      },
-      {
-        name: 'email',
-        description: "The user's email address",
-        type: z.string().email().describe("The user's email address").nullable(),
-        value: memory['email'] ?? null,
-        writable: true,
-      },
-    ],
-  }),
-]
+const getObjects = () =>
+  [
+    new ObjectInstance({
+      name: 'user',
+      description: 'The user profile to keep up to date',
+      properties: [
+        {
+          name: 'name',
+          description: 'The name of the user',
+          type: z.string().describe('The name of the user').nullable(),
+          value: memory['name'] ?? null,
+          writable: true,
+        },
+        {
+          name: 'age',
+          description: 'The age of the user',
+          type: z
+            .number()
+            .describe('The age of the user')
+            .min(18, 'Sorry you must be at least 18 years old')
+            .max(40, 'Sorry you cannot be above 40 years old')
+            .nullable(),
+          value: memory['age'] ?? null,
+          writable: true,
+        },
+        {
+          name: 'email',
+          description: "The user's email address",
+          type: z.string().email().describe("The user's email address").nullable(),
+          value: memory['email'] ?? null,
+          writable: true,
+        },
+      ],
+    }),
+  ] satisfies ObjectInstance[]
 
 const chat = new CLIChat({
   client,
   instructions: `You need to fill in the user profile with the user's information.
 Fill the individual fields with the information you have at hand before asking the user for more information.`,
   exits: [completed, abort],
-  objects,
+  objects: getObjects,
   onIterationEnd: async (iteration) => {
     for (let mutation of iteration.mutations) {
       if (mutation.object === 'user') {

@@ -47,7 +47,11 @@ export class CLIChat {
     }
 
     return {
-      ...this.props,
+      client: this.props.client,
+      onIterationEnd: this.props.onIterationEnd,
+      onTrace: this.props.onTrace,
+      options: this.props.options,
+      snapshot: this.props.snapshot,
       signal: this.props.signal || this._controller.signal,
       transcript: async () => (this.props.transcript ? doOrGetValue(this.props.transcript) : this._transcript),
       tools: this._getTools,
