@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@botpress/client": "^1.15.0",
+    "@botpress/client": "workspace:^",
     "@botpress/zai": "^2.0.6",
     "@bpinternal/zui": "^0.22.5",
     "chalk": "^4.1.2",

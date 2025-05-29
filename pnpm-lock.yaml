@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  source-map-js@1.2.1:
-    hash: h25dep36e76b3zca3v6s2554fi
-    path: patches/source-map-js@1.2.1.patch
-
 importers:
 
   .:
@@ -2227,8 +2222,8 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.13.0
-        version: 1.13.0
+        specifier: workspace:*
+        version: link:../client
       '@botpress/cognitive':
         specifier: ^0.1.20
         version: link:../cognitive
@@ -2320,6 +2315,34 @@ importers:
     dependenciesMeta:
       '@bpinternal/zui':
         injected: true
+
+  packages/llmz/examples:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:^
+        version: link:../../client
+      '@botpress/zai':
+        specifier: ^2.0.6
+        version: link:../../zai
+      '@bpinternal/zui':
+        specifier: ^0.22.5
+        version: 0.22.5
+      chalk:
+        specifier: ^4.1.2
+        version: 4.1.2
+      llmz:
+        specifier: link:..
+        version: link:..
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      promise-parallel-throttle:
+        specifier: ^3.5.0
+        version: 3.5.0
+    devDependencies:
+      tsx:
+        specifier: ^4.19.2
+        version: 4.19.2
 
   packages/sdk:
     dependencies:
@@ -4377,18 +4400,6 @@ packages:
       - supports-color
     dev: true
 
-  /@botpress/client@1.13.0:
-    resolution: {integrity: sha512-myDCynTzwmX3MF6T6ZSVyLSUHsZZoygQ/rii3elWRwLJ+deNyOPnHDhj8hLDd1Leojh5GrnHgymY6licsHrLJA==}
-    engines: {node: '>=18.0.0'}
-    dependencies:
-      axios: 1.8.4
-      axios-retry: 4.5.0(axios@1.8.4)
-      browser-or-node: 2.1.1
-      qs: 6.13.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
   /@bpinternal/const@0.1.0:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
@@ -4585,6 +4596,16 @@ packages:
 
   /@bpinternal/zui@0.22.4:
     resolution: {integrity: sha512-CSsHZRvjjvpH4tCMmMi39pxOmyCervOr4xJw9O5DaYtEWrZ1itl8J/c5CIhy1xIZa4gKvTqmjU7vMPp+fTz8+Q==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+    peerDependencies:
+      react: ^18.2.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+    dev: false
+
+  /@bpinternal/zui@0.22.5:
+    resolution: {integrity: sha512-BV4W7HV7EtJzE+WFlzV07cyQcINVrGGpp4u/1402RbMtXt0pIitsG5eziQwjAAZoUBEFYloazSIwyeiZMCl0fg==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     peerDependencies:
       react: ^18.2.0
@@ -9161,15 +9182,6 @@ packages:
       axios: 0.x || 1.x
     dependencies:
       axios: 1.6.1
-      is-retry-allowed: 2.2.0
-    dev: false
-
-  /axios-retry@4.5.0(axios@1.8.4):
-    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
-    peerDependencies:
-      axios: 0.x || 1.x
-    dependencies:
-      axios: 1.8.4
       is-retry-allowed: 2.2.0
     dev: false
 
@@ -15018,7 +15030,7 @@ packages:
         optional: true
     dependencies:
       lilconfig: 3.1.3
-      ts-node: 10.9.2(@types/node@18.19.67)(typescript@5.6.3)
+      ts-node: 10.9.2(@types/node@18.19.67)(typescript@5.8.3)
       yaml: 2.7.0
     dev: true
 
@@ -15130,6 +15142,10 @@ packages:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
     engines: {node: '>=0.4.0'}
     dev: true
+
+  /promise-parallel-throttle@3.5.0:
+    resolution: {integrity: sha512-PXqj8TEaYMV6pQd6IVPoMjRrOHh2o/vxbWbt5eUxPuuAplrLgcdzo3KGqh2aT0A4Se6JSQxoGnB8CSIXeAOLvQ==}
+    dev: false
 
   /prompts@2.4.2:
     resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
