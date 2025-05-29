@@ -97,7 +97,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
       metadata?: Record<string, unknown>
       input: IX | ((original: I | undefined) => IX)
       output: OX | ((original: O | undefined) => OX)
-      staticInputValues?: Partial<TypeOf<IX>>
+      staticInputValues?: SmartPartial<TypeOf<IX>>
       handler: (args: TypeOf<IX>) => Promise<TypeOf<OX>>
       retry: ToolRetryFn<TypeOf<IX>>
     }> = {}
