@@ -1,3 +1,5 @@
+import { isJsxComponent } from './jsx.js'
+
 export type ComponentProperty = {
   name: string
   type: 'string' | 'boolean' | 'number'
@@ -5,8 +7,6 @@ export type ComponentProperty = {
   description?: string
   required: boolean
 }
-
-export type Component = DefaultComponent | LeafComponent | ContainerComponent
 
 export type ExampleUsage = {
   name: string
@@ -16,45 +16,10 @@ export type ExampleUsage = {
 
 export type ComponentChild = {
   description: string
-  component: Component
+  component: ComponentDefinition
 }
 
-export type DefaultComponent = {
-  type: 'default'
-  name: string
-  aliases: string[]
-  description: string
-  examples: ExampleUsage[]
-  default: {
-    props: ComponentProperty[]
-    children: Array<ComponentChild>
-  }
-}
-
-export type LeafComponent = {
-  type: 'leaf'
-  name: string
-  description: string
-  aliases?: string[]
-  examples: ExampleUsage[]
-  leaf: {
-    props: ComponentProperty[]
-  }
-}
-
-export type ContainerComponent = {
-  type: 'container'
-  name: string
-  description: string
-  aliases?: string[]
-  examples: ExampleUsage[]
-  container: {
-    props: ComponentProperty[]
-    children: Array<ComponentChild>
-  }
-}
-
-export function assertValidComponent(component: Component): asserts component is Component {
+export function assertValidComponent(component: ComponentDefinition): asserts component is ComponentDefinition {
   if (!component.name) {
     throw new Error('Component must have a name')
   }
@@ -96,11 +61,11 @@ export function assertValidComponent(component: Component): asserts component is
   }
 }
 
-export function getComponentReference(component: Component): string {
+export function getComponentReference(component: ComponentDefinition): string {
   let doc = `### <${component.name}>\n\n`
   doc += `${component.description}\n\n`
 
-  const getPropsDoc = (props: ComponentProperty[]) => {
+  const getPropsDoc = (props: readonly ComponentProperty[]) => {
     if (props.length === 0) return '_No props._\n\n'
     return (
       props
@@ -160,4 +125,91 @@ export function getComponentReference(component: Component): string {
   }
 
   return doc.trim()
+}
+
+// Helper type to convert ComponentProperty type string to actual TypeScript type
+type TypeMap = {
+  string: string
+  boolean: boolean
+  number: number
+}
+
+// Extract props type from ComponentProperty array
+type ExtractPropsFromProperties<T extends readonly ComponentProperty[]> = {
+  [K in T[number] as K['name']]: K['required'] extends true ? TypeMap[K['type']] : TypeMap[K['type']] | undefined
+}
+
+// Component definition types with inferred props
+export type DefaultComponentDefinition<T extends readonly ComponentProperty[] = readonly ComponentProperty[]> = {
+  type: 'default'
+  name: string
+  aliases: string[]
+  description: string
+  examples: ExampleUsage[]
+  default: {
+    props: T
+    children: Array<ComponentChild>
+  }
+}
+
+export type LeafComponentDefinition<T extends readonly ComponentProperty[] = readonly ComponentProperty[]> = {
+  type: 'leaf'
+  name: string
+  description: string
+  aliases?: string[]
+  examples: ExampleUsage[]
+  leaf: {
+    props: T
+  }
+}
+
+export type ContainerComponentDefinition<T extends readonly ComponentProperty[] = readonly ComponentProperty[]> = {
+  type: 'container'
+  name: string
+  description: string
+  aliases?: string[]
+  examples: ExampleUsage[]
+  container: {
+    props: T
+    children: Array<ComponentChild>
+  }
+}
+
+export type ComponentDefinition = DefaultComponentDefinition | LeafComponentDefinition | ContainerComponentDefinition
+
+// Helper type to extract props from any component definition type
+type ExtractComponentProps<T extends ComponentDefinition> =
+  T extends LeafComponentDefinition<infer P>
+    ? ExtractPropsFromProperties<P>
+    : T extends ContainerComponentDefinition<infer P>
+      ? ExtractPropsFromProperties<P>
+      : T extends DefaultComponentDefinition<infer P>
+        ? ExtractPropsFromProperties<P>
+        : never
+
+// Rendered component type
+export type RenderedComponent<TProps = Record<string, any>> = {
+  __jsx: true
+  type: string
+  children: any[]
+  props: TProps
+}
+
+// Component Class that infers props from component definition
+export class Component<T extends ComponentDefinition = ComponentDefinition> {
+  public readonly definition: T
+  public readonly propsType!: ExtractComponentProps<T> // phantom type for inference
+
+  public constructor(definition: T) {
+    assertValidComponent(definition)
+    this.definition = definition
+  }
+}
+
+// Type guard function that infers props from component
+export function isComponent<T extends ComponentDefinition>(
+  rendered: RenderedComponent<any>,
+  component: Component<T>
+): rendered is RenderedComponent<ExtractComponentProps<T>> {
+  return isJsxComponent(component.definition.name, rendered)
 }

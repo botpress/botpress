@@ -116,7 +116,7 @@ ${variables_example}
       writeable_vars: writeable_vars.join(', '),
       variables_example,
       exits,
-      components: props.components.map(getComponentReference).join('\n\n'),
+      components: props.components.map((component) => getComponentReference(component.definition)).join('\n\n'),
     }).trim(),
   }
 }

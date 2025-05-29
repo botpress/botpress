@@ -3,8 +3,18 @@ export { Exit } from './exit.js'
 export { ObjectInstance } from './objects.js'
 export { SnapshotSignal, ThinkSignal } from './errors.js'
 
-export { Component, ContainerComponent, DefaultComponent, LeafComponent } from './component.js'
-export { DefaultComponents } from './component.default.js'
+export {
+  Component,
+  RenderedComponent,
+  LeafComponentDefinition,
+  ContainerComponentDefinition,
+  DefaultComponentDefinition,
+  ComponentDefinition,
+  assertValidComponent,
+  isComponent,
+} from './component.js'
+
+export { DefaultComponents, messageTool } from './component.default.js'
 export { Snapshot } from './snapshots.js'
 
 import { type ExecutionProps } from './llmz.js'

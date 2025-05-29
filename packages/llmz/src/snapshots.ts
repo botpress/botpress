@@ -78,10 +78,18 @@ export class Snapshot {
       stack: this.stack,
       variables: this.variables,
       toolCall: this.toolCall,
+      status: this.#status,
     }
   }
 
-  public static fromJSON(json: Snapshot) {
+  public static fromJSON(json: {
+    id: string
+    reason?: string
+    stack: string
+    variables: Variable[]
+    toolCall?: ToolCall
+    status: SnapshotStatus
+  }) {
     return new Snapshot({
       id: json.id,
       reason: json.reason,

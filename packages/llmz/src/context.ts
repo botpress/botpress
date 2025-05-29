@@ -486,7 +486,7 @@ export class Context {
     }
 
     for (const component of components) {
-      assertValidComponent(component)
+      assertValidComponent(component.definition)
     }
 
     const ReservedToolNames = [
@@ -519,7 +519,10 @@ export class Context {
 
     if (MessageTool && components.length) {
       MessageTool.aliases = Array.from(
-        new Set([...MessageTool.aliases, ...components.flatMap((x) => [x.name, ...(x.aliases ?? [])])])
+        new Set([
+          ...MessageTool.aliases,
+          ...components.flatMap((x) => [x.definition.name, ...(x.definition.aliases ?? [])]),
+        ])
       )
     }
 
@@ -535,7 +538,11 @@ export class Context {
         }
 
         if (
-          components.find((x) => x.name.toLowerCase() === name || x.aliases?.map((x) => x.toLowerCase()).includes(name))
+          components.find(
+            (x) =>
+              x.definition.name.toLowerCase() === name ||
+              x.definition.aliases?.map((x) => x.toLowerCase()).includes(name)
+          )
         ) {
           throw new Error(
             `Tool name "${name}" (${tool.name}) is already used by a component. Please choose a different name.`

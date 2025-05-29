@@ -1,6 +1,7 @@
-import { Component } from './component.js'
+import { Component, RenderedComponent } from './component.js'
+import { Tool } from './tool.js'
 
-const Button: Component = {
+const Button = new Component({
   type: 'leaf',
   description: 'A button component that can perform actions when clicked',
   name: 'Button',
@@ -50,9 +51,9 @@ const Button: Component = {
       },
     ],
   },
-}
+})
 
-const Image: Component = {
+const Image = new Component({
   type: 'leaf',
   name: 'Image',
   description: 'Displays an image from a URL.',
@@ -82,9 +83,9 @@ const Image: Component = {
       },
     ],
   },
-}
+})
 
-const File: Component = {
+const File = new Component({
   type: 'leaf',
   name: 'File',
   description: 'Sends a downloadable file to the user.',
@@ -114,9 +115,9 @@ const File: Component = {
       },
     ],
   },
-}
+})
 
-const Video: Component = {
+const Video = new Component({
   type: 'leaf',
   name: 'Video',
   description: 'Embeds a video from a URL.',
@@ -146,9 +147,9 @@ const Video: Component = {
       },
     ],
   },
-}
+})
 
-const Audio: Component = {
+const Audio = new Component({
   type: 'leaf',
   name: 'Audio',
   description: 'Plays an audio clip from a URL.',
@@ -178,9 +179,9 @@ const Audio: Component = {
       },
     ],
   },
-}
+})
 
-const Card: Component = {
+const Card = new Component({
   type: 'container',
   name: 'Card',
   description: 'A visual card component that can include an image and buttons.',
@@ -216,17 +217,17 @@ const Card: Component = {
     children: [
       {
         description: 'Image (optional, max 1)',
-        component: Image,
+        component: Image.definition,
       },
       {
         description: 'Button (optional, up to 5)',
-        component: Button,
+        component: Button.definition,
       },
     ],
   },
-}
+})
 
-const Carousel: Component = {
+const Carousel = new Component({
   type: 'container',
   name: 'Carousel',
   description: 'A virtual container for displaying 1 to 10 Card components as a carousel.',
@@ -254,13 +255,13 @@ const Carousel: Component = {
     children: [
       {
         description: 'Card component (required, 1–10 allowed)',
-        component: Card,
+        component: Card.definition,
       },
     ],
   },
-}
+})
 
-const Text: Component = {
+const Text = new Component({
   type: 'default',
   name: 'Message',
   aliases: ['Text', 'Markdown'],
@@ -278,7 +279,19 @@ const Text: Component = {
     props: [],
     children: [],
   },
-}
+})
+
+export type SendMessageHandler = (input: RenderedComponent) => Promise<void> | void
+
+export const messageTool = (handler: SendMessageHandler) =>
+  new Tool({
+    name: 'Message',
+    metadata: {
+      system: true,
+      description: 'Sends a message with components like Button, Image, File, Video, Audio, Card, Carousel, and Text.',
+    },
+    handler: async (args: RenderedComponent) => await handler(args),
+  })
 
 export const DefaultComponents = {
   Button,

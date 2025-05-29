@@ -6,7 +6,7 @@ import { DefaultComponents } from './component.default.js'
 describe('getComponentReference', () => {
   it('documentation', async () => {
     const docs = Object.values(DefaultComponents)
-      .map((component) => getComponentReference(component))
+      .map((component) => getComponentReference(component.definition))
       .join('\n\n==============\n\n')
     expect(docs).toMatchInlineSnapshot(`
       "### <Button>
