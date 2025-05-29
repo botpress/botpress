@@ -5,13 +5,13 @@ import { PluginInterfaceExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
 import * as utils from '../utils'
 import { ValueOf, Writable, Merge, StringKeys } from '../utils/type-utils'
-import z, { ZuiObjectSchema } from '../zui'
+import z, { ZuiObjectSchema, ZuiObjectOrRefSchema } from '../zui'
 
 type BaseConfig = ZuiObjectSchema
-type BaseStates = Record<string, ZuiObjectSchema>
-type BaseEvents = Record<string, ZuiObjectSchema>
-type BaseActions = Record<string, ZuiObjectSchema>
-type BaseTables = Record<string, ZuiObjectSchema>
+type BaseStates = Record<string, ZuiObjectOrRefSchema>
+type BaseEvents = Record<string, ZuiObjectOrRefSchema>
+type BaseActions = Record<string, ZuiObjectOrRefSchema>
+type BaseTables = Record<string, ZuiObjectOrRefSchema>
 type BaseWorkflows = Record<string, ZuiObjectSchema>
 
 export type TagDefinition = {
@@ -56,7 +56,7 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   title?: string
   description?: string
   input: SchemaDefinition<TAction>
-  output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
+  output: SchemaDefinition<ZuiObjectOrRefSchema> // cannot infer both input and output types (typescript limitation)
   attributes?: Record<string, string>
 }
 
