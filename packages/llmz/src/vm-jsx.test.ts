@@ -4,6 +4,61 @@ import { runAsyncFunction } from './vm.js'
 
 const user = { name: 'John', age: 30, email: 'john@test.com' }
 
+describe('variables', () => {
+  it('should return user name', async () => {
+    const code = `
+yield <Message>Hello, {user.name}!</Message>
+return { action: 'listen' }
+`
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message, user }, code)
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "Hello, ",
+          "John",
+          "!",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
+
+  it('should return user name', async () => {
+    const code = `
+// Calculating the sum of numbers between 734 and 9993 divisible by 7 or 9
+    let sum = 0;
+    for (let i = 734; i <= 9993; i++) {
+      if (i % 7 === 0 || i % 9 === 0) {
+        sum += i;
+      }
+    }
+    yield <Message>The sum of all numbers between 734 and 9993 that are divisible by 7 or 9 is **{sum}**.</Message>;
+    return { action: 'listen' }
+`
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message, user }, code)
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "The sum of all numbers between 734 and 9993 that are divisible by 7 or 9 is **",
+          11826297,
+          "**.",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
+})
+
 describe('jsx components', () => {
   it('jsx component with map inside', async () => {
     const code = `

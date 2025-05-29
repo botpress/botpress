@@ -1,5 +1,5 @@
 const isInternalLine = (line: string) => {
-  return line.includes('llmz/src/') || line.includes('\\llmz\\src\\') || line.includes('node_modules')
+  return line.includes('/llmz/') || line.includes('\\llmz\\src\\') || line.includes('node_modules')
 }
 
 export function cleanStackTrace(stack: string, cleanInternal = true) {
@@ -7,10 +7,10 @@ export function cleanStackTrace(stack: string, cleanInternal = true) {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!
-    let llmzIndex = line.indexOf('llmz/src/')
+    let llmzIndex = line.indexOf('/llmz/')
 
     if (llmzIndex === -1) {
-      llmzIndex = line.indexOf('\\llmz\\src\\')
+      llmzIndex = line.indexOf('\\llmz\\')
     }
 
     if (llmzIndex === -1) {

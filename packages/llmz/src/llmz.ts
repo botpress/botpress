@@ -55,7 +55,7 @@ export type ExecutionHooks = {
    */
   onIterationEnd?: (iteration: Iteration) => Promise<void> | void
   onTrace?: (event: { trace: Trace; iteration: number }) => void
-  onExit?: (exit: Exit, value: unknown) => Promise<void> | void
+  onExit?: <T = unknown>(exit: Exit<T>, value: T) => Promise<T> | T
 }
 
 type Options = Partial<Pick<Context, 'loop' | 'temperature' | 'model'>>
@@ -144,8 +144,8 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
         iteration.end({
           type: 'execution_error',
           execution_error: {
-            stack: cleanStackTrace((err as Error).stack ?? 'No stack trace available'),
             message: 'An unexpected error occurred: ' + getErrorMessage(err),
+            stack: cleanStackTrace((err as Error).stack ?? 'No stack trace available'),
           },
         })
       }
@@ -411,7 +411,7 @@ const executeIteration = async ({
       type: 'execution_error',
       execution_error: {
         message: result.error.message,
-        stack: cleanStackTrace(result.error.stack ?? 'No stack trace available'),
+        stack: cleanStackTrace(result.error.stacktrace ?? result.error.stack ?? 'No stack trace available'),
       },
     })
   }

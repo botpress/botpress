@@ -771,4 +771,31 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       expect(result.error).toMatch('ABORTED')
     })
   })
+
+  it('execution error stack trace', async () => {
+    const tDemo = new Tool({
+      name: 'demo',
+      handler: async () => {
+        throw new Error('This is a demo error')
+      },
+    })
+
+    const result = await llmz.executeContext({
+      options: { loop: 1 },
+      exits: [eDone],
+      instructions: 'Call the demo tool',
+      tools: [tDemo],
+      client,
+    })
+
+    assertStatus(result, 'error')
+    expect(result.iterations).toHaveLength(1)
+    assert(result.iterations[0]!.status.type === 'execution_error', 'First iteration should be an execution error')
+    expect(result.iterations[0]!.status.execution_error.stack).toMatchInlineSnapshot(`
+      "001 | // Calling the demo tool as per the instructions
+        002 | await demo()
+      > 003 | return { action: 'done' }
+      ...^^^^^^^^^^"
+    `)
+  })
 })

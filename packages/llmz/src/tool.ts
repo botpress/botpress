@@ -12,6 +12,9 @@ type ToolRetryInput<I> = {
 
 export type ToolRetryFn<I> = (args: ToolRetryInput<I>) => boolean | Promise<boolean>
 
+type IsObject<T> = T extends object ? (T extends Function ? false : true) : false
+type SmartPartial<T> = IsObject<T> extends true ? Partial<T> : T
+
 export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
   private _staticInputValues?: unknown
 
@@ -25,7 +28,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
 
   public MAX_RETRIES = 1000
 
-  public setStaticInputValues(values: Partial<TypeOf<I>>): this {
+  public setStaticInputValues(values: SmartPartial<TypeOf<I>>): this {
     if (values === null || values === undefined) {
       this._staticInputValues = undefined
       return this

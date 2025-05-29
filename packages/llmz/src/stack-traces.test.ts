@@ -13,11 +13,11 @@ describe('clean transcript stack traces', () => {
 
     expect(cleanStackTrace(stack, false)).toMatchInlineSnapshot(`
       "Error: Error
-          at llmz/src/__tests__/index.ts:1:1
-          at (llmz/src/__tests__/index.ts:2:2)
-          at Object.<anonymous> llmz/src/__tests__/index.ts:3:3
-          at Object.<anonymous> (llmz/src/__tests__/index.ts:4:4)
-          at llmz/src/__tests__/index.ts:5:5
+          at /llmz/src/__tests__/index.ts:1:1
+          at (/llmz/src/__tests__/index.ts:2:2)
+          at Object.<anonymous> /llmz/src/__tests__/index.ts:3:3
+          at Object.<anonymous> (/llmz/src/__tests__/index.ts:4:4)
+          at /llmz/src/__tests__/index.ts:5:5
           at file://hello/world/node_modules/library/index.js:1:1"
     `)
     expect(cleanStackTrace(stack)).toMatchInlineSnapshot(`"Error: Error"`)
