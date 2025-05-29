@@ -13,12 +13,14 @@ const exampleName = args[0]
 // Optional: declare required envs per example
 const required = ['BOTPRESS_BOT_ID', 'BOTPRESS_TOKEN']
 
-function listExamples() {
-  const folders = fs.readdirSync(EXAMPLES_DIR).filter((f) => {
-    const fullPath = path.join(EXAMPLES_DIR, f)
-    return (f.includes('_chat') || f.includes('_worker')) && fs.statSync(fullPath).isDirectory()
-  })
+const folders = fs.readdirSync(EXAMPLES_DIR).filter((f) => {
+  const fullPath = path.join(EXAMPLES_DIR, f)
+  return (f.includes('_chat') || f.includes('_worker')) && fs.statSync(fullPath).isDirectory()
+})
 
+const findExample = (name: string) => folders.find((f: string) => f === name || f.startsWith(name + '_'))
+
+function listExamples() {
   console.log(chalk.yellow('📦 Available examples:\n'))
   folders.forEach((f) => {
     console.log(`  ${chalk.green(f)}`)
@@ -32,10 +34,20 @@ if (!exampleName) {
   listExamples()
 }
 
-const entryPath = path.join(EXAMPLES_DIR, exampleName, 'index.ts')
-if (!fs.existsSync(entryPath)) {
+const exampleDir = findExample(exampleName)
+
+if (!exampleDir) {
   console.log(chalk.red(`❌ Example "${exampleName}" not found.\n`))
   listExamples()
+  process.exit(1)
+}
+
+const entryPath = path.join(EXAMPLES_DIR, exampleDir, 'index.ts')
+
+if (!fs.existsSync(entryPath)) {
+  console.log(chalk.red(`❌ Entry file not found: ${entryPath}\n`))
+  console.log(`Make sure the example has an index.ts file in the root directory.`)
+  process.exit(1)
 }
 
 // Load .env if present
@@ -46,11 +58,11 @@ const missing = required.filter((key) => !process.env[key])
 if (missing.length) {
   console.log(chalk.red('❌ Missing required environment variables:\n'))
   missing.forEach((key) => console.log(`  - ${chalk.yellow(key)}`))
-  console.log(`\nSet them in ${chalk.cyan(`examples/${exampleName}/.env`)}`)
+  console.log(`\nSet them in ${chalk.cyan(`${path.resolve(EXAMPLES_DIR)}/.env`)}`)
   process.exit(1)
 }
 
-console.log(chalk.greenBright(`🚀 Launching example: ${chalk.bold(exampleName)}\n`))
+console.log(chalk.greenBright(`🚀 Launching example: ${chalk.bold(exampleDir)}\n`))
 
 // Run the example via tsx
 const child = spawn('tsx', [entryPath], {

@@ -2,6 +2,7 @@ import chalk from 'chalk'
 import {
   Component,
   DefaultComponents,
+  ObjectInstance,
   Tool,
   executeContext,
   isComponent,
@@ -50,6 +51,7 @@ export class CLIChat {
       signal: this.props.signal || this._controller.signal,
       transcript: async () => (this.props.transcript ? doOrGetValue(this.props.transcript) : this._transcript),
       tools: this._getTools,
+      objects: async () => (this.props.objects ? ((await doOrGetValue(this.props.objects)) as ObjectInstance[]) : []),
       components: async () =>
         this.props.components
           ? ((await doOrGetValue(this.props.components)) as Component[])
