@@ -2,7 +2,23 @@ import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
 import { WhatsAppAPI } from 'whatsapp-api-js'
 import { WHATSAPP } from './misc/constants'
+import { chunkArray } from './misc/util'
 import * as bp from '.botpress'
+
+const MAX_BUSINESSES_PER_REQUEST = 50
+
+const getWabaIdsFromTokenResponseSchema = z
+  .object({
+    data: z.object({
+      granular_scopes: z.array(
+        z.object({
+          scope: z.string(),
+          target_ids: z.array(z.string()),
+        })
+      ),
+    }),
+  })
+  .passthrough()
 
 export class MetaOauthClient {
   private _clientId: string
@@ -44,21 +60,30 @@ export class MetaOauthClient {
     const { data: dataDebugToken } = await axios.get(
       `https://graph.facebook.com/${this._version}/debug_token?${query.toString()}`
     )
+    const data = getWabaIdsFromTokenResponseSchema.safeParse(dataDebugToken).data?.data
+    if (!data) {
+      throw new RuntimeError('Invalid response from API when fetching WhatsApp Business Accounts IDs')
+    }
 
-    const businessIds = dataDebugToken.data.granular_scopes.find(
-      (item: { scope: string; target_ids: string[] }) => item.scope === 'whatsapp_business_messaging'
-    ).target_ids
+    const businessIds = data.granular_scopes.find((item) => item.scope === 'whatsapp_business_messaging')?.target_ids
+    if (!businessIds || businessIds.length === 0) {
+      throw new RuntimeError('No WhatsApp Business Account found')
+    }
 
-    const { data: dataBusinesses } = await axios.get(
-      `https://graph.facebook.com/${this._version}/?ids=${businessIds.join()}&fields=id,name`,
-      {
-        headers: {
-          Authorization: `Bearer ${inputToken}`,
-        },
-      }
-    )
+    const dataBusinesses: { id: string; name: string }[] = []
+    for (const businessIdsChunk of chunkArray(businessIds, MAX_BUSINESSES_PER_REQUEST)) {
+      const { data: dataBusinessesChunk } = await axios.get(
+        `https://graph.facebook.com/${this._version}/?ids=${businessIdsChunk.join()}&fields=id,name`,
+        {
+          headers: {
+            Authorization: `Bearer ${inputToken}`,
+          },
+        }
+      )
+      Object.keys(dataBusinessesChunk).forEach((key) => dataBusinesses.push(dataBusinessesChunk[key]))
+    }
 
-    return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
+    return dataBusinesses
   }
 
   public async getWhatsappNumbersFromBusiness(
