@@ -1,0 +1,25 @@
+{
+  "name": "examples",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx start.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@botpress/client": "^1.15.0",
+    "@botpress/zai": "^2.0.6",
+    "@bpinternal/zui": "^0.22.5",
+    "chalk": "^4.1.2",
+    "llmz": "link:..",
+    "lodash": "^4.17.21",
+    "promise-parallel-throttle": "^3.5.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  }
+}

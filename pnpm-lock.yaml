@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  source-map-js@1.2.1:
-    hash: h25dep36e76b3zca3v6s2554fi
-    path: patches/source-map-js@1.2.1.patch
-
 importers:
 
   .:
@@ -2321,6 +2316,34 @@ importers:
       '@bpinternal/zui':
         injected: true
 
+  packages/llmz/examples:
+    dependencies:
+      '@botpress/client':
+        specifier: ^1.15.0
+        version: 1.15.0
+      '@botpress/zai':
+        specifier: ^2.0.6
+        version: 2.0.6(@bpinternal/thicktoken@1.0.5)(@bpinternal/zui@0.22.5)
+      '@bpinternal/zui':
+        specifier: ^0.22.5
+        version: 0.22.5
+      chalk:
+        specifier: ^4.1.2
+        version: 4.1.2
+      llmz:
+        specifier: link:..
+        version: link:..
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      promise-parallel-throttle:
+        specifier: ^3.5.0
+        version: 3.5.0
+    devDependencies:
+      tsx:
+        specifier: ^4.19.2
+        version: 4.19.2
+
   packages/sdk:
     dependencies:
       '@botpress/client':
@@ -4377,6 +4400,41 @@ packages:
       - supports-color
     dev: true
 
+  /@botpress/client@1.15.0:
+    resolution: {integrity: sha512-uVKtlPZQJ8Jpl45qrVLLHd+g/Z/EJZgzTNz56RMiiui3rnwBNG7fVr+MXvWUC4k95ags5893b05PE7KOElFQog==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      axios: 1.8.4
+      axios-retry: 4.5.0(axios@1.8.4)
+      browser-or-node: 2.1.1
+      qs: 6.13.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@botpress/cognitive@0.1.21:
+    resolution: {integrity: sha512-MHqaKHNubXFX/tC7GnGPDv9RUMGvf5Q5fkdVfwEKvjX9S0+pzZiK2X18F4K+mSsksbtfHgisQpfGSiORNU0mkw==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      exponential-backoff: 3.1.1
+      nanoevents: 9.1.0
+    dev: false
+
+  /@botpress/zai@2.0.6(@bpinternal/thicktoken@1.0.5)(@bpinternal/zui@0.22.5):
+    resolution: {integrity: sha512-R5EtQDUi3TiWd4Hkc2DpZdBAfOun0YG1SAegXDaaMV4Oe3dicW31dgbTFmWn3ZykVotxHj7SVLthXB1sedQ2LA==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@bpinternal/thicktoken': ^1.0.0
+      '@bpinternal/zui': ^0.17.1
+    dependencies:
+      '@botpress/cognitive': 0.1.21
+      '@bpinternal/thicktoken': 1.0.5
+      '@bpinternal/zui': 0.22.5
+      json5: 2.2.3
+      jsonrepair: 3.10.0
+      lodash-es: 4.17.21
+    dev: false
+
   /@bpinternal/const@0.1.0:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
@@ -4573,6 +4631,16 @@ packages:
 
   /@bpinternal/zui@0.22.4:
     resolution: {integrity: sha512-CSsHZRvjjvpH4tCMmMi39pxOmyCervOr4xJw9O5DaYtEWrZ1itl8J/c5CIhy1xIZa4gKvTqmjU7vMPp+fTz8+Q==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+    peerDependencies:
+      react: ^18.2.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+    dev: false
+
+  /@bpinternal/zui@0.22.5:
+    resolution: {integrity: sha512-BV4W7HV7EtJzE+WFlzV07cyQcINVrGGpp4u/1402RbMtXt0pIitsG5eziQwjAAZoUBEFYloazSIwyeiZMCl0fg==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     peerDependencies:
       react: ^18.2.0
@@ -9152,6 +9220,15 @@ packages:
       is-retry-allowed: 2.2.0
     dev: false
 
+  /axios-retry@4.5.0(axios@1.8.4):
+    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
+    peerDependencies:
+      axios: 0.x || 1.x
+    dependencies:
+      axios: 1.8.4
+      is-retry-allowed: 2.2.0
+    dev: false
+
   /axios@0.21.4(debug@4.4.1):
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
@@ -9324,7 +9401,7 @@ packages:
   /axios@1.8.4:
     resolution: {integrity: sha512-eBSYY4Y68NNlHbHBMdeDmKNtDgXWhQsJcGqzO3iLUM0GraQFSS9cVgPX5I9b3lbdFKyYoAEGAZF1DwhTaljNAw==}
     dependencies:
-      follow-redirects: 1.15.6(debug@4.4.1)
+      follow-redirects: 1.15.6
       form-data: 4.0.2
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -11621,6 +11698,15 @@ packages:
       debug:
         optional: true
     dev: false
+
+  /follow-redirects@1.15.6:
+    resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
 
   /follow-redirects@1.15.6(debug@4.4.1):
     resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
@@ -15109,6 +15195,10 @@ packages:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
     engines: {node: '>=0.4.0'}
     dev: true
+
+  /promise-parallel-throttle@3.5.0:
+    resolution: {integrity: sha512-PXqj8TEaYMV6pQd6IVPoMjRrOHh2o/vxbWbt5eUxPuuAplrLgcdzo3KGqh2aT0A4Se6JSQxoGnB8CSIXeAOLvQ==}
+    dev: false
 
   /prompts@2.4.2:
     resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
