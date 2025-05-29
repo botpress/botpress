@@ -40,6 +40,8 @@ export type IntegrationDefinitionProps<
   icon?: string
   readme?: string
 
+  attributes?: Record<string, string>
+
   identifier?: {
     extractScript?: string
     fallbackHandlerScript?: string
@@ -198,6 +200,8 @@ export class IntegrationDefinition<
   public readonly entities: this['props']['entities']
   public readonly interfaces: this['props']['interfaces']
   public readonly __advanced: this['props']['__advanced']
+  public readonly attributes: this['props']['attributes']
+
   public constructor(
     public readonly props: IntegrationDefinitionProps<
       TName,
@@ -229,6 +233,7 @@ export class IntegrationDefinition<
     this.entities = props.entities
     this.interfaces = props.interfaces
     this.__advanced = props.__advanced
+    this.attributes = props.attributes
   }
 
   public extend<P extends InterfacePackage>(

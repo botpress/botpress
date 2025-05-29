@@ -50,6 +50,7 @@ export const prepareCreatePluginBody = async (
         ({ type }) => type !== 'workflow'
       ) as types.CreatePluginRequestBody['states'])
     : undefined,
+  attributes: plugin.attributes,
 })
 
 export const prepareUpdatePluginBody = (
@@ -66,11 +67,14 @@ export const prepareUpdatePluginBody = (
   })
   const states = utils.records.setNullOnMissingValues(localPlugin.states, remotePlugin.states)
 
+  const attributes = utils.records.setNullOnMissingValues(localPlugin.attributes, remotePlugin.attributes)
+
   return {
     ...localPlugin,
     actions,
     events,
     states,
     user: localPlugin.user, // TODO: allow deleting user tags with null
+    attributes,
   }
 }

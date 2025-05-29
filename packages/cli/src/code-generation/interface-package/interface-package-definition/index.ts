@@ -1,4 +1,5 @@
 import * as consts from '../../consts'
+import { stringifySingleLine } from '../../generators'
 import { Module } from '../../module'
 import { ActionsModule } from './actions-module'
 import { ChannelsModule } from './channels-module'
@@ -56,6 +57,8 @@ export class InterfacePackageDefinitionModule extends Module {
     const eventsImport = eventsModule.import(this)
     const entitiesImport = entitiesModule.import(this)
 
+    const interfaceAttributes = this._interface.attributes ? stringifySingleLine(this._interface.attributes) : '{}'
+
     content += [
       consts.GENERATED_HEADER,
       'import * as sdk from "@botpress/sdk"',
@@ -72,6 +75,7 @@ export class InterfacePackageDefinitionModule extends Module {
       'export default {',
       `  name: "${this._interface.name}",`,
       `  version: "${this._interface.version}",`,
+      `  attributes: ${interfaceAttributes},`,
       `  actions: ${actionsModule.name}.${actionsModule.exportName},`,
       `  channels: ${channelsModule.name}.${channelsModule.exportName},`,
       `  events: ${eventsModule.name}.${eventsModule.exportName},`,

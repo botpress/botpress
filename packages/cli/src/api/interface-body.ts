@@ -44,6 +44,7 @@ export const prepareCreateInterfaceBody = async (
         })),
       }))
     : {},
+  attributes: intrface.attributes,
 })
 
 export const prepareUpdateInterfaceBody = (
@@ -72,11 +73,14 @@ export const prepareUpdateInterfaceBody = (
 
   const channels = utils.records.setNullOnMissingValues(currentChannels, remoteInterface.channels)
 
+  const attributes = utils.records.setNullOnMissingValues(localInterface.attributes, remoteInterface.attributes)
+
   return {
     ...localInterface,
     entities,
     actions,
     events,
     channels,
+    attributes,
   }
 }

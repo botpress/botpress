@@ -140,6 +140,8 @@ export type BotDefinitionProps<
   workflows?: {
     [K in keyof TWorkflows]: WorkflowDefinition<TWorkflows[K]>
   }
+
+  attributes?: Record<string, string>
 }
 
 export class BotDefinition<
@@ -161,6 +163,8 @@ export class BotDefinition<
   public readonly actions: this['props']['actions']
   public readonly tables: this['props']['tables']
   public readonly workflows: this['props']['workflows']
+  public readonly attributes: this['props']['attributes']
+
   public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables, TWorkflows>) {
     this.integrations = props.integrations
     this.plugins = props.plugins
@@ -174,6 +178,7 @@ export class BotDefinition<
     this.actions = props.actions
     this.tables = props.tables
     this.workflows = props.workflows
+    this.attributes = props.attributes
   }
 
   public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {

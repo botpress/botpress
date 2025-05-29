@@ -57,6 +57,8 @@ export type InterfaceDefinitionProps<
   icon?: string
   readme?: string
 
+  attributes?: Record<string, string>
+
   entities?: {
     [K in keyof TEntities]: EntityDefinition<TEntities[K]>
   }
@@ -87,6 +89,7 @@ export class InterfaceDefinition<
   public readonly description: this['props']['description']
   public readonly icon: this['props']['icon']
   public readonly readme: this['props']['readme']
+  public readonly attributes: this['props']['attributes']
 
   public readonly entities: { [K in keyof TEntities]: EntityDefinition<TEntities[K]> }
   public readonly events: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
@@ -103,6 +106,7 @@ export class InterfaceDefinition<
     this.description = props.description
     this.readme = props.readme
     this.entities = props.entities ?? ({} as this['entities'])
+    this.attributes = props.attributes
 
     const entityReferences = this._getEntityReference(this.entities)
 

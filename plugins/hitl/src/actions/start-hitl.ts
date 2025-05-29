@@ -5,8 +5,8 @@ import * as conv from '../conv-manager'
 import * as user from '../user-linker'
 import * as bp from '.botpress'
 
-type StartHitlInput = bp.interfaces.hitl.actions.startHitl.input.Input
-type MessageHistoryElement = NonNullable<StartHitlInput['messageHistory']>[number]
+type StartHitlInput = bp.actions.startHitl.input.Input
+type MessageHistoryElement = NonNullable<bp.interfaces.hitl.actions.startHitl.input.Input['messageHistory']>[number]
 type Props = Parameters<bp.PluginProps['actions']['startHitl']>[0]
 
 export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) => {
@@ -110,13 +110,12 @@ const _buildMessageHistory = async (
 const _createDownstreamConversation = async (
   props: Props,
   downstreamUserId: string,
-  input: Omit<StartHitlInput, 'messageHistory'>,
+  input: StartHitlInput,
   messageHistory: MessageHistoryElement[]
 ): Promise<string> => {
   // Call startHitl in the hitl integration (zendesk, etc.):
   const { conversationId: downstreamConversationId } = await props.actions.hitl.startHitl({
-    title: input.title,
-    description: input.description,
+    ...input, // the Studio might pass additional fields here, so we spread the input to ensure everything is forwarded to the integration
     userId: downstreamUserId,
     messageHistory,
   })

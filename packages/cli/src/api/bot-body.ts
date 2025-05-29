@@ -42,6 +42,7 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
         ({ type }) => type !== 'workflow'
       ) as types.CreateBotRequestBody['states'])
     : undefined,
+  tags: bot.attributes,
 })
 
 export const prepareUpdateBotBody = (
@@ -73,4 +74,5 @@ export const prepareUpdateBotBody = (
   },
   integrations: utils.records.setNullOnMissingValues(localBot.integrations, remoteBot.integrations),
   plugins: utils.records.setNullOnMissingValues(localBot.plugins, remoteBot.plugins),
+  tags: localBot.tags, // TODO: allow removing bot tags (aka attributes) by setting to null
 })
