@@ -65,9 +65,7 @@ export class MetaOauthClient {
       throw new RuntimeError('Invalid response from API when fetching WhatsApp Business Accounts IDs')
     }
 
-    const businessIds = data.granular_scopes.find(
-      (item: { scope: string; target_ids: string[] }) => item.scope === 'whatsapp_business_messaging'
-    )?.target_ids
+    const businessIds = data.granular_scopes.find((item) => item.scope === 'whatsapp_business_messaging')?.target_ids
     if (!businessIds || businessIds.length === 0) {
       throw new RuntimeError('No WhatsApp Business Account found')
     }
