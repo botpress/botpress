@@ -18,7 +18,7 @@ export const getPage: bp.IntegrationProps['actions']['getPage'] = async ({ input
       logger.error(`Page with ID ${pageId} not found`)
     }
 
-    return pageData
+    return pageData as any
   } catch (error) {
     errorLog(logger, 'getPage', 'Error in while fetching confluence page' + error)
   }

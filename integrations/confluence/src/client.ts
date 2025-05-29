@@ -46,14 +46,43 @@ export const ConfluenceClient = ({ user, host, apiToken }: configuration.Configu
     },
   }
 
+  const apiBase = `${host}/wiki/api/v2` as const
+
+  const _extractNextToken = (response: { data: { _links?: { next?: string } } }) =>
+    response?.data?._links?.next
+      ? (new URLSearchParams(response.data._links.next.split('?')[1]).get('cursor') ?? undefined)
+      : undefined
+
   return {
-    getPages: async () => {
-      const response = await axios.get(`${host}/wiki/api/v2/pages?body-format=ATLAS_DOC_FORMAT`, config)
-      return { items: response.data.results as Page.InferredType[], token: response?.data?._links?.next }
+    getAllPagesRecursively: async (prevToken?: string) => {
+      const queryParams = new URLSearchParams({
+        'body-format': 'ATLAS_DOC_FORMAT',
+        status: 'current', // we don't want archived or deleted pages
+        limit: '250', // maximum limit for Confluence API
+        ...(prevToken ? { cursor: prevToken } : {}),
+      })
+      const response = await axios.get(`${apiBase}/pages?${queryParams.toString()}`, config)
+      return {
+        items: response.data.results as Page.InferredType[],
+        token: _extractNextToken(response),
+      }
     },
     getPage: async ({ pageId }: { pageId: number }) => {
-      const response = await axios.get(`${host}/wiki/api/v2/pages/${pageId}?body-format=ATLAS_DOC_FORMAT`, config)
-      return response.data
+      const response = await axios.get(`${apiBase}/pages/${pageId}?body-format=ATLAS_DOC_FORMAT`, config)
+      return response.data as Page.InferredType
+    },
+    getPageDirectChildren: async ({ pageId, nextToken: prevToken }: { pageId: number; nextToken?: string }) => {
+      const queryParams = new URLSearchParams({
+        limit: '250', // maximum limit for Confluence API
+        ...(prevToken ? { cursor: prevToken } : {}),
+      })
+      const response = await axios.get(`${apiBase}/pages/${pageId}/direct-children?${queryParams.toString()}`, config)
+      const nextToken = _extractNextToken(response)
+      const results = response.data.results as (Pick<Page.InferredType, 'id' | 'status' | 'title'> & { type: string })[]
+      return {
+        items: results.filter((item) => item.type === 'page' && item.status === 'current'),
+        token: nextToken,
+      }
     },
     writeFooterComment: async ({ pageId, text }: { pageId: string; text: string }) => {
       const footerBody: CreateFooterBody = {
@@ -63,12 +92,12 @@ export const ConfluenceClient = ({ user, host, apiToken }: configuration.Configu
           value: text,
         },
       }
-      const response = await axios.post(`${host}/wiki/api/v2/footer-comments`, footerBody, config)
+      const response = await axios.post(`${apiBase}/footer-comments`, footerBody, config)
       return response?.data
     },
     getFooterComments: async ({ pageId }: { pageId: string }) => {
       const response = await axios.get(
-        `${host}/wiki/api/v2/pages/${pageId}/footer-comments?body-format=atlas_doc_format`,
+        `${apiBase}/pages/${pageId}/footer-comments?body-format=atlas_doc_format`,
         config
       )
       return response?.data
@@ -90,11 +119,11 @@ export const ConfluenceClient = ({ user, host, apiToken }: configuration.Configu
         },
       }
 
-      const response = await axios.post(`${host}/wiki/api/v2/pages`, request, config)
+      const response = await axios.post(`${apiBase}/pages`, request, config)
       return response.data
     },
     deletePage: async (pageId: string) => {
-      const response = await axios.delete(`${host}/wiki/api/v2/pages/${pageId}`, config)
+      const response = await axios.delete(`${apiBase}/pages/${pageId}`, config)
       return response.data
     },
     updatePage: async (input: { item: Page.InferredType }) => {
@@ -119,7 +148,7 @@ export const ConfluenceClient = ({ user, host, apiToken }: configuration.Configu
         },
       }
 
-      const response = await axios.post(`${host}/wiki/api/v2/page/${input.item.id}`, request, config)
+      const response = await axios.post(`${apiBase}/page/${input.item.id}`, request, config)
       return response.data
     },
   }
