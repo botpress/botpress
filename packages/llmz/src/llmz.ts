@@ -55,7 +55,7 @@ export type ExecutionHooks = {
    */
   onIterationEnd?: (iteration: Iteration) => Promise<void> | void
   onTrace?: (event: { trace: Trace; iteration: number }) => void
-  onExit?: <T = unknown>(exit: Exit<T>, value: T) => Promise<T> | T
+  onExit?: <T = unknown>(exit: Exit<T>, value: T) => Promise<void> | void
 }
 
 type Options = Partial<Pick<Context, 'loop' | 'temperature' | 'model'>>

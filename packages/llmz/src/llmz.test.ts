@@ -664,7 +664,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       `)
     })
 
-    it('exit hook is called before exiting', async () => {
+    it("exit hook is called before exiting and can't mutate value", async () => {
       let exitCalled = false
       let exitValue: any = null
 
@@ -681,10 +681,11 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           },
         ],
         client,
-        onExit: async (_, value) => {
+        onExit: (async (_, value) => {
           exitCalled = true
           exitValue = value
-        },
+          return { ...value, plant: 'Monstera' } // This should not mutate the value
+        }) as any,
       })
 
       expect(exitCalled).toBe(true)
@@ -693,6 +694,49 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           "color": "green",
           "edible": false,
           "plant": "Monstera",
+        }
+      `)
+    })
+
+    it('exit hook is awaited before exiting and errors the iteration on error', async () => {
+      let exitCalled = false
+
+      const result = await llmz.executeContext({
+        options: { loop: 2 },
+        exits: [ePlant, eAnimal],
+        tools: [tAnimal, tPlant],
+        instructions: 'Do as the user asks',
+        transcript: [
+          {
+            name: 'user',
+            role: 'user',
+            content: 'What is my favorite plant?',
+          },
+        ],
+        client,
+        onExit: async (_) => {
+          await new Promise((resolve) => setTimeout(resolve, 10))
+          exitCalled = true
+          throw new Error('This is an error in the exit hook')
+        },
+      })
+
+      expect(exitCalled).toBe(true)
+      assertStatus(result, 'error')
+      expect(result.iterations).toHaveLength(2)
+      assert(result.iterations[1]!.status.type === 'exit_error', 'Second iteration should be an exit error')
+      expect(result.iterations[1]!.status.exit_error).toMatchInlineSnapshot(`
+        {
+          "exit": "is_plant",
+          "message": "Error executing exit is_plant: This is an error in the exit hook",
+          "return_value": {
+            "action": "is_plant",
+            "value": {
+              "color": "green",
+              "edible": false,
+              "plant": "Monstera",
+            },
+          },
         }
       `)
     })
