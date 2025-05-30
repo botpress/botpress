@@ -53,34 +53,67 @@ export const ConfluenceClient = ({ user, host, apiToken }: configuration.Configu
       ? (new URLSearchParams(response.data._links.next.split('?')[1]).get('cursor') ?? undefined)
       : undefined
 
+  type Space = {
+    id: string
+    name: string
+    type: 'global' | 'collaboration' | 'knowledge_base' | 'personal'
+    status: 'current' | 'archived'
+    homepageId: string
+  }
+
+  type HierarchicalContentType = 'database' | 'embed' | 'folder' | 'page' | 'whiteboard'
+  type HierarchicalChild = {
+    id: string
+    type: HierarchicalContentType
+    status: 'current' | 'archived'
+    title: string
+    spaceId: string
+  }
+
   return {
-    getAllPagesRecursively: async (prevToken?: string) => {
+    getAllSpaces: async ({ nextToken: prevToken }: { nextToken?: string }) => {
       const queryParams = new URLSearchParams({
-        'body-format': 'ATLAS_DOC_FORMAT',
-        status: 'current', // we don't want archived or deleted pages
         limit: '250', // maximum limit for Confluence API
+        status: 'current', // we don't want archived spaces
         ...(prevToken ? { cursor: prevToken } : {}),
       })
-      const response = await axios.get(`${apiBase}/pages?${queryParams.toString()}`, config)
+      const response = await axios.get(`${apiBase}/spaces?${queryParams.toString()}`, config)
+      const nextToken = _extractNextToken(response)
+      const results = response.data.results as Space[]
       return {
-        items: response.data.results as Page.InferredType[],
-        token: _extractNextToken(response),
+        items: results.filter((item) => item.status === 'current'),
+        token: nextToken,
       }
+    },
+    getSpace: async ({ spaceId }: { spaceId: number }) => {
+      const response = await axios.get(`${apiBase}/spaces/${spaceId}?body-format=ATLAS_DOC_FORMAT`, config)
+      return response.data as Space
     },
     getPage: async ({ pageId }: { pageId: number }) => {
       const response = await axios.get(`${apiBase}/pages/${pageId}?body-format=ATLAS_DOC_FORMAT`, config)
       return response.data as Page.InferredType
     },
-    getPageDirectChildren: async ({ pageId, nextToken: prevToken }: { pageId: number; nextToken?: string }) => {
+    getDirectChildren: async ({
+      entityId,
+      entityType,
+      nextToken: prevToken,
+    }: {
+      entityId: number
+      entityType: HierarchicalContentType
+      nextToken?: string
+    }) => {
       const queryParams = new URLSearchParams({
         limit: '250', // maximum limit for Confluence API
         ...(prevToken ? { cursor: prevToken } : {}),
       })
-      const response = await axios.get(`${apiBase}/pages/${pageId}/direct-children?${queryParams.toString()}`, config)
+      const response = await axios.get(
+        `${apiBase}/${entityType}s/${entityId}/direct-children?${queryParams.toString()}`,
+        config
+      )
       const nextToken = _extractNextToken(response)
-      const results = response.data.results as (Pick<Page.InferredType, 'id' | 'status' | 'title'> & { type: string })[]
+      const results = response.data.results as HierarchicalChild[]
       return {
-        items: results.filter((item) => item.type === 'page' && item.status === 'current'),
+        items: results.filter((item) => item.status === 'current'),
         token: nextToken,
       }
     },
