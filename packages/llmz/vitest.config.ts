@@ -1,11 +1,11 @@
 import 'dotenv/config'
-import { defineConfig } from 'vitest/config'
 import fs from 'node:fs'
+import { defineConfig } from 'vitest/config'
 
 function textLoader() {
   return {
     name: 'text-loader',
-    transform(src, id) {
+    transform(_src: string, id: string) {
       if (id.endsWith('.txt')) {
         const content = fs.readFileSync(id, 'utf-8')
         return {
@@ -20,7 +20,7 @@ function textLoader() {
 function mdLoader() {
   return {
     name: 'md-loader',
-    transform(src, id) {
+    transform(_src: string, id: string) {
       if (id.endsWith('.md')) {
         const content = fs.readFileSync(id, 'utf-8')
         return {
