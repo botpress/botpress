@@ -10,7 +10,7 @@ export const filesReadonlyTransferFileToBotpress: bp.IntegrationProps['actions']
     const confluenceClient = ConfluenceClient(ctx.configuration)
     const content = await confluenceClient.getPage({ pageId: parseInt(file.id) })
 
-    if (!content) {
+    if (!content.body?.atlas_doc_format.value) {
       throw new RuntimeError('Content not found')
     }
 
