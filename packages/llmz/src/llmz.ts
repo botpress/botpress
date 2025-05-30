@@ -59,7 +59,7 @@ export type ExecutionHooks = {
   onBeforeExecution?: (iteration: Iteration) => Promise<void> | void
 }
 
-type Options = Partial<Pick<Context, 'loop' | 'temperature' | 'model'>>
+type Options = Partial<Pick<Context, 'loop' | 'temperature' | 'model' | 'timeout'>>
 
 export type ExecutionProps = {
   instructions?: ValueOrGetter<string, Context>
@@ -89,6 +89,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
     loop: props.options?.loop,
     temperature: props.options?.temperature,
     model: props.options?.model,
+    timeout: props.options?.timeout,
     transcript: props.transcript,
     exits: props.exits,
     components: props.components,
@@ -412,15 +413,17 @@ const executeIteration = async ({
   type Result = Awaited<ReturnType<typeof runAsyncFunction>>
 
   startedAt = Date.now()
-  const result: Result = await runAsyncFunction(vmContext, iteration.code, traces, abortSignal).catch((err) => {
-    return {
-      success: false,
-      error: err as Error,
-      lines_executed: [],
-      traces: [],
-      variables: {},
-    } satisfies Result
-  })
+  const result: Result = await runAsyncFunction(vmContext, iteration.code, traces, abortSignal, ctx.timeout).catch(
+    (err) => {
+      return {
+        success: false,
+        error: err as Error,
+        lines_executed: [],
+        traces: [],
+        variables: {},
+      } satisfies Result
+    }
+  )
 
   if (result.error && result.error instanceof InvalidCodeError) {
     return iteration.end({

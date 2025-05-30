@@ -279,6 +279,7 @@ export class Context {
   public components?: ValueOrGetter<Component[], Context>
 
   public version: Prompt = DualModePrompt
+  public timeout: number = 60_000 // Default timeout of 60 seconds
   public loop: number
   public temperature: number
   public model?: Model
@@ -602,6 +603,7 @@ export class Context {
     model?: Model
     metadata?: Record<string, any>
     snapshot?: Snapshot
+    timeout?: number
   }) {
     this.id = `llmz_${ulid()}`
     this.transcript = props.transcript
@@ -611,6 +613,7 @@ export class Context {
     this.exits = props.exits
     this.components = props.components
 
+    this.timeout = Math.min(999_999_999, Math.max(0, props.timeout ?? 60_000)) // Default timeout of 60 seconds
     this.loop = props.loop ?? 3
     this.temperature = props.temperature ?? 0.7
     this.model = props.model

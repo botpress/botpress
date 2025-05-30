@@ -63,7 +63,8 @@ export async function runAsyncFunction(
   context: any,
   code: string,
   traces: Trace[] = [],
-  signal: AbortSignal | null = null
+  signal: AbortSignal | null = null,
+  timeout: number = MAX_VM_EXECUTION_TIME
 ): Promise<VMExecutionResult> {
   const transformed = getCompiledCode(code, traces)
   const lines_executed = new Map<number, number>()
@@ -430,7 +431,7 @@ do {
       // TODO: fix getRemainingTimeInMillis ...
       // TODO: probably expose a "timeout" option instead
       // timeout: clamp(Runtime.getRemainingTimeInMillis() - 10_000, 5_000, MAX_VM_EXECUTION_TIME),
-      timeout: MAX_VM_EXECUTION_TIME,
+      timeout,
       copy: true,
       promise: true,
     })

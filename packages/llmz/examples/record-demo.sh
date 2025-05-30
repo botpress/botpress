@@ -49,7 +49,7 @@ for (const line of lines) {
     }
   } catch {}
 }
-console.log(Math.max(max || 100, 80));
+console.log(Math.min(150, Math.max(max || 100, 80)));
 ")
 
 echo "🖼  Generating SVG (width=$MAX_WIDTH)..."
