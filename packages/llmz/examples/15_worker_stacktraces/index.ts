@@ -1,6 +1,8 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
 import { executeContext, Exit, Tool } from 'llmz'
+import { box } from '../utils/box'
+import chalk from 'chalk'
 
 const client = new Client({
   botId: process.env.BOTPRESS_BOT_ID!,
@@ -33,9 +35,13 @@ const result = await executeContext({
 const iteration = result.iterations.at(-1)
 
 if (iteration?.status.type === 'execution_error') {
-  console.log('Stack trace:')
-  console.log(iteration.status.execution_error.message)
-  console.log(iteration.status.execution_error.stack)
+  console.log(
+    box([
+      chalk.red('An error occurred during the execution:'),
+      iteration.status.execution_error.message,
+      ...iteration.status.execution_error.stack.split('\n'),
+    ])
+  )
 } else {
   console.log('Last iteration:', iteration?.status)
 }

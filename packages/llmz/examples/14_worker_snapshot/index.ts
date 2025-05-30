@@ -1,6 +1,8 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
+import chalk from 'chalk'
 import { executeContext, Exit, Snapshot, SnapshotSignal, Tool } from 'llmz'
+import { loading } from '../utils/spinner'
 
 const client = new Client({
   botId: process.env.BOTPRESS_BOT_ID!,
@@ -43,6 +45,10 @@ if (result.status !== 'interrupted') {
   process.exit(1)
 }
 
+console.log(chalk.yellow('The execution was interrupted and a snapshot of the state was created.'))
+console.log(chalk.yellow('You can now restore the snapshot and continue the execution in the future.'))
+console.log(chalk.yellow('[For the sake of this example, we will restore the snapshot immediately.]'))
+
 const snapshot = result.snapshot
 
 // A snapshot is serializable and can be restored from any environment at a later time
@@ -51,10 +57,14 @@ const serializedSnapshot = snapshot.toJSON()
 // You could store this serialized snapshot in a database or file and resolve it later
 const restoredSnapshot = Snapshot.fromJSON(serializedSnapshot)
 
+loading(true, 'Resuming the execution from the snapshot...')
+
 // You can resolve the snapshot with the expected output or reject it with an error
 restoredSnapshot.resolve({
   result: `The magic number is 42 !`,
 })
+
+loading(false)
 
 const continuation = await executeContext({
   // Restore the context from the snapshot
@@ -77,4 +87,4 @@ if (!iteration?.hasExitedWith(exit)) {
 
 const magicNumber = iteration.status.exit_success.return_value.result
 
-console.log(`The execution continued to execute from the snapshot and exited with number "${magicNumber}"`)
+console.log(chalk.green(`The execution continued to execute from the snapshot and exited with number "${magicNumber}"`))
