@@ -13,6 +13,8 @@ const exampleName = args[0]
 // Optional: declare required envs per example
 const required = ['BOTPRESS_BOT_ID', 'BOTPRESS_TOKEN']
 
+console.clear()
+
 const folders = fs.readdirSync(EXAMPLES_DIR).filter((f) => {
   const fullPath = path.join(EXAMPLES_DIR, f)
   return (f.includes('_chat') || f.includes('_worker')) && fs.statSync(fullPath).isDirectory()

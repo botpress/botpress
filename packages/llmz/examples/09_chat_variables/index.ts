@@ -67,12 +67,10 @@ const chat = new CLIChat({
 Fill the individual fields with the information you have at hand before asking the user for more information.`,
   exits: [completed, abort],
   objects: getObjects,
-  onIterationEnd: async (iteration) => {
-    for (let mutation of iteration.mutations) {
-      if (mutation.object === 'user') {
-        console.log('🧩 Mutation:', mutation)
-        memory[mutation.property] = mutation.after
-      }
+  onTrace: ({ trace }) => {
+    if (trace.type === 'property') {
+      console.log(`🧩 ${trace.object}.${trace.property} = ${trace.value}`)
+      memory[trace.property] = trace.value
     }
   },
 })
@@ -81,5 +79,6 @@ while (!chat.done) {
   await executeContext(chat.context)
 }
 
+console.log('🎉 Profile completed:', memory)
+
 console.log('👋 Goodbye!')
-process.exit(0)

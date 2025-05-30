@@ -44,5 +44,3 @@ if (chat.hasExitedWith(exit)) {
   console.log(`🚨 Escalation needed: ${chat.status.exit_success.return_value.reason}`)
   console.log(`-----------------------`)
 }
-
-process.exit(0)
