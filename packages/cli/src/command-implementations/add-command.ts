@@ -7,6 +7,7 @@ import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import * as pkgRef from '../package-ref'
+import * as sdkUtils from '../sdk'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 import { ProjectCache, ProjectCommand, ProjectCommandDefinition, ProjectDefinition } from './project-command'
@@ -213,10 +214,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         )
       }
 
-      const { name, version } = projectDefinition.definition
+      const pluginDefinition = sdkUtils.resolvePluginEntities(projectDefinition.definition)
+      const { name, version } = pluginDefinition
       const code = projectImplementation
 
-      const createPluginReqBody = await apiUtils.prepareCreatePluginBody(projectDefinition.definition)
+      const createPluginReqBody = await apiUtils.prepareCreatePluginBody(pluginDefinition)
       return {
         type: 'plugin',
         pkg: {
@@ -228,19 +230,13 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
             ...createPluginReqBody,
             dependencies: {
               interfaces: await utils.promises.awaitRecord(
-                utils.records.mapValues(
-                  projectDefinition.definition.interfaces ?? {},
-                  apiUtils.prepareCreateInterfaceBody
-                )
+                utils.records.mapValues(pluginDefinition.interfaces ?? {}, apiUtils.prepareCreateInterfaceBody)
               ),
               integrations: await utils.promises.awaitRecord(
-                utils.records.mapValues(
-                  projectDefinition.definition.integrations ?? {},
-                  apiUtils.prepareCreateIntegrationBody
-                )
+                utils.records.mapValues(pluginDefinition.integrations ?? {}, apiUtils.prepareCreateIntegrationBody)
               ),
             },
-            recurringEvents: projectDefinition.definition.recurringEvents,
+            recurringEvents: pluginDefinition.recurringEvents,
           },
         },
       }

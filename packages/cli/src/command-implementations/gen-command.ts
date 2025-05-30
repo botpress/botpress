@@ -5,6 +5,7 @@ import pathlib from 'path'
 import * as codegen from '../code-generation'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
+import * as sdkUtils from '../sdk'
 import * as utils from '../utils'
 import { ProjectCommand } from './project-command'
 
@@ -67,7 +68,7 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
 
     const fromWorkDir = this.projectPaths.rel('workDir')
 
-    const generatedFiles = await codegen.generatePluginImplementation(pluginDefinition)
+    const generatedFiles = await codegen.generatePluginImplementation(sdkUtils.resolvePluginEntities(pluginDefinition))
 
     await this._writeGeneratedFilesToOutFolder(generatedFiles)
 
