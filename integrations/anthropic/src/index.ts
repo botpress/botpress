@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { llm } from '@botpress/common'
 import { GenerateContentInput } from '@botpress/common/src/llm'
 import { generateContent } from './actions/generate-content'
-import { ModelId } from './schemas'
+import { DefaultModel, ModelId } from './schemas'
 import * as bp from '.botpress'
 
 const anthropic = new Anthropic({
@@ -165,7 +165,7 @@ export default new bp.Integration({
     generateContent: async ({ input, logger, metadata }) => {
       const output = await generateContent(<llm.GenerateContentInput>input, anthropic, logger, {
         models: LanguageModels,
-        defaultModel: 'claude-3-7-sonnet-20250219',
+        defaultModel: DefaultModel,
       })
       metadata.setCost(output.botpress.cost)
       return output
