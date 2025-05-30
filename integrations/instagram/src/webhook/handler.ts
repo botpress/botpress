@@ -28,6 +28,10 @@ const _validateRequestAuthentication = (
   { ctx }: { ctx: bp.Context }
 ): { error: true; message: string } | { error: false } => {
   const secret = getClientSecret(ctx)
+  if (!secret) {
+    return { error: false }
+  }
+
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(req.body ?? '')

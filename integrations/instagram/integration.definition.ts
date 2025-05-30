@@ -44,6 +44,11 @@ export default new IntegrationDefinition({
         instagramId: z.string().title('Instagram account ID').describe('Instagram Account Id from API setup View'),
       }),
     },
+    sandbox: {
+      title: 'Sandbox Configuration',
+      description: 'Sandbox configuration, for testing purposes only',
+      schema: z.object({}),
+    },
   },
   states: {
     oauth: {
@@ -104,13 +109,25 @@ export default new IntegrationDefinition({
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: {
-      description: 'The client ID of your Meta app.',
+      description: 'The client ID of the OAuth Meta app.',
     },
     CLIENT_SECRET: {
-      description: 'The client secret of your Meta app.',
+      description: 'The client secret of the OAuth Meta app.',
     },
     VERIFY_TOKEN: {
-      description: 'The verify token of your Meta app.',
+      description: 'The verify token of the OAuth Meta app.',
+    },
+    SANDBOX_CLIENT_SECRET: {
+      description: 'The client secret of the Sandbox Meta app',
+    },
+    SANDBOX_VERIFY_TOKEN: {
+      description: 'The verify token for the Sandbox Meta App Webhooks subscription',
+    },
+    SANDBOX_ACCESS_TOKEN: {
+      description: 'Access token for the Sandbox Meta App',
+    },
+    SANDBOX_INSTAGRAM_ID: {
+      description: 'Instagram ID for the Sandbox Instagram profile',
     },
   },
   user: {
