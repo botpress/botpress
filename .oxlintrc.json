@@ -21,7 +21,8 @@
     "**/gen/",
     "**/bp_modules/",
     "**/.turbo/",
-    "**/.genenv/"
+    "**/.genenv/",
+    "packages/llmz/examples/"
   ],
   "rules": {
     // Rules that have yet to be implemented in oxlint are commented out.

@@ -22,7 +22,7 @@ const ignores = [
     "**/.genenv/",
     "**/.ignore.me.*",
     "**/*.md.ts",
-    "**/llmz/examples/"
+    "packages/llmz/examples/"
 ];
 
 export default [{

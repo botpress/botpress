@@ -38,7 +38,7 @@
       "outputs": ["dist/**"],
       "dependsOn": ["generate", "^build"]
     },
-    "@botpress/llmz#build": {
+    "llmz#build": {
       "outputs": ["dist/**"],
       "dependsOn": ["generate", "^build"]
     },

@@ -26,22 +26,22 @@ const isArrayOfPrimitives = (type: string) => Primitives.map((p) => `${p}[]`).in
 const stripSpaces = (typings: string) => typings.replace(/ +/g, ' ').trim()
 
 class KeyValue {
-  constructor(
+  public constructor(
     public key: string,
     public value: z.Schema
   ) {}
 }
 
 class FnParameters {
-  constructor(public schema: z.Schema) {}
+  public constructor(public schema: z.Schema) {}
 }
 
 class FnReturn {
-  constructor(public schema: z.Schema) {}
+  public constructor(public schema: z.Schema) {}
 }
 
 class Declaration {
-  constructor(
+  public constructor(
     public schema: z.Schema,
     public identifier: string
   ) {}

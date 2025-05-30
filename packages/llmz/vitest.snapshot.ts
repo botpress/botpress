@@ -6,14 +6,14 @@ import { VitestSnapshotEnvironment } from 'vitest/snapshot'
  * This is a Vitest bug
  */
 class PreventDoubleInlineSaves extends VitestSnapshotEnvironment {
-  private trackedStacks = new Set<string>()
+  private _trackedStacks = new Set<string>()
 
-  processStackTrace(stack) {
+  public processStackTrace(stack) {
     const serialized = JSON.stringify(stack)
-    if (this.trackedStacks.has(serialized)) {
+    if (this._trackedStacks.has(serialized)) {
       return { ...stack, column: stack.column + 1000 }
     }
-    this.trackedStacks.add(serialized)
+    this._trackedStacks.add(serialized)
     return stack
   }
 }

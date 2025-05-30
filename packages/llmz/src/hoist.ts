@@ -1,8 +1,7 @@
+// oxlint-disable no-duplicate-imports
 import { CodeGenerator } from '@babel/generator'
 import { parse } from '@babel/parser'
 import { NodePath } from '@babel/traverse'
-
-// eslint-disable-next-line
 import Traverse from '@babel/traverse'
 import * as t from '@babel/types'
 import { upperFirst, cloneDeep } from 'lodash-es'
@@ -236,7 +235,7 @@ function extractAndHoistTypes(ast: t.File) {
 
   // Hoist types that appear more than once
   typeMap.forEach((typeNode, typeString) => {
-    // eslint-disable-next-line no-lonely-if
+    // oxlint-disable-next-line no-lonely-if
     if ((typeCounts.get(typeString) || 0) > 1) {
       if (
         !hoistedTypes.some((ht) => {
