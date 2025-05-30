@@ -29,3 +29,7 @@ const secretNumber = await tool_c({
 })
 return { action: 'exit', value: { result: secretNumber } }
 ```
+
+## 🎥 Demo
+
+![Demo](./demo.svg)
