@@ -76,6 +76,7 @@ export namespace Traces {
     }
   >
 
+  export type LLMCallStart = TraceTemplate<'llm_call_started', { model: string }>
   export type LLMCallSuccess = TraceTemplate<'llm_call_success', { model: string; code: string }>
 
   export type AbortTrace = TraceTemplate<'abort_signal', { reason: string }>
@@ -91,6 +92,7 @@ export namespace Traces {
     | ToolSlow
     | PropertyMutation
     | YieldTrace
+    | LLMCallStart
     | LLMCallSuccess
     | ThinkSignal
     | CodeExecution

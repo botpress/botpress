@@ -2,15 +2,19 @@ import chalk from 'chalk'
 import {
   Component,
   DefaultComponents,
+  Exit,
   ObjectInstance,
   Tool,
   executeContext,
   isComponent,
   messageTool,
   type RenderedComponent,
+  type Iteration,
 } from 'llmz'
 
 import { prompt } from './buttons'
+import type { IterationStatuses } from '../../dist/context'
+import { loading } from './spinner'
 
 type TranscriptItem = {
   role: 'assistant' | 'user'
@@ -39,6 +43,15 @@ export class CLIChat {
 
   public turns = 0
   public done = false
+  public status?: Iteration['status']
+
+  public hasExited(this: this): this is this & { status: IterationStatuses.ExitSuccess } {
+    return this.status?.type === 'exit_success'
+  }
+
+  public hasExitedWith<R>(this: this, exit: Exit<R>): this is { status: IterationStatuses.ExitSuccess<R> } & this {
+    return this.status?.type === 'exit_success' && this.status.exit_success.exit_name === exit.name
+  }
 
   public get context(): ChatProps {
     if (this.turns++ > 100) {
@@ -48,8 +61,26 @@ export class CLIChat {
 
     return {
       client: this.props.client,
-      onIterationEnd: this.props.onIterationEnd,
-      onTrace: this.props.onTrace,
+      onIterationEnd: (iteration: Iteration) => {
+        this.status = iteration.status
+        if (typeof this.props.onIterationEnd === 'function') {
+          return this.props.onIterationEnd(iteration)
+        }
+      },
+      onBeforeExecution: (iteration: Iteration) => {
+        if (typeof this.props.onBeforeExecution === 'function') {
+          return this.props.onBeforeExecution(iteration)
+        }
+      },
+      onTrace: (event) => {
+        if (event.trace.type === 'llm_call_started') {
+          loading(true, chalk.dim('💭 Generating ...'))
+        } else if (event.trace.type === 'llm_call_success') {
+          loading(false)
+        }
+
+        this.props.onTrace?.(event)
+      },
       options: this.props.options,
       snapshot: this.props.snapshot,
       signal: this.props.signal || this._controller.signal,

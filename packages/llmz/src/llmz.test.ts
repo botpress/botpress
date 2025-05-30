@@ -842,4 +842,38 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       ...^^^^^^^^^^"
     `)
   })
+
+  it('beforeExecute hook (mutate code)', async () => {
+    let calls: string[] = []
+
+    const tDemo = new Tool({
+      name: 'demo',
+      input: z.string(),
+      handler: async (input) => {
+        calls.push(input)
+        return 'Hello, World!'
+      },
+    })
+
+    const result = await llmz.executeContext({
+      options: { loop: 1 },
+      exits: [eDone],
+      instructions: 'exit by doing nothing. do not call any tool.',
+      tools: [tDemo],
+      client,
+      async onBeforeExecution(iteration) {
+        await new Promise((resolve) => setTimeout(resolve, 10))
+        // Mutate the code to change the action
+        iteration.code = `await demo('hello 123');\nreturn { action: 'done' }`
+      },
+    })
+
+    assertStatus(result, 'success')
+    expect(result.iterations).toHaveLength(1)
+    expect(calls).toMatchInlineSnapshot(`
+      [
+        "hello 123",
+      ]
+    `)
+  })
 })

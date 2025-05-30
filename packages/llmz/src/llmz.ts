@@ -56,6 +56,7 @@ export type ExecutionHooks = {
   onIterationEnd?: (iteration: Iteration) => Promise<void> | void
   onTrace?: (event: { trace: Trace; iteration: number }) => void
   onExit?: <T = unknown>(exit: Exit<T>, value: T) => Promise<void> | void
+  onBeforeExecution?: (iteration: Iteration) => Promise<void> | void
 }
 
 type Options = Partial<Pick<Context, 'loop' | 'temperature' | 'model'>>
@@ -77,7 +78,7 @@ export type ExecutionProps = {
 const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   await init()
 
-  const { signal, onIterationEnd, onTrace, onExit } = props
+  const { signal, onIterationEnd, onTrace, onExit, onBeforeExecution } = props
   const cognitive = props.client instanceof Cognitive ? props.client : new Cognitive({ client: props.client })
   const cleanups: (() => void)[] = []
 
@@ -138,6 +139,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
           cognitive,
           abortSignal: signal,
           onExit,
+          onBeforeExecution,
         })
       } catch (err) {
         // this should not happen, but if it does, we want to catch it and mark the iteration as failed and loop
@@ -215,6 +217,7 @@ const executeIteration = async ({
   cognitive,
   abortSignal,
   onExit,
+  onBeforeExecution,
 }: {
   ctx: Context
   iteration: Iteration
@@ -236,6 +239,13 @@ const executeIteration = async ({
       // This can happen when a message is truncated and the content is empty
       x.content.trim().length > 0
   )
+
+  traces.push({
+    type: 'llm_call_started',
+    started_at: startedAt,
+    ended_at: startedAt,
+    model: ctx.model ?? '',
+  })
 
   const output = await cognitive.generateContent({
     signal: abortSignal,
@@ -268,6 +278,30 @@ const executeIteration = async ({
   const assistantResponse = ctx.version.parseAssistantResponse(out)
 
   iteration.code = assistantResponse.code.trim()
+
+  if (typeof onBeforeExecution === 'function') {
+    try {
+      await onBeforeExecution(iteration)
+    } catch (err) {
+      if (err instanceof ThinkSignal) {
+        return iteration.end({
+          type: 'thinking_requested',
+          thinking_requested: {
+            variables: err.variables,
+            reason: err.reason,
+          },
+        })
+      }
+
+      return iteration.end({
+        type: 'execution_error',
+        execution_error: {
+          message: `Error in onBeforeExecution hook: ${getErrorMessage(err)}`,
+          stack: cleanStackTrace((err as Error).stack ?? 'No stack trace available'),
+        },
+      })
+    }
+  }
 
   iteration.llm = {
     cached: output.meta.cached || false,
@@ -378,17 +412,15 @@ const executeIteration = async ({
   type Result = Awaited<ReturnType<typeof runAsyncFunction>>
 
   startedAt = Date.now()
-  const result: Result = await runAsyncFunction(vmContext, assistantResponse.code.trim(), traces, abortSignal).catch(
-    (err) => {
-      return {
-        success: false,
-        error: err as Error,
-        lines_executed: [],
-        traces: [],
-        variables: {},
-      } satisfies Result
-    }
-  )
+  const result: Result = await runAsyncFunction(vmContext, iteration.code, traces, abortSignal).catch((err) => {
+    return {
+      success: false,
+      error: err as Error,
+      lines_executed: [],
+      traces: [],
+      variables: {},
+    } satisfies Result
+  })
 
   if (result.error && result.error instanceof InvalidCodeError) {
     return iteration.end({
