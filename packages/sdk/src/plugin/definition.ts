@@ -75,13 +75,15 @@ export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = 
 export type ZuiSchemaWithEntityReferences<
   TInterfaces extends BaseInterfaces,
   TReturnType extends ZuiObjectOrRefSchema,
-> = (props: {
-  entities: {
-    [TInterfaceAlias in keyof TInterfaces]: {
-      [TEntityName in keyof TInterfaces[TInterfaceAlias]['definition']['entities']]: z.ZodRef
-    }
-  }
-}) => TReturnType
+> =
+  | ((props: {
+      entities: {
+        [TInterfaceAlias in keyof TInterfaces]: {
+          [TEntityName in keyof TInterfaces[TInterfaceAlias]['definition']['entities']]: z.ZodRef
+        }
+      }
+    }) => TReturnType)
+  | TReturnType
 
 type GenericDefinition<
   TInterfaces extends BaseInterfaces,
@@ -249,7 +251,10 @@ export class PluginDefinition<
       Object.entries(props.states ?? {}).map(
         ([stateName, stateDef]: [keyof TStates, NonNullable<(typeof props)['states']>[keyof TStates]]) => [
           stateName,
-          { ...stateDef, schema: stateDef.schema({ entities }) } as StateDefinition<TStates[keyof TStates]>,
+          {
+            ...stateDef,
+            schema: typeof stateDef.schema === 'object' ? stateDef.schema : stateDef.schema({ entities }),
+          } as StateDefinition<TStates[keyof TStates]>,
         ]
       )
     ) as { [K in keyof TStates]: StateDefinition<TStates[K]> }
@@ -258,7 +263,10 @@ export class PluginDefinition<
       Object.entries(props.events ?? {}).map(
         ([eventName, eventDef]: [keyof TEvents, NonNullable<(typeof props)['events']>[keyof TEvents]]) => [
           eventName,
-          { ...eventDef, schema: eventDef.schema({ entities }) } as EventDefinition<TEvents[keyof TEvents]>,
+          {
+            ...eventDef,
+            schema: typeof eventDef.schema === 'object' ? eventDef.schema : eventDef.schema({ entities }),
+          } as EventDefinition<TEvents[keyof TEvents]>,
         ]
       )
     ) as { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
@@ -271,9 +279,18 @@ export class PluginDefinition<
             ...actionDef,
             input: {
               ...actionDef.input,
-              schema: actionDef.input.schema({ entities }),
+              schema:
+                typeof actionDef.input.schema === 'object'
+                  ? actionDef.input.schema
+                  : actionDef.input.schema({ entities }),
             },
-            output: { ...actionDef.output, schema: actionDef.output.schema({ entities }) },
+            output: {
+              ...actionDef.output,
+              schema:
+                typeof actionDef.output.schema === 'object'
+                  ? actionDef.output.schema
+                  : actionDef.output.schema({ entities }),
+            },
           } as ActionDefinition<TActions[keyof TActions]>,
         ]
       )
@@ -283,7 +300,10 @@ export class PluginDefinition<
       Object.entries(props.tables ?? {}).map(
         ([tableName, tableDef]: [keyof TTables, NonNullable<(typeof props)['tables']>[keyof TTables]]) => [
           tableName,
-          { ...tableDef, schema: tableDef.schema({ entities }) } as TableDefinition<TTables[keyof TTables]>,
+          {
+            ...tableDef,
+            schema: typeof tableDef.schema === 'object' ? tableDef.schema : tableDef.schema({ entities }),
+          } as TableDefinition<TTables[keyof TTables]>,
         ]
       )
     ) as { [K in keyof TTables]: TableDefinition<TTables[K]> }
