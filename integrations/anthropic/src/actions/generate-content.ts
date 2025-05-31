@@ -1,4 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { ToolChoiceTool } from '@anthropic-ai/sdk/resources/index'
+import { ToolChoiceAuto } from '@anthropic-ai/sdk/resources/index'
+import { ToolChoiceAny } from '@anthropic-ai/sdk/resources/index'
 import { MessageCreateParams, MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages'
 import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
@@ -302,11 +305,11 @@ function mapToAnthropicToolChoice(
 
   switch (toolChoice.type) {
     case 'any':
-      return <MessageCreateParams.ToolChoiceAny>{ type: 'any' }
+      return <ToolChoiceAny>{ type: 'any' }
     case 'auto':
-      return <MessageCreateParams.ToolChoiceAuto>{ type: 'auto' }
+      return <ToolChoiceAuto>{ type: 'auto' }
     case 'specific':
-      return <MessageCreateParams.ToolChoiceTool>{
+      return <ToolChoiceTool>{
         type: 'tool',
         name: toolChoice.functionName,
       }
