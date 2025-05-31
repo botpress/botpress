@@ -380,8 +380,8 @@ importers:
   integrations/anthropic:
     dependencies:
       '@anthropic-ai/sdk':
-        specifier: ^0.38.0
-        version: 0.38.0
+        specifier: ^0.52.0
+        version: 0.52.0
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
@@ -2641,18 +2641,9 @@ packages:
       ts-deepmerge: 4.0.0
       zod: 3.22.4
 
-  /@anthropic-ai/sdk@0.38.0:
-    resolution: {integrity: sha512-ZUYjadEEeb1wwKd9MEM+plSfl7zQjYixhjHRtyPsjO7MtzRmbZvBb1n1ofo2kHwb0aUiIdb3aAEbAwS9Bcbm/A==}
-    dependencies:
-      '@types/node': 18.19.67
-      '@types/node-fetch': 2.6.12
-      abort-controller: 3.0.0
-      agentkeepalive: 4.5.0
-      form-data-encoder: 1.7.2
-      formdata-node: 4.4.1
-      node-fetch: 2.7.0
-    transitivePeerDependencies:
-      - encoding
+  /@anthropic-ai/sdk@0.52.0:
+    resolution: {integrity: sha512-d4c+fg+xy9e46c8+YnrrgIQR45CZlAi7PwdzIfDXDM6ACxEZli1/fxhURsq30ZpMZy6LvSkr41jGq5aF5TD7rQ==}
+    hasBin: true
     dev: false
 
   /@apidevtools/json-schema-ref-parser@11.7.0:
