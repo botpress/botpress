@@ -20,7 +20,9 @@ const ignores = [
     "**/gen/",
     "**/.turbo/",
     "**/.genenv/",
-    "**/.ignore.me.*"
+    "**/.ignore.me.*",
+    "**/*.md.ts",
+    "packages/llmz/examples/"
 ];
 
 export default [{

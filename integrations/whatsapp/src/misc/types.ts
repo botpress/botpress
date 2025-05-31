@@ -137,7 +137,13 @@ const WhatsAppMessageSchema = z.union([
     }),
   }),
   WhatsAppBaseMessageSchema.extend({
-    type: z.union([z.literal('order'), z.literal('system'), z.literal('unknown'), z.literal('unsupported')]), // 'unsupported' is not documented but can be received
+    type: z.union([
+      z.literal('order'),
+      z.literal('system'),
+      z.literal('unknown'),
+      z.literal('unsupported'), // not documented but can be received
+      z.literal('contacts'), // not documented but can be received
+    ]),
   }),
 ])
 export type WhatsAppMessage = z.infer<typeof WhatsAppMessageSchema>
