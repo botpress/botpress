@@ -1,7 +1,7 @@
-import { glob } from 'glob'
+import { globSync } from 'glob'
 import { readFileSync, writeFileSync } from 'node:fs'
 
-const files = glob.sync('src/**/*.md')
+const files = globSync('src/**/*.md')
 
 for (const file of files) {
   const content = readFileSync(file, 'utf-8')
