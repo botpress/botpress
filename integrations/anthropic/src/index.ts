@@ -7,6 +7,7 @@ import * as bp from '.botpress'
 
 const anthropic = new Anthropic({
   apiKey: bp.secrets.ANTHROPIC_API_KEY,
+  timeout: 10 * 60 * 1000, // 10 minute timeout, we set it here to avoid the error thrown by the Anthropic SDK when not using streaming if the request maxTokens parameters is too high (see: https://github.com/anthropics/anthropic-sdk-typescript?tab=readme-ov-file#long-requests)
 })
 
 type ReasoningEffort = NonNullable<GenerateContentInput['reasoningEffort']>
