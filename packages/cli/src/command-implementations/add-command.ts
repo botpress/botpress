@@ -7,7 +7,6 @@ import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import * as pkgRef from '../package-ref'
-import * as sdkUtils from '../sdk'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 import { ProjectCache, ProjectCommand, ProjectCommandDefinition, ProjectDefinition } from './project-command'
@@ -214,7 +213,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         )
       }
 
-      const pluginDefinition = sdkUtils.resolvePluginEntities(projectDefinition.definition)
+      const pluginDefinition = projectDefinition.definition.dereferenceEntities()
       const { name, version } = pluginDefinition
       const code = projectImplementation
 
