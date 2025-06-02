@@ -1,4 +1,4 @@
-import type * as sdk from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 
 export const resolvePluginEntities = <TPlugin extends sdk.PluginDefinition>(plugin: TPlugin): TPlugin => {
   const dereferencer = new PluginEntityDereferencer(plugin)
@@ -6,7 +6,7 @@ export const resolvePluginEntities = <TPlugin extends sdk.PluginDefinition>(plug
 }
 
 class PluginEntityDereferencer<TPlugin extends sdk.PluginDefinition> {
-  private readonly _zuiReferenceMap: Record<string, sdk.ZuiObjectSchema>
+  private readonly _zuiReferenceMap: Record<string, sdk.ZodTypeAny>
 
   public constructor(private readonly _plugin: TPlugin) {
     this._zuiReferenceMap = PluginEntityDereferencer._buildZuiReferenceMap(_plugin)
@@ -22,13 +22,13 @@ class PluginEntityDereferencer<TPlugin extends sdk.PluginDefinition> {
     }
   }
 
-  private static _buildZuiReferenceMap(plugin: sdk.PluginDefinition): Record<string, sdk.ZuiObjectSchema> {
+  private static _buildZuiReferenceMap(plugin: sdk.PluginDefinition): Record<string, sdk.ZodTypeAny> {
     return Object.fromEntries(
       (Object.entries(plugin.interfaces ?? {}) as [string, sdk.InterfacePackage][]).flatMap(
         ([interfaceAlias, interfacePackage]) =>
           Object.entries(interfacePackage.definition.entities ?? {}).map(([entityName, entityDefinition]) => [
             `interface:${interfaceAlias}/entities/${entityName}`,
-            entityDefinition.schema,
+            entityDefinition.schema.and(sdk.z.record(sdk.z.string(), sdk.z.unknown())),
           ])
       )
     )
