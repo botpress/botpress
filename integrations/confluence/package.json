@@ -14,7 +14,8 @@
     "markdown-it": "^14.1.0"
   },
   "devDependencies": {
-    "@types/markdown-it": "^14.1.2"
+    "@types/markdown-it": "^14.1.2",
+    "@botpress/cli": "workspace:*"
   },
   "bpDependencies": {
     "files-readonly": "../../interfaces/files-readonly",
