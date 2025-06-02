@@ -165,6 +165,14 @@ export class BotDefinition<
   public readonly workflows: this['props']['workflows']
   public readonly attributes: this['props']['attributes']
 
+  /** Pure representation of the bot, without any plugins */
+  public readonly withoutPlugins: Readonly<
+    Pick<
+      this['props'],
+      'user' | 'conversation' | 'message' | 'states' | 'events' | 'recurringEvents' | 'actions' | 'tables' | 'workflows'
+    >
+  >
+
   public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables, TWorkflows>) {
     this.integrations = props.integrations
     this.plugins = props.plugins
@@ -179,6 +187,18 @@ export class BotDefinition<
     this.tables = props.tables
     this.workflows = props.workflows
     this.attributes = props.attributes
+
+    this.withoutPlugins = {
+      user: this['props']['user'],
+      conversation: this['props']['conversation'],
+      message: this['props']['message'],
+      states: this['props']['states'],
+      events: this['props']['events'],
+      recurringEvents: this['props']['recurringEvents'],
+      actions: this['props']['actions'],
+      tables: this['props']['tables'],
+      workflows: this['props']['workflows'],
+    }
   }
 
   public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {

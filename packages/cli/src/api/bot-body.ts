@@ -4,12 +4,12 @@ import * as utils from '../utils'
 import * as types from './types'
 
 export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<types.CreateBotRequestBody> => ({
-  user: bot.user,
-  conversation: bot.conversation,
-  message: bot.message,
-  recurringEvents: bot.recurringEvents,
-  actions: bot.actions
-    ? await utils.records.mapValuesAsync(bot.actions, async (action) => ({
+  user: bot.withoutPlugins.user,
+  conversation: bot.withoutPlugins.conversation,
+  message: bot.withoutPlugins.message,
+  recurringEvents: bot.withoutPlugins.recurringEvents,
+  actions: bot.withoutPlugins.actions
+    ? await utils.records.mapValuesAsync(bot.withoutPlugins.actions, async (action) => ({
         ...action,
         input: {
           ...action.input,
@@ -27,15 +27,15 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
         schema: await utils.schema.mapZodToJsonSchema(bot.configuration),
       }
     : undefined,
-  events: bot.events
-    ? await utils.records.mapValuesAsync(bot.events, async (event) => ({
+  events: bot.withoutPlugins.events
+    ? await utils.records.mapValuesAsync(bot.withoutPlugins.events, async (event) => ({
         ...event,
         schema: await utils.schema.mapZodToJsonSchema(event),
       }))
     : undefined,
-  states: bot.states
+  states: bot.withoutPlugins.states
     ? (utils.records.filterValues(
-        await utils.records.mapValuesAsync(bot.states, async (state) => ({
+        await utils.records.mapValuesAsync(bot.withoutPlugins.states, async (state) => ({
           ...state,
           schema: await utils.schema.mapZodToJsonSchema(state),
         })),
