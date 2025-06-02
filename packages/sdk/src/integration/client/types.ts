@@ -300,6 +300,7 @@ export type DeleteFile<_TIntegration extends common.BaseIntegration> = client.Cl
 export type ListFiles<_TIntegration extends common.BaseIntegration> = client.Client['listFiles']
 export type GetFile<_TIntegration extends common.BaseIntegration> = client.Client['getFile']
 export type UpdateFileMetadata<_TIntegration extends common.BaseIntegration> = client.Client['updateFileMetadata']
+export type TrackAnalytics<_TIntegration extends common.BaseIntegration> = client.Client['trackAnalytics']
 
 export type ClientOperations<TIntegration extends common.BaseIntegration> = {
   createConversation: CreateConversation<TIntegration>
@@ -338,6 +339,7 @@ export type ClientOperations<TIntegration extends common.BaseIntegration> = {
   listFiles: ListFiles<TIntegration>
   getFile: GetFile<TIntegration>
   updateFileMetadata: UpdateFileMetadata<TIntegration>
+  trackAnalytics: TrackAnalytics<TIntegration>
 }
 
 export type ClientInputs<TIntegration extends common.BaseIntegration> = {
