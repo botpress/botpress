@@ -189,15 +189,15 @@ export class BotDefinition<
     this.attributes = props.attributes
 
     this.withoutPlugins = {
-      user: this['props']['user'],
-      conversation: this['props']['conversation'],
-      message: this['props']['message'],
-      states: this['props']['states'],
-      events: this['props']['events'],
-      recurringEvents: this['props']['recurringEvents'],
-      actions: this['props']['actions'],
-      tables: this['props']['tables'],
-      workflows: this['props']['workflows'],
+      user: props.user,
+      conversation: props.conversation,
+      message: props.message,
+      states: props.states,
+      events: props.events,
+      recurringEvents: props.recurringEvents,
+      actions: props.actions,
+      tables: props.tables,
+      workflows: props.workflows,
     }
   }
 
