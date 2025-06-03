@@ -45,11 +45,15 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
   tags: bot.attributes,
 })
 
+// TODO: implement this parameter in public-api and remove this type
+type ShouldMergePlugins = { shouldMergePlugins: true }
+
 export const prepareUpdateBotBody = (
   localBot: types.UpdateBotRequestBody,
   remoteBot: client.Bot
-): types.UpdateBotRequestBody => ({
+): types.UpdateBotRequestBody & ShouldMergePlugins => ({
   ...localBot,
+  shouldMergePlugins: true,
   states: utils.records.setNullOnMissingValues(localBot.states, remoteBot.states),
   recurringEvents: utils.records.setNullOnMissingValues(localBot.recurringEvents, remoteBot.recurringEvents),
   events: utils.attributes.prepareAttributeUpdateBody({
