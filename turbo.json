@@ -40,7 +40,7 @@
     },
     "llmz#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["generate", "^build"]
+      "dependsOn": ["generate", "^build", "@botpress/cognitive#build"]
     },
     "check:type": {},
     "check:bplint": {}

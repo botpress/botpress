@@ -589,6 +589,9 @@ importers:
         specifier: ^14.1.0
         version: 14.1.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/markdown-it':
         specifier: ^14.1.2
         version: 14.1.2
@@ -1141,6 +1144,10 @@ importers:
       axios:
         specifier: ^1.4.0
         version: 1.8.4
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/notion:
     dependencies:

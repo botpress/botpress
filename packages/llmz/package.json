@@ -17,7 +17,7 @@
     "test": "vitest run --config vitest.config.ts",
     "test:update": "vitest -u run --config vitest.config.ts",
     "test:watch": "vitest --config vitest.config.ts",
-    "build:markdown": "tsx ./scripts/compile-markdown.mts"
+    "build:markdown": "node --loader ts-node/esm ./scripts/compile-markdown.mts"
   },
   "keywords": [],
   "author": "",
