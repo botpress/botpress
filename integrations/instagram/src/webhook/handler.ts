@@ -1,8 +1,10 @@
+import { isSandboxCommand } from '@botpress/common'
 import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getClientSecret } from 'src/misc/client'
 import { messagingHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
+import { sandboxHandler } from './handlers/sandbox'
 import { subscribeHandler } from './handlers/subscribe'
 import * as bp from '.botpress'
 
@@ -11,6 +13,12 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   if (req.path.startsWith('/oauth')) {
     return await oauthCallbackHandler(props)
   }
+
+  if (isSandboxCommand(props)) {
+    return await sandboxHandler(props)
+  }
+
+  props.logger.debug('Received request with body:', req.body ?? '[empty]')
   const queryParams = new URLSearchParams(req.query)
   if (queryParams.has('hub.mode')) {
     return await subscribeHandler(props)
