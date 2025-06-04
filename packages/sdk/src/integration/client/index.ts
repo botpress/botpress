@@ -78,4 +78,5 @@ export class IntegrationSpecificClient<TIntegration extends common.BaseIntegrati
   public listFiles: types.ListFiles<TIntegration> = (x) => this._client.listFiles(x)
   public getFile: types.GetFile<TIntegration> = (x) => this._client.getFile(x)
   public updateFileMetadata: types.UpdateFileMetadata<TIntegration> = (x) => this._client.updateFileMetadata(x)
+  public trackAnalytics: types.TrackAnalytics<TIntegration> = (x) => this._client.trackAnalytics(x)
 }
