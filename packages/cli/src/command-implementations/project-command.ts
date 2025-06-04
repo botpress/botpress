@@ -345,9 +345,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const integrations = await this._fetchDependencies(botDef.integrations ?? {}, ({ name, version }) =>
       api.getPublicOrPrivateIntegration({ type: 'name', name, version })
     )
-    const plugins = await this._fetchDependencies(botDef.plugins ?? {}, ({ name, version }) =>
-      api.getPublicOrPrivatePlugin({ type: 'name', name, version })
-    )
+    const plugins = await this._fetchDependencies(botDef.plugins ?? {}, ({ name, version, interfaces }) => ({
+      ...api.getPublicOrPrivatePlugin({ type: 'name', name, version }),
+      interfaces: this._fetchDependencies(interfaces ?? {}, (integration) =>
+        api.getPublicOrPrivateIntegration({ ...integration, type: 'name' })
+      ),
+    }))
     return {
       integrations: _(integrations)
         .keyBy((i) => i.id)
