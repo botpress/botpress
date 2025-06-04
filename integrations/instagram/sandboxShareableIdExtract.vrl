@@ -1,7 +1,7 @@
 # https://developers.facebook.com/docs/instagram-platform/webhooks/examples#message
 body =  parse_json!(.body)
 message = body.entry[0].messaging[0].message
-identifier = if message.is_echo {
+if to_bool!(message.is_echo) {
   null
 } else {
   message.text

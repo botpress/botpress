@@ -4,13 +4,13 @@ actualSignature = encode_base16(hmac(to_string!(.body), to_string!(.secrets.SAND
 if actualSignature != expectedSignature {
   null
 } else {
-  body =  parse_json!(.body)
+  body = parse_json!(.body)
   messagingEntry = body.entry[0].messaging[0]
   message = messagingEntry.message
-  identifier = if message.is_echo {
+  identifier = if to_bool!(message.is_echo) {
     null
   } else {
-    message.sender
+    messagingEntry.sender.id
   }
   identifier
 }
