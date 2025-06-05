@@ -214,12 +214,13 @@ export async function getCredentials(client: bp.Client, ctx: bp.Context): Promis
       accessToken: bp.secrets.SANDBOX_ACCESS_TOKEN,
     }
   } else {
-    // TODO: Verify that this throws if state is not found
     const {
       state: {
         payload: { accessToken, instagramId },
       },
-    } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
+    } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId }).catch((err) => {
+      throw new RuntimeError(`Could not get OAuth credentials, please reauthorize (${err})`)
+    })
     credentials = {
       instagramId,
       accessToken,
