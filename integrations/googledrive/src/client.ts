@@ -59,6 +59,12 @@ const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
 const GOOGLE_API_FILE_FIELDS =
   'id, name, mimeType, parents, size, sha256Checksum, md5Checksum, version, trashed, modifiedTime'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
+
+const INCLUDE_FILES_FROM_ALL_DRIVES = {
+  includeItemsFromAllDrives: true,
+  supportsAllDrives: true,
+} as const
+
 export class Client {
   private constructor(
     private _ctx: bp.Context,
@@ -426,6 +432,7 @@ export class Client {
       pageToken: nextToken,
       pageSize: PAGE_SIZE,
       spaces: 'drive',
+      ...INCLUDE_FILES_FROM_ALL_DRIVES,
     })
 
     const newNextToken = listResponse.data.nextPageToken ?? undefined
@@ -458,6 +465,7 @@ export class Client {
     const response = await this._googleClient.files.get({
       fileId: id,
       fields: GOOGLE_API_FILE_FIELDS,
+      ...INCLUDE_FILES_FROM_ALL_DRIVES,
     })
     const file = parseBaseGeneric(response.data)
     this._filesCache.set(file)
@@ -469,6 +477,7 @@ export class Client {
       {
         fileId,
         alt: 'media',
+        ...INCLUDE_FILES_FROM_ALL_DRIVES,
       },
       {
         responseType: 'stream',
@@ -482,6 +491,7 @@ export class Client {
       {
         fileId,
         mimeType,
+        ...INCLUDE_FILES_FROM_ALL_DRIVES,
       },
       {
         responseType: 'stream',

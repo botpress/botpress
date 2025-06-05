@@ -1,0 +1,87 @@
+{
+  "name": "llmz",
+  "type": "module",
+  "description": "LLMz – An LLM-native Typescript VM built on top of Zui",
+  "version": "0.0.2",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "generate": "pnpm build:markdown",
+    "build": "tsup && pnpm tsc --emitDeclarationOnly",
+    "watch": "tsup --watch",
+    "test": "vitest run --config vitest.config.ts",
+    "test:update": "vitest -u run --config vitest.config.ts",
+    "test:watch": "vitest --config vitest.config.ts",
+    "build:markdown": "node --loader ts-node/esm ./scripts/compile-markdown.mts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/generator": "^7.26.3",
+    "@babel/parser": "^7.26.3",
+    "@babel/plugin-transform-react-jsx": "^7.25.9",
+    "@babel/preset-typescript": "^7.26.0",
+    "@babel/standalone": "^7.26.4",
+    "@babel/traverse": "^7.26.4",
+    "@babel/types": "^7.26.3",
+    "@botpress/client": "1.15.0",
+    "bytes": "^3.1.2",
+    "exponential-backoff": "^3.1.1",
+    "handlebars": "^4.7.8",
+    "isolated-vm": "^5.0.3",
+    "lodash-es": "^4.17.21",
+    "lru-cache": "^11.0.2",
+    "ms": "^2.1.3",
+    "prettier": "^3.4.2",
+    "ulid": "^2.3.0"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "^7.49.0",
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__generator": "^7.6.8",
+    "@types/babel__standalone": "^7.1.9",
+    "@types/babel__traverse": "^7.20.6",
+    "@types/bytes": "^3.1.5",
+    "@types/lodash-es": "^4.17.12",
+    "@types/ms": "^0.7.34",
+    "@types/node": "^18.19.67",
+    "chalk": "^4.1.2",
+    "diff": "^8.0.1",
+    "dotenv": "^16.4.4",
+    "esbuild": "^0.16.12",
+    "glob": "^9.3.4",
+    "source-map-js": "1.2.1",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.0.2",
+    "tsx": "^4.19.2"
+  },
+  "peerDependencies": {
+    "@botpress/cognitive": "^0.1.21",
+    "@bpinternal/thicktoken": "^1.0.5",
+    "@bpinternal/zui": "^0.22.4"
+  },
+  "dependenciesMeta": {
+    "@bpinternal/zui": {
+      "injected": true
+    }
+  },
+  "peerDependenciesMeta": {
+    "@botpress/cognitive": {
+      "optional": false
+    },
+    "@bpinternal/thicktoken": {
+      "optional": false
+    },
+    "@bpinternal/zui": {
+      "optional": false
+    }
+  },
+  "packageManager": "pnpm@8.6.2"
+}
