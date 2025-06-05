@@ -10,6 +10,7 @@ import {
   messageTool,
   type RenderedComponent,
   type Iteration,
+  CitationsManager,
 } from 'llmz'
 
 import { prompt } from './buttons'
@@ -24,6 +25,7 @@ type TranscriptItem = {
 
 export type ChatProps = Parameters<typeof executeContext>[0] & {
   renderMessage?: (message: RenderedComponent) => void
+  citations?: CitationsManager
 }
 
 const doOrGetValue = async <T>(value: T | ((...args: any) => T) | ((...args: any) => Promise<T>)): Promise<T> => {
@@ -157,9 +159,20 @@ export class CLIChat {
 
       text = text.trim()
       if (text.length > 0) {
+        let sources: string[] = []
+        const { cleaned } = this.props.citations?.extractCitations(text, (citation) => {
+          let idx = chalk.bgGreenBright.black.bold(` ${sources.length + 1} `)
+          sources.push(`${idx}: ${JSON.stringify(citation.source)}`)
+          return `${idx}`
+        }) ?? { cleaned: text, citations: [] }
         const buttonsStr = this._buttons.length > 0 ? `\n\n${chalk.bold('Buttons:')} ${this._buttons.join(', ')}` : ''
-        this._transcript.push({ role: 'assistant', content: text + buttonsStr })
-        console.log(`${chalk.bold('🤖 Agent:')} ${text}`)
+        this._transcript.push({ role: 'assistant', content: cleaned + buttonsStr })
+        console.log(`${chalk.bold('🤖 Agent:')} ${cleaned}`)
+        if (sources.length) {
+          console.log(chalk.dim('Citations'))
+          console.log(chalk.dim('========='))
+          console.log(chalk.dim(sources.join('\n')))
+        }
       }
     })
 

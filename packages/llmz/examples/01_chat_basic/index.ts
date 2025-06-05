@@ -10,7 +10,8 @@ const client = new Client({
 
 const chat = new CLIChat({
   client,
-  instructions: 'You are a helpful assistant. Greet the user and suggest topics for discussion using buttons.',
+  instructions:
+    "You are a helpful assistant. Greet the user and suggest topics for discussion using buttons. Don't let users type themselves, suggest topics instead.",
 })
 
 while (!chat.done) {

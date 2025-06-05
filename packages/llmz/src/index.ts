@@ -14,6 +14,7 @@ export {
   isComponent,
 } from './component.js'
 
+export { Citation, CitationsManager } from './citations.js'
 export { DefaultComponents, messageTool } from './component.default.js'
 export { Snapshot } from './snapshots.js'
 

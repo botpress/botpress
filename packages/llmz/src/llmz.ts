@@ -4,6 +4,7 @@ import { z } from '@bpinternal/zui'
 import { omit, clamp, isEqual, isPlainObject } from 'lodash-es'
 import ms from 'ms'
 
+import { ulid } from 'ulid'
 import { Component } from './component.js'
 import { Context, Iteration } from './context.js'
 import {
@@ -288,7 +289,7 @@ const executeIteration = async ({
         return iteration.end({
           type: 'thinking_requested',
           thinking_requested: {
-            variables: err.variables,
+            variables: err.context,
             reason: err.reason,
           },
         })
@@ -474,7 +475,7 @@ const executeIteration = async ({
     return iteration.end({
       type: 'thinking_requested',
       thinking_requested: {
-        variables: result.signal.variables,
+        variables: result.signal.context,
         reason: result.signal.reason,
       },
     })
@@ -588,11 +589,14 @@ function wrapTool({ tool, traces, object }: Props) {
   const getToolInput = (input: any) => tool.zInput.safeParse(input).data ?? input
 
   return function (input: any) {
+    const toolCallId = `tcall_${ulid()}`
+
     const alertSlowTool = setTimeout(
       () =>
         traces.push({
           type: 'tool_slow',
           tool_name: tool.name,
+          tool_call_id: toolCallId,
           started_at: Date.now(),
           input: getToolInput(input),
           object,
@@ -638,7 +642,9 @@ function wrapTool({ tool, traces, object }: Props) {
     }
 
     try {
-      const result = tool.execute(input)
+      const result = tool.execute(input, {
+        callId: toolCallId,
+      })
       if (result instanceof Promise || ((result as any)?.then && (result as any)?.catch)) {
         return result
           .then((res: any) => {
@@ -659,6 +665,7 @@ function wrapTool({ tool, traces, object }: Props) {
             cancelSlowTool()
             traces.push({
               type: 'tool_call',
+              tool_call_id: toolCallId,
               started_at: toolStart,
               ended_at: Date.now(),
               tool_name: tool.name,
@@ -683,6 +690,7 @@ function wrapTool({ tool, traces, object }: Props) {
     cancelSlowTool()
     traces.push({
       type: 'tool_call',
+      tool_call_id: toolCallId,
       started_at: toolStart,
       ended_at: Date.now(),
       tool_name: tool.name,
