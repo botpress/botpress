@@ -63,7 +63,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     tags: ['general-purpose', 'vision'],
     input: {
       costPer1MTokens: 0.15,
-      maxTokens: 1_000_000,
+      maxTokens: 1_048_576,
     },
     output: {
       costPer1MTokens: 0.6,
