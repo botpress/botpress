@@ -92,7 +92,7 @@ export class Zai {
 
   public constructor(config: ZaiConfig) {
     this._originalConfig = config
-    const parsed = _ZaiConfig.parse(config)
+    const parsed = _ZaiConfig.parse(config) as ZaiConfig
 
     this.client = Cognitive.isCognitiveClient(parsed.client)
       ? (parsed.client as unknown as Cognitive)

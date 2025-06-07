@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { setupClient } from '@botpress/vai'
 import { beforeAll } from 'vitest'
 import { getClient } from './e2e/utils'

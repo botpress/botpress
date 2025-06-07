@@ -9,15 +9,19 @@ const _Example = z.object({
   input: z.any(),
   check: z.boolean(),
   reason: z.string().optional(),
+  condition: z.string().optional(),
 })
+
+type Example = {
+  input: unknown
+  check: boolean
+  reason?: string
+  condition?: string
+}
 
 export type Options = {
   /** Examples to check the condition against */
-  examples?: Array<{
-    input: unknown
-    check: boolean
-    reason?: string
-  }>
+  examples?: Array<Example>
 }
 
 const _Options = z.object({
@@ -88,14 +92,20 @@ Zai.prototype.check = async function (this: Zai, input: unknown, condition: stri
   }
 
   const defaultExamples = [
-    { input: '50 Cent', check: true, reason: '50 Cent is widely recognized as a public personality.' },
+    {
+      input: '50 Cent',
+      check: true,
+      reason: '50 Cent is widely recognized as a public personality.',
+      condition: 'Is the input a public personality?',
+    },
     {
       input: ['apple', 'banana', 'carrot', 'house'],
       check: false,
       reason:
         'The list contains a house, which is not a fruit. Also, the list contains a carrot, which is a vegetable.',
+      condition: 'Is the input exclusively a list of fruits?',
     },
-  ]
+  ] satisfies Example[]
 
   const userExamples = [
     ...examples.map((e) => ({ input: e.input, check: e.output, reason: e.explanation })),
@@ -123,8 +133,12 @@ ${END}
 `.trim()
   }
 
-  const formatExample = (example: { input?: any; check: boolean; reason?: string }) => [
-    { type: 'text' as const, content: formatInput(stringify(example.input ?? null), condition), role: 'user' as const },
+  const formatExample = (example: Example) => [
+    {
+      type: 'text' as const,
+      content: formatInput(stringify(example.input ?? null), example.condition ?? condition),
+      role: 'user' as const,
+    },
     {
       type: 'text' as const,
       content: formatOutput(example.check, example.reason ?? ''),

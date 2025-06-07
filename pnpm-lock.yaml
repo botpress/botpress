@@ -2411,7 +2411,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.23
+        specifier: workspace:*
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -2441,6 +2441,9 @@ importers:
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
+      diff:
+        specifier: ^8.0.1
+        version: 8.0.1
       dotenv:
         specifier: ^16.4.4
         version: 16.4.4
