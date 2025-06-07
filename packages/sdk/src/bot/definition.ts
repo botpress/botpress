@@ -5,13 +5,13 @@ import { PluginInterfaceExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
 import * as utils from '../utils'
 import { ValueOf, Writable, Merge, StringKeys } from '../utils/type-utils'
-import z, { ZuiObjectSchema } from '../zui'
+import z, { ZuiObjectSchema, ZuiObjectOrRefSchema } from '../zui'
 
 type BaseConfig = ZuiObjectSchema
-type BaseStates = Record<string, ZuiObjectSchema>
-type BaseEvents = Record<string, ZuiObjectSchema>
-type BaseActions = Record<string, ZuiObjectSchema>
-type BaseTables = Record<string, ZuiObjectSchema>
+type BaseStates = Record<string, ZuiObjectOrRefSchema>
+type BaseEvents = Record<string, ZuiObjectOrRefSchema>
+type BaseActions = Record<string, ZuiObjectOrRefSchema>
+type BaseTables = Record<string, ZuiObjectOrRefSchema>
 type BaseWorkflows = Record<string, ZuiObjectSchema>
 
 export type TagDefinition = {
@@ -56,7 +56,7 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   title?: string
   description?: string
   input: SchemaDefinition<TAction>
-  output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
+  output: SchemaDefinition<ZuiObjectOrRefSchema> // cannot infer both input and output types (typescript limitation)
   attributes?: Record<string, string>
 }
 
@@ -165,6 +165,14 @@ export class BotDefinition<
   public readonly workflows: this['props']['workflows']
   public readonly attributes: this['props']['attributes']
 
+  /** Pure representation of the bot, without any plugins */
+  public readonly withoutPlugins: Readonly<
+    Pick<
+      this['props'],
+      'user' | 'conversation' | 'message' | 'states' | 'events' | 'recurringEvents' | 'actions' | 'tables' | 'workflows'
+    >
+  >
+
   public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables, TWorkflows>) {
     this.integrations = props.integrations
     this.plugins = props.plugins
@@ -179,6 +187,18 @@ export class BotDefinition<
     this.tables = props.tables
     this.workflows = props.workflows
     this.attributes = props.attributes
+
+    this.withoutPlugins = {
+      user: props.user,
+      conversation: props.conversation,
+      message: props.message,
+      states: props.states,
+      events: props.events,
+      recurringEvents: props.recurringEvents,
+      actions: props.actions,
+      tables: props.tables,
+      workflows: props.workflows,
+    }
   }
 
   public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {

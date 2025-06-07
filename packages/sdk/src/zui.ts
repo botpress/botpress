@@ -8,6 +8,7 @@ export type GenericZuiSchema<
 > = (typeArguments: A) => R
 
 export type ZuiObjectSchema = z.ZodObject | z.ZodRecord
+export type ZuiObjectOrRefSchema = ZuiObjectSchema | z.ZodRef
 
 export const mergeObjectSchemas = (a: ZuiObjectSchema, b: ZuiObjectSchema): ZuiObjectSchema => {
   const aDef = a._def
