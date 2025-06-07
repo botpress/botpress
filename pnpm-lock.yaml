@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  source-map-js@1.2.1:
+    hash: h25dep36e76b3zca3v6s2554fi
+    path: patches/source-map-js@1.2.1.patch
+
 importers:
 
   .:
@@ -2225,7 +2230,7 @@ importers:
         specifier: 1.15.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: ^0.1.21
+        specifier: ^0.1.22
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2319,37 +2324,6 @@ importers:
       '@bpinternal/zui':
         injected: true
 
-  packages/llmz/examples:
-    dependencies:
-      '@botpress/client':
-        specifier: workspace:^
-        version: link:../../client
-      '@botpress/zai':
-        specifier: ^2.0.6
-        version: link:../../zai
-      '@bpinternal/zui':
-        specifier: ^0.22.5
-        version: 0.22.5
-      chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
-      llmz:
-        specifier: link:..
-        version: link:..
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
-      promise-parallel-throttle:
-        specifier: ^3.5.0
-        version: 3.5.0
-      ts-morph:
-        specifier: ^26.0.0
-        version: 26.0.0
-    devDependencies:
-      tsx:
-        specifier: ^4.19.2
-        version: 4.19.2
-
   packages/sdk:
     dependencies:
       '@botpress/client':
@@ -2427,7 +2401,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.21
+        specifier: 0.1.22
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -4602,16 +4576,6 @@ packages:
 
   /@bpinternal/zui@0.22.4:
     resolution: {integrity: sha512-CSsHZRvjjvpH4tCMmMi39pxOmyCervOr4xJw9O5DaYtEWrZ1itl8J/c5CIhy1xIZa4gKvTqmjU7vMPp+fTz8+Q==}
-    engines: {node: '>=16.0.0', pnpm: 8.6.2}
-    peerDependencies:
-      react: ^18.2.0
-    peerDependenciesMeta:
-      react:
-        optional: true
-    dev: false
-
-  /@bpinternal/zui@0.22.5:
-    resolution: {integrity: sha512-BV4W7HV7EtJzE+WFlzV07cyQcINVrGGpp4u/1402RbMtXt0pIitsG5eziQwjAAZoUBEFYloazSIwyeiZMCl0fg==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     peerDependencies:
       react: ^18.2.0
@@ -8031,14 +7995,6 @@ packages:
     engines: {node: '>= 10'}
     dev: false
 
-  /@ts-morph/common@0.27.0:
-    resolution: {integrity: sha512-Wf29UqxWDpc+i61k3oIOzcUfQt79PIT9y/MWfAGlrkjg6lBC1hwDECLXPVJAhWjiGbfBCxZd65F/LIZF3+jeJQ==}
-    dependencies:
-      fast-glob: 3.3.3
-      minimatch: 10.0.1
-      path-browserify: 1.0.1
-    dev: false
-
   /@tsconfig/node10@1.0.9:
     resolution: {integrity: sha512-jNsYVVxU8v5g43Erja32laIDHXeoNvFEpX33OK4d6hljo3jDhCBDhx5dhCCTMWUojscpAagGiRkBKxpdl9fxqA==}
     dev: true
@@ -9989,10 +9945,6 @@ packages:
     engines: {iojs: '>= 1.0.0', node: '>= 0.12.0'}
     dev: true
 
-  /code-block-writer@13.0.3:
-    resolution: {integrity: sha512-Oofo0pq3IKnsFtuHqSF7TqBfr71aeyZDVJ0HpmqB7FBM2qEigL0iPONSCZSO9pE9dZTAxANe5XHG9Uy0YMv8cg==}
-    dev: false
-
   /code-error-fragment@0.0.230:
     resolution: {integrity: sha512-cadkfKp6932H8UkhzE/gcUqhRMNf8jHzkAN7+5Myabswaghu4xABTgPHDCjW+dBAJxj/SpkTYokpzDqY4pCzQw==}
     engines: {node: '>= 4'}
@@ -11478,17 +11430,6 @@ packages:
       glob-parent: 5.1.2
       merge2: 1.4.1
       micromatch: 4.0.8
-
-  /fast-glob@3.3.3:
-    resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
-    engines: {node: '>=8.6.0'}
-    dependencies:
-      '@nodelib/fs.stat': 2.0.5
-      '@nodelib/fs.walk': 1.2.8
-      glob-parent: 5.1.2
-      merge2: 1.4.1
-      micromatch: 4.0.8
-    dev: false
 
   /fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}
@@ -14261,13 +14202,6 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  /minimatch@10.0.1:
-    resolution: {integrity: sha512-ethXTt3SGGR+95gudmqJ1eNhRO7eGEGIgYA9vnPatK4/etz2MEVDno5GMCibdMTuBMyElzIlgxMna3K94XDIDQ==}
-    engines: {node: 20 || >=22}
-    dependencies:
-      brace-expansion: 2.0.1
-    dev: false
-
   /minimatch@3.0.8:
     resolution: {integrity: sha512-6FsRAQsxQ61mw+qP1ZzbL9Bc78x2p5OqNgNpnoAFLTrX8n5Kxph0CsnhmKKNXTWjXqU5L0pGPR7hYk+XWZr60Q==}
     dependencies:
@@ -14863,10 +14797,6 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /path-browserify@1.0.1:
-    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
-    dev: false
-
   /path-exists@4.0.0:
     resolution: {integrity: sha512-ak9Qy5Q7jYb2Wwcey5Fpvg2KoAc/ZIhLSLOSBmRmygPsGwkVVt0fZa0qrtMz+m6tJTAHfZQ8FnmB4MG4LWy7/w==}
     engines: {node: '>=8'}
@@ -15182,10 +15112,6 @@ packages:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
     engines: {node: '>=0.4.0'}
     dev: true
-
-  /promise-parallel-throttle@3.5.0:
-    resolution: {integrity: sha512-PXqj8TEaYMV6pQd6IVPoMjRrOHh2o/vxbWbt5eUxPuuAplrLgcdzo3KGqh2aT0A4Se6JSQxoGnB8CSIXeAOLvQ==}
-    dev: false
 
   /prompts@2.4.2:
     resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
@@ -16640,13 +16566,6 @@ packages:
       typescript: 5.8.3
       yargs-parser: 21.1.1
     dev: true
-
-  /ts-morph@26.0.0:
-    resolution: {integrity: sha512-ztMO++owQnz8c/gIENcM9XfCEzgoGphTv+nKpYNM1bgsdOVC/jRZuEBf6N+mLLDNg68Kl+GgUZfOySaRiG1/Ug==}
-    dependencies:
-      '@ts-morph/common': 0.27.0
-      code-block-writer: 13.0.3
-    dev: false
 
   /ts-node@10.9.2(@types/node@18.19.67)(typescript@5.6.3):
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
