@@ -41,6 +41,7 @@
     "@types/node": "^18.19.67",
     "@typescript-eslint/eslint-plugin": "^8.19.1",
     "@typescript-eslint/parser": "^8.19.1",
+    "axios": "1.9.0",
     "eslint": "^9.17.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.31.0",
