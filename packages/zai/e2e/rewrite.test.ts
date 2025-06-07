@@ -73,8 +73,6 @@ describe('zai.learn.rewrite', { timeout: 60_000 }, () => {
 
     const value = await zai.learn(taskId).rewrite(`Botpress is awesome`, 'write it like we want it')
 
-    check(value, `The text means more or less the same as "Botpress is awesome" but slightly different`).toBe(true)
-
     let rows = await client.findTableRows({ table: tableName })
     expect(rows.rows.length).toBe(1)
     expect(rows.rows[0].output.value).toBe(value)

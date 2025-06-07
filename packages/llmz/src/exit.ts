@@ -39,6 +39,14 @@ export class Exit<T = unknown> {
     })
   }
 
+  public is<T>(exit: Exit<T>): this is Exit<T> {
+    return this.name === exit.name
+  }
+
+  public parse(exit: Exit, value: unknown): value is T {
+    return !!value && exit.name === this.name
+  }
+
   public constructor(props: {
     name: string
     aliases?: string[]

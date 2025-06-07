@@ -5,7 +5,11 @@ import { clamp } from 'lodash-es'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
-export type Options = (typeof Options)['_input']
+export type Options = {
+  /** The maximum number of tokens to generate */
+  length?: number
+}
+
 const Options = z.object({
   length: z.number().min(1).max(100_000).optional().describe('The maximum number of tokens to generate'),
 })

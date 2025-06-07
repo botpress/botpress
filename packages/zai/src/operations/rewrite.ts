@@ -5,15 +5,26 @@ import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 
-type Example = (typeof Example)['_input'] & { instructions?: string }
-const Example = z.object({
+type Example = {
+  input: string
+  output: string
+  instructions?: string
+}
+
+const _Example = z.object({
   input: z.string(),
   output: z.string(),
 })
 
-export type Options = (typeof Options)['_input']
+export type Options = {
+  /** Examples to guide the rewriting */
+  examples?: Array<Example>
+  /** The maximum number of tokens to generate */
+  length?: number
+}
+
 const Options = z.object({
-  examples: z.array(Example).default([]),
+  examples: z.array(_Example).default([]),
   length: z.number().min(10).max(16_000).optional().describe('The maximum number of tokens to generate'),
 })
 
@@ -28,7 +39,7 @@ const START = '■START■'
 const END = '■END■'
 
 Zai.prototype.rewrite = async function (this: Zai, original, prompt, _options) {
-  const options = Options.parse(_options ?? {})
+  const options = Options.parse(_options ?? {}) as Options
   const tokenizer = await this.getTokenizer()
   await this.fetchModelDetails()
 
@@ -101,7 +112,7 @@ ${END}
   }
 
   const savedExamples: Example[] = [
-    ...tableExamples.map((x) => ({ input: x.input as string, output: x.output as string })),
+    ...tableExamples.map((x) => ({ input: x.input as string, output: x.output as string }) satisfies Example),
     ...options.examples,
   ]
 

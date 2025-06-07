@@ -15,6 +15,10 @@ export type ToolRetryFn<I> = (args: ToolRetryInput<I>) => boolean | Promise<bool
 type IsObject<T> = T extends object ? (T extends Function ? false : true) : false
 type SmartPartial<T> = IsObject<T> extends true ? Partial<T> : T
 
+type ToolCallContext = {
+  callId: string
+}
+
 export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
   private _staticInputValues?: unknown
 
@@ -98,7 +102,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
       input: IX | ((original: I | undefined) => IX)
       output: OX | ((original: O | undefined) => OX)
       staticInputValues?: SmartPartial<TypeOf<IX>>
-      handler: (args: TypeOf<IX>) => Promise<TypeOf<OX>>
+      handler: (args: TypeOf<IX>, ctx: ToolCallContext) => Promise<TypeOf<OX>>
       retry: ToolRetryFn<TypeOf<IX>>
     }> = {}
   ): Tool<IX, OX> {
@@ -123,7 +127,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
             : props.output instanceof ZodType
               ? props.output
               : (zOutput as unknown as OX),
-        handler: (props.handler ?? this._handler) as (args: TypeOf<IX>) => Promise<TypeOf<OX>>,
+        handler: (props.handler ?? this._handler) as (args: TypeOf<IX>, ctx: ToolCallContext) => Promise<TypeOf<OX>>,
         retry: props.retry ?? this.retry,
       }).setStaticInputValues((props.staticInputValues as any) ?? (this._staticInputValues as any))
     } catch (e) {
@@ -131,7 +135,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
     }
   }
 
-  private _handler: (args: unknown) => Promise<unknown>
+  private _handler: (args: unknown, ctx: ToolCallContext) => Promise<unknown>
 
   public constructor(props: {
     name: string
@@ -141,7 +145,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
     input?: I
     output?: O
     staticInputValues?: Partial<TypeOf<I>>
-    handler: (args: TypeOf<I>) => Promise<TypeOf<O>>
+    handler: (args: TypeOf<I>, ctx: ToolCallContext) => Promise<TypeOf<O>>
     retry?: ToolRetryFn<TypeOf<I>>
   }) {
     if (!isValidIdentifier(props.name)) {
@@ -211,7 +215,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
     this.retry = props.retry
   }
 
-  public async execute(input: TypeOf<I>): Promise<TypeOf<O>> {
+  public async execute(input: TypeOf<I>, ctx: ToolCallContext): Promise<TypeOf<O>> {
     const pInput = this.zInput.safeParse(input)
 
     if (!pInput.success) {
@@ -222,7 +226,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
 
     while (attempt < this.MAX_RETRIES) {
       try {
-        const result = (await this._handler(pInput.data)) as any
+        const result = (await this._handler(pInput.data, ctx)) as any
         const pOutput = this.zOutput.safeParse(result)
         return pOutput.success ? pOutput.data : result
       } catch (err) {

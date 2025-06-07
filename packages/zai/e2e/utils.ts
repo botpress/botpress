@@ -4,10 +4,9 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { beforeAll } from 'vitest'
 import { Zai } from '../src'
-import { fastHash } from '../src/utils'
+import { getCachedCognitiveClient } from './client'
 
 const DATA_PATH = path.join(__dirname, 'data')
-const CACHE_PATH = path.join(DATA_PATH, 'cache.jsonl')
 const DOC_PATH = path.join(DATA_PATH, 'botpress_docs.txt')
 
 export const getClient = () => {
@@ -18,59 +17,8 @@ export const getClient = () => {
   })
 }
 
-function readJSONL<T>(filePath: string, keyProperty: keyof T): Map<string, T> {
-  const lines = fs.readFileSync(filePath, 'utf-8').split(/\r?\n/).filter(Boolean)
-
-  const map = new Map<string, T>()
-
-  for (const line of lines) {
-    const obj = JSON.parse(line) as T
-    const key = String(obj[keyProperty])
-    map.set(key, obj)
-  }
-
-  return map
-}
-
-const cache: Map<string, { key: string; value: any }> = readJSONL(CACHE_PATH, 'key')
-
 export const getCachedClient = () => {
-  const client = getClient()
-
-  const proxy = new Proxy(client, {
-    get(target, prop) {
-      if (prop === 'callAction') {
-        return async (...args: Parameters<Client['callAction']>) => {
-          const key = fastHash(JSON.stringify(args))
-          const cached = cache.get(key)
-
-          if (cached) {
-            return cached.value
-          }
-
-          const response = await target.callAction(...args)
-          cache.set(key, { key, value: response })
-
-          fs.appendFileSync(
-            CACHE_PATH,
-            JSON.stringify({
-              key,
-              value: response,
-            }) + '\n'
-          )
-
-          return response
-        }
-      }
-      return Reflect.get(target, prop)
-    },
-  })
-
-  ;(proxy as any).clone = () => {
-    return getCachedClient()
-  }
-
-  return proxy
+  return getCachedCognitiveClient()
 }
 
 export const getZai = () => {

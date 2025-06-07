@@ -30,9 +30,14 @@ export const getActionFromError = (error: any): Action => {
   }
 
   const subtype = (error.metadata as any)?.subtype
-  if (error.type === 'Internal' || subtype === 'UPSTREAM_PROVIDER_FAILED') {
+  if (subtype === 'UPSTREAM_PROVIDER_FAILED') {
     // The model is degraded, so we want to try another model
     return 'fallback'
+  }
+
+  if (error.type === 'Internal') {
+    // This is an internal error, probably a lambda timeout
+    return 'retry'
   }
 
   return 'abort'

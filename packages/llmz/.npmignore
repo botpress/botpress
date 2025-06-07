@@ -17,3 +17,7 @@ vitest.*.ts
 src
 scripts
 TODO
+
+examples/
+e2e/
+scripts/

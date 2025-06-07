@@ -2,7 +2,7 @@
   "name": "llmz",
   "type": "module",
   "description": "LLMz – An LLM-native Typescript VM built on top of Zui",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -63,9 +63,9 @@
     "tsx": "^4.19.2"
   },
   "peerDependencies": {
-    "@botpress/cognitive": "0.1.22",
+    "@botpress/cognitive": "0.1.23",
     "@bpinternal/thicktoken": "^1.0.5",
-    "@bpinternal/zui": "^0.22.4"
+    "@bpinternal/zui": "^0.22.5"
   },
   "dependenciesMeta": {
     "@bpinternal/zui": {

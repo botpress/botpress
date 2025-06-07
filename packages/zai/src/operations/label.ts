@@ -22,11 +22,16 @@ type Example<T extends string> = {
   labels: Partial<Record<T, { label: Label; explanation?: string }>>
 }
 
-export type Options<T extends string> = Omit<(typeof Options)['_input'], 'examples'> & {
-  examples?: Array<Partial<Example<T>>>
+export type Options<T extends string> = {
+  /** Examples to help the user make a decision */
+  examples?: Array<Example<T>>
+  /** Instructions to guide the user on how to extract the data */
+  instructions?: string
+  /** The maximum number of tokens per chunk */
+  chunkLength?: number
 }
 
-const Options = z.object({
+const _Options = z.object({
   examples: z
     .array(
       z.object({
@@ -48,7 +53,7 @@ const Options = z.object({
 
 type Labels<T extends string> = Record<T, string>
 
-const Labels = z.record(z.string().min(1).max(250), z.string()).superRefine((labels, ctx) => {
+const _Labels = z.record(z.string().min(1).max(250), z.string()).superRefine((labels, ctx) => {
   const keys = Object.keys(labels)
 
   for (const key of keys) {
@@ -119,9 +124,14 @@ const getConfidence = (label: Label) => {
   }
 }
 
-Zai.prototype.label = async function <T extends string>(this: Zai, input, _labels, _options) {
-  const options = Options.parse(_options ?? {})
-  const labels = Labels.parse(_labels)
+Zai.prototype.label = async function <T extends string>(
+  this: Zai,
+  input: unknown,
+  _labels: Labels<T>,
+  _options: Options<T> | undefined
+) {
+  const options = _Options.parse(_options ?? {}) as unknown as Options<T>
+  const labels = _Labels.parse(_labels) as Labels<T>
   const tokenizer = await this.getTokenizer()
   await this.fetchModelDetails()
 
@@ -211,7 +221,7 @@ Zai.prototype.label = async function <T extends string>(this: Zai, input, _label
   options.examples.forEach((example) => {
     examples.push({
       key: fastHash(JSON.stringify(example)),
-      input: example.input,
+      input: stringify(example.input),
       similarity: 1,
       explanation: '',
       output: example.labels as unknown as {

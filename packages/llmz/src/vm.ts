@@ -10,8 +10,8 @@ import { Trace, Traces, VMExecutionResult } from './types.js'
 
 // We do this because we want it to work in the browser
 const IS_NODE = typeof process !== 'undefined' && process.versions != null && process.versions.node != null
-const IS_CI = !!process.env.CI
-const VM_DRIVER = process.env.VM_DRIVER ?? (IS_CI ? 'node' : 'isolated-vm')
+const IS_CI = typeof process !== 'undefined' && !!process?.env?.CI
+const VM_DRIVER = (typeof process !== 'undefined' && process?.env?.VM_DRIVER) ?? (IS_CI ? 'node' : 'isolated-vm')
 export const USE_ISOLATED_VM = IS_NODE && VM_DRIVER === 'isolated-vm'
 const LINE_OFFSET = USE_ISOLATED_VM ? 3 : 1
 
