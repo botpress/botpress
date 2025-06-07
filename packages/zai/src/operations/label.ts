@@ -126,12 +126,9 @@ const getConfidence = (label: Label) => {
 
 Zai.prototype.label = async function <T extends string>(
   this: Zai,
-  input,
-  _labels,
-  _options
-  // input: unknown,
-  // _labels: Labels<T>,
-  // _options: Options<T> | undefined
+  input: unknown,
+  _labels: Labels<T>,
+  _options: Options<T> | undefined
 ) {
   const options = _Options.parse(_options ?? {}) as unknown as Options<T>
   const labels = _Labels.parse(_labels) as Labels<T>
