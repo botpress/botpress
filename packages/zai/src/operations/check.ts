@@ -5,15 +5,23 @@ import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 
-const Example = z.object({
+const _Example = z.object({
   input: z.any(),
   check: z.boolean(),
   reason: z.string().optional(),
 })
 
-export type Options = (typeof Options)['_input']
-const Options = z.object({
-  examples: z.array(Example).describe('Examples to check the condition against').default([]),
+export type Options = {
+  /** Examples to check the condition against */
+  examples?: Array<{
+    input: unknown
+    check: boolean
+    reason?: string
+  }>
+}
+
+const _Options = z.object({
+  examples: z.array(_Example).describe('Examples to check the condition against').default([]),
 })
 
 declare module '@botpress/zai' {
@@ -36,8 +44,8 @@ const TRUE = '■TRUE■'
 const FALSE = '■FALSE■'
 const END = '■END■'
 
-Zai.prototype.check = async function (this: Zai, input, condition, _options) {
-  const options = Options.parse(_options ?? {})
+Zai.prototype.check = async function (this: Zai, input: unknown, condition: string, _options: Options | undefined) {
+  const options = _Options.parse(_options ?? {}) as Options
   const tokenizer = await this.getTokenizer()
   await this.fetchModelDetails()
   const PROMPT_COMPONENT = Math.max(this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER, 100)

@@ -2159,8 +2159,8 @@ importers:
         specifier: workspace:*
         version: link:../common
       '@bpinternal/zui':
-        specifier: 0.13.5
-        version: 0.13.5
+        specifier: 0.22.5
+        version: 0.22.5
       '@size-limit/file':
         specifier: ^11.1.6
         version: 11.1.6(size-limit@11.1.6)
@@ -2240,14 +2240,14 @@ importers:
         specifier: 1.15.1
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.1.22
+        specifier: 0.1.23
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
         version: 1.0.5
       '@bpinternal/zui':
-        specifier: ^0.22.4
-        version: 0.22.4
+        specifier: ^0.22.5
+        version: 0.22.5
       bytes:
         specifier: ^3.1.2
         version: 3.1.2
@@ -2411,14 +2411,14 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.22
+        specifier: 0.1.23
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^0.17.1
-        version: 0.17.1
+        specifier: ^0.22.5
+        version: 0.22.5
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -4564,26 +4564,16 @@ packages:
     peerDependenciesMeta:
       react:
         optional: true
+    dev: false
 
-  /@bpinternal/zui@0.17.1:
-    resolution: {integrity: sha512-mvZbj0kNAOy6qdXmoeZzusOMAE+Rw44joyvdDu2W0zh99/MmSaXqJaVjf0Pyz4+JOyEcS+RU4xituHqBI7pWUg==}
+  /@bpinternal/zui@0.22.5:
+    resolution: {integrity: sha512-BV4W7HV7EtJzE+WFlzV07cyQcINVrGGpp4u/1402RbMtXt0pIitsG5eziQwjAAZoUBEFYloazSIwyeiZMCl0fg==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     peerDependencies:
       react: ^18.2.0
     peerDependenciesMeta:
       react:
         optional: true
-    dev: false
-
-  /@bpinternal/zui@0.22.4:
-    resolution: {integrity: sha512-CSsHZRvjjvpH4tCMmMi39pxOmyCervOr4xJw9O5DaYtEWrZ1itl8J/c5CIhy1xIZa4gKvTqmjU7vMPp+fTz8+Q==}
-    engines: {node: '>=16.0.0', pnpm: 8.6.2}
-    peerDependencies:
-      react: ^18.2.0
-    peerDependenciesMeta:
-      react:
-        optional: true
-    dev: false
 
   /@colors/colors@1.6.0:
     resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}
