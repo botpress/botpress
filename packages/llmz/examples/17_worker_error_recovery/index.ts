@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
-import { executeContext, Exit, Tool } from 'llmz'
+import { execute, Exit, Tool } from 'llmz'
 import { printTrace } from '../utils/debug'
 import { box } from '../utils/box'
 import chalk from 'chalk'
@@ -35,7 +35,7 @@ const exit = new Exit({
   }),
 })
 
-const result = await executeContext({
+const result = await execute({
   instructions: `Return the secret code (getCode)`,
   exits: [exit],
   tools: [errorProneTool],

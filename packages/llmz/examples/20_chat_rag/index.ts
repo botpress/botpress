@@ -1,11 +1,11 @@
 import { Client } from '@botpress/client'
-import { CitationsManager, executeContext, ThinkSignal, Tool } from 'llmz'
+import { execute, ThinkSignal, Tool } from 'llmz'
+import { z } from '@bpinternal/zui'
 
 import chalk from 'chalk'
 
 import { CLIChat } from '../utils/cli-chat'
 import { RAG_TAG, uploadToRAG, waitUntilIndexed } from './rag'
-import { z } from '@bpinternal/zui'
 import { loading } from '../utils/spinner'
 
 const client = new Client({
@@ -19,7 +19,7 @@ console.log(chalk.green('✓') + ' Documents uploaded')
 await waitUntilIndexed(client, 600)
 console.log(chalk.green('✓') + ' Documents indexed for RAG')
 
-const citations = new CitationsManager()
+const chat = new CLIChat()
 
 const rag = new Tool({
   name: 'search',
@@ -44,13 +44,14 @@ const rag = new Tool({
     }
 
     let message: string[] = ['Here are the search results from the knowledge base:']
-    let { tag: example } = citations.registerSource({})
+    let { tag: example } = chat.citations.registerSource({})
 
     for (const p of passages) {
-      const { tag } = citations.registerSource({ file: p.file.key })
-      message.push(`\n<${tag} file="${p.file.key}">\n`)
-      message.push(`**${p.file.tags}**\n  ${p.context}\n  ${p.content}`)
-      message.push(`\n</${tag}>\n`)
+      const { tag } = chat.citations.registerSource({ file: p.file.key })
+      message.push(`<${tag} file="${p.file.key}">`)
+      message.push(`**${p.file.tags.title}**`)
+      message.push(p.content)
+      message.push(`</${tag}>`)
     }
 
     throw new ThinkSignal(
@@ -60,17 +61,12 @@ const rag = new Tool({
   },
 })
 
-const chat = new CLIChat({
-  client,
-  instructions:
-    'You are a helpful assistant that can answer questions based on the provided knowledge base. Use the search tool to find relevant information.',
-  tools: [rag],
-  citations,
-})
-
-while (!chat.done) {
-  await executeContext(chat.context)
+while (await chat.iterate()) {
+  await execute({
+    instructions:
+      'You are a helpful assistant that can answer questions based on the provided knowledge base. Use the search tool to find relevant information.',
+    tools: [rag],
+    client,
+    chat,
+  })
 }
-
-console.log('👋 Goodbye!')
-process.exit(0)

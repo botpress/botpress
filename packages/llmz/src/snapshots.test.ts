@@ -1,13 +1,16 @@
 import { describe, assert, expect, test } from 'vitest'
 
 import { Tool } from './tool.js'
-import { llmz } from './llmz.js'
+import * as llmz from './llmz.js'
 
 import { z } from '@bpinternal/zui'
 
 import { getCachedCognitiveClient } from './__tests__/index.js'
 import { Exit } from './exit.js'
 import { SnapshotSignal } from './errors.js'
+import { Chat } from './chat.js'
+import { DefaultComponents } from './component.default.js'
+import { TranscriptArray } from './transcript.js'
 
 const client = getCachedCognitiveClient()
 
@@ -68,6 +71,31 @@ const tGetPaymentIntent = () =>
     },
   })
 
+class InMemoryChat extends Chat {
+  #transcript: TranscriptArray = []
+
+  constructor() {
+    super({
+      transcript: () => this.#transcript,
+      components: [DefaultComponents.Text],
+      handler: async (input) => {
+        this.#transcript.push({
+          role: 'assistant',
+          content: JSON.stringify(input, null, 2),
+        })
+      },
+    })
+  }
+
+  addUserMessage(message: string) {
+    this.#transcript.push({
+      role: 'user',
+      name: 'John',
+      content: message,
+    })
+  }
+}
+
 describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
   const eDone = new Exit({
     name: 'done',
@@ -85,18 +113,15 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
     }),
   })
 
+  const chat = new InMemoryChat()
+  chat.addUserMessage('hello can I buy a ticket for the um..., it is called zematrix or something?')
+
   const result = await llmz.executeContext({
     client,
     instructions:
-      'You are a blockbuster operator. You need to help customers buy tickets for movies. Once you have the movie, go straight to the payment intent.',
+      'You are a blockbuster operator. You need to help customers buy tickets for movies. Once you have the movie, go straight to the payment intent. Do not confirm with the user the name of the movie.',
     tools: [tListMovies(), tBuyMovieTicket(), tGetPaymentIntent()],
-    transcript: [
-      {
-        role: 'user',
-        name: 'John',
-        content: 'hello can I buy a ticket for the um..., it is called zematrix or something?',
-      },
-    ],
+    chat,
     exits: [eDone, eAbandon],
   })
 
@@ -122,11 +147,10 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
     const final = await llmz.executeContext({
       client,
       instructions: result.context.instructions,
-      transcript: result.context.transcript,
       objects: result.context.objects,
-      components: result.context.components,
       tools: result.context.tools,
       exits: result.context.exits,
+      chat,
       snapshot,
     })
 
@@ -145,10 +169,9 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
 
     const final = await llmz.executeContext({
       client,
+      chat,
       instructions: result.context.instructions,
-      transcript: result.context.transcript,
       objects: result.context.objects,
-      components: result.context.components,
       tools: result.context.tools,
       exits: result.context.exits,
       snapshot,
@@ -168,25 +191,24 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
     const snapshot = result.snapshot.clone()
 
     snapshot.reject({
-      message: 'Payment system is down, try later',
+      message: 'Payment system is down, cancel the purchase',
     })
 
     const final = await llmz.executeContext({
       client,
+      chat,
       instructions: result.context.instructions,
-      transcript: result.context.transcript,
       objects: result.context.objects,
-      components: result.context.components,
       tools: result.context.tools,
       exits: result.context.exits,
       snapshot,
     })
 
-    assert(final.status === 'success')
+    assert(final.status === 'success', 'Expected final status to be success, but got: ' + final.status)
     const lastIteration = final.iterations.at(-1)
 
-    assert(!!lastIteration)
-    assert(lastIteration.hasExitedWith(eAbandon))
+    assert(!!lastIteration, 'Expected last iteration to be defined, but it was not.')
+    assert(lastIteration.hasExitedWith(eAbandon), 'Expected last iteration to exit with eAbandon, but it did not.')
     expect(lastIteration.status.exit_success.return_value.reason).toBeDefined()
   })
 })

@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { Exit, ObjectInstance, executeContext } from 'llmz'
+import { Exit, ObjectInstance, execute } from 'llmz'
 import { z } from '@bpinternal/zui'
 
 import { CLIChat } from '../utils/cli-chat'
@@ -61,24 +61,24 @@ const getObjects = () =>
     }),
   ] satisfies ObjectInstance[]
 
-const chat = new CLIChat({
-  client,
-  instructions: `You need to fill in the user profile with the user's information.
-Fill the individual fields with the information you have at hand before asking the user for more information.`,
-  exits: [completed, abort],
-  objects: getObjects,
-  onTrace: ({ trace }) => {
-    if (trace.type === 'property') {
-      console.log(`🧩 ${trace.object}.${trace.property} = ${trace.value}`)
-      memory[trace.property] = trace.value
-    }
-  },
-})
+const chat = new CLIChat()
 
-while (!chat.done) {
-  await executeContext(chat.context)
+while (await chat.iterate()) {
+  await execute({
+    client,
+    chat,
+    instructions: `You need to fill in the user profile with the user's information.
+  Fill the individual fields with the information you have at hand before asking the user for more information.`,
+    exits: [completed, abort],
+    objects: getObjects,
+    onTrace: ({ trace }) => {
+      if (trace.type === 'property') {
+        console.log(`🧩 ${trace.object}.${trace.property} = ${trace.value}`)
+        memory[trace.property] = trace.value
+      }
+    },
+  })
 }
 
 console.log('🎉 Profile completed:', memory)
-
 console.log('👋 Goodbye!')

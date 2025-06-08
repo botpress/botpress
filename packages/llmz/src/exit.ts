@@ -3,6 +3,11 @@ import { uniq } from 'lodash-es'
 import { ZuiType } from './types.js'
 import { isJsonSchema, isValidIdentifier } from './utils.js'
 
+export type ExitResult<T = unknown> = {
+  exit: Exit<T>
+  result: T
+}
+
 export class Exit<T = unknown> {
   public name: string
   public aliases: string[] = []
@@ -43,8 +48,8 @@ export class Exit<T = unknown> {
     return this.name === exit.name
   }
 
-  public parse(exit: Exit, value: unknown): value is T {
-    return !!value && exit.name === this.name
+  public match(result: ExitResult): result is ExitResult<T> {
+    return result.exit instanceof Exit && this.name === result.exit.name
   }
 
   public constructor(props: {

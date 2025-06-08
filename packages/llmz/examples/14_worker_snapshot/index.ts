@@ -1,7 +1,7 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
 import chalk from 'chalk'
-import { executeContext, Exit, Snapshot, SnapshotSignal, Tool } from 'llmz'
+import { execute, Exit, Snapshot, SnapshotSignal, Tool } from 'llmz'
 import { loading } from '../utils/spinner'
 
 const client = new Client({
@@ -33,7 +33,7 @@ const exit = new Exit({
   }),
 })
 
-const result = await executeContext({
+const result = await execute({
   instructions: `Call the long-running tool with input "Hello, world!" and then exit with the extracted number from the tool's output string.`,
   tools: [LongRunningTool],
   exits: [exit],
@@ -66,7 +66,7 @@ restoredSnapshot.resolve({
 
 loading(false)
 
-const continuation = await executeContext({
+const continuation = await execute({
   // Restore the context from the snapshot
   snapshot: restoredSnapshot,
 
@@ -74,7 +74,6 @@ const continuation = await executeContext({
   instructions: result.context.instructions,
   tools: result.context.tools,
   exits: result.context.exits,
-  transcript: result.context.transcript,
   client,
 })
 

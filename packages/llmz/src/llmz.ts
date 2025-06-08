@@ -1,22 +1,22 @@
 import { Cognitive, type BotpressClientLike } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 
-import { omit, clamp, isEqual, isPlainObject } from 'lodash-es'
+import { clamp, isEqual, isPlainObject, omit } from 'lodash-es'
 import ms from 'ms'
 
 import { ulid } from 'ulid'
-import { Component } from './component.js'
+import { Chat } from './chat.js'
 import { Context, Iteration } from './context.js'
 import {
   AssignmentError,
   CodeExecutionError,
   InvalidCodeError,
   Signals,
-  ThinkSignal,
   SnapshotSignal,
+  ThinkSignal,
   VMSignal,
 } from './errors.js'
-import { Exit } from './exit.js'
+import { Exit, ExitResult } from './exit.js'
 import { ValueOrGetter } from './getter.js'
 
 import { type ObjectInstance } from './objects.js'
@@ -25,7 +25,6 @@ import { Snapshot } from './snapshots.js'
 import { cleanStackTrace } from './stack-traces.js'
 import { type Tool } from './tool.js'
 
-import { TranscriptMessage } from './transcript.js'
 import { truncateWrappedContent } from './truncator.js'
 import { ExecutionResult, Trace } from './types.js'
 import { init, stripInvalidIdentifiers } from './utils.js'
@@ -56,19 +55,18 @@ export type ExecutionHooks = {
    */
   onIterationEnd?: (iteration: Iteration) => Promise<void> | void
   onTrace?: (event: { trace: Trace; iteration: number }) => void
-  onExit?: <T = unknown>(exit: Exit<T>, value: T) => Promise<void> | void
+  onExit?: <T = unknown>(result: ExitResult<T>) => Promise<void> | void
   onBeforeExecution?: (iteration: Iteration) => Promise<void> | void
 }
 
 type Options = Partial<Pick<Context, 'loop' | 'temperature' | 'model' | 'timeout'>>
 
 export type ExecutionProps = {
+  chat?: Chat
   instructions?: ValueOrGetter<string, Context>
-  components?: ValueOrGetter<Component[], Context>
   objects?: ValueOrGetter<ObjectInstance[], Context>
   tools?: ValueOrGetter<Tool[], Context>
   exits?: ValueOrGetter<Exit[], Context>
-  transcript?: ValueOrGetter<TranscriptMessage[], Context>
   options?: Options
   /** An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive) */
   client: Cognitive | BotpressClientLike
@@ -76,14 +74,22 @@ export type ExecutionProps = {
   snapshot?: Snapshot
 } & ExecutionHooks
 
-const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
+export const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   await init()
+  const result = await _executeContext(props)
+  try {
+    result.context.chat?.onExecutionDone?.(result)
+  } catch {}
+  return result
+}
 
+export const _executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   const { signal, onIterationEnd, onTrace, onExit, onBeforeExecution } = props
   const cognitive = props.client instanceof Cognitive ? props.client : new Cognitive({ client: props.client })
   const cleanups: (() => void)[] = []
 
   const ctx = new Context({
+    chat: props.chat,
     instructions: props.instructions,
     objects: props.objects,
     tools: props.tools,
@@ -91,9 +97,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
     temperature: props.options?.temperature,
     model: props.options?.model,
     timeout: props.options?.timeout,
-    transcript: props.transcript,
     exits: props.exits,
-    components: props.components,
     snapshot: props.snapshot,
   })
 
@@ -162,10 +166,15 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
 
       // Successful states
       if (iteration.status.type === 'exit_success') {
+        const exitName = iteration.status.exit_success.exit_name
         return {
           status: 'success',
           context: ctx,
           iterations: ctx.iterations,
+          result: {
+            exit: iteration.exits.find((x) => x.name === exitName)!,
+            result: iteration.status.exit_success.return_value,
+          },
         }
       }
 
@@ -558,7 +567,10 @@ const executeIteration = async ({
   }
 
   try {
-    await onExit?.(returnExit, returnValue?.value)
+    await onExit?.({
+      exit: returnExit,
+      result: returnValue?.value,
+    })
   } catch (err) {
     return iteration.end({
       type: 'exit_error',
@@ -712,8 +724,4 @@ function wrapTool({ tool, traces, object }: Props) {
 
     return output
   }
-}
-
-export const llmz = {
-  executeContext,
 }

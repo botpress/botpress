@@ -1,5 +1,6 @@
 import { Iteration, type Context } from './context.js'
 import { type SnapshotSignal, type VMSignal } from './errors.js'
+import { ExitResult } from './exit.js'
 import { type Snapshot } from './snapshots.js'
 
 export namespace Traces {
@@ -133,6 +134,7 @@ export type SuccessExecutionResult = {
   status: 'success'
   iterations: Iteration[]
   context: Context
+  result: ExitResult
 }
 
 export type PartialExecutionResult = {

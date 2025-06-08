@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
-import { executeContext, Exit, Tool } from 'llmz'
+import { execute, Exit, Tool } from 'llmz'
 import { box } from '../utils/box'
 import chalk from 'chalk'
 
@@ -24,7 +24,7 @@ const exit = new Exit({
   }),
 })
 
-const result = await executeContext({
+const result = await execute({
   options: { loop: 1 },
   instructions: `call the "demo" tool`,
   tools: [demo],

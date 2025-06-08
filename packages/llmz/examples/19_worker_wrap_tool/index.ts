@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
-import { executeContext, Exit, Tool } from 'llmz'
+import { execute, Exit, Tool } from 'llmz'
 import { box } from '../utils/box'
 import chalk from 'chalk'
 
@@ -47,7 +47,7 @@ const wrappedTool = normalTool.clone({
   },
 })
 
-const result = await executeContext({
+const result = await execute({
   instructions: `Greet the user and return the confirmation code`,
   exits: [exit],
   tools: [wrappedTool],

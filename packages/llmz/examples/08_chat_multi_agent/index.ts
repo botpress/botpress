@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { executeContext } from 'llmz'
+import { execute } from 'llmz'
 
 import { CLIChat } from '../utils/cli-chat'
 
@@ -15,13 +15,17 @@ const client = new Client({
   token: process.env.BOTPRESS_TOKEN!,
 })
 
+const chat = new CLIChat()
 const orchestrator = new MultiAgentOrchestrator([MainAgent, HRAgent, ITAgent, SalesAgent], MainAgent.name)
 
-const chat = new CLIChat({
-  client,
-  ...orchestrator.context,
-})
-
 while (true) {
-  await executeContext(chat.context)
+  const result = await execute({
+    ...orchestrator.context,
+    client,
+    chat,
+  })
+
+  if (!orchestrator.hasHandedOff(result)) {
+    await chat.prompt()
+  }
 }
