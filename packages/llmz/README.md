@@ -1,11 +1,32 @@
 ## Intro
 
-## Features
+## Installation
+
+```sh
+# The core library
+npm install llmz
+
+# Dependencies
+npm install @botpress/client
+```
 
 ## Getting Started
 
-```
-npm install llmz
+```js
+import { execute } from 'llmz'
+import { Client } from '@botpress/client'
+
+const client = new Client({
+  botId: process.env.BOTPRESS_BOT_ID,
+  token: process.env.BOTPRESS_TOKEN,
+})
+
+const result = await execute({
+  client,
+  instructions: 'Return the value of 2 + 4.',
+})
+
+console.log(result.output) // Will print "6"
 ```
 
 ## LLMz vs Tool Calling
