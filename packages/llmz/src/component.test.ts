@@ -15,7 +15,7 @@ describe('getComponentReference', () => {
 
       **Props:**
 
-      - \`action: string\` **(required)** — The action to perform when the button is clicked. Can be "say", "url", or "postback" _Default: \`say\`_
+      - \`action: "say" | "url" | "postback"\` (optional) — The action to perform when the button is clicked. Can be "say", "url", or "postback" _Default: \`say\`_
       - \`label: string\` **(required)** — The text displayed on the button
       - \`value: string\` (optional) — The postback value to send when the button is clicked. Required if action is "postback"
       - \`url: string\` (optional) — The URL to open when the button is clicked. Required if action is "url"

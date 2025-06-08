@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cognitive",
-  "version": "0.1.22",
+  "version": "0.1.24",
   "description": "Wrapper around the Botpress Client to call LLMs",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -30,7 +30,7 @@
   "devDependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@bpinternal/zui": "0.13.5",
+    "@bpinternal/zui": "0.22.5",
     "@size-limit/file": "^11.1.6",
     "@types/axios": "^0.14.4",
     "@types/debug": "^4.1.12",

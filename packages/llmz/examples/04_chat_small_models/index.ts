@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
-import { executeContext, Exit, Tool } from 'llmz'
+import { execute, Tool } from 'llmz'
 
 import { CLIChat } from '../utils/cli-chat'
 import { lightToolTrace } from '../utils/debug'
@@ -8,14 +8,6 @@ import { lightToolTrace } from '../utils/debug'
 const client = new Client({
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
-})
-
-const exit = new Exit({
-  name: 'exit',
-  description: 'Exit the program',
-  schema: z.object({
-    message: z.string().describe('Output message'),
-  }),
 })
 
 let TICKETS = [
@@ -89,21 +81,19 @@ const listTickets = new Tool({
   },
 })
 
-const chat = new CLIChat({
-  client,
-  instructions: 'You are a helpful assistant. You can manage support tickets by listing, retrieving, or closing them.',
-  exits: [exit],
-  tools: [getTicket, closeTicket, listTickets],
-  onTrace: ({ trace }) => lightToolTrace(trace),
-  options: {
-    // Use a tiny model for this example
-    model: 'openai:gpt-4.1-mini-2025-04-14',
-  },
-})
+const chat = new CLIChat()
 
-while (!chat.done) {
-  await executeContext(chat.context)
+while (await chat.iterate()) {
+  await execute({
+    instructions:
+      'You are a helpful assistant. You can manage support tickets by listing, retrieving, or closing them.',
+    tools: [getTicket, closeTicket, listTickets],
+    client,
+    chat,
+    onTrace: ({ trace }) => lightToolTrace(trace),
+    options: {
+      // Use a tiny model for this example
+      model: 'openai:gpt-4.1-mini-2025-04-14',
+    },
+  })
 }
-
-console.log('👋 Goodbye!')
-process.exit(0)

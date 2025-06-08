@@ -72,7 +72,7 @@ describe('zai.learn / generic', { timeout: 60_000 }, () => {
     const { value } = await zai
       .with({ client })
       .learn(taskId)
-      .check('This text is very clearly written in English.', 'is an english sentence')
+      .check('This text is very clearly written in English.', 'Text is in English')
 
     const { rows } = await getClient().findTableRows({ table: tableName })
 

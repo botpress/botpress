@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { executeContext, ThinkSignal, Tool } from 'llmz'
+import { execute, ListenExit, ThinkSignal, Tool } from 'llmz'
 import { z } from '@bpinternal/zui'
 
 import { CLIChat } from '../utils/cli-chat'
@@ -34,30 +34,28 @@ const overwriteData = new Tool({
   },
 })
 
-const chat = new CLIChat({
-  client,
-  instructions: `You are an assistant that can overwrite data. 
+const chat = new CLIChat()
+
+while (await chat.iterate()) {
+  await execute({
+    client,
+    chat,
+    instructions: `You are an assistant that can overwrite data. 
   Greet the user and tell them you can overwrite data (show a button "Overwrite Data").
   Use buttons for quick responses when possible.`,
-  tools: [overwriteData],
-  onTrace: ({ trace }) => printTrace(trace, ['tool_call']),
-  onExit: (exit) => {
-    // This guard prevents LLMz from re-calling the tool before the user confirms.
-    // This provides guarantee that the user will see the confirmation prompt and approves it.
-    if (exit.name === 'listen') {
-      if (should_confirm) {
-        confirming = true
-        should_confirm = false
-      } else {
-        confirming = false
+    tools: [overwriteData],
+    onTrace: ({ trace }) => printTrace(trace, ['tool_call']),
+    onExit: (exit) => {
+      // This guard prevents LLMz from re-calling the tool before the user confirms.
+      // This provides guarantee that the user will see the confirmation prompt and approves it.
+      if (ListenExit.match(exit)) {
+        if (should_confirm) {
+          confirming = true
+          should_confirm = false
+        } else {
+          confirming = false
+        }
       }
-    }
-  },
-})
-
-while (!chat.done) {
-  await executeContext(chat.context)
+    },
+  })
 }
-
-console.log('👋 Goodbye!')
-process.exit(0)

@@ -9,9 +9,35 @@ const indentLines = (str: string, length: number) => {
     .join('\n')
 }
 
+export const ellipsis = (str: string, maxLength: number = process.stdout.columns - 10) => {
+  if (str.length <= maxLength) return str
+  return str.slice(0, maxLength - 3) + '...'
+}
+
 export const lightToolTrace = (trace: Trace) => {
   if (trace.type === 'tool_call' && trace.tool_name !== 'Message') {
-    console.log(chalk.bold('🔧 Tool Call: ') + (trace.success ? '✅' : '❌') + ' ' + chalk.underline(trace.tool_name))
+    const input = trace.input ? ellipsis(JSON.stringify(trace.input)) : ''
+    if (trace.success) {
+      const output = trace.output ? ellipsis(JSON.stringify(trace.output)) : ''
+      console.log(
+        chalk.bold.greenBright('🔧 Tool Call: ') +
+          chalk.underline(trace.tool_name) +
+          '\n   ↖ ' +
+          chalk.dim(input) +
+          '\n   ↪ ' +
+          chalk.dim.greenBright(output)
+      )
+    } else {
+      const error = trace.error ? ellipsis(JSON.stringify(trace.error)) : ''
+      console.log(
+        chalk.bold.redBright('🔧 Tool Call: ') +
+          chalk.underline(trace.tool_name) +
+          '\n   ↖ ' +
+          chalk.dim(input) +
+          '\n   ↪ ' +
+          chalk.dim.redBright(error)
+      )
+    }
   }
 }
 

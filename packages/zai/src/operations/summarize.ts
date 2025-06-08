@@ -5,7 +5,24 @@ import { chunk } from 'lodash-es'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
-export type Options = (typeof Options)['_input']
+export type Options = {
+  /** What should the text be summarized to? */
+  prompt?: string
+  /** How to format the example text */
+  format?: string
+  /** The length of the summary in tokens */
+  length?: number
+  /** How many times longer (than final length) are the intermediate summaries generated */
+  intermediateFactor?: number
+  /** The maximum number of iterations to perform */
+  maxIterations?: number
+  /** Sliding window options */
+  sliding?: {
+    window: number
+    overlap: number
+  }
+}
+
 const Options = z.object({
   prompt: z
     .string()
@@ -45,7 +62,7 @@ const START = '■START■'
 const END = '■END■'
 
 Zai.prototype.summarize = async function (this: Zai, original, _options) {
-  const options = Options.parse(_options ?? {})
+  const options = Options.parse(_options ?? {}) as Options
   const tokenizer = await this.getTokenizer()
   await this.fetchModelDetails()
 
