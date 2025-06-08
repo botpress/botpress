@@ -4,6 +4,10 @@
 
 ## Getting Started
 
+```
+npm install llmz
+```
+
 ## LLMz vs Tool Calling
 
 ## LLMz vs MCP

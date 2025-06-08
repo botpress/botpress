@@ -1,8 +1,8 @@
 import { Component, RenderedComponent } from './component.js'
 import { Context } from './context.js'
 import { ValueOrGetter } from './getter.js'
+import { ExecutionResult } from './result.js'
 import { TranscriptArray, TranscriptMessage } from './transcript.js'
-import { ExecutionResult } from './types.js'
 
 export type MessageHandler = (input: RenderedComponent) => Promise<void> | void
 

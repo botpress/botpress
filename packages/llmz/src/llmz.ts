@@ -11,6 +11,7 @@ import {
   AssignmentError,
   CodeExecutionError,
   InvalidCodeError,
+  LoopExceededError,
   Signals,
   SnapshotSignal,
   ThinkSignal,
@@ -26,9 +27,11 @@ import { cleanStackTrace } from './stack-traces.js'
 import { type Tool } from './tool.js'
 
 import { truncateWrappedContent } from './truncator.js'
-import { ExecutionResult, Trace } from './types.js'
+import { Trace } from './types.js'
+
 import { init, stripInvalidIdentifiers } from './utils.js'
 import { runAsyncFunction } from './vm.js'
+import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
 
 const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : JSON.stringify(err))
 
@@ -104,12 +107,8 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
   try {
     while (true) {
       if (ctx.iterations.length >= ctx.loop) {
-        return {
-          status: 'error',
-          context: ctx,
-          error: `Loop limit exceeded. Maximum allowed loops: ${ctx.loop}`,
-          iterations: ctx.iterations,
-        }
+        // TODO:
+        return new ErrorExecutionResult(ctx, new LoopExceededError())
       }
 
       const iteration = await ctx.nextIteration()
@@ -122,12 +121,7 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
           },
         })
 
-        return {
-          status: 'error',
-          error: signal.reason ?? 'The operation was aborted',
-          context: ctx,
-          iterations: ctx.iterations,
-        }
+        return new ErrorExecutionResult(ctx, signal.reason ?? 'The operation was aborted')
       }
 
       cleanups.push(
@@ -167,25 +161,19 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
       // Successful states
       if (iteration.status.type === 'exit_success') {
         const exitName = iteration.status.exit_success.exit_name
-        return {
-          status: 'success',
-          context: ctx,
-          iterations: ctx.iterations,
-          result: {
-            exit: iteration.exits.find((x) => x.name === exitName)!,
-            result: iteration.status.exit_success.return_value,
-          },
-        }
+
+        return new SuccessExecutionResult(ctx, {
+          exit: iteration.exits.find((x) => x.name === exitName)!,
+          result: iteration.status.exit_success.return_value,
+        })
       }
 
       if (iteration.status.type === 'callback_requested') {
-        return {
-          status: 'interrupted',
-          context: ctx,
-          iterations: ctx.iterations,
-          signal: iteration.status.callback_requested.signal,
-          snapshot: Snapshot.fromSignal(iteration.status.callback_requested.signal),
-        }
+        return new PartialExecutionResult(
+          ctx,
+          iteration.status.callback_requested.signal,
+          Snapshot.fromSignal(iteration.status.callback_requested.signal)
+        )
       }
 
       // Retryable errors
@@ -199,20 +187,10 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
       }
 
       // Fatal errors
-      return {
-        context: ctx,
-        error: iteration.error ?? `Unknown error. Status: ${iteration.status.type}`,
-        status: 'error',
-        iterations: ctx.iterations,
-      }
+      return new ErrorExecutionResult(ctx, iteration.error ?? `Unknown error. Status: ${iteration.status.type}`)
     }
   } catch (error) {
-    return {
-      status: 'error',
-      iterations: ctx.iterations,
-      context: ctx,
-      error: error instanceof Error ? error.message : (error?.toString() ?? 'Unknown error'),
-    }
+    return new ErrorExecutionResult(ctx, error ?? 'Unknown error')
   } finally {
     for (const cleanup of cleanups) {
       try {
