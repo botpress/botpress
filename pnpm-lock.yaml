@@ -2240,7 +2240,7 @@ importers:
         specifier: 1.15.1
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.1.23
+        specifier: 0.1.24
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2340,8 +2340,8 @@ importers:
         specifier: 1.15.1
         version: link:../client
       '@bpinternal/zui':
-        specifier: ^0.13.5
-        version: 0.13.5
+        specifier: 0.22.5
+        version: 0.22.5
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2374,8 +2374,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^0.13.4
-        version: 0.13.5
+        specifier: 0.22.5
+        version: 0.22.5
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -2411,7 +2411,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: workspace:*
+        specifier: 0.1.24
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -4557,16 +4557,6 @@ packages:
       lodash: 4.17.21
       yargs: 17.7.2
       yn: 4.0.0
-    dev: false
-
-  /@bpinternal/zui@0.13.5:
-    resolution: {integrity: sha512-9mG+zEMUcXf19re16YAilJDU7CSjnujMrkh9Z4Y8FNtM+kkePUVklt05J3ecrladDAt3D0JRs5awvSbfCjT5xw==}
-    engines: {node: '>=16.0.0', pnpm: 8.6.2}
-    peerDependencies:
-      react: ^18.2.0
-    peerDependenciesMeta:
-      react:
-        optional: true
     dev: false
 
   /@bpinternal/zui@0.22.5:
