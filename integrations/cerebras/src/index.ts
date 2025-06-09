@@ -70,21 +70,20 @@ export default new bp.Integration({
           models: languageModels,
           defaultModel: DEFAULT_MODEL_ID,
           overrideRequest: (request) => {
-            if (input.model?.id == 'qwen-3-32b') {
-              if (input.reasoningEffort === undefined) {
-                // As per the Cerebras documentation, the Qwen-3-32B model uses thinking tokens by default but we can suggest it to not do reasoning by appending `/no_think` to the prompt.
-                for (const message of request.messages) {
-                  if (
-                    message.role === 'user' &&
-                    typeof message.content === 'string' &&
-                    !message.content.endsWith('/no_think')
-                  ) {
-                    message.content += ' /no_think'
-                    break
-                  }
+            if (input.model?.id === 'qwen-3-32b' && input.reasoningEffort === undefined) {
+              // As per the Cerebras documentation, the Qwen-3-32B model uses thinking tokens by default but we can suggest it to not do reasoning by appending `/no_think` to the prompt.
+              for (const message of request.messages) {
+                if (
+                  message.role === 'user' &&
+                  typeof message.content === 'string' &&
+                  !message.content.endsWith('/no_think')
+                ) {
+                  message.content += ' /no_think'
+                  break
                 }
               }
             }
+
             return request
           },
         }
@@ -92,11 +91,7 @@ export default new bp.Integration({
       metadata.setCost(output.botpress.cost)
       return output
     },
-    listLanguageModels: async ({}) => {
-      return {
-        models: Object.entries(languageModels).map(([id, model]) => ({ id: <ModelId>id, ...model })),
-      }
-    },
+    listLanguageModels: async ({}) => {},
   },
   channels: {},
   handler: async () => {},
