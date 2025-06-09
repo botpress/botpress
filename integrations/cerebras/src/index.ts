@@ -24,6 +24,20 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
       maxTokens: 16_000,
     },
   },
+  'llama-4-scout-17b-16e-instruct': {
+    name: 'Llama 4 Scout 17B',
+    description:
+      'Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, uses 16 experts per forward pass, activating 17 billion parameters out of a total of 109B. It supports native multimodal input (text and image) and multilingual output (text and code) across 12 supported languages. Designed for assistant-style interaction and visual reasoning, it is instruction-tuned for use in multilingual chat, captioning, and image understanding tasks.',
+    tags: ['general-purpose'],
+    input: {
+      costPer1MTokens: 0.65,
+      maxTokens: 16_000,
+    },
+    output: {
+      costPer1MTokens: 0.85,
+      maxTokens: 16_000,
+    },
+  },
   'llama3.1-8b': {
     name: 'Llama 3.1 8B',
     description:
