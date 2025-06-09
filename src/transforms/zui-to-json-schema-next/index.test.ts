@@ -71,6 +71,7 @@ describe('zuiToJsonSchemaNext', () => {
       type: 'object',
       properties: { name: { type: 'string' } },
       required: ['name'],
+      additionalProperties: false,
     })
   })
 
@@ -94,6 +95,7 @@ describe('zuiToJsonSchemaNext', () => {
         email: { type: 'string', readOnly: true },
       },
       required: ['name'],
+      additionalProperties: false,
     })
   })
 
@@ -156,6 +158,7 @@ describe('zuiToJsonSchemaNext', () => {
         },
       },
       required: ['tableIdOrName'],
+      additionalProperties: false,
     })
   })
 
@@ -179,11 +182,13 @@ describe('zuiToJsonSchemaNext', () => {
           type: 'object',
           properties: { type: { type: 'string', const: 'A' }, a: { type: 'string' } },
           required: ['type', 'a'],
+          additionalProperties: false,
         },
         {
           type: 'object',
           properties: { type: { type: 'string', const: 'B' }, b: { type: 'number' } },
           required: ['type', 'b'],
+          additionalProperties: false,
         },
       ],
     })
@@ -191,6 +196,30 @@ describe('zuiToJsonSchemaNext', () => {
 
   test('should map ZodIntersection to IntersectionSchema', () => {
     const schema = toJsonSchema(z.intersection(z.object({ a: z.string() }), z.object({ b: z.number() })))
+    expect(schema).toEqual({
+      allOf: [
+        {
+          type: 'object',
+          properties: { a: { type: 'string' } },
+          required: ['a'],
+        },
+        {
+          type: 'object',
+          properties: { b: { type: 'number' } },
+          required: ['b'],
+        },
+      ],
+    })
+  })
+
+  test('should map ZodIntersection of strict schemas to IntersectionSchema removing additional properties', () => {
+    const schema = toJsonSchema(
+      z.intersection(
+        z.object({ a: z.string() }).strict(), //
+        z.object({ b: z.number() }).strict(),
+      ),
+    )
+
     expect(schema).toEqual({
       allOf: [
         {

@@ -368,11 +368,11 @@ describe.concurrent('transformPipeline', () => {
     assert(srcSchema).toTransformBackToItself()
   })
   it('should map ZodObject to itself', async () => {
-    const srcSchema = z.object({ foo: z.string() })
+    const srcSchema = z.object({ foo: z.string() }).strict()
     assert(srcSchema).toTransformBackToItself()
   })
   it('should map empty ZodObject to itself', async () => {
-    const srcSchema = z.object({})
+    const srcSchema = z.object({}).strict()
     assert(srcSchema).toTransformBackToItself()
   })
   it('should map ZodUnion to itself', async () => {
