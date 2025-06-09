@@ -91,7 +91,11 @@ export default new bp.Integration({
       metadata.setCost(output.botpress.cost)
       return output
     },
-    listLanguageModels: async ({}) => {},
+    listLanguageModels: async ({}) => {
+      return {
+        models: Object.entries(languageModels).map(([id, model]) => ({ id: <ModelId>id, ...model })),
+      }
+    },
   },
   channels: {},
   handler: async () => {},
