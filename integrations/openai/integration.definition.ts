@@ -87,6 +87,7 @@ export default new IntegrationDefinition({
 })
   .extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))
   .extend(tti, ({ entities: { imageModelRef, imageGenerationParams } }) => ({
-    entities: { imageModelRef, imageGenerationParams },
+    // TODO: remove the any cast and fix the SDK typings
+    entities: { imageModelRef, imageGenerationParams: imageGenerationParams as any },
   }))
   .extend(stt, ({ entities: { speechToTextModelRef } }) => ({ entities: { speechToTextModelRef } }))
