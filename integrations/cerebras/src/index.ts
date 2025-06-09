@@ -1,6 +1,6 @@
 import { llm } from '@botpress/common'
 import OpenAI from 'openai'
-import { ModelId } from './schemas'
+import { DEFAULT_MODEL_ID, ModelId } from './schemas'
 import * as bp from '.botpress'
 
 const cerebrasClient = new OpenAI({
@@ -10,6 +10,20 @@ const cerebrasClient = new OpenAI({
 
 const languageModels: Record<ModelId, llm.ModelDetails> = {
   // Reference: https://inference-docs.cerebras.ai/introduction
+  'qwen-3-32b': {
+    name: 'Qwen3 32B',
+    description:
+      'Qwen3-32B is a world-class reasoning model with comparable quality to DeepSeek R1 while outperforming GPT-4.1 and Claude Sonnet 3.7. It excels in code-gen, tool-calling, and advanced reasoning, making it an exceptional model for a wide range of production use cases. NOTE: This model always uses thinking tokens (reasoning) by default, but we have configured it to avoid reasoning (not guaranteed) if the `reasoningEffort` parameter is not set. If the `reasoningEffort` parameter is set, the model will use thinking tokens. The model currently only supports "high" reasoning effort so any other value will be ignored.',
+    tags: ['general-purpose', 'reasoning'],
+    input: {
+      costPer1MTokens: 0.4,
+      maxTokens: 16_000,
+    },
+    output: {
+      costPer1MTokens: 0.8,
+      maxTokens: 16_000,
+    },
+  },
   'llama3.1-8b': {
     name: 'Llama 3.1 8B',
     description:
@@ -17,11 +31,11 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
     tags: ['low-cost', 'general-purpose'],
     input: {
       costPer1MTokens: 0.1,
-      maxTokens: 8192,
+      maxTokens: 16_000,
     },
     output: {
       costPer1MTokens: 0.1,
-      maxTokens: 8192,
+      maxTokens: 16_000,
     },
   },
   'llama3.3-70b': {
@@ -31,11 +45,11 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
       'Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8B and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks.',
     input: {
       costPer1MTokens: 0.85,
-      maxTokens: 8192,
+      maxTokens: 16_000,
     },
     output: {
       costPer1MTokens: 1.2,
-      maxTokens: 8192,
+      maxTokens: 16_000,
     },
   },
 }
@@ -54,7 +68,25 @@ export default new bp.Integration({
         {
           provider,
           models: languageModels,
-          defaultModel: 'llama3.3-70b',
+          defaultModel: DEFAULT_MODEL_ID,
+          overrideRequest: (request) => {
+            if (input.model?.id == 'qwen-3-32b') {
+              if (input.reasoningEffort === undefined) {
+                // As per the Cerebras documentation, the Qwen-3-32B model uses thinking tokens by default but we can suggest it to not do reasoning by appending `/no_think` to the prompt.
+                for (const message of request.messages) {
+                  if (
+                    message.role === 'user' &&
+                    typeof message.content === 'string' &&
+                    !message.content.endsWith('/no_think')
+                  ) {
+                    message.content += ' /no_think'
+                    break
+                  }
+                }
+              }
+            }
+            return request
+          },
         }
       )
       metadata.setCost(output.botpress.cost)
