@@ -2159,8 +2159,8 @@ importers:
         specifier: workspace:*
         version: link:../common
       '@bpinternal/zui':
-        specifier: 0.22.5
-        version: 0.22.5
+        specifier: ^0.22.7
+        version: 0.22.7
       '@size-limit/file':
         specifier: ^11.1.6
         version: 11.1.6(size-limit@11.1.6)
@@ -2246,8 +2246,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       '@bpinternal/zui':
-        specifier: ^0.22.5
-        version: 0.22.5
+        specifier: ^0.22.7
+        version: 0.22.7
       bytes:
         specifier: ^3.1.2
         version: 3.1.2
@@ -2340,8 +2340,8 @@ importers:
         specifier: 1.15.1
         version: link:../client
       '@bpinternal/zui':
-        specifier: ^0.13.5
-        version: 0.13.5
+        specifier: ^0.22.7
+        version: 0.22.7
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2374,8 +2374,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: 0.22.5
-        version: 0.22.5
+        specifier: ^0.22.7
+        version: 0.22.7
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -2417,8 +2417,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^0.22.5
-        version: 0.22.5
+        specifier: ^0.22.7
+        version: 0.22.7
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -4559,18 +4559,8 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.13.5:
-    resolution: {integrity: sha512-9mG+zEMUcXf19re16YAilJDU7CSjnujMrkh9Z4Y8FNtM+kkePUVklt05J3ecrladDAt3D0JRs5awvSbfCjT5xw==}
-    engines: {node: '>=16.0.0', pnpm: 8.6.2}
-    peerDependencies:
-      react: ^18.2.0
-    peerDependenciesMeta:
-      react:
-        optional: true
-    dev: false
-
-  /@bpinternal/zui@0.22.5:
-    resolution: {integrity: sha512-BV4W7HV7EtJzE+WFlzV07cyQcINVrGGpp4u/1402RbMtXt0pIitsG5eziQwjAAZoUBEFYloazSIwyeiZMCl0fg==}
+  /@bpinternal/zui@0.22.7:
+    resolution: {integrity: sha512-LquIWWUYoTJ/tS5eV35Hvfek1vs2Fe6UqKZk1yLcpwhhKyZ/BOjjgB6rJdWA39F4SaH+rsGjl9zpMG5wNndsbg==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     peerDependencies:
       react: ^18.2.0
