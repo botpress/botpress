@@ -170,7 +170,7 @@ describe('WhatsApp Markdown Converter', () => {
       const input =
         '- Item 1\n  - Nested item\n- Item 2\n  - Next nested item\n    - Double nested item\n      - Triple nested item\n        - Quadruple nested item'
       const expected =
-        '- Item 1\n\u2002\u2002◦ Nested item\n- Item 2\n\u2002\u2002◦ Next nested item\n\u2002\u2002\u2002\u2002➤ Double nested item\n\u2002\u2002\u2002\u2002\u2002\u2002✦ Triple nested item\n\u2002\u2002\u2002\u2002\u2002\u2002\u2002\u2002- Quadruple nested item'
+        '- Item 1\n\u2002\u2002◦ Nested item\n- Item 2\n\u2002\u2002◦ Next nested item\n\u2002\u2002\u2002\u2002➤ Double nested item\n\u2002\u2002\u2002\u2002\u2002\u2002✦ Triple nested item\n\u2002\u2002\u2002\u2002\u2002\u2002\u2002\u2002• Quadruple nested item'
       expect(convertMarkdownToWhatsApp(input)).toBe(expected)
     })
 
