@@ -4,7 +4,6 @@ import type {
   ZodKindToBaseType,
   JSONSchema,
   ParseSchema,
-  EmptyComponentDefinitions,
   ZuiExtensionObject,
   ZuiMetadata,
 } from '../../../ui/types'
@@ -569,7 +568,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * The type of component to use to display the field and its options
    */
   displayAs<
-    UI extends UIComponentDefinitions = EmptyComponentDefinitions,
+    UI extends UIComponentDefinitions = UIComponentDefinitions,
     Type extends BaseType = ZodKindToBaseType<this['_def']>,
   >(options: ParseSchema<UI[Type][keyof UI[Type]]>): this {
     return this.metadata({ displayAs: [options.id, options.params] })

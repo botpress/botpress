@@ -1,4 +1,4 @@
-import { unique, ValueOf } from '../../utils'
+import { unique } from '../../utils'
 import {
   ZodArray,
   ZodEnum,
@@ -49,8 +49,7 @@ export type mergeTypes<A, B> = {
 export type objectOutputType<
   Shape extends ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = UnknownKeysOutputType<UnknownKeys, Shape> &
-  objectUtil.flatten<objectUtil.addQuestionMarks<baseObjectOutputType<Shape>>>
+> = UnknownKeysOutputType<UnknownKeys> & objectUtil.flatten<objectUtil.addQuestionMarks<baseObjectOutputType<Shape>>>
 
 export type baseObjectOutputType<Shape extends ZodRawShape> = {
   [k in keyof Shape]: Shape[k]['_output']
@@ -59,20 +58,20 @@ export type baseObjectOutputType<Shape extends ZodRawShape> = {
 export type objectInputType<
   Shape extends ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = objectUtil.flatten<baseObjectInputType<Shape>> & UnknownKeysInputType<UnknownKeys, Shape>
+> = objectUtil.flatten<baseObjectInputType<Shape>> & UnknownKeysInputType<UnknownKeys>
 
 export type baseObjectInputType<Shape extends ZodRawShape> = objectUtil.addQuestionMarks<{
   [k in keyof Shape]: Shape[k]['_input']
 }>
 
-export type UnknownKeysInputType<T extends UnknownKeysParam, S extends ZodRawShape> = T extends ZodTypeAny
-  ? { [k: string]: T['_input'] | ValueOf<baseObjectInputType<S>> } // extra properties cannot contradict the main properties
+export type UnknownKeysInputType<T extends UnknownKeysParam> = T extends ZodTypeAny
+  ? { [k: string]: T['_input'] | unknown } // extra properties cannot contradict the main properties
   : T extends 'passthrough'
     ? { [k: string]: unknown }
     : {}
 
-export type UnknownKeysOutputType<T extends UnknownKeysParam, S extends ZodRawShape> = T extends ZodTypeAny
-  ? { [k: string]: T['_output'] | ValueOf<baseObjectOutputType<S>> } // extra properties cannot contradict the main properties
+export type UnknownKeysOutputType<T extends UnknownKeysParam> = T extends ZodTypeAny
+  ? { [k: string]: T['_output'] | unknown } // extra properties cannot contradict the main properties
   : T extends 'passthrough'
     ? { [k: string]: unknown }
     : {}

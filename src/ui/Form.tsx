@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { BoundaryFallbackComponent, ErrorBoundary } from './ErrorBoundary'
 import { FormDataProvider, deepMerge, getDefaultValues } from './hooks/useFormData'
-import { FormValidation, EmptyComponentDefinitions, JSONSchema, UIComponentDefinitions, ZuiComponentMap } from './types'
+import { FormValidation, JSONSchema, UIComponentDefinitions, ZuiComponentMap } from './types'
 import { FormElementRenderer } from './ElementRenderer'
 
-export type ZuiFormProps<UI extends UIComponentDefinitions = EmptyComponentDefinitions> = {
+export type ZuiFormProps<UI extends UIComponentDefinitions = UIComponentDefinitions> = {
   schema: JSONSchema
   components: ZuiComponentMap<UI>
   value: any
@@ -15,7 +15,7 @@ export type ZuiFormProps<UI extends UIComponentDefinitions = EmptyComponentDefin
   onValidation?: (validation: FormValidation) => void
 }
 
-export const ZuiForm = <UI extends UIComponentDefinitions = EmptyComponentDefinitions>({
+export const ZuiForm = <UI extends UIComponentDefinitions = UIComponentDefinitions>({
   schema,
   components,
   onChange,
