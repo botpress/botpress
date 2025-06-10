@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { WHATSAPP } from 'src/misc/constants'
+import { convertMarkdownToWhatsApp } from 'src/misc/markdown-to-whatsapp-rtf'
 import {
   Text,
   Audio,
@@ -25,7 +26,8 @@ import * as bp from '.botpress'
 export const channel: bp.IntegrationProps['channels']['channel'] = {
   messages: {
     text: async ({ payload, ...props }) => {
-      await _send({ ...props, message: new Text(payload.text) })
+      const text = convertMarkdownToWhatsApp(payload.text)
+      await _send({ ...props, message: new Text(text) })
     },
     image: async ({ payload, logger, ...props }) => {
       await _send({
