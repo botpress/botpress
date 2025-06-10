@@ -9,7 +9,7 @@ const INTERACTIVE_MAX_ACTIONS_COUNT = 10
 const ACTION_LABEL_MAX_LENGTH = 24
 
 export function* generateOutgoingMessages({
-  payload: { text, options },
+  payload: { text, options, buttonLabel },
   logger,
 }: {
   payload: Dropdown
@@ -41,7 +41,7 @@ export function* generateOutgoingMessages({
         truncate(text, ACTION_LABEL_MAX_LENGTH),
         ...rows // NOTE: The description parameter is optional as per WhatsApp's documentation, but they have a bug that actually enforces the description to be a non-empty string.
       )
-      const actionList = new ActionList('Choose...', section)
+      const actionList = new ActionList(buttonLabel ?? 'Choose...', section)
 
       yield new Interactive(actionList, body.create(text))
     }
