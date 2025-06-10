@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { Readable, Stream } from 'stream'
 import { v4 as uuidv4 } from 'uuid'
 import { getAuthenticatedGoogleClient } from './auth'
-import { handleNotFoundError, handleRateLimitError } from './error-handling'
+import { handleNotFoundError, handleRateLimitError, isGaxiosError } from './error-handling'
 import { serializeToken } from './file-notification-token'
 import { FilesCache } from './files-cache'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE, INDEXABLE_MIMETYPES } from './mime-types'
@@ -57,7 +57,7 @@ const MYDRIVE_ID_ALIAS = 'root'
 const PAGE_SIZE = 100
 const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
 const GOOGLE_API_FILE_FIELDS =
-  'id, name, mimeType, parents, size, sha256Checksum, md5Checksum, version, trashed, modifiedTime'
+  'id, name, mimeType, parents, size, sha256Checksum, md5Checksum, version, trashed, modifiedTime, driveId, sharedWithMeTime'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
 
 const INCLUDE_FILES_FROM_ALL_DRIVES = {
@@ -92,6 +92,18 @@ export class Client {
 
   public setCache(filesCache: FilesCache) {
     this._filesCache = filesCache
+  }
+
+  public async getRootFolderId(): Promise<string> {
+    try {
+      const response = await this._googleClient.files.get({ fileId: MYDRIVE_ID_ALIAS })
+      return response.data.id!
+    } catch (thrown: unknown) {
+      if (isGaxiosError(thrown) && thrown.toString().includes('File not found: ')) {
+        return thrown.toString().split('File not found: ')[1]!.slice(0, -1)
+      }
+      throw thrown
+    }
   }
 
   public async listFiles({ nextToken }: ListItemsInput): Promise<ListFilesOutput> {
@@ -174,23 +186,22 @@ export class Client {
     folderId: string
     extraQuery?: string
     nextToken?: string
-  }): Promise<{ files: BaseDiscriminatedFile[]; nextToken?: string }> {
-    try {
-      const { items: files, meta } = await this._listBaseGenericFiles({
-        nextToken,
-        args: {
-          searchQuery: this._getParentsFilter(folderId) + (extraQuery ? ` and ${extraQuery}` : ''),
-        },
-      })
-      return { files, nextToken: meta.nextToken }
-    } catch (thrown: unknown) {
-      console.error('Error whilst enumerating children', thrown)
-      return { files: [], nextToken: undefined }
-    }
+  }) {
+    const searchQuery = this._getParentsFilter(folderId) + (extraQuery ? ` and ${extraQuery}` : '')
+    const listResponse = await this._googleClient.files.list({
+      corpora: 'user',
+      fields: GOOGLE_API_FILELIST_FIELDS,
+      q: `${searchQuery} and trashed != true`,
+      pageToken: nextToken,
+      pageSize: PAGE_SIZE,
+      spaces: 'drive',
+      ...INCLUDE_FILES_FROM_ALL_DRIVES,
+    })
+    return { files: listResponse.data.files, nextToken: listResponse.data.nextPageToken ?? undefined }
   }
 
   private _getParentsFilter(parentId: string): string {
-    return parentId === 'root' ? "('root' in parents or sharedWithMe = true)" : `'${parentId}' in parents`
+    return parentId === MYDRIVE_ID_ALIAS ? 'not trashed' : `'${parentId}' in parents`
   }
 
   public async createFile({ name, parentId, mimeType }: CreateFileArgs): Promise<File> {
