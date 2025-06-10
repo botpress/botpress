@@ -1,5 +1,5 @@
-import { Component, RenderedComponent } from './component.js'
-import { Tool } from './tool.js'
+import { z } from '@bpinternal/zui'
+import { Component } from './component.js'
 
 const Button = new Component({
   type: 'leaf',
@@ -23,33 +23,18 @@ const Button = new Component({
     },
   ],
   leaf: {
-    props: [
-      {
-        name: 'action',
-        type: 'string',
-        default: 'say',
-        description: 'The action to perform when the button is clicked. Can be "say", "url", or "postback"',
-        required: true,
-      },
-      {
-        name: 'label',
-        type: 'string',
-        description: 'The text displayed on the button',
-        required: true,
-      },
-      {
-        name: 'value',
-        type: 'string',
-        description: 'The postback value to send when the button is clicked. Required if action is "postback"',
-        required: false,
-      },
-      {
-        name: 'url',
-        type: 'string',
-        description: 'The URL to open when the button is clicked. Required if action is "url"',
-        required: false,
-      },
-    ],
+    props: z.object({
+      action: z
+        .enum(['say', 'url', 'postback'])
+        .default('say')
+        .describe('The action to perform when the button is clicked. Can be "say", "url", or "postback"'),
+      label: z.string().describe('The text displayed on the button'),
+      value: z
+        .string()
+        .optional()
+        .describe('The postback value to send when the button is clicked. Required if action is "postback"'),
+      url: z.string().optional().describe('The URL to open when the button is clicked. Required if action is "url"'),
+    }),
   },
 })
 
@@ -68,20 +53,10 @@ const Image = new Component({
     },
   ],
   leaf: {
-    props: [
-      {
-        name: 'url',
-        type: 'string',
-        description: 'The URL of the image (must be valid)',
-        required: true,
-      },
-      {
-        name: 'alt',
-        type: 'string',
-        description: 'Alternative text describing the image',
-        required: false,
-      },
-    ],
+    props: z.object({
+      url: z.string().describe('The URL of the image (must be valid)'),
+      alt: z.string().optional().describe('Alternative text describing the image'),
+    }),
   },
 })
 
@@ -100,20 +75,10 @@ const File = new Component({
     },
   ],
   leaf: {
-    props: [
-      {
-        name: 'url',
-        type: 'string',
-        description: 'The URL of the file (must be valid)',
-        required: true,
-      },
-      {
-        name: 'name',
-        type: 'string',
-        description: 'The display name of the file',
-        required: false,
-      },
-    ],
+    props: z.object({
+      url: z.string().describe('The URL of the file (must be valid)'),
+      name: z.string().optional().describe('The display name of the file'),
+    }),
   },
 })
 
@@ -132,20 +97,10 @@ const Video = new Component({
     },
   ],
   leaf: {
-    props: [
-      {
-        name: 'url',
-        type: 'string',
-        description: 'The URL of the video (must be valid)',
-        required: true,
-      },
-      {
-        name: 'title',
-        type: 'string',
-        description: 'Title for the video',
-        required: false,
-      },
-    ],
+    props: z.object({
+      url: z.string().describe('The URL of the video (must be valid)'),
+      title: z.string().optional().describe('Title for the video'),
+    }),
   },
 })
 
@@ -164,20 +119,10 @@ const Audio = new Component({
     },
   ],
   leaf: {
-    props: [
-      {
-        name: 'url',
-        type: 'string',
-        description: 'The URL of the audio clip (must be valid)',
-        required: true,
-      },
-      {
-        name: 'title',
-        type: 'string',
-        description: 'Title for the audio clip',
-        required: false,
-      },
-    ],
+    props: z.object({
+      url: z.string().describe('The URL of the audio clip (must be valid)'),
+      title: z.string().optional().describe('Title for the audio clip'),
+    }),
   },
 })
 
@@ -200,20 +145,10 @@ const Card = new Component({
     },
   ],
   container: {
-    props: [
-      {
-        name: 'title',
-        type: 'string',
-        description: 'Title text (1–250 characters)',
-        required: true,
-      },
-      {
-        name: 'subtitle',
-        type: 'string',
-        description: 'Optional subtitle for the card',
-        required: false,
-      },
-    ],
+    props: z.object({
+      title: z.string().min(1).max(250).describe('Title text (1–250 characters)'),
+      subtitle: z.string().optional().describe('Optional subtitle for the card'),
+    }),
     children: [
       {
         description: 'Image (optional, max 1)',
@@ -251,7 +186,7 @@ const Carousel = new Component({
     },
   ],
   container: {
-    props: [],
+    props: z.object({}),
     children: [
       {
         description: 'Card component (required, 1–10 allowed)',
@@ -276,22 +211,10 @@ const Text = new Component({
     },
   ],
   default: {
-    props: [],
+    props: z.object({}),
     children: [],
   },
 })
-
-export type SendMessageHandler = (input: RenderedComponent) => Promise<void> | void
-
-export const messageTool = (handler: SendMessageHandler) =>
-  new Tool({
-    name: 'Message',
-    metadata: {
-      system: true,
-      description: 'Sends a message with components like Button, Image, File, Video, Audio, Card, Carousel, and Text.',
-    },
-    handler: async (args: RenderedComponent) => await handler(args),
-  })
 
 export const DefaultComponents = {
   Button,

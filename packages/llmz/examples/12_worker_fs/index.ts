@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
-import { executeContext, Exit } from 'llmz'
+import { execute, Exit } from 'llmz'
 import { makeFileSystem } from '../utils/tools/file-system'
 import { printTrace } from '../utils/debug'
 
@@ -17,7 +17,7 @@ const exit = new Exit({
   }),
 })
 
-const result = await executeContext({
+const result = await execute({
   instructions: `Today's date is ${new Date().toLocaleDateString()}
 You need to make sure there's a file for today in the "/notes" folder.
 If the file exists, return its content.

@@ -1,5 +1,6 @@
 import { Iteration, type Context } from './context.js'
 import { type SnapshotSignal, type VMSignal } from './errors.js'
+import { ExitResult } from './exit.js'
 import { type Snapshot } from './snapshots.js'
 
 export namespace Traces {
@@ -24,6 +25,7 @@ export namespace Traces {
     | {
         success: true
         tool_name: string
+        tool_call_id: string
         object?: string
         input: any
         output: any
@@ -32,6 +34,7 @@ export namespace Traces {
     | {
         success: false
         tool_name: string
+        tool_call_id: string
         object?: string
         input: any
         error: any
@@ -41,7 +44,7 @@ export namespace Traces {
 
   export type ToolSlow = TraceTemplate<
     'tool_slow',
-    { tool_name: string; object?: string; input: any; duration: number }
+    { tool_name: string; object?: string; tool_call_id: string; input: any; duration: number }
   >
 
   export type ThinkSignal = TraceTemplate<
@@ -131,6 +134,7 @@ export type SuccessExecutionResult = {
   status: 'success'
   iterations: Iteration[]
   context: Context
+  result: ExitResult
 }
 
 export type PartialExecutionResult = {

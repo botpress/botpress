@@ -1,5 +1,3 @@
-import { z } from '@bpinternal/zui'
-
 export const stringify = (input: unknown, beautify = true) => {
   return typeof input === 'string' && !!input.length
     ? input
@@ -33,20 +31,15 @@ export const takeUntilTokens = <T>(arr: T[], tokens: number, count: (el: T) => n
   return result
 }
 
-export type GenerationMetadata = (typeof GenerationMetadata)['_input']
-export const GenerationMetadata = z.object({
-  model: z.string(),
-  cost: z
-    .object({
-      input: z.number(),
-      output: z.number(),
-    })
-    .describe('Cost in $USD'),
-  latency: z.number().describe('Latency in milliseconds'),
-  tokens: z
-    .object({
-      input: z.number(),
-      output: z.number(),
-    })
-    .describe('Number of tokens used'),
-})
+export type GenerationMetadata = {
+  model: string
+  cost: {
+    input: number
+    output: number
+  }
+  latency: number
+  tokens: {
+    input: number
+    output: number
+  }
+}

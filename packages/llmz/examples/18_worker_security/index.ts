@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 
-import { executeContext, Exit } from 'llmz'
+import { execute, Exit } from 'llmz'
 import { printTrace } from '../utils/debug'
 import { box } from '../utils/box'
 import chalk from 'chalk'
@@ -184,7 +184,7 @@ for (const script of maliciousScripts) {
     ])
   )
 
-  const result = await executeContext({
+  const result = await execute({
     options: { loop: 1, timeout: 2000 },
     exits: [exit],
     client,

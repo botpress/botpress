@@ -6,15 +6,26 @@ import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
-type Example = (typeof Example)['_input']
-const Example = z.object({
+type Example = {
+  input: unknown
+  filter: boolean
+  reason?: string
+}
+
+const _Example = z.object({
   input: z.any(),
   filter: z.boolean(),
   reason: z.string().optional(),
 })
 
-export type Options = (typeof Options)['_input']
-const Options = z.object({
+export type Options = {
+  /** The maximum number of tokens per item */
+  tokensPerItem?: number
+  /** Examples to filter the condition against */
+  examples?: Array<Example>
+}
+
+const _Options = z.object({
   tokensPerItem: z
     .number()
     .min(1)
@@ -22,7 +33,7 @@ const Options = z.object({
     .optional()
     .describe('The maximum number of tokens per item')
     .default(250),
-  examples: z.array(Example).describe('Examples to filter the condition against').default([]),
+  examples: z.array(_Example).describe('Examples to filter the condition against').default([]),
 })
 
 declare module '@botpress/zai' {
@@ -35,7 +46,7 @@ declare module '@botpress/zai' {
 const END = '■END■'
 
 Zai.prototype.filter = async function (this: Zai, input, condition, _options) {
-  const options = Options.parse(_options ?? {})
+  const options = _Options.parse(_options ?? {}) as Options
   const tokenizer = await this.getTokenizer()
   await this.fetchModelDetails()
 
