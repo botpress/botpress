@@ -47,7 +47,7 @@ type Context = {
 }
 
 const FIXED_SIZE_SPACE_CHAR = '\u2002' // 'En space' yields better results for identation in WhatsApp messages
-const ALT_BULLET_SYMBOLS = ['-', '◦', '➤', '✦'] // WhatsApp doesn't support nested lists
+const ALT_BULLET_SYMBOLS = ['•', '◦', '➤', '✦'] // WhatsApp doesn't support nested lists
 
 /**
  * Converts standard markdown to WhatsApp-compatible formatting using AST parsing (See [reference](https://faq.whatsapp.com/539178204879377/?cms_platform=web&locale=en_US))
