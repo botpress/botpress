@@ -253,6 +253,18 @@ describe('WhatsApp Markdown Converter', () => {
   })
 
   describe('HTML Handling', () => {
+    it('should strip inline HTML tags', () => {
+      const input = 'Text with <strong>HTML</strong> tags'
+      const expected = 'Text with HTML tags'
+      expect(convertMarkdownToWhatsApp(input)).toBe(expected)
+    })
+
+    it('should strip block HTML tags', () => {
+      const input = '<div>\nText in a div\n</div>'
+      const expected = 'Text in a div'
+      expect(convertMarkdownToWhatsApp(input)).toBe(expected)
+    })
+
     it('should handle HTML entities', () => {
       const input = 'Text with &amp; entities'
       const expected = 'Text with &amp; entities'

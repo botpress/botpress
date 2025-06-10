@@ -168,6 +168,10 @@ function _processInlineToken(token: Token, ctx: Context): string {
     case 'text':
       return _processTextToken(token, ctx)
 
+    case 'html':
+      // Strip HTML tags
+      return token.text.replace(/<[^>]*>/g, '')
+
     case 'escape':
       return token.text
 
