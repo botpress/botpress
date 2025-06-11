@@ -5,6 +5,8 @@ import typingIndicator from 'bp_modules/typing-indicator'
 
 export const INTEGRATION_NAME = 'whatsapp'
 
+const MAX_BUTTON_LABEL_LENGTH = 20
+
 const commonConfigSchema = z.object({
   typingIndicatorEmoji: z
     .boolean()
@@ -76,7 +78,7 @@ const defaultBotPhoneNumberId = {
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.1.0',
+  version: '4.2.0',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -145,6 +147,16 @@ export default new IntegrationDefinition({
               .optional()
               .title('value')
               .describe('Underlying value of the message, if any (e.g. button payload, list reply payload, etc.)'),
+          }),
+        },
+        dropdown: {
+          schema: messages.defaults.dropdown.schema.extend({
+            buttonLabel: z
+              .string()
+              .max(MAX_BUTTON_LABEL_LENGTH)
+              .optional()
+              .title('Button Label')
+              .describe('Label for the dropdown button'),
           }),
         },
         file: {
