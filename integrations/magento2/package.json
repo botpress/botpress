@@ -1,0 +1,17 @@
+{
+  "name": "@bp-templates/hello-world",
+  "integrationName": "plus/magento2",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "1.15.0",
+    "@botpress/sdk": "4.8.1",
+    "oauth-1.0a": "^2.2.6"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.67",
+    "typescript": "^5.6.3"
+  }
+}
