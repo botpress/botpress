@@ -246,6 +246,10 @@ export const isValidSchema = (schema: JSONSchema7): boolean => {
   }
 }
 
+export function isZuiSchema(schema: unknown): schema is z.ZodSchema {
+  return !!schema && typeof schema === 'object' && (schema as z.ZodSchema).__type__ === 'ZuiType'
+}
+
 export function isJsonSchema(schema: unknown): schema is JSONSchema7 {
   return !!schema && typeof schema === 'object' && ('$schema' in schema || 'type' in schema || 'properties' in schema)
 }

@@ -3,7 +3,7 @@ import { JSONSchema7 } from 'json-schema'
 import { isEmpty, uniq } from 'lodash-es'
 import { ZuiType } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
-import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier } from './utils.js'
+import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
 
 type ToolRetryInput<I> = {
   input: I
@@ -184,8 +184,8 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
     }
 
     if (typeof props.input !== 'undefined') {
-      if (props.input && 'toJsonSchema' in props.input && typeof props.input.toJsonSchema === 'function') {
-        this.input = props.input.toJsonSchema()
+      if (isZuiSchema(props.input)) {
+        this.input = transforms.toJSONSchemaLegacy(props.input)
       } else if (isJsonSchema(props.input)) {
         this.input = props.input
       } else {
@@ -196,8 +196,8 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
     }
 
     if (typeof props.output !== 'undefined') {
-      if (props.output && 'toJsonSchema' in props.output && typeof props.output.toJsonSchema === 'function') {
-        this.output = props.output.toJsonSchema()
+      if (isZuiSchema(props.output)) {
+        this.output = transforms.toJSONSchemaLegacy(props.output)
       } else if (isJsonSchema(props.output)) {
         this.output = props.output
       } else {
