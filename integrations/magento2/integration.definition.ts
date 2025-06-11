@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      magento_domain: z.string().describe('The domain of the Magento instance'),
+      magento_domain: z.string().describe('The domain of the Magento instance (example www.test-domain.com)'),
       consumer_key: z.string().describe('The OAuth Consumer Key'),
       consumer_secret: z.string().describe('The OAuth Consumer Secret'),
       access_token: z.string().describe('The OAuth Access Token'),
@@ -27,12 +27,11 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          products: z.array(
-            z.object({
-              id: z.number(),
-              name: z.string(),
-            })
-          ),
+          result: z.object({
+            items: z.array(z.any()),
+            search_criteria: z.object({}),
+            total_count: z.number(),
+          }),
         }),
       },
     },

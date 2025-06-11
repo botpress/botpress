@@ -47,11 +47,13 @@ For more details on how `searchCriteria` works, refer to the **Adobe Commerce AP
 ## 🔧 Example `searchCriteria` Usage
 
 - **Pagination**:
+
   ```
   searchCriteria[pageSize]=10&searchCriteria[currentPage]=1
   ```
 
 - **Search by SKU**:
+
   ```
   searchCriteria[filterGroups][0][filters][0][field]=sku&
   searchCriteria[filterGroups][0][filters][0][value]=24-MB01&
@@ -59,6 +61,7 @@ For more details on how `searchCriteria` works, refer to the **Adobe Commerce AP
   ```
 
 - **Filter products greater than a value** (e.g., price > 100):
+
   ```
   searchCriteria[filterGroups][0][filters][0][field]=price&
   searchCriteria[filterGroups][0][filters][0][value]=100&
