@@ -2159,8 +2159,8 @@ importers:
         specifier: workspace:*
         version: link:../common
       '@bpinternal/zui':
-        specifier: ^0.22.7
-        version: 0.22.7
+        specifier: ^1.0.0
+        version: 1.0.0
       '@size-limit/file':
         specifier: ^11.1.6
         version: 11.1.6(size-limit@11.1.6)
@@ -2246,8 +2246,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       '@bpinternal/zui':
-        specifier: ^0.22.7
-        version: 0.22.7
+        specifier: ^1.0.0
+        version: 1.0.0
       bytes:
         specifier: ^3.1.2
         version: 3.1.2
@@ -2294,6 +2294,9 @@ importers:
       '@types/bytes':
         specifier: ^3.1.5
         version: 3.1.5
+      '@types/json-schema':
+        specifier: ^7.0.12
+        version: 7.0.12
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
@@ -2340,8 +2343,8 @@ importers:
         specifier: 1.15.1
         version: link:../client
       '@bpinternal/zui':
-        specifier: ^0.22.7
-        version: 0.22.7
+        specifier: ^1.0.0
+        version: 1.0.0
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2374,8 +2377,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^0.22.7
-        version: 0.22.7
+        specifier: ^1.0.0
+        version: 1.0.0
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -2417,8 +2420,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^0.22.7
-        version: 0.22.7
+        specifier: ^1.0.0
+        version: 1.0.0
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -4559,14 +4562,9 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.22.7:
-    resolution: {integrity: sha512-LquIWWUYoTJ/tS5eV35Hvfek1vs2Fe6UqKZk1yLcpwhhKyZ/BOjjgB6rJdWA39F4SaH+rsGjl9zpMG5wNndsbg==}
+  /@bpinternal/zui@1.0.0:
+    resolution: {integrity: sha512-X58KuXe66+oVY9ckODqBGRuQLbQdG0sMjZh+Vk2UdAsG91nZS2g3AND/0sDuqTvnfx343FuwJnvspiXv0Zkiug==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
-    peerDependencies:
-      react: ^18.2.0
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   /@colors/colors@1.6.0:
     resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}

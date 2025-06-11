@@ -1,7 +1,8 @@
 // @ts-ignore
 import { TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
 
-import { JSONSchema, z } from '@bpinternal/zui'
+import { z, transforms } from '@bpinternal/zui'
+import { JSONSchema7 } from 'json-schema'
 import { pickBy, startCase, camelCase, isPlainObject, deburr } from 'lodash-es'
 
 let tokenizer: TextTokenizer = null!
@@ -236,16 +237,16 @@ export const convertObjectToZuiLiterals = (obj: unknown, nested = false): any =>
   throw new Error(`Unsupported object type ${typeof obj}, ${obj})`)
 }
 
-export const isValidSchema = (schema: JSONSchema): boolean => {
+export const isValidSchema = (schema: JSONSchema7): boolean => {
   try {
-    z.fromJsonSchema(schema)
+    transforms.fromJSONSchemaLegacy(schema)
     return typeof schema.type === 'string'
   } catch {
     return false
   }
 }
 
-export function isJsonSchema(schema: unknown): schema is JSONSchema {
+export function isJsonSchema(schema: unknown): schema is JSONSchema7 {
   return !!schema && typeof schema === 'object' && ('$schema' in schema || 'type' in schema || 'properties' in schema)
 }
 

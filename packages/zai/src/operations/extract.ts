@@ -82,7 +82,7 @@ Zai.prototype.extract = async function <S extends OfType<AnyObjectOrArray>>(
     throw new Error('Schema must be either a ZuiObject or a ZuiArray<ZuiObject>')
   }
 
-  const schemaTypescript = schema.toTypescript({ declaration: false })
+  const schemaTypescript = schema.toTypescriptType({ declaration: false })
   const schemaLength = tokenizer.count(schemaTypescript)
 
   options.chunkLength = Math.min(

@@ -1,4 +1,5 @@
-import { type JSONSchema, z } from '@bpinternal/zui'
+import { transforms } from '@bpinternal/zui'
+import { JSONSchema7 } from 'json-schema'
 import { uniq } from 'lodash-es'
 import { ZuiType } from './types.js'
 import { isJsonSchema, isValidIdentifier } from './utils.js'
@@ -13,10 +14,10 @@ export class Exit<T = unknown> {
   public aliases: string[] = []
   public description: string
   public metadata: Record<string, unknown>
-  public schema?: JSONSchema
+  public schema?: JSONSchema7
 
   public get zSchema() {
-    return this.schema ? z.fromJsonSchema(this.schema) : undefined
+    return this.schema ? transforms.fromJSONSchemaLegacy(this.schema) : undefined
   }
 
   public rename(name: string) {

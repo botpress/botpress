@@ -1,5 +1,4 @@
-import { JSONSchema } from '@bpinternal/zui'
-
+import { JSONSchema7 } from 'json-schema'
 import { type Assignment } from './compiler/plugins/track-tool-calls.js'
 import { cleanStackTrace } from './stack-traces.js'
 
@@ -7,8 +6,8 @@ type ErrorConstructor = new (...args: any[]) => Error
 
 export type ToolCall = {
   name: string
-  inputSchema?: JSONSchema
-  outputSchema?: JSONSchema
+  inputSchema?: JSONSchema7
+  outputSchema?: JSONSchema7
   input?: unknown
   assignment?: Assignment
 }
