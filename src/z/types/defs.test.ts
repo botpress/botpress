@@ -1,3 +1,4 @@
+import { test } from 'vitest'
 import { ZodFirstPartySchemaTypes, ZodFirstPartyTypeKind } from '..'
 import * as z from '../index'
 import { util } from './utils'

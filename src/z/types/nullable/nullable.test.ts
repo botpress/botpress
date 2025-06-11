@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 import * as z from '../../index'
 
 function checkErrors(a: z.ZodTypeAny, bad: any) {

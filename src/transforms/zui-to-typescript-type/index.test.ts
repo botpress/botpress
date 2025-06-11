@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { toTypescript as toTs } from '.'
+import { toTypescriptType as toTs } from '.'
 import z, { ZodType } from '../../z'
 import * as errors from '../common/errors'
 

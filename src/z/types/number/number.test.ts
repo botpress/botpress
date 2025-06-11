@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 import * as z from '../../index'
 
 const gtFive = z.number().gt(5)

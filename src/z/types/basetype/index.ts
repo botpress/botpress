@@ -2,7 +2,6 @@ import type {
   BaseType,
   UIComponentDefinitions,
   ZodKindToBaseType,
-  JSONSchema,
   ParseSchema,
   ZuiExtensionObject,
   ZuiMetadata,
@@ -14,9 +13,6 @@ import {
   isAsync,
   IssueData,
   isValid,
-  jsonSchemaToZui,
-  zuiToJsonSchema,
-  objectToZui,
   ParseContext,
   ParseInput,
   ParseParams,
@@ -46,10 +42,10 @@ import {
   ZodUnion,
 } from '../index'
 import { CatchFn } from '../catch'
-import type { ZuiSchemaOptions } from '../../../transforms/zui-to-json-schema/zui-extension'
-import type { ObjectToZuiOptions } from '../../../transforms/object-to-zui'
-import { TypescriptGenerationOptions, toTypescript } from '../../../transforms/zui-to-typescript-type'
+import { toTypescriptType, TypescriptGenerationOptions } from '../../../transforms/zui-to-typescript-type'
 import { toTypescriptSchema } from '../../../transforms/zui-to-typescript-schema'
+import { toJSONSchema } from '../../../transforms/zui-to-json-schema'
+import { ZuiJSONSchema } from '../../../transforms/common/json-schema'
 
 /**
  * This type is not part of the original Zod library, it's been added in Zui to:
@@ -624,8 +620,12 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     return this.metadata({ placeholder })
   }
 
-  toJsonSchema(opts?: ZuiSchemaOptions): JSONSchema {
-    return zuiToJsonSchema(this, opts)
+  /**
+   *
+   * @returns a JSON Schema equivalent to the Zui schema
+   */
+  toJSONSchema(): ZuiJSONSchema {
+    return toJSONSchema(this)
   }
 
   /**
@@ -633,8 +633,8 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * @param options generation options
    * @returns a string of the TypeScript type representing the schema
    */
-  toTypescript(opts?: TypescriptGenerationOptions): string {
-    return toTypescript(this, opts)
+  toTypescriptType(opts?: TypescriptGenerationOptions): string {
+    return toTypescriptType(this, opts)
   }
 
   /**
@@ -644,26 +644,6 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    */
   toTypescriptSchema(): string {
     return toTypescriptSchema(this)
-  }
-
-  async toTypescriptAsync(
-    opts?: Omit<TypescriptGenerationOptions, 'formatter'> & {
-      formatter?: (typing: string) => Promise<string> | string
-    },
-  ): Promise<string> {
-    let result = toTypescript(this, { ...opts, formatter: undefined })
-    if (opts?.formatter) {
-      result = await opts.formatter(result)
-    }
-    return result
-  }
-
-  static fromObject(obj: any, opts?: ObjectToZuiOptions) {
-    return objectToZui(obj, opts)
-  }
-
-  static fromJsonSchema(schema: JSONSchema | any) {
-    return jsonSchemaToZui(schema)
   }
 
   /**

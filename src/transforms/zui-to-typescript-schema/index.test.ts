@@ -3,7 +3,7 @@ import { toTypescriptSchema as toTypescript } from '.'
 import { evalZuiString } from '../common/eval-zui-string'
 import * as errors from '../common/errors'
 import z, { ZodLiteral, ZodSchema, ZodType } from '../../z'
-import { UIComponentDefinitions } from '../../ui'
+import { UIComponentDefinitions } from '../../ui/types'
 
 const evalZui = (source: string): ZodSchema => {
   const evalResult = evalZuiString(source)
@@ -564,7 +564,7 @@ describe.concurrent('toTypescriptZuiString', () => {
       // Act & Assert
       const evaluated = evalZui(toTypescript(schema))
       assert(schema).toGenerateItself()
-      expect(evaluated.getMetadata().disabled).toBe('()=>true')
+      expect(evaluated.getMetadata().disabled).toBe('() => true')
     })
 
     test('hidden', () => {
@@ -594,7 +594,7 @@ describe.concurrent('toTypescriptZuiString', () => {
       // Act & Assert
       const evaluated = evalZui(toTypescript(schema))
       assert(schema).toGenerateItself()
-      expect(evaluated.getMetadata().hidden).toBe('()=>true')
+      expect(evaluated.getMetadata().hidden).toBe('() => true')
     })
 
     test('placeholder', () => {

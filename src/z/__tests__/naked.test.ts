@@ -1,4 +1,4 @@
-import { assert } from 'vitest'
+import { test, assert } from 'vitest'
 
 import z, { ZodArray, ZodObject, ZodString, ZodUnion } from '../index'
 

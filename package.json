@@ -1,6 +1,6 @@
 {
   "name": "@bpinternal/zui",
-  "version": "0.22.7",
+  "version": "1.0.0",
   "description": "A fork of Zod with additional features",
   "type": "module",
   "source": "./src/index.ts",
@@ -25,16 +25,10 @@
     "fix": "pnpm run fix:format"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.4.2",
-    "@testing-library/react": "^14.2.2",
-    "@testing-library/user-event": "^14.5.2",
     "@types/benchmark": "^2.1.5",
-    "@types/jest": "^29.5.12",
     "@types/json-schema": "^7.0.15",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20.12.6",
-    "@types/react": "^18.2.48",
-    "@vitejs/plugin-react-swc": "^3.6.0",
     "ajv": "^8.12.0",
     "ajv-formats": "^3.0.1",
     "benchmark": "^2.1.4",
@@ -42,9 +36,6 @@
     "local-ref-resolver": "^0.2.0",
     "lodash-es": "^4.17.21",
     "prettier": "^3.3.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "storybook": "^8.0.9",
     "ts-morph": "^22.0.0",
     "ts-node": "^10.9.2",
     "tsup": "^8.0.1",
@@ -52,14 +43,6 @@
     "typescript": "5.8.3",
     "vite": "^5.2.6",
     "vitest": "1.6.0"
-  },
-  "peerDependencies": {
-    "react": "^18.2.0"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    }
   },
   "repository": {
     "type": "git",

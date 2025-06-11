@@ -18,7 +18,7 @@ export abstract class ZuiTransformError extends Error {
 }
 
 // json-schema-to-zui-error
-export class JsonSchemaToZuiError extends ZuiTransformError {
+export class JSONSchemaToZuiError extends ZuiTransformError {
   public constructor(message?: string) {
     super('json-schema-to-zui', message)
   }
@@ -32,12 +32,12 @@ export class ObjectToZuiError extends ZuiTransformError {
 }
 
 // zui-to-json-schema-error
-export class ZuiToJsonSchemaError extends ZuiTransformError {
+export class ZuiToJSONSchemaError extends ZuiTransformError {
   public constructor(message?: string) {
     super('zui-to-json-schema', message)
   }
 }
-export class UnsupportedZuiToJsonSchemaError extends ZuiToJsonSchemaError {
+export class UnsupportedZuiToJSONSchemaError extends ZuiToJSONSchemaError {
   public constructor(type: ZodFirstPartyTypeKind, { suggestedAlternative }: { suggestedAlternative?: string } = {}) {
     super(
       `Zod type ${type} cannot be transformed to JSON Schema.` +
@@ -45,16 +45,9 @@ export class UnsupportedZuiToJsonSchemaError extends ZuiToJsonSchemaError {
     )
   }
 }
-export class UnsupportedZuiCheckToJsonSchemaError extends ZuiToJsonSchemaError {
+export class UnsupportedZuiCheckToJSONSchemaError extends ZuiToJSONSchemaError {
   public constructor({ zodType, checkKind }: { zodType: ZodFirstPartyTypeKind; checkKind: string }) {
     super(`Zod check .${checkKind}() of type ${zodType} cannot be transformed to JSON Schema.`)
-  }
-}
-
-// json-schema-to-zui-error
-export class JSONSchemaToZuiError extends ZuiTransformError {
-  public constructor(message?: string) {
-    super('json-schema-to-zui', message)
   }
 }
 

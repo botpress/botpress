@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 import z from '../index'
 import { util } from '../types/utils'
 

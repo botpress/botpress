@@ -1,4 +1,3 @@
-import { camelCase, deburr } from '../../ui/utils'
 import { Primitive } from '../../z'
 
 /**
@@ -96,15 +95,4 @@ export const getMultilineComment = (description?: string) => {
     : descLines.length === 1
       ? `/** ${descLines[0]} */`
       : `/**\n * ${descLines.join('\n * ')}\n */`
-}
-
-export const toValidFunctionName = (str: string) => {
-  let name = deburr(str)
-  name = name.replace(/[^a-zA-Z0-9_$]/g, '')
-
-  if (!/^[a-zA-Z_$]/.test(name)) {
-    name = `_${name}`
-  }
-
-  return camelCase(name)
 }

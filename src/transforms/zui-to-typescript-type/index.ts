@@ -78,15 +78,13 @@ type InternalOptions = {
   parent?: SchemaTypes
 }
 
-// TODO: rename this transform to `toTypescriptType`
-
 /**
  *
  * @param schema zui schema
  * @param options generation options
  * @returns a string of the TypeScript **type** representing the schema
  */
-export function toTypescript(schema: z.Schema, options: TypescriptGenerationOptions = {}): string {
+export function toTypescriptType(schema: z.Schema, options: TypescriptGenerationOptions = {}): string {
   const wrappedSchema: Declaration = getDeclarationProps(schema, options)
 
   let dts = sUnwrapZod(wrappedSchema, {})

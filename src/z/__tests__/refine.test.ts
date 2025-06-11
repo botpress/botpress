@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 import { util } from '../types/utils'
 import z from '../index'
 import { ZodIssueCode } from '../types/error'

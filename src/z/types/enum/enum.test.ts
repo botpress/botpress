@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 import { util } from '../utils'
 import * as z from '../../index'
 

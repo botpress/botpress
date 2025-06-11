@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 import * as z from '../../index'
 
 const schema = z.nan()

@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import z from '../z'
-import { toJsonSchema } from './zui-to-json-schema-next'
-import { fromJsonSchema } from './json-schema-to-zui-next'
+import { toJSONSchema } from './zui-to-json-schema'
+import { fromJSONSchema } from './zui-from-json-schema'
 import * as errors from './common/errors'
 
 const assert = (src: z.Schema) => ({
   toTransformBackToItself: () => {
-    const jsonSchema = toJsonSchema(src)
-    const actual = fromJsonSchema(jsonSchema)
+    const jsonSchema = toJSONSchema(src)
+    const actual = fromJSONSchema(jsonSchema)
     const expected = src
     let msg: string | undefined = undefined
     try {
@@ -131,7 +131,7 @@ describe.concurrent('transformPipeline', () => {
       const srcSchema = z.string().includes('foo')
 
       // Act
-      const dstSchema = fromJsonSchema(toJsonSchema(srcSchema)) as z.ZodString
+      const dstSchema = fromJSONSchema(toJSONSchema(srcSchema)) as z.ZodString
 
       // Assert
       const check = dstSchema._def.checks[0]
@@ -143,7 +143,7 @@ describe.concurrent('transformPipeline', () => {
       const srcSchema = z.string().startsWith('foo')
 
       // Act
-      const dstSchema = fromJsonSchema(toJsonSchema(srcSchema)) as z.ZodString
+      const dstSchema = fromJSONSchema(toJSONSchema(srcSchema)) as z.ZodString
 
       // Assert
       const check = dstSchema._def.checks[0]
@@ -155,42 +155,42 @@ describe.concurrent('transformPipeline', () => {
       const srcSchema = z.string().endsWith('foo')
 
       // Act
-      const dstSchema = fromJsonSchema(toJsonSchema(srcSchema)) as z.ZodString
+      const dstSchema = fromJSONSchema(toJSONSchema(srcSchema)) as z.ZodString
 
       // Assert
       const check = dstSchema._def.checks[0]
       expect(check?.kind).toBe('regex')
       expect(check?.kind === 'regex' && check.regex.source).toBe('foo$')
     })
-    it('throws UnsupportedZuiCheckToJsonSchemaError when using .trim', async () => {
+    it('throws UnsupportedZuiCheckToJSONSchemaError when using .trim', async () => {
       // Arrange
       const srcSchema = z.string().trim()
 
       // Act
-      const act = () => toJsonSchema(srcSchema)
+      const act = () => toJSONSchema(srcSchema)
 
       // Assert
-      expect(act).toThrowError(errors.UnsupportedZuiCheckToJsonSchemaError)
+      expect(act).toThrowError(errors.UnsupportedZuiCheckToJSONSchemaError)
     })
-    it('throws UnsupportedZuiCheckToJsonSchemaError when using .toLowerCase', async () => {
+    it('throws UnsupportedZuiCheckToJSONSchemaError when using .toLowerCase', async () => {
       // Arrange
       const srcSchema = z.string().toLowerCase()
 
       // Act
-      const act = () => toJsonSchema(srcSchema)
+      const act = () => toJSONSchema(srcSchema)
 
       // Assert
-      expect(act).toThrowError(errors.UnsupportedZuiCheckToJsonSchemaError)
+      expect(act).toThrowError(errors.UnsupportedZuiCheckToJSONSchemaError)
     })
-    it('throws UnsupportedZuiCheckToJsonSchemaError when using .toUpperCase', async () => {
+    it('throws UnsupportedZuiCheckToJSONSchemaError when using .toUpperCase', async () => {
       // Arrange
       const srcSchema = z.string().toUpperCase()
 
       // Act
-      const act = () => toJsonSchema(srcSchema)
+      const act = () => toJSONSchema(srcSchema)
 
       // Assert
-      expect(act).toThrowError(errors.UnsupportedZuiCheckToJsonSchemaError)
+      expect(act).toThrowError(errors.UnsupportedZuiCheckToJSONSchemaError)
     })
   })
 
@@ -316,15 +316,15 @@ describe.concurrent('transformPipeline', () => {
     })
   })
 
-  it('should throw UnsupportedZuiToJsonSchemaError for ZodBigInt', async () => {
+  it('should throw UnsupportedZuiToJSONSchemaError for ZodBigInt', async () => {
     // Arrange
     const srcSchema = z.bigint()
 
     // Act
-    const act = () => toJsonSchema(srcSchema)
+    const act = () => toJSONSchema(srcSchema)
 
     // Assert
-    expect(act).toThrowError(errors.UnsupportedZuiToJsonSchemaError)
+    expect(act).toThrowError(errors.UnsupportedZuiToJSONSchemaError)
   })
 
   it('should map ZodBoolean to itself', async () => {
@@ -332,15 +332,15 @@ describe.concurrent('transformPipeline', () => {
     assert(srcSchema).toTransformBackToItself()
   })
 
-  it('should throw UnsupportedZuiToJsonSchemaError for ZodDate', async () => {
+  it('should throw UnsupportedZuiToJSONSchemaError for ZodDate', async () => {
     // Arrange
     const srcSchema = z.date()
 
     // Act
-    const act = () => toJsonSchema(srcSchema)
+    const act = () => toJSONSchema(srcSchema)
 
     // Assert
-    expect(act).toThrowError(errors.UnsupportedZuiToJsonSchemaError)
+    expect(act).toThrowError(errors.UnsupportedZuiToJSONSchemaError)
   })
 
   it('should map ZodUndefined to itself', async () => {

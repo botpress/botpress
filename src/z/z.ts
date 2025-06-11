@@ -139,8 +139,6 @@ const pipelineType = ZodPipeline.create
 const ostring = () => stringType().optional()
 const onumber = () => numberType().optional()
 const oboolean = () => booleanType().optional()
-const fromJsonSchema = ZodType.fromJsonSchema
-const fromObject = ZodType.fromObject
 
 export const coerce = {
   string: ((arg) => ZodString.create({ ...arg, coerce: true })) as (typeof ZodString)['create'],
@@ -197,8 +195,6 @@ export {
   unionType as union,
   unknownType as unknown,
   voidType as void,
-  fromJsonSchema,
-  fromObject,
 }
 
 export const NEVER = INVALID as never

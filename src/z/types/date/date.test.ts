@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest'
 import * as z from '../../index'
 
 const beforeBenchmarkDate = new Date(2022, 10, 4)

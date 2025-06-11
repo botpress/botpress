@@ -1,8 +1,8 @@
 import { test, expect } from 'vitest'
-import { toTypescript } from '.'
+import { toTypescriptType as toTs } from '.'
 import z from '../../z'
 
-const toTypescriptType = (schema: z.Schema) => toTypescript(schema, { declaration: 'variable' })
+const toTypescriptType = (schema: z.Schema) => toTs(schema, { declaration: 'variable' })
 
 test('string', async () => {
   const schema = z.string().title('x')

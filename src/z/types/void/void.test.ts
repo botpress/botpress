@@ -1,5 +1,7 @@
+import { test, expect } from 'vitest'
 import * as z from '../../index'
 import { util } from '../utils'
+
 test('void', () => {
   const v = z.void()
   v.parse(undefined)
