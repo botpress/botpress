@@ -10,6 +10,12 @@ type WebchatGetOrCreateUserInput = {
   }
 }
 
+export type TryLinkWebchatUserOptions = {
+  downstreamUserId: string
+  upstreamConversationId: string
+  forceLink?: boolean
+}
+
 /**
  * This functions tries to create a copy of the downstream user in the upstream system.
  * The goal is for the patient to have the illusion that they receive messages from a human agent instead of the bot.
@@ -25,12 +31,10 @@ type WebchatGetOrCreateUserInput = {
  * @returns the fake upstream user id that the bot pretends to be when sending messages
  */
 export const tryLinkWebchatUser = async (
-  props: bp.HookHandlerProps['before_incoming_message'],
-  upstreamConversationId: string
+  props: bp.HookHandlerProps['before_incoming_message'] | bp.HookHandlerProps['before_incoming_event'],
+  opts: TryLinkWebchatUserOptions
 ): Promise<string | undefined> => {
-  const {
-    data: { userId: downstreamUserId },
-  } = props
+  const { downstreamUserId, upstreamConversationId, forceLink } = opts
 
   const upstreamConversation = await props.client.getConversation({
     id: upstreamConversationId,
@@ -46,9 +50,13 @@ export const tryLinkWebchatUser = async (
   }
 
   try {
+    props.logger.info(
+      `Trying to link downstream user ${downstreamUserId} to upstream conversation ${upstreamConversationId}`
+    )
+
     const { user: downstreamUser } = await props.client.getUser({ id: downstreamUserId })
     const upstreamUserId = downstreamUser.tags['upstream']
-    if (upstreamUserId) {
+    if (upstreamUserId && !forceLink) {
       // the user is already linked
       return upstreamUserId
     }
