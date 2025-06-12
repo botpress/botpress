@@ -1,6 +1,7 @@
 import { DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE } from '../../../plugin.definition'
 import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
+import { tryLinkWebchatUser } from '../../webchat'
 import * as consts from '../consts'
 import * as bp from '.botpress'
 
@@ -38,6 +39,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
     }),
     downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
+    tryLinkWebchatUser(props, { downstreamUserId: humanAgentUserId, upstreamConversationId, forceLink: true }),
   ])
   return consts.STOP_EVENT_HANDLING
 }
