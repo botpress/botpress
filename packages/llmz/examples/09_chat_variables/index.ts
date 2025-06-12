@@ -3,6 +3,7 @@ import { Exit, ObjectInstance, execute } from 'llmz'
 import { z } from '@bpinternal/zui'
 
 import { CLIChat } from '../utils/cli-chat'
+import chalk from 'chalk'
 
 const client = new Client({
   botId: process.env.BOTPRESS_BOT_ID!,
@@ -75,10 +76,12 @@ while (await chat.iterate()) {
       if (trace.type === 'property') {
         console.log(`🧩 ${trace.object}.${trace.property} = ${trace.value}`)
         memory[trace.property] = trace.value
+      } else if (trace.type === 'code_execution_exception') {
+        console.error(chalk.redBright(`❌ Error executing code:\n${chalk.white.dim(trace.stackTrace)}`))
       }
     },
   })
 }
 
-console.log('🎉 Profile completed:', memory)
+console.log('Profile completed:', memory)
 console.log('👋 Goodbye!')

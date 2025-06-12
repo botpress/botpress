@@ -1,4 +1,5 @@
 import { type Cognitive } from '@botpress/cognitive'
+import { z } from '@bpinternal/zui'
 import { cloneDeep, isPlainObject } from 'lodash-es'
 import { ulid } from 'ulid'
 import { Chat } from './chat.js'
@@ -114,6 +115,21 @@ export const ThinkExit = new Exit({
 export const ListenExit = new Exit({
   name: 'listen',
   description: 'Listen to the user and provide a response',
+})
+
+export const DefaultExit = new Exit({
+  name: 'done',
+  description: 'When the execution is sucessfully completed or when error recovery is not possible',
+  schema: z.discriminatedUnion('success', [
+    z.object({
+      success: z.literal(true),
+      result: z.any().describe('The result of the execution'),
+    }),
+    z.object({
+      success: z.literal(false),
+      error: z.string().describe('The error message if the execution failed'),
+    }),
+  ]),
 })
 
 export class Iteration {
@@ -570,7 +586,7 @@ export class Context {
     }
 
     if (!components.length && !exits.length) {
-      throw new Error('When no components are provided, at least one exit is required.')
+      exits.push(DefaultExit)
     }
 
     return {

@@ -1,7 +1,4 @@
-import { Iteration, type Context } from './context.js'
-import { type SnapshotSignal, type VMSignal } from './errors.js'
-import { ExitResult } from './exit.js'
-import { type Snapshot } from './snapshots.js'
+import { type VMSignal } from './errors.js'
 
 export namespace Traces {
   export type Comment = TraceTemplate<
@@ -128,52 +125,6 @@ export type ObjectMutation = {
   property: string
   before: any
   after: any
-}
-
-export type SuccessExecutionResult = {
-  status: 'success'
-  iterations: Iteration[]
-  context: Context
-  result: ExitResult
-}
-
-export type PartialExecutionResult = {
-  status: 'interrupted'
-  iterations: Iteration[]
-  context: Context
-  signal: SnapshotSignal
-  snapshot: Snapshot
-}
-
-export type ErrorExecutionResult = {
-  status: 'error'
-  iterations: Iteration[]
-  context: Context
-  error: string
-}
-
-export type ExecutionResult = SuccessExecutionResult | PartialExecutionResult | ErrorExecutionResult
-
-export function expectStatus<T extends ExecutionResult['status']>(
-  execution: ExecutionResult,
-  status: T
-): asserts execution is Extract<ExecutionResult, { status: T }> {
-  if (status !== execution.status) {
-    if (execution.status === 'error') {
-      throw new Error(`Expected status "${status}" but got error: ${execution.error}`)
-    }
-
-    throw new Error(`Expected status "${status}" but got "${execution.status}"`)
-  }
-}
-
-export type Tool = {
-  name: string
-  aliases?: string[]
-  description?: string
-  input?: unknown
-  output?: unknown
-  metadata?: Record<string, any>
 }
 
 export type ZuiType<Output = any, Input = Output> = {

@@ -1,7 +1,7 @@
 export { Tool } from './tool.js'
 export { Exit, ExitResult } from './exit.js'
 export { ObjectInstance } from './objects.js'
-export { SnapshotSignal, ThinkSignal } from './errors.js'
+export { SnapshotSignal, ThinkSignal, LoopExceededError } from './errors.js'
 
 export {
   Component,
@@ -21,9 +21,10 @@ export { Snapshot } from './snapshots.js'
 export { Chat, type MessageHandler } from './chat.js'
 
 import { type ExecutionProps } from './llmz.js'
-import { type ExecutionResult } from './types.js'
-export { type ExecutionResult, Trace } from './types.js'
-export { type Iteration, ListenExit, ThinkExit, IterationStatuses, IterationStatus } from './context.js'
+import { ExecutionResult } from './result.js'
+export { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
+export { Trace } from './types.js'
+export { type Iteration, ListenExit, ThinkExit, DefaultExit, IterationStatuses, IterationStatus } from './context.js'
 
 export { type ValueOrGetter, getValue } from './getter.js'
 

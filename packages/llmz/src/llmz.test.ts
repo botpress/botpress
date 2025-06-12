@@ -4,7 +4,8 @@ import { beforeAll, afterAll, assert, describe, expect, it, vi } from 'vitest'
 import * as llmz from './llmz.js'
 import { Tool } from './tool.js'
 
-import { ExecutionResult, Traces } from './types.js'
+import { ErrorExecutionResult, ExecutionResult, SuccessExecutionResult } from './result.js'
+import { Traces } from './types.js'
 import { getCachedCognitiveClient } from './__tests__/index.js'
 import { ObjectInstance } from './objects.js'
 import { Exit, ExitResult } from './exit.js'
@@ -14,17 +15,12 @@ import { Chat } from './chat.js'
 
 const client = getCachedCognitiveClient()
 
-function assertStatus<S extends ExecutionResult['status']>(
-  result: ExecutionResult,
-  status: S
-): asserts result is ExecutionResult & { status: S } {
-  const error = result.status === 'error' ? result.error : null
+function assertSuccess(result: ExecutionResult): asserts result is SuccessExecutionResult {
+  assert(result instanceof SuccessExecutionResult, `Expected result to be success but got ${result.status}`)
+}
 
-  if (result.status === 'error' && status !== 'error') {
-    throw new Error(`Expected status to be "${status}" but got error: ${error}`)
-  }
-
-  assert(result.status === status, `Expected status to be "${status}" but got "${result.status}"`)
+function assertError(result: ExecutionResult): asserts result is ErrorExecutionResult {
+  assert(result instanceof ErrorExecutionResult, `Expected result to be error but got ${result.status}`)
 }
 
 const exec = (result: ExecutionResult) => {
@@ -105,8 +101,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         client,
       })
 
-      assertStatus(updatedContext, 'success')
-
+      assertSuccess(updatedContext)
       expect(greeted).toBe(true)
     })
 
@@ -632,7 +627,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
           "plant": "Monstera",
         }
       `)
-      assertStatus(result, 'success')
+      assertSuccess(result)
       assert(ePlant.match(result.result))
     })
 
@@ -653,10 +648,10 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       })
 
       expect(exitCalled).toBe(true)
-      assertStatus(result, 'error')
+      assertError(result)
       expect(result.iterations).toHaveLength(2)
-      assert(result.iterations[1]!.status.type === 'exit_error', 'Second iteration should be an exit error')
-      expect(result.iterations[1]!.status.exit_error).toMatchInlineSnapshot(`
+      assert(result.iteration?.status.type === 'exit_error', 'Second iteration should be an exit error')
+      expect(result.iteration?.status.exit_error).toMatchInlineSnapshot(`
         {
           "exit": "is_plant",
           "message": "Error executing exit is_plant: This is an error in the exit hook",
@@ -701,7 +696,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         signal,
       })
 
-      assertStatus(result, 'error')
+      assertError(result)
       expect(result.iterations).toHaveLength(1)
       expect(result.error).toMatch('ABORTED')
     })
@@ -734,7 +729,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         signal,
       })
 
-      assertStatus(result, 'error')
+      assertError(result)
       expect(result.iterations).toHaveLength(4)
       expect(result.error).toMatch('ABORTED')
     })
@@ -756,7 +751,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       client,
     })
 
-    assertStatus(result, 'error')
+    assertError(result)
     expect(result.iterations).toHaveLength(1)
     assert(result.iterations[0]!.status.type === 'execution_error', 'First iteration should be an execution error')
     expect(result.iterations[0]!.status.execution_error.stack).toMatchInlineSnapshot(`
@@ -792,7 +787,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       },
     })
 
-    assertStatus(result, 'success')
+    assertSuccess(result)
     expect(result.iterations).toHaveLength(1)
     expect(calls).toMatchInlineSnapshot(`
       [

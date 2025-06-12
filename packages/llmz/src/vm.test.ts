@@ -748,6 +748,174 @@ return {
       `)
     })
 
+    it('setters are executed before next statement (obj)', async () => {
+      const code = `
+        log('1')
+        myObj.age = 33
+        log('2')
+        myObj.address = { street: '666' }
+        log('3')
+        myObj.city = 'Quebec'
+        log('4')
+      `
+
+      const innerValues = {
+        __origin: 'test',
+        name: 'Jane',
+        age: undefined,
+        address: { street: '123 Main St' },
+        city: null,
+      }
+
+      const myObj = {
+        __origin: 'test',
+      }
+
+      Object.defineProperty(myObj, 'age', {
+        enumerable: true,
+        get() {
+          return innerValues.age
+        },
+        set(value) {
+          innerValues.age = value
+        },
+      })
+
+      Object.defineProperty(myObj, 'city', {
+        enumerable: true,
+        get() {
+          return innerValues.city
+        },
+        set(value) {
+          throw new Error('Invalid city ' + value)
+        },
+      })
+
+      Object.defineProperty(myObj, 'address', {
+        enumerable: true,
+        get() {
+          return innerValues.address
+        },
+        set(value) {
+          innerValues.address = value
+        },
+      })
+
+      Object.preventExtensions(myObj)
+      Object.seal(myObj)
+
+      const calls: string[] = []
+      const context = {
+        myObj,
+        log: (message: string) => {
+          calls.push(message)
+        },
+      }
+
+      const result = await runAsyncFunction(context, code)
+
+      expect(result.success).toBe(false)
+      expect(calls).toMatchInlineSnapshot(`
+        [
+          "1",
+          "2",
+          "3",
+        ]
+      `)
+      expect(innerValues).toMatchInlineSnapshot(`
+        {
+          "__origin": "test",
+          "address": {
+            "street": "666",
+          },
+          "age": 33,
+          "city": null,
+          "name": "Jane",
+        }
+      `)
+      expect(result.error?.message).toMatchInlineSnapshot(`"Invalid city Quebec"`)
+    })
+
+    it.skipIf(process.env.CI)('setters are executed before next statement (top-level)', async () => {
+      const code = `
+        log('1')
+        age = 33
+        log('2')
+        address = { street: '666' }
+        log('3')
+        city = 'Quebec'
+        log('4')
+      `
+
+      const innerValues = {
+        __origin: 'test',
+        name: 'Jane',
+        age: undefined,
+        city: null,
+        address: { street: '123 Main St' },
+      }
+
+      const calls: string[] = []
+      const context = {
+        log: (message: string) => {
+          calls.push(message)
+        },
+      }
+
+      Object.defineProperty(context, 'age', {
+        enumerable: true,
+        get() {
+          return innerValues.age
+        },
+        set(value) {
+          innerValues.age = value
+        },
+      })
+
+      Object.defineProperty(context, 'city', {
+        enumerable: true,
+        get() {
+          return innerValues.city
+        },
+        set(value) {
+          throw new Error('Invalid city ' + value)
+        },
+      })
+
+      Object.defineProperty(context, 'address', {
+        enumerable: true,
+        get() {
+          return innerValues.address
+        },
+        set(value) {
+          innerValues.address = value
+        },
+      })
+
+      const result = await runAsyncFunction(context, code)
+
+      expect(result.success).toBe(false)
+      expect(calls).toMatchInlineSnapshot(`
+        [
+          "1",
+          "2",
+          "3",
+        ]
+      `)
+      expect(innerValues).toMatchInlineSnapshot(`
+        {
+          "__origin": "test",
+          "address": {
+            "street": "666",
+          },
+          "age": 33,
+          "city": null,
+          "name": "Jane",
+        }
+      `)
+      expect(result.error?.message).toMatchInlineSnapshot(`"Invalid city Quebec"`)
+    })
+
     it('defined function works inside object', async () => {
       const code = `
         const result = await myObject.myFn()
