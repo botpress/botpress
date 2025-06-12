@@ -203,7 +203,7 @@ is
        * Hello
        * world
        * what
-       *
+       * 
        * is
        * *up
        */"
@@ -218,7 +218,7 @@ World */`.trim()
     ).toMatchInlineSnapshot(`
       "/**
        * Hello,
-       * World
+       * World 
        */"
     `)
   })
@@ -230,16 +230,16 @@ World */`.trim()
     expect(getMultilineComment(`\n\n Hello \n \n  .  \n\nworld\n\n\n\n\n\n`)).toMatchInlineSnapshot(`
       "/**
        * Hello
-       *
+       * 
        * .
-       *
+       * 
        * world
        */"
     `)
     expect(getMultilineComment(`\n/**\n Hello \n \n \n\n \n \n\nworld\n\n\n*/\n\n\n`)).toMatchInlineSnapshot(`
       "/**
        * Hello
-       *
+       * 
        * world
        */"
     `)
