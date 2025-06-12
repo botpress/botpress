@@ -1,8 +1,9 @@
-import { type JSONSchema, TypeOf, z, ZodObject, ZodType } from '@bpinternal/zui'
+import { TypeOf, z, transforms, ZodObject, ZodType } from '@bpinternal/zui'
+import { JSONSchema7 } from 'json-schema'
 import { isEmpty, uniq } from 'lodash-es'
 import { ZuiType } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
-import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier } from './utils.js'
+import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
 
 type ToolRetryInput<I> = {
   input: I
@@ -26,8 +27,8 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
   public aliases: string[] = []
   public description?: string
   public metadata: Record<string, unknown>
-  public input?: JSONSchema
-  public output?: JSONSchema
+  public input?: JSONSchema7
+  public output?: JSONSchema7
   public retry?: ToolRetryFn<TypeOf<I>>
 
   public MAX_RETRIES = 1000
@@ -38,7 +39,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
       return this
     }
 
-    const input = this.input ? z.fromJsonSchema(this.input) : z.any()
+    const input = this.input ? transforms.fromJSONSchemaLegacy(this.input) : z.any()
 
     if (input instanceof z.ZodObject && typeof values !== 'object') {
       throw new Error(
@@ -57,7 +58,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
   }
 
   public get zInput() {
-    let input = this.input ? z.fromJsonSchema(this.input) : z.any()
+    let input = this.input ? transforms.fromJSONSchemaLegacy(this.input) : z.any()
 
     if (!isEmpty(this._staticInputValues)) {
       const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues)
@@ -75,7 +76,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
   }
 
   public get zOutput() {
-    return this.output ? z.fromJsonSchema(this.output) : z.void()
+    return this.output ? transforms.fromJSONSchemaLegacy(this.output) : z.void()
   }
 
   public rename(name: string): this {
@@ -107,8 +108,8 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
     }> = {}
   ): Tool<IX, OX> {
     try {
-      const zInput = this.input ? (z.fromJsonSchema(this.input) as unknown as I) : undefined
-      const zOutput = this.output ? (z.fromJsonSchema(this.output) as unknown as O) : undefined
+      const zInput = this.input ? (transforms.fromJSONSchemaLegacy(this.input) as unknown as I) : undefined
+      const zOutput = this.output ? (transforms.fromJSONSchemaLegacy(this.output) as unknown as O) : undefined
 
       return <Tool<IX, OX>>new Tool({
         name: props.name ?? this.name,
@@ -183,8 +184,8 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
     }
 
     if (typeof props.input !== 'undefined') {
-      if (props.input && 'toJsonSchema' in props.input && typeof props.input.toJsonSchema === 'function') {
-        this.input = props.input.toJsonSchema()
+      if (isZuiSchema(props.input)) {
+        this.input = transforms.toJSONSchemaLegacy(props.input)
       } else if (isJsonSchema(props.input)) {
         this.input = props.input
       } else {
@@ -195,8 +196,8 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
     }
 
     if (typeof props.output !== 'undefined') {
-      if (props.output && 'toJsonSchema' in props.output && typeof props.output.toJsonSchema === 'function') {
-        this.output = props.output.toJsonSchema()
+      if (isZuiSchema(props.output)) {
+        this.output = transforms.toJSONSchemaLegacy(props.output)
       } else if (isJsonSchema(props.output)) {
         this.output = props.output
       } else {
@@ -248,8 +249,8 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
   }
 
   public async getTypings(): Promise<string> {
-    let input = this.input ? z.fromJsonSchema(this.input) : undefined
-    const output = this.output ? z.fromJsonSchema(this.output) : z.void()
+    let input = this.input ? transforms.fromJSONSchemaLegacy(this.input) : undefined
+    const output = this.output ? transforms.fromJSONSchemaLegacy(this.output) : z.void()
 
     if (
       input?.naked() instanceof ZodObject &&

@@ -13,6 +13,7 @@
   "scripts": {
     "generate": "pnpm build:markdown",
     "build": "tsup && pnpm tsc --emitDeclarationOnly",
+    "check:type": "tsc --noEmit",
     "watch": "tsup --watch",
     "test": "vitest run --config vitest.config.ts",
     "test:update": "vitest -u run --config vitest.config.ts",
@@ -49,6 +50,7 @@
     "@types/babel__standalone": "^7.1.9",
     "@types/babel__traverse": "^7.20.6",
     "@types/bytes": "^3.1.5",
+    "@types/json-schema": "^7.0.12",
     "@types/lodash-es": "^4.17.12",
     "@types/ms": "^0.7.34",
     "@types/node": "^18.19.67",
@@ -65,7 +67,7 @@
   "peerDependencies": {
     "@botpress/cognitive": "0.1.24",
     "@bpinternal/thicktoken": "^1.0.5",
-    "@bpinternal/zui": "^0.22.7"
+    "@bpinternal/zui": "^1.0.0"
   },
   "dependenciesMeta": {
     "@bpinternal/zui": {

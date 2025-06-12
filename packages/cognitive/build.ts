@@ -13,11 +13,12 @@ const common: esbuild.BuildOptions = {
 }
 
 async function generateTypes() {
-  const code = `export type GenerateContentInput = ${llm.schemas.GenerateContentInputSchema(z.any()).toTypescript()};
+  const code =
+    `export type GenerateContentInput = ${llm.schemas.GenerateContentInputSchema(z.any()).toTypescriptType()};
 
-export type GenerateContentOutput = ${llm.schemas.GenerateContentOutputSchema.toTypescript()};
+export type GenerateContentOutput = ${llm.schemas.GenerateContentOutputSchema.toTypescriptType()};
 
-export type Model = ${llm.schemas.ModelSchema.toTypescript()};
+export type Model = ${llm.schemas.ModelSchema.toTypescriptType()};
 `.trim()
 
   const filePath = './src/schemas.gen.ts'

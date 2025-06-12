@@ -299,7 +299,7 @@ ${typeof schema.value === 'string' ? escapeString(schema.value) : schema.value}`
   }
 
   try {
-    let typings = await schema?.toTypescriptAsync()
+    let typings = schema?.toTypescriptType()
     typings ??= 'unknown'
 
     return stripSpaces(typings)
