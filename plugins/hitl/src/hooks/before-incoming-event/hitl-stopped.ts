@@ -35,6 +35,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
     }),
     downstreamCm.setHitlInactive(conv.HITL_END_REASON.AGENT_CLOSED_TICKET),
     upstreamCm.setHitlInactive(conv.HITL_END_REASON.AGENT_CLOSED_TICKET),
+    upstreamCm.removeHumanAgentAsParticipant(),
   ])
 
   if (sessionConfig.flowOnHitlStopped) {

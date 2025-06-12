@@ -38,6 +38,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
     }),
     downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
+    props.client.addParticipant({ id: upstreamConversationId, userId: humanAgentUserId }),
   ])
   return consts.STOP_EVENT_HANDLING
 }

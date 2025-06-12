@@ -35,6 +35,7 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
 
   await Promise.allSettled([
     upstreamCm.setHitlInactive(conv.HITL_END_REASON.CLOSE_ACTION_CALLED),
+    upstreamCm.removeHumanAgentAsParticipant(),
     downstreamCm.setHitlInactive(conv.HITL_END_REASON.CLOSE_ACTION_CALLED),
   ])
 

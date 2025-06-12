@@ -56,6 +56,19 @@ export class ConversationManager {
     ])
   }
 
+  public async removeHumanAgentAsParticipant(): Promise<void> {
+    const { humanAgentId } = await this._getConversationTags()
+
+    if (!humanAgentId) {
+      return
+    }
+
+    await this._props.client.removeParticipant({
+      id: this._convId,
+      userId: humanAgentId,
+    })
+  }
+
   public async continueWorkflow(): Promise<void> {
     await this._props.client.createEvent({
       type: 'continueWorkflow',

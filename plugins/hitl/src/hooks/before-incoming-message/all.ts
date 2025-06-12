@@ -188,6 +188,7 @@ const _handleHitlCloseCommand = async (
 
   await Promise.allSettled([
     upstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
+    upstreamCm.removeHumanAgentAsParticipant(),
     downstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
   ])
 
