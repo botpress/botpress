@@ -26,24 +26,17 @@ type WebchatGetOrCreateUserInput = {
  */
 export const tryLinkWebchatUser = async (
   props: bp.HookHandlerProps['before_incoming_message'],
-  upstreamConversationId: string
+  upstreamConversationId: string,
+  isUsingWebchatAsHitlFrontend: boolean
 ): Promise<string | undefined> => {
-  const {
-    data: { userId: downstreamUserId },
-  } = props
-
-  const upstreamConversation = await props.client.getConversation({
-    id: upstreamConversationId,
-  })
-
-  const {
-    conversation: { integration: upstreamIntegration },
-  } = upstreamConversation
-
-  if (upstreamIntegration !== 'webchat') {
+  if (!isUsingWebchatAsHitlFrontend) {
     // this only works when the hitl frontend is webchat
     return undefined
   }
+
+  const {
+    data: { userId: downstreamUserId },
+  } = props
 
   try {
     const { user: downstreamUser } = await props.client.getUser({ id: downstreamUserId })

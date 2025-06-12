@@ -64,9 +64,21 @@ const _handleDownstreamMessage = async (
 
   props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
 
-  const upstreamUserId = await tryLinkWebchatUser(props, upstreamConversationId)
-  await upstreamCm.respond({ ...messagePayload, userId: upstreamUserId })
+  const isUsingWebchatAsHitlFrontend = await _isUsingWebchatAsHitlFrontend(props, upstreamConversationId)
+  const upstreamUserId = await tryLinkWebchatUser(props, upstreamConversationId, isUsingWebchatAsHitlFrontend)
+  await upstreamCm.respond({ ...messagePayload, userId: upstreamUserId, isUsingWebchatAsHitlFrontend })
   return consts.STOP_EVENT_HANDLING
+}
+
+const _isUsingWebchatAsHitlFrontend = async (
+  props: bp.HookHandlerProps['before_incoming_message'],
+  upstreamConversationId: string
+) => {
+  const upstreamConversation = await props.client.getConversation({
+    id: upstreamConversationId,
+  })
+
+  return upstreamConversation.conversation.integration === 'webchat'
 }
 
 const _getMessagePayloadIfSupported = (msg: client.Message): types.MessagePayload | undefined =>

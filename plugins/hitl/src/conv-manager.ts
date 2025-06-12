@@ -79,14 +79,29 @@ export class ConversationManager {
     })
   }
 
-  public async respond({ type, ...messagePayload }: types.MessagePayload): Promise<void> {
+  public async respond({
+    type,
+    isUsingWebchatAsHitlFrontend,
+    ...messagePayload
+  }: types.MessagePayload & { isUsingWebchatAsHitlFrontend?: boolean }): Promise<void> {
     await this._props.client.createMessage({
       // FIXME: in the future, we should use the provided UserId so that messages
       //        on Botpress appear to come from the agent/user instead of the
       //        bot user. For now, this is not possible because of checks in the
       //        backend.
+      //        As a workaround, we currently create a copy of the downstream
+      //        human agent user in the upstream integration (hitl frontend)
+      //        when using webchat, but we should have a solution that works
+      //        for all hitl frontends.
+      //
+      //        We should also make it so that it works in the opposite
+      //        direction too, so that when a patient sends a message, it
+      //        appears to come from the upstream user instead of the bot. For
+      //        now, integrations like Zendesk must extract the user id from the
+      //        message payload, but ideally we should be able to attach the
+      //        user id to the message directly.
       type,
-      userId: this._props.ctx.botId,
+      userId: isUsingWebchatAsHitlFrontend ? (messagePayload.userId ?? this._props.ctx.botId) : this._props.ctx.botId,
       conversationId: this._convId,
       payload: messagePayload,
       tags: {},
