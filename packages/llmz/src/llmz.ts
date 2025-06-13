@@ -22,6 +22,7 @@ import { ValueOrGetter } from './getter.js'
 
 import { type ObjectInstance } from './objects.js'
 
+import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
 import { Snapshot } from './snapshots.js'
 import { cleanStackTrace } from './stack-traces.js'
 import { type Tool } from './tool.js'
@@ -31,7 +32,6 @@ import { Trace } from './types.js'
 
 import { init, stripInvalidIdentifiers } from './utils.js'
 import { runAsyncFunction } from './vm.js'
-import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
 
 const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : JSON.stringify(err))
 
@@ -88,7 +88,7 @@ export const executeContext = async (props: ExecutionProps): Promise<ExecutionRe
 
 export const _executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   const { signal, onIterationEnd, onTrace, onExit, onBeforeExecution } = props
-  const cognitive = props.client instanceof Cognitive ? props.client : new Cognitive({ client: props.client })
+  const cognitive = Cognitive.isCognitiveClient(props.client) ? props.client : new Cognitive({ client: props.client })
   const cleanups: (() => void)[] = []
 
   const ctx = new Context({
@@ -215,13 +215,14 @@ const executeIteration = async ({
 } & ExecutionHooks): Promise<void> => {
   let startedAt = Date.now()
   const traces = iteration.traces
-  const modelLimit = 128_000 // ctx.__options.model // TODO: fixme, ie. expose "getTokenLimits()" on the cognitive client
+  const model = await cognitive.getModelDetails(ctx.model ?? 'best')
+  const modelLimit = model.input.maxTokens
   const responseLengthBuffer = getModelOutputLimit(modelLimit)
 
   const messages = truncateWrappedContent({
     messages: iteration.messages,
     tokenLimit: modelLimit - responseLengthBuffer,
-    throwOnFailure: false,
+    throwOnFailure: true,
   }).filter(
     (x) =>
       // Filter out empty messages, as they are not valid inputs for the LLM
@@ -233,13 +234,13 @@ const executeIteration = async ({
     type: 'llm_call_started',
     started_at: startedAt,
     ended_at: startedAt,
-    model: ctx.model ?? '',
+    model: model.ref,
   })
 
   const output = await cognitive.generateContent({
     signal: abortSignal,
     systemPrompt: messages.find((x) => x.role === 'system')?.content,
-    model: ctx.model as any | undefined,
+    model: model.ref,
     temperature: ctx.temperature,
     responseFormat: 'text',
     messages: messages
@@ -307,7 +308,7 @@ const executeIteration = async ({
     type: 'llm_call_success',
     started_at: startedAt,
     ended_at: iteration.llm.ended_at,
-    model: ctx.model ?? '',
+    model: model.ref,
     code: iteration.code,
   })
 

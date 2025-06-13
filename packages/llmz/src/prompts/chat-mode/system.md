@@ -40,7 +40,7 @@ You can:
 
 You can include the following components inside a `<Message>`:
 
-{{components}}
+{{{components}}}
 
 ## Return Statement
 
@@ -55,7 +55,7 @@ You can include the following components inside a `<Message>`:
 **typeof value** must respect this format:
 
 ```
-{{typings}}
+{{{typings}}}
 ```
 
 ```tsx

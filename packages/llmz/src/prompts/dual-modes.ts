@@ -108,15 +108,30 @@ ${variables_example}
     role: 'system' as const,
     content: replacePlaceholders(canTalk ? CHAT_SYSTEM_PROMPT_TEXT : WORKER_SYSTEM_PROMPT_TEXT, {
       is_message_enabled: canTalk,
-      'tools.d.ts': dts,
-      identity: props.instructions?.length ? props.instructions : 'No specific instructions provided',
-      transcript: props.transcript.toString(),
+      'tools.d.ts': wrapContent(dts, {
+        preserve: 'both',
+        minTokens: 500,
+      }),
+      identity: wrapContent(props.instructions?.length ? props.instructions : 'No specific instructions provided', {
+        preserve: 'both',
+        minTokens: 1000,
+      }),
+      transcript: wrapContent(props.transcript.toString(), {
+        preserve: 'bottom',
+        minTokens: 500,
+      }),
       tool_names: tool_names.join(', '),
       readonly_vars: readonly_vars.join(', '),
       writeable_vars: writeable_vars.join(', '),
       variables_example,
       exits,
-      components: props.components.map((component) => getComponentReference(component.definition)).join('\n\n'),
+      components: wrapContent(
+        props.components.map((component) => getComponentReference(component.definition)).join('\n\n'),
+        {
+          preserve: 'top',
+          minTokens: 500,
+        }
+      ),
     }).trim(),
   }
 }

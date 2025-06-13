@@ -38,7 +38,7 @@ You can:
 **typeof value** must respect this format:
 
 ```
-{{typings}}
+{{{typings}}}
 ```
 
 ```tsx
