@@ -12,6 +12,10 @@ patchedDependencies:
 importers:
 
   .:
+    dependencies:
+      llmz:
+        specifier: workspace:^
+        version: link:packages/llmz
     devDependencies:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.564.0
