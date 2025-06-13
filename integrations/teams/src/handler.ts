@@ -1,8 +1,9 @@
-import { Activity, ConversationReference, TurnContext } from 'botbuilder'
+import { Activity, ConversationReference, TurnContext, TeamsInfo, TeamsChannelAccount } from 'botbuilder'
 import { authorizeRequest } from './signature'
+import { getAdapter, sleep } from './utils'
 import * as bp from '.botpress'
 
-export const handler: bp.IntegrationProps['handler'] = async ({ req, client }) => {
+export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx, logger }) => {
   await authorizeRequest(req)
 
   if (!req.body) {
@@ -18,6 +19,24 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, client }) =
   }
 
   const convRef: Partial<ConversationReference> = TurnContext.getConversationReference(activity)
+
+  const senderChannelAccount = activity.from!
+  const adapter = getAdapter(ctx.configuration)
+
+  const getUserPromise = new Promise<TeamsChannelAccount | undefined>((resolve, reject) => {
+    void adapter
+      .continueConversation(convRef, async (tc) => {
+        const user = await TeamsInfo.getMember(tc, senderChannelAccount.id)
+        resolve(user)
+      })
+      .then(() => resolve(undefined))
+      .catch(reject)
+  })
+
+  const sender = await Promise.race([getUserPromise, sleep(2000)])
+  if (sender?.email) {
+    logger.forBot().info(`Received request from user: ${sender.email}`)
+  }
 
   switch (activity.type) {
     case 'message':
@@ -38,6 +57,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, client }) =
       const { user } = await client.getOrCreateUser({
         tags: {
           id: activity.from.id,
+          email: sender?.email,
         },
       })
 

@@ -26,3 +26,9 @@ export const getConversationReference = async ({
   const { state } = stateRes
   return state.payload as ConversationReference
 }
+
+export const sleep = (ms: number) => {
+  return new Promise<undefined>((resolve) => {
+    setTimeout(() => resolve(undefined), ms)
+  })
+}
