@@ -227,7 +227,7 @@ const executeIteration = async ({
     (x) =>
       // Filter out empty messages, as they are not valid inputs for the LLM
       // This can happen when a message is truncated and the content is empty
-      x.content.trim().length > 0
+      typeof x.content !== 'string' || x.content.trim().length > 0
   )
 
   traces.push({
@@ -243,16 +243,7 @@ const executeIteration = async ({
     model: model.ref,
     temperature: ctx.temperature,
     responseFormat: 'text',
-    messages: messages
-      .filter((x) => x.role === 'user' || x.role === 'assistant')
-      .map(
-        (x) =>
-          ({
-            role: x.role === 'user' ? 'user' : 'assistant',
-            type: 'text',
-            content: x.content,
-          }) as const
-      ),
+    messages: messages.filter((x) => x.role !== 'system'),
     stopSequences: ctx.version.getStopTokens(),
   })
 

@@ -6,12 +6,13 @@ import { Tool } from './tool.js'
 
 import { ErrorExecutionResult, ExecutionResult, SuccessExecutionResult } from './result.js'
 import { Traces } from './types.js'
-import { getCachedCognitiveClient } from './__tests__/index.js'
+import { getCachedCognitiveClient, getCorgiUrl } from './__tests__/index.js'
 import { ObjectInstance } from './objects.js'
 import { Exit, ExitResult } from './exit.js'
 import { DefaultComponents } from './component.default.js'
 import { ThinkSignal } from './errors.js'
 import { Chat } from './chat.js'
+import { Transcript } from './transcript.js'
 
 const client = getCachedCognitiveClient()
 
@@ -598,9 +599,9 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
       expect(lastIteration.status.exit_success.return_value).toMatchInlineSnapshot(`
         {
-          "color": "",
+          "color": "unknown",
           "edible": true,
-          "plant": "",
+          "plant": "unknown",
         }
       `)
     })
@@ -755,7 +756,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     expect(result.iterations).toHaveLength(1)
     assert(result.iterations[0]!.status.type === 'execution_error', 'First iteration should be an execution error')
     expect(result.iterations[0]!.status.execution_error.stack).toMatchInlineSnapshot(`
-      "001 | // Calling the demo tool as per the instructions
+      "001 | // Call the demo tool as instructed in Part 3
         002 | await demo()
       > 003 | return { action: 'done' }
       ...^^^^^^^^^^"
@@ -794,5 +795,39 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         "hello 123",
       ]
     `)
+  })
+
+  describe('images', () => {
+    it('handles image attachments', async () => {
+      let dogMentionned = false
+      const exit = new Exit({ name: 'done', description: 'call this when you are done' })
+      const url = await getCorgiUrl()
+      const chat = new Chat({
+        components: [DefaultComponents.Text],
+        transcript: [
+          {
+            role: 'user',
+            content: 'Describe accurately what you see in the image?',
+            attachments: [{ type: 'image', url }],
+          } satisfies Transcript.UserMessage,
+        ],
+        handler: async (msg) => {
+          let content = JSON.stringify(msg).toLowerCase()
+          dogMentionned ||= content.includes('corgi') || content.includes('dog')
+        },
+      })
+
+      const result = await llmz.executeContext({
+        instructions: 'Do as the user says. You can see images.',
+        options: { loop: 1 },
+        exits: [exit],
+        chat,
+        client,
+      })
+
+      assertSuccess(result)
+      expect(result.iterations).toHaveLength(1)
+      expect(dogMentionned).toBe(true)
+    })
   })
 })

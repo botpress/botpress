@@ -9,9 +9,8 @@ import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
 import { HookedArray } from './handlers.js'
 import { ObjectInstance } from './objects.js'
-import type { OAI } from './openai.js'
 import { DualModePrompt } from './prompts/dual-modes.js'
-import { Prompt } from './prompts/prompt.js'
+import { LLMzPrompts, Prompt } from './prompts/prompt.js'
 import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
 import { TranscriptArray } from './transcript.js'
@@ -134,7 +133,7 @@ export const DefaultExit = new Exit({
 
 export class Iteration {
   public id: string
-  public messages: OAI.Message[]
+  public messages: LLMzPrompts.Message[]
   public code?: string
   public traces: HookedArray<Trace>
   public variables: Record<string, any>
@@ -262,7 +261,7 @@ export class Iteration {
   public constructor(props: {
     id: string
     parameters: IterationParameters
-    messages: OAI.Message[]
+    messages: LLMzPrompts.Message[]
     variables: Record<string, any>
   }) {
     this.id = props.id
@@ -352,7 +351,7 @@ export class Context {
     return variables
   }
 
-  private async _getIterationMessages(parameters: IterationParameters): Promise<OAI.Message[]> {
+  private async _getIterationMessages(parameters: IterationParameters): Promise<LLMzPrompts.Message[]> {
     const lastIteration = this.iterations.at(-1)
 
     if (this.snapshot?.status.type === 'resolved') {

@@ -13,6 +13,7 @@ export {
   assertValidComponent,
   isComponent,
   isAnyComponent,
+  renderToTsx,
 } from './component.js'
 
 export { Citation, CitationsManager } from './citations.js'
@@ -22,6 +23,7 @@ export { Chat, type MessageHandler } from './chat.js'
 
 import { type ExecutionProps } from './llmz.js'
 import { ExecutionResult } from './result.js'
+export { Transcript } from './transcript.js'
 export { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
 export { Trace } from './types.js'
 export { type Iteration, ListenExit, ThinkExit, DefaultExit, IterationStatuses, IterationStatus } from './context.js'
