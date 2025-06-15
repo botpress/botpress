@@ -3,7 +3,7 @@ import { describe, assert, expect, test } from 'vitest'
 import { Tool } from './tool.js'
 import * as llmz from './llmz.js'
 
-import { z } from '@bpinternal/zui'
+import { transforms, z } from '@bpinternal/zui'
 
 import { getCachedCognitiveClient } from './__tests__/index.js'
 import { Exit } from './exit.js'
@@ -139,8 +139,11 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
     assert(!!result.snapshot.toolCall)
     expect(result.snapshot.toolCall.name).toBe(tGetPaymentIntent().name)
     expect(result.snapshot.toolCall.input).toEqual({ amount: 10 })
-    expect(result.snapshot.toolCall.inputSchema).toEqual(tGetPaymentIntent().zInput.toJsonSchema())
-    expect(result.snapshot.toolCall.outputSchema).toEqual(tGetPaymentIntent().zOutput.toJsonSchema())
+
+    const expectedInput = transforms.toJSONSchemaLegacy(tGetPaymentIntent().zInput)
+    expect(result.snapshot.toolCall.inputSchema).toEqual(expectedInput)
+    const expectedOutput = transforms.toJSONSchemaLegacy(tGetPaymentIntent().zOutput)
+    expect(result.snapshot.toolCall.outputSchema).toEqual(expectedOutput)
   })
 
   test('cannot resume from a snapshot without resolving it', async () => {

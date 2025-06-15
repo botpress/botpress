@@ -5,6 +5,8 @@ import typingIndicator from 'bp_modules/typing-indicator'
 
 export const INTEGRATION_NAME = 'whatsapp'
 
+const MAX_BUTTON_LABEL_LENGTH = 20
+
 const commonConfigSchema = z.object({
   typingIndicatorEmoji: z
     .boolean()
@@ -27,6 +29,13 @@ const commonConfigSchema = z.object({
       'Expiry time in hours for downloaded media files. An expiry time of 0 means the files will never expire.'
     ),
 })
+
+const dropdownButtonLabelSchema = z
+  .string()
+  .max(MAX_BUTTON_LABEL_LENGTH)
+  .optional()
+  .title('Button Label')
+  .describe('Label for the dropdown button')
 
 const startConversationProps = {
   title: 'Start Conversation',
@@ -76,7 +85,7 @@ const defaultBotPhoneNumberId = {
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.0.4',
+  version: '4.2.1',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -145,6 +154,16 @@ export default new IntegrationDefinition({
               .optional()
               .title('value')
               .describe('Underlying value of the message, if any (e.g. button payload, list reply payload, etc.)'),
+          }),
+        },
+        dropdown: {
+          schema: messages.defaults.dropdown.schema.extend({
+            buttonLabel: dropdownButtonLabelSchema,
+          }),
+        },
+        choice: {
+          schema: messages.defaults.choice.schema.extend({
+            buttonLabel: dropdownButtonLabelSchema,
           }),
         },
         file: {

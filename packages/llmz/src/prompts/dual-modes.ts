@@ -71,7 +71,7 @@ const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
         name: exit.name,
         description: exit.description,
         has_typings: true,
-        typings: exit.zSchema.toTypescript(),
+        typings: exit.zSchema.toTypescriptType(),
       })
     } else {
       exits.push({

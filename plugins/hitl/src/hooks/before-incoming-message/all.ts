@@ -33,6 +33,7 @@ const _handleDownstreamMessage = async (
     return consts.STOP_EVENT_HANDLING // we don't want the bot to chat with the human agent in a closed ticket
   }
 
+  const downstreamUserId = props.data.userId
   const upstreamConversationId = downstreamConversation.tags['upstream']
 
   if (!upstreamConversationId) {
@@ -64,7 +65,7 @@ const _handleDownstreamMessage = async (
 
   props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
 
-  const upstreamUserId = await tryLinkWebchatUser(props, upstreamConversationId)
+  const upstreamUserId = await tryLinkWebchatUser(props, { downstreamUserId, upstreamConversationId })
   await upstreamCm.respond({ ...messagePayload, userId: upstreamUserId })
   return consts.STOP_EVENT_HANDLING
 }
