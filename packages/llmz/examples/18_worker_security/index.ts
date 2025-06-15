@@ -196,8 +196,8 @@ for (const script of maliciousScripts) {
   })
 
   console.log(result.status)
-  console.log(result.iterations.at(-1)?.code)
-  console.log(result.iterations.at(-1)?.status)
+  console.log(result.iteration?.code)
+  console.log(result.iteration?.status)
 
   await new Promise((resolve) => setTimeout(resolve, 5000))
   console.clear()

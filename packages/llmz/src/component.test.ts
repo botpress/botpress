@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-import { getComponentReference } from './component.js'
+import { getComponentReference, renderToTsx } from './component.js'
 import { DefaultComponents } from './component.default.js'
 
 describe('getComponentReference', () => {
@@ -231,5 +231,182 @@ describe('getComponentReference', () => {
       </Message>
       \`\`\`"
     `)
+  })
+})
+
+describe('renderToTsx', () => {
+  it('renders a simple component with string props', () => {
+    const component = {
+      __jsx: true as const,
+      type: 'Button',
+      props: {
+        label: 'Click me',
+        action: 'say',
+      },
+      children: [],
+    }
+    expect(renderToTsx(component)).toBe('<Button label="Click me" action="say"></Button>')
+  })
+
+  it('renders a component with boolean props', () => {
+    const component = {
+      __jsx: true as const,
+      type: 'Button',
+      props: {
+        disabled: true,
+        loading: false,
+      },
+      children: [],
+    }
+    expect(renderToTsx(component)).toBe('<Button disabled></Button>')
+  })
+
+  it('renders a component with numeric props', () => {
+    const component = {
+      __jsx: true as const,
+      type: 'Progress',
+      props: {
+        value: 42,
+        max: 100,
+      },
+      children: [],
+    }
+    expect(renderToTsx(component)).toBe('<Progress value={42} max={100}></Progress>')
+  })
+
+  it('renders a component with object props', () => {
+    const component = {
+      __jsx: true as const,
+      type: 'Config',
+      props: {
+        settings: { theme: 'dark', mode: 'compact' },
+      },
+      children: [],
+    }
+    expect(renderToTsx(component)).toBe('<Config settings={{"theme":"dark","mode":"compact"}}></Config>')
+  })
+
+  it('renders a component with nested children', () => {
+    const component = {
+      __jsx: true as const,
+      type: 'Card',
+      props: {
+        title: 'Product',
+      },
+      children: [
+        {
+          __jsx: true as const,
+          type: 'Button',
+          props: { label: 'Buy' },
+          children: [],
+        },
+      ],
+    }
+    expect(renderToTsx(component)).toBe('<Card title="Product"><Button label="Buy"></Button></Card>')
+  })
+
+  it('renders a component with text children', () => {
+    const component = {
+      __jsx: true as const,
+      type: 'Message',
+      props: {},
+      children: ['Hello, world!'],
+    }
+    expect(renderToTsx(component)).toBe('<Message>Hello, world!</Message>')
+  })
+
+  it('renders a component with mixed children', () => {
+    const component = {
+      __jsx: true as const,
+      type: 'Message',
+      props: {},
+      children: [
+        'Hello, ',
+        {
+          __jsx: true as const,
+          type: 'Button',
+          props: { label: 'Click me' },
+          children: [],
+        },
+        '!',
+      ],
+    }
+    expect(renderToTsx(component)).toBe('<Message>Hello, <Button label="Click me"></Button>!</Message>')
+  })
+
+  it('handles null and undefined props', () => {
+    const component = {
+      __jsx: true as const,
+      type: 'Button',
+      props: {
+        label: 'Click',
+        optional: null,
+        another: undefined,
+      },
+      children: [],
+    }
+    expect(renderToTsx(component)).toBe('<Button label="Click"></Button>')
+  })
+
+  it('renders a component with multiple children', () => {
+    const component = {
+      __jsx: true as const,
+      type: 'Container',
+      props: {},
+      children: [
+        {
+          __jsx: true as const,
+          type: 'Header',
+          props: { title: 'Welcome' },
+          children: [],
+        },
+        {
+          __jsx: true as const,
+          type: 'Content',
+          props: { padding: true },
+          children: ['Main content'],
+        },
+        {
+          __jsx: true as const,
+          type: 'Footer',
+          props: { year: 2024 },
+          children: [],
+        },
+      ],
+    }
+    expect(renderToTsx(component)).toBe(
+      '<Container><Header title="Welcome"></Header><Content padding>Main content</Content><Footer year={2024}></Footer></Container>'
+    )
+  })
+
+  it('renders a component with non-string primitive children', () => {
+    const component = {
+      __jsx: true as const,
+      type: 'Stats',
+      props: {},
+      children: [
+        {
+          __jsx: true as const,
+          type: 'Stat',
+          props: { label: 'Count' },
+          children: [42],
+        },
+        {
+          __jsx: true as const,
+          type: 'Stat',
+          props: { label: 'Active' },
+          children: [true],
+        },
+        {
+          __jsx: true as const,
+          type: 'Stat',
+          props: { label: 'Empty' },
+          children: [null],
+        },
+      ],
+    }
+    expect(renderToTsx(component)).toBe(
+      '<Stats><Stat label="Count">42</Stat><Stat label="Active">true</Stat><Stat label="Empty">null</Stat></Stats>'
+    )
   })
 })

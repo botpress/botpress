@@ -32,16 +32,17 @@ const result = await execute({
   client,
 })
 
-const iteration = result.iterations.at(-1)
+if (!result.isError()) {
+  console.error('Expected an error due to the demo tool, but got:', result.status)
+  process.exit(1)
+}
 
-if (iteration?.status.type === 'execution_error') {
+if (result.iteration?.status.type === 'execution_error') {
   console.log(
     box([
       chalk.red('An error occurred during the execution:'),
-      iteration.status.execution_error.message,
-      ...iteration.status.execution_error.stack.split('\n'),
+      result.iteration.status.execution_error.message,
+      ...result.iteration.status.execution_error.stack.split('\n'),
     ])
   )
-} else {
-  console.log('Last iteration:', iteration?.status)
 }

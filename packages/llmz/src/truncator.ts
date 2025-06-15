@@ -1,8 +1,7 @@
+import { LLMzPrompts } from './prompts/prompt.js'
 import { getTokenizer } from './utils.js'
 
-type MessageLike = {
-  content: string
-}
+type MessageLike = LLMzPrompts.Message
 
 type Options<T> = {
   messages: T[]
@@ -70,7 +69,7 @@ export function truncateWrappedContent<T extends MessageLike>({
   for (const msg of messages) {
     const current: Part[] = []
 
-    const content = msg.content
+    const content = typeof msg.content === 'string' ? msg.content : ''
     let match
     const regex = getRegex()
     let lastIndex = 0
@@ -204,17 +203,20 @@ export function truncateWrappedContent<T extends MessageLike>({
     const p = parts[i]!
     return {
       ...msg,
-      content: removeRedundantWrappers(
-        p
-          .map((part) => {
-            if (part.truncatable) {
-              return part.content
-            }
+      content:
+        typeof msg.content === 'string'
+          ? removeRedundantWrappers(
+              p
+                .map((part) => {
+                  if (part.truncatable) {
+                    return part.content
+                  }
 
-            return part.content
-          })
-          .join('')
-      ),
+                  return part.content
+                })
+                .join('')
+            )
+          : msg.content,
     }
   })
 }

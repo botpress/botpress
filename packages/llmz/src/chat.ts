@@ -1,8 +1,8 @@
 import { Component, RenderedComponent } from './component.js'
 import { Context } from './context.js'
 import { ValueOrGetter } from './getter.js'
-import { TranscriptArray, TranscriptMessage } from './transcript.js'
-import { ExecutionResult } from './types.js'
+import { ExecutionResult } from './result.js'
+import { TranscriptArray, Transcript } from './transcript.js'
 
 export type MessageHandler = (input: RenderedComponent) => Promise<void> | void
 
@@ -14,7 +14,7 @@ export class Chat {
   public constructor(props: {
     handler: MessageHandler
     components: ValueOrGetter<Component[], Context>
-    transcript?: ValueOrGetter<TranscriptMessage[], Context>
+    transcript?: ValueOrGetter<Transcript.Message[], Context>
   }) {
     this.handler = props.handler
     this.components = props.components

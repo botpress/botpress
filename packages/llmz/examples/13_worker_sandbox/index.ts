@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
-import { execute, Exit, Tool } from 'llmz'
+import { execute, Tool } from 'llmz'
 
 import { printTrace } from '../utils/debug'
 
@@ -35,18 +35,9 @@ const checkin = new Tool({
   },
 })
 
-const exit = new Exit({
-  name: 'exit',
-  description: 'Exit the program',
-  schema: z.object({
-    message: z.string().describe('Output message'),
-  }),
-})
-
 const result = await execute({
   instructions: `console.log the number 1 to 10,000 in a for loop, pausing for 500 milliseconds between each number. Make sure to comment the code very well. Checkin when appropriate.`,
   tools: [wait, checkin],
-  exits: [exit],
   client,
   // The signal will be used to abort the execution after 5 seconds
   signal: controller.signal,
@@ -61,7 +52,5 @@ const result = await execute({
   },
 })
 
-const iteration = result.iterations.at(-1)
-
 console.log('Execution finished')
-console.log('Last iteration:', iteration?.status)
+console.log('Last iteration:', result.iteration?.status)

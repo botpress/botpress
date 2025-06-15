@@ -1,4 +1,5 @@
 import { type Cognitive } from '@botpress/cognitive'
+import { z } from '@bpinternal/zui'
 import { cloneDeep, isPlainObject } from 'lodash-es'
 import { ulid } from 'ulid'
 import { Chat } from './chat.js'
@@ -8,9 +9,8 @@ import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
 import { HookedArray } from './handlers.js'
 import { ObjectInstance } from './objects.js'
-import type { OAI } from './openai.js'
 import { DualModePrompt } from './prompts/dual-modes.js'
-import { Prompt } from './prompts/prompt.js'
+import { LLMzPrompts, Prompt } from './prompts/prompt.js'
 import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
 import { TranscriptArray } from './transcript.js'
@@ -116,9 +116,24 @@ export const ListenExit = new Exit({
   description: 'Listen to the user and provide a response',
 })
 
+export const DefaultExit = new Exit({
+  name: 'done',
+  description: 'When the execution is sucessfully completed or when error recovery is not possible',
+  schema: z.discriminatedUnion('success', [
+    z.object({
+      success: z.literal(true),
+      result: z.any().describe('The result of the execution'),
+    }),
+    z.object({
+      success: z.literal(false),
+      error: z.string().describe('The error message if the execution failed'),
+    }),
+  ]),
+})
+
 export class Iteration {
   public id: string
-  public messages: OAI.Message[]
+  public messages: LLMzPrompts.Message[]
   public code?: string
   public traces: HookedArray<Trace>
   public variables: Record<string, any>
@@ -246,7 +261,7 @@ export class Iteration {
   public constructor(props: {
     id: string
     parameters: IterationParameters
-    messages: OAI.Message[]
+    messages: LLMzPrompts.Message[]
     variables: Record<string, any>
   }) {
     this.id = props.id
@@ -336,7 +351,7 @@ export class Context {
     return variables
   }
 
-  private async _getIterationMessages(parameters: IterationParameters): Promise<OAI.Message[]> {
+  private async _getIterationMessages(parameters: IterationParameters): Promise<LLMzPrompts.Message[]> {
     const lastIteration = this.iterations.at(-1)
 
     if (this.snapshot?.status.type === 'resolved') {
@@ -570,7 +585,7 @@ export class Context {
     }
 
     if (!components.length && !exits.length) {
-      throw new Error('When no components are provided, at least one exit is required.')
+      exits.push(DefaultExit)
     }
 
     return {
