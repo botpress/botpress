@@ -1,6 +1,5 @@
 import type * as client from '@botpress/client'
 import chalk from 'chalk'
-import _ from 'lodash'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { parsePackageRef } from '../package-ref'
@@ -38,13 +37,10 @@ export class ListInterfacesCommand extends GlobalCommand<ListInterfacesCommandDe
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
 
-    const privateLister = (req: { nextToken?: string }) => api.client.listInterfaces({ nextToken: req.nextToken })
-    const publicLister = (req: { nextToken?: string }) => api.client.listPublicInterfaces({ nextToken: req.nextToken })
+    const lister = (req: { nextToken?: string }) => api.client.listInterfaces({ nextToken: req.nextToken })
 
     try {
-      const privateInterfaces = await api.listAllPages(privateLister, (r) => r.interfaces)
-      const publicInterfaces = await api.listAllPages(publicLister, (r) => r.interfaces)
-      const interfaces = _.uniqBy([...privateInterfaces, ...publicInterfaces], (i) => i.id)
+      const interfaces = await api.listAllPages(lister, (r) => r.interfaces)
 
       this.logger.success('Interfaces:')
       this.logger.json(interfaces)

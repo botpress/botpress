@@ -1,6 +1,5 @@
 import type * as client from '@botpress/client'
 import chalk from 'chalk'
-import _ from 'lodash'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { parsePackageRef } from '../package-ref'
@@ -38,13 +37,10 @@ export class ListPluginsCommand extends GlobalCommand<ListPluginsCommandDefiniti
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
 
-    const privateLister = (req: { nextToken?: string }) => api.client.listPlugins({ nextToken: req.nextToken })
-    const publicLister = (req: { nextToken?: string }) => api.client.listPublicPlugins({ nextToken: req.nextToken })
+    const lister = (req: { nextToken?: string }) => api.client.listPlugins({ nextToken: req.nextToken })
 
     try {
-      const privatePlugins = await api.listAllPages(privateLister, (r) => r.plugins)
-      const publicPlugins = await api.listAllPages(publicLister, (r) => r.plugins)
-      const plugins = _.uniqBy([...privatePlugins, ...publicPlugins], (p) => p.id)
+      const plugins = await api.listAllPages(lister, (r) => r.plugins)
 
       this.logger.success('Plugins:')
       this.logger.json(plugins)
