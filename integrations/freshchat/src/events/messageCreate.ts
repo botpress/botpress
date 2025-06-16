@@ -1,12 +1,17 @@
 import { MessageCreateFreshchatEvent } from '../definitions/freshchat-events'
+import { updateAgentUser } from '../util'
 import * as bp from '.botpress'
 
 export const executeMessageCreate = async ({
   freshchatEvent,
   client,
+  ctx,
+  logger,
 }: {
   freshchatEvent: MessageCreateFreshchatEvent
   client: bp.Client
+  ctx: bp.Context
+  logger: bp.Logger
 }) => {
   // Ignore non agent messages
   if (freshchatEvent.actor.actor_type === 'user') {
@@ -31,13 +36,19 @@ export const executeMessageCreate = async ({
     },
   })
 
+  const { updatedAgentUser } = await updateAgentUser(user, client, ctx, logger)
+
   for (const messagePart of freshchatEvent.data.message.message_parts) {
     await client.createMessage({
       tags: {},
       type: 'text',
       userId: user?.id as string,
       conversationId: conversation.id,
-      payload: { text: messagePart.text.content },
+      payload: {
+        text:
+          (ctx.configuration.showAgentName && updatedAgentUser.name?.length ? `**${updatedAgentUser.name}:** ` : '') +
+          messagePart.text.content,
+      },
     })
   }
 }
