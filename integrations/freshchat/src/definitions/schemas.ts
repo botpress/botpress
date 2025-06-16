@@ -16,9 +16,10 @@ export const FreshchatConfigurationSchema = z.object({
     .string()
     .title('Domain Name')
     .describe('Your Freshchat domain from the Freshchat chat URL (example: yourcompany-5b321a95b1dfee217185497)'),
-  showAgentName: z.boolean().optional().describe('Show agent name or not on agent messages'),
+  showAgentName: z.boolean().title('Show Agent Name').optional().describe('Show agent name or not on agent messages'),
   agentAvatarUrl: z
     .string()
+    .title('Default Agent Avatar URL')
     .optional()
     .describe(
       'Default URL for the agent avatar, if not provided, the first letter of the agent name will be used (Webchat Only)'

@@ -14,10 +14,7 @@ import * as bp from '.botpress'
 class FreshchatClient {
   private _client: Axios
 
-  public constructor(
-    private _config: FreshchatConfiguration,
-    private _logger: bp.Logger
-  ) {
+  public constructor(private _config: FreshchatConfiguration, private _logger: bp.Logger) {
     this._client = axios.create({
       baseURL: `https://${this._config.domain}.freshchat.com/v2`,
     })
