@@ -32,7 +32,7 @@ export class MultiAgentOrchestrator {
   }
 
   hasHandedOff(result: ExecutionResult): boolean {
-    return result.status === 'success' && isHandoffMetadata(result.result.exit.metadata)
+    return result.isSuccess() && isHandoffMetadata(result.result.exit.metadata)
   }
 
   setCurrentAgent(agentName: string) {

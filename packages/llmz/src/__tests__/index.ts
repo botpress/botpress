@@ -5,6 +5,23 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { expect } from 'vitest'
 
+export async function getCorgiUrl() {
+  const client = new CachedClient({
+    apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.dev',
+    botId: process.env.CLOUD_BOT_ID,
+    token: process.env.CLOUD_PAT,
+  })
+
+  const { file } = await client.uploadFile({
+    key: 'tests/corgi.png',
+    content: fs.readFileSync(path.resolve(__dirname, './corgi.png')),
+    publicContentImmediatelyAccessible: true,
+    accessPolicies: ['public_content'],
+  })
+
+  return file.url
+}
+
 function stringifyWithSortedKeys(obj: any, space?: number): string {
   function sortKeys(input: any): any {
     if (Array.isArray(input)) {
@@ -112,7 +129,24 @@ export const getCachedCognitiveClient = () => {
     provider: {
       deleteModelPreferences: async () => {},
       saveModelPreferences: async () => {},
-      fetchInstalledModels: async () => [],
+      fetchInstalledModels: async () => [
+        {
+          id: 'gpt-4o-2024-11-20',
+          ref: 'openai:gpt-4o-2024-11-20',
+          description: '',
+          name: 'GPT-4o',
+          integration: 'openai',
+          input: {
+            costPer1MTokens: 0.00015,
+            maxTokens: 128000,
+          },
+          output: {
+            costPer1MTokens: 0.00015,
+            maxTokens: 128000,
+          },
+          tags: [],
+        },
+      ],
       fetchModelPreferences: async () => ({
         best: ['openai:gpt-4o-2024-11-20'] as const,
         fast: ['openai:gpt-4o-2024-11-20'] as const,
@@ -120,6 +154,7 @@ export const getCachedCognitiveClient = () => {
       }),
     },
   })
+
   return cognitive
 }
 

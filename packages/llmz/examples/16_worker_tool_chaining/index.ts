@@ -74,16 +74,14 @@ const result = await execute({
   client,
 })
 
-const iteration = result.iterations.at(-1)
-
-if (iteration?.hasExitedWith(exit)) {
+if (result.is(exit)) {
   console.log(
     box([
       'The LLM wrote the code to solve the problem:',
-      ...iteration.code!.split('\n'),
+      ...result.iteration.code!.split('\n'),
       '',
       'It then executed it and returned the result:',
-      chalk.cyan.bold(String(iteration.status.exit_success.return_value.result)),
+      chalk.cyan.bold(result.output.result),
     ])
   )
 }
