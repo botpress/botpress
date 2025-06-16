@@ -8,7 +8,7 @@
     },
     "llmz#generate": {
       "outputs": ["src/**/*.md.ts"],
-      "dependsOn": ["^generate", "^build"]
+      "dependsOn": ["^generate"]
     },
     "build": {
       "outputs": ["bp_modules/**", ".botpress/**"],
