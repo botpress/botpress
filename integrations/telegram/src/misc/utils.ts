@@ -3,7 +3,7 @@ import { Response, RuntimeError } from '@botpress/sdk'
 import { ok } from 'assert'
 import _ from 'lodash'
 import { Context, Markup, Telegraf, Telegram } from 'telegraf'
-import { PhotoSize, Update, User } from 'telegraf/typings/core/types/typegram'
+import { PhotoSize, Update, User, Sticker } from 'telegraf/typings/core/types/typegram'
 import { Card, AckFunction, Logger, MessageHandlerProps, BotpressMessage, TelegramMessage } from './types'
 import * as bp from '.botpress'
 
@@ -162,6 +162,17 @@ export const convertTelegramMessageToBotpressMessage = async ({
     ok(photo, 'No photo found in message')
     const fileUrl = await telegram.getFileLink(photo.file_id)
 
+    return {
+      type: 'image',
+      payload: {
+        imageUrl: fileUrl.toString(),
+      },
+    }
+  }
+
+  if ('sticker' in message) {
+    const stickerMessage = message as TelegramMessage & { sticker: Sticker }
+    const fileUrl = await telegram.getFileLink(stickerMessage.sticker.file_id)
     return {
       type: 'image',
       payload: {
