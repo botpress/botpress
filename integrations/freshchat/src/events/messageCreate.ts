@@ -45,9 +45,7 @@ export const executeMessageCreate = async ({
       type: 'text',
       userId: user?.id as string,
       conversationId: conversation.id,
-      payload: {
-        text: messagePart.text.content,
-      },
+      payload: { text: messagePart.text.content },
     })
   }
 }
