@@ -103,23 +103,30 @@ async function main() {
   try {
     const args = argsSchema.parse(values)
     const { apiUrl, token, workspaceId, instagramRefreshToken, json, useProvidedToken } = args
-    if (apiUrl !== DEFAULT_API_URL && !json) {
-      console.warn('🔗 Using custom API URL:', apiUrl)
+    const messages: string[] = []
+    const log = (message: string) => {
+      if (!json) {
+        console.info(message)
+      } else {
+        messages.push(message)
+      }
+    }
+    if (apiUrl !== DEFAULT_API_URL) {
+      log(`🔗 Using custom API URL: ${apiUrl}`)
     }
 
     const client = new Client({ apiUrl, token, workspaceId })
-    const output = await refreshSandboxAccessToken({
+    const refreshResult = await refreshSandboxAccessToken({
       instagramRefreshToken,
       client,
       json,
       useProvidedToken,
-      log: (message: string) => {
-        if (!json) {
-          console.info(message)
-        }
-      },
+      log,
     })
-    console.info(json ? JSON.stringify(output, null, 2) : `New token: ${output.refreshedToken}`)
+    const output = json
+      ? JSON.stringify({ message: messages.join('\n'), messages, ...refreshResult }, null, 2)
+      : `New token: ${refreshResult.refreshedToken}`
+    console.info(output)
     process.exit(0)
   } catch (error) {
     console.error('Error:', error)
