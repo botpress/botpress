@@ -5,7 +5,7 @@ import typingIndicator from './bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '0.7.2',
+  version: '0.7.3',
   title: 'Telegram',
   description: 'Engage with your audience in real-time.',
   icon: 'icon.svg',
