@@ -126,6 +126,7 @@ export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
   interfaces: common.PluginInterfaceExtensions<TPlugin>
   actions: actionProxy.ActionProxy<TPlugin>
   states: stateProxy.StateProxy<TPlugin>
+  alias?: string
 
   /**
    * # EXPERIMENTAL
