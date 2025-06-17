@@ -13,7 +13,7 @@
   "dependencies": {
     "@botpress/client": "workspace:^",
     "@botpress/zai": "^2.0.8",
-    "@bpinternal/zui": "^0.22.7",
+    "@bpinternal/zui": "^1.0.0",
     "chalk": "^4.1.2",
     "llmz": "link:..",
     "lodash": "^4.17.21",

@@ -3,7 +3,7 @@ import { describe, assert, expect, test } from 'vitest'
 import { Tool } from './tool.js'
 import * as llmz from './llmz.js'
 
-import { z } from '@bpinternal/zui'
+import { transforms, z } from '@bpinternal/zui'
 
 import { getCachedCognitiveClient } from './__tests__/index.js'
 import { Exit } from './exit.js'
@@ -11,6 +11,7 @@ import { SnapshotSignal } from './errors.js'
 import { Chat } from './chat.js'
 import { DefaultComponents } from './component.default.js'
 import { TranscriptArray } from './transcript.js'
+import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult } from './result.js'
 
 const client = getCachedCognitiveClient()
 
@@ -23,6 +24,10 @@ const MOVIES = [
 
 const PAYMENT_INTENT_ID = 'pi_1J2e3f4g5h6i7j8k9l0'
 const TICKET_ID = 'T-123'
+
+function assertPartial(result: ExecutionResult): asserts result is PartialExecutionResult {
+  assert(result instanceof PartialExecutionResult, 'Expected result to be an instance of PartialExecutionResult')
+}
 
 const tBuyMovieTicket = () =>
   new Tool({
@@ -126,7 +131,7 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
   })
 
   test('an execute signal creates a snapshot', async () => {
-    assert(result.status === 'interrupted')
+    assertPartial(result)
     expect(result.signal).toBeInstanceOf(SnapshotSignal)
     expect(result.snapshot).toBeDefined()
     expect(result.snapshot.reason).toBe('payment needed')
@@ -134,12 +139,15 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
     assert(!!result.snapshot.toolCall)
     expect(result.snapshot.toolCall.name).toBe(tGetPaymentIntent().name)
     expect(result.snapshot.toolCall.input).toEqual({ amount: 10 })
-    expect(result.snapshot.toolCall.inputSchema).toEqual(tGetPaymentIntent().zInput.toJsonSchema())
-    expect(result.snapshot.toolCall.outputSchema).toEqual(tGetPaymentIntent().zOutput.toJsonSchema())
+
+    const expectedInput = transforms.toJSONSchemaLegacy(tGetPaymentIntent().zInput)
+    expect(result.snapshot.toolCall.inputSchema).toEqual(expectedInput)
+    const expectedOutput = transforms.toJSONSchemaLegacy(tGetPaymentIntent().zOutput)
+    expect(result.snapshot.toolCall.outputSchema).toEqual(expectedOutput)
   })
 
   test('cannot resume from a snapshot without resolving it', async () => {
-    assert(result.status === 'interrupted')
+    assertPartial(result)
 
     const snapshot = result.snapshot.clone()
     assert(snapshot.status.type === 'pending')
@@ -154,12 +162,12 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
       snapshot,
     })
 
-    assert(final.status === 'error')
-    expect(final.error).toMatch(/still pending/)
+    assert(final instanceof ErrorExecutionResult)
+    expect(final.error?.toString()).toMatch(/still pending/)
   })
 
   test('a snapshot can be resolved', async () => {
-    assert(result.status === 'interrupted')
+    assertPartial(result)
 
     const snapshot = result.snapshot.clone()
 
@@ -186,7 +194,7 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
   })
 
   test('a snapshot can be rejected', async () => {
-    assert(result.status === 'interrupted')
+    assertPartial(result)
 
     const snapshot = result.snapshot.clone()
 

@@ -30,6 +30,13 @@ const commonConfigSchema = z.object({
     ),
 })
 
+const dropdownButtonLabelSchema = z
+  .string()
+  .max(MAX_BUTTON_LABEL_LENGTH)
+  .optional()
+  .title('Button Label')
+  .describe('Label for the dropdown button')
+
 const startConversationProps = {
   title: 'Start Conversation',
   description:
@@ -78,7 +85,7 @@ const defaultBotPhoneNumberId = {
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.2.0',
+  version: '4.2.1',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -151,12 +158,12 @@ export default new IntegrationDefinition({
         },
         dropdown: {
           schema: messages.defaults.dropdown.schema.extend({
-            buttonLabel: z
-              .string()
-              .max(MAX_BUTTON_LABEL_LENGTH)
-              .optional()
-              .title('Button Label')
-              .describe('Label for the dropdown button'),
+            buttonLabel: dropdownButtonLabelSchema,
+          }),
+        },
+        choice: {
+          schema: messages.defaults.choice.schema.extend({
+            buttonLabel: dropdownButtonLabelSchema,
           }),
         },
         file: {

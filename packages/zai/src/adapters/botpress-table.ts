@@ -1,5 +1,5 @@
 import { type Client } from '@botpress/client'
-import { z } from '@bpinternal/zui'
+import { transforms, z } from '@bpinternal/zui'
 
 import { GenerationMetadata } from '../utils'
 import { Adapter, GetExamplesProps, SaveExampleProps } from './adapter'
@@ -73,7 +73,7 @@ const TableSchema = z.object({
 const searchableColumns = ['input'] as const satisfies Array<keyof typeof TableSchema.shape> as string[]
 
 const TableJsonSchema = Object.entries(TableSchema.shape).reduce((acc, [key, value]) => {
-  acc[key] = value.toJsonSchema()
+  acc[key] = transforms.toJSONSchemaLegacy(value)
   acc[key]['x-zui'] ??= {}
   acc[key]['x-zui'].searchable = searchableColumns.includes(key)
   return acc

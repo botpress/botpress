@@ -40,5 +40,9 @@ export const user = {
       title: 'ID',
       description: 'Teams user ID',
     },
+    email: {
+      title: 'Email',
+      description: 'Email address',
+    },
   },
 } satisfies IntegrationDefinitionProps['user']

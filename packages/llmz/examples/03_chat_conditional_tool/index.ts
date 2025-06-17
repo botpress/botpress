@@ -101,6 +101,8 @@ while (await chat.iterate()) {
   await execute({
     client,
     chat,
+    // Each iteration will evaluate the instructions and tools
+    // It will pick dynamically the right instructions and tools for the current user identity
     instructions: () => InstructionsForUser[userId],
     tools: () => ToolsForUser[userId],
     onTrace: ({ trace }) => printTrace(trace, ['tool_call']),

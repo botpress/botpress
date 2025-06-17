@@ -40,7 +40,7 @@ You can:
 
 You can include the following components inside a `<Message>`:
 
-{{components}}
+{{{components}}}
 
 ## Return Statement
 
@@ -55,7 +55,7 @@ You can include the following components inside a `<Message>`:
 **typeof value** must respect this format:
 
 ```
-{{typings}}
+{{{typings}}}
 ```
 
 ```tsx
@@ -177,7 +177,8 @@ If the instructions say something about the use of tools, then you should priori
 
 # Part 4: Conversation Transcript
 
-The following is the transcript of the conversation between yourself (assistant) and the user. Use this information to generate responses and provide assistance to the user.
+The following is the transcript of the conversation between yourself (assistant) and the user. Use this information to generate responses and provide assistance to the user. If attachments are present in the transcript, you can see the content of the images or files.
+
 Important Note: The conversation transcript does not include the Response Format we expect from you. Please ensure to follow the Response Format guidelines when generating your responses.
 
 ## Transcript

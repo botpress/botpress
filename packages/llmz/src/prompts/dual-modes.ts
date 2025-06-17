@@ -1,7 +1,6 @@
 import { isPlainObject } from 'lodash-es'
 import { getComponentReference } from '../component.js'
 import { inspect } from '../inspect.js'
-import { OAI } from '../openai.js'
 import { cleanStackTrace } from '../stack-traces.js'
 import { wrapContent } from '../truncator.js'
 
@@ -72,7 +71,7 @@ const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
         name: exit.name,
         description: exit.description,
         has_typings: true,
-        typings: exit.zSchema.toTypescript(),
+        typings: exit.zSchema.toTypescriptType(),
       })
     } else {
       exits.push({
@@ -108,15 +107,30 @@ ${variables_example}
     role: 'system' as const,
     content: replacePlaceholders(canTalk ? CHAT_SYSTEM_PROMPT_TEXT : WORKER_SYSTEM_PROMPT_TEXT, {
       is_message_enabled: canTalk,
-      'tools.d.ts': dts,
-      identity: props.instructions?.length ? props.instructions : 'No specific instructions provided',
-      transcript: props.transcript.toString(),
+      'tools.d.ts': wrapContent(dts, {
+        preserve: 'both',
+        minTokens: 500,
+      }),
+      identity: wrapContent(props.instructions?.length ? props.instructions : 'No specific instructions provided', {
+        preserve: 'both',
+        minTokens: 1000,
+      }),
+      transcript: wrapContent(props.transcript.toString(), {
+        preserve: 'bottom',
+        minTokens: 500,
+      }),
       tool_names: tool_names.join(', '),
       readonly_vars: readonly_vars.join(', '),
       writeable_vars: writeable_vars.join(', '),
       variables_example,
       exits,
-      components: props.components.map((component) => getComponentReference(component.definition)).join('\n\n'),
+      components: wrapContent(
+        props.components.map((component) => getComponentReference(component.definition)).join('\n\n'),
+        {
+          preserve: 'top',
+          minTokens: 500,
+        }
+      ),
     }).trim(),
   }
 }
@@ -129,19 +143,54 @@ const getInitialUserMessage: Prompt['getInitialUserMessage'] = async (props) => 
     ? 'Nobody has spoken yet in this conversation. You can start by saying something.'
     : 'Nobody has spoken yet in this conversation.'
 
-  const hasUserSpokenLast = transcript.length && transcript[0]?.role === 'user'
-  const hasAssistantSpokenLast = transcript.length && transcript[0]?.role === 'assistant'
-
-  if (hasUserSpokenLast) {
+  if (transcript.length && transcript[0]?.role === 'user') {
     recap = `The user spoke last. Here's what they said:
 ■im_start
 ${transcript[0]?.content.trim()}
 ■im_end`.trim()
-  } else if (hasAssistantSpokenLast) {
+  } else if (transcript.length && transcript[0]?.role === 'assistant') {
     recap = `You are the one who spoke last. Here's what you said last:
 ■im_start
 ${transcript[0]?.content.trim()}
 ■im_end`.trim()
+  } else if (transcript.length && transcript[0]?.role === 'event') {
+    recap = `An event was triggered last. Here's what it was:
+■im_start
+${inspect(transcript[0]?.payload, transcript[0]?.name, { tokens: 5000 })}
+■im_end`.trim()
+  }
+
+  const attachments = transcript
+    .flatMap((x) => (x.role === 'user' || x.role === 'event' ? (x.attachments ?? []) : []))
+    .slice(-10)
+
+  if (attachments.length) {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+    return {
+      role: 'user',
+      type: 'multipart',
+      content: [
+        {
+          type: 'text',
+          text: replacePlaceholders(isChatMode ? CHAT_USER_PROMPT_TEXT : WORKER_USER_PROMPT_TEXT, {
+            recap,
+          }).trim(),
+        },
+        ...attachments.flatMap<LLMzPrompts.MessageContent>((attachment, idx) => {
+          return [
+            {
+              type: 'text',
+              text: `Here's the attachment [${alphabet[idx % alphabet.length]}]`,
+            },
+            {
+              type: 'image',
+              url: attachment.url,
+            },
+          ]
+        }),
+      ] satisfies LLMzPrompts.MessageContent[],
+    }
   }
 
   return {
@@ -152,10 +201,9 @@ ${transcript[0]?.content.trim()}
   }
 }
 
-const getInvalidCodeMessage = async (props: LLMzPrompts.InvalidCodeProps): Promise<OAI.Message> => {
+const getInvalidCodeMessage = async (props: LLMzPrompts.InvalidCodeProps): Promise<LLMzPrompts.Message> => {
   return {
     role: 'user',
-    name: 'VM',
     content: `
 ## Important message from the VM
 
@@ -187,10 +235,11 @@ Expected output:
   }
 }
 
-const getCodeExecutionErrorMessage = async (props: LLMzPrompts.CodeExecutionErrorProps): Promise<OAI.Message> => {
+const getCodeExecutionErrorMessage = async (
+  props: LLMzPrompts.CodeExecutionErrorProps
+): Promise<LLMzPrompts.Message> => {
   return {
     role: 'user',
-    name: 'VM',
     content: `
 ## Important message from the VM
 
@@ -216,7 +265,7 @@ Expected output:
   }
 }
 
-const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<OAI.Message> => {
+const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<LLMzPrompts.Message> => {
   let context = ''
 
   if (isPlainObject(props.variables)) {
@@ -252,7 +301,6 @@ const getThinkingMessage = async (props: LLMzPrompts.ThinkingProps): Promise<OAI
 
   return {
     role: 'user',
-    name: 'VM',
     content: `
 ## Important message from the VM
 
@@ -268,7 +316,7 @@ Please continue with the conversation (■fn_start).
   }
 }
 
-const getSnapshotResolvedMessage = (props: LLMzPrompts.SnapshotResolvedProps): OAI.Message => {
+const getSnapshotResolvedMessage = (props: LLMzPrompts.SnapshotResolvedProps): LLMzPrompts.Message => {
   if (props.snapshot.status.type !== 'resolved') {
     throw new Error('Snapshot is not resolved')
   }
@@ -299,7 +347,6 @@ let ${variable.name}: undefined | ${variable.type} = undefined;\n`
 
   return {
     role: 'user',
-    name: 'VM',
     content: `
 ## Important message from the VM
 
@@ -335,7 +382,7 @@ Expected output:
   }
 }
 
-const getSnapshotRejectedMessage = (props: LLMzPrompts.SnapshotRejectedProps): OAI.Message => {
+const getSnapshotRejectedMessage = (props: LLMzPrompts.SnapshotRejectedProps): LLMzPrompts.Message => {
   if (props.snapshot.status.type !== 'rejected') {
     throw new Error('Snapshot is not resolved')
   }
@@ -349,7 +396,6 @@ const getSnapshotRejectedMessage = (props: LLMzPrompts.SnapshotRejectedProps): O
 
   return {
     role: 'user',
-    name: 'VM',
     content: `
 ## Important message from the VM
 

@@ -239,3 +239,46 @@ export function isComponent<T extends ComponentDefinition>(
 export function isAnyComponent(message: unknown): message is RenderedComponent {
   return isAnyJsxComponent(message)
 }
+
+/**
+ * Converts a RenderedComponent back to TSX code
+ * @param component The rendered component to convert
+ * @returns A string containing the TSX representation of the component
+ */
+export function renderToTsx(component: RenderedComponent): string {
+  const props = Object.entries(component.props)
+    .map(([key, value]) => {
+      if (typeof value === 'string') {
+        return `${key}="${value}"`
+      }
+      if (typeof value === 'boolean') {
+        return value ? key : ''
+      }
+      if (typeof value === 'number') {
+        return `${key}={${value}}`
+      }
+      if (value === null || value === undefined) {
+        return ''
+      }
+      if (typeof value === 'object') {
+        return `${key}={${JSON.stringify(value)}}`
+      }
+      return `${key}={${String(value)}}`
+    })
+    .filter(Boolean)
+    .join(' ')
+
+  const children = component.children
+    .map((child) => {
+      if (typeof child === 'string') {
+        return child
+      }
+      if (isAnyComponent(child)) {
+        return renderToTsx(child)
+      }
+      return String(child)
+    })
+    .join('')
+
+  return `<${component.type}${props ? ' ' + props : ''}>${children}</${component.type}>`
+}

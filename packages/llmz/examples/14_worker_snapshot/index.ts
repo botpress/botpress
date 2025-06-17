@@ -40,7 +40,7 @@ const result = await execute({
   client,
 })
 
-if (result.status !== 'interrupted') {
+if (!result.isInterrupted()) {
   console.error('Expected an interruption due to the long-running tool, but got:', result.status)
   process.exit(1)
 }
@@ -77,13 +77,10 @@ const continuation = await execute({
   client,
 })
 
-const iteration = continuation.iterations.at(-1)
-
-if (!iteration?.hasExitedWith(exit)) {
+if (!continuation.is(exit)) {
   console.error("Expected the continuation to exit with the 'exit' exit, but it did not.")
   process.exit(1)
 }
 
-const magicNumber = iteration.status.exit_success.return_value.result
-
+const magicNumber = continuation.output.result
 console.log(chalk.green(`The execution continued to execute from the snapshot and exited with number "${magicNumber}"`))

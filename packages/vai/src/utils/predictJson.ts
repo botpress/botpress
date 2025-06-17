@@ -84,7 +84,7 @@ ${options.systemMessage}
 ---
 Please generate a JSON response with the following format:
 \`\`\`typescript
-${await outputSchema.toTypescriptAsync()}
+${outputSchema.toTypescriptType()}
 \`\`\`
 `.trim(),
       messages: [

@@ -1,4 +1,4 @@
-import { JSONSchema, z } from '@bpinternal/zui'
+import { transforms, z } from '@bpinternal/zui'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { getTypings } from './typings.js'
@@ -13,6 +13,7 @@ import {
   stripInvalidIdentifiers,
   toValidObjectName,
 } from './utils.js'
+import { JSONSchema7 } from 'json-schema'
 
 describe('Tokens', () => {
   beforeAll(async () => {
@@ -111,16 +112,16 @@ describe('convertObjectToZuiLiterals', () => {
 describe('isValidJsonSchema', () => {
   it('valid schema', () => {
     expect(isValidSchema({ type: 'string' })).toBe(true)
-    expect(isValidSchema(z.object({}).toJsonSchema())).toBe(true)
-    expect(isValidSchema(z.string().toJsonSchema())).toBe(true)
-    expect(isValidSchema(z.number().toJsonSchema())).toBe(true)
+    expect(isValidSchema(transforms.toJSONSchemaLegacy(z.object({})))).toBe(true)
+    expect(isValidSchema(transforms.toJSONSchemaLegacy(z.string()))).toBe(true)
+    expect(isValidSchema(transforms.toJSONSchemaLegacy(z.number()))).toBe(true)
   })
 
   it('no type specified', () => {
-    expect(isValidSchema(z.any().toJsonSchema())).toBe(false)
-    expect(isValidSchema({ 'x-zui': {} } as JSONSchema)).toBe(false)
-    expect(isValidSchema({} as JSONSchema)).toBe(false)
-    expect(isValidSchema(null as unknown as JSONSchema)).toBe(false)
+    expect(isValidSchema(transforms.toJSONSchemaLegacy(z.any()))).toBe(false)
+    expect(isValidSchema({ 'x-zui': {} } as JSONSchema7)).toBe(false)
+    expect(isValidSchema({} as JSONSchema7)).toBe(false)
+    expect(isValidSchema(null as unknown as JSONSchema7)).toBe(false)
   })
 })
 

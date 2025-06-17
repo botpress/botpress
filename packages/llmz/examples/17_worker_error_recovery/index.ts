@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
-import { execute, Exit, Tool } from 'llmz'
+import { execute, Tool } from 'llmz'
 import { printTrace } from '../utils/debug'
 import { box } from '../utils/box'
 import chalk from 'chalk'
@@ -27,32 +27,21 @@ const errorProneTool = new Tool({
   },
 })
 
-const exit = new Exit({
-  name: 'exit',
-  description: 'Exit the program',
-  schema: z.object({
-    result: z.number(),
-  }),
-})
-
 const result = await execute({
   instructions: `Return the secret code (getCode)`,
-  exits: [exit],
   tools: [errorProneTool],
   client,
   onTrace: ({ trace }) => printTrace(trace),
 })
 
-const iteration = result.iterations.at(-1)
-
-if (iteration?.hasExitedWith(exit)) {
+if (result.isSuccess()) {
   console.log(
     box([
       'The LLM wrote the code to solve the problem:',
-      ...iteration.code!.split('\n'),
+      ...result.iteration.code!.split('\n'),
       '',
       'It then executed it and returned the result:',
-      chalk.cyan.bold(String(iteration.status.exit_success.return_value.result)),
+      chalk.cyan.bold(JSON.stringify(result.output, null, 2)),
     ])
   )
 }
