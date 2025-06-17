@@ -57,7 +57,7 @@ export const validateBotDefinition = (b: sdk.BotDefinition): void => {
 const _nonCamelCaseKeys = (obj: Record<string, any>): string[] =>
   Object.keys(obj).filter((key) => {
     const tokens: string[] = key.split(PLUGIN_PREFIX_SEP, 2)
-    return tokens.some((t) => !utils.casing.is.camelCase(t))
+    return !utils.casing.is.camelCase(tokens.at(-1)!)
   })
 
 const _hasIntegrationDependency = (b: sdk.BotDefinition, dep: PackageRef): boolean => {
