@@ -30,6 +30,7 @@ runs:
         BP_API_URL: ${{ inputs.environment == 'staging' && 'https://api.botpress.dev' || 'https://api.botpress.cloud' }}
         BP_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
         BP_TOKEN: ${{ inputs.token_cloud_ops_account }}
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
       run: |
         script_path="./.github/scripts/refresh-instagram-access-tokens.sh"
         chmod +x $script_path
