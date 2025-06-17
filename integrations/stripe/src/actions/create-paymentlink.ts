@@ -1,19 +1,9 @@
 import { getClient } from '../client'
 import { createPaymentLinkInputSchema } from '../misc/custom-schemas'
+import type { ProductBasic, StripeClient } from '../misc/stripe-client'
 import type { IntegrationProps } from '../misc/types'
 
-type ProductBasic = {
-  id: string
-  name: string
-}
-
-type PriceBasic = {
-  id: string
-  unit_amount: number | null
-  currency: string
-}
-
-const findOrCreateProduct = async (StripeClient: any, productName: string) => {
+const findOrCreateProduct = async (StripeClient: StripeClient, productName: string) => {
   const products = await StripeClient.listAllProductsBasic()
   let product = products.find((p: ProductBasic) => p.name === productName)
 
@@ -24,14 +14,19 @@ const findOrCreateProduct = async (StripeClient: any, productName: string) => {
   return product
 }
 
-const findOrCreatePrice = async (StripeClient: any, productId: string, unitAmount: number, currency: string) => {
+const findOrCreatePrice = async (
+  StripeClient: StripeClient,
+  productId: string,
+  unitAmount: number,
+  currency: string
+) => {
   const prices = await StripeClient.listPrices(productId)
 
   if (!unitAmount) {
-    return prices.data[0]
+    return prices.data[0] || (await StripeClient.createPrice(productId, 0, currency))
   }
 
-  let price = prices.data.find((p: PriceBasic) => p.unit_amount === unitAmount && p.currency === currency)
+  let price = prices.data.find((p) => p.unit_amount === unitAmount && p.currency === currency)
 
   if (!price) {
     price = await StripeClient.createPrice(productId, unitAmount, currency)
