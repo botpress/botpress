@@ -126,21 +126,21 @@ const discoverUrls: ActionDefinition = {
       url: z
         .string()
         .describe(
-          'The URL of the website to discover URLs from. Can be a domain like "example.com", a full URL like "sub.example.com/page", or a sitemap URL like "https://example.com/sitemap.xml"'
+          'The URL of the website to discover URLs from. Can be a domain like example.com or a full URL like sub.example.com/page'
         ),
       onlyHttps: z.boolean().default(true).describe('Whether to only include HTTPS pages'),
       count: z.number().min(1).max(10_000).default(5_000),
       include: z
         .array(globPattern)
         .max(100, 'You can include up to 100 URL patterns')
-        .describe('List of glob patterns to include URLs from the discovery (eg. "/blog/", "*/public")')
+        .describe('List of glob patterns to include URLs from the discovery')
         .optional(),
       exclude: z
         .array(globPattern)
         .max(100, 'You can exclude up to 100 URL patterns')
         .optional()
         .describe(
-          'List of glob patterns to exclude URLs from the discovery (eg. "/admin/", "https://website.com/private/*"). All URLs matching these patterns will be excluded from the results, even if they are included in the "include" patterns.'
+          'List of glob patterns to exclude URLs from the discovery. All URLs matching these patterns will be excluded from the results, even if they are included in the "include" patterns.'
         ),
     }),
   },
