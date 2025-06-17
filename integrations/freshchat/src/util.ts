@@ -23,7 +23,7 @@ export const updateAgentUser = async (
       name: agentData?.first_name + ' ' + agentData?.last_name,
       ...(agentData?.avatar?.url?.length && { pictureUrl: agentData?.avatar?.url }),
     }
-  } catch (thrown: any) {
+  } catch (thrown) {
     const err = thrown instanceof Error ? thrown : new Error(String(thrown))
     logger.forBot().error(`Couldn't get the agent profile from Freshchat: ${err.message}`)
   }
