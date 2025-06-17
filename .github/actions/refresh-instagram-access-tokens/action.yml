@@ -24,6 +24,8 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Install 1Password CLI
+      uses: 1password/install-cli-action@v1
     - name: Refresh Instagram Access Tokens
       shell: bash
       env:
