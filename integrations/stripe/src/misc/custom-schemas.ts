@@ -15,7 +15,13 @@ const partialCustomer = z
 
 export const createPaymentLinkInputSchema = z.object({
   productName: z.string().placeholder('ex: T-Shirt').describe('The name of the product to be sold'),
-  unit_amount: z.number().title('Unit Price').optional().default(0).describe('The unit price in cents'),
+  unit_amount: z
+    .number()
+    .title('Unit Price')
+    .min(50, 'Amount must be at least 50 cents ($0.50 USD)')
+    .optional()
+    .default(50)
+    .describe('The unit price in cents (minimum 50 cents for USD)'),
   currency: z.string().optional().default('usd').describe('The currency in which the price will be expressed'),
   quantity: z.number().optional().default(1).describe('The quantity of the product being purchased'),
   adjustableQuantity: z.boolean().optional().default(false).describe('Whether or not the quantity can be adjusted'),

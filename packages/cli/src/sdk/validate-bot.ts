@@ -36,12 +36,12 @@ export const validateBotDefinition = (b: sdk.BotDefinition): void => {
       }
     }
 
-    const interfaceDepdencies = plugin.definition.interfaces ?? {}
-    for (const dep of Object.values(interfaceDepdencies)) {
-      const interfaceImpl = plugin.interfaces[dep.name]
+    const interfaceDependencies = plugin.definition.interfaces ?? {}
+    for (const [interfaceAlias, dep] of Object.entries(interfaceDependencies)) {
+      const interfaceImpl = plugin.interfaces[interfaceAlias]
       if (!interfaceImpl) {
         throw new errors.BotpressCLIError(
-          `Plugin "${pluginName}" has a dependency on interface "${dep.name}@${dep.version}", but the bot does not specify an implementation for it.`
+          `Plugin "${pluginName}" has a dependency on interface "${dep.name}@${dep.version}" (aliased as "${interfaceAlias}"), but the bot does not specify an implementation for it.`
         )
       }
 
