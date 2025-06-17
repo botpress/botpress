@@ -36,7 +36,8 @@ export const executeMessageCreate = async ({
     },
   })
 
-  const { updatedAgentUser } = await updateAgentUser(user, client, ctx, logger)
+  // An unassigned agent might send a message
+  await updateAgentUser(user, client, ctx, logger)
 
   for (const messagePart of freshchatEvent.data.message.message_parts) {
     await client.createMessage({
@@ -45,9 +46,7 @@ export const executeMessageCreate = async ({
       userId: user?.id as string,
       conversationId: conversation.id,
       payload: {
-        text:
-          (ctx.configuration.showAgentName && updatedAgentUser.name?.length ? `**${updatedAgentUser.name}:** ` : '') +
-          messagePart.text.content,
+        text: messagePart.text.content,
       },
     })
   }
