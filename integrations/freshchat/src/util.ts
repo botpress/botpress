@@ -14,17 +14,18 @@ export const updateAgentUser = async (
     return { updatedAgentUser: user }
   }
 
-  let updatedFields: any = {}
+  let updatedFields: Record<string, any> = {}
 
   try {
     const freshchatClient = getFreshchatClient({ ...ctx.configuration }, logger)
     const agentData = await freshchatClient.getAgentById(user.tags.id as string)
     updatedFields = {
       name: agentData?.first_name + ' ' + agentData?.last_name,
-      pictureUrl: agentData?.avatar?.url,
+      ...(agentData?.avatar?.url?.length && { pictureUrl: agentData?.avatar?.url }),
     }
-  } catch (e: any) {
-    logger.forBot().error(`Couldn't get the agent profile from Freshchat: ${e.message}`)
+  } catch (thrown: any) {
+    const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().error(`Couldn't get the agent profile from Freshchat: ${err.message}`)
   }
 
   if (!updatedFields?.pictureUrl?.length && ctx.configuration?.agentAvatarUrl?.length) {
