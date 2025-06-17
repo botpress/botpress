@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import OAuth from 'oauth-1.0a'
 import * as bp from '.botpress'
 
-export const getProducts: bp.IntegrationProps['actions']['getProducts'] = async ({ ctx }) => {
+export const getProducts: bp.IntegrationProps['actions']['getProducts'] = async ({ ctx, input }) => {
   const { magento_domain, consumer_key, consumer_secret, access_token, access_token_secret, user_agent } =
     ctx.configuration
 
@@ -24,10 +24,12 @@ export const getProducts: bp.IntegrationProps['actions']['getProducts'] = async 
     secret: access_token_secret,
   }
 
+  const searchCriteria = input.searchCriteria || 'searchCriteria='
+  const url = `https://${magento_domain}/rest/default/V1/products?${searchCriteria}`
+
   // Request details
   const requestData = {
-    url: `https://${magento_domain}/rest/default/V1/products?searchCriteria=`,
-
+    url,
     method: 'GET',
   }
 
