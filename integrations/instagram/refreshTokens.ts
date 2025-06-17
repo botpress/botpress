@@ -124,7 +124,7 @@ async function main() {
       log,
     })
     const output = json
-      ? JSON.stringify({ message: messages.join('\n'), messages, ...refreshResult }, null, 2)
+      ? JSON.stringify({ message: messages.join('\\n'), messages, ...refreshResult }, null, 2)
       : `New token: ${refreshResult.refreshedToken}`
     console.info(output)
     process.exit(0)
