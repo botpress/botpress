@@ -1,17 +1,23 @@
-import { type JSONSchema, z } from '@bpinternal/zui'
+import { transforms } from '@bpinternal/zui'
+import { JSONSchema7 } from 'json-schema'
 import { uniq } from 'lodash-es'
 import { ZuiType } from './types.js'
-import { isJsonSchema, isValidIdentifier } from './utils.js'
+import { isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
+
+export type ExitResult<T = unknown> = {
+  exit: Exit<T>
+  result: T
+}
 
 export class Exit<T = unknown> {
   public name: string
   public aliases: string[] = []
   public description: string
   public metadata: Record<string, unknown>
-  public schema?: JSONSchema
+  public schema?: JSONSchema7
 
   public get zSchema() {
-    return this.schema ? z.fromJsonSchema(this.schema) : undefined
+    return this.schema ? transforms.fromJSONSchemaLegacy(this.schema) : undefined
   }
 
   public rename(name: string) {
@@ -37,6 +43,14 @@ export class Exit<T = unknown> {
       metadata: JSON.parse(JSON.stringify(this.metadata)),
       schema: this.zSchema,
     })
+  }
+
+  public is<T>(exit: Exit<T>): this is Exit<T> {
+    return this.name === exit.name
+  }
+
+  public match(result: ExitResult): result is ExitResult<T> {
+    return result.exit instanceof Exit && this.name === result.exit.name
   }
 
   public constructor(props: {
@@ -75,8 +89,8 @@ export class Exit<T = unknown> {
     }
 
     if (typeof props.schema !== 'undefined') {
-      if (props.schema && 'toJsonSchema' in props.schema && typeof props.schema.toJsonSchema === 'function') {
-        this.schema = props.schema.toJsonSchema()
+      if (isZuiSchema(props.schema)) {
+        this.schema = transforms.toJSONSchemaLegacy(props.schema)
       } else if (isJsonSchema(props.schema)) {
         this.schema = props.schema
       } else {

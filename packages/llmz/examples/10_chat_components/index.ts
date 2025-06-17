@@ -1,71 +1,28 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
 
-import { Component, DefaultComponents, executeContext, isComponent, messageTool, Tool } from 'llmz'
+import { Component, execute, Tool } from 'llmz'
 import chalk from 'chalk'
 import { box } from '../utils/box'
+import { CLIChat } from '../utils/cli-chat'
 
 const client = new Client({
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
 
-/** 
- * This example demonstrates how to create a custom component for displaying a plane ticket
- * LLMz will output code that looks like this:
- * 
-    /// Sharing the ticket purchase details with the user
-    yield <Message>
-      Your ticket has been successfully purchased! Here are the details:
-    </Message>;
-
-    yield <PlaneTicket
-      from="New York"
-      to="Los Angeles"
-      date="2025-10-01"
-      price={299.99}
-      ticketNumber="TICKET-345633"
-    />;
-    return { action: 'listen' }
- */
-
 const PlaneTicketComponent = new Component({
   name: 'PlaneTicket',
   description: 'A component to display a plane ticket',
   type: 'leaf',
   leaf: {
-    props: [
-      {
-        name: 'ticketNumber',
-        type: 'string',
-        required: true,
-        description: 'The unique ticket number for the plane ticket',
-      },
-      {
-        name: 'from',
-        type: 'string',
-        required: true,
-        description: 'The departure city',
-      },
-      {
-        name: 'to',
-        type: 'string',
-        required: true,
-        description: 'The destination city',
-      },
-      {
-        name: 'date',
-        type: 'string',
-        required: true,
-        description: 'The date of the flight (in YYYY-MM-DD format)',
-      },
-      {
-        name: 'price',
-        type: 'number',
-        required: false,
-        description: 'The price of the ticket',
-      },
-    ],
+    props: z.object({
+      ticketNumber: z.string().describe('The unique ticket number for the plane ticket'),
+      from: z.string().describe('The departure city'),
+      to: z.string().describe('The destination city'),
+      date: z.string().describe('The date of the flight (in YYYY-MM-DD format)'),
+      price: z.number().optional().describe('The price of the ticket'),
+    }),
   },
   examples: [
     {
@@ -74,7 +31,7 @@ const PlaneTicketComponent = new Component({
       code: `<PlaneTicket from="New York" to="Los Angeles" date="2023-10-01" price={299.99} ticketNumber="ABC-0000000" />`,
     },
   ],
-} as const)
+})
 
 const purchaseTicket = new Tool({
   name: 'purchase_ticket',
@@ -98,49 +55,37 @@ const purchaseTicket = new Tool({
   },
 })
 
-const Message = messageTool((root) => {
-  const messages = isComponent(root, DefaultComponents.Text) ? root.children : [root]
+const chat = new CLIChat()
 
-  for (const message of messages) {
-    if (typeof message === 'string') {
-      console.log(`🤖 Assistant: ${message}`)
-    }
-
-    if (isComponent(message, PlaneTicketComponent)) {
-      const { ticketNumber, from, to, date, price } = message.props
-
-      const ticket = box([
-        chalk.white.bold('             ✈️  FLIGHT TICKET'),
-        `${chalk.yellow.bold('Ticket Number:')} ${chalk.white(ticketNumber)}`,
-        '',
-        `${chalk.green.bold('From:')} ${chalk.white(from)}`,
-        `${chalk.red.bold('To:')} ${chalk.white(to)}`,
-        '',
-        `${chalk.magenta.bold('Date:')} ${chalk.white(date)}`,
-        `${chalk.cyan.bold('Price:')} ${chalk.white(`$${price?.toFixed(2) || 'N/A'}`)}`,
-        '',
-        chalk.gray('         Have a safe flight! 🛫'),
-      ])
-
-      console.log(ticket)
-    }
-  }
+chat.transcript.push({
+  role: 'user',
+  content: 'I want to purchase a plane ticket from New York to Los Angeles on 2025-10-01.',
 })
 
-const reasult = await executeContext({
-  instructions: `You are a travel agent. Help the user purchase a plane ticket.`,
-  tools: [purchaseTicket, Message],
-  components: [DefaultComponents.Text, PlaneTicketComponent],
-  transcript: [
-    {
-      role: 'user',
-      content: 'I want to buy a plane ticket from New York to Los Angeles on October 1st, 2025.',
-    },
-  ],
+chat.registerComponent(PlaneTicketComponent, async (message) => {
+  const { ticketNumber, from, to, date, price } = message.props
+  const ticket = box([
+    chalk.white.bold('             ✈️  FLIGHT TICKET'),
+    `${chalk.yellow.bold('Ticket Number:')} ${chalk.white(ticketNumber)}`,
+    '',
+    `${chalk.green.bold('From:')} ${chalk.white(from)}`,
+    `${chalk.red.bold('To:')} ${chalk.white(to)}`,
+    '',
+    `${chalk.magenta.bold('Date:')} ${chalk.white(date)}`,
+    `${chalk.cyan.bold('Price:')} ${chalk.white(`$${price?.toFixed(2) || 'N/A'}`)}`,
+    '',
+    chalk.gray('         Have a safe flight! 🛫'),
+  ])
+
+  console.log(ticket)
+})
+
+const result = await execute({
+  instructions: `You are a travel agent. Help the user purchase a plane ticket. Show them the ticket using the right component.`,
+  tools: [purchaseTicket],
+  chat,
   client,
 })
 
 console.log(`Here's the code generated by the LLMz to print the ticket:`)
-console.log(reasult.iterations.at(-1)?.code)
-
-setTimeout(() => {}, 5000)
+console.log(result.iteration?.code)

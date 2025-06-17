@@ -1,7 +1,7 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
 import chalk from 'chalk'
-import { executeContext, Exit, Snapshot, SnapshotSignal, Tool } from 'llmz'
+import { execute, Exit, Snapshot, SnapshotSignal, Tool } from 'llmz'
 import { loading } from '../utils/spinner'
 
 const client = new Client({
@@ -33,14 +33,14 @@ const exit = new Exit({
   }),
 })
 
-const result = await executeContext({
+const result = await execute({
   instructions: `Call the long-running tool with input "Hello, world!" and then exit with the extracted number from the tool's output string.`,
   tools: [LongRunningTool],
   exits: [exit],
   client,
 })
 
-if (result.status !== 'interrupted') {
+if (!result.isInterrupted()) {
   console.error('Expected an interruption due to the long-running tool, but got:', result.status)
   process.exit(1)
 }
@@ -66,7 +66,7 @@ restoredSnapshot.resolve({
 
 loading(false)
 
-const continuation = await executeContext({
+const continuation = await execute({
   // Restore the context from the snapshot
   snapshot: restoredSnapshot,
 
@@ -74,17 +74,13 @@ const continuation = await executeContext({
   instructions: result.context.instructions,
   tools: result.context.tools,
   exits: result.context.exits,
-  transcript: result.context.transcript,
   client,
 })
 
-const iteration = continuation.iterations.at(-1)
-
-if (!iteration?.hasExitedWith(exit)) {
+if (!continuation.is(exit)) {
   console.error("Expected the continuation to exit with the 'exit' exit, but it did not.")
   process.exit(1)
 }
 
-const magicNumber = iteration.status.exit_success.return_value.result
-
+const magicNumber = continuation.output.result
 console.log(chalk.green(`The execution continued to execute from the snapshot and exited with number "${magicNumber}"`))

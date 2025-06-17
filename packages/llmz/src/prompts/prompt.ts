@@ -1,12 +1,15 @@
+import { type GenerateContentInput } from '@botpress/cognitive'
+
 import { Component } from 'src/component.js'
 import { Exit } from 'src/exit.js'
 import type { ObjectInstance } from '../objects.js'
-import { OAI } from '../openai.js'
 import { Snapshot } from '../snapshots.js'
 import { type Tool } from '../tool.js'
 import type { TranscriptArray } from '../transcript.js'
 
 export namespace LLMzPrompts {
+  export type Message = GenerateContentInput['messages'][number] | { role: 'system'; content: string }
+  export type MessageContent = Extract<GenerateContentInput['messages'][number]['content'], any[]>[number]
   export type InitialStateProps = {
     instructions?: string
     transcript: TranscriptArray
@@ -41,13 +44,13 @@ export namespace LLMzPrompts {
 }
 
 export type Prompt = {
-  getSystemMessage: (props: LLMzPrompts.InitialStateProps) => Promise<OAI.Message>
-  getInitialUserMessage: (props: LLMzPrompts.InitialStateProps) => Promise<OAI.Message>
-  getThinkingMessage: (props: LLMzPrompts.ThinkingProps) => Promise<OAI.Message>
-  getInvalidCodeMessage: (props: LLMzPrompts.InvalidCodeProps) => Promise<OAI.Message>
-  getCodeExecutionErrorMessage: (props: LLMzPrompts.CodeExecutionErrorProps) => Promise<OAI.Message>
-  getSnapshotResolvedMessage: (props: LLMzPrompts.SnapshotResolvedProps) => OAI.Message
-  getSnapshotRejectedMessage: (props: LLMzPrompts.SnapshotRejectedProps) => OAI.Message
+  getSystemMessage: (props: LLMzPrompts.InitialStateProps) => Promise<LLMzPrompts.Message>
+  getInitialUserMessage: (props: LLMzPrompts.InitialStateProps) => Promise<LLMzPrompts.Message>
+  getThinkingMessage: (props: LLMzPrompts.ThinkingProps) => Promise<LLMzPrompts.Message>
+  getInvalidCodeMessage: (props: LLMzPrompts.InvalidCodeProps) => Promise<LLMzPrompts.Message>
+  getCodeExecutionErrorMessage: (props: LLMzPrompts.CodeExecutionErrorProps) => Promise<LLMzPrompts.Message>
+  getSnapshotResolvedMessage: (props: LLMzPrompts.SnapshotResolvedProps) => LLMzPrompts.Message
+  getSnapshotRejectedMessage: (props: LLMzPrompts.SnapshotRejectedProps) => LLMzPrompts.Message
   getStopTokens: () => string[]
   parseAssistantResponse: (response: string) => { type: 'code'; raw: string; code: string }
 }

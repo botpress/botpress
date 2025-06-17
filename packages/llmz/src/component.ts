@@ -1,12 +1,5 @@
-import { isJsxComponent } from './jsx.js'
-
-export type ComponentProperty = {
-  name: string
-  type: 'string' | 'boolean' | 'number'
-  default?: string | boolean | number
-  description?: string
-  required: boolean
-}
+import { z } from '@bpinternal/zui'
+import { isAnyJsxComponent, isJsxComponent } from './jsx.js'
 
 export type ExampleUsage = {
   name: string
@@ -61,18 +54,58 @@ export function assertValidComponent(component: ComponentDefinition): asserts co
   }
 }
 
+const getDefaultValue = (schema: z.ZodTypeAny): string => {
+  if (schema._def.defaultValue !== undefined) {
+    if (typeof schema._def.defaultValue === 'function') {
+      return String(schema._def.defaultValue()).toString()
+    } else {
+      return String(schema._def.defaultValue)
+    }
+  }
+  return ''
+}
+
 export function getComponentReference(component: ComponentDefinition): string {
   let doc = `### <${component.name}>\n\n`
   doc += `${component.description}\n\n`
 
-  const getPropsDoc = (props: readonly ComponentProperty[]) => {
-    if (props.length === 0) return '_No props._\n\n'
+  const getPropsDoc = (props: z.ZodObject<any>) => {
+    const shape = props.shape as Record<string, z.ZodTypeAny>
+    if (Object.keys(shape).length === 0) return '_No props._\n\n'
+
+    const zodTypeToTsType: Record<string, string> = {
+      ZodString: 'string',
+      ZodNumber: 'number',
+      ZodBoolean: 'boolean',
+      ZodEnum: 'enum',
+      ZodArray: 'array',
+      ZodObject: 'object',
+      ZodDate: 'date',
+      ZodBigInt: 'bigint',
+      ZodSymbol: 'symbol',
+      ZodUndefined: 'undefined',
+      ZodNull: 'null',
+      ZodVoid: 'void',
+      ZodNever: 'never',
+      ZodUnknown: 'unknown',
+      ZodAny: 'any',
+    }
+
     return (
-      props
-        .map((prop) => {
-          const required = prop.required ? '**(required)**' : '(optional)'
-          const def = prop.default !== undefined ? ` _Default: \`${prop.default}\`_` : ''
-          return `- \`${prop.name}: ${prop.type}\` ${required} — ${prop.description || ''}${def}`
+      Object.entries(shape)
+        .map(([name, schema]) => {
+          const naked = schema.naked()
+          const zodType = naked._def.typeName
+          const defValue = getDefaultValue(schema)
+          const typings =
+            naked instanceof z.ZodEnum
+              ? naked._def.values.map((x: string) => `"${x}"`).join(' | ')
+              : zodTypeToTsType[zodType] || zodType
+          const required = !schema.isOptional() ? '**(required)**' : '(optional)'
+          const def = defValue ? ` _Default: \`${defValue}\`_` : ''
+          const description = schema.description || schema.naked().description || schema?._def.description || ''
+
+          return `- \`${name}: ${typings}\` ${required} — ${description}${def}`
         })
         .join('\n') + '\n\n'
     )
@@ -127,20 +160,8 @@ export function getComponentReference(component: ComponentDefinition): string {
   return doc.trim()
 }
 
-// Helper type to convert ComponentProperty type string to actual TypeScript type
-type TypeMap = {
-  string: string
-  boolean: boolean
-  number: number
-}
-
-// Extract props type from ComponentProperty array
-type ExtractPropsFromProperties<T extends readonly ComponentProperty[]> = {
-  [K in T[number] as K['name']]: K['required'] extends true ? TypeMap[K['type']] : TypeMap[K['type']] | undefined
-}
-
 // Component definition types with inferred props
-export type DefaultComponentDefinition<T extends readonly ComponentProperty[] = readonly ComponentProperty[]> = {
+export type DefaultComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<any>> = {
   type: 'default'
   name: string
   aliases: string[]
@@ -152,7 +173,7 @@ export type DefaultComponentDefinition<T extends readonly ComponentProperty[] = 
   }
 }
 
-export type LeafComponentDefinition<T extends readonly ComponentProperty[] = readonly ComponentProperty[]> = {
+export type LeafComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<any>> = {
   type: 'leaf'
   name: string
   description: string
@@ -163,7 +184,7 @@ export type LeafComponentDefinition<T extends readonly ComponentProperty[] = rea
   }
 }
 
-export type ContainerComponentDefinition<T extends readonly ComponentProperty[] = readonly ComponentProperty[]> = {
+export type ContainerComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<any>> = {
   type: 'container'
   name: string
   description: string
@@ -180,11 +201,11 @@ export type ComponentDefinition = DefaultComponentDefinition | LeafComponentDefi
 // Helper type to extract props from any component definition type
 type ExtractComponentProps<T extends ComponentDefinition> =
   T extends LeafComponentDefinition<infer P>
-    ? ExtractPropsFromProperties<P>
+    ? z.infer<P>
     : T extends ContainerComponentDefinition<infer P>
-      ? ExtractPropsFromProperties<P>
+      ? z.infer<P>
       : T extends DefaultComponentDefinition<infer P>
-        ? ExtractPropsFromProperties<P>
+        ? z.infer<P>
         : never
 
 // Rendered component type
@@ -212,4 +233,52 @@ export function isComponent<T extends ComponentDefinition>(
   component: Component<T>
 ): rendered is RenderedComponent<ExtractComponentProps<T>> {
   return isJsxComponent(component.definition.name, rendered)
+}
+
+// Type guard function that checks if something is any rendered component
+export function isAnyComponent(message: unknown): message is RenderedComponent {
+  return isAnyJsxComponent(message)
+}
+
+/**
+ * Converts a RenderedComponent back to TSX code
+ * @param component The rendered component to convert
+ * @returns A string containing the TSX representation of the component
+ */
+export function renderToTsx(component: RenderedComponent): string {
+  const props = Object.entries(component.props)
+    .map(([key, value]) => {
+      if (typeof value === 'string') {
+        return `${key}="${value}"`
+      }
+      if (typeof value === 'boolean') {
+        return value ? key : ''
+      }
+      if (typeof value === 'number') {
+        return `${key}={${value}}`
+      }
+      if (value === null || value === undefined) {
+        return ''
+      }
+      if (typeof value === 'object') {
+        return `${key}={${JSON.stringify(value)}}`
+      }
+      return `${key}={${String(value)}}`
+    })
+    .filter(Boolean)
+    .join(' ')
+
+  const children = component.children
+    .map((child) => {
+      if (typeof child === 'string') {
+        return child
+      }
+      if (isAnyComponent(child)) {
+        return renderToTsx(child)
+      }
+      return String(child)
+    })
+    .join('')
+
+  return `<${component.type}${props ? ' ' + props : ''}>${children}</${component.type}>`
 }

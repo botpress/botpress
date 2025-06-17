@@ -10,8 +10,8 @@ import { Trace, Traces, VMExecutionResult } from './types.js'
 
 // We do this because we want it to work in the browser
 const IS_NODE = typeof process !== 'undefined' && process.versions != null && process.versions.node != null
-const IS_CI = !!process.env.CI
-const VM_DRIVER = process.env.VM_DRIVER ?? (IS_CI ? 'node' : 'isolated-vm')
+const IS_CI = typeof process !== 'undefined' && !!process?.env?.CI
+const VM_DRIVER = (typeof process !== 'undefined' && process?.env?.VM_DRIVER) ?? (IS_CI ? 'node' : 'isolated-vm')
 export const USE_ISOLATED_VM = IS_NODE && VM_DRIVER === 'isolated-vm'
 const LINE_OFFSET = USE_ISOLATED_VM ? 3 : 1
 
@@ -161,12 +161,21 @@ export async function runAsyncFunction(
       async function* () {}.constructor as any
 
     return await (async () => {
-      const topLevelProperties = Object.keys(context).filter(
-        (x) => !NO_TRACKING.includes(x) && typeof context[x] !== 'function' && typeof context[x] !== 'object'
+      // We need to track the top-level properties of the context object
+      const descriptors = Object.getOwnPropertyDescriptors(context)
+
+      const topLevelProperties = Object.keys(descriptors).filter(
+        (x) =>
+          !NO_TRACKING.includes(x) &&
+          descriptors[x] &&
+          typeof descriptors[x].value !== 'function' &&
+          typeof descriptors[x].value !== 'object'
       )
 
       const __report = (name: string, value: unknown) => {
-        context[name] = value
+        if (context[name] !== undefined && context[name] !== value) {
+          context[name] = value
+        }
       }
 
       context.__report = __report
@@ -174,7 +183,8 @@ export async function runAsyncFunction(
       const reportAll = topLevelProperties.map((x) => `__report("${x}", ${x})`).join(';')
 
       // we're wrapping the function creation inside a promise closure to catch sync errors in the promise catch clause below
-      const wrapper = `"use strict"; try { ${transformed.code} } finally { ${reportAll} };`
+      const assigner = `let __${Identifiers.LineTrackingFnIdentifier} = ${Identifiers.LineTrackingFnIdentifier}; ${Identifiers.LineTrackingFnIdentifier} = function(line) { ${reportAll}; __${Identifiers.LineTrackingFnIdentifier}(line);}`
+      const wrapper = `"use strict"; try { ${assigner};${transformed.code} } finally { ${reportAll} };`
 
       const fn = AsyncFunction(...Object.keys(context), wrapper)
       const res = fn(...Object.values(context))
@@ -206,6 +216,7 @@ export async function runAsyncFunction(
   const isolatedContext = await isolate.createContext()
   const jail = isolatedContext.global
   const trackedProperties = new Set<string>()
+  const referenceProperties = new Set<string>()
 
   const abort = () => {
     if (USE_ISOLATED_VM) {
@@ -233,7 +244,7 @@ export async function runAsyncFunction(
           arguments: { reference: true },
         }
       )
-    } else if (typeof context[key] === 'object') {
+    } else if (typeof context[key] === 'object' && !Object.getOwnPropertyDescriptor(context, key)?.get) {
       // TODO: this should be recursive, so we can copy objects with nested objects and functions
       try {
         trackedProperties.add(key)
@@ -252,9 +263,30 @@ export async function runAsyncFunction(
                 }
               )
             } else {
-              await isolatedContext.evalClosure(`global['${key}']['${prop}'] = $0;`, [context[key][prop]], {
-                arguments: { copy: true },
-              })
+              const descriptor = Object.getOwnPropertyDescriptor(context[key], prop)
+              if (descriptor && (descriptor.get || descriptor.set)) {
+                // Handle getters/setters
+                referenceProperties.add(`${key}.${prop}`)
+                await isolatedContext.evalClosure(
+                  `Object.defineProperty(global['${key}'], '${prop}', {
+                    get: () => $0.applySync(null, [], {arguments: {copy: true}}),
+                    set: (value) => $1.applySync(null, [value], {arguments: {copy: true}})
+                  });`,
+                  [
+                    () => context[key][prop],
+                    (value: any) => {
+                      context[key][prop] = value
+                      return value
+                    },
+                  ],
+                  { arguments: { reference: true } }
+                )
+              } else {
+                // Regular property
+                await isolatedContext.evalClosure(`global['${key}']['${prop}'] = $0;`, [context[key][prop]], {
+                  arguments: { copy: true },
+                })
+              }
             }
           } catch (err) {
             console.error(`Could not copy "${key}.${prop}" (typeof = ${typeof context[key][prop]}) to the sandbox`, err)
@@ -265,7 +297,27 @@ export async function runAsyncFunction(
       }
     } else {
       try {
-        await jail.set(key, context[key], { copy: true })
+        const descriptor = Object.getOwnPropertyDescriptor(context, key)
+        if (descriptor && (descriptor.get || descriptor.set)) {
+          // Handle getters/setters
+          referenceProperties.add(key)
+          await isolatedContext.evalClosure(
+            `Object.defineProperty(global, '${key}', {
+              get: () => $0.applySync(null, [], {arguments: {copy: true}}),
+              set: (value) => $1.applySync(null, [value], {arguments: {copy: true}})
+            });`,
+            [
+              () => context[key],
+              (value: any) => {
+                context[key] = value
+                return value
+              },
+            ],
+            { arguments: { reference: true } }
+          )
+        } else {
+          await jail.set(key, context[key], { copy: true })
+        }
         trackedProperties.add(key)
       } catch (err) {
         console.error(`Could not copy "${key}" to the sandbox (typeof = ${typeof context[key]})`, err)
@@ -345,7 +397,7 @@ do {
     copied = true
 
     for (const key of trackedProperties) {
-      if (typeof context[key] === 'object') {
+      if (typeof context[key] === 'object' && !referenceProperties.has(key)) {
         try {
           let properties: string[] = []
 
@@ -365,7 +417,7 @@ do {
           }
 
           for (const prop of properties) {
-            if (typeof context[key][prop] === 'function') {
+            if (typeof context[key][prop] === 'function' || referenceProperties.has(`${key}.${prop}`)) {
               // We don't copy back known functions, as they are already defined in the context and they can't be copied back from the VM
               continue
             }
@@ -401,6 +453,10 @@ do {
         }
       } else {
         try {
+          if (referenceProperties.has(key)) {
+            // If the property is a reference, we can't copy it back, so we just skip it
+            continue
+          }
           const value = jail.getSync(key, { copy: true })
           try {
             Object.assign(context, { [key]: value })
@@ -428,9 +484,6 @@ do {
 
   const final = await script
     .run(isolatedContext, {
-      // TODO: fix getRemainingTimeInMillis ...
-      // TODO: probably expose a "timeout" option instead
-      // timeout: clamp(Runtime.getRemainingTimeInMillis() - 10_000, 5_000, MAX_VM_EXECUTION_TIME),
       timeout,
       copy: true,
       promise: true,

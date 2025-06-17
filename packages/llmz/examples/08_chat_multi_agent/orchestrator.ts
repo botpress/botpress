@@ -1,6 +1,6 @@
 import { z } from '@bpinternal/zui'
 import chalk from 'chalk'
-import { executeContext, Exit, type ExecutionResult } from 'llmz'
+import { execute, Exit, type ExecutionResult, type ExitResult } from 'llmz'
 
 export type SubAgent = {
   name: string
@@ -29,6 +29,10 @@ export class MultiAgentOrchestrator {
   constructor(agents: SubAgent[], initialAgentName: string) {
     this.agents = agents
     this.currentAgentName = initialAgentName
+  }
+
+  hasHandedOff(result: ExecutionResult): boolean {
+    return result.isSuccess() && isHandoffMetadata(result.result.exit.metadata)
   }
 
   setCurrentAgent(agentName: string) {
@@ -97,14 +101,14 @@ ${agent.positive_examples.map((ex) => `- ${ex}`).join('\n')}`,
       ],
       tools: async () => await doOrGetValue(this.currentAgent.tools ?? []),
       objects: async () => await doOrGetValue(this.currentAgent.objects ?? []),
-      onExit: async (exit: Exit, value: any) => {
-        await this.handleHandoffs(exit, value)
+      onExit: async (result: ExitResult) => {
+        await this.handleHandoffs(result)
       },
     }
   }
 
-  async handleHandoffs(exit: Exit, value: any) {
-    const metadata = exit.metadata
+  async handleHandoffs(result: ExitResult) {
+    const metadata = result.exit.metadata
 
     if (!isHandoffMetadata(metadata)) {
       this.previousHandoffs = []
@@ -113,11 +117,11 @@ ${agent.positive_examples.map((ex) => `- ${ex}`).join('\n')}`,
 
     if (this.previousHandoffs.some((x) => x.from === metadata.agent)) {
       throw new Error(
-        `You already handed off this request to the ${exit.name} agent. Try to either handle it yourself, or handoff to the main again, or ask the user to clarify their request. Previous handoffs: ${JSON.stringify(this.previousHandoffs)}`
+        `You already handed off this request to the ${result.exit.name} agent. Try to either handle it yourself, or handoff to the main again, or ask the user to clarify their request. Previous handoffs: ${JSON.stringify(this.previousHandoffs)}`
       )
     }
 
-    const reason = (value as any)?.message || 'No reason provided'
+    const reason = (result.result as any)?.message || 'No reason provided'
     this.previousHandoffs.push({
       from: this.currentAgent.name,
       to: metadata.agent,
@@ -138,7 +142,7 @@ export type HandoffMetadata = {
 }
 
 type ControlledContextProps = Pick<
-  Parameters<typeof executeContext>[0],
+  Parameters<typeof execute>[0],
   'instructions' | 'tools' | 'objects' | 'exits' | 'onExit'
 >
 

@@ -10,7 +10,13 @@ import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 import { JsonParsingError } from './errors'
 
-export type Options = (typeof Options)['_input']
+export type Options = {
+  /** Instructions to guide the user on how to extract the data */
+  instructions?: string
+  /** The maximum number of tokens per chunk */
+  chunkLength?: number
+}
+
 const Options = z.object({
   instructions: z.string().optional().describe('Instructions to guide the user on how to extract the data'),
   chunkLength: z
@@ -76,7 +82,7 @@ Zai.prototype.extract = async function <S extends OfType<AnyObjectOrArray>>(
     throw new Error('Schema must be either a ZuiObject or a ZuiArray<ZuiObject>')
   }
 
-  const schemaTypescript = schema.toTypescript({ declaration: false })
+  const schemaTypescript = schema.toTypescriptType({ declaration: false })
   const schemaLength = tokenizer.count(schemaTypescript)
 
   options.chunkLength = Math.min(

@@ -1,18 +1,19 @@
 import { type Cognitive } from '@botpress/cognitive'
+import { z } from '@bpinternal/zui'
 import { cloneDeep, isPlainObject } from 'lodash-es'
 import { ulid } from 'ulid'
-import { Component, assertValidComponent } from './component.js'
+import { Chat } from './chat.js'
+import { assertValidComponent, Component, RenderedComponent } from './component.js'
 import { LoopExceededError, SnapshotSignal } from './errors.js'
 import { Exit } from './exit.js'
 import { getValue, ValueOrGetter } from './getter.js'
 import { HookedArray } from './handlers.js'
 import { ObjectInstance } from './objects.js'
-import type { OAI } from './openai.js'
 import { DualModePrompt } from './prompts/dual-modes.js'
-import { Prompt } from './prompts/prompt.js'
+import { LLMzPrompts, Prompt } from './prompts/prompt.js'
 import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
-import { TranscriptArray, TranscriptMessage } from './transcript.js'
+import { TranscriptArray } from './transcript.js'
 import { wrapContent } from './truncator.js'
 import { ObjectMutation, Trace } from './types.js'
 
@@ -105,19 +106,34 @@ export namespace IterationStatuses {
   }
 }
 
-const ThinkExit = new Exit({
+export const ThinkExit = new Exit({
   name: 'think',
   description: 'Think about the current situation and provide a response',
 })
 
-const ListenExit = new Exit({
+export const ListenExit = new Exit({
   name: 'listen',
   description: 'Listen to the user and provide a response',
 })
 
+export const DefaultExit = new Exit({
+  name: 'done',
+  description: 'When the execution is sucessfully completed or when error recovery is not possible',
+  schema: z.discriminatedUnion('success', [
+    z.object({
+      success: z.literal(true),
+      result: z.any().describe('The result of the execution'),
+    }),
+    z.object({
+      success: z.literal(false),
+      error: z.string().describe('The error message if the execution failed'),
+    }),
+  ]),
+})
+
 export class Iteration {
   public id: string
-  public messages: OAI.Message[]
+  public messages: LLMzPrompts.Message[]
   public code?: string
   public traces: HookedArray<Trace>
   public variables: Record<string, any>
@@ -245,7 +261,7 @@ export class Iteration {
   public constructor(props: {
     id: string
     parameters: IterationParameters
-    messages: OAI.Message[]
+    messages: LLMzPrompts.Message[]
     variables: Record<string, any>
   }) {
     this.id = props.id
@@ -271,12 +287,11 @@ export class Iteration {
 export class Context {
   public id: string
 
-  public transcript?: ValueOrGetter<TranscriptArray, Context>
+  public chat?: Chat
   public instructions?: ValueOrGetter<string, Context>
   public objects?: ValueOrGetter<ObjectInstance[], Context>
   public tools?: ValueOrGetter<Tool[], Context>
   public exits?: ValueOrGetter<Exit[], Context>
-  public components?: ValueOrGetter<Component[], Context>
 
   public version: Prompt = DualModePrompt
   public timeout: number = 60_000 // Default timeout of 60 seconds
@@ -336,7 +351,7 @@ export class Context {
     return variables
   }
 
-  private async _getIterationMessages(parameters: IterationParameters): Promise<OAI.Message[]> {
+  private async _getIterationMessages(parameters: IterationParameters): Promise<LLMzPrompts.Message[]> {
     const lastIteration = this.iterations.at(-1)
 
     if (this.snapshot?.status.type === 'resolved') {
@@ -349,7 +364,7 @@ export class Context {
           exits: parameters.exits,
           components: parameters.components,
         }),
-        await this.version.getSnapshotResolvedMessage({
+        this.version.getSnapshotResolvedMessage({
           snapshot: this.snapshot,
         }),
       ]
@@ -365,7 +380,7 @@ export class Context {
           exits: parameters.exits,
           components: parameters.components,
         }),
-        await this.version.getSnapshotRejectedMessage({
+        this.version.getSnapshotRejectedMessage({
           snapshot: this.snapshot,
         }),
       ]
@@ -472,11 +487,11 @@ export class Context {
 
   private async _refreshIterationParameters(): Promise<IterationParameters> {
     const instructions = await getValue(this.instructions, this)
-    const transcript = new TranscriptArray((await getValue(this.transcript, this)) ?? [])
+    const transcript = new TranscriptArray(await getValue(this.chat?.transcript ?? [], this))
     const tools = Tool.withUniqueNames((await getValue(this.tools, this)) ?? [])
     const objects = (await getValue(this.objects, this)) ?? []
     const exits = (await getValue(this.exits, this)) ?? []
-    const components = (await getValue(this.components, this)) ?? []
+    const components = await getValue(this.chat?.components ?? [], this)
 
     if (objects && objects.length > 100) {
       throw new Error('Too many objects. Expected at most 100 objects.')
@@ -508,29 +523,21 @@ export class Context {
       'array',
     ]
 
-    const MessageTool = tools.find((x) => x.name.toLowerCase() === 'message' || x.aliases?.includes('message'))?.clone()
+    const MessageTool =
+      this.chat && components.length
+        ? new Tool({
+            name: 'Message',
+            description: 'Send a message to the user',
+            aliases: Array.from(
+              new Set(['message', ...components.flatMap((x) => [x.definition.name, ...(x.definition.aliases ?? [])])])
+            ),
+            handler: async (message) => await this.chat?.handler?.(message as RenderedComponent),
+          })
+        : null
 
-    if (MessageTool && !components.length) {
-      throw new Error('The Message tool is only available in chat mode. Please provide at least one component.')
-    }
+    const allTools = MessageTool ? [MessageTool, ...tools] : tools
 
-    if (!MessageTool && components.length) {
-      throw new Error('When using components, you need to provide a tool called "Message"')
-    }
-
-    if (MessageTool && components.length) {
-      MessageTool.aliases = Array.from(
-        new Set([
-          ...MessageTool.aliases,
-          ...components.flatMap((x) => [x.definition.name, ...(x.definition.aliases ?? [])]),
-        ])
-      )
-    }
-
-    const nonMessageTools = tools.filter((x) => x.name.toLowerCase() !== 'message' && !x.aliases?.includes('message'))
-    const allTools = MessageTool ? [MessageTool, ...nonMessageTools] : nonMessageTools
-
-    for (const tool of nonMessageTools) {
+    for (const tool of tools) {
       for (let name of [...tool.aliases, tool.name]) {
         name = name.toLowerCase()
 
@@ -578,7 +585,7 @@ export class Context {
     }
 
     if (!components.length && !exits.length) {
-      throw new Error('When no components are provided, at least one exit is required.')
+      exits.push(DefaultExit)
     }
 
     return {
@@ -592,12 +599,11 @@ export class Context {
   }
 
   public constructor(props: {
+    chat?: Chat
     instructions?: ValueOrGetter<string, Context>
     objects?: ValueOrGetter<ObjectInstance[], Context>
     tools?: ValueOrGetter<Tool[], Context>
     exits?: ValueOrGetter<Exit[], Context>
-    transcript?: ValueOrGetter<TranscriptMessage[], Context>
-    components?: ValueOrGetter<Component[], Context>
     loop?: number
     temperature?: number
     model?: Model
@@ -606,12 +612,11 @@ export class Context {
     timeout?: number
   }) {
     this.id = `llmz_${ulid()}`
-    this.transcript = props.transcript
     this.instructions = props.instructions
     this.objects = props.objects
     this.tools = props.tools
     this.exits = props.exits
-    this.components = props.components
+    this.chat = props.chat
 
     this.timeout = Math.min(999_999_999, Math.max(0, props.timeout ?? 60_000)) // Default timeout of 60 seconds
     this.loop = props.loop ?? 3

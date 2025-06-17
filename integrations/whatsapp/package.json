@@ -6,7 +6,8 @@
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
-    "uploadSandboxScripts": "ts-node -T ../../scripts/upload-sandbox-scripts.ts --integrationPath='./'"
+    "uploadSandboxScripts": "ts-node -T ../../scripts/upload-sandbox-scripts.ts --integrationPath='./'",
+    "test": "vitest --run --config=vitest.config.ts"
   },
   "dependencies": {
     "@botpress/client": "workspace:*",

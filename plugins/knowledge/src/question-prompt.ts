@@ -98,7 +98,7 @@ Questions should be extracted with the following JSON format:
 If there are no questions in the USER MESSAGE, return an empty array.
 
 Always respond in JSON with the following format:
-type OutputFormat = ${ExtractedQuestion.toTypescript()}
+type OutputFormat = ${ExtractedQuestion.toTypescriptType()}
 
 The below examples are for illustrative purposes only. Your responses will be evaluated based on the quality of the questions extracted.
 Please extract the questions found on line L${args.line} only. If there are no questions, return an empty array.

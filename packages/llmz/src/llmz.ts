@@ -1,32 +1,35 @@
 import { Cognitive, type BotpressClientLike } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 
-import { omit, clamp, isEqual, isPlainObject } from 'lodash-es'
+import { clamp, isEqual, isPlainObject, omit } from 'lodash-es'
 import ms from 'ms'
 
-import { Component } from './component.js'
+import { ulid } from 'ulid'
+import { Chat } from './chat.js'
 import { Context, Iteration } from './context.js'
 import {
   AssignmentError,
   CodeExecutionError,
   InvalidCodeError,
+  LoopExceededError,
   Signals,
-  ThinkSignal,
   SnapshotSignal,
+  ThinkSignal,
   VMSignal,
 } from './errors.js'
-import { Exit } from './exit.js'
+import { Exit, ExitResult } from './exit.js'
 import { ValueOrGetter } from './getter.js'
 
 import { type ObjectInstance } from './objects.js'
 
+import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
 import { Snapshot } from './snapshots.js'
 import { cleanStackTrace } from './stack-traces.js'
 import { type Tool } from './tool.js'
 
-import { TranscriptMessage } from './transcript.js'
 import { truncateWrappedContent } from './truncator.js'
-import { ExecutionResult, Trace } from './types.js'
+import { Trace } from './types.js'
+
 import { init, stripInvalidIdentifiers } from './utils.js'
 import { runAsyncFunction } from './vm.js'
 
@@ -55,19 +58,18 @@ export type ExecutionHooks = {
    */
   onIterationEnd?: (iteration: Iteration) => Promise<void> | void
   onTrace?: (event: { trace: Trace; iteration: number }) => void
-  onExit?: <T = unknown>(exit: Exit<T>, value: T) => Promise<void> | void
+  onExit?: <T = unknown>(result: ExitResult<T>) => Promise<void> | void
   onBeforeExecution?: (iteration: Iteration) => Promise<void> | void
 }
 
 type Options = Partial<Pick<Context, 'loop' | 'temperature' | 'model' | 'timeout'>>
 
 export type ExecutionProps = {
+  chat?: Chat
   instructions?: ValueOrGetter<string, Context>
-  components?: ValueOrGetter<Component[], Context>
   objects?: ValueOrGetter<ObjectInstance[], Context>
   tools?: ValueOrGetter<Tool[], Context>
   exits?: ValueOrGetter<Exit[], Context>
-  transcript?: ValueOrGetter<TranscriptMessage[], Context>
   options?: Options
   /** An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive) */
   client: Cognitive | BotpressClientLike
@@ -75,14 +77,22 @@ export type ExecutionProps = {
   snapshot?: Snapshot
 } & ExecutionHooks
 
-const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
+export const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   await init()
+  const result = await _executeContext(props)
+  try {
+    result.context.chat?.onExecutionDone?.(result)
+  } catch {}
+  return result
+}
 
+export const _executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   const { signal, onIterationEnd, onTrace, onExit, onBeforeExecution } = props
-  const cognitive = props.client instanceof Cognitive ? props.client : new Cognitive({ client: props.client })
+  const cognitive = Cognitive.isCognitiveClient(props.client) ? props.client : new Cognitive({ client: props.client })
   const cleanups: (() => void)[] = []
 
   const ctx = new Context({
+    chat: props.chat,
     instructions: props.instructions,
     objects: props.objects,
     tools: props.tools,
@@ -90,21 +100,15 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
     temperature: props.options?.temperature,
     model: props.options?.model,
     timeout: props.options?.timeout,
-    transcript: props.transcript,
     exits: props.exits,
-    components: props.components,
     snapshot: props.snapshot,
   })
 
   try {
     while (true) {
       if (ctx.iterations.length >= ctx.loop) {
-        return {
-          status: 'error',
-          context: ctx,
-          error: `Loop limit exceeded. Maximum allowed loops: ${ctx.loop}`,
-          iterations: ctx.iterations,
-        }
+        // TODO:
+        return new ErrorExecutionResult(ctx, new LoopExceededError())
       }
 
       const iteration = await ctx.nextIteration()
@@ -117,12 +121,7 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
           },
         })
 
-        return {
-          status: 'error',
-          error: signal.reason ?? 'The operation was aborted',
-          context: ctx,
-          iterations: ctx.iterations,
-        }
+        return new ErrorExecutionResult(ctx, signal.reason ?? 'The operation was aborted')
       }
 
       cleanups.push(
@@ -161,21 +160,20 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
 
       // Successful states
       if (iteration.status.type === 'exit_success') {
-        return {
-          status: 'success',
-          context: ctx,
-          iterations: ctx.iterations,
-        }
+        const exitName = iteration.status.exit_success.exit_name
+
+        return new SuccessExecutionResult(ctx, {
+          exit: iteration.exits.find((x) => x.name === exitName)!,
+          result: iteration.status.exit_success.return_value,
+        })
       }
 
       if (iteration.status.type === 'callback_requested') {
-        return {
-          status: 'interrupted',
-          context: ctx,
-          iterations: ctx.iterations,
-          signal: iteration.status.callback_requested.signal,
-          snapshot: Snapshot.fromSignal(iteration.status.callback_requested.signal),
-        }
+        return new PartialExecutionResult(
+          ctx,
+          iteration.status.callback_requested.signal,
+          Snapshot.fromSignal(iteration.status.callback_requested.signal)
+        )
       }
 
       // Retryable errors
@@ -189,20 +187,10 @@ const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> =
       }
 
       // Fatal errors
-      return {
-        context: ctx,
-        error: iteration.error ?? `Unknown error. Status: ${iteration.status.type}`,
-        status: 'error',
-        iterations: ctx.iterations,
-      }
+      return new ErrorExecutionResult(ctx, iteration.error ?? `Unknown error. Status: ${iteration.status.type}`)
     }
   } catch (error) {
-    return {
-      status: 'error',
-      iterations: ctx.iterations,
-      context: ctx,
-      error: error instanceof Error ? error.message : (error?.toString() ?? 'Unknown error'),
-    }
+    return new ErrorExecutionResult(ctx, error ?? 'Unknown error')
   } finally {
     for (const cleanup of cleanups) {
       try {
@@ -227,43 +215,35 @@ const executeIteration = async ({
 } & ExecutionHooks): Promise<void> => {
   let startedAt = Date.now()
   const traces = iteration.traces
-  const modelLimit = 128_000 // ctx.__options.model // TODO: fixme, ie. expose "getTokenLimits()" on the cognitive client
+  const model = await cognitive.getModelDetails(ctx.model ?? 'best')
+  const modelLimit = model.input.maxTokens
   const responseLengthBuffer = getModelOutputLimit(modelLimit)
 
   const messages = truncateWrappedContent({
     messages: iteration.messages,
     tokenLimit: modelLimit - responseLengthBuffer,
-    throwOnFailure: false,
+    throwOnFailure: true,
   }).filter(
     (x) =>
       // Filter out empty messages, as they are not valid inputs for the LLM
       // This can happen when a message is truncated and the content is empty
-      x.content.trim().length > 0
+      typeof x.content !== 'string' || x.content.trim().length > 0
   )
 
   traces.push({
     type: 'llm_call_started',
     started_at: startedAt,
     ended_at: startedAt,
-    model: ctx.model ?? '',
+    model: model.ref,
   })
 
   const output = await cognitive.generateContent({
     signal: abortSignal,
     systemPrompt: messages.find((x) => x.role === 'system')?.content,
-    model: ctx.model as any | undefined,
+    model: model.ref,
     temperature: ctx.temperature,
     responseFormat: 'text',
-    messages: messages
-      .filter((x) => x.role === 'user' || x.role === 'assistant')
-      .map(
-        (x) =>
-          ({
-            role: x.role === 'user' ? 'user' : 'assistant',
-            type: 'text',
-            content: x.content,
-          }) as const
-      ),
+    messages: messages.filter((x) => x.role !== 'system'),
     stopSequences: ctx.version.getStopTokens(),
   })
 
@@ -288,7 +268,7 @@ const executeIteration = async ({
         return iteration.end({
           type: 'thinking_requested',
           thinking_requested: {
-            variables: err.variables,
+            variables: err.context,
             reason: err.reason,
           },
         })
@@ -319,7 +299,7 @@ const executeIteration = async ({
     type: 'llm_call_success',
     started_at: startedAt,
     ended_at: iteration.llm.ended_at,
-    model: ctx.model ?? '',
+    model: model.ref,
     code: iteration.code,
   })
 
@@ -474,7 +454,7 @@ const executeIteration = async ({
     return iteration.end({
       type: 'thinking_requested',
       thinking_requested: {
-        variables: result.signal.variables,
+        variables: result.signal.context,
         reason: result.signal.reason,
       },
     })
@@ -557,7 +537,10 @@ const executeIteration = async ({
   }
 
   try {
-    await onExit?.(returnExit, returnValue?.value)
+    await onExit?.({
+      exit: returnExit,
+      result: returnValue?.value,
+    })
   } catch (err) {
     return iteration.end({
       type: 'exit_error',
@@ -588,11 +571,14 @@ function wrapTool({ tool, traces, object }: Props) {
   const getToolInput = (input: any) => tool.zInput.safeParse(input).data ?? input
 
   return function (input: any) {
+    const toolCallId = `tcall_${ulid()}`
+
     const alertSlowTool = setTimeout(
       () =>
         traces.push({
           type: 'tool_slow',
           tool_name: tool.name,
+          tool_call_id: toolCallId,
           started_at: Date.now(),
           input: getToolInput(input),
           object,
@@ -638,7 +624,9 @@ function wrapTool({ tool, traces, object }: Props) {
     }
 
     try {
-      const result = tool.execute(input)
+      const result = tool.execute(input, {
+        callId: toolCallId,
+      })
       if (result instanceof Promise || ((result as any)?.then && (result as any)?.catch)) {
         return result
           .then((res: any) => {
@@ -659,6 +647,7 @@ function wrapTool({ tool, traces, object }: Props) {
             cancelSlowTool()
             traces.push({
               type: 'tool_call',
+              tool_call_id: toolCallId,
               started_at: toolStart,
               ended_at: Date.now(),
               tool_name: tool.name,
@@ -683,6 +672,7 @@ function wrapTool({ tool, traces, object }: Props) {
     cancelSlowTool()
     traces.push({
       type: 'tool_call',
+      tool_call_id: toolCallId,
       started_at: toolStart,
       ended_at: Date.now(),
       tool_name: tool.name,
@@ -704,8 +694,4 @@ function wrapTool({ tool, traces, object }: Props) {
 
     return output
   }
-}
-
-export const llmz = {
-  executeContext,
 }

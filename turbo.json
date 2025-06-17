@@ -6,6 +6,10 @@
       "outputs": ["src/gen/**"],
       "dependsOn": ["^generate", "^build"]
     },
+    "llmz#generate": {
+      "outputs": ["src/**/*.md.ts"],
+      "dependsOn": ["^generate", "^build"]
+    },
     "build": {
       "outputs": ["bp_modules/**", ".botpress/**"],
       "dependsOn": ["generate", "^build"]

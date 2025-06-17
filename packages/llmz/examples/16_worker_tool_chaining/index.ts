@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
-import { executeContext, Exit, Tool } from 'llmz'
+import { execute, Exit, Tool } from 'llmz'
 import { box } from '../utils/box'
 import chalk from 'chalk'
 
@@ -67,23 +67,21 @@ const exit = new Exit({
   }),
 })
 
-const result = await executeContext({
+const result = await execute({
   instructions: `I need the 'secret' number please. Do not think, try to do it in one step.`,
   tools: [ToolA, ToolB, ToolC],
   exits: [exit],
   client,
 })
 
-const iteration = result.iterations.at(-1)
-
-if (iteration?.hasExitedWith(exit)) {
+if (result.is(exit)) {
   console.log(
     box([
       'The LLM wrote the code to solve the problem:',
-      ...iteration.code!.split('\n'),
+      ...result.iteration.code!.split('\n'),
       '',
       'It then executed it and returned the result:',
-      chalk.cyan.bold(String(iteration.status.exit_success.return_value.result)),
+      chalk.cyan.bold(result.output.result),
     ])
   )
 }

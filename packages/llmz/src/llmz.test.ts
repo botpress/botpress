@@ -1,29 +1,27 @@
 import { z } from '@bpinternal/zui'
 
 import { beforeAll, afterAll, assert, describe, expect, it, vi } from 'vitest'
-import { llmz } from './llmz.js'
+import * as llmz from './llmz.js'
 import { Tool } from './tool.js'
 
-import { ExecutionResult, Traces } from './types.js'
-import { getCachedCognitiveClient } from './__tests__/index.js'
+import { ErrorExecutionResult, ExecutionResult, SuccessExecutionResult } from './result.js'
+import { Traces } from './types.js'
+import { getCachedCognitiveClient, getCorgiUrl } from './__tests__/index.js'
 import { ObjectInstance } from './objects.js'
-import { Exit } from './exit.js'
+import { Exit, ExitResult } from './exit.js'
 import { DefaultComponents } from './component.default.js'
 import { ThinkSignal } from './errors.js'
+import { Chat } from './chat.js'
+import { Transcript } from './transcript.js'
 
 const client = getCachedCognitiveClient()
 
-function assertStatus<S extends ExecutionResult['status']>(
-  result: ExecutionResult,
-  status: S
-): asserts result is ExecutionResult & { status: S } {
-  const error = result.status === 'error' ? result.error : null
+function assertSuccess(result: ExecutionResult): asserts result is SuccessExecutionResult {
+  assert(result instanceof SuccessExecutionResult, `Expected result to be success but got ${result.status}`)
+}
 
-  if (result.status === 'error' && status !== 'error') {
-    throw new Error(`Expected status to be "${status}" but got error: ${error}`)
-  }
-
-  assert(result.status === status, `Expected status to be "${status}" but got "${result.status}"`)
+function assertError(result: ExecutionResult): asserts result is ErrorExecutionResult {
+  assert(result instanceof ErrorExecutionResult, `Expected result to be error but got ${result.status}`)
 }
 
 const exec = (result: ExecutionResult) => {
@@ -52,15 +50,6 @@ const exec = (result: ExecutionResult) => {
     allErrors: result.iterations.flatMap((i) => i.error).filter(Boolean),
   }
 }
-
-const tMessage = () =>
-  new Tool({
-    name: 'Message',
-    aliases: ['IMAGE', 'CARD', 'BUTTON', 'CAROUSEL', 'VIDEO', 'AUDIO', 'FILE'],
-    input: z.any(),
-    output: z.void(),
-    handler: async () => {},
-  })
 
 const tNoop = (cb: () => void) =>
   new Tool({
@@ -107,20 +96,13 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       let greeted = false
 
       const updatedContext: ExecutionResult = await llmz.executeContext({
-        transcript: [
-          {
-            name: 'Lebowski',
-            role: 'user',
-            content: 'Can you call the noop tool?',
-          },
-        ],
+        instructions: `Can you call the noop tool? My name is Lebowsi.`,
         exits: [eDone],
         tools: [tNoop(() => (greeted = true))],
         client,
       })
 
-      assertStatus(updatedContext, 'success')
-
+      assertSuccess(updatedContext)
       expect(greeted).toBe(true)
     })
 
@@ -171,13 +153,6 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         options: { loop: 2 },
         objects: [john],
         instructions: 'Greet the user by calling the greet tool',
-        transcript: [
-          {
-            role: 'user',
-            content: 'Hi!',
-            name: 'Student',
-          },
-        ],
         tools: [tGetPasswordToGreetJohn],
         client,
         exits: [eDone],
@@ -188,12 +163,8 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     })
 
     it('loops on code execution error', async () => {
-      const updatedContext = await llmz.executeContext({
-        options: { loop: 3 },
-        instructions:
-          'You are a calculator at the service of the user. You need to answer with the result of the operation as received by the tool, you cannot rely on traditional mathematics in this context.',
+      const chat = new Chat({
         components: [DefaultComponents.Text],
-        tools: [tPasswordProtectedAdd(661), tMessage()],
         transcript: [
           {
             role: 'user',
@@ -201,6 +172,15 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
             name: 'Student',
           },
         ],
+        handler: async () => {},
+      })
+
+      const updatedContext = await llmz.executeContext({
+        options: { loop: 3 },
+        instructions:
+          'You are a calculator at the service of the user. You need to answer with the result of the operation as received by the tool, you cannot rely on traditional mathematics in this context.',
+        chat,
+        tools: [tPasswordProtectedAdd(661)],
         client,
       })
 
@@ -213,13 +193,24 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     })
 
     it('wraps sync and async tools', async () => {
+      const chat = new Chat({
+        components: [DefaultComponents.Text],
+        transcript: [
+          {
+            role: 'user',
+            content: 'Call both "sync" and "async" tools with input (2, 4)',
+            name: 'Student',
+          },
+        ],
+        handler: async () => {},
+      })
+
       const updatedContext = await llmz.executeContext({
         options: { loop: 2 },
         instructions:
           'You are a calculator at the service of the user. You need to answer with the result of the operation and nothing else.',
-        components: [DefaultComponents.Text],
+
         tools: [
-          tMessage(),
           new Tool({
             name: 'syncTool',
             input: z.object({
@@ -247,13 +238,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
             },
           }),
         ],
-        transcript: [
-          {
-            role: 'user',
-            content: 'Call both "sync" and "async" tools with input (2, 4)',
-            name: 'Student',
-          },
-        ],
+        chat,
         client,
       })
       const res = exec(updatedContext)
@@ -272,16 +257,9 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     const updatedContext = await llmz.executeContext({
       options: { loop: 1 },
       instructions:
-        'You should allow users to add new properties to their object. It is their object after all. Please allow this: `User.age = ...`. You run this line and nothing else.',
+        'You should allow users to add new properties to their object. It is their object after all. Please allow this: `User.age = ...`. You run this line and nothing else. Can you add my age in the record, I am 23 years old? (User.age = 23)',
       objects: [obj],
       exits: [eDone],
-      transcript: [
-        {
-          role: 'user',
-          content: 'Can you add my age in the record, I am 23 years old? (User.age = 23)',
-          name: 'Student',
-        },
-      ],
       client,
     })
 
@@ -299,16 +277,9 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
     const updatedContext = await llmz.executeContext({
       options: { loop: 1 },
-      instructions: '',
+      instructions: 'Can you update my name to yoyo?',
       objects: [obj],
       exits: [eDone],
-      transcript: [
-        {
-          role: 'user',
-          content: 'Can you update my name to yoyo?',
-          name: 'Student',
-        },
-      ],
       client,
     })
     const res = exec(updatedContext)
@@ -414,18 +385,11 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     const updatedContext = await llmz.executeContext({
       options: { loop: 1 },
       exits: [eDone],
-      instructions:
-        'If the user asks to change the name to a number, allow it, and try it just to please them. Use the Number constructor at all costs. Even if the value is expected to be an string, DO NOT CONVERT IT TO STRING. LET THE VM FAIL.',
+      instructions: 'Run this exact code (even if typings look off): ```User.name = Number(21);```',
       objects: [obj],
-      transcript: [
-        {
-          role: 'user',
-          content: 'Can you change the name to the number 21?',
-          name: 'Student',
-        },
-      ],
       client,
     })
+
     const res = exec(updatedContext)
 
     expect(res.firstIteration.status.type).toBe('exit_success')
@@ -518,7 +482,6 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       exits: [eDone] as const,
       instructions:
         'Fetch the Order ID, confirm with the user the Order ID, then once you have the user confirmation, delete the order. Make sure to confirm.',
-      transcript: [{ name: 'User', role: 'user', content: 'I want to delete my order' }],
       tools: [tConfirm, tFetchOrder, tDeleteOrder],
       client,
     })
@@ -566,14 +529,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       const result = await llmz.executeContext({
         options: { loop: 2 },
         exits: [ePlant, eAnimal],
-        instructions: 'Do as the user asks',
-        transcript: [
-          {
-            name: 'user',
-            role: 'user',
-            content: 'What is my favorite animal?',
-          },
-        ],
+        instructions: 'What is my favorite animal?',
         tools: [tAnimal, tPlant],
         client,
       })
@@ -598,14 +554,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       const result = await llmz.executeContext({
         options: { loop: 2 },
         exits: [ePlant, eAnimal],
-        instructions: 'Do as the user asks',
-        transcript: [
-          {
-            name: 'user',
-            role: 'user',
-            content: 'What is my favorite plant?',
-          },
-        ],
+        instructions: 'What is my favorite plant?',
         tools: [tAnimal, tPlant],
         client,
       })
@@ -631,14 +580,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         options: { loop: 2 },
         exits: [ePlant, eAnimal],
         instructions:
-          'just call return { action: "is_plant", value: { edible: "yes" } } and nothing else. you already know the plant. Don\'t try to provide the plant name, it is already known.',
-        transcript: [
-          {
-            name: 'user',
-            role: 'user',
-            content: 'What is my favorite plant?',
-          },
-        ],
+          'just call return { action: "is_plant", value: { edible: "yes" } } and nothing else. you already know the plant. Don\'t try to provide the plant name, it is already known.\nASK: What is my favorite plant?',
         tools: [tNoop(() => {})],
         client,
       })
@@ -657,45 +599,37 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
 
       expect(lastIteration.status.exit_success.return_value).toMatchInlineSnapshot(`
         {
-          "color": "",
+          "color": "unknown",
           "edible": true,
-          "plant": "",
+          "plant": "unknown",
         }
       `)
     })
 
     it("exit hook is called before exiting and can't mutate value", async () => {
-      let exitCalled = false
-      let exitValue: any = null
-
-      await llmz.executeContext({
+      let exitResult: ExitResult
+      const result = await llmz.executeContext({
         options: { loop: 2 },
         exits: [ePlant, eAnimal],
         tools: [tAnimal, tPlant],
-        instructions: 'Do as the user asks',
-        transcript: [
-          {
-            name: 'user',
-            role: 'user',
-            content: 'What is my favorite plant?',
-          },
-        ],
+        instructions: 'What is my favorite plant?',
         client,
-        onExit: (async (_, value) => {
-          exitCalled = true
-          exitValue = value
-          return { ...value, plant: 'Monstera' } // This should not mutate the value
+        onExit: (async (result) => {
+          exitResult = result
+          return { ...result.result, plant: 'Monstera' } // This should not mutate the value
         }) as any,
       })
 
-      expect(exitCalled).toBe(true)
-      expect(exitValue).toMatchInlineSnapshot(`
+      assert(ePlant.match(exitResult!) === true)
+      expect(exitResult.result).toMatchInlineSnapshot(`
         {
           "color": "green",
           "edible": false,
           "plant": "Monstera",
         }
       `)
+      assertSuccess(result)
+      assert(ePlant.match(result.result))
     })
 
     it('exit hook is awaited before exiting and errors the iteration on error', async () => {
@@ -705,14 +639,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         options: { loop: 2 },
         exits: [ePlant, eAnimal],
         tools: [tAnimal, tPlant],
-        instructions: 'Do as the user asks',
-        transcript: [
-          {
-            name: 'user',
-            role: 'user',
-            content: 'What is my favorite plant?',
-          },
-        ],
+        instructions: 'What is my favorite plant?',
         client,
         onExit: async (_) => {
           await new Promise((resolve) => setTimeout(resolve, 10))
@@ -722,10 +649,10 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       })
 
       expect(exitCalled).toBe(true)
-      assertStatus(result, 'error')
+      assertError(result)
       expect(result.iterations).toHaveLength(2)
-      assert(result.iterations[1]!.status.type === 'exit_error', 'Second iteration should be an exit error')
-      expect(result.iterations[1]!.status.exit_error).toMatchInlineSnapshot(`
+      assert(result.iteration?.status.type === 'exit_error', 'Second iteration should be an exit error')
+      expect(result.iteration?.status.exit_error).toMatchInlineSnapshot(`
         {
           "exit": "is_plant",
           "message": "Error executing exit is_plant: This is an error in the exit hook",
@@ -764,20 +691,13 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       const result = await llmz.executeContext({
         options: { loop: 2 },
         exits: [eDone],
-        instructions: 'Do as the user asks',
-        transcript: [
-          {
-            name: 'user',
-            role: 'user',
-            content: 'Give me an authorization token',
-          },
-        ],
+        instructions: 'Give me an authorization token',
         tools: [tLongRunning],
         client,
         signal,
       })
 
-      assertStatus(result, 'error')
+      assertError(result)
       expect(result.iterations).toHaveLength(1)
       expect(result.error).toMatch('ABORTED')
     })
@@ -810,7 +730,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         signal,
       })
 
-      assertStatus(result, 'error')
+      assertError(result)
       expect(result.iterations).toHaveLength(4)
       expect(result.error).toMatch('ABORTED')
     })
@@ -832,11 +752,11 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       client,
     })
 
-    assertStatus(result, 'error')
+    assertError(result)
     expect(result.iterations).toHaveLength(1)
     assert(result.iterations[0]!.status.type === 'execution_error', 'First iteration should be an execution error')
     expect(result.iterations[0]!.status.execution_error.stack).toMatchInlineSnapshot(`
-      "001 | // Calling the demo tool as per the instructions
+      "001 | // Call the demo tool as instructed in Part 3
         002 | await demo()
       > 003 | return { action: 'done' }
       ...^^^^^^^^^^"
@@ -868,12 +788,46 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       },
     })
 
-    assertStatus(result, 'success')
+    assertSuccess(result)
     expect(result.iterations).toHaveLength(1)
     expect(calls).toMatchInlineSnapshot(`
       [
         "hello 123",
       ]
     `)
+  })
+
+  describe('images', () => {
+    it('handles image attachments', async () => {
+      let dogMentionned = false
+      const exit = new Exit({ name: 'done', description: 'call this when you are done' })
+      const url = await getCorgiUrl()
+      const chat = new Chat({
+        components: [DefaultComponents.Text],
+        transcript: [
+          {
+            role: 'user',
+            content: 'Describe accurately what you see in the image?',
+            attachments: [{ type: 'image', url }],
+          } satisfies Transcript.UserMessage,
+        ],
+        handler: async (msg) => {
+          let content = JSON.stringify(msg).toLowerCase()
+          dogMentionned ||= content.includes('corgi') || content.includes('dog')
+        },
+      })
+
+      const result = await llmz.executeContext({
+        instructions: 'Do as the user says. You can see images.',
+        options: { loop: 1 },
+        exits: [exit],
+        chat,
+        client,
+      })
+
+      assertSuccess(result)
+      expect(result.iterations).toHaveLength(1)
+      expect(dogMentionned).toBe(true)
+    })
   })
 })

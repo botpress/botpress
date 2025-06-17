@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { executeContext, Tool } from 'llmz'
+import { execute, Tool } from 'llmz'
 import { z } from '@bpinternal/zui'
 
 import { CLIChat } from '../utils/cli-chat'
@@ -37,7 +37,7 @@ const login = new Tool({
     success: z.boolean(),
   }),
   async handler(input) {
-    if (!input.userId && Credentials[input.userId] !== input.password) {
+    if (!input.userId || Credentials[input.userId] !== input.password) {
       throw new Error('Invalid credentials')
     }
 
@@ -95,16 +95,16 @@ const InstructionsForUser: Record<Identity, string> = {
   customer: `User is logged in as "${userId}". At every turn, send a <Message> to the user with the list of all the tools available for the user and ask them to choose one. Use buttons to list tools.`,
 }
 
-const chat = new CLIChat({
-  client,
-  instructions: () => InstructionsForUser[userId],
-  tools: () => ToolsForUser[userId],
-  onTrace: ({ trace }) => printTrace(trace, ['tool_call']),
-})
+const chat = new CLIChat()
 
-while (!chat.done) {
-  await executeContext(chat.context)
+while (await chat.iterate()) {
+  await execute({
+    client,
+    chat,
+    // Each iteration will evaluate the instructions and tools
+    // It will pick dynamically the right instructions and tools for the current user identity
+    instructions: () => InstructionsForUser[userId],
+    tools: () => ToolsForUser[userId],
+    onTrace: ({ trace }) => printTrace(trace, ['tool_call']),
+  })
 }
-
-console.log('👋 Goodbye!')
-process.exit(0)
