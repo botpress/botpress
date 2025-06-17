@@ -1,6 +1,6 @@
-import { z } from '@botpress/sdk'
+import { ActionDefinition, z } from '@botpress/sdk'
 
-const captureScreenshot = {
+const captureScreenshot: ActionDefinition = {
   title: 'Capture Screenshot',
   description: 'Capture a screenshot of the specified page.',
   input: {
@@ -27,7 +27,7 @@ const fullPage = z.object({
 
 export type FullPage = z.infer<typeof fullPage>
 
-const browsePages = {
+const browsePages: ActionDefinition = {
   title: 'Browse Pages',
   description: 'Extract the full content & the metadata of the specified pages as markdown.',
   input: {
@@ -58,7 +58,7 @@ const domainNameValidator = z
   .min(3, 'Invalid URL')
   .max(50, 'Domain name is too long')
 
-const webSearch = {
+const webSearch: ActionDefinition = {
   title: 'Web Search',
   description: 'Search information on the web. You need to browse to that page to get the full content of the page.',
   input: {
@@ -112,8 +112,54 @@ const webSearch = {
   cacheable: true,
 }
 
-export const actionDefinitions = {
+export const globPattern = z
+  .string()
+  .min(1, 'Glob must be at least 1 char')
+  .max(255, 'Glob must be at max 255 chars')
+  .describe('Glob pattern to match URLs. Use * for wildcard matching')
+
+const discoverUrls: ActionDefinition = {
+  title: 'Discover Website URLs',
+  description: 'Discovers the URLs of a website by finding links using sitemaps, robots.txt, and crawling.',
+  input: {
+    schema: z.object({
+      url: z
+        .string()
+        .describe(
+          'The URL of the website to discover URLs from. Can be a domain like "example.com", a full URL like "sub.example.com/page", or a sitemap URL like "https://example.com/sitemap.xml"'
+        ),
+      onlyHttps: z.boolean().default(true).describe('Whether to only include HTTPS pages'),
+      count: z.number().min(1).max(10_000).default(5_000),
+      include: z
+        .array(globPattern)
+        .max(100, 'You can include up to 100 URL patterns')
+        .describe('List of glob patterns to include URLs from the discovery (eg. "/blog/", "*/public")')
+        .optional(),
+      exclude: z
+        .array(globPattern)
+        .max(100, 'You can exclude up to 100 URL patterns')
+        .optional()
+        .describe(
+          'List of glob patterns to exclude URLs from the discovery (eg. "/admin/", "https://website.com/private/*"). All URLs matching these patterns will be excluded from the results, even if they are included in the "include" patterns.'
+        ),
+    }),
+  },
+  output: {
+    schema: z.object({
+      urls: z.array(z.string()).describe('List of discovered URLs'),
+      excluded: z.number().describe('Number of URLs excluded due to robots.txt or filter'),
+      stopReason: z
+        .enum(['urls_limit_reached', 'end_of_results', 'time_limit_reached'])
+        .describe('Reason for stopping the URLs discovery. '),
+    }),
+  },
+  billable: true,
+  cacheable: false,
+}
+
+export const actionDefinitions: Record<string, ActionDefinition> = {
   captureScreenshot,
   browsePages,
   webSearch,
+  discoverUrls,
 }

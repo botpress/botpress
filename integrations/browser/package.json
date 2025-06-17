@@ -1,6 +1,7 @@
 {
   "name": "@botpresshub/browser",
   "scripts": {
+    "test": "vitest test",
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
     "build": "bp add -y && bp build"
