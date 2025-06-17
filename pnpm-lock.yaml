@@ -1069,10 +1069,10 @@ importers:
     devDependencies:
       '@types/node':
         specifier: ^18.19.67
-        version: 18.19.76
+        version: 18.19.67
       typescript:
         specifier: ^5.6.3
-        version: 5.8.3
+        version: 5.6.3
 
   integrations/mailchimp:
     dependencies:
@@ -4608,6 +4608,16 @@ packages:
       lodash: 4.17.21
       yargs: 17.7.2
       yn: 4.0.0
+    dev: false
+
+  /@bpinternal/zui@0.13.6:
+    resolution: {integrity: sha512-LK09xntsesmlv3lJKR5ZP4c52vtRqE/5h+dTHQZiQveXQOO6w7cXJ2z97Q1mmuH71oEDTiaNw9qoWV34LPGSdQ==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+    peerDependencies:
+      react: ^18.2.0
+    peerDependenciesMeta:
+      react:
+        optional: true
     dev: false
 
   /@bpinternal/zui@1.0.0:
@@ -8235,7 +8245,7 @@ packages:
   /@types/jsonwebtoken@9.0.3:
     resolution: {integrity: sha512-b0jGiOgHtZ2jqdPgPnP6WLCXZk1T8p06A/vPGzUvxpFGgKMbjXJDjC5m52ErqBnIuWZFgGoIJyRdeG5AyreJjA==}
     dependencies:
-      '@types/node': 18.19.76
+      '@types/node': 18.19.67
 
   /@types/keyv@3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
@@ -14659,7 +14669,7 @@ packages:
       zod:
         optional: true
     dependencies:
-      '@types/node': 18.19.76
+      '@types/node': 18.19.67
       '@types/node-fetch': 2.6.12
       abort-controller: 3.0.0
       agentkeepalive: 4.5.0
