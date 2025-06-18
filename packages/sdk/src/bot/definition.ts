@@ -165,12 +165,10 @@ export class BotDefinition<
   public readonly workflows: this['props']['workflows']
   public readonly attributes: this['props']['attributes']
 
-  /** Pure representation of the bot, without any plugins */
-  public readonly withoutPlugins: Readonly<
-    Pick<
-      this['props'],
-      'user' | 'conversation' | 'message' | 'states' | 'events' | 'recurringEvents' | 'actions' | 'tables' | 'workflows'
-    >
+  /** Bot definition with plugins merged into it */
+  public readonly withPlugins: Pick<
+    this['props'],
+    'user' | 'conversation' | 'message' | 'states' | 'events' | 'recurringEvents' | 'actions' | 'tables' | 'workflows'
   >
 
   public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions, TTables, TWorkflows>) {
@@ -188,7 +186,7 @@ export class BotDefinition<
     this.workflows = props.workflows
     this.attributes = props.attributes
 
-    this.withoutPlugins = {
+    this.withPlugins = {
       user: props.user,
       conversation: props.conversation,
       message: props.message,
@@ -223,24 +221,39 @@ export class BotDefinition<
       self.plugins = {}
     }
 
-    const key = config.alias ?? pluginPkg.name
-    self.plugins[key] = {
+    const pluginAlias = config.alias ?? pluginPkg.name.replace('/', '-')
+    self.plugins[pluginAlias] = {
       ...pluginPkg,
-      alias: config.alias,
+      alias: pluginAlias,
       configuration: config.configuration,
       interfaces: config.interfaces,
     }
 
-    self.user = this._mergeUser(self.user, pluginPkg.definition.user)
-    self.conversation = this._mergeConversation(self.conversation, pluginPkg.definition.conversation)
-    self.message = this._mergeMessage(self.message, pluginPkg.definition.message)
-    self.recurringEvents = this._mergeRecurringEvents(self.recurringEvents, pluginPkg.definition.recurringEvents)
-    self.tables = this._mergeTables(self.tables, pluginPkg.definition.tables)
-    self.workflows = this._mergeWorkflows(self.workflows, pluginPkg.definition.workflows)
+    self.withPlugins.user = this._mergeUser(self.withPlugins.user, pluginPkg.definition.user)
+    self.withPlugins.conversation = this._mergeConversation(
+      self.withPlugins.conversation,
+      pluginPkg.definition.conversation
+    )
+    self.withPlugins.message = this._mergeMessage(self.withPlugins.message, pluginPkg.definition.message)
+    self.withPlugins.recurringEvents = this._mergeRecurringEvents(
+      self.withPlugins.recurringEvents,
+      pluginPkg.definition.recurringEvents
+    )
+    self.withPlugins.tables = this._mergeTables(self.withPlugins.tables, pluginPkg.definition.tables)
+    self.withPlugins.workflows = this._mergeWorkflows(self.withPlugins.workflows, pluginPkg.definition.workflows)
 
-    self.states = this._mergeStates(self.states, this._prefixKeys(pluginPkg.definition.states, config.alias))
-    self.events = this._mergeEvents(self.events, this._prefixKeys(pluginPkg.definition.events, config.alias))
-    self.actions = this._mergeActions(self.actions, this._prefixKeys(pluginPkg.definition.actions, config.alias))
+    self.withPlugins.states = this._mergeStates(
+      self.withPlugins.states,
+      this._prefixKeys(pluginPkg.definition.states, config.alias)
+    )
+    self.withPlugins.events = this._mergeEvents(
+      self.withPlugins.events,
+      this._prefixKeys(pluginPkg.definition.events, config.alias)
+    )
+    self.withPlugins.actions = this._mergeActions(
+      self.withPlugins.actions,
+      this._prefixKeys(pluginPkg.definition.actions, config.alias)
+    )
 
     return this
   }
