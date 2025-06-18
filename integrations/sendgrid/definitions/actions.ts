@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { EMAIL_ADDRESS_DESCRIPTION, EmailAddressSchema, NonBlankString } from './common-schemas'
+import { EMAIL_ADDRESS_DESCRIPTION, EmailAddressSchema, NonBlankString } from './common'
 
 export const EmailDataSchema = z
   .object({

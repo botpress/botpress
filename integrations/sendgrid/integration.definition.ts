@@ -1,6 +1,6 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
+import { sendEmailOutputSchema, sendMailInputSchema } from './definitions/actions'
 import { integrationName } from './package.json'
-import { sendEmailOutputSchema, sendMailInputSchema } from './src/misc/custom-schemas'
 
 export default new IntegrationDefinition({
   name: integrationName,

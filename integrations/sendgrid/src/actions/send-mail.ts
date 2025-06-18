@@ -1,6 +1,6 @@
 import { input } from '@botpress/sdk'
 import sgMail from '@sendgrid/mail'
-import { sendMailInputSchema } from '../misc/custom-schemas'
+import type { sendMailInputSchema } from '../../definitions/actions'
 import { parseError } from '../misc/utils'
 import * as bp from '.botpress'
 
