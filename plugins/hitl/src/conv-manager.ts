@@ -57,14 +57,8 @@ export class ConversationManager {
   }
 
   public async continueWorkflow(): Promise<void> {
-    const eventType = 'continueWorkflow'
-    const prefixedType = this._props.alias ? `${this._props.alias}#${eventType}` : eventType
-    await this._props.client.createEvent({
-      type: prefixedType,
+    await this._props.events.continueWorkflow.withConversationId(this._convId).send({
       conversationId: this._convId,
-      payload: {
-        conversationId: this._convId,
-      } satisfies bp.events.continueWorkflow.ContinueWorkflow,
     })
   }
 
