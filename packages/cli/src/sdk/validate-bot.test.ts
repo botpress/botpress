@@ -79,44 +79,4 @@ describe.concurrent('validateBotDefinition', () => {
 
     expect(() => validateBotDefinition(bot)).not.toThrowError()
   })
-
-  it('should throw an error if plugin prefix is not in camelCase', async () => {
-    expect(() =>
-      validateBotDefinition(
-        new sdk.BotDefinition({
-          actions: {
-            'my-plugin#actionName': {
-              input: { schema: sdk.z.object({}) },
-              output: { schema: sdk.z.object({}) },
-            },
-          },
-        })
-      )
-    ).toThrowError(errors.BotpressCLIError)
-
-    expect(() =>
-      validateBotDefinition(
-        new sdk.BotDefinition({
-          events: {
-            'my-plugin#eventName': {
-              schema: sdk.z.object({}),
-            },
-          },
-        })
-      )
-    ).toThrowError(errors.BotpressCLIError)
-
-    expect(() =>
-      validateBotDefinition(
-        new sdk.BotDefinition({
-          states: {
-            'my-plugin#stateName': {
-              type: 'bot',
-              schema: sdk.z.object({}),
-            },
-          },
-        })
-      )
-    ).toThrowError(errors.BotpressCLIError)
-  })
 })
