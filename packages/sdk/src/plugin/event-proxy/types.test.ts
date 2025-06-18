@@ -8,7 +8,7 @@ test('EventProxy of FooBarBazPlugin should reflect states of bot, integration an
   type EventPayload = { a: string; b: number; c: boolean }
   type Expected = utils.Normalize<{
     somethingHappened: {
-      send: (event: EventPayload) => Promise<void>
+      emit: (event: EventPayload) => Promise<void>
       schedule: (event: EventPayload, schedule: EventSchedule) => Promise<void>
       withConversationId: (conversationId: string) => EventSender<EventPayload>
       withUserId: (userId: string) => EventSender<EventPayload>
@@ -46,7 +46,7 @@ test('EventProxy of BasePlugin should be a record', async () => {
   type Actual = EventProxy<BasePlugin>
   type Expected = {
     [x: string]: {
-      send: (event: any) => Promise<void>
+      emit: (event: any) => Promise<void>
       schedule: (event: any, schedule: EventSchedule) => Promise<void>
       withConversationId: (conversationId: string) => EventSender<any>
       withUserId: (userId: string) => EventSender<any>

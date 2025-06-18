@@ -57,7 +57,7 @@ export class ConversationManager {
   }
 
   public async continueWorkflow(): Promise<void> {
-    await this._props.events.continueWorkflow.withConversationId(this._convId).send({
+    await this._props.events.continueWorkflow.withConversationId(this._convId).emit({
       conversationId: this._convId,
     })
   }

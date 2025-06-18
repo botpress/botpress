@@ -15,7 +15,7 @@ type _EventSenderProps = {
 class _EventSender implements EventSender<object> {
   public constructor(private _props: _EventSenderProps) {}
 
-  public async send(eventPayload: object): Promise<void> {
+  public async emit(eventPayload: object): Promise<void> {
     const { conversationId, userId, messageId } = this._props
     await this._props.client.createEvent({
       type: this._props.eventName,
