@@ -19,24 +19,6 @@ export const sendMailInputSchema = z.object({
   replyTo: EmailDataSchema.describe(EMAIL_ADDRESS_DESCRIPTION).title('Reply To').optional(),
 })
 
-/** Takes the sendMailInputSchema and transforms it into a format that SendGrid will accept.
- *
- *  @remark The goal of this is to have a common input schema between each of the
- *   email integrations while handling what to send to each email API internally
- *   (avoiding vendor lock-in).
- *  @remark Alternative name idea: "sendGrid_SendMailInputSchema" */
-export const sendMailForSendGridInputSchema = sendMailInputSchema.transform((data) => ({
-  personalizations: [
-    {
-      to: data.to,
-    },
-  ],
-  from: data.from,
-  replyTo: data.replyTo,
-  subject: data.subject,
-  text: data.body,
-}))
-
 /** The response schema for SendGrid's send email endpoint for both successful requests.
  *
  *  @remark Alternative name idea: "sendGrid_SendEmailOutputSchema" */

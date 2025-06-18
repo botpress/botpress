@@ -1,24 +1,9 @@
-import type { ZodType, output, RuntimeError } from '@botpress/sdk'
 import type { ResponseError } from '@sendgrid/helpers/classes'
 
 // ============ Common Types ============
 
 /** A type for modifying the structure of another type */
 export type Modify<T, R> = Omit<T, keyof R> & R
-
-// ============ Validation Types ============
-
-type ValidationFailure = {
-  isSuccess: false
-  error: RuntimeError
-}
-
-type ValidationSuccess<Schema extends ZodType> = {
-  isSuccess: true
-  data: output<Schema>
-}
-
-export type ValidationResult<Schema extends ZodType> = ValidationSuccess<Schema> | ValidationFailure
 
 // ============ Send Grid ============
 

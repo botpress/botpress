@@ -1,22 +1,5 @@
-import type { ZodType, ZodError, input } from '@botpress/sdk'
+import type { ZodError } from '@botpress/sdk'
 import { RuntimeError } from '@botpress/sdk'
-import { ValidationResult } from './custom-types'
-
-export const validateData = <Schema extends ZodType>(schema: Schema, data: input<Schema>): ValidationResult<Schema> => {
-  const result = schema.safeParse(data)
-
-  if (!result.success) {
-    return {
-      isSuccess: false,
-      error: zodErrorToRuntimeError(result.error),
-    }
-  }
-
-  return {
-    isSuccess: true,
-    data: result.data,
-  }
-}
 
 export const zodErrorToRuntimeError = (thrown: ZodError) => {
   const invalidFields = thrown.issues.reduce((prettyInvalidFields, issue) => {
