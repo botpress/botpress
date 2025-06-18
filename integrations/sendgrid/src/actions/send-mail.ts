@@ -1,5 +1,5 @@
 import sgMail from '@sendgrid/mail'
-import { sendEmailOutputSchema, sendMailForSendGridInputSchema } from '../misc/custom-schemas'
+import { sendMailForSendGridInputSchema } from '../misc/custom-schemas'
 import { parseError } from '../misc/utils'
 import { validateData } from '../misc/validation-utils'
 import * as bp from '.botpress'
@@ -17,9 +17,9 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
   try {
     const [response, _] = await sgMail.send(validatedInput)
 
-    return sendEmailOutputSchema.parse({
+    return {
       status: response.statusCode,
-    })
+    }
   } catch (thrown: unknown) {
     const error = parseError(thrown)
     logger.forBot().error('Failed to send email', error)
