@@ -3,16 +3,7 @@ import fs from 'fs/promises'
 import pathlib from 'path'
 import * as uuid from 'uuid'
 import impl from '../../src/command-implementations'
-import {
-  ApiBot,
-  ApiIntegration,
-  ApiInterface,
-  ApiPlugin,
-  fetchAllBots,
-  fetchAllIntegrations,
-  fetchAllInterfaces,
-  fetchAllPlugins,
-} from '../api'
+import { ApiBot, ApiIntegration, ApiInterface, ApiPlugin } from '../api'
 import defaults from '../defaults'
 import * as retry from '../retry'
 import { Test } from '../typings'
@@ -227,16 +218,28 @@ const _installAndBuild = async ({
 }
 
 const _fetchBotByName = (client: Client, botName: string): Promise<ApiBot | undefined> =>
-  fetchAllBots(client).then((bots) => bots.find(({ name }) => name === botName))
+  client.list
+    .bots({})
+    .collect()
+    .then((bots) => bots.find(({ name }) => name === botName))
 
 const _fetchIntegrationByName = (client: Client, integrationName: string): Promise<ApiIntegration | undefined> =>
-  fetchAllIntegrations(client).then((integrations) => integrations.find(({ name }) => name === integrationName))
+  client.list
+    .integrations({})
+    .collect()
+    .then((integrations) => integrations.find(({ name }) => name === integrationName))
 
 const _fetchInterfaceByName = (client: Client, interfaceName: string): Promise<ApiInterface | undefined> =>
-  fetchAllInterfaces(client).then((interfaces) => interfaces.find(({ name }) => name === interfaceName))
+  client.list
+    .publicInterfaces({})
+    .collect()
+    .then((interfaces) => interfaces.find(({ name }) => name === interfaceName))
 
 const _fetchPluginByName = (client: Client, pluginName: string): Promise<ApiPlugin | undefined> =>
-  fetchAllPlugins(client).then((plugins) => plugins.find(({ name }) => name === pluginName))
+  client.list
+    .plugins({})
+    .collect()
+    .then((plugins) => plugins.find(({ name }) => name === pluginName))
 
 const _editPackageJson = async (payload: { workDir: string; [k: string]: string }) => {
   const { workDir, ...modifications } = payload
