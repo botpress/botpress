@@ -1,12 +1,6 @@
 import { RuntimeError, ZodError } from '@botpress/sdk'
-import sgMail from '@sendgrid/mail'
-import * as bp from '../../.botpress'
 import { SendGridResponseError } from './custom-types'
 import { zodErrorToRuntimeError } from './validation-utils'
-
-export const initializeSendGrid = (config: bp.configuration.Configuration) => {
-  sgMail.setApiKey(config.apiKey)
-}
 
 export const isSendGridError = (thrown: any): thrown is SendGridResponseError => {
   return (
