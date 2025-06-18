@@ -7,5 +7,5 @@
     "sourceMap": true
   },
   "include": ["./src/**/*", "./e2e/**/*"],
-  "exclude": ["./templates/**"]
+  "exclude": ["./templates/**", "./e2e/fixtures/**"]
 }
