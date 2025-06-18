@@ -1,17 +1,26 @@
 import { RuntimeError } from '@botpress/sdk'
 import { SendGridResponseError } from './custom-types'
 
-export const isSendGridError = (thrown: any): thrown is SendGridResponseError => {
+/** A helper function that allows me to check if an unknown value
+ *  is a non-null object that contains the specified property.
+ *
+ *  @remark This exists since `Object.prototype.hasOwnProperty` doesn't
+ *   smart cast the value into an object type containing the property. */
+const isNonNullObjectAndHasProperty = <K extends PropertyKey>(
+  value: unknown,
+  property: K
+): value is object & Record<K, unknown> => typeof value === 'object' && value?.hasOwnProperty(property) === true
+
+export const isSendGridError = (thrown: unknown): thrown is SendGridResponseError => {
   return (
-    'code' in thrown &&
-    'response' in thrown &&
-    'body' in thrown.response &&
-    typeof thrown.response.body === 'object' &&
-    'errors' in thrown.response.body
+    isNonNullObjectAndHasProperty(thrown, 'response') &&
+    isNonNullObjectAndHasProperty(thrown.response, 'body') &&
+    isNonNullObjectAndHasProperty(thrown.response.body, 'errors') &&
+    'code' in thrown
   )
 }
 
-export const parseError = (thrown: any) => {
+export const parseError = (thrown: unknown) => {
   if (isSendGridError(thrown)) {
     const errorMessage = thrown.response.body.errors[0]?.message ?? thrown.message
     return new RuntimeError(
