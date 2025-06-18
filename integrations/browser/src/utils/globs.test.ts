@@ -1,5 +1,5 @@
 import { it, expect } from 'vitest'
-import { isValidGlob, matchGlob } from './discover-urls'
+import { isValidGlob, matchGlob } from './globs'
 
 it('isValidGlob', () => {
   expect(isValidGlob('*')).toBe(true)
