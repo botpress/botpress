@@ -1,6 +1,6 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { integrationName } from './package.json'
-import { sendMailInputSchema } from './src/misc/custom-schemas'
+import { sendEmailOutputSchema, sendMailInputSchema } from './src/misc/custom-schemas'
 
 export default new IntegrationDefinition({
   name: integrationName,
@@ -22,10 +22,7 @@ export default new IntegrationDefinition({
         schema: sendMailInputSchema,
       },
       output: {
-        schema: z.object({
-          // As far as I can tell, there is no response body
-          // when the request is successfully processed (Status 202)
-        }),
+        schema: sendEmailOutputSchema,
       },
     },
   },
