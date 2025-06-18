@@ -357,6 +357,21 @@ describe.concurrent('matchItem', () => {
       })
     })
 
+    it('should include when path matches part of include pattern', () => {
+      // Arrange
+      const itemPath = '/foo/bar'
+      const configuration = createConfiguration({ includeFiles: [{ pathGlobPattern: '/foo/bar/baz/**' }] })
+      const item = createFolderItem({ name: 'bar' })
+
+      // Act
+      const result = matchItem({ configuration, item, itemPath })
+
+      // Assert
+      expect(result).toMatchObject({
+        shouldBeIgnored: false,
+      })
+    })
+
     it('should exclude when path does not match any patterns', () => {
       // Arrange
       const itemPath = 'src/data/unknown-folder'
