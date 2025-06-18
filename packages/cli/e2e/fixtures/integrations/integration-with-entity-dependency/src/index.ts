@@ -1,13 +1,19 @@
 import * as bp from '.botpress'
 
 export default new bp.Integration({
-  register: async () => {
+  register() {
     throw new Error('Not implemented')
   },
-  unregister: async () => {
+  unregister() {
     throw new Error('Not implemented')
   },
-  actions: {},
+  actions: {
+    manipulateItem() {
+      throw new Error('Not implemented')
+    },
+  },
   channels: {},
-  handler: async () => {},
+  handler() {
+    throw new Error('Not implemented')
+  },
 })
