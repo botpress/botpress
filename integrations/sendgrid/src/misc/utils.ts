@@ -1,6 +1,5 @@
-import { RuntimeError, ZodError } from '@botpress/sdk'
+import { RuntimeError } from '@botpress/sdk'
 import { SendGridResponseError } from './custom-types'
-import { zodErrorToRuntimeError } from './validation-utils'
 
 export const isSendGridError = (thrown: any): thrown is SendGridResponseError => {
   return (
@@ -12,10 +11,6 @@ export const isSendGridError = (thrown: any): thrown is SendGridResponseError =>
   )
 }
 
-export const isZodError = (error: any): error is ZodError => {
-  return error && error instanceof ZodError
-}
-
 export const parseError = (thrown: any) => {
   if (isSendGridError(thrown)) {
     const errorMessage = thrown.response.body.errors[0]?.message ?? thrown.message
@@ -23,10 +18,6 @@ export const parseError = (thrown: any) => {
       `SendGrid API yielded an error with status code: "${thrown.code}", and message: "${errorMessage}"`,
       thrown
     )
-  }
-
-  if (isZodError(thrown)) {
-    return zodErrorToRuntimeError(thrown)
   }
 
   if (thrown instanceof RuntimeError) {
