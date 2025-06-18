@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { EmailAddressSchema, NonBlankString } from './common-schemas'
+import { EMAIL_ADDRESS_DESCRIPTION, EmailAddressSchema, NonBlankString } from './common-schemas'
 
 export const EmailDataSchema = z
   .object({
@@ -10,13 +10,13 @@ export const EmailDataSchema = z
 
 /** The common send email input schema which will be exposed to users in Botpress Studio */
 export const sendMailInputSchema = z.object({
-  to: EmailDataSchema.title('Email Recipient'),
-  from: EmailDataSchema.title('Email Sender'),
+  to: EmailDataSchema.describe(EMAIL_ADDRESS_DESCRIPTION).title('Email Recipient'),
+  from: EmailDataSchema.describe(EMAIL_ADDRESS_DESCRIPTION).title('Email Sender'),
   subject: NonBlankString.describe('The subject of the email (e.g. How to build a bot with Botpress!)').title(
     'Email Subject'
   ),
   body: NonBlankString.describe('The plain text body of the email').title('Email Body'), // TODO: Think of an example to place here
-  replyTo: EmailDataSchema.title('Reply To').optional(),
+  replyTo: EmailDataSchema.describe(EMAIL_ADDRESS_DESCRIPTION).title('Reply To').optional(),
 })
 
 /** Takes the sendMailInputSchema and transforms it into a format that SendGrid will accept.
