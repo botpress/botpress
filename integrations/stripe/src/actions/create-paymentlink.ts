@@ -1,54 +1,84 @@
 import { getClient } from '../client'
 import { createPaymentLinkInputSchema } from '../misc/custom-schemas'
+import type { ProductBasic, StripeClient } from '../misc/stripe-client'
 import type { IntegrationProps } from '../misc/types'
+
+const findOrCreateProduct = async (StripeClient: StripeClient, productName: string) => {
+  const products = await StripeClient.listAllProductsBasic()
+  let product = products.find((p: ProductBasic) => p.name === productName)
+
+  if (!product) {
+    product = await StripeClient.createProduct(productName)
+  }
+
+  return product
+}
+
+const findOrCreatePrice = async (
+  StripeClient: StripeClient,
+  productId: string,
+  unitAmount: number,
+  currency: string
+) => {
+  const prices = await StripeClient.listPrices(productId)
+
+  if (!unitAmount) {
+    return prices.data[0] || (await StripeClient.createPrice(productId, 0, currency))
+  }
+
+  let price = prices.data.find((p) => p.unit_amount === unitAmount && p.currency === currency)
+
+  if (!price) {
+    price = await StripeClient.createPrice(productId, unitAmount, currency)
+  }
+
+  return price
+}
+
+const buildLineItem = (
+  priceId: string,
+  quantity: number,
+  adjustableQuantity: boolean,
+  adjustableQuantityMaximum: number,
+  adjustableQuantityMinimum: number
+) => {
+  return {
+    price: priceId,
+    quantity: quantity || 1,
+    adjustable_quantity: {
+      enabled: adjustableQuantity || false,
+      maximum: adjustableQuantity ? adjustableQuantityMaximum || 99 : undefined,
+      minimum: adjustableQuantity ? adjustableQuantityMinimum || 1 : undefined,
+    },
+  }
+}
 
 export const createPaymentLink: IntegrationProps['actions']['createPaymentLink'] = async ({ ctx, logger, input }) => {
   const validatedInput = createPaymentLinkInputSchema.parse(input)
   const StripeClient = getClient(ctx.configuration)
-  let response
+
   try {
-    const products = await StripeClient.listAllProductsBasic()
-    let product = products.find((p) => p.name === validatedInput.productName)
+    const product = await findOrCreateProduct(StripeClient, validatedInput.productName)
+    const price = await findOrCreatePrice(StripeClient, product.id, validatedInput.unit_amount, validatedInput.currency)
 
-    if (!product) {
-      product = await StripeClient.createProduct(validatedInput.productName)
-    }
+    const lineItem = buildLineItem(
+      price.id,
+      validatedInput.quantity,
+      validatedInput.adjustableQuantity,
+      validatedInput.adjustableQuantityMaximum,
+      validatedInput.adjustableQuantityMinimum
+    )
 
-    const prices = await StripeClient.listPrices(product.id)
-    let price
-    if (!validatedInput.unit_amount) {
-      price = prices.data[0]
-    } else {
-      price = prices.data.find(
-        (p: any) => p.unit_amount === validatedInput.unit_amount && p.currency === validatedInput.currency
-      )
-    }
-
-    if (!price) {
-      price = await StripeClient.createPrice(product.id, validatedInput.unit_amount, validatedInput.currency)
-    }
-
-    const adjustableQuantity = validatedInput.adjustableQuantity || false
-    const lineItem = {
-      price: price.id,
-      quantity: validatedInput.quantity || 1,
-      adjustable_quantity: {
-        enabled: adjustableQuantity,
-        maximum: adjustableQuantity ? validatedInput.adjustableQuantityMaximum || 99 : undefined,
-        minimum: adjustableQuantity ? validatedInput.adjustableQuantityMinimum || 1 : undefined,
-      },
-    }
     const paymentLink = await StripeClient.createPaymentLink(lineItem)
 
-    response = {
+    logger.forBot().info(`Successful - Create Payment Link - ${paymentLink.id}`)
+
+    return {
       id: paymentLink.id,
       url: paymentLink.url,
     }
-    logger.forBot().info(`Successful - Create Payment Link - ${paymentLink.id}`)
   } catch (error) {
-    response = {}
     logger.forBot().debug(`'Create Payment Link' exception ${JSON.stringify(error)}`)
+    throw error
   }
-
-  return response
 }
