@@ -157,9 +157,9 @@ const discoverUrls: ActionDefinition = {
   cacheable: false,
 }
 
-export const actionDefinitions: Record<string, ActionDefinition> = {
+export const actionDefinitions = {
   captureScreenshot,
   browsePages,
   webSearch,
   discoverUrls,
-}
+} satisfies Record<string, ActionDefinition>
