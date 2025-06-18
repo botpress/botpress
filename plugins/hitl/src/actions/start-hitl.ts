@@ -155,8 +155,10 @@ const _startHitlTimeout = async (
     return
   }
 
+  const eventType = 'humanAgentAssignedTimeout'
+  const prefixedType = props.alias ? `${props.alias}#${eventType}` : eventType
   await props.client.createEvent({
-    type: 'humanAgentAssignedTimeout',
+    type: prefixedType,
     payload: {
       sessionStartedAt: new Date().toISOString(),
       downstreamConversationId: downstreamCm.conversationId,
