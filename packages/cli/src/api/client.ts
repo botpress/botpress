@@ -98,7 +98,7 @@ export class ApiClient {
 
     const privateIntegration = await this.findPrivateIntegration(ref)
     if (privateIntegration) {
-      this._logger.debug(`Found integration "${formatted}" in workspace`)
+      this._logger.debug(`Found integration "${formatted}" [${privateIntegration.id}] in workspace`)
       return privateIntegration
     }
 

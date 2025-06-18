@@ -1,0 +1,19 @@
+{
+  "name": "cli-fixtures-integration-with-entity-dependency",
+  "integrationName": "cli-fixtures-integration-with-entity-dependency",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "1.15.1",
+    "@botpress/sdk": "4.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.67",
+    "typescript": "^5.6.3"
+  },
+  "bpDependencies": {
+    "interface-with-entities": "../../interfaces/interface-with-entities"
+  }
+}
