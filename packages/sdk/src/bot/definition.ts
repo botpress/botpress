@@ -359,4 +359,123 @@ export class BotDefinition<
     pluginAlias: string
   ): TRecord =>
     utils.records.mapKeys(obj ?? {}, (key) => `${pluginAlias}${consts.PLUGIN_PREFIX_SEPARATOR}${key}`) as TRecord
+
+  /**
+   * Returns a copy of the bot definition where all interface entity references
+   * are resolved to the base entity schema as extended by the backing
+   * integration.
+   */
+  public dereferencePluginEntities(): this {
+    const zuiReferenceMap = this._buildZuiReferenceMap()
+
+    return {
+      ...this,
+      withPlugins: {
+        ...this.withPlugins,
+        events: this._dereferenceDefinitionSchemas(this.withPlugins.events, zuiReferenceMap),
+        states: this._dereferenceDefinitionSchemas(this.withPlugins.states, zuiReferenceMap),
+        tables: this._dereferenceDefinitionSchemas(this.withPlugins.tables, zuiReferenceMap),
+        actions: this._dereferenceActionDefinitionSchemas(this.withPlugins.actions, zuiReferenceMap),
+      },
+      plugins: Object.fromEntries(
+        (Object.entries(this.plugins ?? {}) as [pluginAlias: string, PluginInstance][]).map(
+          ([pluginAlias, pluginInstance]) => [
+            pluginAlias,
+            {
+              ...pluginInstance,
+              definition: {
+                ...pluginInstance.definition,
+                events: this._dereferenceDefinitionSchemas(pluginInstance.definition.events, zuiReferenceMap),
+                states: this._dereferenceDefinitionSchemas(pluginInstance.definition.states, zuiReferenceMap),
+                tables: this._dereferenceDefinitionSchemas(pluginInstance.definition.tables, zuiReferenceMap),
+                actions: this._dereferenceActionDefinitionSchemas(pluginInstance.definition.actions, zuiReferenceMap),
+              },
+            },
+          ]
+        )
+      ),
+    } as typeof this
+  }
+
+  private _buildZuiReferenceMap(): Record<string, z.ZodTypeAny> {
+    const zuiReferenceMap: Record<string, z.ZodTypeAny> = {}
+
+    const installedPlugins = Object.entries(this.plugins ?? {}) as [pluginAlias: string, PluginInstance][]
+
+    for (const [pluginAlias, pluginInstance] of installedPlugins) {
+      const pluginInterfaceExtensions = Object.entries(pluginInstance.interfaces ?? {}) as [
+        interfaceAlias: string,
+        PluginInterfaceExtension,
+      ][]
+
+      for (const [interfaceAlias, pluginInterfaceExtension] of pluginInterfaceExtensions) {
+        const backingIntegration = this.integrations?.[pluginInterfaceExtension.name]
+
+        if (!backingIntegration) {
+          throw new Error(
+            `Interface with alias "${interfaceAlias}" of plugin with alias "${pluginAlias}" references integration "${pluginInterfaceExtension.name}" which is not installed`
+          )
+        }
+
+        const entityExtensions = Object.entries(pluginInterfaceExtension.entities ?? {}) as [
+          entityAlias: string,
+          {
+            name: string
+          },
+        ][]
+
+        for (const [entityAlias, { name: interfaceEntityName }] of entityExtensions) {
+          const entitySchema = backingIntegration.definition.entities?.[interfaceEntityName]?.schema
+
+          if (!entitySchema) {
+            // This should never happen
+            throw new Error(
+              `Interface entity "${interfaceEntityName}" does not exist in integration "${backingIntegration.name}"`
+            )
+          }
+
+          zuiReferenceMap[`interface:${interfaceAlias}/entities/${entityAlias}`] = entitySchema
+        }
+      }
+    }
+
+    return zuiReferenceMap
+  }
+
+  private _dereferenceZuiSchema(
+    schema: ZuiObjectOrRefSchema,
+    zuiReferenceMap: Record<string, z.ZodTypeAny>
+  ): ZuiObjectSchema {
+    return schema.dereference(zuiReferenceMap) as ZuiObjectSchema
+  }
+
+  private _dereferenceDefinitionSchemas<TDefinitionRecord extends Record<string, { schema: ZuiObjectOrRefSchema }>>(
+    definitions: TDefinitionRecord | undefined,
+    zuiReferenceMap: Record<string, z.ZodTypeAny>
+  ): TDefinitionRecord {
+    return Object.fromEntries(
+      Object.entries(definitions ?? {}).map(([key, definition]) => [
+        key,
+        { ...definition, schema: this._dereferenceZuiSchema(definition.schema, zuiReferenceMap) },
+      ])
+    ) as TDefinitionRecord
+  }
+
+  private _dereferenceActionDefinitionSchemas<
+    TDefinitionRecord extends Record<
+      string,
+      { input: { schema: ZuiObjectOrRefSchema }; output: { schema: ZuiObjectOrRefSchema } }
+    >,
+  >(definitions: TDefinitionRecord | undefined, zuiReferenceMap: Record<string, z.ZodTypeAny>): TDefinitionRecord {
+    return Object.fromEntries(
+      Object.entries(definitions ?? {}).map(([key, definition]) => [
+        key,
+        {
+          ...definition,
+          input: { schema: this._dereferenceZuiSchema(definition.input.schema, zuiReferenceMap) },
+          output: { schema: this._dereferenceZuiSchema(definition.output.schema, zuiReferenceMap) },
+        },
+      ])
+    ) as TDefinitionRecord
+  }
 }
