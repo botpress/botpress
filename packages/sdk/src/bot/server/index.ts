@@ -121,7 +121,9 @@ export const botHandler =
         default:
           throw new Error(`Unknown operation ${ctx.operation}`)
       }
-    } catch (error) {
+    } catch (thrown: unknown) {
+      const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+
       if (isApiError(error)) {
         const runtimeError = error.type === 'Runtime' ? error : new RuntimeError(error.message, error)
         logger.error(runtimeError.message)
@@ -129,8 +131,8 @@ export const botHandler =
         return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
       }
 
-      const runtimeError = new RuntimeError('An unexpected error occurred in the bot.')
-      logger.error(runtimeError.message)
+      const runtimeError = new RuntimeError('An unexpected error occurred in the bot.', error)
+      logger.error(runtimeError.message, error)
       return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
     }
   }

@@ -67,6 +67,7 @@ const _isMatch = (itemPath: string, globPattern: string) =>
     dot: true,
     // escape brackets in the glob pattern so that only literal brackets are matched:
     literalBrackets: true,
+    nobracket: true,
   })
 
 type FileRequirements = Omit<
