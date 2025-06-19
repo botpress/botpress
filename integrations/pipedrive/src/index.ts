@@ -1,13 +1,13 @@
-import * as bp from '.botpress'
-import {PipedriveWebhookPayload} from './entities/webhooks'
-import {createWebhook} from './utils'
-import * as conf from './conf'
+import * as console from 'node:console'
+// @ts-ignore
+import { DealsApi, DealsApiAddDealRequest } from 'pipedrive/v2'
 import qs from 'qs'
+import * as conf from './conf'
+import { getCorsHeaders } from './cors'
+import { PipedriveWebhookPayload } from './entities/webhooks'
+import { createWebhook } from './utils'
 
-import { DealsApi, DealsApiAddDealRequest, LeadsApi} from "pipedrive/v2";
-import * as console from "node:console";
-import {getCorsHeaders} from "./cors";
-
+import * as bp from '.botpress'
 
 const debugRequest = ({ req, logger }: bp.HandlerProps): void => {
   const { method, path, query, body } = req
@@ -31,7 +31,6 @@ export default new bp.Integration({
     await createWebhook('create', 'lead', `${conf.bpWebHookUrl}/${conf.createLead}`)
     await createWebhook('change', 'lead', `${conf.bpWebHookUrl}/${conf.changeLead}`)
     await createWebhook('delete', 'lead', `${conf.bpWebHookUrl}/${conf.deleteLead}`)
-
   },
   unregister: async () => {
     /**
@@ -46,12 +45,12 @@ export default new bp.Integration({
        * This is called when a bot calls the action `createDeal`.
        */
       const dealsApi = new DealsApi(conf.pipeDriveConfig)
-      const addDealRequest: DealsApiAddDealRequest = {AddDealRequest: {title: props.input.title}}
+      const addDealRequest: DealsApiAddDealRequest = { AddDealRequest: { title: props.input.title } }
       try {
         const response = await dealsApi.addDeal(addDealRequest)
         props.logger.forBot().info('Create deal') // this log will be visible by the bots that use this integration
         console.log('Deal created:', response.data)
-        return {message: response.data?.title??" Deal created successfully Deal creation failed"}
+        return { message: response.data?.title ?? ' Deal created successfully Deal creation failed' }
       } catch (error) {
         console.error('Error creating deal:', error)
         throw error
@@ -65,37 +64,36 @@ export default new bp.Integration({
       //TODO Seems like the leadsApi does not have a method to create a lead, so we will just log the action.. Must be implemented later by hand...
       // const _ = new LeadsApi(conf.pipeDriveConfig)
       props.logger.forBot().info('Create deal NOT IMPLEMENTED YET')
-      return { message: 'NOT IMPLEMENTED YET' };
+      return { message: 'NOT IMPLEMENTED YET' }
     },
     changeLead: async (props) => {
-        /**
-         * This is called when a bot calls the action `changeLead`.
-         */
-        props.logger.forBot().info('Change lead NOT IMPLEMENTED YET')
-        return { message: 'NOT IMPLEMENTED YET' };
+      /**
+       * This is called when a bot calls the action `changeLead`.
+       */
+      props.logger.forBot().info('Change lead NOT IMPLEMENTED YET')
+      return { message: 'NOT IMPLEMENTED YET' }
     },
     changeDeal: async (props) => {
       /**
        * This is called when a bot calls the action `changeDeal`.
        */
       props.logger.forBot().info('Change deal NOT IMPLEMENTED YET')
-      return { message: 'NOT IMPLEMENTED YET' };
+      return { message: 'NOT IMPLEMENTED YET' }
     },
     deleteLead: async (props) => {
       /**
        * This is called when a bot calls the action `deleteLead`.
        */
       props.logger.forBot().info('Delete lead NOT IMPLEMENTED YET')
-      return { message: 'NOT IMPLEMENTED YET' };
+      return { message: 'NOT IMPLEMENTED YET' }
     },
     deleteDeal: async (props) => {
       /**
        * This is called when a bot calls the action `deleteDeal`.
        */
       props.logger.forBot().info('Delete deal NOT IMPLEMENTED YET')
-      return { message: 'NOT IMPLEMENTED YET' };
-    }
-
+      return { message: 'NOT IMPLEMENTED YET' }
+    },
   },
   channels: {},
   handler: async (args: any) => {
@@ -111,19 +109,20 @@ export default new bp.Integration({
       }
     }
 
-    const { req, client, ctx } = args
+    const { req, client } = args
     const method = req.method.toUpperCase()
     const query = req.query ? qs.parse(req.query) : {}
 
-
-    let body = JSON.parse(req.body ?? '{}') as PipedriveWebhookPayload
+    const body = JSON.parse(req.body ?? '{}') as PipedriveWebhookPayload
 
     let parsed_query = {}
     try {
       parsed_query = query as Record<string, any>
-    } catch {console.error('Error parsing query:', query)}
+    } catch {
+      console.error('Error parsing query:', query)
+    }
 
-    const queryType: any = query["type"]
+    const queryType: any = query['type']
     args.logger.forBot().debug(`Received webhook request: ${query}`)
     switch (queryType) {
       case conf.createDeal:
@@ -201,12 +200,12 @@ export default new bp.Integration({
         args.logger.forBot().debug(`Botpress received webhook ${conf.deleteLead} from pipedrive.`)
         break
       default:
-        console.log("Unknown query type:", queryType)}
+        console.log('Unknown query type:', queryType)
+    }
 
     return {
       status: 200,
       headers: corsHeaders,
     }
-
-  }
+  },
 })
