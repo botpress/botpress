@@ -345,9 +345,42 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const integrations = await this._fetchDependencies(botDef.integrations ?? {}, ({ name, version }) =>
       api.getPublicOrPrivateIntegration({ type: 'name', name, version })
     )
-    const plugins = await this._fetchDependencies(botDef.plugins ?? {}, ({ name, version }) =>
-      api.getPublicOrPrivatePlugin({ type: 'name', name, version })
-    )
+    const plugins = await utils.records.mapValuesAsync(botDef.plugins ?? {}, async (dep) => {
+      let plugin: typeof dep & { id: string }
+      if (dep.id !== undefined) {
+        plugin = { ...dep, id: dep.id }
+      } else {
+        const { id } = await api.getPublicOrPrivatePlugin({ type: 'name', name: dep.name, version: dep.version })
+        plugin = { ...dep, id }
+      }
+
+      const interfaces = await utils.records.mapValuesAsync(plugin.interfaces, async (value) => {
+        const publicIntegration = await api.findPublicIntegration({
+          type: 'name',
+          name: value.name,
+          version: value.version,
+        })
+        if (publicIntegration) {
+          return { ...value, integrationId: publicIntegration.id }
+        }
+
+        const privateIntegration = await api.findPrivateIntegration({
+          type: 'name',
+          name: value.name,
+          version: value.version,
+        })
+        if (privateIntegration) {
+          return { ...value, integrationId: privateIntegration.id }
+        }
+
+        throw new errors.BotpressCLIError(
+          `Could not find integration "${value.name}" version "${value.version}" for plugin "${plugin.name}"`
+        )
+      })
+
+      return { ...plugin, interfaces }
+    })
+
     return {
       integrations: _(integrations)
         .keyBy((i) => i.id)
