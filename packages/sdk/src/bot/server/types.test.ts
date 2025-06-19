@@ -181,7 +181,7 @@ test('Bot should only require to implement actions that are not already implemen
   type ActualImplementedActions = types.ImplementedActionHandlers<FooBarBazBot, Plugins>
   type ActualUnimplementedActions = types.UnimplementedActionHandlers<FooBarBazBot, Plugins>
 
-  type ExpectedImplementedActions = 'doSomething' | 'makeSomething'
+  type ExpectedImplementedActions = 'do#doSomething' | 'make#makeSomething'
   type ExpectedUnimplementedActions = 'act' | 'do'
 
   type _assertion = utils.AssertAll<
