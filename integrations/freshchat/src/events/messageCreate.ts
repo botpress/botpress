@@ -1,12 +1,17 @@
 import { MessageCreateFreshchatEvent } from '../definitions/freshchat-events'
+import { updateAgentUser } from '../util'
 import * as bp from '.botpress'
 
 export const executeMessageCreate = async ({
   freshchatEvent,
   client,
+  ctx,
+  logger,
 }: {
   freshchatEvent: MessageCreateFreshchatEvent
   client: bp.Client
+  ctx: bp.Context
+  logger: bp.Logger
 }) => {
   // Ignore non agent messages
   if (freshchatEvent.actor.actor_type === 'user') {
@@ -30,6 +35,9 @@ export const executeMessageCreate = async ({
       id: freshchatEvent.actor.actor_id,
     },
   })
+
+  // An unassigned agent might send a message
+  await updateAgentUser(user, client, ctx, logger)
 
   for (const messagePart of freshchatEvent.data.message.message_parts) {
     await client.createMessage({

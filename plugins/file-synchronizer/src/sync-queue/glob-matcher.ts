@@ -38,7 +38,9 @@ export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): 
   let matchesButHasUnmetRequirements = false
 
   for (const { pathGlobPattern, applyOptionsToMatchedFiles, ...requirements } of configuration.includeFiles) {
-    if (!pathGlobPattern || !picomatch.isMatch(itemPath, pathGlobPattern)) {
+    const isAncestorFolder = item.type === 'folder' && _isAncestorOfGlob(itemPath, pathGlobPattern)
+
+    if (!pathGlobPattern || (!_isMatch(itemPath, pathGlobPattern) && !isAncestorFolder)) {
       continue
     }
 
@@ -58,6 +60,14 @@ export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): 
     reason: matchesButHasUnmetRequirements ? 'unmet-include-requirements' : 'does-not-match-any-pattern',
   }
 }
+
+const _isMatch = (itemPath: string, globPattern: string) =>
+  picomatch.isMatch(itemPath, globPattern, {
+    // allow dotfiles to match:
+    dot: true,
+    // escape brackets in the glob pattern so that only literal brackets are matched:
+    literalBrackets: true,
+  })
 
 type FileRequirements = Omit<
   GlobMatcherProps['configuration']['includeFiles'][number],
@@ -85,4 +95,34 @@ const _isFileWithUnmetRequirements = (
     new Date(item.lastModifiedDate) < new Date(modifiedAfter)
 
   return exceedsUserDefinedMaxSize || isItemOlderThanGivenDate
+}
+
+const _isAncestorOfGlob = (candidatePath: string, globPattern: string): boolean =>
+  _isAncestorPath(candidatePath, _extractStaticPrefix(globPattern))
+
+const _extractStaticPrefix = (globPattern: string): string => {
+  const wildcardIndex = globPattern.search(/[*?{}]/)
+  if (wildcardIndex === -1) {
+    return globPattern
+  }
+
+  const prefix = globPattern.substring(0, wildcardIndex)
+  const lastSlashIndex = prefix.lastIndexOf('/')
+
+  return lastSlashIndex === -1 ? '' : prefix.substring(0, lastSlashIndex)
+}
+
+const _isAncestorPath = (ancestor: string, descendant: string): boolean => {
+  if (ancestor === descendant) {
+    return true
+  }
+
+  const ancestorParts = ancestor.split('/').filter((part) => part !== '')
+  const descendantParts = descendant.split('/').filter((part) => part !== '')
+
+  if (ancestorParts.length >= descendantParts.length) {
+    return false
+  }
+
+  return ancestorParts.every((part, index) => part === descendantParts[index])
 }
