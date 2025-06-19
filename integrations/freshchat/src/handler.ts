@@ -17,7 +17,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ ctx, req, logger
 
   switch (freshchatEvent.action) {
     case 'message_create':
-      await executeMessageCreate({ freshchatEvent, client })
+      await executeMessageCreate({ freshchatEvent, client, ctx, logger })
       break
     case 'conversation_assignment':
       await executeConversationAssignment({ freshchatEvent, client, ctx, logger })
