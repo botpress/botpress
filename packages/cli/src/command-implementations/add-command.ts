@@ -213,7 +213,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         )
       }
 
-      const pluginDefinition = projectDefinition.definition.dereferenceEntities()
+      const pluginDefinition = projectDefinition.definition
       const { name, version } = pluginDefinition
       const code = projectImplementation
 

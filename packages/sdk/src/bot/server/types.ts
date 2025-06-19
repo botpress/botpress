@@ -387,9 +387,7 @@ export type BotHandlers<TBot extends common.BaseBot> = {
 
 // plugins
 
-type _GetPluginPrefix<TKey extends string, TPlugin extends plugin.BasePlugin> = TKey extends TPlugin['name']
-  ? ''
-  : `${TKey}#`
+type _GetPluginPrefix<TKey extends string> = `${TKey}#`
 
 type ImplementedActions<
   _TBot extends common.BaseBot,
@@ -399,7 +397,7 @@ type ImplementedActions<
     [TPlugin in utils.StringKeys<TPlugins>]: {
       [TAction in utils.StringKeys<
         TPlugins[TPlugin]['actions']
-      > as `${_GetPluginPrefix<utils.Cast<TPlugin, string>, TPlugins[TPlugin]>}${utils.Cast<TAction, string>}`]: TPlugins[TPlugin]['actions'][TAction]
+      > as `${_GetPluginPrefix<utils.Cast<TPlugin, string>>}${utils.Cast<TAction, string>}`]: TPlugins[TPlugin]['actions'][TAction]
     }
   }>
 >
