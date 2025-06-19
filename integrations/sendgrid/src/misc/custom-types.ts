@@ -3,7 +3,7 @@ import type { ResponseError } from '@sendgrid/helpers/classes'
 // ============ Common Types ============
 
 /** A type for modifying the structure of another type */
-export type Modify<T, R> = Omit<T, keyof R> & R
+export type Merge<T, R> = Omit<T, keyof R> & R
 
 // ============ Send Grid ============
 
@@ -14,9 +14,9 @@ export type Modify<T, R> = Omit<T, keyof R> & R
  *   to be a string, the validation check I'm doing in
  *   'utils.ts' asserts that the body is an object &
  *   that it contains a property called "errors". */
-export type SendGridResponseError = Modify<
+export type SendGridResponseError = Merge<
   ResponseError,
-  { response: Modify<ResponseError['response'], { body: SendGridErrorResponseBody }> }
+  { response: Merge<ResponseError['response'], { body: SendGridErrorResponseBody }> }
 >
 
 type SendGridError = {
