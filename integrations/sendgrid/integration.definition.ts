@@ -1,9 +1,8 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sendEmailOutputSchema, sendMailInputSchema } from './definitions/actions'
-import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
-  name: integrationName,
+  name: 'sendgrid',
   title: 'SendGrid',
   version: '0.0.1',
   readme: 'hub.md',

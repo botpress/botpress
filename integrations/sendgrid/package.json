@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/sendgrid",
-  "integrationName": "sendgrid",
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
