@@ -51,29 +51,38 @@ export const prepareUpdateBotBody = (
 ): types.UpdateBotRequestBody => ({
   ...localBot,
   shouldMergePlugins: true,
-  states: utils.records.setNullOnMissingValues(localBot.states, remoteBot.states),
-  recurringEvents: utils.records.setNullOnMissingValues(localBot.recurringEvents, remoteBot.recurringEvents),
+  states: _setNullOnMissingValuesAndOmitPluginDefs(localBot.states, remoteBot.states),
+  recurringEvents: _setNullOnMissingValuesAndOmitPluginDefs(localBot.recurringEvents, remoteBot.recurringEvents),
   events: utils.attributes.prepareAttributeUpdateBody({
-    localItems: utils.records.setNullOnMissingValues(localBot.events, remoteBot.events),
+    localItems: _setNullOnMissingValuesAndOmitPluginDefs(localBot.events, remoteBot.events),
     remoteItems: remoteBot.events,
   }),
   actions: utils.attributes.prepareAttributeUpdateBody({
-    localItems: utils.records.setNullOnMissingValues(localBot.actions, remoteBot.actions),
+    localItems: _setNullOnMissingValuesAndOmitPluginDefs(localBot.actions, remoteBot.actions),
     remoteItems: remoteBot.actions,
   }),
   user: {
     ...localBot.user,
-    tags: utils.records.setNullOnMissingValues(localBot.user?.tags, remoteBot.user?.tags),
+    tags: _setNullOnMissingValuesAndOmitPluginDefs(localBot.user?.tags, remoteBot.user?.tags),
   },
   conversation: {
     ...localBot.conversation,
-    tags: utils.records.setNullOnMissingValues(localBot.conversation?.tags, remoteBot.conversation?.tags),
+    tags: _setNullOnMissingValuesAndOmitPluginDefs(localBot.conversation?.tags, remoteBot.conversation?.tags),
   },
   message: {
     ...localBot.message,
-    tags: utils.records.setNullOnMissingValues(localBot.message?.tags, remoteBot.message?.tags),
+    tags: _setNullOnMissingValuesAndOmitPluginDefs(localBot.message?.tags, remoteBot.message?.tags),
   },
-  integrations: utils.records.setNullOnMissingValues(localBot.integrations, remoteBot.integrations),
-  plugins: utils.records.setNullOnMissingValues(localBot.plugins, remoteBot.plugins),
+  integrations: _setNullOnMissingValuesAndOmitPluginDefs(localBot.integrations, remoteBot.integrations),
+  plugins: _setNullOnMissingValuesAndOmitPluginDefs(localBot.plugins, remoteBot.plugins),
   tags: localBot.tags, // TODO: allow removing bot tags (aka attributes) by setting to null
 })
+
+export const _setNullOnMissingValuesAndOmitPluginDefs: typeof utils.records.setNullOnMissingValues = (
+  record,
+  oldRecord = {}
+) =>
+  utils.records.setNullOnMissingValues(
+    record,
+    Object.fromEntries(Object.entries(oldRecord).filter(([key]) => !key.includes('#')))
+  )
