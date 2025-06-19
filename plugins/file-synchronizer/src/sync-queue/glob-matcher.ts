@@ -38,9 +38,9 @@ export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): 
   let matchesButHasUnmetRequirements = false
 
   for (const { pathGlobPattern, applyOptionsToMatchedFiles, ...requirements } of configuration.includeFiles) {
-    const isAncestorFolder = item.type === 'folder' && isAncestorOfGlob(itemPath, pathGlobPattern)
+    const isAncestorFolder = item.type === 'folder' && _isAncestorOfGlob(itemPath, pathGlobPattern)
 
-    if (!pathGlobPattern || (!picomatch.isMatch(itemPath, pathGlobPattern) && !isAncestorFolder)) {
+    if (!pathGlobPattern || (!_isMatch(itemPath, pathGlobPattern) && !isAncestorFolder)) {
       continue
     }
 
@@ -60,6 +60,14 @@ export const matchItem = ({ configuration, item, itemPath }: GlobMatcherProps): 
     reason: matchesButHasUnmetRequirements ? 'unmet-include-requirements' : 'does-not-match-any-pattern',
   }
 }
+
+const _isMatch = (itemPath: string, globPattern: string) =>
+  picomatch.isMatch(itemPath, globPattern, {
+    // allow dotfiles to match:
+    dot: true,
+    // escape brackets in the glob pattern so that only literal brackets are matched:
+    literalBrackets: true,
+  })
 
 type FileRequirements = Omit<
   GlobMatcherProps['configuration']['includeFiles'][number],
@@ -89,11 +97,11 @@ const _isFileWithUnmetRequirements = (
   return exceedsUserDefinedMaxSize || isItemOlderThanGivenDate
 }
 
-const isAncestorOfGlob = (candidatePath: string, globPattern: string): boolean =>
+const _isAncestorOfGlob = (candidatePath: string, globPattern: string): boolean =>
   _isAncestorPath(candidatePath, _extractStaticPrefix(globPattern))
 
 const _extractStaticPrefix = (globPattern: string): string => {
-  const wildcardIndex = globPattern.search(/[*?[\]{}]/)
+  const wildcardIndex = globPattern.search(/[*?{}]/)
   if (wildcardIndex === -1) {
     return globPattern
   }

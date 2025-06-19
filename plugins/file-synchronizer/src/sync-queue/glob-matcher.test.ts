@@ -357,10 +357,13 @@ describe.concurrent('matchItem', () => {
       })
     })
 
-    it('should include when path matches part of include pattern', () => {
+    it.each([
+      { path: '/foo/bar', glob: '/foo/bar/baz/**' },
+      { path: '/abc', glob: '/abc/[def]/[ghi]/**' },
+      { path: '/abc/[def]', glob: '/abc/[def]/[ghi]/**' },
+    ])('should include when path matches part of include pattern', ({ path: itemPath, glob: pathGlobPattern }) => {
       // Arrange
-      const itemPath = '/foo/bar'
-      const configuration = createConfiguration({ includeFiles: [{ pathGlobPattern: '/foo/bar/baz/**' }] })
+      const configuration = createConfiguration({ includeFiles: [{ pathGlobPattern }] })
       const item = createFolderItem({ name: 'bar' })
 
       // Act
