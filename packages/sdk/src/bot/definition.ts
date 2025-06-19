@@ -244,15 +244,15 @@ export class BotDefinition<
 
     self.withPlugins.states = this._mergeStates(
       self.withPlugins.states,
-      this._prefixKeys(pluginPkg.definition.states, config.alias)
+      this._prefixKeysWithPluginAlias(pluginPkg.definition.states, pluginAlias)
     )
     self.withPlugins.events = this._mergeEvents(
       self.withPlugins.events,
-      this._prefixKeys(pluginPkg.definition.events, config.alias)
+      this._prefixKeysWithPluginAlias(pluginPkg.definition.events, pluginAlias)
     )
     self.withPlugins.actions = this._mergeActions(
       self.withPlugins.actions,
-      this._prefixKeys(pluginPkg.definition.actions, config.alias)
+      this._prefixKeysWithPluginAlias(pluginPkg.definition.actions, pluginAlias)
     )
 
     return this
@@ -354,10 +354,9 @@ export class BotDefinition<
     }
   }
 
-  private _prefixKeys = <T extends Record<string, any> | undefined>(obj: T, alias: string | undefined): T => {
-    if (!obj || !alias) {
-      return obj
-    }
-    return utils.records.mapKeys(obj, (key) => `${alias}${consts.PLUGIN_PREFIX_SEPARATOR}${key}`) as T
-  }
+  private _prefixKeysWithPluginAlias = <TRecord extends Record<string, unknown>>(
+    obj: TRecord | undefined,
+    pluginAlias: string
+  ): TRecord =>
+    utils.records.mapKeys(obj ?? {}, (key) => `${pluginAlias}${consts.PLUGIN_PREFIX_SEPARATOR}${key}`) as TRecord
 }
