@@ -9,6 +9,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
+    "@sendgrid/client": "^8.1.5",
     "@sendgrid/helpers": "^8.0.0",
     "@sendgrid/mail": "^8.1.5"
   },
