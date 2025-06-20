@@ -1055,6 +1055,25 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/magento2:
+    dependencies:
+      '@botpress/client':
+        specifier: 1.15.0
+        version: 1.15.0
+      '@botpress/sdk':
+        specifier: 4.8.1
+        version: 4.8.1(@bpinternal/zui@0.13.6)
+      oauth-1.0a:
+        specifier: ^2.2.6
+        version: 2.2.6
+    devDependencies:
+      '@types/node':
+        specifier: ^18.19.67
+        version: 18.19.67
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+
   integrations/mailchimp:
     dependencies:
       '@botpress/client':
@@ -4387,6 +4406,35 @@ packages:
       - supports-color
     dev: true
 
+  /@botpress/client@1.15.0:
+    resolution: {integrity: sha512-uVKtlPZQJ8Jpl45qrVLLHd+g/Z/EJZgzTNz56RMiiui3rnwBNG7fVr+MXvWUC4k95ags5893b05PE7KOElFQog==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      axios: 1.9.0
+      axios-retry: 4.5.0(axios@1.9.0)
+      browser-or-node: 2.1.1
+      qs: 6.13.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@botpress/sdk@4.8.1(@bpinternal/zui@0.13.6):
+    resolution: {integrity: sha512-mqJtAGZbGKt0OGRdd5OUjDHN+2m2APbElGmoPKbJlo8jKQWLHsmBFYL+R4XvejCywpqAm8W6hBlqNfefaFdjkg==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@bpinternal/zui': ^0.13.5
+      esbuild: ^0.16.12
+    peerDependenciesMeta:
+      esbuild:
+        optional: true
+    dependencies:
+      '@botpress/client': 1.15.0
+      '@bpinternal/zui': 0.13.6
+      browser-or-node: 2.1.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@bpinternal/const@0.1.0:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
@@ -4560,6 +4608,16 @@ packages:
       lodash: 4.17.21
       yargs: 17.7.2
       yn: 4.0.0
+    dev: false
+
+  /@bpinternal/zui@0.13.6:
+    resolution: {integrity: sha512-LK09xntsesmlv3lJKR5ZP4c52vtRqE/5h+dTHQZiQveXQOO6w7cXJ2z97Q1mmuH71oEDTiaNw9qoWV34LPGSdQ==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+    peerDependencies:
+      react: ^18.2.0
+    peerDependenciesMeta:
+      react:
+        optional: true
     dev: false
 
   /@bpinternal/zui@1.0.0:
@@ -9134,6 +9192,15 @@ packages:
       axios: 0.x || 1.x
     dependencies:
       axios: 1.6.1
+      is-retry-allowed: 2.2.0
+    dev: false
+
+  /axios-retry@4.5.0(axios@1.9.0):
+    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
+    peerDependencies:
+      axios: 0.x || 1.x
+    dependencies:
+      axios: 1.9.0
       is-retry-allowed: 2.2.0
     dev: false
 
@@ -14453,6 +14520,10 @@ packages:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
     dependencies:
       boolbase: 1.0.0
+    dev: false
+
+  /oauth-1.0a@2.2.6:
+    resolution: {integrity: sha512-6bkxv3N4Gu5lty4viIcIAnq5GbxECviMBeKR3WX/q87SPQ8E8aursPZUtsXDnxCs787af09WPRBLqYrf/lwoYQ==}
     dev: false
 
   /oauth-sign@0.9.0:
