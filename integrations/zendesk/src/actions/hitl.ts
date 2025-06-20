@@ -15,9 +15,14 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (pro
     throw new sdk.RuntimeError(`User ${user.id} not linked in Zendesk`)
   }
 
-  const ticket = await zendeskClient.createTicket(input.title ?? 'Untitled Ticket', await _buildTicketBody(props), {
-    id: zendeskAuthorId,
-  })
+  const ticket = await zendeskClient.createTicket(
+    input.title ?? 'Untitled Ticket',
+    await _buildTicketBody(props),
+    {
+      id: zendeskAuthorId,
+    },
+    { priority: input.hitlSession?.priority }
+  )
 
   const zendeskTicketId = `${ticket.id}`
   const { conversation } = await client.getOrCreateConversation({
