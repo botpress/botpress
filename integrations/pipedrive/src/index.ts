@@ -1,12 +1,8 @@
-import * as console from 'node:console'
+import { RuntimeError } from '@botpress/sdk'
 // @ts-ignore
-import { DealsApi, DealsApiAddDealRequest } from 'pipedrive/v2'
+import { DealsApi, DealsApiAddDealRequest, Configuration } from 'pipedrive/v2'
 import qs from 'qs'
-import * as conf from './conf'
-import { getCorsHeaders } from './cors'
-import { PipedriveWebhookPayload } from './entities/webhooks'
-import { createWebhook } from './utils'
-
+import * as wh from './webhook'
 import * as bp from '.botpress'
 
 const debugRequest = ({ req, logger }: bp.HandlerProps): void => {
@@ -16,196 +12,112 @@ const debugRequest = ({ req, logger }: bp.HandlerProps): void => {
 }
 
 export default new bp.Integration({
-  register: async () => {
-    /**
-     * This is called when an integration configuration is saved.
-     * You should use this handler to instantiate resources in the external service and ensure that the configuration is valid.
-     */
+  register: async ({ ctx, webhookUrl }) => {
+    await wh.createWebhook(ctx.configuration.apiKey, 'create', 'deal', `${webhookUrl}/createDeal`)
+    await wh.createWebhook(ctx.configuration.apiKey, 'change', 'deal', `${webhookUrl}/changeDeal`)
+    await wh.createWebhook(ctx.configuration.apiKey, 'delete', 'deal', `${webhookUrl}/deleteDeal`)
 
-    // DealsApi
-    await createWebhook('create', 'deal', `${conf.bpWebHookUrl}/${conf.createDeal}`)
-    await createWebhook('change', 'deal', `${conf.bpWebHookUrl}/${conf.changeDeal}`)
-    await createWebhook('delete', 'deal', `${conf.bpWebHookUrl}/${conf.deleteDeal}`)
-
-    // LeadsApi
-    await createWebhook('create', 'lead', `${conf.bpWebHookUrl}/${conf.createLead}`)
-    await createWebhook('change', 'lead', `${conf.bpWebHookUrl}/${conf.changeLead}`)
-    await createWebhook('delete', 'lead', `${conf.bpWebHookUrl}/${conf.deleteLead}`)
+    await wh.createWebhook(ctx.configuration.apiKey, 'create', 'lead', `${webhookUrl}/createLead`)
+    await wh.createWebhook(ctx.configuration.apiKey, 'change', 'lead', `${webhookUrl}/changeLead`)
+    await wh.createWebhook(ctx.configuration.apiKey, 'delete', 'lead', `${webhookUrl}/deleteLead`)
   },
   unregister: async () => {
-    /**
-     * This is called when a bot removes the integration.
-     * You should use this handler to instantiate resources in the external service and ensure that the configuration is valid.
-     */
     // TODO: should use the deleteWebhook function to remove the webhooks; not sure how bp handle states in backend.
   },
   actions: {
     createDeal: async (props) => {
-      /**
-       * This is called when a bot calls the action `createDeal`.
-       */
-      const dealsApi = new DealsApi(conf.pipeDriveConfig)
+      const config = new Configuration({ apiKey: props.ctx.configuration.apiKey })
+      const dealsApi = new DealsApi(config)
       const addDealRequest: DealsApiAddDealRequest = { AddDealRequest: { title: props.input.title } }
       try {
         const response = await dealsApi.addDeal(addDealRequest)
-        props.logger.forBot().info('Create deal') // this log will be visible by the bots that use this integration
-        console.log('Deal created:', response.data)
+        props.logger.forBot().info('Deal created:', response.data)
         return { message: response.data?.title ?? ' Deal created successfully Deal creation failed' }
       } catch (error) {
-        console.error('Error creating deal:', error)
+        props.logger.error('Error creating deal:', error)
         throw error
       }
-      // return { message: `Deal with title "${title}" have been added to pipedrive.` }
-    },
-    createLead: async (props) => {
-      /**
-       * This is called when a bot calls the action `createLead`.
-       */
-      //TODO Seems like the leadsApi does not have a method to create a lead, so we will just log the action.. Must be implemented later by hand...
-      // const _ = new LeadsApi(conf.pipeDriveConfig)
-      props.logger.forBot().info('Create deal NOT IMPLEMENTED YET')
-      return { message: 'NOT IMPLEMENTED YET' }
-    },
-    changeLead: async (props) => {
-      /**
-       * This is called when a bot calls the action `changeLead`.
-       */
-      props.logger.forBot().info('Change lead NOT IMPLEMENTED YET')
-      return { message: 'NOT IMPLEMENTED YET' }
-    },
-    changeDeal: async (props) => {
-      /**
-       * This is called when a bot calls the action `changeDeal`.
-       */
-      props.logger.forBot().info('Change deal NOT IMPLEMENTED YET')
-      return { message: 'NOT IMPLEMENTED YET' }
-    },
-    deleteLead: async (props) => {
-      /**
-       * This is called when a bot calls the action `deleteLead`.
-       */
-      props.logger.forBot().info('Delete lead NOT IMPLEMENTED YET')
-      return { message: 'NOT IMPLEMENTED YET' }
-    },
-    deleteDeal: async (props) => {
-      /**
-       * This is called when a bot calls the action `deleteDeal`.
-       */
-      props.logger.forBot().info('Delete deal NOT IMPLEMENTED YET')
-      return { message: 'NOT IMPLEMENTED YET' }
     },
   },
   channels: {},
-  handler: async (args: any) => {
-    debugRequest(args)
+  handler: async (props) => {
+    debugRequest(props)
 
-    const corsHeaders = getCorsHeaders(args)
-
-    if (args.req.method.toLowerCase() === 'options') {
-      // preflight request
-      return {
-        status: 200,
-        headers: corsHeaders,
-      }
-    }
-
-    const { req, client } = args
-    const method = req.method.toUpperCase()
+    const { req, client } = props
     const query = req.query ? qs.parse(req.query) : {}
 
-    const body = JSON.parse(req.body ?? '{}') as PipedriveWebhookPayload
-
-    let parsed_query = {}
+    let body: unknown
     try {
-      parsed_query = query as Record<string, any>
-    } catch {
-      console.error('Error parsing query:', query)
+      body = req.body ? JSON.parse(req.body) : {}
+    } catch (thrown) {
+      if (thrown instanceof SyntaxError) {
+        const message = 'Invalid JSON body in request.'
+        const error = new RuntimeError(message, thrown)
+        props.logger.forBot().error(message, thrown)
+        throw error
+      }
+      throw thrown
+    }
+
+    const parsedBody = wh.webhookPayloadSchema.safeParse(body)
+    if (!parsedBody.success) {
+      const message = 'Invalid webhook payload received.'
+      const error = new RuntimeError(message, parsedBody.error)
+      props.logger.forBot().error(message, parsedBody.error)
+      throw error
     }
 
     const queryType: any = query['type']
-    args.logger.forBot().debug(`Received webhook request: ${query}`)
+    props.logger.forBot().debug(`Received webhook request: ${query}`)
     switch (queryType) {
-      case conf.createDeal:
+      case 'createDeal':
         await client.createEvent({
-          type: conf.createDeal,
-          payload: {
-            body,
-            query: parsed_query,
-            method,
-            headers: req.headers as Record<string, string>,
-            path: req.path,
-          },
+          type: 'dealCreated',
+          payload: parsedBody,
         })
-        args.logger.forBot().debug(`Botpress received webhook ${conf.createDeal} from pipedrive.`)
+        props.logger.forBot().debug('Botpress received webhook createDeal from pipedrive.')
         break
-      case conf.createLead:
+      case 'createLead':
         await client.createEvent({
-          type: conf.createLead,
-          payload: {
-            body,
-            query: parsed_query,
-            method,
-            headers: req.headers as Record<string, string>,
-            path: req.path,
-          },
+          type: 'leadCreated',
+          payload: parsedBody,
         })
-        args.logger.forBot().debug(`Botpress received webhook ${conf.createLead} from pipedrive.`)
+        props.logger.forBot().debug('Botpress received webhook createLead from pipedrive.')
         break
-      case conf.changeDeal:
+      case 'changeDeal':
         await client.createEvent({
-          type: conf.changeDeal,
-          payload: {
-            body,
-            query: parsed_query,
-            method,
-            headers: req.headers as Record<string, string>,
-          },
+          type: 'dealChanged',
+          payload: parsedBody,
         })
-        args.logger.forBot().debug(`Botpress received webhook ${conf.changeDeal} from pipedrive.`)
+        props.logger.forBot().debug('Botpress received webhook changeDeal from pipedrive.')
         break
-      case conf.changeLead:
+      case 'changeLead':
         await client.createEvent({
-          type: conf.changeLead,
-          payload: {
-            body,
-            query: parsed_query,
-            method,
-            headers: req.headers as Record<string, string>,
-          },
+          type: 'leadChanged',
+          payload: parsedBody,
         })
-        args.logger.forBot().debug(`Botpress received webhook ${conf.changeLead} from pipedrive.`)
+        props.logger.forBot().debug('Botpress received webhook changeLead from pipedrive.')
         break
-      case conf.deleteDeal:
+      case 'deleteDeal':
         await client.createEvent({
-          type: conf.deleteDeal,
-          payload: {
-            body,
-            query: parsed_query,
-            method,
-            headers: req.headers as Record<string, string>,
-          },
+          type: 'dealDeleted',
+          payload: parsedBody,
         })
-        args.logger.forBot().debug(`Botpress received webhook ${conf.deleteDeal} from pipedrive.`)
+        props.logger.forBot().debug('Botpress received webhook deleteDeal from pipedrive.')
         break
-      case conf.deleteLead:
+      case 'deleteLead':
         await client.createEvent({
-          type: conf.deleteLead,
-          payload: {
-            body,
-            query: parsed_query,
-            method,
-            headers: req.headers as Record<string, string>,
-          },
+          type: 'leadDeleted',
+          payload: parsedBody,
         })
-        args.logger.forBot().debug(`Botpress received webhook ${conf.deleteLead} from pipedrive.`)
+        props.logger.forBot().debug('Botpress received webhook deleteLead from pipedrive.')
         break
       default:
-        console.log('Unknown query type:', queryType)
+        props.logger.warn('Unknown query type:', queryType)
     }
 
     return {
       status: 200,
-      headers: corsHeaders,
     }
   },
 })
