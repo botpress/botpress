@@ -7,6 +7,7 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
     "build": "bp add -y && bp build",
+    "deploy": "bp deploy",
     "eslint": "eslint ./ --ext .ts --ext .tsx --fix"
   },
   "dependencies": {

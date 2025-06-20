@@ -345,14 +345,31 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const integrations = await this._fetchDependencies(botDef.integrations ?? {}, ({ name, version }) =>
       api.getPublicOrPrivateIntegration({ type: 'name', name, version })
     )
-    const plugins = await this._fetchDependencies(botDef.plugins ?? {}, ({ name, version }) =>
-      api.getPublicOrPrivatePlugin({ type: 'name', name, version })
+
+    const plugins = await this._fetchDependencies(
+      botDef.plugins ?? {},
+      async ({ name, version }) => await api.getPublicOrPrivatePlugin({ type: 'name', name, version })
     )
+
+    const pluginsWithBackingIntegrations = await utils.records.mapValuesAsync(plugins, async (plugin) => ({
+      ...plugin,
+      interfaces: await this._fetchDependencies(
+        plugin.interfaces ?? {},
+        async (interfaceExtension) => await api.getPublicOrPrivateIntegration({ ...interfaceExtension, type: 'name' })
+      ),
+    }))
+
     return {
       integrations: _(integrations)
         .keyBy((i) => i.id)
         .value(),
-      plugins,
+      plugins: utils.records.mapValues(pluginsWithBackingIntegrations, (plugin) => ({
+        ...plugin,
+        interfaces: utils.records.mapValues(plugin.interfaces ?? {}, (iface) => ({
+          ...iface,
+          integrationId: iface.id,
+        })),
+      })),
     }
   }
 

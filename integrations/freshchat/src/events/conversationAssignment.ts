@@ -1,5 +1,5 @@
-import { getFreshchatClient } from '../client'
 import { ConversationAssignmentFreshchatEvent } from '../definitions/freshchat-events'
+import { updateAgentUser } from '../util'
 import * as bp from '.botpress'
 
 export const executeConversationAssignment = async ({
@@ -33,20 +33,7 @@ export const executeConversationAssignment = async ({
     },
   })
 
-  // Update agent user
-  if (!user?.name?.length) {
-    try {
-      const freshchatClient = getFreshchatClient({ ...ctx.configuration }, logger)
-      const agentData = await freshchatClient.getAgentById(user.tags.id as string)
-      void client.updateUser({
-        ...user,
-        name: agentData?.first_name + ' ' + agentData?.last_name,
-        pictureUrl: agentData?.avatar?.url,
-      })
-    } catch (e: any) {
-      logger.forBot().error(`Couldn't update the agent profile from Freshchat: ${e.message}`)
-    }
-  }
+  await updateAgentUser(user, client, ctx, logger, true)
 
   await client.createEvent({
     type: 'hitlAssigned',
