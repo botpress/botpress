@@ -35,5 +35,21 @@ export default new IntegrationDefinition({
         }),
       },
     },
+    getStockItem: {
+      title: 'Get Stock Item',
+      description: 'Get stock information for a product by SKU',
+      input: {
+        schema: z.object({
+          sku: z.string().describe('The SKU of the product to get stock information for'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          qty: z.number().optional().describe('The quantity in stock'),
+          is_in_stock: z.boolean().optional().describe('Whether the item is in stock'),
+          error: z.string().optional().describe('Error message if request failed'),
+        }),
+      },
+    },
   },
 })

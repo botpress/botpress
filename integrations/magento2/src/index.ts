@@ -1,5 +1,5 @@
 // import * as sdk from '@botpress/sdk'
-import { getProducts } from './actions'
+import { getProducts, getStockItem } from './actions'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
@@ -11,6 +11,7 @@ export default new bp.Integration({
   },
   actions: {
     getProducts,
+    getStockItem,
   },
   channels: {},
   handler: async () => {},
