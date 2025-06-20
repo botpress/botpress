@@ -1,14 +1,12 @@
 {
-  "name": "@bp-templates/webhook-message",
-  "integrationName": "webhook-message",
+  "name": "cli-fixtures-interface-with-entities",
+  "interfaceName": "cli-fixtures-interface-with-entities",
   "scripts": {
     "check:type": "tsc --noEmit"
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "1.15.2",
-    "@botpress/sdk": "4.9.0",
-    "axios": "^1.6.8"
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^18.19.67",

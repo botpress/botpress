@@ -1,25 +1,12 @@
 import { Client } from '@botpress/client'
 
 export type ApiBot = Awaited<ReturnType<Client['listBots']>>['bots'][0]
-export const fetchAllBots = async (client: Client): Promise<ApiBot[]> => {
-  let allBots: ApiBot[] = []
-  let nextToken: string | undefined
-  do {
-    const { bots, meta } = await client.listBots({ nextToken })
-    allBots = [...allBots, ...bots]
-    nextToken = meta.nextToken
-  } while (nextToken)
-  return allBots
-}
+export const fetchAllBots = async (client: Client): Promise<ApiBot[]> => await client.list.bots({}).collect()
 
 export type ApiIntegration = Awaited<ReturnType<Client['listIntegrations']>>['integrations'][0]
-export const fetchAllIntegrations = async (client: Client): Promise<ApiIntegration[]> => {
-  let allIntegrations: ApiIntegration[] = []
-  let nextToken: string | undefined
-  do {
-    const { integrations, meta } = await client.listIntegrations({ nextToken })
-    allIntegrations = [...allIntegrations, ...integrations]
-    nextToken = meta.nextToken
-  } while (nextToken)
-  return allIntegrations
-}
+export const fetchAllIntegrations = async (client: Client): Promise<ApiIntegration[]> =>
+  await client.list.integrations({}).collect()
+
+export type ApiInterface = Awaited<ReturnType<Client['listInterfaces']>>['interfaces'][0]
+
+export type ApiPlugin = Awaited<ReturnType<Client['listPlugins']>>['plugins'][0]

@@ -52,7 +52,7 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
 
     const fromWorkDir = this.projectPaths.rel('workDir')
 
-    const generatedFiles = await codegen.generateBotImplementation(botDefinition)
+    const generatedFiles = await codegen.generateBotImplementation(botDefinition.dereferencePluginEntities())
 
     await this._writeGeneratedFilesToOutFolder(generatedFiles)
 
@@ -67,7 +67,7 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
 
     const fromWorkDir = this.projectPaths.rel('workDir')
 
-    const generatedFiles = await codegen.generatePluginImplementation(pluginDefinition)
+    const generatedFiles = await codegen.generatePluginImplementation(pluginDefinition.dereferenceEntities())
 
     await this._writeGeneratedFilesToOutFolder(generatedFiles)
 

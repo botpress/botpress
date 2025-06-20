@@ -44,23 +44,23 @@ export class BotTypingsModule extends Module {
     integrationsModule.unshift('integrations')
     this.pushDep(integrationsModule)
 
-    const eventsModule = new EventsModule(bot.events ?? {})
+    const eventsModule = new EventsModule(bot.withPlugins.events ?? {})
     eventsModule.unshift('events')
     this.pushDep(eventsModule)
 
-    const statesModule = new StatesModule(bot.states ?? {})
+    const statesModule = new StatesModule(bot.withPlugins.states ?? {})
     statesModule.unshift('states')
     this.pushDep(statesModule)
 
-    const tablesModule = new TablesModule(bot.tables ?? {})
+    const tablesModule = new TablesModule(bot.withPlugins.tables ?? {})
     tablesModule.unshift('tables')
     this.pushDep(tablesModule)
 
-    const actionsModule = new ActionsModule(bot.actions ?? {})
+    const actionsModule = new ActionsModule(bot.withPlugins.actions ?? {})
     actionsModule.unshift('actions')
     this.pushDep(actionsModule)
 
-    const workflowsModule = new WorkflowsModule(bot.workflows ?? {})
+    const workflowsModule = new WorkflowsModule(bot.withPlugins.workflows ?? {})
     workflowsModule.unshift('workflows')
     this.pushDep(workflowsModule)
 

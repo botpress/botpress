@@ -213,10 +213,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         )
       }
 
-      const { name, version } = projectDefinition.definition
+      const pluginDefinition = projectDefinition.definition
+      const { name, version } = pluginDefinition
       const code = projectImplementation
 
-      const createPluginReqBody = await apiUtils.prepareCreatePluginBody(projectDefinition.definition)
+      const createPluginReqBody = await apiUtils.prepareCreatePluginBody(pluginDefinition)
       return {
         type: 'plugin',
         pkg: {
@@ -228,19 +229,13 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
             ...createPluginReqBody,
             dependencies: {
               interfaces: await utils.promises.awaitRecord(
-                utils.records.mapValues(
-                  projectDefinition.definition.interfaces ?? {},
-                  apiUtils.prepareCreateInterfaceBody
-                )
+                utils.records.mapValues(pluginDefinition.interfaces ?? {}, apiUtils.prepareCreateInterfaceBody)
               ),
               integrations: await utils.promises.awaitRecord(
-                utils.records.mapValues(
-                  projectDefinition.definition.integrations ?? {},
-                  apiUtils.prepareCreateIntegrationBody
-                )
+                utils.records.mapValues(pluginDefinition.integrations ?? {}, apiUtils.prepareCreateIntegrationBody)
               ),
             },
-            recurringEvents: projectDefinition.definition.recurringEvents,
+            recurringEvents: pluginDefinition.recurringEvents,
           },
         },
       }

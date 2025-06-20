@@ -17,7 +17,7 @@ const bot = new bp.Bot({ actions: {} })
 
 bot.on.message('*', async (props) => {
   if (props.message.type === 'text' && props.message.payload.text.trim() === '/full_sync') {
-    await bot.actionHandlers.syncFilesToBotpess({ ...props, input: {} })
+    await bot.actionHandlers['file-synchronizer#syncFilesToBotpess']({ ...props, input: {} })
     return
   }
 

@@ -9,6 +9,8 @@ export type TestProps = {
   apiUrl: string
   tunnelUrl: string
   dependencies: Record<string, string | undefined>
+  sdkPath?: string
+  clientPath?: string
 }
 
 export type Test = {
