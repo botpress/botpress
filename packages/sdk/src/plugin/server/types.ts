@@ -4,6 +4,7 @@ import * as workflowProxy from '../../bot/workflow-proxy'
 import * as utils from '../../utils/type-utils'
 import * as actionProxy from '../action-proxy'
 import * as common from '../common'
+import * as eventProxy from '../event-proxy'
 import * as stateProxy from '../state-proxy'
 
 type EnumeratePluginEvents<TPlugin extends common.BasePlugin> = bot.EnumerateEvents<TPlugin> &
@@ -126,6 +127,7 @@ export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
   interfaces: common.PluginInterfaceExtensions<TPlugin>
   actions: actionProxy.ActionProxy<TPlugin>
   states: stateProxy.StateProxy<TPlugin>
+  events: eventProxy.EventProxy<TPlugin>
   alias?: string
 
   /**

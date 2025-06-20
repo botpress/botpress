@@ -13,6 +13,7 @@ import { WorkflowProxy, proxyWorkflows } from '../bot/workflow-proxy'
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginConfiguration, PluginInterfaceExtensions, PluginRuntimeProps } from './common'
+import { EventProxy, proxyEvents } from './event-proxy'
 import { formatEventRef, parseEventRef, resolveEvent } from './interface-resolution'
 import {
   ActionHandlers,
@@ -49,6 +50,7 @@ type Tools<TPlugin extends BasePlugin = BasePlugin> = {
   configuration: PluginConfiguration<TPlugin>
   interfaces: PluginInterfaceExtensions<TPlugin>
   actions: ActionProxy<TPlugin>
+  events: EventProxy<TPlugin>
   states: StateProxy<TPlugin>
   workflows: WorkflowProxy<TPlugin>
   alias?: string
@@ -104,6 +106,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     const actions = proxyActions(client, this._runtime) as ActionProxy<BasePlugin>
     const states = proxyStates(client, this._runtime) as StateProxy<BasePlugin>
     const workflows = proxyWorkflows(client) as WorkflowProxy<BasePlugin>
+    const events = proxyEvents(client, this._runtime) as EventProxy<BasePlugin>
 
     return {
       configuration,
@@ -112,6 +115,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       states,
       alias,
       workflows,
+      events,
     }
   }
 
