@@ -1,0 +1,25 @@
+name: Refresh Instagram Access Tokens Production
+
+on:
+  schedule:
+    # Run at 10:00 AM EST (15:00 UTC) on the first Tuesday of every month
+    - cron: '0 15 1-7 * 2'
+
+jobs:
+  refresh-tokens:
+    runs-on: depot-ubuntu-22.04-8
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          extra_filters: '-F instagram'
+      - name: Refresh Instagram Access Tokens
+        uses: ./.github/actions/refresh-instagram-access-tokens
+        with:
+          environment: production
+          item_name: 'Secrets - Instagram'
+          field_name: 'Sandbox Access Token - Instagram User - Botpress Sandbox'
+          token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
+          cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}

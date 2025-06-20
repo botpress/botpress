@@ -5,7 +5,9 @@
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint"
+    "check:bplint": "bp lint",
+    "uploadSandboxScripts": "ts-node -T ../../scripts/upload-sandbox-scripts.ts --integrationPath='./'",
+    "refreshTokens": "ts-node -T ./refreshTokens.ts"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",
