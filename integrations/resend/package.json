@@ -1,7 +1,9 @@
 {
   "name": "@botpresshub/resend",
   "scripts": {
-    "check:type": "tsc --noEmit"
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
   },
   "private": true,
   "dependencies": {
