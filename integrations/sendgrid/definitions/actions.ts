@@ -29,5 +29,5 @@ export const sendEmailOutputSchema = z.object({
    *  API version, the response body is empty when the request is successful.
    *
    *  Observed: 2025-06-18 */
-  status: StatusCodeSchema,
+  status: StatusCodeSchema.describe('The http status code & reason phrase').title('Request Status Info'),
 })
