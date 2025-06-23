@@ -14,6 +14,7 @@ type IntegrationOperation =
   | 'ping'
   | 'create_user'
   | 'create_conversation'
+  | 'message_status_changed'
 type IntegrationContextConfig<TIntegration extends BaseIntegration> =
   | {
       configurationType: null
@@ -141,6 +142,12 @@ export type ChannelHandlers<TIntegration extends BaseIntegration> = {
   }
 }
 
+export type IntegrationOperationHandler<TIntegration extends BaseIntegration> = (
+  props: CommonHandlerProps<TIntegration> & {
+    req: Request
+  }
+) => Promise<Response | void>
+
 export type IntegrationHandlers<TIntegration extends BaseIntegration> = {
   register: RegisterHandler<TIntegration>
   unregister: UnregisterHandler<TIntegration>
@@ -149,4 +156,5 @@ export type IntegrationHandlers<TIntegration extends BaseIntegration> = {
   createConversation?: CreateConversationHandler<TIntegration>
   actions: ActionHandlers<TIntegration>
   channels: ChannelHandlers<TIntegration>
+  integrationOperationHandler?: IntegrationOperationHandler<TIntegration>
 }
