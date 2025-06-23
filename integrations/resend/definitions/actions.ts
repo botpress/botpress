@@ -19,7 +19,10 @@ const resendErrorSchema = z.object({
 
 /** The response schema for Resend's send email endpoint for successful requests. */
 export const sendEmailOutputSchema = z.object({
-  status: StatusCodeSchema,
+  status: StatusCodeSchema.describe('The http status code & reason phrase').title('Request Status Info'),
   emailId: NonBlankString.or(z.null()).describe('The id of a successfully sent email').title('Email ID'),
-  error: resendErrorSchema.or(z.null()),
+  error: resendErrorSchema
+    .or(z.null())
+    .describe('The error response that Resend returns if a request fails')
+    .title('Error Details'),
 })
