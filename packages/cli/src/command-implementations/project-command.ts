@@ -33,6 +33,10 @@ export type ProjectDefinition = LintIgnoredConfig &
     | { type: 'plugin'; definition: sdk.PluginDefinition }
   )
 
+export type PluginTagNames = {
+  immutableTags: { user: string[]; conversation: string[]; message: string[] }
+}
+
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
     const absWorkDir = utils.path.absoluteFrom(utils.path.cwd(), argv.workDir)
@@ -341,7 +345,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   protected async prepareBotDependencies(
     botDef: sdk.BotDefinition,
     api: apiUtils.ApiClient
-  ): Promise<Partial<apiUtils.UpdateBotRequestBody>> {
+  ): Promise<Partial<apiUtils.UpdateBotRequestBody> & PluginTagNames> {
     const integrations = await this._fetchDependencies(botDef.integrations ?? {}, ({ name, version }) =>
       api.getPublicOrPrivateIntegration({ type: 'name', name, version })
     )
@@ -370,6 +374,30 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
           integrationId: iface.id,
         })),
       })),
+      // Tags that are defined by plugins and that cannot be updated:
+      immutableTags: {
+        user: [
+          ...new Set(
+            Object.values(pluginsWithBackingIntegrations).flatMap((plugin) =>
+              Object.keys(plugin.definition.user?.tags ?? {})
+            )
+          ),
+        ],
+        conversation: [
+          ...new Set(
+            Object.values(pluginsWithBackingIntegrations).flatMap((plugin) =>
+              Object.keys(plugin.definition.conversation?.tags ?? {})
+            )
+          ),
+        ],
+        message: [
+          ...new Set(
+            Object.values(pluginsWithBackingIntegrations).flatMap((plugin) =>
+              Object.keys(plugin.definition.message?.tags ?? {})
+            )
+          ),
+        ],
+      },
     }
   }
 

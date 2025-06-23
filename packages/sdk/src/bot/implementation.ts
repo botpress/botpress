@@ -1,4 +1,5 @@
 import type { Server } from 'node:http'
+import { PLUGIN_PREFIX_SEPARATOR } from '../consts'
 import { BasePlugin, PluginImplementation } from '../plugin'
 import { serve } from '../serve'
 import * as utils from '../utils'
@@ -25,7 +26,6 @@ import {
   UnimplementedActionHandlers,
   WorkflowUpdateType,
 } from './server'
-import { PLUGIN_PREFIX_SEPARATOR } from '../consts'
 
 export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}> = {
   actions: UnimplementedActionHandlers<TBot, TPlugins>

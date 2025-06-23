@@ -19,7 +19,7 @@ export class GetInterfaceCommand extends GlobalCommand<GetInterfaceCommandDefini
     }
 
     try {
-      const intrface = await api.findPublicInterface(parsedRef)
+      const intrface = await api.findPublicOrPrivateInterface(parsedRef)
       if (intrface) {
         this.logger.success(`Interface ${chalk.bold(this.argv.interfaceRef)}:`)
         this.logger.json(intrface)
@@ -68,7 +68,7 @@ export class DeleteInterfaceCommand extends GlobalCommand<DeleteInterfaceCommand
 
     let intrface: client.Interface | undefined
     try {
-      intrface = await api.findPublicInterface(parsedRef)
+      intrface = await api.findPublicOrPrivateInterface(parsedRef)
     } catch (thrown) {
       throw errors.BotpressCLIError.wrap(thrown, `Could not get interface ${this.argv.interfaceRef}`)
     }

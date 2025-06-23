@@ -1,5 +1,6 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
+import { PluginTagNames } from '../command-implementations/project-command'
 import * as utils from '../utils'
 import * as types from './types'
 
@@ -46,7 +47,7 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
 })
 
 export const prepareUpdateBotBody = (
-  localBot: types.UpdateBotRequestBody,
+  localBot: types.UpdateBotRequestBody & PluginTagNames,
   remoteBot: client.Bot
 ): types.UpdateBotRequestBody => ({
   ...localBot,
@@ -63,15 +64,27 @@ export const prepareUpdateBotBody = (
   }),
   user: {
     ...localBot.user,
-    tags: _setNullOnMissingValuesAndOmitPluginDefs(localBot.user?.tags, remoteBot.user?.tags),
+    tags: _setNullOnMissingValuesAndOmitImmutableTags(
+      localBot.user?.tags,
+      remoteBot.user?.tags,
+      localBot.immutableTags.user
+    ),
   },
   conversation: {
     ...localBot.conversation,
-    tags: _setNullOnMissingValuesAndOmitPluginDefs(localBot.conversation?.tags, remoteBot.conversation?.tags),
+    tags: _setNullOnMissingValuesAndOmitImmutableTags(
+      localBot.conversation?.tags,
+      remoteBot.conversation?.tags,
+      localBot.immutableTags.conversation
+    ),
   },
   message: {
     ...localBot.message,
-    tags: _setNullOnMissingValuesAndOmitPluginDefs(localBot.message?.tags, remoteBot.message?.tags),
+    tags: _setNullOnMissingValuesAndOmitImmutableTags(
+      localBot.message?.tags,
+      remoteBot.message?.tags,
+      localBot.immutableTags.message
+    ),
   },
   integrations: _setNullOnMissingValuesAndOmitPluginDefs(localBot.integrations, remoteBot.integrations),
   plugins: _setNullOnMissingValuesAndOmitPluginDefs(localBot.plugins, remoteBot.plugins),
@@ -85,4 +98,14 @@ export const _setNullOnMissingValuesAndOmitPluginDefs: typeof utils.records.setN
   utils.records.setNullOnMissingValues(
     record,
     Object.fromEntries(Object.entries(oldRecord).filter(([key]) => !key.includes('#')))
+  )
+
+export const _setNullOnMissingValuesAndOmitImmutableTags = <A, B>(
+  record: Record<string, A> = {},
+  oldRecord: Record<string, B> = {},
+  immutableTags: string[] = []
+): Record<string, A | null> =>
+  utils.records.setNullOnMissingValues(
+    record,
+    Object.fromEntries(Object.entries(oldRecord).filter(([key]) => !immutableTags.includes(key)))
   )
