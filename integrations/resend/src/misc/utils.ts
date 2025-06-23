@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/client/src'
 import { ErrorResponse } from 'resend'
 import { HttpStatus } from './HttpStatus'
+import { ResendError } from './ResendError'
 
 /** A helper function that allows me to check if an unknown value
  *  is a non-null object that contains the specified property.
@@ -13,15 +14,14 @@ const isNonNullObjectAndHasProperty = <K extends PropertyKey>(
 ): value is object & Record<K, unknown> => typeof value === 'object' && value?.hasOwnProperty(property) === true
 
 export const isResendError = (thrown: unknown): thrown is ErrorResponse => {
-  return isNonNullObjectAndHasProperty(thrown, 'message') && 'name' in thrown
+  return isNonNullObjectAndHasProperty(thrown, 'message') && 'name' in thrown && !(thrown instanceof Error)
 }
 
 export const parseError = (thrown: unknown) => {
   if (isResendError(thrown)) {
-    const errorMessage = thrown.message
     return new RuntimeError(
-      `Resend API yielded an error of type: "${thrown.name}", and message: "${errorMessage}"`,
-      thrown // Not sure if this will cause issues, since it's not an instance of an "Error" but matches it's signature
+      `Resend API yielded an error of type: "${thrown.name}", and message: "${thrown.message}"`,
+      new ResendError(thrown)
     )
   }
 
