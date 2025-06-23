@@ -16,7 +16,7 @@
 6. (Optional) Customize the return path (Only recommended if you know what this does)
 7. Click "Add Domain" (Below "Advanced options")
 8. Add the DNS records in the portal of your domain provider (e.g. SquareSpace, GoDaddy, etc.)
-    1. While the DMARC record is optional, it's recommended to protect against spoofing/unauthorized use of the domain
+   1. While the DMARC record is optional, it's recommended to protect against spoofing/unauthorized use of the domain
 9. Click "I've added the records" and wait for each status to be marked as "Verified"
 10. Now you're ready to send emails with your domain. Happy Emailing!
 
@@ -31,6 +31,7 @@
 6. Copy the resulting API key into a secure location as it will only be shown once
 
 ### Adding the API key to the integration config via Botpress Studio (https://studio.botpress.cloud/)
+
 1. Login to Botpress studio (https://studio.botpress.cloud/)
 2. Select the bot you want to add the integration to (Can be skipped if you only have 1 bot)
 3. In the bottom section of the left navigation bar, click the integrations tab (3 stacked boxes/cubes)
@@ -39,7 +40,8 @@
 
 ### Enable 2FA
 
-[//]: # (Figure out how to have a light/dark mode icon variants. If possible)
+[//]: # 'Figure out how to have a light/dark mode icon variants. If possible'
+
 1. ![Integrations](./assets/integrations-icon.svg)
 
 ## Actions
@@ -54,4 +56,3 @@
 The current implementation is limited to only sending plain text emails, though this will be expanded upon in the future.
 
 ## Resources
-
