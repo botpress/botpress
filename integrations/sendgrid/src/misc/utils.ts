@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
+import { ResponseError } from '@sendgrid/helpers/classes'
 import { SendGridResponseError } from './custom-types'
 
 /** A helper function that allows me to check if an unknown value
@@ -16,7 +17,8 @@ export const isSendGridError = (thrown: unknown): thrown is SendGridResponseErro
     isNonNullObjectAndHasProperty(thrown, 'response') &&
     isNonNullObjectAndHasProperty(thrown.response, 'body') &&
     isNonNullObjectAndHasProperty(thrown.response.body, 'errors') &&
-    'code' in thrown
+    'code' in thrown &&
+    thrown instanceof ResponseError
   )
 }
 
