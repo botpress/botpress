@@ -5,7 +5,16 @@ const bot = new bp.Bot({
 })
 
 bot.on.message('text', async (props) => {
+  await bot.actionHandlers['fleur-personality#setModel']({
+    ...props,
+    input: {
+      model: { id: 'gpt-3.5-turbo-0125' },
+      personality: 'Respond as if you were Mario the famous video game character of Nintendo',
+    },
+  })
+
   console.info('Received text message:', props.message.payload.text)
+
   await props.client.createMessage({
     conversationId: props.message.conversationId,
     userId: props.ctx.botId,

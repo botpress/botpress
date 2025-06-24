@@ -1,12 +1,21 @@
+import * as sdk from '@botpress/sdk'
 import * as gen from './generate-content'
 import * as rewrite from './rewrite-prompt'
 import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
-  actions: {},
+  actions: {
+    setModel: async ({ input, states, ctx }) => {
+      await states.bot.model.set(ctx.botId, {
+        model: input.model.id,
+        personality: input.personality,
+      })
+      return {}
+    },
+  },
 })
 
-plugin.on.beforeOutgoingMessage('*', async ({ data: message, configuration, actions }) => {
+plugin.on.beforeOutgoingMessage('*', async ({ data: message, actions, states, ctx, logger }) => {
   if (message.type !== 'text') {
     console.debug('Ignoring non-text message')
     return
@@ -16,7 +25,17 @@ plugin.on.beforeOutgoingMessage('*', async ({ data: message, configuration, acti
 
   const text = message.payload.text as string
 
-  const { model, personality } = configuration
+  const { model, personality } = await states.bot.model.get(ctx.botId).catch((thrown) => {
+    if (sdk.isApiError(thrown) && thrown.type === 'ResourceNotFound') {
+      logger.warn('No model set for bot, skipping rewrite')
+      return { model: null, personality: null }
+    }
+    throw thrown
+  })
+
+  if (!model || !personality) {
+    return
+  }
 
   const input = rewrite.prompt({
     model,
