@@ -1,4 +1,3 @@
-import { RuntimeError } from '@botpress/sdk'
 import sgClient from '@sendgrid/client'
 import sgMail from '@sendgrid/mail'
 import actions from './actions'
@@ -10,21 +9,19 @@ export default new bp.Integration({
     sgClient.setApiKey(ctx.configuration.apiKey)
     sgMail.setClient(sgClient)
 
-    await sgClient.request(
-      {
+    try {
+      const [response] = await sgClient.request({
         method: 'GET',
         url: '/v3/scopes',
-      },
-      (error, [resp]) => {
-        if (error) {
-          throw parseError(error)
-        }
+      })
 
-        if (resp && resp.statusCode < 200 && resp.statusCode >= 300) {
-          throw new RuntimeError('An invalid API key was provided.')
-        }
+      if (response && response.statusCode < 200 && response.statusCode >= 300) {
+        // noinspection ExceptionCaughtLocallyJS
+        throw new Error(`The status code '${response.statusCode}' is not within the accepted bounds.`)
       }
-    )
+    } catch (thrown: unknown) {
+      throw parseError(thrown, 'An invalid API key was provided')
+    }
   },
   unregister: async () => {},
   actions,
