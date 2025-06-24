@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { EMAIL_ADDRESS_DESCRIPTION, EmailAddressSchema, NonBlankString, StatusCodeSchema } from './common'
+import { EMAIL_ADDRESS_DESCRIPTION, EmailAddressSchema, NonBlankString } from './common'
 
 /** The input binding for this doesn't show up at all in the Botpress Studio Action Node.
  *
@@ -25,9 +25,8 @@ export const sendMailInputSchema = z.object({
 
 /** The response schema for SendGrid's send email endpoint for successful requests. */
 export const sendEmailOutputSchema = z.object({
-  /** This only contains the status code because in the current SendGrid
-   *  API version, the response body is empty when the request is successful.
+  /** The output is empty because in the current SendGrid API
+   *  version, nothing is returned when the request is successful.
    *
-   *  Observed: 2025-06-18 */
-  status: StatusCodeSchema.describe('The http status code & reason phrase').title('Request Status Info'),
+   *  Observed: 2025-06-24 */
 })
