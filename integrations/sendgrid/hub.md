@@ -13,23 +13,12 @@
 3. Near the top-right, click "Create API Key"
 4. Give the key a name
 5. Grant the key permissions with either "Full Access" or if using "Restricted Access" select the following:
-   1. "Mail Send" (Full Access)
+   - "Mail Send" (Full Access)
 6. Click "Create & View"
-
-### Enable 2FA
-
-1. TODO
 
 ### Authenticating your domain
 
 1. TODO
-
-## Actions
-
-- ### Send Mail
-  Send a plain text email to the specified email address via one of your domain's email addresses.
-
-## Usage
 
 ## Side Notes
 
