@@ -11,13 +11,13 @@
 1. Login to the SendGrid dashboard (https://app.sendgrid.com/)
 2. In the navigation bar on the left, open "Settings" submenu, click on "Sender Authentication"
 3. In the center right part of the screen, click the "Get Started" button (First domain authentication only)
-    - (2nd+ domain auth) Near the lower left in the "Domain Authentication" section, click "Authenticate Your Domain"
+   - (2nd+ domain auth) Near the lower left in the "Domain Authentication" section, click "Authenticate Your Domain"
 4. Select the provider for your domain, if the provider is not listed, pick "I'm Not Sure" (It's easier than "Other host" option)
-    - Also tested with SquareSpace Domains
+   - Also tested with SquareSpace Domains
 5. In the "From Domain" field, enter your domain (e.g. "Botpress.com")
 6. Add the DNS records in the portal of your domain provider (e.g. Cloudflare, GoDaddy, SquareSpace, etc.)
 7. Check "I've added these records" & click "Verify" and wait for SendGrid to confirm it's been verified.
-    - If an error is still shown in spite of correctly adding the 'CNAME' DNS records to your domain provider, try removing the domain suffix from the host key. (e.g. "em1234.botpress.com" > "em1234")
+   - If an error is still shown in spite of correctly adding the 'CNAME' DNS records to your domain provider, try removing the domain suffix from the host key. (e.g. "em1234.botpress.com" > "em1234")
 8. Now you're ready to send emails with your domain. Happy Emailing!
 
 ### Acquiring an API key (https://app.sendgrid.com/settings/api_keys)
