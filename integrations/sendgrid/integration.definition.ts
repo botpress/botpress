@@ -4,13 +4,13 @@ import { sendEmailOutputSchema, sendMailInputSchema } from './definitions/action
 export default new IntegrationDefinition({
   name: 'sendgrid',
   title: 'SendGrid',
-  version: '0.0.3',
+  version: '0.0.10',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send simple plain text emails using the SendGrid email service.',
   configuration: {
     schema: z.object({
-      apiKey: z.string().min(1).describe('Your SendGrid API Key').title('SendGrid API Key'),
+      apiKey: z.string().secret().min(1).describe('Your SendGrid API Key').title('SendGrid API Key'),
     }),
   },
   actions: {
