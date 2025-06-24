@@ -10,7 +10,7 @@ export default new IntegrationDefinition({
   description: 'Send simple plain text emails using the Resend email service.',
   configuration: {
     schema: z.object({
-      apiKey: z.string().min(1).describe('Your Resend API Key').title('Resend API Key'),
+      apiKey: z.string().secret().min(1).describe('Your Resend API Key').title('Resend API Key'),
     }),
   },
   actions: {
