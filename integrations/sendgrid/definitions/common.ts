@@ -12,7 +12,7 @@ export const NonBlankString = z.string().trim().min(1)
  *   it to the "EmailAddressSchema" definition */
 export const EMAIL_ADDRESS_DESCRIPTION = 'The email address of the correspondent (e.g. example@example.com)'
 
-/** A string that represents an email address.
+/** A string that has been verified to be a valid email address.
  *
  *  @remark "correspondent" can refer to both the sender and the receiver of an email. */
-export const EmailAddressSchema = NonBlankString.email().brand('Email')
+export const EmailAddressSchema = NonBlankString.email()
