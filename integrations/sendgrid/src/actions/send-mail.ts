@@ -5,9 +5,7 @@ import * as bp from '.botpress'
 
 export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ input, logger }) => {
   try {
-    const [response, _] = await sgMail.send({
-      // Transforms input schema data into SendGrid
-      // request body (To avoid vendor lock-in)
+    const [response] = await sgMail.send({
       personalizations: [
         {
           to: input.to,
