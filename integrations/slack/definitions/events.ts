@@ -136,6 +136,11 @@ export const events = {
     description: 'Triggered when the workflow webhook is triggered',
     schema: sdk.z.object({
       value: sdk.z.any().title('Value').describe('The value of the workflow webhook'),
+      userId: sdk.z
+        .string()
+        .optional()
+        .title('Slack User ID')
+        .describe('The Slack ID of the user who triggered the workflow'),
     }),
   },
 } as const satisfies sdk.IntegrationDefinitionProps['events']
