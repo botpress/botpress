@@ -1,4 +1,4 @@
-import { isApiError, Client, RuntimeError } from '@botpress/client'
+import { isApiError, Client, RuntimeError, InvalidPayloadError } from '@botpress/client'
 import { retryConfig } from '../../retry'
 import { Request, Response, parseBody } from '../../serve'
 import { IntegrationSpecificClient } from '../client'
@@ -81,7 +81,7 @@ const handleOperation = async (props: ServerProps) => {
     case 'create_conversation':
       return await onCreateConversation(props)
     default:
-      throw new Error(`Unknown operation ${ctx.operation}`)
+      throw new InvalidPayloadError(`Unknown operation ${ctx.operation}`)
   }
 }
 
