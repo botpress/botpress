@@ -151,7 +151,7 @@ export type ChannelHandlers<TIntegration extends BaseIntegration> = {
   }
 }
 
-export type IntegrationOperationHandler<TIntegration extends BaseIntegration> = (
+export type UnknownOperationHandler<TIntegration extends BaseIntegration> = (
   props: Omit<CommonHandlerProps<TIntegration>, 'ctx'> & {
     req: Request
     ctx: UnknownOperationIntegrationContext<TIntegration>
@@ -166,5 +166,5 @@ export type IntegrationHandlers<TIntegration extends BaseIntegration> = {
   createConversation?: CreateConversationHandler<TIntegration>
   actions: ActionHandlers<TIntegration>
   channels: ChannelHandlers<TIntegration>
-  integrationOperationHandler?: IntegrationOperationHandler<TIntegration>
+  unknownOperationHandler?: UnknownOperationHandler<TIntegration>
 }

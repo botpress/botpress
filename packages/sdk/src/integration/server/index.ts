@@ -67,7 +67,7 @@ const getServerProps = <T extends IntegrationContext | UnknownOperationIntegrati
 }
 
 const handleUnknownOperation = async (props: ServerProps<UnknownOperationIntegrationContext>) => {
-  return await onIntegrationOperationHandler(props)
+  return await onUnknownOperationHandler(props)
 }
 
 const handleOperation = async (props: ServerProps<IntegrationContext>) => {
@@ -103,11 +103,12 @@ export const integrationHandler =
     try {
       let response: Response | void
       response = await handleUnknownOperation(unknownOperationProps)
-      if (!response) {
-        const props = getServerProps(extractContext(req.headers), req, instance)
-        response = await handleOperation(props)
+      if (response) {
+        return { ...response, status: response.status ?? 200 }
       }
 
+      const props = getServerProps(extractContext(req.headers), req, instance)
+      response = await handleOperation(props)
       return response ? { ...response, status: response.status ?? 200 } : { status: 200 }
     } catch (error) {
       if (isApiError(error)) {
@@ -215,14 +216,14 @@ const onActionTriggered = async ({ req, ctx, client, logger, instance }: ServerP
   }
 }
 
-const onIntegrationOperationHandler = async ({
+const onUnknownOperationHandler = async ({
   instance,
   client,
   ctx,
   logger,
   req,
 }: ServerProps<UnknownOperationIntegrationContext>): Promise<Response | void> => {
-  const handler = instance.integrationOperationHandler
+  const handler = instance.unknownOperationHandler
   if (!handler) {
     return
   }
