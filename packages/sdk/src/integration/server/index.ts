@@ -61,6 +61,7 @@ export const integrationHandler =
 
     try {
       let response: Response | void
+      response = await onIntegrationOperationHandler(props)
       switch (ctx.operation) {
         case 'webhook_received':
           response = await onWebhook(props)
@@ -87,7 +88,9 @@ export const integrationHandler =
           response = await onCreateConversation(props)
           break
         default:
-          throw new Error(`Unknown operation ${ctx.operation}`)
+          if (!response) {
+            throw new Error(`Unknown operation ${ctx.operation}`)
+          }
       }
       return response ? { ...response, status: response.status ?? 200 } : { status: 200 }
     } catch (error) {
@@ -194,4 +197,25 @@ const onActionTriggered = async ({ req, ctx, client, logger, instance }: ServerP
   return {
     body: JSON.stringify(response),
   }
+}
+
+const onIntegrationOperationHandler = async ({
+  instance,
+  client,
+  ctx,
+  logger,
+  req,
+}: ServerProps): Promise<Response | void> => {
+  const handler = instance.integrationOperationHandler
+  if (!handler) {
+    return
+  }
+  return (
+    (await handler({
+      client,
+      ctx,
+      logger,
+      req,
+    })) ?? { status: 200 }
+  )
 }

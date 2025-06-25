@@ -23,6 +23,7 @@ export const buildChart = async (props: BuildChartProps) => {
       key: `${props.fileName}_${Date.now()}.png`,
       content: response.data,
       index: false,
+      accessPolicies: ['public_content'],
     })
 
     return file.url!

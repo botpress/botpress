@@ -9,6 +9,7 @@ import {
   CreateConversationHandler as CreateConversationFunction,
   ActionHandlers as ActionFunctions,
   ChannelHandlers as ChannelFunctions,
+  IntegrationOperationHandler as IntegrationOperationFunction,
   integrationHandler,
 } from './server'
 
@@ -26,6 +27,9 @@ export type IntegrationImplementationProps<TIntegration extends BaseIntegration 
   createConversation?: CreateConversationFunction<TIntegration>
   actions: ActionFunctions<TIntegration>
   channels: ChannelFunctions<TIntegration>
+  __advanced?: {
+    integrationOperationHandler?: IntegrationOperationFunction<TIntegration>
+  }
 }
 
 export class IntegrationImplementation<TIntegration extends BaseIntegration = BaseIntegration> {
@@ -36,6 +40,9 @@ export class IntegrationImplementation<TIntegration extends BaseIntegration = Ba
   public readonly createUser: IntegrationImplementationProps<TIntegration>['createUser']
   public readonly createConversation: IntegrationImplementationProps<TIntegration>['createConversation']
   public readonly webhook: IntegrationImplementationProps<TIntegration>['handler']
+  public readonly integrationOperationHandler: NonNullable<
+    IntegrationImplementationProps<TIntegration>['__advanced']
+  >['integrationOperationHandler']
 
   public constructor(public readonly props: IntegrationImplementationProps<TIntegration>) {
     this.actions = props.actions
@@ -45,6 +52,7 @@ export class IntegrationImplementation<TIntegration extends BaseIntegration = Ba
     this.createUser = props.createUser
     this.createConversation = props.createConversation
     this.webhook = props.handler
+    this.integrationOperationHandler = props.__advanced?.integrationOperationHandler
   }
 
   public readonly handler = integrationHandler(this as IntegrationImplementation<any>)

@@ -1,0 +1,16 @@
+# https://developers.facebook.com/docs/instagram-platform/webhooks/examples#message
+expectedSignature = split(to_string!(.headers."x-hub-signature-256"), "=")[1]
+actualSignature = encode_base16(hmac(to_string!(.body), to_string!(.secrets.SANDBOX_CLIENT_SECRET)))
+if actualSignature != expectedSignature {
+  null
+} else {
+  body = parse_json!(.body)
+  messagingEntry = body.entry[0].messaging[0]
+  message = messagingEntry.message
+  identifier = if to_bool!(message.is_echo) {
+    null
+  } else {
+    messagingEntry.sender.id
+  }
+  identifier
+}

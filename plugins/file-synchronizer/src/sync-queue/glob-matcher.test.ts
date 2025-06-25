@@ -357,6 +357,24 @@ describe.concurrent('matchItem', () => {
       })
     })
 
+    it.each([
+      { path: '/foo/bar', glob: '/foo/bar/baz/**' },
+      { path: '/abc', glob: '/abc/[def]/[ghi]/**' },
+      { path: '/abc/[def]', glob: '/abc/[def]/[ghi]/**' },
+    ])('should include when path matches part of include pattern', ({ path: itemPath, glob: pathGlobPattern }) => {
+      // Arrange
+      const configuration = createConfiguration({ includeFiles: [{ pathGlobPattern }] })
+      const item = createFolderItem({ name: 'bar' })
+
+      // Act
+      const result = matchItem({ configuration, item, itemPath })
+
+      // Assert
+      expect(result).toMatchObject({
+        shouldBeIgnored: false,
+      })
+    })
+
     it('should exclude when path does not match any patterns', () => {
       // Arrange
       const itemPath = 'src/data/unknown-folder'

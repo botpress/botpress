@@ -115,7 +115,9 @@ const _createDownstreamConversation = async (
 ): Promise<string> => {
   // Call startHitl in the hitl integration (zendesk, etc.):
   const { conversationId: downstreamConversationId } = await props.actions.hitl.startHitl({
-    ...input, // the Studio might pass additional fields here, so we spread the input to ensure everything is forwarded to the integration
+    title: input.title,
+    description: input.description,
+    hitlSession: input.hitlSession,
     userId: downstreamUserId,
     messageHistory,
   })
@@ -155,18 +157,16 @@ const _startHitlTimeout = async (
     return
   }
 
-  const eventType = 'humanAgentAssignedTimeout'
-  const prefixedType = props.alias ? `${props.alias}#${eventType}` : eventType
-  await props.client.createEvent({
-    type: prefixedType,
-    payload: {
-      sessionStartedAt: new Date().toISOString(),
-      downstreamConversationId: downstreamCm.conversationId,
-    },
-    conversationId: upstreamCm.conversationId,
-    userId: upstreamUserId,
-    schedule: { delay: agentAssignedTimeoutSeconds * 1000 },
-  })
+  await props.events.humanAgentAssignedTimeout
+    .withConversationId(upstreamCm.conversationId)
+    .withUserId(upstreamUserId)
+    .schedule(
+      {
+        sessionStartedAt: new Date().toISOString(),
+        downstreamConversationId: downstreamCm.conversationId,
+      },
+      { delay: agentAssignedTimeoutSeconds * 1000 }
+    )
 }
 
 /**

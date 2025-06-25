@@ -1,4 +1,5 @@
 import type { Server } from 'node:http'
+import { PLUGIN_PREFIX_SEPARATOR } from '../consts'
 import { BasePlugin, PluginImplementation } from '../plugin'
 import { serve } from '../serve'
 import * as utils from '../utils'
@@ -77,8 +78,12 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
             return action
           }
 
-          for (const plugin of Object.values(this._plugins)) {
-            action = plugin.actionHandlers[actionName]
+          for (const [pluginAlias, plugin] of Object.entries(this._plugins)) {
+            const [actionPrefix, nameWithoutPrefix] = actionName.split(PLUGIN_PREFIX_SEPARATOR)
+            if (actionPrefix !== pluginAlias || !nameWithoutPrefix) {
+              continue
+            }
+            action = plugin.actionHandlers[nameWithoutPrefix]
             if (action) {
               return action
             }
