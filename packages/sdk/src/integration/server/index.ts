@@ -5,7 +5,7 @@ import { Merge } from '../../utils/type-utils'
 import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration } from '../common'
 import { ActionMetadataStore } from './action-metadata'
-import { extractContext, extractUnknownOperationContext } from './context'
+import { extractContext } from './context'
 import { IntegrationLogger } from './integration-logger'
 import {
   CommonHandlerProps,
@@ -17,19 +17,18 @@ import {
   CreateUserPayload,
   UnregisterPayload,
   CreateConversationPayload,
-  UnknownOperationIntegrationContext,
   IntegrationContext,
 } from './types'
 
 export * from './types'
 export * from './integration-logger'
 
-type ServerProps<T extends IntegrationContext | UnknownOperationIntegrationContext = IntegrationContext> = Merge<
+type ServerProps = Merge<
   CommonHandlerProps<BaseIntegration>,
   {
     req: Request
     instance: IntegrationHandlers<BaseIntegration>
-    ctx: T
+    ctx: IntegrationContext
   }
 >
 
@@ -42,11 +41,11 @@ const extractTracingHeaders = (headers: Record<string, string | undefined>) => {
   }, {})
 }
 
-const getServerProps = <T extends IntegrationContext | UnknownOperationIntegrationContext>(
-  ctx: T,
+const getServerProps = (
+  ctx: IntegrationContext,
   req: Request,
   instance: IntegrationHandlers<BaseIntegration>
-): ServerProps<T> => {
+): ServerProps => {
   const [, traceId] = (req.headers['traceparent'] || '').split('-')
 
   const vanillaClient = new Client({
@@ -67,11 +66,11 @@ const getServerProps = <T extends IntegrationContext | UnknownOperationIntegrati
   }
 }
 
-const handleUnknownOperation = async (props: ServerProps<UnknownOperationIntegrationContext>) => {
+const handleUnknownOperation = async (props: ServerProps) => {
   return await onUnknownOperationHandler(props)
 }
 
-const handleOperation = async (props: ServerProps<IntegrationContext>) => {
+const handleOperation = async (props: ServerProps) => {
   const { ctx } = props
   switch (ctx.operation) {
     case 'webhook_received':
@@ -98,23 +97,23 @@ const handleOperation = async (props: ServerProps<IntegrationContext>) => {
 export const integrationHandler =
   (instance: IntegrationHandlers<BaseIntegration>) =>
   async (req: Request): Promise<Response | void> => {
-    const unknownOperationProps = getServerProps(extractUnknownOperationContext(req.headers), req, instance)
-    const { logger } = unknownOperationProps
+    const ctx = extractContext(req.headers)
+    const props = getServerProps(ctx, req, instance)
+    const { logger } = props
 
     try {
       let response: Response | void
-      response = await handleUnknownOperation(unknownOperationProps)
+      response = await handleUnknownOperation(props)
       if (response) {
         return { ...response, status: response.status ?? 200 }
       }
 
-      const props = getServerProps(extractContext(req.headers), req, instance)
       response = await handleOperation(props)
       return response ? { ...response, status: response.status ?? 200 } : { status: 200 }
     } catch (error) {
       if (isApiError(error)) {
         const runtimeError = error.type === 'Runtime' ? error : new RuntimeError(error.message, error)
-        logger.forBot().error(runtimeError.message)
+        props.logger.forBot().error(runtimeError.message)
 
         return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
       }
@@ -223,7 +222,7 @@ const onUnknownOperationHandler = async ({
   ctx,
   logger,
   req,
-}: ServerProps<UnknownOperationIntegrationContext>): Promise<Response | void> => {
+}: ServerProps): Promise<Response | void> => {
   const handler = instance.unknownOperationHandler
   if (!handler) {
     return

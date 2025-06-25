@@ -5,15 +5,6 @@ import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration, ToTags } from '../common'
 import { type IntegrationLogger } from './integration-logger'
 
-type IntegrationOperation =
-  | 'webhook_received'
-  | 'message_created'
-  | 'action_triggered'
-  | 'register'
-  | 'unregister'
-  | 'ping'
-  | 'create_user'
-  | 'create_conversation'
 type IntegrationContextConfig<TIntegration extends BaseIntegration> =
   | {
       configurationType: null
@@ -26,23 +17,13 @@ type IntegrationContextConfig<TIntegration extends BaseIntegration> =
       }
     }>
 
-export type GenericIntegrationContext<
-  TIntegration extends BaseIntegration = BaseIntegration,
-  TOperation extends string = string,
-> = {
+export type IntegrationContext<TIntegration extends BaseIntegration = BaseIntegration> = {
   botId: string
   botUserId: string
   integrationId: string
   webhookId: string
-  operation: TOperation
+  operation: string
 } & IntegrationContextConfig<TIntegration>
-
-export type UnknownOperationIntegrationContext<TIntegration extends BaseIntegration = BaseIntegration> =
-  GenericIntegrationContext<TIntegration, string>
-export type IntegrationContext<TIntegration extends BaseIntegration = BaseIntegration> = GenericIntegrationContext<
-  TIntegration,
-  IntegrationOperation
->
 
 export type CommonHandlerProps<TIntegration extends BaseIntegration> = {
   ctx: IntegrationContext<TIntegration>
@@ -156,7 +137,7 @@ export type UnknownOperationHandler<TIntegration extends BaseIntegration> = (
     CommonHandlerProps<TIntegration>,
     {
       req: Request
-      ctx: UnknownOperationIntegrationContext<TIntegration>
+      ctx: IntegrationContext<TIntegration>
     }
   >
 ) => Promise<Response | void>
