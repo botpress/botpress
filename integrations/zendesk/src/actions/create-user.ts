@@ -21,6 +21,7 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
     external_id: user.id,
     name,
     remote_photo_url: pictureUrl,
+    email,
   })
 
   await bpClient.updateUser({
