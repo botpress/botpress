@@ -13,10 +13,10 @@ type FireCrawlResponse = {
       title?: string | string[] | null
       description?: string | string[] | null
       sourceURL: string
-      pageStatusCode: number
+      error: string | null
+      statusCode: number
     }
   }
-  returnCode: number
 }
 
 const COST_PER_PAGE = 0.0015
@@ -56,8 +56,8 @@ const getPageContent = async (props: {
 
   props.logger.forBot().info(`Browsing ${props.url} took ${Date.now() - startTime}ms`, {
     size: markdown.length,
-    returnCode: result.returnCode,
-    pageStatusCode: metadata.pageStatusCode,
+    statusCode: metadata.statusCode,
+    error: metadata.error,
   })
 
   return {
@@ -92,6 +92,6 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
     logger.forBot().error('There was an error while browsing the page.', err)
     throw err
   } finally {
-    logger.forBot().info(`Browsing ${input.urls.length} took ${Date.now() - startTime}ms`)
+    logger.forBot().info(`Browsing ${input.urls.length} urls took ${Date.now() - startTime}ms`)
   }
 }
