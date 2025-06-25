@@ -9,7 +9,7 @@ import {
   CreateConversationHandler as CreateConversationFunction,
   ActionHandlers as ActionFunctions,
   ChannelHandlers as ChannelFunctions,
-  IntegrationOperationHandler as IntegrationOperationFunction,
+  UnknownOperationHandler as UnknownOperationFunction,
   integrationHandler,
 } from './server'
 
@@ -28,7 +28,7 @@ export type IntegrationImplementationProps<TIntegration extends BaseIntegration 
   actions: ActionFunctions<TIntegration>
   channels: ChannelFunctions<TIntegration>
   __advanced?: {
-    integrationOperationHandler?: IntegrationOperationFunction<TIntegration>
+    unknownOperationHandler?: UnknownOperationFunction<TIntegration>
   }
 }
 
@@ -40,9 +40,9 @@ export class IntegrationImplementation<TIntegration extends BaseIntegration = Ba
   public readonly createUser: IntegrationImplementationProps<TIntegration>['createUser']
   public readonly createConversation: IntegrationImplementationProps<TIntegration>['createConversation']
   public readonly webhook: IntegrationImplementationProps<TIntegration>['handler']
-  public readonly integrationOperationHandler: NonNullable<
+  public readonly unknownOperationHandler: NonNullable<
     IntegrationImplementationProps<TIntegration>['__advanced']
-  >['integrationOperationHandler']
+  >['unknownOperationHandler']
 
   public constructor(public readonly props: IntegrationImplementationProps<TIntegration>) {
     this.actions = props.actions
@@ -52,7 +52,7 @@ export class IntegrationImplementation<TIntegration extends BaseIntegration = Ba
     this.createUser = props.createUser
     this.createConversation = props.createConversation
     this.webhook = props.handler
-    this.integrationOperationHandler = props.__advanced?.integrationOperationHandler
+    this.unknownOperationHandler = props.__advanced?.unknownOperationHandler
   }
 
   public readonly handler = integrationHandler(this as IntegrationImplementation<any>)
