@@ -30,29 +30,13 @@
 5. Click "Add" to generate the API Key
 6. Copy the resulting API key into a secure location as it will only be shown once
 
-### Adding the API key to the integration config via Botpress Studio (https://studio.botpress.cloud/)
-
-1. Login to Botpress studio (https://studio.botpress.cloud/)
-2. Select the bot you want to add the integration to (Can be skipped if you only have 1 bot)
-3. In the bottom section of the left navigation bar, click the integrations tab (3 stacked boxes/cubes)
-4. Find the Resend integration in the list and click on it (This should open to the configuration tab)
-5. Paste the API key in the API key field.
-
-### Enable 2FA
-
-[//]: # 'Figure out how to have a light/dark mode icon variants. If possible'
-
-1. ![Integrations](./assets/integrations-icon.svg)
-
-## Actions
-
-- ### Send Mail
-  Send a plain text email to the specified email address via one of your domain's email addresses.
-
-## Usage
-
 ## Side Notes
 
 The current implementation is limited to only sending plain text emails, though this will be expanded upon in the future.
 
 ## Resources
+
+- https://resend.com/docs/introduction
+- https://resend.com/docs/dashboard/domains/introduction
+- https://resend.com/docs/dashboard/api-keys/introduction
+- https://resend.com/docs/dashboard/emails/send-test-emails
