@@ -14,7 +14,6 @@ type IntegrationOperation =
   | 'ping'
   | 'create_user'
   | 'create_conversation'
-  | 'message_status_changed'
 type IntegrationContextConfig<TIntegration extends BaseIntegration> =
   | {
       configurationType: null
