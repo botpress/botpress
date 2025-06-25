@@ -26,13 +26,23 @@ type IntegrationContextConfig<TIntegration extends BaseIntegration> =
       }
     }>
 
-export type IntegrationContext<TIntegration extends BaseIntegration = BaseIntegration> = {
+export type GenericIntegrationContext<
+  TIntegration extends BaseIntegration = BaseIntegration,
+  TOperation extends string = string,
+> = {
   botId: string
   botUserId: string
   integrationId: string
   webhookId: string
-  operation: IntegrationOperation
+  operation: TOperation
 } & IntegrationContextConfig<TIntegration>
+
+export type UnknownOperationIntegrationContext<TIntegration extends BaseIntegration = BaseIntegration> =
+  GenericIntegrationContext<TIntegration, string>
+export type IntegrationContext<TIntegration extends BaseIntegration = BaseIntegration> = GenericIntegrationContext<
+  TIntegration,
+  IntegrationOperation
+>
 
 export type CommonHandlerProps<TIntegration extends BaseIntegration> = {
   ctx: IntegrationContext<TIntegration>
@@ -142,8 +152,9 @@ export type ChannelHandlers<TIntegration extends BaseIntegration> = {
 }
 
 export type IntegrationOperationHandler<TIntegration extends BaseIntegration> = (
-  props: CommonHandlerProps<TIntegration> & {
+  props: Omit<CommonHandlerProps<TIntegration>, 'ctx'> & {
     req: Request
+    ctx: UnknownOperationIntegrationContext<TIntegration>
   }
 ) => Promise<Response | void>
 

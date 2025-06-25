@@ -8,7 +8,7 @@ import {
   operationHeader,
   webhookIdHeader,
 } from '../../consts'
-import { IntegrationContext } from './types'
+import { IntegrationContext, UnknownOperationIntegrationContext } from './types'
 
 export const integrationOperationSchema = z.enum([
   'webhook_received',
@@ -21,14 +21,16 @@ export const integrationOperationSchema = z.enum([
   'create_conversation',
 ])
 
-export const extractContext = (headers: Record<string, string | undefined>): IntegrationContext => {
+export const extractUnknownOperationContext = (
+  headers: Record<string, string | undefined>
+): UnknownOperationIntegrationContext => {
   const botId = headers[botIdHeader]
   const botUserId = headers[botUserIdHeader]
   const integrationId = headers[integrationIdHeader]
   const webhookId = headers[webhookIdHeader]
   const configurationType = headers[configurationTypeHeader]
   const base64Configuration = headers[configurationHeader]
-  const operation = integrationOperationSchema.parse(headers[operationHeader])
+  const operation = headers[operationHeader]
 
   if (!botId) {
     throw new Error('Missing bot headers')
@@ -62,5 +64,18 @@ export const extractContext = (headers: Record<string, string | undefined>): Int
     operation,
     configurationType: configurationType ?? null,
     configuration: base64Configuration ? JSON.parse(Buffer.from(base64Configuration, 'base64').toString('utf-8')) : {},
+  }
+}
+
+export const extractContext = (headers: Record<string, string | undefined>): IntegrationContext => {
+  const unknownOperationContext = extractUnknownOperationContext(headers)
+  const operationParseResult = integrationOperationSchema.safeParse(unknownOperationContext.operation)
+  if (!operationParseResult.success) {
+    throw new Error('Invalid operation')
+  }
+
+  return {
+    ...unknownOperationContext,
+    operation: operationParseResult.data,
   }
 }
