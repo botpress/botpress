@@ -28,7 +28,7 @@ export const extractContext = (headers: Record<string, string | undefined>): Int
   const webhookId = headers[webhookIdHeader]
   const configurationType = headers[configurationTypeHeader]
   const base64Configuration = headers[configurationHeader]
-  const operation = integrationOperationSchema.parse(headers[operationHeader])
+  const operation = headers[operationHeader]
 
   if (!botId) {
     throw new Error('Missing bot headers')
