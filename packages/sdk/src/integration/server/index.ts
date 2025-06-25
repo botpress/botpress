@@ -104,7 +104,7 @@ export const integrationHandler =
     } catch (error) {
       if (isApiError(error)) {
         const runtimeError = error.type === 'Runtime' ? error : new RuntimeError(error.message, error)
-        props.logger.forBot().error(runtimeError.message)
+        logger.forBot().error(runtimeError.message)
 
         return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
       }
