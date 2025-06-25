@@ -1,13 +1,12 @@
 {
-  "name": "@bp-templates/hello-world",
-  "integrationName": "hello-world",
+  "name": "cli-fixtures-interface-with-entities",
+  "interfaceName": "cli-fixtures-interface-with-entities",
   "scripts": {
     "check:type": "tsc --noEmit"
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "1.15.3",
-    "@botpress/sdk": "4.11.0"
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^18.19.67",

@@ -163,10 +163,10 @@ describe('bot with plugins', () => {
 
   it('should return plugin action when getting action handlers', () => {
     const { bot } = createBot()
-    const fooActionHandler = bot.actionHandlers['foo:sayHello']!
+    const fooActionHandler = bot.actionHandlers['foo#sayHello']!
     expect(fooActionHandler.name).toEqual('sayFoo')
 
-    const barActionHandler = bot.actionHandlers['bar:sayHello']!
+    const barActionHandler = bot.actionHandlers['bar#sayHello']!
     expect(barActionHandler.name).toEqual('sayBar')
   })
 
