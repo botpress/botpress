@@ -124,4 +124,22 @@ export const actions = {
       schema: sdk.z.object({}),
     },
   },
+
+  getUserProfile: {
+    title: 'Get User Profile',
+    description: 'Get information about a user',
+    input: {
+      schema: sdk.z.object({
+        userId: sdk.z.string().title('User ID').describe('The ID of the user to retrieve information about'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        firstName: sdk.z.string().optional().title('Firstname').describe('The first name of the user'),
+        lastName: sdk.z.string().optional().title('Lastname').describe('The last name of the user'),
+        email: sdk.z.string().optional().title('Email').describe('The email of the user'),
+        displayName: sdk.z.string().optional().title('Display Name').describe('The display name of the user'),
+      }),
+    },
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['actions']
