@@ -93,7 +93,7 @@ export const prepareUpdateIntegrationBody = (
 
   const attributes = utils.records.setNullOnMissingValues(localIntegration.attributes, remoteIntegration.attributes)
 
-  const messageStatusChangeNotificationsEnabled = localIntegration?.messageStatusChangeNotificationsEnabled
+  const messageStatusChangeNotificationsEnabled = localIntegration.messageStatusChangeNotificationsEnabled
   return {
     ..._maybeRemoveVrlScripts(localIntegration, remoteIntegration),
     actions,
