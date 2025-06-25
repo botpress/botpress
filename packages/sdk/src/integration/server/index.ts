@@ -1,7 +1,6 @@
 import { isApiError, Client, RuntimeError } from '@botpress/client'
 import { retryConfig } from '../../retry'
 import { Request, Response, parseBody } from '../../serve'
-import { Merge } from '../../utils/type-utils'
 import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration } from '../common'
 import { ActionMetadataStore } from './action-metadata'
@@ -23,14 +22,10 @@ import {
 export * from './types'
 export * from './integration-logger'
 
-type ServerProps = Merge<
-  CommonHandlerProps<BaseIntegration>,
-  {
-    req: Request
-    instance: IntegrationHandlers<BaseIntegration>
-    ctx: IntegrationContext
-  }
->
+type ServerProps = CommonHandlerProps<BaseIntegration> & {
+  req: Request
+  instance: IntegrationHandlers<BaseIntegration>
+}
 
 const extractTracingHeaders = (headers: Record<string, string | undefined>) => {
   return ['traceparent', 'tracestate', 'sentry-trace'].reduce<Record<string, string>>((acc, header) => {
@@ -66,10 +61,6 @@ const getServerProps = (
   }
 }
 
-const handleUnknownOperation = async (props: ServerProps) => {
-  return await onUnknownOperationHandler(props)
-}
-
 const handleOperation = async (props: ServerProps) => {
   const { ctx } = props
   switch (ctx.operation) {
@@ -103,7 +94,7 @@ export const integrationHandler =
 
     try {
       let response: Response | void
-      response = await handleUnknownOperation(props)
+      response = await onUnknownOperationHandler(props)
       if (response) {
         return { ...response, status: response.status ?? 200 }
       }
