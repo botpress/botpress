@@ -152,10 +152,13 @@ export type ChannelHandlers<TIntegration extends BaseIntegration> = {
 }
 
 export type UnknownOperationHandler<TIntegration extends BaseIntegration> = (
-  props: Omit<CommonHandlerProps<TIntegration>, 'ctx'> & {
-    req: Request
-    ctx: UnknownOperationIntegrationContext<TIntegration>
-  }
+  props: Merge<
+    CommonHandlerProps<TIntegration>,
+    {
+      req: Request
+      ctx: UnknownOperationIntegrationContext<TIntegration>
+    }
+  >
 ) => Promise<Response | void>
 
 export type IntegrationHandlers<TIntegration extends BaseIntegration> = {

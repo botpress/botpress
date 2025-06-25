@@ -1,6 +1,7 @@
 import { isApiError, Client, RuntimeError } from '@botpress/client'
 import { retryConfig } from '../../retry'
 import { Request, Response, parseBody } from '../../serve'
+import { Merge } from '../../utils/type-utils'
 import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration } from '../common'
 import { ActionMetadataStore } from './action-metadata'
@@ -23,14 +24,14 @@ import {
 export * from './types'
 export * from './integration-logger'
 
-type ServerProps<T extends IntegrationContext | UnknownOperationIntegrationContext = IntegrationContext> = Omit<
+type ServerProps<T extends IntegrationContext | UnknownOperationIntegrationContext = IntegrationContext> = Merge<
   CommonHandlerProps<BaseIntegration>,
-  'ctx'
-> & {
-  req: Request
-  instance: IntegrationHandlers<BaseIntegration>
-  ctx: T
-}
+  {
+    req: Request
+    instance: IntegrationHandlers<BaseIntegration>
+    ctx: T
+  }
+>
 
 const extractTracingHeaders = (headers: Record<string, string | undefined>) => {
   return ['traceparent', 'tracestate', 'sentry-trace'].reduce<Record<string, string>>((acc, header) => {
