@@ -40,6 +40,7 @@ const browsePages: ActionDefinition = {
         .describe(
           'Time to wait before extracting the content (in milliseconds). Set this value higher for dynamic pages.'
         ),
+      timeout: z.number().optional().default(30000).describe('Timeout for the request (in milliseconds)'),
     }),
   },
   output: {

@@ -1,5 +1,5 @@
-import { FunctionExecutedEvent } from '@slack/types'
-import * as bp from '.botpress'
+import type * as bp from '.botpress'
+import type { FunctionExecutedEvent } from '@slack/types'
 
 export const handleEvent = async ({
   slackEvent,
@@ -16,9 +16,17 @@ export const handleEvent = async ({
   }
 
   const inputValues = slackEvent.inputs.value
+  const inputUserId = slackEvent.inputs.userId
 
   if (!Array.isArray(inputValues)) {
     logger.forBot().debug(`Ignoring unsupported workflow function input value type ${typeof inputValues}`)
+    return
+  }
+
+  const userId = typeof inputUserId === 'string' ? inputUserId : undefined
+
+  if (inputUserId && typeof inputUserId !== 'string') {
+    logger.forBot().debug(`Ignoring unsupported workflow function input userId type ${typeof inputUserId}`)
     return
   }
 
@@ -27,6 +35,7 @@ export const handleEvent = async ({
   await client.createEvent({
     type: 'workflowWebhook',
     payload: {
+      userId,
       value: inputValue,
     },
   })
