@@ -98,6 +98,18 @@ export class Client extends gen.Client implements IClient {
         new common.listing.AsyncCollection(({ nextToken }) =>
           this.listInterfaces({ nextToken, ...props }).then((r) => ({ ...r, items: r.interfaces }))
         ),
+      publicInterfaces: (props: ListInputs['listPublicInterfaces']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listPublicInterfaces({ nextToken, ...props }).then((r) => ({ ...r, items: r.interfaces }))
+        ),
+      plugins: (props: ListInputs['listPlugins']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listPlugins({ nextToken, ...props }).then((r) => ({ ...r, items: r.plugins }))
+        ),
+      publicPlugins: (props: ListInputs['listPublicPlugins']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listPublicPlugins({ nextToken, ...props }).then((r) => ({ ...r, items: r.plugins }))
+        ),
       activities: (props: ListInputs['listActivities']) =>
         new common.listing.AsyncCollection(({ nextToken }) =>
           this.listActivities({ nextToken, ...props }).then((r) => ({ ...r, items: r.activities }))

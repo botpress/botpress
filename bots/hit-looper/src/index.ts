@@ -40,6 +40,9 @@ bot.on.message('*', async (props) => {
 
   const { conversation: upstreamConversation, user: upstreamUser } = props
 
+  const _randFrom = <TValueType extends unknown>(...values: TValueType[]): TValueType =>
+    values[Math.floor(Math.random() * values.length)]!
+
   if (props.message.type === 'text' && props.message.payload.text.trim() === '/start_hitl') {
     await props.client.updateUser({
       id: upstreamUser.id,
@@ -50,11 +53,12 @@ bot.on.message('*', async (props) => {
       pictureUrl: 'https://upload.wikimedia.org/wikipedia/en/e/e7/Steve_%28Minecraft%29.png',
     })
 
-    await bot.actionHandlers.startHitl({
+    await bot.actionHandlers['hitl#startHitl']({
       ...props,
       input: {
         title: `Hitl request ${Date.now()}`,
         description: 'I have a problem',
+        hitlSession: { priority: _randFrom('low', 'high', 'urgent') },
         conversationId: upstreamConversation.id,
         userId: upstreamUser.id,
       },
@@ -63,7 +67,7 @@ bot.on.message('*', async (props) => {
   }
 
   if (props.message.type === 'text' && props.message.payload.text.trim() === '/stop_hitl') {
-    await bot.actionHandlers.stopHitl({
+    await bot.actionHandlers['hitl#stopHitl']({
       ...props,
       input: {
         conversationId: upstreamConversation.id,
