@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { EMAIL_ADDRESS_DESCRIPTION, EmailAddressSchema, NonBlankString, StatusCodeSchema } from './common'
+import { EMAIL_ADDRESS_DESCRIPTION, EmailAddressSchema, NonBlankString } from './common'
 
 /** The common send email input schema which will be exposed to users in Botpress Studio */
 export const sendMailInputSchema = z.object({
@@ -14,6 +14,5 @@ export const sendMailInputSchema = z.object({
 
 /** The response schema for Resend's send email endpoint for successful requests. */
 export const sendEmailOutputSchema = z.object({
-  status: StatusCodeSchema.describe('The http status code & reason phrase').title('Request Status Info'),
   emailId: NonBlankString.or(z.null()).describe('The id of a successfully sent email').title('Email ID'),
 })
