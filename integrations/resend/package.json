@@ -1,0 +1,18 @@
+{
+  "name": "@botpresshub/resend",
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "resend": "^4.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.67",
+    "typescript": "^5.6.3"
+  }
+}
