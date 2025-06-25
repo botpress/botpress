@@ -155,16 +155,16 @@ const _startHitlTimeout = async (
     return
   }
 
-  await props.client.createEvent({
-    type: 'humanAgentAssignedTimeout',
-    payload: {
-      sessionStartedAt: new Date().toISOString(),
-      downstreamConversationId: downstreamCm.conversationId,
-    },
-    conversationId: upstreamCm.conversationId,
-    userId: upstreamUserId,
-    schedule: { delay: agentAssignedTimeoutSeconds * 1000 },
-  })
+  await props.events.humanAgentAssignedTimeout
+    .withConversationId(upstreamCm.conversationId)
+    .withUserId(upstreamUserId)
+    .schedule(
+      {
+        sessionStartedAt: new Date().toISOString(),
+        downstreamConversationId: downstreamCm.conversationId,
+      },
+      { delay: agentAssignedTimeoutSeconds * 1000 }
+    )
 }
 
 /**

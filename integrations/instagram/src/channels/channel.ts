@@ -1,87 +1,70 @@
-import { sendMessage } from 'src/misc/outgoing-message'
+import { RuntimeError } from '@botpress/sdk'
+import { getCredentials, InstagramClient } from 'src/misc/client'
 import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage } from 'src/misc/utils'
 import * as bp from '.botpress'
 
 export const channel: bp.IntegrationProps['channels']['channel'] = {
   messages: {
-    text: async ({ payload, ...props }) =>
-      sendMessage(props, async (client, recipientId) => {
-        props.logger.forBot().debug('Sending text message from bot to Instagram:', payload.text)
-        return client.sendTextMessage(recipientId, payload.text)
+    text: async (props) =>
+      _sendMessage(props, async (client, recipientId) => {
+        return client.sendTextMessage(recipientId, props.payload.text)
       }),
-    image: async ({ payload, ...props }) =>
-      sendMessage(props, async (client, recipientId) => {
-        props.logger.forBot().debug('Sending image message from bot to Instagram:', payload.imageUrl)
-        return client.sendImageMessage(recipientId, payload.imageUrl)
+    image: async (props) =>
+      _sendMessage(props, async (client, recipientId) => {
+        return client.sendImageMessage(recipientId, props.payload.imageUrl)
       }),
-    audio: async ({ payload, ...props }) =>
-      sendMessage(props, async (client, recipientId) => {
-        props.logger.forBot().debug('Sending audio message from bot to Instagram:', payload.audioUrl)
-        return client.sendAudioMessage(recipientId, payload.audioUrl)
+    audio: async (props) =>
+      _sendMessage(props, async (client, recipientId) => {
+        return client.sendAudioMessage(recipientId, props.payload.audioUrl)
       }),
-    video: async ({ payload, ...props }) =>
-      sendMessage(props, async (client, recipientId) => {
-        props.logger.forBot().debug('Sending video message from bot to Instagram:', payload.videoUrl)
-        return client.sendVideoMessage(recipientId, payload.videoUrl)
+    video: async (props) =>
+      _sendMessage(props, async (client, recipientId) => {
+        return client.sendVideoMessage(recipientId, props.payload.videoUrl)
       }),
-    location: async ({ payload, ...props }) =>
-      sendMessage(props, async (client, recipientId) => {
-        const googleMapLink = formatGoogleMapLink(payload)
-        props.logger.forBot().debug('Sending location message from bot to Instagram:', googleMapLink)
+    location: async (props) =>
+      _sendMessage(props, async (client, recipientId) => {
+        const googleMapLink = formatGoogleMapLink(props.payload)
         return client.sendTextMessage(recipientId, googleMapLink)
       }),
-    carousel: async ({ payload, ...props }) =>
-      sendMessage(props, async (instagram, recipientId) => {
-        const carouselMessage = getCarouselMessage(payload)
-        props.logger.forBot().debug('Sending carousel message from bot to Instagram:', carouselMessage)
-        return instagram.sendMessage(recipientId, getCarouselMessage(payload))
+    carousel: async (props) =>
+      _sendMessage(props, async (instagram, recipientId) => {
+        return instagram.sendMessage(recipientId, getCarouselMessage(props.payload))
       }),
-    card: async ({ payload, ...props }) =>
-      sendMessage(props, async (instagram, recipientId) => {
-        const cardMessage = getCarouselMessage({ items: [payload] })
-        props.logger.forBot().debug('Sending card message from bot to Instagram:', cardMessage)
+    card: async (props) =>
+      _sendMessage(props, async (instagram, recipientId) => {
+        const cardMessage = getCarouselMessage({ items: [props.payload] })
         return instagram.sendMessage(recipientId, cardMessage)
       }),
-    dropdown: async ({ payload, ...props }) =>
-      sendMessage(props, async (instagram, recipientId) => {
-        const choiceMessage = getChoiceMessage(payload)
-        props.logger.forBot().debug('Sending dropdown message from bot to Instagram:', choiceMessage)
+    dropdown: async (props) =>
+      _sendMessage(props, async (instagram, recipientId) => {
+        const choiceMessage = getChoiceMessage(props.payload)
         return instagram.sendMessage(recipientId, choiceMessage)
       }),
-    choice: async ({ payload, ...props }) =>
-      sendMessage(props, async (instagram, recipientId) => {
-        const choiceMessage = getChoiceMessage(payload)
-        props.logger.forBot().debug('Sending choice message from bot to Instagram:', choiceMessage)
-        return instagram.sendMessage(recipientId, getChoiceMessage(payload))
+    choice: async (props) =>
+      _sendMessage(props, async (instagram, recipientId) => {
+        return instagram.sendMessage(recipientId, getChoiceMessage(props.payload))
       }),
-    bloc: async ({ payload, ...props }) => {
-      props.logger.forBot().debug('Sending bloc message from bot to Instagram:', payload.items)
-      for (const item of payload.items) {
-        const logMessage = `Sending bloc item of type ${item.type} from bot to Instagram:`
+    bloc: async (props) => {
+      for (const item of props.payload.items) {
         if (item.type === 'text') {
-          await sendMessage(props, async (instagram, recipientId) => {
-            props.logger.forBot().debug(logMessage, item.payload.text)
+          await _sendMessage(props, async (instagram, recipientId) => {
             return instagram.sendTextMessage(recipientId, item.payload.text)
           })
         } else if (item.type === 'image') {
-          await sendMessage(props, async (instagram, recipientId) => {
-            props.logger.forBot().debug(logMessage, item.payload.imageUrl)
+          await _sendMessage(props, async (instagram, recipientId) => {
             return instagram.sendImageMessage(recipientId, item.payload.imageUrl)
           })
         } else if (item.type === 'audio') {
-          await sendMessage(props, async (instagram, recipientId) => {
-            props.logger.forBot().debug(logMessage, item.payload.audioUrl)
+          await _sendMessage(props, async (instagram, recipientId) => {
             return instagram.sendAudioMessage(recipientId, item.payload.audioUrl)
           })
         } else if (item.type === 'video') {
-          await sendMessage(props, async (instagram, recipientId) => {
-            props.logger.forBot().debug(logMessage, item.payload.videoUrl)
+          await _sendMessage(props, async (instagram, recipientId) => {
             return instagram.sendVideoMessage(recipientId, item.payload.videoUrl)
           })
         } else if (item.type === 'location') {
-          await sendMessage(props, async (instagram, recipientId) => {
+          await _sendMessage(props, async (instagram, recipientId) => {
             const googleMapLink = formatGoogleMapLink(item.payload)
-            props.logger.forBot().debug(logMessage, googleMapLink)
             return instagram.sendTextMessage(recipientId, googleMapLink)
           })
         } else {
@@ -90,4 +73,38 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
       }
     },
   },
+}
+
+type Channels = bp.Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type SendMessageProps = Parameters<MessageHandler>[0]
+async function _sendMessage(
+  { ack, ctx, client, conversation, logger, payload, type }: SendMessageProps,
+  sendTypeSpecificMessage: (client: InstagramClient, toInstagramId: string) => Promise<{ message_id: string }>
+) {
+  const { accessToken, instagramId } = await getCredentials(client, ctx)
+  const metaClient = new InstagramClient(logger, { accessToken, instagramId })
+  const recipientId = getRecipientId(conversation)
+
+  logger.forBot().debug(`Sending message of type ${type} from bot to Instagram user ${recipientId}:`, payload)
+  const { message_id } = await sendTypeSpecificMessage(metaClient, recipientId)
+
+  await ack({
+    tags: {
+      id: message_id,
+      senderId: instagramId,
+      recipientId,
+    },
+  })
+}
+
+function getRecipientId(conversation: SendMessageProps['conversation']): string {
+  const recipientId = conversation.tags.id
+
+  if (!recipientId) {
+    throw new RuntimeError(`No recipient id found for user ${conversation.id}`)
+  }
+
+  return recipientId
 }

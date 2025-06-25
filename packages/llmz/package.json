@@ -32,7 +32,7 @@
     "@babel/standalone": "^7.26.4",
     "@babel/traverse": "^7.26.4",
     "@babel/types": "^7.26.3",
-    "@botpress/client": "1.15.1",
+    "@botpress/client": "1.15.3",
     "bytes": "^3.1.2",
     "exponential-backoff": "^3.1.1",
     "handlebars": "^4.7.8",

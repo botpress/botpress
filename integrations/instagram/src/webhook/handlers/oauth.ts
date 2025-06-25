@@ -51,9 +51,11 @@ export const oauthCallbackHandler: bp.IntegrationProps['handler'] = async (props
     },
   })
 
+  // Refresh token before 60 days, as indicated in the documentation:
+  // https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/business-login#long-lived
   await client.configureIntegration({
     identifier: instagramId,
-    scheduleRegisterCall: 'monthly', // Refresh token before 60 days as per the documentation:
+    scheduleRegisterCall: 'monthly',
   })
   logger.debug('Token refresh scheduled for Instagram user', instagramId)
   await client.updateUser({ id: ctx.botUserId, tags: { id: instagramId } })

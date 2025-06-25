@@ -241,6 +241,13 @@ export type FooBarBazPlugin = DefaultPlugin<{
       payload: { epsilon: null }
     }
   }
+  events: {
+    somethingHappened: {
+      a: string
+      b: number
+      c: boolean
+    }
+  }
 }>
 
 export type EmptyBot = DefaultBot<{

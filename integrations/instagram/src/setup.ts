@@ -2,12 +2,30 @@ import { RuntimeError } from '@botpress/sdk'
 import { InstagramClient } from 'src/misc/client'
 import * as bp from '.botpress'
 
-export const register: bp.IntegrationProps['register'] = async (props) => {
-  await refreshAccessToken(props)
+type RegisterProps = Parameters<bp.IntegrationProps['register']>[0]
+
+export const register: bp.IntegrationProps['register'] = async (props: RegisterProps) => {
+  const { ctx } = props
+  if (ctx.configurationType === 'manual') {
+    await _registerManual(props)
+  } else if (ctx.configurationType === 'sandbox') {
+    await _registerSandbox(props)
+  } else {
+    await _registerOAuth(props)
+  }
 }
+
 export const unregister: bp.IntegrationProps['unregister'] = async () => {}
 
-const refreshAccessToken = async ({ client, ctx, logger }: Parameters<bp.IntegrationProps['register']>[0]) => {
+const _registerOAuth = async (props: RegisterProps) => {
+  const { client, ctx, logger } = props
+
+  // Remove existing sandbox identifiers
+  await client.configureIntegration({
+    sandboxIdentifiers: null,
+  })
+
+  // Refresh token if needed
   const { state } = await client
     .getState({
       type: 'integration',
@@ -16,12 +34,9 @@ const refreshAccessToken = async ({ client, ctx, logger }: Parameters<bp.Integra
     })
     .catch(() => ({ state: undefined }))
 
-  const isManualConfig = ctx.configurationType === 'manual'
-  const instagramId = isManualConfig ? ctx.configuration.instagramId : (state?.payload.instagramId ?? 'unknown user')
-  if (!state || isManualConfig) {
-    // No access token to refresh: never set or manual config. Disable refreshes.
-    await client.configureIntegration({ scheduleRegisterCall: undefined })
-    logger.debug('Token refresh stopped for Instagram user', instagramId)
+  if (!state?.payload.accessToken) {
+    // No access token has been set, disable refreshes
+    await _stopRefresh(props)
     return
   }
 
@@ -31,10 +46,10 @@ const refreshAccessToken = async ({ client, ctx, logger }: Parameters<bp.Integra
     throw new RuntimeError(message)
   }
 
-  logger.debug('Refreshing access token for Instagram user', instagramId)
+  logger.debug('Refreshing access token for bot', ctx.botId)
   const credentials = state.payload
   const instagramClient = new InstagramClient(logger, credentials)
-  const accessTokenInfos = await instagramClient.refreshAccessToken().catch((err) => {
+  const { accessToken, expirationTime } = await instagramClient.refreshAccessToken().catch((err) => {
     throw new RuntimeError('Error while refreshing access token from Instagram', err)
   })
   await client.setState({
@@ -43,8 +58,31 @@ const refreshAccessToken = async ({ client, ctx, logger }: Parameters<bp.Integra
     id: ctx.integrationId,
     payload: {
       ...credentials,
-      accessToken: accessTokenInfos.accessToken,
-      expirationTime: accessTokenInfos.expirationTime,
+      accessToken,
+      expirationTime,
     },
   })
+}
+
+const _registerManual = async (props: RegisterProps) => {
+  await _clearAllIdentifiers(props)
+}
+
+const _registerSandbox = async (props: RegisterProps) => {
+  await _clearAllIdentifiers(props)
+}
+
+const _clearAllIdentifiers = async (props: RegisterProps) => {
+  const { client } = props
+
+  // Clear all OAuth and sandbox identifiers
+  await client.configureIntegration({
+    sandboxIdentifiers: null,
+    identifier: null,
+  })
+}
+
+const _stopRefresh = async ({ client, ctx, logger }: RegisterProps) => {
+  logger.debug('Stopping token refresh for bot', ctx.botId)
+  await client.configureIntegration({ scheduleRegisterCall: undefined })
 }
