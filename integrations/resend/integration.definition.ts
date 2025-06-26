@@ -4,7 +4,7 @@ import { sendEmailOutputSchema, sendMailInputSchema } from './definitions/action
 export default new IntegrationDefinition({
   name: 'resend',
   title: 'Resend',
-  version: '0.0.1',
+  version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send markdown rich-text emails using the Resend email service.',
