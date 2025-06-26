@@ -41,7 +41,7 @@ jobs:
         uses: ./.github/actions/deploy-plugins
         with:
           environment: 'production'
-          extra_filter: "-F '!analytics' -F '!logger' -F '!personality' -F '!synchronizer' -F '!knowledge' -F '!hitl-plugin"
+          extra_filter: "-F '!analytics' -F '!logger' -F '!personality' -F '!synchronizer' -F '!knowledge' -F '!hitl-plugin'"
           force: ${{ github.event.inputs.force == 'true' }}
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
