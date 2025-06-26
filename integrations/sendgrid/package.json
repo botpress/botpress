@@ -3,7 +3,8 @@
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint"
+    "check:bplint": "bp lint",
+    "check:prettier": "prettier --check ."
   },
   "private": true,
   "dependencies": {
@@ -11,10 +12,12 @@
     "@botpress/sdk": "workspace:*",
     "@sendgrid/client": "^8.1.5",
     "@sendgrid/helpers": "^8.0.0",
-    "@sendgrid/mail": "^8.1.5"
+    "@sendgrid/mail": "^8.1.5",
+    "markdown-it": "^14.1.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
+    "@types/markdown-it": "^14.1.2",
     "@types/node": "^18.19.67",
     "typescript": "^5.6.3"
   }
