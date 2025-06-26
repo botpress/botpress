@@ -7,7 +7,7 @@ export default new IntegrationDefinition({
   version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
-  description: 'Send simple rich text emails using the SendGrid email service.',
+  description: 'Send markdown rich-text emails using the SendGrid email service.',
   configuration: {
     schema: z.object({
       apiKey: z.string().secret().min(1).describe('Your SendGrid API Key').title('SendGrid API Key'),
