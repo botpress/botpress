@@ -1235,10 +1235,16 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
       resend:
         specifier: ^4.6.0
         version: 4.6.0(react-dom@18.3.1)(react@18.3.1)
     devDependencies:
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
       '@types/node':
         specifier: ^18.19.67
         version: 18.19.67
