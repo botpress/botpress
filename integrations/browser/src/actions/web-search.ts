@@ -19,7 +19,7 @@ export const webSearch: bp.IntegrationProps['actions']['webSearch'] = async ({
   ctx,
   metadata,
 }) => {
-  const clientConfig = client.inner.config
+  const clientConfig = client._inner.config
 
   const axiosConfig = {
     ...clientConfig,

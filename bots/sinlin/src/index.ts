@@ -3,7 +3,7 @@ import * as bp from '.botpress'
 
 const { tableName } = bp.linear.configuration
 
-const getBlankClient = (props: bp.EventHandlerProps | bp.MessageHandlerProps): Client => props.client.inner
+const getVanillaClient = (props: bp.EventHandlerProps | bp.MessageHandlerProps): Client => props.client._inner
 
 const summarize = (str: string, maxLength: number = 1000): string =>
   str.length > maxLength ? str.substring(0, maxLength) + '...' : str
@@ -46,7 +46,7 @@ const commands: Record<string, Command> = {
         return
       }
 
-      const { rows } = await getBlankClient(props).findTableRows({
+      const { rows } = await getVanillaClient(props).findTableRows({
         table: tableName,
         filter: {},
         limit: 10,

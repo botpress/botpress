@@ -13,7 +13,12 @@ export class BotSpecificClient<TBot extends common.BaseBot> implements types.Cli
     private _hooks: types.ClientHooks = { before: {}, after: {} }
   ) {}
 
-  public get inner(): client.Client {
+  /**
+   * Access the underlying Botpress client.
+   * This is useful for operations that are not available in the BotSpecificClient.
+   * You probably shouldn't use this directly if you don't know what you're doing.
+   */
+  public get _inner(): client.Client {
     return this._client
   }
 

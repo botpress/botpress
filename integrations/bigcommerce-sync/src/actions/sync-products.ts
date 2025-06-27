@@ -77,7 +77,7 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
   const ctx = props.ctx.configuration
 
   // this client is necessary for table operations
-  const getVanillaClient = (client: bp.Client): Client => client.inner
+  const getVanillaClient = (client: bp.Client): Client => client._inner
   const botpressVanillaClient = getVanillaClient(client)
 
   const bigCommerceClient = getBigCommerceClient(ctx)

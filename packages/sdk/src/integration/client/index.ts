@@ -12,7 +12,12 @@ export class IntegrationSpecificClient<TIntegration extends common.BaseIntegrati
 {
   public constructor(private readonly _client: client.Client) {}
 
-  public get inner(): client.Client {
+  /**
+   * Access the underlying Botpress client.
+   * This is useful for operations that are not available in the BotSpecificClient.
+   * You probably shouldn't use this directly if you don't know what you're doing.
+   */
+  public get _inner(): client.Client {
     return this._client
   }
 
