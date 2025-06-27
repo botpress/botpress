@@ -2,25 +2,25 @@ import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
 import { IntegrationLogger } from '@botpress/sdk'
 import {
-  Content,
-  FinishReason,
-  FunctionCall,
-  FunctionCallingConfig,
-  FunctionCallingMode,
-  FunctionDeclarationSchema,
-  GenerateContentCandidate,
-  GenerateContentRequest,
+  GoogleGenAI,
   GenerateContentResponse,
-  GoogleGenerativeAI,
+  Candidate,
+  Content,
   Part,
   Tool,
   ToolConfig,
-} from '@google/generative-ai'
+  FunctionCallingConfig,
+  FunctionCallingConfigMode,
+  FunctionCall,
+  FinishReason,
+  GenerateContentParameters,
+  FunctionDeclaration,
+} from '@google/genai'
 import crypto from 'crypto'
 
 export async function generateContent<M extends string>(
   input: llm.GenerateContentInput,
-  googleAIClient: GoogleGenerativeAI,
+  googleAIClient: GoogleGenAI,
   logger: IntegrationLogger,
   params: {
     models: Record<M, llm.ModelDetails>
@@ -30,9 +30,7 @@ export async function generateContent<M extends string>(
   const modelId = (input.model?.id || params.defaultModel) as M
   const model = params.models[modelId]
 
-  const googleAIModel = googleAIClient.getGenerativeModel({ model: modelId })
-
-  const request = await buildGenerateContentRequest(input)
+  const request = await buildGenerateContentRequest(input, modelId)
 
   if (input.debug) {
     logger.forBot().info('Request being sent to Google AI: ' + JSON.stringify(request, null, 2))
@@ -41,7 +39,7 @@ export async function generateContent<M extends string>(
   let response: GenerateContentResponse | undefined
 
   try {
-    ;({ response } = await googleAIModel.generateContent(request))
+    response = await googleAIClient.models.generateContent(request)
   } catch (err: any) {
     throw llm.createUpstreamProviderFailedError(err, `Google AI error: ${err.message}`)
   } finally {
@@ -85,19 +83,23 @@ export async function generateContent<M extends string>(
   return output
 }
 
-async function buildGenerateContentRequest(input: llm.GenerateContentInput): Promise<GenerateContentRequest> {
+async function buildGenerateContentRequest(
+  input: llm.GenerateContentInput,
+  model: string
+): Promise<GenerateContentParameters> {
   return {
-    systemInstruction: input.systemPrompt,
-    toolConfig: buildToolConfig(input),
-    tools: buildTools(input),
-    generationConfig: {
+    model,
+    contents: await buildContents(input),
+    config: {
+      systemInstruction: input.systemPrompt,
+      toolConfig: buildToolConfig(input),
+      tools: buildTools(input),
       maxOutputTokens: input.maxTokens,
       topP: input.topP,
       temperature: input.temperature,
       stopSequences: input.stopSequences,
       responseMimeType: input.responseFormat === 'json_object' ? 'application/json' : 'text/plain',
     },
-    contents: await buildContents(input),
   }
 }
 
@@ -129,8 +131,7 @@ async function buildContents(input: llm.GenerateContentInput): Promise<Content[]
         parts.push({
           functionCall: {
             name: toolCall.function.name,
-            // Google AI expects an object but we receive a Record from the LLM interface, so we can simply cast it.
-            args: <object>toolCall.function.arguments,
+            args: toolCall.function.arguments ?? undefined,
           },
         })
       }
@@ -145,7 +146,7 @@ async function buildContents(input: llm.GenerateContentInput): Promise<Content[]
         throw new InvalidPayloadError('`content` must be a string when message type is "tool_result"')
       }
 
-      let functionResponse: object
+      let functionResponse: Record<string, unknown>
 
       try {
         functionResponse = JSON.parse(message.content)
@@ -248,18 +249,18 @@ function buildFunctionCallingConfig(
 ): FunctionCallingConfig {
   switch (toolChoice.type) {
     case 'any':
-      return { mode: FunctionCallingMode.ANY }
+      return { mode: FunctionCallingConfigMode.ANY }
     case 'none':
-      return { mode: FunctionCallingMode.NONE }
+      return { mode: FunctionCallingConfigMode.NONE }
     case 'specific':
       if (!toolChoice.functionName) {
         throw new InvalidPayloadError('Tool choice with type "specific" must provide the function name to be called')
       }
       return { allowedFunctionNames: [toolChoice.functionName] }
     case 'auto':
-      return { mode: FunctionCallingMode.AUTO }
+      return { mode: FunctionCallingConfigMode.AUTO }
     default:
-      return { mode: FunctionCallingMode.MODE_UNSPECIFIED }
+      return { mode: FunctionCallingConfigMode.MODE_UNSPECIFIED }
   }
 }
 
@@ -272,19 +273,22 @@ function buildTools(input: llm.GenerateContentInput): Tool[] | undefined {
 
   return [
     {
-      functionDeclarations: functions.map((tool) => ({
-        name: tool.function.name,
-        description: tool.function.description,
-        // Our LLM interface receives the function arguments schema as a JSON schema while Google AI expects the function declaration parameters to be in OpenAPI format, so given that OpenAPI is a superset of JSON schema format it should be safe to pass it as-is.
-        parameters: tool.function.argumentsSchema as any as FunctionDeclarationSchema,
-      })),
+      functionDeclarations: functions.map(
+        (tool) =>
+          ({
+            name: tool.function.name,
+            description: tool.function.description,
+            // Our LLM interface receives the function arguments schema as a JSON schema while Google AI expects the function declaration parameters to be in OpenAPI format, so given that OpenAPI is a superset of JSON schema format it should be safe to pass it as-is.
+            parameters: tool.function.argumentsSchema,
+          }) satisfies FunctionDeclaration
+      ),
     },
   ]
 }
 
 type Choice = llm.GenerateContentOutput['choices'][0]
 
-function mapCandidate(candidate: GenerateContentCandidate, index: number): Choice {
+function mapCandidate(candidate: Candidate, index: number): Choice {
   const choice = <Choice>{
     index,
     role: 'assistant',
@@ -293,11 +297,12 @@ function mapCandidate(candidate: GenerateContentCandidate, index: number): Choic
     stopReason: mapFinishReason(candidate.finishReason),
   }
 
-  const functionCalls = candidate.content.parts.map((x) => x.functionCall).filter((x): x is FunctionCall => !!x)
-  const functionResponses = candidate.content.parts.filter((x) => !!x.functionResponse).map((x) => x.functionResponse)
+  const functionCalls = candidate.content?.parts?.map((x) => x.functionCall).filter((x): x is FunctionCall => !!x) ?? []
+  const functionResponses =
+    candidate.content?.parts?.filter((x) => !!x.functionResponse).map((x) => x.functionResponse) ?? []
 
   if (
-    candidate.content.parts.length === 1 &&
+    candidate.content?.parts?.length === 1 &&
     candidate.content.parts[0]!.text &&
     functionCalls.length === 0 &&
     functionResponses.length === 0
@@ -309,7 +314,7 @@ function mapCandidate(candidate: GenerateContentCandidate, index: number): Choic
 
   choice.content = []
 
-  for (const part of candidate.content.parts) {
+  for (const part of candidate.content?.parts ?? []) {
     if (part.text) {
       choice.content.push({ type: 'text', text: part.text })
     } else if (part.inlineData) {
@@ -322,14 +327,16 @@ function mapCandidate(candidate: GenerateContentCandidate, index: number): Choic
   }
 
   if (functionCalls.length > 0) {
-    choice.toolCalls = functionCalls.map((functionCall) => ({
-      id: functionCall.name, // Google AI doesn't generate tool call IDs so we just use the function name as the ID.
-      type: 'function',
-      function: {
-        name: functionCall.name,
-        arguments: functionCall.args,
-      },
-    }))
+    choice.toolCalls = functionCalls
+      .filter((functionCall) => functionCall.name)
+      .map((functionCall) => ({
+        id: functionCall.id ?? functionCall.name!, // name is guaranteed by filter
+        type: 'function',
+        function: {
+          name: functionCall.name!,
+          arguments: functionCall.args ?? {},
+        },
+      }))
   }
 
   if (functionResponses.length > 0) {
