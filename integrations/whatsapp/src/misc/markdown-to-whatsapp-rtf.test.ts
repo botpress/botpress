@@ -26,6 +26,12 @@ describe('WhatsApp Markdown Converter', () => {
       const expected = 'This is *bold* and _italic_ and `code`.'
       expect(convertMarkdownToWhatsApp(input)).toBe(expected)
     })
+
+    it('should convert bold and italic text in bullet points', () => {
+      const input = '* **bold**\n* *italic*'
+      const expected = '- *bold*\n- _italic_'
+      expect(convertMarkdownToWhatsApp(input)).toBe(expected)
+    })
   })
 
   describe('Complex Nested Formatting', () => {
