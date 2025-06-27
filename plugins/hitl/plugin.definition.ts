@@ -85,7 +85,7 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.11.0',
+  version: '0.10.4',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -98,42 +98,37 @@ export default new sdk.PluginDefinition({
       title: 'Start HITL',
       description: 'Starts the HITL mode',
       input: {
-        schema: ({ entities }) =>
-          sdk.z
-            .object({
-              title: sdk.z.string().title('Ticket Title').describe('Title of the HITL ticket'),
-              description: sdk.z
-                .string()
-                .title('Ticket Description')
-                .optional()
-                .describe('Description of the HITL ticket'),
-              hitlSession: entities.hitl.hitlSession
-                .optional()
-                .title('Extra configuration')
-                .describe('Configuration of the HITL session'),
-              userId: sdk.z
-                .string()
-                .title('User ID')
-                .describe('ID of the user that starts the HITL mode')
-                .placeholder('{{ event.userId }}'),
-              userEmail: sdk.z
-                .string()
-                .title('User Email')
-                .optional()
-                .describe(
-                  'Email of the user that starts the HITL mode. If this value is unset, the agent will try to use the email provided by the channel.'
-                ),
-              conversationId: sdk.z
-                .string()
-                .title('Conversation ID') // this is the upstream conversation
-                .describe('ID of the conversation on which to start the HITL mode')
-                .placeholder('{{ event.conversationId }}'),
-              configurationOverrides: PLUGIN_CONFIG_SCHEMA.partial()
-                .optional()
-                .title('Configuration Overrides')
-                .describe('Use this to override the global configuration for this specific HITL session'),
-            })
-            .passthrough(),
+        schema: sdk.z
+          .object({
+            title: sdk.z.string().title('Ticket Title').describe('Title of the HITL ticket'),
+            description: sdk.z
+              .string()
+              .title('Ticket Description')
+              .optional()
+              .describe('Description of the HITL ticket'),
+            userId: sdk.z
+              .string()
+              .title('User ID')
+              .describe('ID of the user that starts the HITL mode')
+              .placeholder('{{ event.userId }}'),
+            userEmail: sdk.z
+              .string()
+              .title('User Email')
+              .optional()
+              .describe(
+                'Email of the user that starts the HITL mode. If this value is unset, the agent will try to use the email provided by the channel.'
+              ),
+            conversationId: sdk.z
+              .string()
+              .title('Conversation ID') // this is the upstream conversation
+              .describe('ID of the conversation on which to start the HITL mode')
+              .placeholder('{{ event.conversationId }}'),
+            configurationOverrides: PLUGIN_CONFIG_SCHEMA.partial()
+              .optional()
+              .title('Configuration Overrides')
+              .describe('Use this to override the global configuration for this specific HITL session'),
+          })
+          .passthrough(),
       },
       output: { schema: sdk.z.object({}) },
     },
