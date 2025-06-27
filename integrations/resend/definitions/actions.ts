@@ -8,7 +8,7 @@ export const sendMailInputSchema = z.object({
   subject: NonBlankString.describe('The subject of the email (e.g. How to build a bot with Botpress!)').title(
     'Email Subject'
   ),
-  body: NonBlankString.describe('The plain text body of the email').title('Email Body'), // TODO: Think of an example to place here
+  body: NonBlankString.describe('The markdown rich-text body of the email').title('Email Body'), // TODO: Think of an example to place here
   replyTo: EmailAddressSchema.describe(EMAIL_ADDRESS_DESCRIPTION).title('Reply To').optional(),
 })
 
