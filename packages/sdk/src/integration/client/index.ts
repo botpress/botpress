@@ -12,6 +12,15 @@ export class IntegrationSpecificClient<TIntegration extends common.BaseIntegrati
 {
   public constructor(private readonly _client: client.Client) {}
 
+  /**
+   * Access the underlying Botpress client.
+   * This is useful for operations that are not available in the BotSpecificClient.
+   * You probably shouldn't use this directly if you don't know what you're doing.
+   */
+  public get _inner(): client.Client {
+    return this._client
+  }
+
   public createConversation: types.CreateConversation<TIntegration> = ((x) =>
     this._client.createConversation(x)) as types.CreateConversation<TIntegration>
   public getConversation: types.GetConversation<TIntegration> = ((x) =>
