@@ -5,7 +5,7 @@ import { PRODUCT_TABLE_SCHEMA, PRODUCTS_TABLE_NAME as PRODUCT_TABLE } from './sc
 import * as bp from '.botpress'
 
 // this client is necessary for table operations
-const getBotpressVanillaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
+const getBotpressVanillaClient = (client: bp.Client): Client => client.inner
 export type BigCommerceProductImage = {
   is_thumbnail: boolean
   url_standard: string

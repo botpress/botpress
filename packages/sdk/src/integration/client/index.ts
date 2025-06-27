@@ -12,6 +12,10 @@ export class IntegrationSpecificClient<TIntegration extends common.BaseIntegrati
 {
   public constructor(private readonly _client: client.Client) {}
 
+  public get inner(): client.Client {
+    return this._client
+  }
+
   public createConversation: types.CreateConversation<TIntegration> = ((x) =>
     this._client.createConversation(x)) as types.CreateConversation<TIntegration>
   public getConversation: types.GetConversation<TIntegration> = ((x) =>

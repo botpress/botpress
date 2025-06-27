@@ -3,8 +3,7 @@ import * as bp from '.botpress'
 
 const { tableName } = bp.linear.configuration
 
-const getBlankClient = (props: bp.EventHandlerProps | bp.MessageHandlerProps): Client =>
-  (props.client as any)._client as Client
+const getBlankClient = (props: bp.EventHandlerProps | bp.MessageHandlerProps): Client => props.client.inner
 
 const summarize = (str: string, maxLength: number = 1000): string =>
   str.length > maxLength ? str.substring(0, maxLength) + '...' : str

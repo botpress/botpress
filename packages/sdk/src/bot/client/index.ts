@@ -13,6 +13,10 @@ export class BotSpecificClient<TBot extends common.BaseBot> implements types.Cli
     private _hooks: types.ClientHooks = { before: {}, after: {} }
   ) {}
 
+  public get inner(): client.Client {
+    return this._client
+  }
+
   public getConversation: types.GetConversation<TBot> = ((x) =>
     this._run('getConversation', x)) as types.GetConversation<TBot>
   public listConversations: types.ListConversations<TBot> = ((x) =>

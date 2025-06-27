@@ -26,7 +26,7 @@ export const getExtendedClient = (_client: unknown): ExtendedClient => {
 
   if (typeof client._client === 'object' && !!client._client) {
     try {
-      return getExtendedClient((client as any)._client)
+      return getExtendedClient(client._client)
     } catch {}
   }
 
