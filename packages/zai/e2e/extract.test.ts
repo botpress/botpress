@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
 
-import { BotpressDocumentation, getClient, getZai, metadata } from './utils'
+import { BotpressDocumentation, getCachedClient, getClient, getZai, metadata } from './utils'
 
 import { z } from '@bpinternal/zui'
 import { check } from '@botpress/vai'
@@ -8,7 +8,13 @@ import { check } from '@botpress/vai'
 import { TableAdapter } from '../src/adapters/botpress-table'
 
 describe('zai.extract', () => {
-  const zai = getZai()
+  let cognitive = getCachedClient()
+  let zai = getZai(cognitive)
+
+  beforeEach(() => {
+    cognitive = getCachedClient()
+    zai = getZai(cognitive)
+  })
 
   it('extract simple object from paragraph', async () => {
     const person = await zai.extract(
@@ -88,6 +94,29 @@ describe('zai.extract', () => {
         "b": 30,
       }
     `)
+  })
+
+  it('extract an object from a long text (multi-chunks)', async () => {
+    const TOKEN = 'TOKEN '
+    let text = `Feature 1: Tables
+\n${TOKEN.repeat(500)}
+Feature 2: HITL (Human in the Loop)
+\n${TOKEN.repeat(500)}
+Feature 3: Analytics
+\n${TOKEN.repeat(500)}
+Feature 4: Integrations`
+
+    let reqs = 0
+
+    cognitive.on('response', () => reqs++)
+
+    const { features } = await zai.extract(text, z.object({ features: z.array(z.string()) }), {
+      instructions: 'Extract all features from the text',
+      chunkLength: 250,
+    })
+
+    expect(reqs).toBeGreaterThan(5)
+    expect(features.length).toBe(4)
   })
 
   it('extract an array of objects from a super long text', async () => {
