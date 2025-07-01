@@ -92,20 +92,15 @@ Zai.prototype.extract = async function <S extends OfType<AnyObjectOrArray>>(
 
   const keys = Object.keys((schema as ZodObject).shape)
 
-  let inputAsString = stringify(input)
+  const inputAsString = stringify(input)
 
   if (tokenizer.count(inputAsString) > options.chunkLength) {
-    // If we want to extract an array of objects, we will run this function recursively
-    if (isArrayOfObjects) {
-      const tokens = tokenizer.split(inputAsString)
-      const chunks = chunk(tokens, options.chunkLength).map((x) => x.join(''))
-      const all = await Promise.all(chunks.map((chunk) => this.extract(chunk, originalSchema)))
+    const tokens = tokenizer.split(inputAsString)
+    const chunks = chunk(tokens, options.chunkLength).map((x) => x.join(''))
+    const all = await Promise.all(chunks.map((chunk) => this.extract(chunk, originalSchema)))
 
-      return all.flat() as any as S['_output']
-    } else {
-      // Truncate the input to fit the model's input size
-      inputAsString = tokenizer.truncate(stringify(input), options.chunkLength)
-    }
+    // We run this function recursively until all chunks are merged into a single output
+    return this.extract(all, originalSchema, options)
   }
 
   const instructions: string[] = []
