@@ -385,6 +385,10 @@ export class BotDefinition<
               ...pluginInstance,
               definition: {
                 ...pluginInstance.definition,
+                configuration: this._dereferenceDefinitionSchema(
+                  pluginInstance.definition.configuration,
+                  zuiReferenceMap
+                ),
                 events: this._dereferenceDefinitionSchemas(pluginInstance.definition.events, zuiReferenceMap),
                 states: this._dereferenceDefinitionSchemas(pluginInstance.definition.states, zuiReferenceMap),
                 tables: this._dereferenceDefinitionSchemas(pluginInstance.definition.tables, zuiReferenceMap),
@@ -456,9 +460,18 @@ export class BotDefinition<
     return Object.fromEntries(
       Object.entries(definitions ?? {}).map(([key, definition]) => [
         key,
-        { ...definition, schema: this._dereferenceZuiSchema(definition.schema, zuiReferenceMap) },
+        this._dereferenceDefinitionSchema(definition, zuiReferenceMap),
       ])
     ) as TDefinitionRecord
+  }
+
+  private _dereferenceDefinitionSchema<TDefinition extends { schema: ZuiObjectOrRefSchema } | undefined>(
+    definition: TDefinition,
+    zuiReferenceMap: Record<string, z.ZodTypeAny>
+  ): TDefinition {
+    return definition
+      ? { ...definition, schema: this._dereferenceZuiSchema(definition.schema, zuiReferenceMap) }
+      : definition
   }
 
   private _dereferenceActionDefinitionSchemas<
