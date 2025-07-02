@@ -37,6 +37,28 @@ const fullPage = z.object({
 
 export type FullPage = z.infer<typeof fullPage>
 
+const getWebsiteLogo: ActionDefinition = {
+  title: 'Get Website Logo',
+  description: 'Get the logo of the specified website.',
+  input: {
+    schema: z.object({
+      domain: z.string().describe('The domain of the website to get the logo from (eg. "example.com")'),
+      greyscale: z.boolean().default(false).describe('Whether to return the logo in grayscale (black & white)'),
+      size: z
+        .enum(['64', '128', '256', '512'])
+        .default('128')
+        .describe('Size of the logo to return (64, 128 or 256, 512 pixels)'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      logoUrl: z.string().describe('URL to the website logo'),
+    }),
+  },
+  cacheable: false,
+  billable: true,
+}
+
 const browsePages: ActionDefinition = {
   title: 'Browse Pages',
   description: 'Extract the full content & the metadata of the specified pages as markdown.',
@@ -178,4 +200,5 @@ export const actionDefinitions = {
   browsePages,
   webSearch,
   discoverUrls,
+  getWebsiteLogo,
 } satisfies Record<string, ActionDefinition>
