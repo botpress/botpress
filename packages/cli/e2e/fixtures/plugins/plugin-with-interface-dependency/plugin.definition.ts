@@ -8,6 +8,13 @@ export default new sdk.PluginDefinition({
   interfaces: {
     'interface-alias': interfaceWithEntities,
   },
+  configuration: {
+    schema: ({ entities }) =>
+      sdk.z.object({
+        item: entities['interface-alias'].item,
+        foo: sdk.z.literal('bar'),
+      }),
+  },
   actions: {
     doSomething: {
       input: {

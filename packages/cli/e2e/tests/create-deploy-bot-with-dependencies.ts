@@ -63,47 +63,45 @@ export const createDeployBotWithDependencies: Test = {
     const pluginName = _generatePluginName()
     const botName = _generateBotName()
 
-    try {
-      // Deploy dependencies:
-      await _deployInterface({ argv, dependencies, workDir: interfaceDir, interfaceName })
-      await _deployIntegration({ argv, dependencies, workDir: integrationDir, integrationName })
-      await _deployPlugin({ argv, dependencies, workDir: pluginDir, pluginName })
+    // Deploy dependencies:
+    await using _iface = await _deployInterface({ argv, client, dependencies, workDir: interfaceDir, interfaceName })
+    await using _integration = await _deployIntegration({
+      argv,
+      client,
+      dependencies,
+      workDir: integrationDir,
+      integrationName,
+    })
+    await using _plugin = await _deployPlugin({ argv, client, dependencies, workDir: pluginDir, pluginName })
 
-      // Deploy bot:
-      const botId = await _deployBot({ argv, client, dependencies, workDir: botDir, botName })
+    // Deploy bot:
+    await using bot = await _deployBot({ argv, client, dependencies, workDir: botDir, botName })
 
-      // Fetch and verify the deployed bot:
-      const deployedBot = await client.getBot({ id: botId }).then((res) => res.bot)
+    // Fetch and verify the deployed bot:
+    const deployedBot = await client.getBot({ id: bot.botId }).then((res) => res.bot)
 
-      // TODO: use vitest for our e2e tests and replace this series of if/else
-      //       checks with an expect().toMatchObject() assertion.
+    // TODO: use vitest for our e2e tests and replace this series of if/else
+    //       checks with an expect().toMatchObject() assertion.
 
-      // Check that the plugin is installed and enabled:
-      if (!deployedBot.plugins?.['plugin-alias']?.enabled) {
-        throw new Error('Expected bot to have plugin "plugin-alias"')
-      }
+    // Check that the plugin is installed and enabled:
+    if (!deployedBot.plugins?.['plugin-alias']?.enabled) {
+      throw new Error('Expected bot to have plugin "plugin-alias"')
+    }
 
-      // Check that the schemas have been merged correctly:
-      const action = deployedBot.actions?.['plugin-alias#doSomething']
-      if (!action?.input?.schema?.properties) {
-        throw new Error('Expected bot to have action "plugin-alias#doSomething"')
-      }
+    // Check that the schemas have been merged correctly:
+    const action = deployedBot.actions?.['plugin-alias#doSomething']
+    if (!action?.input?.schema?.properties) {
+      throw new Error('Expected bot to have action "plugin-alias#doSomething"')
+    }
 
-      const itemEntityProperties = Object.keys(action.input.schema.properties.item.properties)
-      // Property defined by the interface:
-      if (!itemEntityProperties.includes('name')) {
-        throw new Error('Expected "plugin-alias#doSomething" action input to have item.name property')
-      }
-      // Property defined by the integration:
-      if (!itemEntityProperties.includes('color')) {
-        throw new Error('Expected "plugin-alias#doSomething" action input to have item.color property')
-      }
-    } finally {
-      // Cleanup
-      await _deleteBotIfExists(client, botName)
-      await _deletePluginIfExists(client, pluginName)
-      await _deleteIntegrationIfExists(client, integrationName)
-      await _deleteInterfaceIfExists(client, interfaceName)
+    const itemEntityProperties = Object.keys(action.input.schema.properties.item.properties)
+    // Property defined by the interface:
+    if (!itemEntityProperties.includes('name')) {
+      throw new Error('Expected "plugin-alias#doSomething" action input to have item.name property')
+    }
+    // Property defined by the integration:
+    if (!itemEntityProperties.includes('color')) {
+      throw new Error('Expected "plugin-alias#doSomething" action input to have item.color property')
     }
   },
 }
@@ -118,11 +116,13 @@ const _isBotpressWorkspace = (workspaceHandle: string, workspaceId: string): boo
 
 const _deployInterface = async ({
   argv,
+  client,
   workDir,
   interfaceName,
   dependencies,
 }: {
   argv: ARGV
+  client: Client
   workDir: string
   interfaceName: string
   dependencies: Record<string, string | undefined>
@@ -133,15 +133,21 @@ const _deployInterface = async ({
   await impl
     .deploy({ ...argv, workDir, createNewBot: undefined, botId: undefined, public: true })
     .then(utils.handleExitCode)
+
+  return {
+    [Symbol.asyncDispose]: () => _deleteInterfaceIfExists(client, interfaceName),
+  }
 }
 
 const _deployIntegration = async ({
   argv,
+  client,
   workDir,
   integrationName,
   dependencies,
 }: {
   argv: ARGV
+  client: Client
   workDir: string
   integrationName: string
   dependencies: Record<string, string | undefined>
@@ -150,15 +156,21 @@ const _deployIntegration = async ({
   await _installAndBuild({ argv, workDir, dependencies })
 
   await impl.deploy({ ...argv, workDir, createNewBot: undefined, botId: undefined }).then(utils.handleExitCode)
+
+  return {
+    [Symbol.asyncDispose]: () => _deleteIntegrationIfExists(client, integrationName),
+  }
 }
 
 const _deployPlugin = async ({
   argv,
+  client,
   workDir,
   pluginName,
   dependencies,
 }: {
   argv: ARGV
+  client: Client
   workDir: string
   pluginName: string
   dependencies: Record<string, string | undefined>
@@ -166,6 +178,10 @@ const _deployPlugin = async ({
   await _editPackageJson({ workDir, pluginName })
   await _installAndBuild({ argv, workDir, dependencies })
   await impl.deploy({ ...argv, workDir, createNewBot: undefined, botId: undefined }).then(utils.handleExitCode)
+
+  return {
+    [Symbol.asyncDispose]: () => _deletePluginIfExists(client, pluginName),
+  }
 }
 
 const _deployBot = async ({
@@ -192,7 +208,10 @@ const _deployBot = async ({
 
   await impl.deploy({ ...argv, workDir, createNewBot: false, botId: bot.id }).then(utils.handleExitCode)
 
-  return bot.id
+  return {
+    botId: bot.id,
+    [Symbol.asyncDispose]: () => _deleteBotIfExists(client, botName),
+  }
 }
 
 const _installAndBuild = async ({
@@ -260,33 +279,46 @@ const _generatePluginName = () => `plugin-${uuid.v4()}` as const
 const _generateBotName = () => `bot-${uuid.v4()}` as const
 
 const _deleteBotIfExists = async (client: Client, botName: string): Promise<void> => {
+  console.debug(`Deleting bot: ${botName}`)
   const bot = await _fetchBotByName(client, botName)
   if (!bot) {
     return
   }
-  await client.deleteBot({ id: bot.id }).then(() => utils.sleep(10_000))
+  await _swallowErrors(client.deleteBot({ id: bot.id })).then(() => utils.sleep(10_000))
 }
 
 const _deleteIntegrationIfExists = async (client: Client, integrationName: string): Promise<void> => {
+  console.debug(`Deleting integration: ${integrationName}`)
   const integration = await _fetchIntegrationByName(client, integrationName)
   if (!integration) {
     return
   }
-  await client.deleteIntegration({ id: integration.id })
+  await _swallowErrors(client.deleteIntegration({ id: integration.id }))
 }
 
 const _deleteInterfaceIfExists = async (client: Client, interfaceName: string): Promise<void> => {
+  console.debug(`Deleting interface: ${interfaceName}`)
   const iface = await _fetchInterfaceByName(client, interfaceName)
   if (!iface) {
     return
   }
-  await client.deleteInterface({ id: iface.id })
+  await _swallowErrors(client.deleteInterface({ id: iface.id }))
 }
 
 const _deletePluginIfExists = async (client: Client, pluginName: string): Promise<void> => {
+  console.debug(`Deleting plugin: ${pluginName}`)
   const plugin = await _fetchPluginByName(client, pluginName)
   if (!plugin) {
     return
   }
-  await client.deletePlugin({ id: plugin.id })
+  await _swallowErrors(client.deletePlugin({ id: plugin.id }))
+}
+
+const _swallowErrors = async (promise: Promise<unknown>) => {
+  try {
+    await promise
+  } catch (thrown: unknown) {
+    // Swallow errors to allow cleanup to proceed:
+    console.warn('Error during cleanup:', thrown)
+  }
 }

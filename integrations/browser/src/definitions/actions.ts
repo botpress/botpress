@@ -1,16 +1,26 @@
 import { ActionDefinition, z } from '@botpress/sdk'
 
+const multiLineString = z.string().displayAs({ id: 'text', params: { multiLine: true, growVertically: true } })
+
 const captureScreenshot: ActionDefinition = {
   title: 'Capture Screenshot',
   description: 'Capture a screenshot of the specified page.',
   input: {
     schema: z.object({
       url: z.string(),
+      javascriptToInject: multiLineString
+        .optional()
+        .describe('JavaScript code to inject into the page before taking the screenshot'),
+      cssToInject: multiLineString.optional().describe('CSS code to inject into the page before taking the screenshot'),
+      width: z.number().default(1080),
+      height: z.number().default(1920),
+      fullPage: z.boolean().default(true),
     }),
   },
   output: {
     schema: z.object({
-      imageUrl: z.string(),
+      imageUrl: z.string().describe('URL to the captured screenshot'),
+      htmlUrl: z.string().optional().describe('URL to the HTML page of the screenshot'),
     }),
   },
   cacheable: true,
@@ -41,6 +51,11 @@ const browsePages: ActionDefinition = {
           'Time to wait before extracting the content (in milliseconds). Set this value higher for dynamic pages.'
         ),
       timeout: z.number().optional().default(30000).describe('Timeout for the request (in milliseconds)'),
+      maxAge: z
+        .number()
+        .optional()
+        .default(60 * 60 * 24 * 7)
+        .describe('Maximum age of the cached page content (in seconds)'),
     }),
   },
   output: {
