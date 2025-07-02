@@ -3,13 +3,19 @@ import * as sdk from '@botpress/sdk'
 export const actions = {
   startDmConversation: {
     title: 'Start DM Conversation',
-    description: 'Initiate a conversation with a user in a DM',
+    description: 'Initiate a conversation with a user in a DM by email or user ID.',
     input: {
       schema: sdk.z.object({
         teamsUserId: sdk.z
           .string()
           .title('Teams User ID')
-          .describe('The ID of any Teams user from tenant to initiate the conversation with, eg: "29:2d5f3..."'),
+          .describe('The ID of any Teams user from tenant to initiate the conversation with, eg: "29:2d5f3..."')
+          .optional(),
+        teamsUserEmail: sdk.z
+          .string()
+          .title('Teams User Email')
+          .describe('The Email of any Teams user from tenant to initiate the conversation with')
+          .optional(),
         conversationId: sdk.z
           .string()
           .title('Botpress Conversation ID')
