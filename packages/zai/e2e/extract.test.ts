@@ -96,7 +96,67 @@ describe('zai.extract', () => {
     `)
   })
 
-  it('extract an object from a long text (multi-chunks)', async () => {
+  it('extract age', async () => {
+    const age = await zai.extract(
+      `Countries are Canada, Russia and Pakistan. My favorite colors are red, green, and blue. Dog, cat, fish. I am thirty years old. I was born in 1990.`,
+      z.number().describe('Age of the person')
+    )
+
+    expect(age).toMatchInlineSnapshot(`30`)
+  })
+
+  it('extract an array of string', async () => {
+    const colors = await zai.extract(
+      `Countries are Canada, Russia and Pakistan. My favorite colors are red, green, and blue. Dog, cat, fish.`,
+      z.array(z.string().describe('Color'))
+    )
+
+    expect(colors).toMatchInlineSnapshot(`
+      [
+        "red",
+        "green",
+        "blue",
+      ]
+    `)
+  })
+
+  it('extract a fragmented object from a long text (multi-chunks)', async () => {
+    const TOKEN = 'TOKEN '
+    let text = `Name: John Doe
+\n${TOKEN.repeat(500)}
+Age: 30
+\n${TOKEN.repeat(500)}
+Address: 123 Main St, Anytown, USA
+\n${TOKEN.repeat(500)}
+Phone: (123) 456-7890`
+
+    let reqs = 0
+
+    cognitive.on('response', () => reqs++)
+
+    const person = await zai.extract(
+      text,
+      z.object({
+        name: z.string().describe('The name of the person'),
+        age: z.number().describe('The age of the person'),
+        address: z.string().describe('The address of the person'),
+        phone: z.string().describe('The phone number of the person'),
+      }),
+      { chunkLength: 250, strict: true }
+    )
+
+    expect(reqs).toBeGreaterThan(5)
+    expect(person).toMatchInlineSnapshot(`
+      {
+        "address": "123 Main St, Anytown, USA",
+        "age": 30,
+        "name": "John Doe",
+        "phone": "(123) 456-7890",
+      }
+    `)
+  })
+
+  it('extract an object of array from a long text (multi-chunks)', async () => {
     const TOKEN = 'TOKEN '
     let text = `Feature 1: Tables
 \n${TOKEN.repeat(500)}
