@@ -32,10 +32,10 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
   const { teamsUserEmail } = input
   let { teamsUserId } = input
 
-  if(!teamsUserId?.length && !teamsUserEmail?.length) {
+  if (!teamsUserId?.length && !teamsUserEmail?.length) {
     throw new RuntimeError(
-      `You must provide either a valid Teams user Id or email to start a DM conversation. ` +
-      `Received: teamsUserId="${teamsUserId}", teamsUserEmail="${teamsUserEmail}"`
+      'You must provide either a valid Teams user Id or email to start a DM conversation. ' +
+        `Received: teamsUserId="${teamsUserId}", teamsUserEmail="${teamsUserEmail}"`
     )
   }
 
@@ -50,7 +50,7 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
       const err = getError(thrown)
       throw new RuntimeError(
         `Could not look-up Teams user with email "${teamsUserEmail}" ` +
-        `(bot must be installed where that user is reachable) → ${err.message}`
+          `(bot must be installed where that user is reachable) → ${err.message}`
       )
     }
   }
