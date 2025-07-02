@@ -2,8 +2,9 @@ import axios from 'axios'
 import crypto from 'crypto'
 import OAuth from 'oauth-1.0a'
 import * as bp from '.botpress'
+import { StockItemSchema } from '../misc/zod-schemas'
 
-export const getStockItem: bp.IntegrationProps['actions']['getStockItem'] = async ({ ctx, input }) => {
+export const getStockItem: bp.IntegrationProps['actions']['getStockItem'] = async ({ ctx, input, logger }) => {
   const { magento_domain, consumer_key, consumer_secret, access_token, access_token_secret, user_agent } =
     ctx.configuration
 
@@ -42,25 +43,18 @@ export const getStockItem: bp.IntegrationProps['actions']['getStockItem'] = asyn
     },
   }
 
+  logger.forBot().info(`Magento stock item URL: ${config.url}`)
+
   try {
     const response = await axios(config)
-    const stockData = response.data
-    
-    if (stockData.qty === undefined || stockData.qty === null) {
+    try {
+      const stockData = StockItemSchema.parse(response.data)
       return {
-        error: 'No quantity field found in stock data',
+        qty: stockData.qty,
+        is_in_stock: stockData.is_in_stock,
       }
-    }
-
-    if (stockData.is_in_stock === undefined || stockData.is_in_stock === null) {
-      return {
-        error: 'No is_in_stock field found in stock data',
-      }
-    }
-    
-    return {
-      qty: stockData.qty,
-      is_in_stock: stockData.is_in_stock,
+    } catch (err) {
+      return { error: 'Invalid stock item response', details: err instanceof Error ? err.message : err }
     }
   } catch (error) {
     console.error(error)

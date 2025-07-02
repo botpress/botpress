@@ -14,6 +14,7 @@ export default new IntegrationDefinition({
       access_token: z.string().describe('The OAuth Access Token'),
       access_token_secret: z.string().describe('The OAuth Access Token Secret'),
       user_agent: z.string().optional().describe('The User Agent to use for the request'),
+      botpress_pat: z.string().describe('Botpress Personal Access Token (PAT) for Tables API access'),
     }),
   },
   actions: {
@@ -48,6 +49,26 @@ export default new IntegrationDefinition({
           qty: z.number().optional().describe('The quantity in stock'),
           is_in_stock: z.boolean().optional().describe('Whether the item is in stock'),
           error: z.string().optional().describe('Error message if request failed'),
+        }),
+      },
+    },
+    syncProducts: {
+      title: 'Sync Products to Botpress Table',
+      description: 'Sync products from Magento to a Botpress table. Creates the table automatically if it doesn\'t exist with standard product columns.',
+      input: {
+        schema: z.object({
+          table_name: z.string().describe('Name of the Botpress table to sync products to (will be created automatically if it doesn\'t exist)'),
+          custom_attributes: z.string().optional().describe('Comma-separated list of custom product attributes to sync (e.g., "color,tent_outer_material,tent_type")'),
+          filters_json: z.string().optional().describe('JSON array of filter objects, e.g. [{"field": "price", "condition": "gt", "value": "100"}]'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          success: z.boolean().describe('Whether the sync was successful'),
+          synced_count: z.number().describe('Number of products synced'),
+          total_count: z.number().describe('Total number of products found'),
+          table_name: z.string().describe('Name of the table products were synced to'),
+          error: z.string().optional().describe('Error message if sync failed'),
         }),
       },
     },
