@@ -11,7 +11,14 @@ export default new sdk.BotDefinition({})
   })
   .addPlugin(pluginWithInterfaceDependency, {
     alias: 'plugin-alias',
-    configuration: {},
+    configuration: {
+      foo: 'bar',
+      item: {
+        id: 'foo',
+        name: 'Foo',
+        color: 'blue',
+      },
+    },
     interfaces: {
       'interface-alias': {
         id: integrationWithEntityDependency.id,
