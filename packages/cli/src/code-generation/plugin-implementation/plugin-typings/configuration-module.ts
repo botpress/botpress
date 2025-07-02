@@ -5,7 +5,7 @@ import { Module } from '../../module'
 import * as strings from '../../strings'
 
 export class DefaultConfigurationModule extends Module {
-  public constructor(private _configuration: sdk.BotConfigurationDefinition | undefined) {
+  public constructor(private _configuration: sdk.PluginDefinition['configuration']) {
     const name = 'configuration'
     const exportName = strings.typeName(name)
     super({

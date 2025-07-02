@@ -35,6 +35,7 @@ const getPageContent = async (props: {
   logger: IntegrationLogger
   waitFor?: number
   timeout?: number
+  maxAge?: number
 }): Promise<FullPage> => {
   const startTime = Date.now()
   const { data: result } = await axios.post<FireCrawlResponse>(
@@ -44,6 +45,7 @@ const getPageContent = async (props: {
       onlyMainContent: true,
       waitFor: props.waitFor,
       timeout: props.timeout,
+      maxAge: 60 * 60 * 24 * 7, // 1 week
     },
     {
       headers: {

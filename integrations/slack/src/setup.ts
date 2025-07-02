@@ -1,7 +1,7 @@
-import type * as bp from '.botpress'
 import * as sdk from '@botpress/client'
 import { isValidUrl } from './misc/utils'
 import { SlackClient } from './slack-api'
+import type * as bp from '.botpress'
 
 const REQUIRED_SLACK_SCOPES = [
   'channels:history',

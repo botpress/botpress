@@ -40,9 +40,6 @@ bot.on.message('*', async (props) => {
 
   const { conversation: upstreamConversation, user: upstreamUser } = props
 
-  const _randFrom = <TValueType extends unknown>(...values: TValueType[]): TValueType =>
-    values[Math.floor(Math.random() * values.length)]!
-
   if (props.message.type === 'text' && props.message.payload.text.trim() === '/start_hitl') {
     await props.client.updateUser({
       id: upstreamUser.id,
@@ -58,7 +55,6 @@ bot.on.message('*', async (props) => {
       input: {
         title: `Hitl request ${Date.now()}`,
         description: 'I have a problem',
-        hitlSession: { priority: _randFrom('low', 'high', 'urgent') },
         conversationId: upstreamConversation.id,
         userId: upstreamUser.id,
       },
