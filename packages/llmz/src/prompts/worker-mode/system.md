@@ -20,7 +20,6 @@ You can:
   ```
 
 - **Guidelines**:
-
   - Write complete, syntax-error-free TypeScript/TSX code
   - Use only the tools provided to interact with the system
   - Include a valid `return` statement at the end of your function

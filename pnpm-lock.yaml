@@ -1971,13 +1971,13 @@ importers:
         version: 11.9.3
       '@botpress/chat':
         specifier: 0.5.1
-        version: 0.5.1
+        version: link:../chat-client
       '@botpress/client':
         specifier: 1.16.1
-        version: 1.16.1
+        version: link:../client
       '@botpress/sdk':
         specifier: 4.14.0
-        version: 4.14.0(@bpinternal/zui@1.0.0)(esbuild@0.16.17)
+        version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
         version: 0.1.2
@@ -2086,10 +2086,10 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.16.1
-        version: 1.16.1
+        version: link:../../../client
       '@botpress/sdk':
         specifier: 4.14.0
-        version: 4.14.0(@bpinternal/zui@1.0.0)(esbuild@0.16.17)
+        version: link:../../../sdk
     devDependencies:
       '@types/node':
         specifier: ^18.19.67
@@ -2102,10 +2102,10 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.16.1
-        version: 1.16.1
+        version: link:../../../client
       '@botpress/sdk':
         specifier: 4.14.0
-        version: 4.14.0(@bpinternal/zui@1.0.0)(esbuild@0.16.17)
+        version: link:../../../sdk
     devDependencies:
       '@types/node':
         specifier: ^18.19.67
@@ -2118,7 +2118,7 @@ importers:
     dependencies:
       '@botpress/sdk':
         specifier: 4.14.0
-        version: 4.14.0(@bpinternal/zui@1.0.0)(esbuild@0.16.17)
+        version: link:../../../sdk
     devDependencies:
       '@types/node':
         specifier: ^18.19.67
@@ -2131,10 +2131,10 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.16.1
-        version: 1.16.1
+        version: link:../../../client
       '@botpress/sdk':
         specifier: 4.14.0
-        version: 4.14.0(@bpinternal/zui@1.0.0)(esbuild@0.16.17)
+        version: link:../../../sdk
     devDependencies:
       '@types/node':
         specifier: ^18.19.67
@@ -2147,10 +2147,10 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.16.1
-        version: 1.16.1
+        version: link:../../../client
       '@botpress/sdk':
         specifier: 4.14.0
-        version: 4.14.0(@bpinternal/zui@1.0.0)(esbuild@0.16.17)
+        version: link:../../../sdk
       axios:
         specifier: ^1.6.8
         version: 1.9.0
@@ -2285,10 +2285,10 @@ importers:
         version: 7.28.0
       '@botpress/client':
         specifier: 1.16.1
-        version: 1.16.1
+        version: link:../client
       '@botpress/cognitive':
         specifier: 0.1.28
-        version: 0.1.28
+        version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
         version: 1.0.5
@@ -2388,7 +2388,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.16.1
-        version: 1.16.1
+        version: link:../client
       '@bpinternal/zui':
         specifier: ^1.0.0
         version: 1.0.0
@@ -2419,7 +2419,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 1.16.1
-        version: 1.16.1
+        version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
         version: 1.0.5
@@ -2462,7 +2462,7 @@ importers:
     dependencies:
       '@botpress/cognitive':
         specifier: 0.1.28
-        version: 0.1.28
+        version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
         version: 1.0.5
@@ -3128,27 +3128,6 @@ packages:
 
   '@botpress/api@1.25.0':
     resolution: {integrity: sha512-wXJ+DfyYmB5qs3HVlf/auoMOz8L4QxkEVYALK00xBLXXNuuj3Miv3l7kGBUOIJ0WqVCtWpQrp6Qw0DU4pQEZNQ==}
-
-  '@botpress/chat@0.5.1':
-    resolution: {integrity: sha512-zmxWo1/i1E7yL1rS0smkE1cnrJ0yO4FvPnX/YFD0ICYS2hxbtPZDbz7VOMHN/EynSchqTN9qtJ5aVf/V1tTVOQ==}
-
-  '@botpress/client@1.16.1':
-    resolution: {integrity: sha512-amkqZKYAZRe7ocQearb6dNJgfrUWrLqUeb06g2KWoJfBCp+a71T7dE/Asleie0TRVqkogZn1Nv0dZ5PAZqcGKg==}
-    engines: {node: '>=18.0.0'}
-
-  '@botpress/cognitive@0.1.28':
-    resolution: {integrity: sha512-b8HMkjjUnsc1I7TTXvHqmU+CcM4ktMXzv/ESNm96CayhUeijLW5VF8oJyyk8Y+dcx2Icmp8H2lRvSV89oiukvg==}
-    engines: {node: '>=18.0.0'}
-
-  '@botpress/sdk@4.14.0':
-    resolution: {integrity: sha512-vzSZ8utJ/XULiHghuBKIYr9XSYjBglj50l3e9xEhdEiEtSU+zVfbIRQogZamlfsVA0DuLd0sLGV+jm72gCyPUw==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      '@bpinternal/zui': ^1.0.0
-      esbuild: ^0.16.12
-    peerDependenciesMeta:
-      esbuild:
-        optional: true
 
   '@bpinternal/const@0.1.2':
     resolution: {integrity: sha512-Eb56IQ2IWsygpdq1QymdoTFU8swWN5W4UQ1zY3cVOmuA2qRmYTC4U4RYtByiiXdQcw4OuqbRNZ1Oyx+WjOxX/g==}
@@ -9336,10 +9315,6 @@ packages:
     resolution: {integrity: sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w==}
     engines: {node: '>=10'}
 
-  type-fest@3.13.1:
-    resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
-    engines: {node: '>=14.16'}
-
   type-fest@4.41.0:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
@@ -10576,44 +10551,6 @@ snapshots:
       - debug
       - openapi-types
       - supports-color
-
-  '@botpress/chat@0.5.1':
-    dependencies:
-      axios: 1.2.5
-      browser-or-node: 2.1.1
-      event-source-polyfill: 1.0.31
-      eventsource: 2.0.2
-      jsonwebtoken: 9.0.2
-      qs: 6.14.0
-      type-fest: 3.13.1
-      verror: 1.10.1
-      zod: 3.25.71
-    transitivePeerDependencies:
-      - debug
-
-  '@botpress/client@1.16.1':
-    dependencies:
-      axios: 1.9.0
-      axios-retry: 4.5.0(axios@1.9.0)
-      browser-or-node: 2.1.1
-      qs: 6.14.0
-    transitivePeerDependencies:
-      - debug
-
-  '@botpress/cognitive@0.1.28':
-    dependencies:
-      exponential-backoff: 3.1.2
-      nanoevents: 9.1.0
-
-  '@botpress/sdk@4.14.0(@bpinternal/zui@1.0.0)(esbuild@0.16.17)':
-    dependencies:
-      '@botpress/client': 1.16.1
-      '@bpinternal/zui': 1.0.0
-      browser-or-node: 2.1.1
-    optionalDependencies:
-      esbuild: 0.16.17
-    transitivePeerDependencies:
-      - debug
 
   '@bpinternal/const@0.1.2': {}
 
@@ -17902,8 +17839,6 @@ snapshots:
   type-fest@0.20.2: {}
 
   type-fest@0.21.3: {}
-
-  type-fest@3.13.1: {}
 
   type-fest@4.41.0: {}
 

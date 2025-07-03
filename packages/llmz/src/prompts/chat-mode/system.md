@@ -21,7 +21,6 @@ You can:
   ```
 
 - **Guidelines**:
-
   - Write complete, syntax-error-free TypeScript/TSX code.
   - Use only the tools provided to interact with the system.
   - Interact with the user by `yield`ing messages.
