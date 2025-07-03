@@ -20,17 +20,12 @@ export const parseError = (
     const errorMessage = thrown.response.body.errors[0]?.message ?? thrown.message
 
     if (errorMessage === 'Permission denied, wrong credentials' || thrown.code === 401) {
-      const trimApiKey = ctx.configuration.apiKey.trim()
-      const isApiKeyEmpty = trimApiKey.length === 0
-
-      let cutoffPosition = trimApiKey.lastIndexOf('.')
-      if (cutoffPosition === -1 || cutoffPosition >= trimApiKey.length - 1) {
-        cutoffPosition = Math.max(0, trimApiKey.length / 2)
-      }
+      const apiKey = ctx.configuration.apiKey.trim()
+      const isApiKeyEmpty = apiKey.length === 0
 
       const errorMessage = isApiKeyEmpty
         ? 'No API key was sent to the SendGrid API'
-        : `An invalid API key was sent to the SendGrid API\n${trimApiKey.slice(0, cutoffPosition)}`
+        : `An invalid API key was sent to the SendGrid API\n${_maskApiKey(apiKey)}`
 
       return new RuntimeError(errorMessage, thrown)
     }
@@ -46,4 +41,14 @@ export const parseError = (
   }
 
   return thrown instanceof Error ? new RuntimeError(thrown.message, thrown) : new RuntimeError(String(thrown))
+}
+
+/** @param apiKey Expected to be trimmed of whitespace */
+const _maskApiKey = (apiKey: string) => {
+  let cutoffPosition = apiKey.lastIndexOf('.')
+  if (cutoffPosition === -1 || cutoffPosition >= apiKey.length - 1) {
+    cutoffPosition = Math.max(0, Math.floor(apiKey.length / 2))
+  }
+
+  return apiKey.slice(0, cutoffPosition)
 }
