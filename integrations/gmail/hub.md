@@ -111,7 +111,6 @@ To set up the Gmail integration manually, you must create a Google Cloud Platfor
 #### Generating a shared secret
 
 1. Generate an alphanumeric string to use as a shared secret for signing Pub/Sub push events. We recommend using a string with at least 32 characters. You can use tools like openssl or online password generators to create a secure string.
-
    - For example, you can generate a secure string using one the following commands:
 
      ```bash

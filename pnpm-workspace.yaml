@@ -1,3 +1,6 @@
+saveWorkspaceProtocol: false
+linkWorkspacePackages: true
+preferWorkspacePackages: true
 packages:
   - packages/*
   - packages/cli/templates/*

@@ -115,7 +115,7 @@ export const toolCallTrackingPlugin = (calls: Map<number, ToolCallEntry> = new M
           // ^
 
           if (declaration) {
-            lval = declaration.get('declarations')[0]?.get('id')!
+            lval = declaration.get('declarations')[0]?.get('id')! as BabelCore.NodePath<BabelCore.types.LVal>
           }
 
           if (assignment) {

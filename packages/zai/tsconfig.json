@@ -3,6 +3,8 @@
   "compilerOptions": {
     "outDir": "dist",
     "strict": false,
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "paths": {
       "@botpress/zai": ["./src/zai.ts"]
     }

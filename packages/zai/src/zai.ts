@@ -128,7 +128,7 @@ export class Zai {
         // there's an issue with wasm, it doesn't load immediately
         await new Promise((resolve) => setTimeout(resolve, 25))
       }
-      return getWasmTokenizer() as TextTokenizer
+      return getWasmTokenizer() as Promise<TextTokenizer>
     })()
     return Zai.tokenizer
   }

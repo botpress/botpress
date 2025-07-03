@@ -7,7 +7,6 @@ To use the ClickUp integration, you need to set up authentication and provide es
 ### Obtaining Your API Key and Team ID
 
 1. **Generate an API Key:**
-
    - Log in to your ClickUp account.
    - Go to your profile settings and select the **Apps** section.
    - Generate or retrieve your API key.

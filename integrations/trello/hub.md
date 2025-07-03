@@ -19,7 +19,6 @@ following:
 - Access to a Trello workspace.
 
 - API key generated from Trello.
-
   - To generate an API key, you will need to create an application on Trello.
     Follow the official instructions here: [Trello - API Introduction].
 
