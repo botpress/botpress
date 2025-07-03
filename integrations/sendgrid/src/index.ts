@@ -20,7 +20,7 @@ export default new bp.Integration({
         throw new Error(`The status code '${response.statusCode}' is not within the accepted bounds.`)
       }
     } catch (thrown: unknown) {
-      throw parseError(thrown, 'An invalid API key was provided')
+      throw parseError(ctx, thrown, 'An invalid API key was provided')
     }
   },
   unregister: async () => {},
