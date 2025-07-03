@@ -4,7 +4,7 @@ import { markdownToHtml } from '../misc/markdown-utils'
 import { parseError } from '../misc/utils'
 import * as bp from '.botpress'
 
-export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ input, logger }) => {
+export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ ctx, input, logger }) => {
   try {
     const [response] = await sgMail.send({
       personalizations: [
@@ -25,7 +25,7 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
 
     return {}
   } catch (thrown: unknown) {
-    const error = parseError(thrown)
+    const error = parseError(ctx, thrown)
     logger.forBot().error('Failed to send email', error)
     throw error
   }
