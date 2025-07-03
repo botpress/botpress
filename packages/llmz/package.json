@@ -85,5 +85,5 @@
       "optional": false
     }
   },
-  "packageManager": "pnpm@8.6.2"
+  "packageManager": "pnpm@10.12.4"
 }
