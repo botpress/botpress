@@ -19,7 +19,7 @@ export const parseError = (
 
     const errorMessage = thrown.response.body.errors[0]?.message ?? thrown.message
 
-    if (errorMessage === 'Permission denied, wrong credentials' || thrown.code === 401) {
+    if (thrown.code === 401) {
       const apiKey = ctx.configuration.apiKey.trim()
       const isApiKeyEmpty = apiKey.length === 0
 
