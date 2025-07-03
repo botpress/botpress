@@ -13,10 +13,10 @@ type FireCrawlResponse = {
       title?: string | string[] | null
       description?: string | string[] | null
       sourceURL: string
-      pageStatusCode: number
+      error: string | null
+      statusCode: number
     }
   }
-  returnCode: number
 }
 
 const COST_PER_PAGE = 0.0015
@@ -34,6 +34,8 @@ const getPageContent = async (props: {
   url: string
   logger: IntegrationLogger
   waitFor?: number
+  timeout?: number
+  maxAge?: number
 }): Promise<FullPage> => {
   const startTime = Date.now()
   const { data: result } = await axios.post<FireCrawlResponse>(
@@ -42,6 +44,8 @@ const getPageContent = async (props: {
       url: props.url,
       onlyMainContent: true,
       waitFor: props.waitFor,
+      timeout: props.timeout,
+      maxAge: 60 * 60 * 24 * 7, // 1 week
     },
     {
       headers: {
@@ -50,9 +54,13 @@ const getPageContent = async (props: {
     }
   )
 
-  props.logger.forBot().info(`Browsing ${props.url} took ${Date.now() - startTime}ms`)
-
   const { metadata, markdown } = result.data
+
+  props.logger.forBot().info(`Browsing ${props.url} took ${Date.now() - startTime}ms`, {
+    size: markdown.length,
+    statusCode: metadata.statusCode,
+    error: metadata.error,
+  })
 
   return {
     url: props.url,
@@ -68,7 +76,7 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
 
   try {
     const pageContentPromises = await Promise.allSettled(
-      input.urls.map((url) => getPageContent({ url, logger, waitFor: input.waitFor }))
+      input.urls.map((url) => getPageContent({ url, logger, waitFor: input.waitFor, timeout: input.timeout }))
     )
 
     const results = pageContentPromises
@@ -86,6 +94,6 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
     logger.forBot().error('There was an error while browsing the page.', err)
     throw err
   } finally {
-    logger.forBot().info(`Browsing took ${Date.now() - startTime}ms`)
+    logger.forBot().info(`Browsing ${input.urls.length} urls took ${Date.now() - startTime}ms`)
   }
 }

@@ -1,7 +1,7 @@
 import {
   StateDefinition as BotStateDefinition,
   EventDefinition as BotEventDefinition,
-  ConfigurationDefinition,
+  ConfigurationDefinition as BotConfigurationDefinition,
   UserDefinition,
   ConversationDefinition,
   MessageDefinition,
@@ -14,7 +14,6 @@ import * as typeUtils from '../utils/type-utils'
 import { ZuiObjectSchema, ZuiObjectOrRefSchema, z } from '../zui'
 
 export {
-  ConfigurationDefinition,
   UserDefinition,
   ConversationDefinition,
   MessageDefinition,
@@ -22,7 +21,7 @@ export {
   WorkflowDefinition,
 } from '../bot/definition'
 
-type BaseConfig = ZuiObjectSchema
+type BaseConfig = ZuiObjectOrRefSchema
 type BaseStates = Record<string, ZuiObjectOrRefSchema>
 type BaseEvents = Record<string, ZuiObjectOrRefSchema>
 type BaseActions = Record<string, ZuiObjectOrRefSchema>
@@ -35,6 +34,13 @@ export type TableDefinition<TTable extends BaseTables[string] = BaseTables[strin
   BotTableDefinition,
   {
     schema: TTable
+  }
+>
+
+export type ConfigurationDefinition<TConfig extends BaseConfig = BaseConfig> = typeUtils.Merge<
+  BotConfigurationDefinition,
+  {
+    schema: TConfig
   }
 >
 
@@ -135,7 +141,7 @@ export type PluginDefinitionProps<
   states?: {
     [K in keyof TStates]: GenericDefinition<TInterfaces, StateDefinition<TStates[K]>>
   }
-  configuration?: ConfigurationDefinition<TConfig>
+  configuration?: GenericDefinition<TInterfaces, ConfigurationDefinition<TConfig>>
   events?: {
     [K in keyof TEvents]: GenericDefinition<TInterfaces, EventDefinition<TEvents[K]>>
   }
@@ -187,7 +193,7 @@ export class PluginDefinition<
   public readonly states: {
     [K in keyof TStates]: StateDefinition<TStates[K]>
   }
-  public readonly configuration: this['props']['configuration']
+  public readonly configuration?: ConfigurationDefinition<TConfig>
   public readonly events: {
     [K in keyof TEvents]: EventDefinition<TEvents[K]>
   }
@@ -245,7 +251,16 @@ export class PluginDefinition<
     this.recurringEvents = props.recurringEvents
     this.workflows = props.workflows
     this.attributes = props.attributes
+
     this.configuration = props.configuration
+      ? {
+          ...props.configuration,
+          schema:
+            typeof props.configuration.schema === 'object'
+              ? props.configuration.schema
+              : props.configuration.schema({ entities }),
+        }
+      : undefined
 
     this.states = Object.fromEntries(
       Object.entries(props.states ?? {}).map(
@@ -328,6 +343,12 @@ export class PluginDefinition<
 
     return {
       ...this,
+      configuration: this.configuration
+        ? {
+            ...this.configuration,
+            schema: this._dereferenceZuiSchema(this.configuration.schema, zuiReferenceMap),
+          }
+        : undefined,
       events: this._dereferenceDefinitionSchemas(this.events, zuiReferenceMap),
       states: this._dereferenceDefinitionSchemas(this.states, zuiReferenceMap),
       tables: this._dereferenceDefinitionSchemas(this.tables, zuiReferenceMap),

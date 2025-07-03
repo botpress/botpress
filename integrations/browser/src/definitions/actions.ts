@@ -1,16 +1,26 @@
 import { ActionDefinition, z } from '@botpress/sdk'
 
+const multiLineString = z.string().displayAs({ id: 'text', params: { multiLine: true, growVertically: true } })
+
 const captureScreenshot: ActionDefinition = {
   title: 'Capture Screenshot',
   description: 'Capture a screenshot of the specified page.',
   input: {
     schema: z.object({
       url: z.string(),
+      javascriptToInject: multiLineString
+        .optional()
+        .describe('JavaScript code to inject into the page before taking the screenshot'),
+      cssToInject: multiLineString.optional().describe('CSS code to inject into the page before taking the screenshot'),
+      width: z.number().default(1080),
+      height: z.number().default(1920),
+      fullPage: z.boolean().default(true),
     }),
   },
   output: {
     schema: z.object({
-      imageUrl: z.string(),
+      imageUrl: z.string().describe('URL to the captured screenshot'),
+      htmlUrl: z.string().optional().describe('URL to the HTML page of the screenshot'),
     }),
   },
   cacheable: true,
@@ -27,6 +37,28 @@ const fullPage = z.object({
 
 export type FullPage = z.infer<typeof fullPage>
 
+const getWebsiteLogo: ActionDefinition = {
+  title: 'Get Website Logo',
+  description: 'Get the logo of the specified website.',
+  input: {
+    schema: z.object({
+      domain: z.string().describe('The domain of the website to get the logo from (eg. "example.com")'),
+      greyscale: z.boolean().default(false).describe('Whether to return the logo in grayscale (black & white)'),
+      size: z
+        .enum(['64', '128', '256', '512'])
+        .default('128')
+        .describe('Size of the logo to return (64, 128 or 256, 512 pixels)'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      logoUrl: z.string().describe('URL to the website logo'),
+    }),
+  },
+  cacheable: false,
+  billable: true,
+}
+
 const browsePages: ActionDefinition = {
   title: 'Browse Pages',
   description: 'Extract the full content & the metadata of the specified pages as markdown.',
@@ -40,6 +72,12 @@ const browsePages: ActionDefinition = {
         .describe(
           'Time to wait before extracting the content (in milliseconds). Set this value higher for dynamic pages.'
         ),
+      timeout: z.number().optional().default(30000).describe('Timeout for the request (in milliseconds)'),
+      maxAge: z
+        .number()
+        .optional()
+        .default(60 * 60 * 24 * 7)
+        .describe('Maximum age of the cached page content (in seconds)'),
     }),
   },
   output: {
@@ -162,4 +200,5 @@ export const actionDefinitions = {
   browsePages,
   webSearch,
   discoverUrls,
+  getWebsiteLogo,
 } satisfies Record<string, ActionDefinition>

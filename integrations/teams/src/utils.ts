@@ -32,3 +32,7 @@ export const sleep = (ms: number) => {
     setTimeout(() => resolve(undefined), ms)
   })
 }
+
+export const getError = (thrown: unknown) => {
+  return thrown instanceof Error ? thrown : new Error(String(thrown))
+}

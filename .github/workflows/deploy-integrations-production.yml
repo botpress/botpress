@@ -24,7 +24,6 @@ jobs:
         uses: ./.github/actions/deploy-interfaces
         with:
           environment: 'production'
-          extra_filter: "-F '!@botpresshub/hitl'"
           force: ${{ github.event.inputs.force == 'true' }}
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
@@ -32,7 +31,7 @@ jobs:
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'production'
-          extra_filter: "-F '!intercom' -F '!notion' -F '!sendgrid' -F '!resend' -F '!zendesk' -F '!freshchat'"
+          extra_filter: "-F '!intercom' -F '!notion' -F '!sendgrid' -F '!resend'"
           force: ${{ github.event.inputs.force == 'true' }}
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
@@ -41,7 +40,7 @@ jobs:
         uses: ./.github/actions/deploy-plugins
         with:
           environment: 'production'
-          extra_filter: "-F '!analytics' -F '!logger' -F '!personality' -F '!synchronizer' -F '!knowledge' -F '!@botpresshub/hitl-plugin"
+          extra_filter: "-F '!analytics' -F '!logger' -F '!personality' -F '!synchronizer' -F '!knowledge'"
           force: ${{ github.event.inputs.force == 'true' }}
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}

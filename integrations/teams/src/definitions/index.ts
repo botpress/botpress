@@ -1,6 +1,7 @@
 import { z, IntegrationDefinitionProps, messages } from '@botpress/sdk'
 
 export { states } from './states'
+export { actions } from './actions'
 
 export const configuration = {
   schema: z.object({

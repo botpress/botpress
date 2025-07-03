@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/client'
 import { isValidUrl } from './misc/utils'
 import { SlackClient } from './slack-api'
-import * as bp from '.botpress'
+import type * as bp from '.botpress'
 
 const REQUIRED_SLACK_SCOPES = [
   'channels:history',
@@ -22,6 +22,7 @@ const REQUIRED_SLACK_SCOPES = [
   'team:read',
   'users.profile:read',
   'users:read',
+  'users:read.email',
 ]
 
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {

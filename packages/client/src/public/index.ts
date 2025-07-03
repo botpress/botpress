@@ -130,6 +130,10 @@ export class Client extends gen.Client implements IClient {
         new common.listing.AsyncCollection(({ nextToken }) =>
           this.listUsageActivityDaily({ nextToken, ...props }).then((r) => ({ ...r, items: r.data }))
         ),
+      workflows: (props: ListInputs['listWorkflows']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listWorkflows({ nextToken, ...props }).then((r) => ({ ...r, items: r.workflows }))
+        ),
     }
   }
 

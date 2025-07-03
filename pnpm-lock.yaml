@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.24.0
-        version: 1.24.0(openapi-types@12.1.3)
+        specifier: 1.25.0
+        version: 1.25.0(openapi-types@12.1.3)
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -793,9 +793,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      '@google/generative-ai':
-        specifier: ^0.21.0
-        version: 0.21.0
+      '@google/genai':
+        specifier: ^1.7.0
+        version: 1.7.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1979,10 +1979,10 @@ importers:
         specifier: 0.5.1
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.15.3
+        specifier: 1.16.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.11.1
+        specifier: 4.14.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2091,10 +2091,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.15.3
+        specifier: 1.16.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.11.1
+        specifier: 4.14.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2107,10 +2107,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.15.3
+        specifier: 1.16.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.11.1
+        specifier: 4.14.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2123,7 +2123,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.11.1
+        specifier: 4.14.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2136,10 +2136,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.15.3
+        specifier: 1.16.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.11.1
+        specifier: 4.14.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2152,10 +2152,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.15.3
+        specifier: 1.16.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.11.1
+        specifier: 4.14.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2290,10 +2290,10 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.15.3
+        specifier: 1.16.1
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.1.25
+        specifier: 0.1.28
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2393,7 +2393,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.15.3
+        specifier: 1.16.1
         version: link:../client
       '@bpinternal/zui':
         specifier: ^1.0.0
@@ -2424,7 +2424,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.15.3
+        specifier: 1.16.1
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2467,7 +2467,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.25
+        specifier: 0.1.28
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -3876,7 +3876,7 @@ packages:
     resolution: {integrity: sha512-RJlIHRueQgwWitWgF8OdFYGZX328Ax5BCemNGlqHfplnRT9ESi8JkFlvaVYbS+UubVY6dpv87Fs2u5M29iNFVQ==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/helper-validator-identifier': 7.25.9
+      '@babel/helper-validator-identifier': 7.27.1
       js-tokens: 4.0.0
       picocolors: 1.1.1
 
@@ -4041,7 +4041,7 @@ packages:
     dependencies:
       '@babel/core': 7.26.9
       '@babel/helper-module-imports': 7.25.9
-      '@babel/helper-validator-identifier': 7.25.9
+      '@babel/helper-validator-identifier': 7.27.1
       '@babel/traverse': 7.26.9
     transitivePeerDependencies:
       - supports-color
@@ -4363,7 +4363,7 @@ packages:
     resolution: {integrity: sha512-qyRplbeIpNZhmzOysF/wFMuP9sctmh2cFzRAZOn1YapxBsE1i9bJIY586R/WBLfLcmcBlM8ROBiQURnnNy+zfA==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/code-frame': 7.26.2
+      '@babel/code-frame': 7.27.1
       '@babel/parser': 7.26.9
       '@babel/types': 7.26.9
 
@@ -4430,8 +4430,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@1.24.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-EzFK/w13GCyj42a7HmgtsaPySHU20KdCMuNCMaMQpkjKPvYPODuLXonfU46x9k4M7GWsaMdIVUJKzNHyuvFPKw==}
+  /@botpress/api@1.25.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-wXJ+DfyYmB5qs3HVlf/auoMOz8L4QxkEVYALK00xBLXXNuuj3Miv3l7kGBUOIJ0WqVCtWpQrp6Qw0DU4pQEZNQ==}
     dependencies:
       '@bpinternal/opapi': 0.14.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -5516,9 +5516,24 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
-  /@google/generative-ai@0.21.0:
-    resolution: {integrity: sha512-7XhUbtnlkSEZK15kN3t+tzIMxsbKm/dSkKBFalj+20NvPKe1kBY7mR2P7vuijEn+f06z5+A8bVGKO0v39cr6Wg==}
-    engines: {node: '>=18.0.0'}
+  /@google/genai@1.7.0:
+    resolution: {integrity: sha512-s/OZLkrIfBwc+SFFaZoKdEogkw4in0YRTGc4Q483jnfchNBWzrNe560eZEfGJHQRPn6YfzJgECCx0sqEOMWvYw==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.11.0
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
+    dependencies:
+      google-auth-library: 9.15.1
+      ws: 8.18.2
+      zod: 3.24.2
+      zod-to-json-schema: 3.24.6(zod@3.24.2)
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
     dev: false
 
   /@graphql-typed-document-node/core@3.2.0(graphql@15.8.0):
@@ -11932,11 +11947,12 @@ packages:
       - supports-color
     dev: false
 
-  /gcp-metadata@6.0.0:
-    resolution: {integrity: sha512-Ozxyi23/1Ar51wjUT2RDklK+3HxqDr8TLBNK8rBBFQ7T85iIGnXnVusauj06QyqCXRFZig8LZC+TUddWbndlpQ==}
+  /gcp-metadata@6.1.1:
+    resolution: {integrity: sha512-a4tiq7E0/5fTjxPAaH4jpjkSv/uCaU2p5KC6HVGrvl0cDjA8iBZv4vv1gyzlmK0ZUKqwpOyQMKzZQe3lTit77A==}
     engines: {node: '>=14'}
     dependencies:
       gaxios: 6.1.1
+      google-logging-utils: 0.0.2
       json-bigint: 1.0.0
     transitivePeerDependencies:
       - encoding
@@ -12191,13 +12207,33 @@ packages:
       base64-js: 1.5.1
       ecdsa-sig-formatter: 1.0.11
       gaxios: 6.1.1
-      gcp-metadata: 6.0.0
+      gcp-metadata: 6.1.1
       gtoken: 7.0.1
       jws: 4.0.0
       lru-cache: 6.0.0
     transitivePeerDependencies:
       - encoding
       - supports-color
+    dev: false
+
+  /google-auth-library@9.15.1:
+    resolution: {integrity: sha512-Jb6Z0+nvECVz+2lzSMt9u98UsoakXxA2HGHMCxh+so3n90XgYWkq5dur19JAJV7ONiJY22yBTyJB1TSkvPq9Ng==}
+    engines: {node: '>=14'}
+    dependencies:
+      base64-js: 1.5.1
+      ecdsa-sig-formatter: 1.0.11
+      gaxios: 6.1.1
+      gcp-metadata: 6.1.1
+      gtoken: 7.0.1
+      jws: 4.0.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
+  /google-logging-utils@0.0.2:
+    resolution: {integrity: sha512-NEgUnEcBiP5HrPzufUkBzJOD/Sxsco3rLNo1F1TNf7ieU8ryUzBhqba8r756CjLX7rn3fHl6iLEwPYuqpoKgQQ==}
+    engines: {node: '>=14'}
     dev: false
 
   /google-p12-pem@4.0.1:
@@ -12229,7 +12265,7 @@ packages:
     dependencies:
       extend: 3.0.2
       gaxios: 6.1.1
-      google-auth-library: 9.0.0
+      google-auth-library: 9.15.1
       qs: 6.13.0
       url-template: 2.0.8
       uuid: 9.0.1
@@ -17759,6 +17795,19 @@ packages:
         optional: true
     dev: false
 
+  /ws@8.18.2:
+    resolution: {integrity: sha512-DMricUmwGZUVr++AEAe2uiVM7UoO9MAVZMDu05UQOaUII0lp+zOzLLU4Xqh/JvTqklB1T4uELaaPBKyjE1r4fQ==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+    dev: false
+
   /xml2js@0.5.0:
     resolution: {integrity: sha512-drPFnkQJik/O+uPKpqSgr22mpuFHqKdbS835iAQrUC73L2F5WkboIRd63ai/2Yg6I1jzifPFKH2NTK+cfglkIA==}
     engines: {node: '>=4.0.0'}
@@ -17851,6 +17900,14 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  /zod-to-json-schema@3.24.6(zod@3.24.2):
+    resolution: {integrity: sha512-h/z3PKvcTcTetyjl1fkj79MHNEjm+HpD6NXheWjzOekY7kV+lwDYnHw+ivHkijnCSMz1yJaWBD9vu/Fcmk+vEg==}
+    peerDependencies:
+      zod: ^3.24.1
+    dependencies:
+      zod: 3.24.2
+    dev: false
 
   /zod@1.11.17:
     resolution: {integrity: sha512-UzIwO92D0dSFwIRyyqAfRXICITLjF0IP8tRbEK/un7adirMssWZx8xF/1hZNE7t61knWZ+lhEuUvxlu2MO8qqA==}

@@ -5,7 +5,7 @@ import { PRODUCT_TABLE_SCHEMA, PRODUCTS_TABLE_NAME as PRODUCT_TABLE } from './sc
 import * as bp from '.botpress'
 
 // this client is necessary for table operations
-const getBotpressVanillaClient = (botClient: bp.Client): Client => (botClient as any)._client as Client
+const getVanillaClient = (client: bp.Client): Client => client._inner
 export type BigCommerceProductImage = {
   is_thumbnail: boolean
   url_standard: string
@@ -318,7 +318,7 @@ export default new bp.Integration({
   register: async ({ client, ctx, logger }) => {
     try {
       logger.forBot().info('Registering BigCommerce integration')
-      const botpressVanillaClient = getBotpressVanillaClient(client)
+      const botpressVanillaClient = getVanillaClient(client)
 
       await botpressVanillaClient.getOrCreateTable({
         table: PRODUCT_TABLE,
@@ -365,7 +365,7 @@ export default new bp.Integration({
 
       const webhookData = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
 
-      const botpressVanillaClient = getBotpressVanillaClient(client)
+      const botpressVanillaClient = getVanillaClient(client)
       const tableName = PRODUCT_TABLE
       const bigCommerceClient = getBigCommerceClient(ctx.configuration)
 
