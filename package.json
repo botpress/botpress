@@ -9,7 +9,7 @@
     "check:dep": "depsynky check --ignore-dev",
     "check:sherif": "sherif -i zod -i axios -i query-string -i googleapis",
     "check:format": "prettier --check .",
-    "check:eslint": "eslint ./",
+    "check:eslint": "eslint ./ --max-warnings=0",
     "check:oxlint": "oxlint -c .oxlintrc.json",
     "check:lint": "pnpm check:bplint && pnpm check:oxlint && pnpm check:eslint",
     "check:type": "turbo check:type",

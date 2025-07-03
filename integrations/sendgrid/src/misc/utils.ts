@@ -1,38 +1,21 @@
 import { RuntimeError } from '@botpress/sdk'
 import { ResponseError } from '@sendgrid/helpers/classes'
 import { SendGridResponseError } from './custom-types'
+import type * as bp from '.botpress'
 
-/** A helper function that allows me to check if an unknown value
- *  is a non-null object that contains the specified property.
- *
- *  @remark This exists since `Object.prototype.hasOwnProperty` doesn't
- *   smart cast the value into an object type containing the property. */
-const isNonNullObjectAndHasProperty = <K extends PropertyKey>(
-  value: unknown,
-  property: K
-): value is object & Record<K, unknown> => typeof value === 'object' && value?.hasOwnProperty(property) === true
+const UNAUTHORIZED = 401 as const
 
 export const isSendGridError = (thrown: unknown): thrown is SendGridResponseError => {
-  return (
-    isNonNullObjectAndHasProperty(thrown, 'response') &&
-    isNonNullObjectAndHasProperty(thrown.response, 'body') &&
-    isNonNullObjectAndHasProperty(thrown.response.body, 'errors') &&
-    'code' in thrown &&
-    thrown instanceof ResponseError
-  )
+  return thrown instanceof ResponseError && typeof thrown.response.body === 'object' && 'errors' in thrown.response.body
 }
 
-export const parseError = (thrown: unknown, sendGridErrorMessageOverride: string | null = null) => {
+export const parseError = (
+  ctx: bp.HandlerProps['ctx'],
+  thrown: unknown,
+  sendGridErrorMessageOverride: string | null = null
+) => {
   if (isSendGridError(thrown)) {
-    if (!sendGridErrorMessageOverride) {
-      const errorMessage = thrown.response.body.errors[0]?.message ?? thrown.message
-      return new RuntimeError(
-        `SendGrid API yielded an error with status code: "${thrown.code}", and message: "${errorMessage}"`,
-        thrown
-      )
-    } else {
-      return new RuntimeError(sendGridErrorMessageOverride, thrown)
-    }
+    return _parseSendGridError(ctx, thrown, sendGridErrorMessageOverride)
   }
 
   if (thrown instanceof RuntimeError) {
@@ -40,4 +23,42 @@ export const parseError = (thrown: unknown, sendGridErrorMessageOverride: string
   }
 
   return thrown instanceof Error ? new RuntimeError(thrown.message, thrown) : new RuntimeError(String(thrown))
+}
+
+const _parseSendGridError = (
+  ctx: bp.HandlerProps['ctx'],
+  error: SendGridResponseError,
+  sendGridErrorMessageOverride: string | null = null
+) => {
+  if (sendGridErrorMessageOverride) {
+    return new RuntimeError(sendGridErrorMessageOverride, error)
+  }
+
+  const errorMessage = error.response.body.errors[0]?.message ?? error.message
+
+  if (error.code === UNAUTHORIZED) {
+    const apiKey = ctx.configuration.apiKey.trim()
+    const isApiKeyEmpty = apiKey.length === 0
+
+    const errorMessage = isApiKeyEmpty
+      ? 'No API key was sent to the SendGrid API'
+      : `An invalid API key was sent to the SendGrid API\n${_maskApiKey(apiKey)}`
+
+    return new RuntimeError(errorMessage, error)
+  }
+
+  return new RuntimeError(
+    `SendGrid API yielded an error with status code: "${error.code}", and message: "${errorMessage}"`,
+    error
+  )
+}
+
+/** @param apiKey Expected to be trimmed of whitespace */
+const _maskApiKey = (apiKey: string) => {
+  let cutoffPosition = apiKey.lastIndexOf('.')
+  if (cutoffPosition === -1 || cutoffPosition >= apiKey.length - 1) {
+    cutoffPosition = Math.max(0, Math.floor(apiKey.length / 2))
+  }
+
+  return apiKey.slice(0, cutoffPosition)
 }

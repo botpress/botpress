@@ -115,9 +115,7 @@ const _createDownstreamConversation = async (
 ): Promise<string> => {
   // Call startHitl in the hitl integration (zendesk, etc.):
   const { conversationId: downstreamConversationId } = await props.actions.hitl.startHitl({
-    title: input.title,
-    description: input.description,
-    hitlSession: input.hitlSession,
+    ...input, // the Studio might pass additional fields here, so we spread the input to ensure everything is forwarded to the integration
     userId: downstreamUserId,
     messageHistory,
   })

@@ -10,8 +10,8 @@ export const DEFAULT_INTEGRATIONS = ['google-ai', 'anthropic', 'openai', 'cerebr
 
 // Biases for vendors and models
 const VendorPreferences = ['google-ai', 'anthropic', 'openai']
-const BestModelPreferences = ['4o', '3-5-sonnet', 'gemini-1.5-pro']
-const FastModelPreferences = ['gemini-1.5-flash', '4o-mini', 'flash', 'haiku']
+const BestModelPreferences = ['4.1', '4o', '3-5-sonnet', 'gemini-1.5-pro']
+const FastModelPreferences = ['gemini-1.5-flash', '4.1-mini', '4.1-nano', '4o-mini', 'flash', 'haiku']
 
 const InputPricePenalty = 3 // $3 per 1M tokens
 const OutputPricePenalty = 10 // $10 per 1M tokens

@@ -43,6 +43,10 @@ export type Response = {
 export type CognitiveProps = {
   client: BotpressClientLike
   provider?: ModelProvider
+  /** Timeout in milliseconds */
+  timeout?: number
+  /** Max retry attempts */
+  maxRetries?: number
 }
 
 export type Events = {

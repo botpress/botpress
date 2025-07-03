@@ -1,4 +1,5 @@
 import { Client } from '@botpress/client'
+import { Cognitive } from '@botpress/cognitive'
 import { type TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -21,8 +22,8 @@ export const getCachedClient = () => {
   return getCachedCognitiveClient()
 }
 
-export const getZai = () => {
-  const client = getCachedClient()
+export const getZai = (cognitive?: Cognitive) => {
+  const client = cognitive || getCachedClient()
   return new Zai({ client })
 }
 

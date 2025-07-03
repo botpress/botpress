@@ -1,5 +1,5 @@
-import type * as bp from '.botpress'
 import type { FunctionExecutedEvent } from '@slack/types'
+import type * as bp from '.botpress'
 
 export const handleEvent = async ({
   slackEvent,

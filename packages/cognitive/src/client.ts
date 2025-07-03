@@ -30,6 +30,8 @@ export class Cognitive {
     response: new InterceptorManager<Response>(),
   }
 
+  private _timeoutMs: number = 5 * 60 * 1000 // Default timeout of 5 minutes
+  private _maxRetries: number = 5 // Default max retries
   private _client: ExtendedClient
   private _preferences: ModelPreferences | null = null
   private _provider: ModelProvider
@@ -40,6 +42,8 @@ export class Cognitive {
   public constructor(props: CognitiveProps) {
     this._client = getExtendedClient(props.client)
     this._provider = props.provider ?? new RemoteModelProvider(props.client)
+    this._timeoutMs = props.timeout ?? this._timeoutMs
+    this._maxRetries = props.maxRetries ?? this._maxRetries
   }
 
   public get client(): ExtendedClient {
@@ -139,7 +143,7 @@ export class Cognitive {
   public async generateContent(input: InputProps): Promise<Response> {
     const start = Date.now()
 
-    const signal = input.signal ?? AbortSignal.timeout(30_000)
+    const signal = input.signal ?? AbortSignal.timeout(this._timeoutMs)
 
     const client = this._client.abortable(signal)
 
@@ -175,8 +179,7 @@ export class Cognitive {
             return false
           }
 
-          if (_attempt > 3) {
-            // We don't want to retry more than 3 times
+          if (_attempt > this._maxRetries) {
             this._events.emit('error', props, err)
             return false
           }

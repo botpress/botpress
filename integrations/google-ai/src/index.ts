@@ -1,10 +1,10 @@
 import { llm } from '@botpress/common'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 import { generateContent } from './actions/generate-content'
 import { LanguageModelId } from './schemas'
 import * as bp from '.botpress'
 
-const googleAIClient = new GoogleGenerativeAI(bp.secrets.GOOGLE_AI_API_KEY)
+const googleAIClient = new GoogleGenAI({ apiKey: bp.secrets.GOOGLE_AI_API_KEY })
 
 const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'models/gemini-1.5-flash-002'
 
