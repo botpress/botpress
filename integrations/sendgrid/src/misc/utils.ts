@@ -8,15 +8,15 @@ export const isSendGridError = (thrown: unknown): thrown is SendGridResponseErro
 
 export const parseError = (thrown: unknown, sendGridErrorMessageOverride: string | null = null) => {
   if (isSendGridError(thrown)) {
-    if (!sendGridErrorMessageOverride) {
-      const errorMessage = thrown.response.body.errors[0]?.message ?? thrown.message
-      return new RuntimeError(
-        `SendGrid API yielded an error with status code: "${thrown.code}", and message: "${errorMessage}"`,
-        thrown
-      )
-    } else {
+    if (sendGridErrorMessageOverride) {
       return new RuntimeError(sendGridErrorMessageOverride, thrown)
     }
+
+    const errorMessage = thrown.response.body.errors[0]?.message ?? thrown.message
+    return new RuntimeError(
+      `SendGrid API yielded an error with status code: "${thrown.code}", and message: "${errorMessage}"`,
+      thrown
+    )
   }
 
   if (thrown instanceof RuntimeError) {
