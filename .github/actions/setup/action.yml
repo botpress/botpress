@@ -15,7 +15,7 @@ runs:
 
     - uses: actions/setup-node@v3
       with:
-        node-version: '18.x'
+        node-version: '22.17.0'
         check-latest: true
 
     - name: Install dependencies
