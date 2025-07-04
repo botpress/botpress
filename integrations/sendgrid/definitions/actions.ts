@@ -5,6 +5,12 @@ import { EMAIL_ADDRESS_DESCRIPTION, EmailAddressSchema, NonBlankString } from '.
 export const sendMailInputSchema = z.object({
   to: EmailAddressSchema.describe(EMAIL_ADDRESS_DESCRIPTION).title('Email Recipient'),
   from: EmailAddressSchema.describe(EMAIL_ADDRESS_DESCRIPTION).title('Email Sender'),
+  cc: z.array(EmailAddressSchema).optional().describe('List of carbon copy recipients').title('Carbon Copy'),
+  bcc: z
+    .array(EmailAddressSchema)
+    .optional()
+    .describe('List of blind carbon copy recipients')
+    .title('Blind Carbon Copy'),
   subject: NonBlankString.describe('The subject of the email (e.g. How to build a bot with Botpress!)').title(
     'Email Subject'
   ),
