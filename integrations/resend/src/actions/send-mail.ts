@@ -9,6 +9,8 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ ctx
   const { data, error: thrown } = await client.emails.send({
     from: input.from,
     to: input.to,
+    cc: input.cc,
+    bcc: input.bcc,
     subject: input.subject,
     html: markdownToHtml(input.body),
   })
