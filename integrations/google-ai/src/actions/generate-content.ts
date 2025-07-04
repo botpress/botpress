@@ -30,7 +30,7 @@ export async function generateContent<M extends string>(
   const modelId = (input.model?.id || params.defaultModel) as M
   const model = params.models[modelId]
 
-  const request = await buildGenerateContentRequest(input, modelId)
+  const request = await buildGenerateContentRequest(input, modelId, model, logger)
 
   if (input.debug) {
     logger.forBot().info('Request being sent to Google AI: ' + JSON.stringify(request, null, 2))
@@ -85,10 +85,27 @@ export async function generateContent<M extends string>(
 
 async function buildGenerateContentRequest(
   input: llm.GenerateContentInput,
-  model: string
+  modelId: string,
+  model: llm.ModelDetails,
+  logger: IntegrationLogger
 ): Promise<GenerateContentParameters> {
+  let maxTokens: number | undefined = undefined
+
+  if (input.maxTokens) {
+    if (input.maxTokens <= model.output.maxTokens) {
+      maxTokens = input.maxTokens
+    } else {
+      maxTokens = model.output.maxTokens
+      logger
+        .forBot()
+        .info(
+          `Received maxTokens parameter greater than the maximum output tokens allowed for model "${modelId}", capping maxTokens to ${maxTokens}`
+        )
+    }
+  }
+
   return {
-    model,
+    model: modelId,
     contents: await buildContents(input),
     config: {
       systemInstruction: input.systemPrompt,
