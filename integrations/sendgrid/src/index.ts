@@ -1,7 +1,8 @@
 import sgClient from '@sendgrid/client'
 import sgMail from '@sendgrid/mail'
 import actions from './actions'
-import { parseError } from './misc/utils'
+import { isSendGridWebhookResp, parseError } from './misc/utils'
+import { dispatchIntegrationEvent } from './webhook-events/event-dispatcher'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
@@ -26,5 +27,22 @@ export default new bp.Integration({
   unregister: async () => {},
   actions,
   channels: {},
-  handler: async () => {},
+  handler: async (props) => {
+    if (!props.req.body) {
+      return
+    }
+
+    try {
+      const parsedBody = JSON.parse(props.req.body)
+      if (!isSendGridWebhookResp(parsedBody)) {
+        return
+      }
+
+      for (const item of parsedBody) {
+        await dispatchIntegrationEvent(props, item)
+      }
+    } catch (thrown: unknown) {
+      parseError(props.ctx, thrown, 'Unable to parse body')
+    }
+  },
 })

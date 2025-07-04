@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { ResponseError } from '@sendgrid/helpers/classes'
-import { SendGridResponseError } from './custom-types'
+import { SendGridResponseError, SendGridWebhookEvent, SendGridWebhookResp } from './custom-types'
 import type * as bp from '.botpress'
 
 const UNAUTHORIZED = 401 as const
@@ -61,4 +61,33 @@ const _maskApiKey = (apiKey: string) => {
   }
 
   return apiKey.slice(0, cutoffPosition)
+}
+
+const _isSendGridWebhookEvent = (item: unknown): item is SendGridWebhookEvent =>
+  !!item && typeof item === 'object' && 'timestamp' in item && 'sg_event_id' in item && 'event' in item
+
+export const isSendGridWebhookResp = (resp: unknown): resp is SendGridWebhookResp => {
+  return Array.isArray(resp) && resp.every(_isSendGridWebhookEvent)
+}
+
+export const unixTimestampToUtcDatetime = (unixTimestamp: number) => new Date(unixTimestamp * 1000).toISOString()
+
+type TypeMap = {
+  string: string
+  number: number
+  boolean: boolean
+  object: object | unknown[] | null
+  function: Function
+  symbol: symbol
+  bigint: bigint
+  undefined: undefined
+}
+
+/** Used as a shorthand helper for checking a property on an object then smart-casting said object. */
+export const hasPropOfType = <T extends object, K extends keyof any, TypeName extends keyof TypeMap>(
+  obj: T,
+  key: K,
+  expects: TypeName
+): obj is T & Record<K, TypeMap[TypeName]> => {
+  return key in obj && typeof (obj as any)[key] === expects
 }
