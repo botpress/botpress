@@ -141,7 +141,7 @@ function* _generateCTAUrlInteractiveMessages(card: Card, actions: ActionURL[]) {
       // First CTA URL button will be in a WhatsApp card
       yield new Interactive(
         new ActionCTA(action.label, action.value),
-        body.create(card.subtitle ?? action.value),
+        body.create(card.subtitle ? convertMarkdownToWhatsApp(card.subtitle) : action.value),
         card.title ? new Header(card.title) : undefined
       )
     } else {
