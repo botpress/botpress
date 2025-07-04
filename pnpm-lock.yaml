@@ -35,8 +35,8 @@ importers:
         specifier: ^0.0.16
         version: 0.0.16
       '@bpinternal/retry-cli':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.1.1
+        version: 0.1.1
       '@stylistic/eslint-plugin':
         specifier: ^2.12.1
         version: 2.12.1(eslint@9.17.0)(typescript@5.6.3)
@@ -4566,8 +4566,8 @@ packages:
       - supports-color
     dev: true
 
-  /@bpinternal/retry-cli@0.1.0:
-    resolution: {integrity: sha512-pfRTjnw7lDeFQfwB7ak9nOMzi1TS4OsdNffYiP61gtlICaqcpG9ywVPqCd9CzfNcRcz7988Mb/G+VqoAPlE8Zw==}
+  /@bpinternal/retry-cli@0.1.1:
+    resolution: {integrity: sha512-gXzkw2nByc/mFGlEnfi6lpBPuXU/uKBDQ1oQ0ipsDGngztfteyEwt5BUt746QlqH26k5KU36TbnEhqE089U3hg==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     hasBin: true
     dependencies:
