@@ -89,7 +89,7 @@ export async function generateContent<M extends string>(
       maxTokens = model.output.maxTokens
       logger
         .forBot()
-        .info(
+        .warn(
           `Received maxTokens parameter greater than the maximum output tokens allowed for model "${modelId}", capping maxTokens to ${maxTokens}`
         )
     }
