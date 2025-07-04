@@ -89,17 +89,17 @@ async function buildGenerateContentRequest(
   model: llm.ModelDetails,
   logger: IntegrationLogger
 ): Promise<GenerateContentParameters> {
-  let maxTokens: number | undefined = undefined
+  let maxOutputTokens: number | undefined = undefined
 
   if (input.maxTokens) {
     if (input.maxTokens <= model.output.maxTokens) {
-      maxTokens = input.maxTokens
+      maxOutputTokens = input.maxTokens
     } else {
-      maxTokens = model.output.maxTokens
+      maxOutputTokens = model.output.maxTokens
       logger
         .forBot()
         .warn(
-          `Received maxTokens parameter greater than the maximum output tokens allowed for model "${modelId}", capping maxTokens to ${maxTokens}`
+          `Received maxTokens parameter greater than the maximum output tokens allowed for model "${modelId}", capping maxTokens to ${maxOutputTokens}`
         )
     }
   }
@@ -111,7 +111,7 @@ async function buildGenerateContentRequest(
       systemInstruction: input.systemPrompt,
       toolConfig: buildToolConfig(input),
       tools: buildTools(input),
-      maxOutputTokens: input.maxTokens,
+      maxOutputTokens,
       topP: input.topP,
       temperature: input.temperature,
       stopSequences: input.stopSequences,
