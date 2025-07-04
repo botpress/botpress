@@ -7,15 +7,16 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "workspace:*",
-    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "axios": "1.8.4",
-    "markdown-it": "^14.1.0"
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "unified": "^11.0.5"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*",
-    "@types/markdown-it": "^14.1.2"
+    "@botpress/cli": "workspace:*"
   },
   "bpDependencies": {
     "files-readonly": "../../interfaces/files-readonly",
