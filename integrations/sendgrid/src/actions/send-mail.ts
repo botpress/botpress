@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import sgMail from '@sendgrid/mail'
+import { markdownToHtml } from '../misc/markdown-utils'
 import { parseError } from '../misc/utils'
 import * as bp from '.botpress'
 
@@ -14,7 +15,7 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ ctx
       from: input.from,
       replyTo: input.replyTo,
       subject: input.subject,
-      text: input.body,
+      html: markdownToHtml(input.body),
     })
 
     if (response.statusCode < 200 && response.statusCode >= 300) {
