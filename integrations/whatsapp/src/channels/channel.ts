@@ -1,6 +1,4 @@
 import { RuntimeError } from '@botpress/sdk'
-import { WHATSAPP } from 'src/misc/constants'
-import { convertMarkdownToWhatsApp } from 'src/misc/markdown-to-whatsapp-rtf'
 import {
   Text,
   Audio,
@@ -15,6 +13,8 @@ import {
   Reaction,
 } from 'whatsapp-api-js/messages'
 import { getAuthenticatedWhatsappClient } from '../auth'
+import { WHATSAPP } from '../misc/constants'
+import { convertMarkdownToWhatsApp } from '../misc/markdown-to-whatsapp-rtf'
 import { sleep } from '../misc/util'
 import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'

@@ -1,5 +1,6 @@
 import { Text, Interactive, ActionButtons, Header, Image, Button, ActionCTA } from 'whatsapp-api-js/messages'
 import { WHATSAPP } from '../../misc/constants'
+import { convertMarkdownToWhatsApp } from '../../misc/markdown-to-whatsapp-rtf'
 import { chunkArray, hasAtleastOne } from '../../misc/util'
 import * as body from './interactive/body'
 import * as button from './interactive/button'
@@ -68,11 +69,11 @@ function* _generateHeader(card: Card) {
   if (card.imageUrl) {
     yield new Image(card.imageUrl, false, card.title)
   } else {
-    yield new Text(card.title)
+    yield new Text(convertMarkdownToWhatsApp(card.title))
   }
 
   if (card.subtitle) {
-    yield new Text(card.subtitle)
+    yield new Text(convertMarkdownToWhatsApp(card.subtitle))
   }
 }
 
@@ -140,7 +141,7 @@ function* _generateCTAUrlInteractiveMessages(card: Card, actions: ActionURL[]) {
       // First CTA URL button will be in a WhatsApp card
       yield new Interactive(
         new ActionCTA(action.label, action.value),
-        body.create(card.subtitle ?? action.value),
+        body.create(card.subtitle ? convertMarkdownToWhatsApp(card.subtitle) : action.value),
         card.title ? new Header(card.title) : undefined
       )
     } else {
