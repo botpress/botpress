@@ -98,7 +98,7 @@ export const filesReadonlyListItemsInFolder: bp.IntegrationProps['actions']['fil
         mappedItems.push({
           id: item.id ?? '0',
           type: 'file',
-          name: 'page.md',
+          name: 'page.html',
           parentId: item.parentId ?? undefined,
           absolutePath: item._links.webui ?? undefined,
           sizeInBytes: undefined,
