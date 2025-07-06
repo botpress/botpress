@@ -2,6 +2,10 @@
 import { z } from '@bpinternal/zui'
 
 import { chunk } from 'lodash-es'
+import { ZaiContext } from '../context'
+import { Response } from '../response'
+
+import { getTokenizer } from '../tokenizer'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
@@ -54,31 +58,30 @@ const Options = z.object({
 declare module '@botpress/zai' {
   interface Zai {
     /** Summarizes a text of any length to a summary of the desired length */
-    summarize(original: string, options?: Options): Promise<string>
+    summarize(original: string, options?: Options): Response<string>
   }
 }
 
 const START = '■START■'
 const END = '■END■'
 
-Zai.prototype.summarize = async function (this: Zai, original, _options) {
-  const options = Options.parse(_options ?? {}) as Options
-  const tokenizer = await this.getTokenizer()
-  await this.fetchModelDetails()
+const summarize = async (original: string, options: Options, ctx: ZaiContext): Promise<string> => {
+  const tokenizer = await getTokenizer()
+  const model = await ctx.getModel()
 
-  const INPUT_COMPONENT_SIZE = Math.max(100, (this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER) / 4)
+  const INPUT_COMPONENT_SIZE = Math.max(100, (model.input.maxTokens - PROMPT_INPUT_BUFFER) / 4)
   options.prompt = tokenizer.truncate(options.prompt, INPUT_COMPONENT_SIZE)
   options.format = tokenizer.truncate(options.format, INPUT_COMPONENT_SIZE)
 
-  const maxOutputSize = this.ModelDetails.output.maxTokens - PROMPT_OUTPUT_BUFFER
+  const maxOutputSize = model.output.maxTokens - PROMPT_OUTPUT_BUFFER
   if (options.length > maxOutputSize) {
     throw new Error(
-      `The desired output length is ${maxOutputSize} tokens long, which is more than the maximum of ${this.ModelDetails.output.maxTokens} tokens for this model (${this.ModelDetails.name})`
+      `The desired output length is ${maxOutputSize} tokens long, which is more than the maximum of ${model.output.maxTokens} tokens for this model (${model.name})`
     )
   }
 
   // Ensure the sliding window is not bigger than the model input size
-  options.sliding.window = Math.min(options.sliding.window, this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER)
+  options.sliding.window = Math.min(options.sliding.window, model.input.maxTokens - PROMPT_INPUT_BUFFER)
 
   // Ensure the overlap is not bigger than the window
   // Most extreme case possible (all 3 same size)
@@ -111,9 +114,12 @@ ${newText}
   const chunkSize = Math.ceil(tokens.length / (parts * N))
 
   if (useMergeSort) {
+    // TODO: use pLimit here to not have too many chunks
     const chunks = chunk(tokens, chunkSize).map((x) => x.join(''))
-    const allSummaries = await Promise.all(chunks.map((chunk) => this.summarize(chunk, options)))
-    return this.summarize(allSummaries.join('\n\n============\n\n'), options)
+    const allSummaries = (await Promise.allSettled(chunks.map((chunk) => summarize(chunk, options, ctx))))
+      .filter((x) => x.status === 'fulfilled')
+      .map((x) => x.value)
+    return summarize(allSummaries.join('\n\n============\n\n'), options, ctx)
   }
 
   const summaries: string[] = []
@@ -176,7 +182,7 @@ ${newText}
       }
     }
 
-    const { output } = await this.callModel({
+    const { output } = await ctx.generateContent({
       systemPrompt: `
 You are summarizing a text. The text is split into ${parts} parts, and you are currently working on part ${iteration}.
 At every step, you will receive the current summary and a new part of the text. You need to amend the summary to include the new information (if needed).
@@ -209,4 +215,18 @@ ${options.format}
   }
 
   return currentSummary.trim()
+}
+
+Zai.prototype.summarize = function (this: Zai, original, _options): Response<string> {
+  const options = Options.parse(_options ?? {}) as Options
+
+  const context = new ZaiContext({
+    client: this.client,
+    modelId: this.Model,
+    taskId: this.taskId,
+    taskType: 'summarize',
+    adapter: this.adapter,
+  })
+
+  return new Response<string, string>(context, summarize(original, options, context), (value) => value)
 }

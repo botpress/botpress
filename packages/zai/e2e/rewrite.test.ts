@@ -37,7 +37,7 @@ describe('zai.rewrite', { timeout: 60_000 }, () => {
   })
 })
 
-describe('zai.learn.rewrite', { timeout: 60_000 }, () => {
+describe.sequential('zai.learn.rewrite', { timeout: 60_000 }, () => {
   const client = getClient()
   let tableName = 'ZaiTestRewriteInternalTable'
   let taskId = 'rewrite'

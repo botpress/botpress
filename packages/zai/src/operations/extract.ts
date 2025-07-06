@@ -6,6 +6,9 @@ import { jsonrepair } from 'jsonrepair'
 
 import { chunk, isArray } from 'lodash-es'
 import { fastHash, stringify, takeUntilTokens } from '../utils'
+import { ZaiContext } from '../context'
+import { Response } from '../response'
+import { getTokenizer } from '../tokenizer'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 import { JsonParsingError } from './errors'
@@ -38,7 +41,7 @@ type AnyObjectOrArray = Record<string, unknown> | Array<unknown>
 declare module '@botpress/zai' {
   interface Zai {
     /** Extracts one or many elements from an arbitrary input */
-    extract<S extends OfType<any>>(input: unknown, schema: S, options?: Options): Promise<S['_output']>
+    extract<S extends OfType<any>>(input: unknown, schema: S, options?: Options): Response<S['_output']>
   }
 }
 
@@ -46,21 +49,21 @@ const START = '■json_start■'
 const END = '■json_end■'
 const NO_MORE = '■NO_MORE_ELEMENT■'
 
-Zai.prototype.extract = async function <S extends OfType<AnyObjectOrArray>>(
-  this: Zai,
+const extract = async <S extends OfType<AnyObjectOrArray>>(
   input: unknown,
   _schema: S,
-  _options?: Options
-): Promise<S['_output']> {
+  _options: Options | undefined,
+  ctx: ZaiContext
+): Promise<S['_output']> => {
   let schema = _schema as any as z.ZodType
   const options = Options.parse(_options ?? {})
-  const tokenizer = await this.getTokenizer()
-  await this.fetchModelDetails()
+  const tokenizer = await getTokenizer()
+  const model = await ctx.getModel()
 
-  const taskId = this.taskId
+  const taskId = ctx.taskId
   const taskType = 'zai.extract'
 
-  const PROMPT_COMPONENT = Math.max(this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER, 100)
+  const PROMPT_COMPONENT = Math.max(model.input.maxTokens - PROMPT_INPUT_BUFFER, 100)
 
   let isArrayOfObjects = false
   let wrappedValue = false
@@ -99,10 +102,7 @@ Zai.prototype.extract = async function <S extends OfType<AnyObjectOrArray>>(
   const schemaTypescript = schema.toTypescriptType({ declaration: false })
   const schemaLength = tokenizer.count(schemaTypescript)
 
-  options.chunkLength = Math.min(
-    options.chunkLength,
-    this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER - schemaLength
-  )
+  options.chunkLength = Math.min(options.chunkLength, model.input.maxTokens - PROMPT_INPUT_BUFFER - schemaLength)
 
   const keys = Object.keys((schema as ZodObject).shape)
 
@@ -113,10 +113,15 @@ Zai.prototype.extract = async function <S extends OfType<AnyObjectOrArray>>(
     const chunks = chunk(tokens, options.chunkLength).map((x) => x.join(''))
     const all = await Promise.allSettled(
       chunks.map((chunk) =>
-        this.extract(chunk, originalSchema, {
-          ...options,
-          strict: false, // We don't want to fail on strict mode for sub-chunks
-        })
+        extract(
+          chunk,
+          originalSchema,
+          {
+            ...options,
+            strict: false, // We don't want to fail on strict mode for sub-chunks
+          },
+          ctx
+        )
       )
     ).then((results) =>
       results.filter((x) => x.status === 'fulfilled').map((x) => (x as PromiseFulfilledResult<S['_output']>).value)
@@ -124,7 +129,7 @@ Zai.prototype.extract = async function <S extends OfType<AnyObjectOrArray>>(
 
     // We run this function recursively until all chunks are merged into a single output
     const rows = all.map((x, idx) => `<part-${idx + 1}>\n${stringify(x, true)}\n</part-${idx + 1}>`).join('\n')
-    return this.extract(
+    return extract(
       `
 The result has been split into ${all.length} parts. Recursively merge the result into the final result.
 When merging arrays, take unique values.
@@ -136,7 +141,8 @@ ${rows}
 
 Merge it back into a final result.`.trim(),
       originalSchema,
-      options
+      options,
+      ctx
     )
   }
 
@@ -179,13 +185,14 @@ Merge it back into a final result.`.trim(),
     })
   )
 
-  const examples = taskId
-    ? await this.adapter.getExamples<string, unknown>({
-        input: inputAsString,
-        taskType,
-        taskId,
-      })
-    : []
+  const examples =
+    taskId && ctx.adapter
+      ? await ctx.adapter.getExamples<string, unknown>({
+          input: inputAsString,
+          taskType,
+          taskId,
+        })
+      : []
 
   const exactMatch = examples.find((x) => x.key === Key)
   if (exactMatch) {
@@ -287,7 +294,7 @@ ${END}`.trim()
     .map(formatExample)
     .flat()
 
-  const { output, meta } = await this.callModel({
+  const { output, meta } = await ctx.generateContent({
     systemPrompt: `
 Extract the following information from the input:
 ${schemaTypescript}
@@ -351,8 +358,8 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
     }
   }
 
-  if (taskId) {
-    await this.adapter.saveExample({
+  if (taskId && ctx.adapter) {
+    await ctx.adapter.saveExample({
       key: Key,
       taskId: `zai/${taskId}`,
       taskType,
@@ -365,7 +372,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
           output: meta.cost.output,
         },
         latency: meta.latency,
-        model: this.Model,
+        model: ctx.modelId,
         tokens: {
           input: meta.tokens.input,
           output: meta.tokens.output,
@@ -375,4 +382,21 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
   }
 
   return final
+}
+
+Zai.prototype.extract = function <S extends OfType<AnyObjectOrArray>>(
+  this: Zai,
+  input: unknown,
+  schema: S,
+  _options?: Options
+): Response<S['_output']> {
+  const context = new ZaiContext({
+    client: this.client,
+    modelId: this.Model,
+    taskId: this.taskId,
+    taskType: 'zai.extract',
+    adapter: this.adapter,
+  })
+
+  return new Response<S['_output']>(context, extract(input, schema, _options, context), (result) => result)
 }

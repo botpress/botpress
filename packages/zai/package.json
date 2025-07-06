@@ -11,7 +11,7 @@
   },
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build": "bp add -y && pnpm run build:types && pnpm run build:neutral",
+    "build": "bp add -y && pnpm run build:types && pnpm run build:neutral && size-limit",
     "build:neutral": "ts-node -T ./build.ts",
     "build:types": "tsup",
     "watch": "tsup --watch",
@@ -19,11 +19,17 @@
     "test:e2e:update": "vitest -u run --config vitest.config.ts",
     "test:e2e:watch": "vitest --config vitest.config.ts"
   },
+  "size-limit": [
+    {
+      "limit": "50 kB",
+      "path": "dist/**/*.js"
+    }
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@botpress/cognitive": "0.1.28",
+    "@botpress/cognitive": "workspace:^",
     "json5": "^2.2.3",
     "jsonrepair": "^3.10.0",
     "lodash-es": "^4.17.21"
@@ -32,12 +38,14 @@
     "@botpress/client": "workspace:^",
     "@botpress/common": "workspace:*",
     "@botpress/vai": "workspace:*",
+    "@size-limit/file": "^11.1.6",
     "@types/lodash-es": "^4.17.12",
     "diff": "^8.0.1",
     "dotenv": "^16.4.4",
     "esbuild": "^0.16.12",
     "glob": "^9.3.4",
     "lodash": "^4.17.21",
+    "size-limit": "^11.1.6",
     "tsup": "^8.0.2"
   },
   "peerDependencies": {

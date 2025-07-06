@@ -73,7 +73,7 @@ describe('zai.filter', { timeout: 60_000 }, () => {
   })
 })
 
-describe('zai.learn.filter', { timeout: 60_000 }, () => {
+describe.sequential('zai.learn.filter', { timeout: 60_000 }, () => {
   const client = getClient()
   let tableName = 'ZaiTestFilterInternalTable'
   let taskId = 'filter'

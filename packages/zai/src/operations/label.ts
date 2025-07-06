@@ -3,6 +3,9 @@ import { z } from '@bpinternal/zui'
 
 import { clamp, chunk } from 'lodash-es'
 import { fastHash, stringify, takeUntilTokens } from '../utils'
+import { ZaiContext } from '../context'
+import { Response } from '../response'
+import { getTokenizer } from '../tokenizer'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 
@@ -83,13 +86,16 @@ declare module '@botpress/zai' {
       input: unknown,
       labels: Labels<T>,
       options?: Options<T>
-    ): Promise<{
-      [K in T]: {
-        explanation: string
-        value: boolean
-        confidence: number
-      }
-    }>
+    ): Response<
+      {
+        [K in T]: {
+          explanation: string
+          value: boolean
+          confidence: number
+        }
+      },
+      { [K in T]: boolean }
+    >
   }
 }
 
@@ -124,21 +130,27 @@ const getConfidence = (label: Label) => {
   }
 }
 
-Zai.prototype.label = async function <T extends string>(
-  this: Zai,
+const label = async <T extends string>(
   input: unknown,
   _labels: Labels<T>,
-  _options: Options<T> | undefined
-) {
+  _options: Options<T> | undefined,
+  ctx: ZaiContext
+): Promise<{
+  [K in T]: {
+    explanation: string
+    value: boolean
+    confidence: number
+  }
+}> => {
   const options = _Options.parse(_options ?? {}) as unknown as Options<T>
   const labels = _Labels.parse(_labels) as Labels<T>
-  const tokenizer = await this.getTokenizer()
-  await this.fetchModelDetails()
+  const tokenizer = await getTokenizer()
+  const model = await ctx.getModel()
 
-  const taskId = this.taskId
+  const taskId = ctx.taskId
   const taskType = 'zai.label'
 
-  const TOTAL_MAX_TOKENS = clamp(options.chunkLength, 1000, this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER)
+  const TOTAL_MAX_TOKENS = clamp(options.chunkLength, 1000, model.input.maxTokens - PROMPT_INPUT_BUFFER)
   const CHUNK_EXAMPLES_MAX_TOKENS = clamp(Math.floor(TOTAL_MAX_TOKENS * 0.5), 250, 10_000)
   const CHUNK_INPUT_MAX_TOKENS = clamp(
     TOTAL_MAX_TOKENS - CHUNK_EXAMPLES_MAX_TOKENS,
@@ -151,7 +163,7 @@ Zai.prototype.label = async function <T extends string>(
   if (tokenizer.count(inputAsString) > CHUNK_INPUT_MAX_TOKENS) {
     const tokens = tokenizer.split(inputAsString)
     const chunks = chunk(tokens, CHUNK_INPUT_MAX_TOKENS).map((x) => x.join(''))
-    const allLabels = await Promise.all(chunks.map((chunk) => this.label(chunk, _labels)))
+    const allLabels = await Promise.all(chunks.map((chunk) => label(chunk, _labels, _options, ctx)))
 
     // Merge all the labels together (those who are true will remain true)
     return allLabels.reduce((acc, x) => {
@@ -202,21 +214,22 @@ Zai.prototype.label = async function <T extends string>(
     }
   }
 
-  const examples = taskId
-    ? await this.adapter.getExamples<
-        string,
-        {
-          [K in T]: {
-            explanation: string
-            label: Label
+  const examples =
+    taskId && ctx.adapter
+      ? await ctx.adapter.getExamples<
+          string,
+          {
+            [K in T]: {
+              explanation: string
+              label: Label
+            }
           }
-        }
-      >({
-        input: inputAsString,
-        taskType,
-        taskId,
-      })
-    : []
+        >({
+          input: inputAsString,
+          taskType,
+          taskId,
+        })
+      : []
 
   options.examples.forEach((example) => {
     examples.push({
@@ -285,7 +298,7 @@ ${END}
     })
     .join('\n\n')
 
-  const { output, meta } = await this.callModel({
+  const { output, meta } = await ctx.generateContent({
     stopSequences: [END],
     systemPrompt: `
 You need to tag the input with the following labels based on the question asked:
@@ -363,8 +376,8 @@ For example, you can say: "According to Expert Example #1, ..."`.trim(),
     }
   }
 
-  if (taskId) {
-    await this.adapter.saveExample({
+  if (taskId && ctx.adapter) {
+    await ctx.adapter.saveExample({
       key: Key,
       taskType,
       taskId,
@@ -375,7 +388,7 @@ For example, you can say: "According to Expert Example #1, ..."`.trim(),
           output: meta.cost.output,
         },
         latency: meta.latency,
-        model: this.Model,
+        model: ctx.modelId,
         tokens: {
           input: meta.tokens.input,
           output: meta.tokens.output,
@@ -387,4 +400,47 @@ For example, you can say: "According to Expert Example #1, ..."`.trim(),
   }
 
   return convertToAnswer(final)
+}
+
+Zai.prototype.label = function <T extends string>(
+  this: Zai,
+  input: unknown,
+  labels: Labels<T>,
+  _options?: Options<T>
+): Response<
+  {
+    [K in T]: {
+      explanation: string
+      value: boolean
+      confidence: number
+    }
+  },
+  { [K in T]: boolean }
+> {
+  const context = new ZaiContext({
+    client: this.client,
+    modelId: this.Model,
+    taskId: this.taskId,
+    taskType: 'zai.label',
+    adapter: this.adapter,
+  })
+
+  return new Response<
+    {
+      [K in T]: {
+        explanation: string
+        value: boolean
+        confidence: number
+      }
+    },
+    { [K in T]: boolean }
+  >(context, label(input, labels, _options, context), (result) =>
+    Object.keys(result).reduce(
+      (acc, key) => {
+        acc[key] = result[key].value
+        return acc
+      },
+      {} as { [K in T]: boolean }
+    )
+  )
 }
