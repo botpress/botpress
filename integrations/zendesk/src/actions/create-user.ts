@@ -26,9 +26,14 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
   let remote_photo_url = pictureUrl
 
   const urlLength = _getEncodedLength(encodedPictureUrl)
-  if (urlLength && urlLength > 255) {
+  const maxUrlLength = 255
+  if (urlLength && urlLength > maxUrlLength) {
     // Zendesk has a limit of 255 characters for the remote_photo_url
-    logger.forBot().warn(`Picture URL is too long (${urlLength} characters). It will not be set in Zendesk.`)
+    logger
+      .forBot()
+      .warn(
+        `Picture URL is too long (${urlLength} characters, but max is ${maxUrlLength}). It will not be set in Zendesk.`
+      )
     remote_photo_url = ''
   }
 
