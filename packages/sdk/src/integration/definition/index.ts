@@ -78,7 +78,7 @@ export type IntegrationDefinitionProps<
 
   __advanced?: {
     esbuild?: Partial<esbuild.BuildOptions>
-    messageStatusChangeNotificationsEnabled?: boolean
+    enabledExtraIntegrationOperations?: Record<string, boolean>
   }
 }
 

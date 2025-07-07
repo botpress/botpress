@@ -52,8 +52,8 @@ export const prepareCreateIntegrationBody = async (
       }))
     : undefined,
   attributes: integration.attributes,
-  messageStatusChangeNotificationsEnabled:
-    '__advanced' in integration ? integration.__advanced?.messageStatusChangeNotificationsEnabled : undefined,
+  enabledExtraIntegrationOperations:
+    '__advanced' in integration ? integration.__advanced?.enabledExtraIntegrationOperations : undefined,
 })
 
 type UpdateIntegrationChannelsBody = NonNullable<types.UpdateIntegrationRequestBody['channels']>
@@ -93,7 +93,7 @@ export const prepareUpdateIntegrationBody = (
 
   const attributes = utils.records.setNullOnMissingValues(localIntegration.attributes, remoteIntegration.attributes)
 
-  const messageStatusChangeNotificationsEnabled = localIntegration.messageStatusChangeNotificationsEnabled
+  const enabledExtraIntegrationOperations = localIntegration.enabledExtraIntegrationOperations
   return {
     ..._maybeRemoveVrlScripts(localIntegration, remoteIntegration),
     actions,
@@ -107,7 +107,7 @@ export const prepareUpdateIntegrationBody = (
     readme,
     icon,
     attributes,
-    messageStatusChangeNotificationsEnabled,
+    enabledExtraIntegrationOperations,
   }
 }
 
