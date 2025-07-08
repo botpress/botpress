@@ -34,6 +34,9 @@ importers:
       '@bpinternal/readiness':
         specifier: ^0.0.16
         version: 0.0.16
+      '@bpinternal/retry-cli':
+        specifier: ^0.1.1
+        version: 0.1.1
       '@stylistic/eslint-plugin':
         specifier: ^2.12.1
         version: 2.12.1(eslint@9.17.0)(typescript@5.6.3)
@@ -85,9 +88,6 @@ importers:
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
-      retry-cli:
-        specifier: ^0.7.0
-        version: 0.7.0
       semver:
         specifier: ^7.3.8
         version: 7.6.3
@@ -2303,7 +2303,7 @@ importers:
         version: link:../client
       '@botpress/cognitive':
         specifier: 0.1.28
-        version: link:../cognitive
+        version: 0.1.28
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
         version: 1.0.5
@@ -2476,7 +2476,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.28
+        specifier: 0.1.29
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -2503,6 +2503,9 @@ importers:
       '@botpress/vai':
         specifier: workspace:*
         version: link:../vai
+      '@size-limit/file':
+        specifier: ^11.1.6
+        version: 11.1.6(size-limit@11.1.6)
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
@@ -2521,6 +2524,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      size-limit:
+        specifier: ^11.1.6
+        version: 11.1.6
       tsup:
         specifier: ^8.0.2
         version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
@@ -4449,6 +4455,14 @@ packages:
       - supports-color
     dev: true
 
+  /@botpress/cognitive@0.1.28:
+    resolution: {integrity: sha512-b8HMkjjUnsc1I7TTXvHqmU+CcM4ktMXzv/ESNm96CayhUeijLW5VF8oJyyk8Y+dcx2Icmp8H2lRvSV89oiukvg==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      exponential-backoff: 3.1.1
+      nanoevents: 9.1.0
+    dev: false
+
   /@bpinternal/const@0.1.0:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
@@ -4566,6 +4580,16 @@ packages:
       - supports-color
     dev: true
 
+  /@bpinternal/retry-cli@0.1.1:
+    resolution: {integrity: sha512-gXzkw2nByc/mFGlEnfi6lpBPuXU/uKBDQ1oQ0ipsDGngztfteyEwt5BUt746QlqH26k5KU36TbnEhqE089U3hg==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+    hasBin: true
+    dependencies:
+      '@bpinternal/yargs-extra': 0.0.20
+      cross-spawn: 7.0.6
+      retry: 0.13.1
+    dev: true
+
   /@bpinternal/thicktoken@1.0.2:
     resolution: {integrity: sha512-3PJXxIPkoFwFl+RmZMoMj0usHchP2krMKUlGyvDSd/sEHf+qA1rJjRJq7em/Y+lXDNlzis7k6j3QBYudGPvLAQ==}
     dependencies:
@@ -4603,6 +4627,18 @@ packages:
 
   /@bpinternal/yargs-extra@0.0.17:
     resolution: {integrity: sha512-Q8RyT8zZ5NY6enmjFxuaOheujH12V7rWRtBxTBSuZs4EnuxEmDfv9VcdcnRQvk/HvRT/Ps9VshjNr0J8LBt/vw==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+    dependencies:
+      '@types/yargs': 17.0.33
+      decamelize: 5.0.1
+      json-schema: 0.4.0
+      lodash: 4.17.21
+      yargs: 17.7.2
+      yn: 4.0.0
+    dev: true
+
+  /@bpinternal/yargs-extra@0.0.20:
+    resolution: {integrity: sha512-NN7mX/32OpbDn9z4AFphRvYFxwRNA8D4RTMy7jOvKRQKEC2O1xlcWiKAOChlfsbaooL5bMFwURnsJVudPE2/cw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     dependencies:
       '@types/yargs': 17.0.33
@@ -10251,15 +10287,6 @@ packages:
       - encoding
     dev: false
 
-  /cross-spawn@7.0.3:
-    resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
-    engines: {node: '>= 8'}
-    dependencies:
-      path-key: 3.1.1
-      shebang-command: 2.0.0
-      which: 2.0.2
-    dev: true
-
   /cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
@@ -15015,11 +15042,6 @@ packages:
     engines: {node: '>= 6.13.0'}
     dev: false
 
-  /node-getopt@0.3.2:
-    resolution: {integrity: sha512-yqkmYrMbK1wPrfz7mgeYvA4tBperLg9FQ4S3Sau3nSAkpOA0x0zC8nQ1siBwozy1f4SE8vq2n1WKv99r+PCa1Q==}
-    engines: {node: '>= 0.6.0'}
-    dev: true
-
   /node-gyp-build@4.6.0:
     resolution: {integrity: sha512-NTZVKn9IylLwUzaKjkas1e4u2DLNcV4rdYagA4PWdPwW87Bi7z+BznyKSRwS/761tV/lzCGXplWsiaMjLqP2zQ==}
     hasBin: true
@@ -16164,15 +16186,6 @@ packages:
     dependencies:
       onetime: 7.0.0
       signal-exit: 4.1.0
-    dev: true
-
-  /retry-cli@0.7.0:
-    resolution: {integrity: sha512-VSWsAZFV4AxAsxH2/r+TDQGTS4cTory266mmpI5KiZUZB/8VjqksCZ/kOGMLQ7XZFVNwzVdQ54pEJu6jnLbSVw==}
-    hasBin: true
-    dependencies:
-      cross-spawn: 7.0.3
-      node-getopt: 0.3.2
-      retry: 0.13.1
     dev: true
 
   /retry@0.13.1:
