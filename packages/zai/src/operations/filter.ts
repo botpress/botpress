@@ -2,6 +2,9 @@
 import { z } from '@bpinternal/zui'
 
 import { clamp } from 'lodash-es'
+import { ZaiContext } from '../context'
+import { Response } from '../response'
+import { getTokenizer } from '../tokenizer'
 import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
@@ -39,22 +42,28 @@ const _Options = z.object({
 declare module '@botpress/zai' {
   interface Zai {
     /** Filters elements of an array against a condition */
-    filter<T>(input: Array<T>, condition: string, options?: Options): Promise<Array<T>>
+    filter<T>(input: Array<T>, condition: string, options?: Options): Response<Array<T>>
   }
 }
 
 const END = '■END■'
 
-Zai.prototype.filter = async function (this: Zai, input, condition, _options) {
+const filter = async <T>(
+  input: Array<T>,
+  condition: string,
+  _options: Options | undefined,
+  ctx: ZaiContext
+): Promise<Array<T>> => {
+  ctx.controller.signal.throwIfAborted()
   const options = _Options.parse(_options ?? {}) as Options
-  const tokenizer = await this.getTokenizer()
-  await this.fetchModelDetails()
+  const tokenizer = await getTokenizer()
+  const model = await ctx.getModel()
 
-  const taskId = this.taskId
+  const taskId = ctx.taskId
   const taskType = 'zai.filter'
 
   const MAX_ITEMS_PER_CHUNK = 50
-  const TOKENS_TOTAL_MAX = this.ModelDetails.input.maxTokens - PROMPT_INPUT_BUFFER - PROMPT_OUTPUT_BUFFER
+  const TOKENS_TOTAL_MAX = model.input.maxTokens - PROMPT_INPUT_BUFFER - PROMPT_OUTPUT_BUFFER
   const TOKENS_EXAMPLES_MAX = Math.floor(Math.max(250, TOKENS_TOTAL_MAX * 0.5))
   const TOKENS_CONDITION_MAX = clamp(TOKENS_TOTAL_MAX * 0.25, 250, tokenizer.count(condition))
   const TOKENS_INPUT_ARRAY_MAX = TOKENS_TOTAL_MAX - TOKENS_EXAMPLES_MAX - TOKENS_CONDITION_MAX
@@ -145,18 +154,19 @@ ${examples.map((x, idx) => `■${idx}:${!!x.filter ? 'true' : 'false'}:${x.reaso
   ]
 
   const filterChunk = async (chunk: typeof input) => {
-    const examples = taskId
-      ? await this.adapter
-          .getExamples<string, unknown>({
-            // The Table API can't search for a huge input string
-            input: JSON.stringify(chunk).slice(0, 1000),
-            taskType,
-            taskId,
-          })
-          .then((x) =>
-            x.map((y) => ({ filter: y.output as boolean, input: y.input, reason: y.explanation }) satisfies Example)
-          )
-      : []
+    const examples =
+      taskId && ctx.adapter
+        ? await ctx.adapter
+            .getExamples<string, unknown>({
+              // The Table API can't search for a huge input string
+              input: JSON.stringify(chunk).slice(0, 1000),
+              taskType,
+              taskId,
+            })
+            .then((x) =>
+              x.map((y) => ({ filter: y.output as boolean, input: y.input, reason: y.explanation }) satisfies Example)
+            )
+        : []
 
     const allExamples = takeUntilTokens([...examples, ...(options.examples ?? [])], TOKENS_EXAMPLES_MAX, (el) =>
       tokenizer.count(stringify(el.input))
@@ -175,7 +185,7 @@ ${examples.map((x, idx) => `■${idx}:${!!x.filter ? 'true' : 'false'}:${x.reaso
       },
     ]
 
-    const { output, meta } = await this.callModel({
+    const { extracted: partial, meta } = await ctx.generateContent({
       systemPrompt: `
 You are given a list of items. Your task is to filter out the items that meet the condition below.
 You need to return the full list of items with the format:
@@ -198,23 +208,23 @@ The condition is: "${condition}"
           role: 'user',
         },
       ],
+      transform: (text) => {
+        const indices = text
+          .trim()
+          .split('■')
+          .filter((x) => x.length > 0)
+          .map((x) => {
+            const [idx, filter] = x.split(':')
+            return { idx: parseInt(idx?.trim() ?? ''), filter: filter?.toLowerCase().trim() === 'true' }
+          })
+
+        return chunk.filter((_, idx) => {
+          return indices.find((x) => x.idx === idx && x.filter) ?? false
+        })
+      },
     })
 
-    const answer = output.choices[0]?.content as string
-    const indices = answer
-      .trim()
-      .split('■')
-      .filter((x) => x.length > 0)
-      .map((x) => {
-        const [idx, filter] = x.split(':')
-        return { idx: parseInt(idx?.trim() ?? ''), filter: filter?.toLowerCase().trim() === 'true' }
-      })
-
-    const partial = chunk.filter((_, idx) => {
-      return indices.find((x) => x.idx === idx)?.filter ?? false
-    })
-
-    if (taskId) {
+    if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
       const key = fastHash(
         stringify({
           taskId,
@@ -224,7 +234,7 @@ The condition is: "${condition}"
         })
       )
 
-      await this.adapter.saveExample({
+      await ctx.adapter.saveExample({
         key,
         taskType,
         taskId,
@@ -237,7 +247,7 @@ The condition is: "${condition}"
             output: meta.cost.output,
           },
           latency: meta.latency,
-          model: this.Model,
+          model: ctx.modelId,
           tokens: {
             input: meta.tokens.input,
             output: meta.tokens.output,
@@ -252,4 +262,21 @@ The condition is: "${condition}"
   const filteredChunks = await Promise.all(chunks.map(filterChunk))
 
   return filteredChunks.flat()
+}
+
+Zai.prototype.filter = function <T>(
+  this: Zai,
+  input: Array<T>,
+  condition: string,
+  _options?: Options
+): Response<Array<T>> {
+  const context = new ZaiContext({
+    client: this.client,
+    modelId: this.Model,
+    taskId: this.taskId,
+    taskType: 'zai.filter',
+    adapter: this.adapter,
+  })
+
+  return new Response<Array<T>>(context, filter(input, condition, _options, context), (result) => result)
 }
