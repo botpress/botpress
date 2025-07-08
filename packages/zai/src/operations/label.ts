@@ -299,7 +299,7 @@ ${END}
     })
     .join('\n\n')
 
-  const { output, meta } = await ctx.generateContent({
+  const { extracted, meta } = await ctx.generateContent({
     stopSequences: [END],
     systemPrompt: `
 You need to tag the input with the following labels based on the question asked:
@@ -350,32 +350,30 @@ The Expert Examples are there to help you make your decision. They have been pro
 For example, you can say: "According to Expert Example #1, ..."`.trim(),
       },
     ],
+    transform: (text) =>
+      Object.keys(labels).reduce((acc, key) => {
+        const match = text.match(new RegExp(`■${key}:【(.+)】:(\\w{2,})■`, 'i'))
+        if (match) {
+          const explanation = match[1].trim()
+          const label = parseLabel(match[2])
+          acc[key] = {
+            explanation,
+            label,
+          }
+        } else {
+          acc[key] = {
+            explanation: '',
+            label: LABELS.AMBIGUOUS,
+          }
+        }
+        return acc
+      }, {}) as {
+        [K in T]: {
+          explanation: string
+          label: Label
+        }
+      },
   })
-
-  const answer = output.choices[0].content as string
-
-  const final = Object.keys(labels).reduce((acc, key) => {
-    const match = answer.match(new RegExp(`■${key}:【(.+)】:(\\w{2,})■`, 'i'))
-    if (match) {
-      const explanation = match[1].trim()
-      const label = parseLabel(match[2])
-      acc[key] = {
-        explanation,
-        label,
-      }
-    } else {
-      acc[key] = {
-        explanation: '',
-        label: LABELS.AMBIGUOUS,
-      }
-    }
-    return acc
-  }, {}) as {
-    [K in T]: {
-      explanation: string
-      label: Label
-    }
-  }
 
   if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
     await ctx.adapter.saveExample({
@@ -396,11 +394,11 @@ For example, you can say: "According to Expert Example #1, ..."`.trim(),
         },
       },
       input: inputAsString,
-      output: final,
+      output: extracted,
     })
   }
 
-  return convertToAnswer(final)
+  return convertToAnswer(extracted)
 }
 
 Zai.prototype.label = function <T extends string>(

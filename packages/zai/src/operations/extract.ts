@@ -297,7 +297,7 @@ ${END}`.trim()
     .map(formatExample)
     .flat()
 
-  const { output, meta } = await ctx.generateContent({
+  const { meta, extracted } = await ctx.generateContent({
     systemPrompt: `
 Extract the following information from the input:
 ${schemaTypescript}
@@ -314,43 +314,41 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
         content: formatInput(inputAsString, schemaTypescript, options.instructions ?? ''),
       },
     ],
+    transform: (text) =>
+      (text || '{}')
+        ?.split(START)
+        .filter((x) => x.trim().length > 0 && x.includes('}'))
+        .map((x) => {
+          try {
+            const json = x.slice(0, x.indexOf(END)).trim()
+            const repairedJson = jsonrepair(json)
+            const parsedJson = JSON5.parse(repairedJson)
+            const safe = schema.safeParse(parsedJson)
+
+            if (safe.success) {
+              return safe.data
+            }
+
+            if (options.strict) {
+              throw new JsonParsingError(x, safe.error)
+            }
+
+            return parsedJson
+          } catch (error) {
+            throw new JsonParsingError(x, error instanceof Error ? error : new Error('Unknown error'))
+          }
+        })
+        .filter((x) => x !== null),
   })
-
-  const answer = (output.choices[0]?.content ?? '{}') as string
-
-  const elements = answer
-    ?.split(START)
-    .filter((x) => x.trim().length > 0 && x.includes('}'))
-    .map((x) => {
-      try {
-        const json = x.slice(0, x.indexOf(END)).trim()
-        const repairedJson = jsonrepair(json)
-        const parsedJson = JSON5.parse(repairedJson)
-        const safe = schema.safeParse(parsedJson)
-
-        if (safe.success) {
-          return safe.data
-        }
-
-        if (options.strict) {
-          throw new JsonParsingError(x, safe.error)
-        }
-
-        return parsedJson
-      } catch (error) {
-        throw new JsonParsingError(x, error instanceof Error ? error : new Error('Unknown error'))
-      }
-    })
-    .filter((x) => x !== null)
 
   let final: any
 
   if (isArrayOfObjects) {
-    final = elements
-  } else if (elements.length === 0) {
+    final = extracted
+  } else if (extracted.length === 0) {
     final = options.strict ? schema.parse({}) : {}
   } else {
-    final = elements[0]
+    final = extracted[0]
   }
 
   if (wrappedValue) {

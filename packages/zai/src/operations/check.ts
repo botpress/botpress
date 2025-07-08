@@ -178,7 +178,10 @@ ${END}
 `.trim()
     : ''
 
-  const { output, meta } = await ctx.generateContent({
+  const {
+    extracted: { finalAnswer, explanation },
+    meta,
+  } = await ctx.generateContent({
     systemPrompt: `
 Check if the following condition is true or false for the given input. Before answering, make sure to read the input and the condition carefully.
 Justify your answer, then answer with either ${TRUE} or ${FALSE} at the very end, then add ${END} to finish the response.
@@ -199,32 +202,33 @@ In your "Analysis", please refer to the Expert Examples # to justify your decisi
         role: 'user',
       },
     ],
+    transform: (text) => {
+      const hasTrue = text.includes(TRUE)
+      const hasFalse = text.includes(FALSE)
+
+      if (!hasTrue && !hasFalse) {
+        throw new Error(`The model did not return a valid answer. The response was: ${text}`)
+      }
+
+      let finalAnswer: boolean
+      const explanation = text
+        .replace(TRUE, '')
+        .replace(FALSE, '')
+        .replace(END, '')
+        .replace('Final Answer:', '')
+        .replace('Analysis:', '')
+        .trim()
+
+      if (hasTrue && hasFalse) {
+        // If both TRUE and FALSE are present, we need to check which one was answered last
+        finalAnswer = text.lastIndexOf(TRUE) > text.lastIndexOf(FALSE)
+      } else {
+        finalAnswer = hasTrue
+      }
+
+      return { finalAnswer, explanation: explanation.trim() }
+    },
   })
-
-  const answer = output.choices[0]?.content as string
-
-  const hasTrue = answer.includes(TRUE)
-  const hasFalse = answer.includes(FALSE)
-
-  if (!hasTrue && !hasFalse) {
-    throw new Error(`The model did not return a valid answer. The response was: ${answer}`)
-  }
-
-  let finalAnswer: boolean
-  const explanation = answer
-    .replace(TRUE, '')
-    .replace(FALSE, '')
-    .replace(END, '')
-    .replace('Final Answer:', '')
-    .replace('Analysis:', '')
-    .trim()
-
-  if (hasTrue && hasFalse) {
-    // If both TRUE and FALSE are present, we need to check which one was answered last
-    finalAnswer = answer.lastIndexOf(TRUE) > answer.lastIndexOf(FALSE)
-  } else {
-    finalAnswer = hasTrue
-  }
 
   if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
     await ctx.adapter.saveExample({

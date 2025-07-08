@@ -1,7 +1,7 @@
-import { describe, it, expect, afterAll, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, afterAll, beforeEach, afterEach, vi } from 'vitest'
 import { BotpressDocumentation, getClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
-import { getCognitiveClient } from './client'
+import { getCachedCognitiveClient, getCognitiveClient } from './client'
 
 describe('zai.check', { timeout: 60_000 }, () => {
   const zai = getZai()
@@ -64,6 +64,34 @@ describe('zai.check', { timeout: 60_000 }, () => {
 
     expect(american).toBe(true)
     expect(european).toBe(false)
+  })
+
+  it('retries on generation failure', async () => {
+    const cognitive = getCachedCognitiveClient()
+    const mocked = getCachedCognitiveClient()
+
+    let callCount = 0
+
+    const mock = vi.fn().mockImplementation(async (input) => {
+      const output = await cognitive.generateContent(input)
+
+      if (callCount++ < 1) {
+        output.output.choices[0].content = '...'
+      }
+
+      return output
+    })
+
+    mocked.clone = vi.fn().mockReturnValue(mocked)
+    mocked.generateContent = mock
+
+    const isEnglish = await getZai(mocked).check(
+      'This text is very clearly written in English',
+      'is an english sentence'
+    )
+
+    expect(isEnglish).toBe(true)
+    expect(mock).toHaveBeenCalledTimes(2)
   })
 
   it('check with examples', async () => {

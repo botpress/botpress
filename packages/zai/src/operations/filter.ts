@@ -185,7 +185,7 @@ ${examples.map((x, idx) => `■${idx}:${!!x.filter ? 'true' : 'false'}:${x.reaso
       },
     ]
 
-    const { output, meta } = await ctx.generateContent({
+    const { extracted: partial, meta } = await ctx.generateContent({
       systemPrompt: `
 You are given a list of items. Your task is to filter out the items that meet the condition below.
 You need to return the full list of items with the format:
@@ -208,20 +208,20 @@ The condition is: "${condition}"
           role: 'user',
         },
       ],
-    })
+      transform: (text) => {
+        const indices = text
+          .trim()
+          .split('■')
+          .filter((x) => x.length > 0)
+          .map((x) => {
+            const [idx, filter] = x.split(':')
+            return { idx: parseInt(idx?.trim() ?? ''), filter: filter?.toLowerCase().trim() === 'true' }
+          })
 
-    const answer = output.choices[0]?.content as string
-    const indices = answer
-      .trim()
-      .split('■')
-      .filter((x) => x.length > 0)
-      .map((x) => {
-        const [idx, filter] = x.split(':')
-        return { idx: parseInt(idx?.trim() ?? ''), filter: filter?.toLowerCase().trim() === 'true' }
-      })
-
-    const partial = chunk.filter((_, idx) => {
-      return indices.find((x) => x.idx === idx)?.filter ?? false
+        return chunk.filter((_, idx) => {
+          return indices.find((x) => x.idx === idx && x.filter) ?? false
+        })
+      },
     })
 
     if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {

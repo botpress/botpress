@@ -183,7 +183,7 @@ ${newText}
       }
     }
 
-    const { output } = await ctx.generateContent({
+    let { extracted: result } = await ctx.generateContent({
       systemPrompt: `
 You are summarizing a text. The text is split into ${parts} parts, and you are currently working on part ${iteration}.
 At every step, you will receive the current summary and a new part of the text. You need to amend the summary to include the new information (if needed).
@@ -198,9 +198,14 @@ ${options.format}
       messages: [{ type: 'text', content: format(currentSummary, slice), role: 'user' }],
       maxTokens: generationLength,
       stopSequences: [END],
-    })
+      transform: (text) => {
+        if (!text.trim().length) {
+          throw new Error('The model did not return a valid summary. The response was empty.')
+        }
 
-    let result = output?.choices[0]?.content as string
+        return text
+      },
+    })
 
     if (result.includes(START)) {
       result = result.slice(result.indexOf(START) + START.length)

@@ -1,6 +1,13 @@
-import { Cognitive, Model, GenerateContentInput } from '@botpress/cognitive'
+import { Cognitive, Model, GenerateContentInput, GenerateContentOutput } from '@botpress/cognitive'
 import { Adapter } from './adapters/adapter'
 import { EventEmitter } from './emitter'
+
+type Meta = Awaited<ReturnType<Cognitive['generateContent']>>['meta']
+
+type GenerateContentProps<T> = Omit<GenerateContentInput, 'model' | 'signal'> & {
+  maxRetries?: number
+  transform?: (text: string | undefined, output: GenerateContentOutput) => T
+}
 
 export type ZaiContextProps = {
   client: Cognitive
@@ -107,17 +114,59 @@ export class ZaiContext {
     this._eventEmitter.clear()
   }
 
-  public async generateContent(props: Omit<GenerateContentInput, 'model' | 'signal'>) {
-    return this._client.generateContent({
-      ...props,
-      signal: this.controller.signal,
-      model: this.modelId,
-      meta: {
-        integrationName: props.meta?.integrationName || 'zai',
-        promptCategory: props.meta?.promptCategory || `zai:${this.taskType}`,
-        promptSource: props.meta?.promptSource || `zai:${this.taskType}:${this.taskId ?? 'default'}`,
-      },
-    })
+  public async generateContent<Out = string>(
+    props: GenerateContentProps<Out>
+  ): Promise<{ meta: Meta; output: GenerateContentOutput; text: string | undefined; extracted: Out }> {
+    const maxRetries = Math.max(props.maxRetries ?? 3, 0)
+    const transform = props.transform
+    let lastError: Error | null = null
+    const messages = [...(props.messages || [])]
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await this._client.generateContent({
+          ...props,
+          messages,
+          signal: this.controller.signal,
+          model: this.modelId,
+          meta: {
+            integrationName: props.meta?.integrationName || 'zai',
+            promptCategory: props.meta?.promptCategory || `zai:${this.taskType}`,
+            promptSource: props.meta?.promptSource || `zai:${this.taskType}:${this.taskId ?? 'default'}`,
+          },
+        })
+
+        const content = response.output.choices[0]?.content
+        const str = typeof content === 'string' ? content : content?.[0]?.text || ''
+        let output: Out
+
+        messages.push({
+          role: 'assistant',
+          content: str || '<Invalid output, no content provided>',
+        })
+
+        if (!transform) {
+          output = str as any
+        } else {
+          output = transform(str, response.output)
+        }
+
+        return { meta: response.meta, output: response.output, text: str, extracted: output }
+      } catch (error) {
+        lastError = error as Error
+
+        if (attempt === maxRetries) {
+          throw lastError
+        }
+
+        messages.push({
+          role: 'user',
+          content: `ERROR PARSING OUTPUT\n\n${lastError.message}.\n\nPlease return a valid response addressing the error above.`,
+        })
+      }
+    }
+
+    throw lastError
   }
 
   public get elapsedTime(): number {

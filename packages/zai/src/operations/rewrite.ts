@@ -135,7 +135,7 @@ ${END}
     .map(formatExample)
     .flat()
 
-  const { output, meta } = await ctx.generateContent({
+  const { extracted, meta } = await ctx.generateContent({
     systemPrompt: `
 Rewrite the text between the ${START} and ${END} tags to match the user prompt.
 ${instructions.map((x) => `• ${x}`).join('\n')}
@@ -143,9 +143,16 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
     messages: [...examples, { type: 'text', content: format(original, prompt), role: 'user' }],
     maxTokens: options.length,
     stopSequences: [END],
+    transform: (text) => {
+      if (!text.trim().length) {
+        throw new Error('The model did not return a valid rewrite. The response was empty.')
+      }
+
+      return text
+    },
   })
 
-  let result = output.choices[0]?.content as string
+  let result = extracted
 
   if (result.includes(START)) {
     result = result.slice(result.indexOf(START) + START.length)

@@ -59,7 +59,7 @@ const text = async (prompt: string, _options: Options | undefined, ctx: ZaiConte
 | 300-500 tokens| A long paragraph (200-300 words)   |`.trim()
   }
 
-  const { output } = await ctx.generateContent({
+  const { extracted } = await ctx.generateContent({
     systemPrompt: `
 Generate a text that fulfills the user prompt below. Answer directly to the prompt, without any acknowledgements or fluff. Also, make sure the text is standalone and complete.
 ${instructions.map((x) => `- ${x}`).join('\n')}
@@ -68,9 +68,16 @@ ${chart}
     temperature: 0.7,
     messages: [{ type: 'text', content: prompt, role: 'user' }],
     maxTokens: options.length,
+    transform: (text) => {
+      if (!text.trim().length) {
+        throw new Error('The model did not return a valid summary. The response was empty.')
+      }
+
+      return text
+    },
   })
 
-  return output?.choices?.[0]?.content! as string
+  return extracted
 }
 
 Zai.prototype.text = function (this: Zai, prompt: string, _options?: Options): Response<string> {
