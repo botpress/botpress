@@ -1266,6 +1266,9 @@ importers:
       '@sendgrid/client':
         specifier: ^8.1.5
         version: 8.1.5
+      '@sendgrid/eventwebhook':
+        specifier: ^8.0.0
+        version: 8.0.0
       '@sendgrid/helpers':
         specifier: ^8.0.0
         version: 8.0.0
@@ -6935,6 +6938,13 @@ packages:
       - debug
     dev: false
 
+  /@sendgrid/eventwebhook@8.0.0:
+    resolution: {integrity: sha512-gZpBNoxB3/RfXWJdeltw8JUYp8yLR+GUiDpkcN+ry7msybk2va76vYAtzi1JKri3gxHhEMLo/3uRI2o1YIZU2g==}
+    engines: {node: '>=12.*'}
+    dependencies:
+      starkbank-ecdsa: 1.1.5
+    dev: false
+
   /@sendgrid/helpers@8.0.0:
     resolution: {integrity: sha512-Ze7WuW2Xzy5GT5WRx+yEv89fsg/pgy3T1E3FS0QEx0/VvRmigMZ5qyVGhJz4SxomegDkzXv/i0aFPpHKN8qdAA==}
     engines: {node: '>= 12.0.0'}
@@ -9599,6 +9609,11 @@ packages:
 
   /before-after-hook@2.2.3:
     resolution: {integrity: sha512-NzUnlZexiaH/46WDhANlyR2bXRopNg4F/zuSA3OpZnllCUgRaOF2znDioDWrmbNVsuZk6l9pMquQB38cfBZwkQ==}
+    dev: false
+
+  /big-integer@1.6.52:
+    resolution: {integrity: sha512-QxD8cf2eVqJOOz63z6JIN9BzvVs/dlySa5HGSBH5xtR8dPteIRQnBxxKqkNTiT6jbDTF6jAfrd4oMcND9RGbQg==}
+    engines: {node: '>=0.6'}
     dev: false
 
   /bignumber.js@9.1.1:
@@ -13715,6 +13730,10 @@ packages:
     engines: {node: '>=14'}
     dev: false
 
+  /js-sha256@0.9.0:
+    resolution: {integrity: sha512-sga3MHh9sgQN2+pJ9VYZ+1LPwXOxuBJBA5nrR5/ofPfuiJBE2hnjsaN8se8JznOmGLN2p49Pe5U/ttafcs/apA==}
+    dev: false
+
   /js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -16727,6 +16746,13 @@ packages:
   /standard-as-callback@2.1.0:
     resolution: {integrity: sha512-qoRRSyROncaz1z0mvYqIE4lCd9p2R90i6GxW3uZv5ucSu8tU7B5HXUP1gG8pVZsYNVaXjk8ClXHPttLyxAL48A==}
     dev: true
+
+  /starkbank-ecdsa@1.1.5:
+    resolution: {integrity: sha512-5O9CJ0QF6pTrtDg6dmaHy1GC/2wA1tcXsYanWOCzg+2cZrCDylEvEl6krzI4Zy8ryar00lHErRTT2Q61w/MUVA==}
+    dependencies:
+      big-integer: 1.6.52
+      js-sha256: 0.9.0
+    dev: false
 
   /statuses@2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}

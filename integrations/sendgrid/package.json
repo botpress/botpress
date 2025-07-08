@@ -10,6 +10,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@sendgrid/client": "^8.1.5",
+    "@sendgrid/eventwebhook": "^8.0.0",
     "@sendgrid/helpers": "^8.0.0",
     "@sendgrid/mail": "^8.1.5",
     "markdown-it": "^14.1.0"
