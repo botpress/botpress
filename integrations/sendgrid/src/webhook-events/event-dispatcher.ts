@@ -4,6 +4,9 @@ import { SendGridWebhookEventType } from '../misc/SendGridWebhookEventType'
 import handlers from './handlers'
 import * as bp from '.botpress'
 
+// It's confirmed that the "Event Objects" table in the docs is out of sync because
+// it says the "type" property isn't part of the "bounce" events even though it is.
+
 export const dispatchIntegrationEvent = async (
   props: bp.HandlerProps,
   webhookEvent: z.infer<typeof SendGridWebhookEventSchema>
