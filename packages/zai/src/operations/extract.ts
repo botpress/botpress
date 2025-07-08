@@ -5,10 +5,10 @@ import JSON5 from 'json5'
 import { jsonrepair } from 'jsonrepair'
 
 import { chunk, isArray } from 'lodash-es'
-import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
+import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 import { JsonParsingError } from './errors'
@@ -55,6 +55,7 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
   _options: Options | undefined,
   ctx: ZaiContext
 ): Promise<S['_output']> => {
+  ctx.controller.signal.throwIfAborted()
   let schema = _schema as any as z.ZodType
   const options = Options.parse(_options ?? {})
   const tokenizer = await getTokenizer()
@@ -126,6 +127,8 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
     ).then((results) =>
       results.filter((x) => x.status === 'fulfilled').map((x) => (x as PromiseFulfilledResult<S['_output']>).value)
     )
+
+    ctx.controller.signal.throwIfAborted()
 
     // We run this function recursively until all chunks are merged into a single output
     const rows = all.map((x, idx) => `<part-${idx + 1}>\n${stringify(x, true)}\n</part-${idx + 1}>`).join('\n')
@@ -358,7 +361,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
     }
   }
 
-  if (taskId && ctx.adapter) {
+  if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
     await ctx.adapter.saveExample({
       key: Key,
       taskId: `zai/${taskId}`,

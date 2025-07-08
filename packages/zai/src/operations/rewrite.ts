@@ -1,10 +1,10 @@
 // eslint-disable consistent-type-definitions
 import { z } from '@bpinternal/zui'
 
-import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
+import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 
@@ -47,6 +47,7 @@ const rewrite = async (
   _options: Options | undefined,
   ctx: ZaiContext
 ): Promise<string> => {
+  ctx.controller.signal.throwIfAborted()
   const options = Options.parse(_options ?? {}) as Options
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
@@ -154,7 +155,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
     result = result.slice(0, result.indexOf(END))
   }
 
-  if (taskId && ctx.adapter) {
+  if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
     await ctx.adapter.saveExample({
       key: Key,
       metadata: {

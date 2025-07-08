@@ -115,7 +115,7 @@ export class ZaiContext {
       meta: {
         integrationName: props.meta?.integrationName || 'zai',
         promptCategory: props.meta?.promptCategory || `zai:${this.taskType}`,
-        promptSource: props.meta?.promptSource || `zai:${this.taskType}:${this.taskId}`,
+        promptSource: props.meta?.promptSource || `zai:${this.taskType}:${this.taskId ?? 'default'}`,
       },
     })
   }

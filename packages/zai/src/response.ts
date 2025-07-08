@@ -57,11 +57,25 @@ export class Response<T = any, S = T> implements PromiseLike<S> {
     return this
   }
 
+  public bindSignal(signal: AbortSignal): this {
+    if (signal.aborted) {
+      this.abort(signal.reason)
+    }
+
+    const signalAbort = () => {
+      this.abort(signal.reason)
+    }
+
+    signal.addEventListener('abort', () => signalAbort())
+
+    this.once('complete', () => signal.removeEventListener('abort', signalAbort))
+    this.once('error', () => signal.removeEventListener('abort', signalAbort))
+
+    return this
+  }
+
   public abort(reason?: string | Error) {
     this._context.controller.abort(reason)
-    this._eventEmitter.emit('error', reason)
-    this._eventEmitter.clear()
-    this._context.clear()
   }
 
   public then<TResult1 = S, TResult2 = never>(
@@ -80,6 +94,12 @@ export class Response<T = any, S = T> implements PromiseLike<S> {
         throw reason
       }
     ) as PromiseLike<TResult1 | TResult2>
+  }
+
+  public catch<TResult = never>(
+    onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null
+  ): PromiseLike<S | TResult> {
+    return this._promise.catch(onrejected) as PromiseLike<S | TResult>
   }
 
   public async result(): Promise<{

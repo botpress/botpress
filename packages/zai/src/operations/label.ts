@@ -1,11 +1,11 @@
 // eslint-disable consistent-type-definitions
 import { z } from '@bpinternal/zui'
 
-import { clamp, chunk } from 'lodash-es'
-import { fastHash, stringify, takeUntilTokens } from '../utils'
+import { chunk, clamp } from 'lodash-es'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
+import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 
@@ -142,6 +142,7 @@ const label = async <T extends string>(
     confidence: number
   }
 }> => {
+  ctx.controller.signal.throwIfAborted()
   const options = _Options.parse(_options ?? {}) as unknown as Options<T>
   const labels = _Labels.parse(_labels) as Labels<T>
   const tokenizer = await getTokenizer()
@@ -376,7 +377,7 @@ For example, you can say: "According to Expert Example #1, ..."`.trim(),
     }
   }
 
-  if (taskId && ctx.adapter) {
+  if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
     await ctx.adapter.saveExample({
       key: Key,
       taskType,

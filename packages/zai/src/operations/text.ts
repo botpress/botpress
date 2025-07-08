@@ -25,6 +25,7 @@ declare module '@botpress/zai' {
 }
 
 const text = async (prompt: string, _options: Options | undefined, ctx: ZaiContext): Promise<string> => {
+  ctx.controller.signal.throwIfAborted()
   const options = Options.parse(_options ?? {})
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
@@ -68,6 +69,7 @@ ${chart}
     messages: [{ type: 'text', content: prompt, role: 'user' }],
     maxTokens: options.length,
   })
+
   return output?.choices?.[0]?.content! as string
 }
 

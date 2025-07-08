@@ -63,6 +63,7 @@ const check = async (
   value: boolean
   explanation: string
 }> => {
+  ctx.controller.signal.throwIfAborted()
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
   const PROMPT_COMPONENT = Math.max(model.input.maxTokens - PROMPT_INPUT_BUFFER, 100)
@@ -225,7 +226,7 @@ In your "Analysis", please refer to the Expert Examples # to justify your decisi
     finalAnswer = hasTrue
   }
 
-  if (taskId && ctx.adapter) {
+  if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
     await ctx.adapter.saveExample({
       key: Key,
       taskType,

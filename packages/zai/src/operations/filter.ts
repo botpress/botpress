@@ -2,10 +2,10 @@
 import { z } from '@bpinternal/zui'
 
 import { clamp } from 'lodash-es'
-import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
+import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
@@ -54,6 +54,7 @@ const filter = async <T>(
   _options: Options | undefined,
   ctx: ZaiContext
 ): Promise<Array<T>> => {
+  ctx.controller.signal.throwIfAborted()
   const options = _Options.parse(_options ?? {}) as Options
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
@@ -223,7 +224,7 @@ The condition is: "${condition}"
       return indices.find((x) => x.idx === idx)?.filter ?? false
     })
 
-    if (taskId && ctx.adapter) {
+    if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
       const key = fastHash(
         stringify({
           taskId,

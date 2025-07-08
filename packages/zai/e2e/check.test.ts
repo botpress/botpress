@@ -1,6 +1,7 @@
 import { describe, it, expect, afterAll, beforeEach, afterEach } from 'vitest'
 import { BotpressDocumentation, getClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
+import { getCognitiveClient } from './client'
 
 describe('zai.check', { timeout: 60_000 }, () => {
   const zai = getZai()
@@ -20,6 +21,28 @@ describe('zai.check', { timeout: 60_000 }, () => {
     expect(output.explanation.length).toBeGreaterThan(5)
     expect(usage.requests.requests).toBeGreaterThanOrEqual(1)
     expect(usage.requests.responses).toBeGreaterThanOrEqual(1)
+  })
+
+  it('can abort', async () => {
+    // no caching
+    const request = getZai(getCognitiveClient()).check(
+      'This text is very clearly written in English.',
+      'is an english sentence' + Date.now()
+    )
+
+    setTimeout(() => request.abort('CANCEL'), 50) // Abort after 50ms
+    await expect(request).rejects.toThrow('CANCEL')
+  })
+
+  it('can abort via external signal', async () => {
+    // no caching
+    const controller = new AbortController()
+    const request = getZai(getCognitiveClient())
+      .check('This text is very clearly written in English.', 'is an english sentence' + Date.now())
+      .bindSignal(controller.signal)
+
+    setTimeout(() => controller.abort('CANCEL2'), 50) // Abort after 50ms
+    await expect(request).rejects.toThrow('CANCEL2')
   })
 
   it('text that is too long gets truncated', async () => {

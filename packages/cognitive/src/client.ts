@@ -62,6 +62,8 @@ export class Cognitive {
     copy._models = [...this._models]
     copy._preferences = this._preferences ? { ...this._preferences } : null
     copy._downtimes = [...this._downtimes]
+    copy.interceptors.request = this.interceptors.request
+    copy.interceptors.response = this.interceptors.response
 
     return copy
   }
@@ -194,6 +196,7 @@ export class Cognitive {
           if (signal?.aborted) {
             // We don't want to retry if the request was aborted
             this._events.emit('aborted', props, err)
+            signal.throwIfAborted()
             return false
           }
 

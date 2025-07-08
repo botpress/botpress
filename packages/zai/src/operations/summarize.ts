@@ -66,6 +66,7 @@ const START = '■START■'
 const END = '■END■'
 
 const summarize = async (original: string, options: Options, ctx: ZaiContext): Promise<string> => {
+  ctx.controller.signal.throwIfAborted()
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
 
