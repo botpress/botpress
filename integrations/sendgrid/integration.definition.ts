@@ -58,13 +58,13 @@ export default new IntegrationDefinition({
     opened: {
       title: 'Email Opened',
       description:
-        "An event that triggers when the SendGrid API detects that an email has been opened by the recipient. (Must have 'Open Tracking' enabled. Note: This may be subject to privacy regulations of the email recipient's country)",
+        "An event that triggers when the SendGrid API detects that an email has been opened by the recipient. (Must have 'Open Tracking' enabled)\n\nNote: This may be subject to privacy regulations of the email recipient's country",
       schema: WebhookEmailEventPayload,
     },
     clicked: {
       title: 'Email Link Clicked',
       description:
-        "An event that triggers when the SendGrid API detects that a link in the email has been clicked on by the recipient. (Must have 'Click Tracking' enabled. Note: This may be subject to privacy regulations of the email recipient's country)",
+        "An event that triggers when the SendGrid API detects that a link in the email has been clicked on by the recipient.(Must have 'Click Tracking' enabled)\n\nNote: This may be subject to privacy regulations of the email recipient's country",
       schema: WebhookEmailEventPayload,
     },
   },
