@@ -3,7 +3,6 @@ import * as bp from '../../../.botpress'
 import { ClickedEmailWebhookSchema } from '../../../definitions/external'
 import { unixTimestampToUtcDatetime } from '../../misc/utils'
 
-// For this to work, the end-user needs to have hyperlink click tracking enabled in the SendGrid dashboard
 export const handleClickedEvent = async (
   { client }: bp.HandlerProps,
   event: z.infer<typeof ClickedEmailWebhookSchema>
@@ -17,7 +16,6 @@ export const handleClickedEvent = async (
       timestamp: unixTimestampToUtcDatetime(event.timestamp),
       url: event.url,
       urlOffset: event.url_offset.index,
-      // Check if "marketing_campaign_id" and "marketing_campaign_name" is present in this webhook event
     },
   })
 }
