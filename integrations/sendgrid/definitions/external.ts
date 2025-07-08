@@ -1,46 +1,52 @@
 import { z } from '@botpress/sdk'
-import { SendGridWebhookEventType } from '../src/misc/SendGridWebhookEventType'
 
-const _BaseSendGridWebhookEventSchema = z.object({
+const _baseSendGridWebhookEventSchema = z.object({
   sg_event_id: z.string(),
   timestamp: z.number(),
 })
 
-export const BouncedEmailWebhookSchema = _BaseSendGridWebhookEventSchema.extend({
-  event: z.literal(SendGridWebhookEventType.BOUNCE).describe('The type of event that was triggered'),
+export type BouncedEmailWebhook = z.infer<typeof bouncedEmailWebhookSchema>
+export const bouncedEmailWebhookSchema = _baseSendGridWebhookEventSchema.extend({
+  event: z.literal('bounce').describe('The type of event that was triggered'),
   /** "sg_message_id" is only absent during "Asynchronous Bounces" */
   sg_message_id: z.string().optional().describe('A SendGrid ID for a sent email message'),
   bounce_classification: z.string(),
+  /** The "Event Objects" table in the docs is out of sync because it says the "type" property isn't part of the "bounce" events even though it is. */
   type: z.string(),
 })
 
 /** For event types which are associated with a sent email. They should always have the "sg_message_id" property */
-const _BaseSentEmailWebhookEventSchema = _BaseSendGridWebhookEventSchema.extend({
+const _baseSentEmailWebhookEventSchema = _baseSendGridWebhookEventSchema.extend({
   sg_message_id: z.string().describe('A SendGrid ID for a sent email message'),
 })
 
-export const DeliveredEmailWebhookSchema = _BaseSentEmailWebhookEventSchema.extend({
-  event: z.literal(SendGridWebhookEventType.DELIVERED).describe('The type of event that was triggered'),
+export type DeliveredEmailWebhook = z.infer<typeof deliveredEmailWebhookSchema>
+export const deliveredEmailWebhookSchema = _baseSentEmailWebhookEventSchema.extend({
+  event: z.literal('delivered').describe('The type of event that was triggered'),
   email: z.string(),
 })
 
-export const ProcessedEmailWebhookSchema = _BaseSentEmailWebhookEventSchema.extend({
-  event: z.literal(SendGridWebhookEventType.PROCESSED).describe('The type of event that was triggered'),
+export type ProcessedEmailWebhook = z.infer<typeof processedEmailWebhookSchema>
+export const processedEmailWebhookSchema = _baseSentEmailWebhookEventSchema.extend({
+  event: z.literal('processed').describe('The type of event that was triggered'),
   send_at: z.number(),
 })
 
-export const DeferredEmailWebhookSchema = _BaseSentEmailWebhookEventSchema.extend({
-  event: z.literal(SendGridWebhookEventType.DEFERRED).describe('The type of event that was triggered'),
+export type DeferredEmailWebhook = z.infer<typeof deferredEmailWebhookSchema>
+export const deferredEmailWebhookSchema = _baseSentEmailWebhookEventSchema.extend({
+  event: z.literal('deferred').describe('The type of event that was triggered'),
   attempt: z.string(),
 })
 
-export const OpenedEmailWebhookSchema = _BaseSentEmailWebhookEventSchema.extend({
-  event: z.literal(SendGridWebhookEventType.OPEN).describe('The type of event that was triggered'),
+export type OpenedEmailWebhook = z.infer<typeof openedEmailWebhookSchema>
+export const openedEmailWebhookSchema = _baseSentEmailWebhookEventSchema.extend({
+  event: z.literal('open').describe('The type of event that was triggered'),
   email: z.string(),
 })
 
-export const ClickedEmailWebhookSchema = _BaseSentEmailWebhookEventSchema.extend({
-  event: z.literal(SendGridWebhookEventType.CLICK).describe('The type of event that was triggered'),
+export type ClickedEmailWebhook = z.infer<typeof clickedEmailWebhookSchema>
+export const clickedEmailWebhookSchema = _baseSentEmailWebhookEventSchema.extend({
+  event: z.literal('click').describe('The type of event that was triggered'),
   email: z.string(),
   url: z.string().describe('The url of the clicked link'),
   /** The "url_offset" is to better track which link was
@@ -51,11 +57,12 @@ export const ClickedEmailWebhookSchema = _BaseSentEmailWebhookEventSchema.extend
   }),
 })
 
-export const SendGridWebhookEventSchema = z.union([
-  ProcessedEmailWebhookSchema,
-  DeliveredEmailWebhookSchema,
-  DeferredEmailWebhookSchema,
-  BouncedEmailWebhookSchema,
-  OpenedEmailWebhookSchema,
-  ClickedEmailWebhookSchema,
+export type SendGridWebhookEvent = z.infer<typeof sendGridWebhookEventSchema>
+export const sendGridWebhookEventSchema = z.union([
+  processedEmailWebhookSchema,
+  deliveredEmailWebhookSchema,
+  deferredEmailWebhookSchema,
+  bouncedEmailWebhookSchema,
+  openedEmailWebhookSchema,
+  clickedEmailWebhookSchema,
 ])

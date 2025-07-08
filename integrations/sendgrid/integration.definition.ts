@@ -1,12 +1,12 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sendEmailOutputSchema, sendMailInputSchema } from './definitions/actions'
 import {
-  BouncedEmailEventPayload,
-  ClickedEmailLinkEventPayload,
-  DeferredEmailEventPayload,
-  DeliveredEmailEventPayload,
-  OpenedEmailEventPayload,
-  ProcessedEmailEventPayload,
+  bouncedEmailEventSchema,
+  clickedEmailLinkEventSchema,
+  deferredEmailEventSchema,
+  deliveredEmailEventSchema,
+  openedEmailEventSchema,
+  processedEmailEventSchema,
 } from './definitions/events'
 
 export default new IntegrationDefinition({
@@ -38,36 +38,36 @@ export default new IntegrationDefinition({
       title: 'Email Delivered',
       description:
         "An event that triggers when the SendGrid API delivers a given email to the recipient's email server. (This can also trigger alongside email bounces among other events)",
-      schema: DeliveredEmailEventPayload,
+      schema: deliveredEmailEventSchema,
     },
     bounced: {
       title: 'Email Bounced',
       description:
         'An event that triggers when an email sent via the SendGrid API bounces. (e.g. Invalid Address, blocked, etc)',
-      schema: BouncedEmailEventPayload,
+      schema: bouncedEmailEventSchema,
     },
     deferred: {
       title: 'Email Deferred',
       description:
         "An event that triggers when the SendGrid API fails a delivery attempt to the recipient's email server. (This will often re-attempt a few times before stopping)",
-      schema: DeferredEmailEventPayload,
+      schema: deferredEmailEventSchema,
     },
     processed: {
       title: 'Email Processed',
       description: 'An event that triggers when the SendGrid API has processed an outbound email.',
-      schema: ProcessedEmailEventPayload,
+      schema: processedEmailEventSchema,
     },
     opened: {
       title: 'Email Opened',
       description:
         "An event that triggers when the SendGrid API detects that an email has been opened by the recipient. (Must have 'Open Tracking' enabled)\n\nNote: This may be subject to privacy regulations of the email recipient's country",
-      schema: OpenedEmailEventPayload,
+      schema: openedEmailEventSchema,
     },
     clicked: {
       title: 'Email Link Clicked',
       description:
         "An event that triggers when the SendGrid API detects that a link in the email has been clicked on by the recipient.(Must have 'Click Tracking' enabled)\n\nNote: This may be subject to privacy regulations of the email recipient's country",
-      schema: ClickedEmailLinkEventPayload,
+      schema: clickedEmailLinkEventSchema,
     },
   },
 })
