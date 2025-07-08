@@ -1,12 +1,8 @@
-import { z } from '@botpress/sdk'
-import { sendGridWebhookEventSchema } from '../../definitions/external'
+import { SendGridWebhookEvent } from '../../definitions/external'
 import handlers from './handlers'
 import * as bp from '.botpress'
 
-export const dispatchIntegrationEvent = async (
-  props: bp.HandlerProps,
-  webhookEvent: z.infer<typeof sendGridWebhookEventSchema>
-) => {
+export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEvent: SendGridWebhookEvent) => {
   switch (webhookEvent.event) {
     case 'delivered':
       return await handlers.handleDeliveredEvent(props, webhookEvent)
