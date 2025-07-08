@@ -19,6 +19,7 @@ type Body = {
 type Representation =
   | 'storage' // storage means HTML
   | 'atlas_doc_format' // format parsed for conversion to markdown
+  | 'view'
 export type CreatePageBody = {
   spaceId: string
 } & BasePageBody
@@ -86,12 +87,16 @@ export const ConfluenceClient = ({ user, host, apiToken }: configuration.Configu
       }
     },
     getSpace: async ({ spaceId }: { spaceId: number }) => {
-      const response = await axios.get(`${apiBase}/spaces/${spaceId}?body-format=ATLAS_DOC_FORMAT`, config)
+      const response = await axios.get(`${apiBase}/spaces/${spaceId}`, config)
       return response.data as Space
     },
     getPage: async ({ pageId }: { pageId: number }) => {
       const response = await axios.get(`${apiBase}/pages/${pageId}?body-format=ATLAS_DOC_FORMAT`, config)
       return response.data as Page.InferredType
+    },
+    getPageHtml: async ({ pageId }: { pageId: number }): Promise<string | undefined> => {
+      const response = await axios.get(`${apiBase}/pages/${pageId}?body-format=view`, config)
+      return response.data.body?.view?.value
     },
     getDirectChildren: async ({
       entityId,
@@ -140,7 +145,7 @@ export const ConfluenceClient = ({ user, host, apiToken }: configuration.Configu
         throw new Error('Body is required')
       }
 
-      const value = convertMarkdownToHtml(input.item.body.atlas_doc_format.value)
+      const value = await convertMarkdownToHtml(input.item.body.atlas_doc_format.value)
       const request: CreatePageBody = {
         spaceId: input.item.spaceId,
         status: 'current',
@@ -164,7 +169,7 @@ export const ConfluenceClient = ({ user, host, apiToken }: configuration.Configu
         throw new Error('Body is required')
       }
 
-      const value = convertMarkdownToHtml(input.item.body.atlas_doc_format.value)
+      const value = await convertMarkdownToHtml(input.item.body.atlas_doc_format.value)
 
       const request: UpdatePageBody = {
         id: input.item.id,

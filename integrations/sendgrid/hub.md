@@ -32,7 +32,7 @@
 
 ## Side Notes
 
-The current implementation is limited to only sending plain text emails, though this will be expanded upon in the future.
+The current implementation is limited to only sending [markdown](https://spec.commonmark.org/0.31.2/) rich text emails, though this will be expanded upon in the future.
 
 ## Resources
 

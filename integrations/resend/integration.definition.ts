@@ -4,10 +4,10 @@ import { sendEmailOutputSchema, sendMailInputSchema } from './definitions/action
 export default new IntegrationDefinition({
   name: 'resend',
   title: 'Resend',
-  version: '0.0.1',
+  version: '0.1.1',
   readme: 'hub.md',
   icon: 'icon.svg',
-  description: 'Send simple plain text emails using the Resend email service.',
+  description: 'Send markdown rich-text emails using the Resend email service.',
   configuration: {
     schema: z.object({
       apiKey: z.string().secret().min(1).describe('Your Resend API Key').title('Resend API Key'),

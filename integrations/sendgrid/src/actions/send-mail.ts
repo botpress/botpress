@@ -1,9 +1,10 @@
 import { RuntimeError } from '@botpress/sdk'
 import sgMail from '@sendgrid/mail'
+import { markdownToHtml } from '../misc/markdown-utils'
 import { parseError } from '../misc/utils'
 import * as bp from '.botpress'
 
-export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ input, logger }) => {
+export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ ctx, input, logger }) => {
   try {
     const [response] = await sgMail.send({
       personalizations: [
@@ -12,9 +13,11 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
         },
       ],
       from: input.from,
+      cc: input.cc,
+      bcc: input.bcc,
       replyTo: input.replyTo,
       subject: input.subject,
-      text: input.body,
+      html: markdownToHtml(input.body),
     })
 
     if (response.statusCode < 200 && response.statusCode >= 300) {
@@ -24,7 +27,7 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
 
     return {}
   } catch (thrown: unknown) {
-    const error = parseError(thrown)
+    const error = parseError(ctx, thrown)
     logger.forBot().error('Failed to send email', error)
     throw error
   }

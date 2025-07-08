@@ -1,5 +1,6 @@
-import { WHATSAPP } from 'src/misc/constants'
 import { Text, Interactive, ActionButtons, Button } from 'whatsapp-api-js/messages'
+import { WHATSAPP } from '../../misc/constants'
+import { convertMarkdownToWhatsApp } from '../../misc/markdown-to-whatsapp-rtf'
 import { chunkArray, hasAtleastOne, truncate } from '../../misc/util'
 import * as body from './interactive/body'
 import * as button from './interactive/button'
@@ -16,7 +17,7 @@ export function* generateOutgoingMessages({
   logger: bp.Logger
 }) {
   if (options.length === 0) {
-    yield new Text(text)
+    yield new Text(convertMarkdownToWhatsApp(text))
   } else {
     const chunks = chunkArray(options, WHATSAPP.INTERACTIVE_MAX_BUTTONS_COUNT)
 

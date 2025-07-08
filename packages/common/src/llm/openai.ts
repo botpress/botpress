@@ -80,11 +80,26 @@ export async function generateContent<M extends string>(
     })
   }
 
+  let maxTokens: number | undefined = undefined
+
+  if (input.maxTokens) {
+    if (input.maxTokens <= model.output.maxTokens) {
+      maxTokens = input.maxTokens
+    } else {
+      maxTokens = model.output.maxTokens
+      logger
+        .forBot()
+        .warn(
+          `Received maxTokens parameter greater than the maximum output tokens allowed for model "${modelId}", capping maxTokens to ${maxTokens}`
+        )
+    }
+  }
+
   let response: OpenAI.Chat.Completions.ChatCompletion | undefined
 
   let request: ChatCompletionCreateParamsNonStreaming = {
     model: modelId,
-    max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and is defaulting this to 0
+    max_tokens: maxTokens,
     temperature: input.temperature,
     top_p: input.topP,
     response_format: input.responseFormat === 'json_object' ? { type: 'json_object' } : undefined,

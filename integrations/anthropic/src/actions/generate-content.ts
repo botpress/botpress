@@ -65,9 +65,23 @@ export async function generateContent(
 
   let response: Anthropic.Messages.Message | undefined
 
+  let maxTokens = model.output.maxTokens
+
+  if (input.maxTokens) {
+    if (input.maxTokens <= model.output.maxTokens) {
+      maxTokens = input.maxTokens
+    } else {
+      logger
+        .forBot()
+        .warn(
+          `Received maxTokens parameter greater than the maximum output tokens allowed for model "${modelId}", capping maxTokens to ${maxTokens}`
+        )
+    }
+  }
+
   const request: MessageCreateParamsNonStreaming = {
     model: modelId,
-    max_tokens: input.maxTokens || model.output.maxTokens,
+    max_tokens: maxTokens,
     temperature: input.temperature,
     top_p: input.topP,
     system: input.systemPrompt,
