@@ -2303,7 +2303,7 @@ importers:
         version: link:../client
       '@botpress/cognitive':
         specifier: 0.1.28
-        version: link:../cognitive
+        version: 0.1.28
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
         version: 1.0.5
@@ -2476,7 +2476,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.28
+        specifier: 0.1.29
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -2503,6 +2503,9 @@ importers:
       '@botpress/vai':
         specifier: workspace:*
         version: link:../vai
+      '@size-limit/file':
+        specifier: ^11.1.6
+        version: 11.1.6(size-limit@11.1.6)
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
@@ -2521,6 +2524,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      size-limit:
+        specifier: ^11.1.6
+        version: 11.1.6
       tsup:
         specifier: ^8.0.2
         version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
@@ -4448,6 +4454,14 @@ packages:
       - openapi-types
       - supports-color
     dev: true
+
+  /@botpress/cognitive@0.1.28:
+    resolution: {integrity: sha512-b8HMkjjUnsc1I7TTXvHqmU+CcM4ktMXzv/ESNm96CayhUeijLW5VF8oJyyk8Y+dcx2Icmp8H2lRvSV89oiukvg==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      exponential-backoff: 3.1.1
+      nanoevents: 9.1.0
+    dev: false
 
   /@bpinternal/const@0.1.0:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
