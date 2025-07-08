@@ -1,12 +1,8 @@
-import { z } from '@botpress/sdk'
 import * as bp from '../../../.botpress'
-import { DeferredEmailWebhookSchema } from '../../../definitions/external'
+import { DeferredEmailWebhook } from '../../../definitions/external'
 import { unixTimestampToUtcDatetime } from '../../misc/utils'
 
-export const handleDeferredEvent = async (
-  { client }: bp.HandlerProps,
-  event: z.infer<typeof DeferredEmailWebhookSchema>
-) => {
+export const handleDeferredEvent = async ({ client }: bp.HandlerProps, event: DeferredEmailWebhook) => {
   return await client.createEvent({
     type: 'deferred',
     payload: {

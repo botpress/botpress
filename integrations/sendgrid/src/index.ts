@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import sgClient from '@sendgrid/client'
 import sgMail from '@sendgrid/mail'
-import { SendGridWebhookEventSchema } from '../definitions/external'
+import { sendGridWebhookEventSchema } from '../definitions/external'
 import actions from './actions'
 import { parseError } from './misc/utils'
 import { dispatchIntegrationEvent } from './webhook-events/event-dispatcher'
@@ -44,7 +44,7 @@ export default new bp.Integration({
       for (const item of parsedBody) {
         // This approach is a bit stinky, but it's the only reliable way I could think of to not have
         // unhandled webhook events crash the handler when they can also come in with valid events
-        const result = SendGridWebhookEventSchema.safeParse(item)
+        const result = sendGridWebhookEventSchema.safeParse(item)
         if (!result.success) {
           props.logger.error('Unable to parse sendgrid webhook event', result.error, item)
           continue

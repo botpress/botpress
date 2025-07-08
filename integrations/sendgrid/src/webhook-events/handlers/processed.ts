@@ -1,12 +1,8 @@
-import { z } from '@botpress/sdk'
 import * as bp from '../../../.botpress'
-import { ProcessedEmailWebhookSchema } from '../../../definitions/external'
+import { ProcessedEmailWebhook } from '../../../definitions/external'
 import { unixTimestampToUtcDatetime } from '../../misc/utils'
 
-export const handleProcessedEvent = async (
-  { client }: bp.HandlerProps,
-  event: z.infer<typeof ProcessedEmailWebhookSchema>
-) => {
+export const handleProcessedEvent = async ({ client }: bp.HandlerProps, event: ProcessedEmailWebhook) => {
   return await client.createEvent({
     type: 'processed',
     payload: {
