@@ -109,7 +109,7 @@ export async function generateContent(
     request.top_p = undefined
   }
 
-  if (request.max_tokens >= model.output.maxTokens) {
+  if (request.max_tokens > model.output.maxTokens) {
     request.max_tokens = model.output.maxTokens
     logger
       .forBot()
