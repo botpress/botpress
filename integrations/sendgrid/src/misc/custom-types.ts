@@ -32,6 +32,7 @@ type SendGridErrorResponseBody = {
   errors: SendGridError[]
 }
 
+// This will be removed soon (Once I implement the remaining webhook events)
 export type SendGridWebhookEvent<T extends string = string> = object & {
   /** The type of event that was triggered */
   event: T
@@ -44,5 +45,3 @@ export type SendGridWebhookEvent<T extends string = string> = object & {
   /** A Unix timestamp of when the event was triggered in SendGrid's system */
   timestamp: number
 }
-
-export type SendGridWebhookResp = SendGridWebhookEvent[]

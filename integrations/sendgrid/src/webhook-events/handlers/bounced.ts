@@ -1,25 +1,12 @@
+import { z } from '@botpress/sdk'
 import * as bp from '../../../.botpress'
-import { SendGridWebhookEvent } from '../../misc/custom-types'
-import { hasPropOfType, unixTimestampToUtcDatetime } from '../../misc/utils'
+import { BouncedEmailWebhookSchema } from '../../../definitions/external'
+import { unixTimestampToUtcDatetime } from '../../misc/utils'
 
-const BOUNCE_CLASSIFICATION_PROP = 'bounce_classification' as const
-const BOUNCE_TYPE_PROP = 'type' as const
-
-export const handleBouncedEvent = async ({ client, logger }: bp.HandlerProps, event: SendGridWebhookEvent) => {
-  if (
-    !hasPropOfType(event, BOUNCE_CLASSIFICATION_PROP, 'string') ||
-    !hasPropOfType(event, BOUNCE_TYPE_PROP, 'string')
-  ) {
-    const invalidProps = [BOUNCE_CLASSIFICATION_PROP, BOUNCE_TYPE_PROP]
-      .filter((property) => hasPropOfType(event, property, 'string'))
-      .join('", "')
-
-    logger.error(
-      `The following properties were either not present or of an unexpected type on the SendGrid Bounce Event "${invalidProps}"`
-    )
-    return
-  }
-
+export const handleBouncedEvent = async (
+  { client }: bp.HandlerProps,
+  event: z.infer<typeof BouncedEmailWebhookSchema>
+) => {
   await client.createEvent({
     type: 'bounced',
     payload: {

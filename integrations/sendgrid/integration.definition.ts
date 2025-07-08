@@ -4,13 +4,15 @@ import {
   BouncedEmailEventPayload,
   DeferredEmailEventPayload,
   DeliveredEmailEventPayload,
+  OpenedEmailEventPayload,
+  ProcessedEmailEventPayload,
   WebhookEmailEventPayload,
 } from './definitions/events'
 
 export default new IntegrationDefinition({
   name: 'sendgrid',
   title: 'SendGrid',
-  version: '0.1.2',
+  version: '0.1.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send markdown rich-text emails using the SendGrid email service.',
@@ -53,13 +55,13 @@ export default new IntegrationDefinition({
     processed: {
       title: 'Email Processed',
       description: 'An event that triggers when the SendGrid API has processed an outbound email.',
-      schema: WebhookEmailEventPayload,
+      schema: ProcessedEmailEventPayload,
     },
     opened: {
       title: 'Email Opened',
       description:
         "An event that triggers when the SendGrid API detects that an email has been opened by the recipient. (Must have 'Open Tracking' enabled)\n\nNote: This may be subject to privacy regulations of the email recipient's country",
-      schema: WebhookEmailEventPayload,
+      schema: OpenedEmailEventPayload,
     },
     clicked: {
       title: 'Email Link Clicked',

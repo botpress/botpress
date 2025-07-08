@@ -1,17 +1,12 @@
-import { SendGridWebhookEvent } from '../../misc/custom-types'
-import { hasPropOfType, unixTimestampToUtcDatetime } from '../../misc/utils'
+import { z } from '@botpress/sdk'
+import { DeliveredEmailWebhookSchema } from '../../../definitions/external'
+import { unixTimestampToUtcDatetime } from '../../misc/utils'
 import * as bp from '.botpress'
 
-const DELIVERED_EMAIL_PROP = 'email' as const
-
-export const handleDeliveredEvent = async ({ client, logger }: bp.HandlerProps, event: SendGridWebhookEvent) => {
-  if (!hasPropOfType(event, DELIVERED_EMAIL_PROP, 'string')) {
-    logger.error(
-      `The '${DELIVERED_EMAIL_PROP}' property was either not present or of an unexpected type on the SendGrid Delivered Event`
-    )
-    return
-  }
-
+export const handleDeliveredEvent = async (
+  { client }: bp.HandlerProps,
+  event: z.infer<typeof DeliveredEmailWebhookSchema>
+) => {
   return await client.createEvent({
     type: 'delivered',
     payload: {

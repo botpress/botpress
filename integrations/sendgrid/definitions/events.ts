@@ -1,4 +1,5 @@
 import { z } from '@botpress/sdk'
+import { EmailAddressSchema } from './common'
 
 export const WebhookEmailEventPayload = z.object({
   eventId: z.string().describe('The ID for the webhook event').title('Webhook event ID'),
@@ -13,11 +14,19 @@ export const WebhookEmailEventPayload = z.object({
     .title('Event timestamp'),
 })
 
+export const ProcessedEmailEventPayload = WebhookEmailEventPayload.extend({
+  sendAt: z
+    .string()
+    .datetime()
+    .describe('A UTC datetime representing when the email is scheduled to be sent at')
+    .title('Scheduled send timestamp'),
+})
+
 export const DeferredEmailEventPayload = WebhookEmailEventPayload.extend({
   attempt: z
-    .number()
-    .describe('The number of delivery attempts that have been made for the sent email (Zero-based index)')
-    .title('# of attempts'),
+    .string()
+    .describe('The delivery attempts that have been made for the sent email')
+    .title('Delivery attempts'),
 })
 
 export const DeliveredEmailEventPayload = WebhookEmailEventPayload.extend({
@@ -26,14 +35,18 @@ export const DeliveredEmailEventPayload = WebhookEmailEventPayload.extend({
 
 // So far this has only been seen in Bounce events, but I will check the other error events
 // to see if they also contain this. Otherwise, I will merge into 'BouncedEmailEventPayload'
-export const EmailErrorEventPayload = WebhookEmailEventPayload.extend({
+const _EmailErrorEventPayload = WebhookEmailEventPayload.extend({
   reason: z.string().optional().describe('The reason this event was triggered').title('Event reason'),
 })
 
-export const BouncedEmailEventPayload = EmailErrorEventPayload.extend({
+export const BouncedEmailEventPayload = _EmailErrorEventPayload.extend({
   classification: z.string().describe('The SendGrid classification for the bounce').title('Bounce classification'),
   type: z
     .string()
     .describe('The SendGrid type for why the email bounced (e.g. "bounce", "blocked", etc.)')
     .title('Bounce type'),
+})
+
+export const OpenedEmailEventPayload = _EmailErrorEventPayload.extend({
+  email: EmailAddressSchema.describe('The designated recipient of the email').title('Email recipient'),
 })
