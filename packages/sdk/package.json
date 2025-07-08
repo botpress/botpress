@@ -16,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "1.17.0",
+    "@botpress/client": "1.17.1",
     "browser-or-node": "^2.1.1"
   },
   "devDependencies": {
