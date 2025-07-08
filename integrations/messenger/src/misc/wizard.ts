@@ -1,7 +1,6 @@
 import { Request } from '@botpress/sdk'
 import queryString from 'query-string'
 import * as bp from '../../.botpress'
-import { getOAuthConfigId } from '../../integration.definition'
 import { MetaClient } from './client'
 import { generateButtonDialog, generateSelectDialog, getInterstitialUrl, redirectTo } from './html-utils'
 
@@ -39,7 +38,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
         '&redirect_uri=' +
         getWizardStepUrl(undefined, ctx) +
         '&config_id=' +
-        getOAuthConfigId() +
+        bp.secrets.OAUTH_CONFIG_ID +
         '&override_default_response_type=true' +
         '&response_type=code'
     )
