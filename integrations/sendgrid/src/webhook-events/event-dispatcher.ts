@@ -19,6 +19,8 @@ export const dispatchIntegrationEvent = async (
       return await handlers.handleBouncedEvent(props, webhookEvent)
     case SendGridWebhookEventType.OPEN:
       return await handlers.handleOpenedEvent(props, webhookEvent)
+    case SendGridWebhookEventType.CLICK:
+      return await handlers.handleClickedEvent(props, webhookEvent)
     default:
       return null
   }

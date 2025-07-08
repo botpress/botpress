@@ -50,3 +50,14 @@ export const BouncedEmailEventPayload = _EmailErrorEventPayload.extend({
 export const OpenedEmailEventPayload = _EmailErrorEventPayload.extend({
   email: EmailAddressSchema.describe('The designated recipient of the email').title('Email recipient'),
 })
+
+export const ClickedEmailLinkEventPayload = _EmailErrorEventPayload.extend({
+  email: EmailAddressSchema.describe('The designated recipient of the email').title('Email recipient'),
+  url: z.string().describe('The destination URL of the link that was clicked').title('Clicked URL'),
+  urlOffset: z
+    .number()
+    .describe(
+      'A zero-based index, ordered by first appearance, of which link was clicked in an email when it shares a "url" with another link'
+    )
+    .title('URL offset'),
+})

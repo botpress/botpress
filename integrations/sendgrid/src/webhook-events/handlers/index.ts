@@ -1,4 +1,5 @@
 import { handleBouncedEvent } from './bounced'
+import { handleClickedEvent } from './clicked'
 import { handleDeferredEvent } from './deferred'
 import { handleDeliveredEvent } from './delivered'
 import { handleOpenedEvent } from './opened'
@@ -10,4 +11,5 @@ export default {
   handleDeferredEvent,
   handleBouncedEvent,
   handleOpenedEvent,
+  handleClickedEvent,
 }

@@ -2,11 +2,11 @@ import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sendEmailOutputSchema, sendMailInputSchema } from './definitions/actions'
 import {
   BouncedEmailEventPayload,
+  ClickedEmailLinkEventPayload,
   DeferredEmailEventPayload,
   DeliveredEmailEventPayload,
   OpenedEmailEventPayload,
   ProcessedEmailEventPayload,
-  WebhookEmailEventPayload,
 } from './definitions/events'
 
 export default new IntegrationDefinition({
@@ -67,7 +67,7 @@ export default new IntegrationDefinition({
       title: 'Email Link Clicked',
       description:
         "An event that triggers when the SendGrid API detects that a link in the email has been clicked on by the recipient.(Must have 'Click Tracking' enabled)\n\nNote: This may be subject to privacy regulations of the email recipient's country",
-      schema: WebhookEmailEventPayload,
+      schema: ClickedEmailLinkEventPayload,
     },
   },
 })

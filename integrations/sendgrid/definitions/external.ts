@@ -39,10 +39,23 @@ export const OpenedEmailWebhookSchema = _BaseSentEmailWebhookEventSchema.extend(
   email: z.string(),
 })
 
+export const ClickedEmailWebhookSchema = _BaseSentEmailWebhookEventSchema.extend({
+  event: z.literal(SendGridWebhookEventType.CLICK).describe('The type of event that was triggered'),
+  email: z.string(),
+  url: z.string().describe('The url of the clicked link'),
+  /** The "url_offset" is to better track which link was
+   *  clicked when more than 1 link shares the same url. */
+  url_offset: z.object({
+    index: z.number().describe('A zero-based index which link was clicked in the email ordered by first appearance'),
+    type: z.string(),
+  }),
+})
+
 export const SendGridWebhookEventSchema = z.union([
   ProcessedEmailWebhookSchema,
   DeliveredEmailWebhookSchema,
   DeferredEmailWebhookSchema,
   BouncedEmailWebhookSchema,
   OpenedEmailWebhookSchema,
+  ClickedEmailWebhookSchema,
 ])

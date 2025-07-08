@@ -4,4 +4,7 @@ export const enum SendGridWebhookEventType {
   DEFERRED = 'deferred',
   BOUNCE = 'bounce',
   OPEN = 'open',
+  /** When a link inside the
+   *  email body was clicked */
+  CLICK = 'click',
 }
