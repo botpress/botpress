@@ -2,10 +2,8 @@ import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import typingIndicator from 'bp_modules/typing-indicator'
 
-export const INTEGRATION_NAME = 'messenger'
-
 export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
+  name: 'messenger',
   version: '3.0.2',
   title: 'Messenger',
   description: 'Give your bot access to one of the world’s largest messaging platform.',
