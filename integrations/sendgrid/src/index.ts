@@ -1,10 +1,10 @@
 import { RuntimeError } from '@botpress/sdk'
 import sgClient from '@sendgrid/client'
 import sgMail from '@sendgrid/mail'
-import { sendGridWebhookEventSchema } from '../definitions/external'
 import actions from './actions'
 import { parseError } from './misc/utils'
 import { dispatchIntegrationEvent } from './webhook-events/event-dispatcher'
+import { sendGridWebhookEventSchema } from './webhook-events/sendgrid-webhook-schemas'
 import * as bp from '.botpress'
 
 export default new bp.Integration({

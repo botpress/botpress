@@ -1,6 +1,6 @@
 import * as bp from '../../../.botpress'
-import { OpenedEmailWebhook } from '../../../definitions/external'
 import { unixTimestampToUtcDatetime } from '../../misc/utils'
+import { OpenedEmailWebhook } from '../sendgrid-webhook-schemas'
 
 export const handleOpenedEvent = async ({ client }: bp.HandlerProps, event: OpenedEmailWebhook) => {
   return await client.createEvent({

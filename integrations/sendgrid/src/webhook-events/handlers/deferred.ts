@@ -1,6 +1,6 @@
 import * as bp from '../../../.botpress'
-import { DeferredEmailWebhook } from '../../../definitions/external'
 import { unixTimestampToUtcDatetime } from '../../misc/utils'
+import { DeferredEmailWebhook } from '../sendgrid-webhook-schemas'
 
 export const handleDeferredEvent = async ({ client }: bp.HandlerProps, event: DeferredEmailWebhook) => {
   return await client.createEvent({
