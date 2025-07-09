@@ -1,7 +1,8 @@
 import sgClient from '@sendgrid/client'
 import sgMail from '@sendgrid/mail'
 import actions from './actions'
-import { parseError, safeParseJson } from './misc/utils'
+import { parseError } from './misc/utils'
+import { parseWebhookData, verifyWebhookSignature } from './misc/webhook-utils'
 import { dispatchIntegrationEvent } from './webhook-events/event-dispatcher'
 import { sendGridWebhookEventSchema } from './webhook-events/sendgrid-webhook-schemas'
 import * as bp from '.botpress'
@@ -28,23 +29,20 @@ export default new bp.Integration({
   unregister: async () => {},
   actions,
   channels: {},
-  handler: async (props) => {
-    if (!props.req.body) {
+  handler: async (props: bp.HandlerProps) => {
+    const data = parseWebhookData(props)
+    if (data === null) return
+
+    if (data.publicKey !== null && !verifyWebhookSignature(data)) {
+      props.logger.forBot().error('The provided SendGrid webhook public signature key is invalid')
       return
     }
 
-    const parsedBody = safeParseJson(props.req.body)
-
-    if (!parsedBody.success) {
-      props.logger.error('Unable to parse SendGrid request body', parsedBody.error)
+    if (!Array.isArray(data.body)) {
       return
     }
 
-    if (!Array.isArray(parsedBody)) {
-      return
-    }
-
-    for (const item of parsedBody) {
+    for (const item of data.body) {
       // This approach is a bit stinky. However, it's the only reliable way I could think of to not
       // have unhandled webhook events crash the handler when they can also come in with valid events
       // (Using ZodArray outside the loop can cause the aforementioned issue)

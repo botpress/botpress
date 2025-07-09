@@ -19,6 +19,15 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z.object({
       apiKey: z.string().secret().min(1).describe('Your SendGrid API Key').title('SendGrid API Key'),
+      publicSignatureKey: z
+        .string()
+        // .secret() // Uncomment secret once the ZUI bug has been fixed (Linear Issue: DEV-3073)
+        .min(1)
+        .optional()
+        .describe(
+          'The public key used to verify the cryptographic signature of the webhook requests (Found in the edit webhook menu)'
+        )
+        .title('Public Webhook Signature Key'),
     }),
   },
   actions: {
