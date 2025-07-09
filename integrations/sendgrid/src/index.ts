@@ -29,7 +29,7 @@ export default new bp.Integration({
   unregister: async () => {},
   actions,
   channels: {},
-  handler: async (props: bp.HandlerProps) => {
+  handler: async (props) => {
     const data = parseWebhookData(props)
     if (data === null) return
 
