@@ -17,7 +17,7 @@ const sendSenderActions = async ({
   props: { client, ctx, input },
   actions,
 }: {
-  props: bp.AnyActionProps
+  props: bp.ActionProps['startTypingIndicator'] | bp.ActionProps['stopTypingIndicator']
   actions: MessengerTypes.SenderAction[]
 }) => {
   const { conversationId } = input
