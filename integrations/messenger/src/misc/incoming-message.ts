@@ -23,7 +23,11 @@ function _getMediaExpiry(ctx: bp.Context) {
   return expiresAt.toISOString()
 }
 
-async function _getOrDownloadMedia(url: string, client: bp.Client, ctx: bp.Context) : Promise<FileMetadata & { url: string }> {
+async function _getOrDownloadMedia(
+  url: string,
+  client: bp.Client,
+  ctx: bp.Context
+): Promise<FileMetadata & { url: string }> {
   const metadata = await getMediaMetadata(url)
   if (ctx.configuration.downloadMedia) {
     return await _downloadMedia({ url, ...metadata }, client, ctx)
@@ -46,7 +50,7 @@ async function _downloadMedia(params: { url: string } & FileMetadata, client: bp
       integration: 'messenger',
       channel: 'channel',
       originUrl: url,
-      ...(fileName?.length && { name: fileName })
+      ...(fileName?.length && { name: fileName }),
     },
   })
 
@@ -135,7 +139,7 @@ export async function handleMessage(
           type: 'video',
           payload: { videoUrl },
         })
-      } else if(attachment.type == 'file') {
+      } else if (attachment.type == 'file') {
         const { url: fileUrl, fileName } = await _getOrDownloadMedia(attachment.payload.url, client, ctx)
         await createMessage({
           type: 'file',

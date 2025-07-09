@@ -91,28 +91,28 @@ export function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.Tex
 export type FileMetadata = { mimeType: string; fileSize?: number; fileName?: string }
 
 export async function getMediaMetadata(url: string): Promise<FileMetadata> {
-  const response = await fetch(url, { method: 'HEAD' });
+  const response = await fetch(url, { method: 'HEAD' })
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch metadata for URL: ${url}`);
+    throw new Error(`Failed to fetch metadata for URL: ${url}`)
   }
 
-  const mimeType = response.headers.get('content-type') ?? 'application/octet-stream';
-  const contentLength = response.headers.get('content-length');
-  const contentDisposition = response.headers.get('content-disposition');
+  const mimeType = response.headers.get('content-type') ?? 'application/octet-stream'
+  const contentLength = response.headers.get('content-length')
+  const contentDisposition = response.headers.get('content-disposition')
 
-  const fileSize = contentLength ? Number(contentLength) : undefined;
+  const fileSize = contentLength ? Number(contentLength) : undefined
   if (fileSize !== undefined && isNaN(fileSize)) {
-    throw new Error(`Failed to parse file size from response: ${contentLength}`);
+    throw new Error(`Failed to parse file size from response: ${contentLength}`)
   }
 
   // Try to extract filename from content-disposition
-  let fileName: string | undefined;
+  let fileName: string | undefined
   if (contentDisposition) {
-    const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?"?([^"]+)"?/i);
-    const rawFileName = match?.[1];
+    const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?"?([^"]+)"?/i)
+    const rawFileName = match?.[1]
     if (rawFileName) {
-      fileName = decodeURIComponent(rawFileName);
+      fileName = decodeURIComponent(rawFileName)
     }
   }
 
@@ -120,7 +120,7 @@ export async function getMediaMetadata(url: string): Promise<FileMetadata> {
     mimeType,
     fileSize,
     fileName,
-  };
+  }
 }
 
 export async function generateIdFromUrl(url: string): Promise<string> {
