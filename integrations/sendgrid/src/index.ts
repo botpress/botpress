@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/sdk'
 import sgClient from '@sendgrid/client'
 import sgMail from '@sendgrid/mail'
 import actions from './actions'
