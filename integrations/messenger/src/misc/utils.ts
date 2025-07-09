@@ -26,14 +26,14 @@ export function formatCardElement(payload: Card) {
         buttons.push({
           type: 'postback',
           title: action.label,
-          payload: `postback:${action.value}`,
+          payload: action.value,
         })
         break
       case 'say':
         buttons.push({
           type: 'postback',
           title: action.label,
-          payload: `say:${action.value}`,
+          payload: action.value,
         })
         break
       case 'url':
