@@ -19,6 +19,7 @@ import {
   FunctionDeclaration,
 } from '@google/genai'
 import crypto from 'crypto'
+import { DefaultModelId, DiscontinuedModelIds, ModelId } from 'src/schemas'
 
 type ReasoningEffort = NonNullable<GenerateContentInput['reasoningEffort']>
 
@@ -30,16 +31,26 @@ export const ThinkingModeBudgetTokens: Record<ReasoningEffort, number> = {
   high: 16_384,
 }
 
-export async function generateContent<M extends string>(
+export async function generateContent(
   input: llm.GenerateContentInput,
   googleAIClient: GoogleGenAI,
   logger: IntegrationLogger,
   params: {
-    models: Record<M, llm.ModelDetails>
-    defaultModel: M
+    models: Record<ModelId, llm.ModelDetails>
+    defaultModel: ModelId
   }
 ): Promise<llm.GenerateContentOutput> {
-  const modelId = (input.model?.id || params.defaultModel) as M
+  let modelId = (input.model?.id || params.defaultModel) as ModelId
+
+  if (DiscontinuedModelIds.includes(<string>modelId)) {
+    logger
+      .forBot()
+      .warn(
+        `The model "${modelId}" has been discontinued, using "${DefaultModelId}" instead. Please update your bot to use the latest models from Google AI.`
+      )
+    modelId = DefaultModelId
+  }
+
   const model = params.models[modelId]
 
   const request = await buildGenerateContentRequest(input, modelId, model, logger)

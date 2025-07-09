@@ -1,14 +1,14 @@
 import { llm } from '@botpress/common'
 import { GoogleGenAI } from '@google/genai'
 import { generateContent } from './actions/generate-content'
-import { LanguageModelId } from './schemas'
+import { ModelId } from './schemas'
 import * as bp from '.botpress'
 
 const googleAIClient = new GoogleGenAI({ apiKey: bp.secrets.GOOGLE_AI_API_KEY })
 
-const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'models/gemini-2.0-flash'
+const DEFAULT_LANGUAGE_MODEL_ID: ModelId = 'models/gemini-2.0-flash'
 
-const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
+const languageModels: Record<ModelId, llm.ModelDetails> = {
   'gemini-2.5-flash': {
     name: 'Gemini 2.5 Flash',
     description:
@@ -63,7 +63,7 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger, metadata }) => {
-      const output = await generateContent<LanguageModelId>(<llm.GenerateContentInput>input, googleAIClient, logger, {
+      const output = await generateContent(<llm.GenerateContentInput>input, googleAIClient, logger, {
         models: languageModels,
         defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
       })
@@ -72,7 +72,7 @@ export default new bp.Integration({
     },
     listLanguageModels: async ({}) => {
       return {
-        models: Object.entries(languageModels).map(([id, model]) => ({ id: <LanguageModelId>id, ...model })),
+        models: Object.entries(languageModels).map(([id, model]) => ({ id: <ModelId>id, ...model })),
       }
     },
   },

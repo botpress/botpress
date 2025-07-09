@@ -1,6 +1,6 @@
 /* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { languageModelId } from 'src/schemas'
+import { ModelId } from 'src/schemas'
 import llm from './bp_modules/llm'
 
 export default new IntegrationDefinition({
@@ -13,7 +13,7 @@ export default new IntegrationDefinition({
   entities: {
     modelRef: {
       schema: z.object({
-        id: languageModelId,
+        id: ModelId,
       }),
     },
   },
