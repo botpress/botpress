@@ -44,14 +44,14 @@ export const parseWebhookData = (props: bp.HandlerProps) => {
     body: parsedBody,
     // The raw body MUST NOT be trimmed of whitespace!
     rawBody: props.req.body,
-    publicKey,
+    publicKey: ewh.convertPublicKeyToECDSA(publicKey),
     signature,
     timestamp,
   }
 }
 type NullableParsedWebhookData = ReturnType<typeof parseWebhookData>
 
-export const verifyWebhookSignature = (data: Extract<NullableParsedWebhookData, { publicKey: string }>) => {
-  // This is broken at the moment, the error seems to come from the package logic
+type PublicKey = ReturnType<typeof ewh.convertPublicKeyToECDSA>
+export const verifyWebhookSignature = (data: Extract<NullableParsedWebhookData, { publicKey: PublicKey }>) => {
   return ewh.verifySignature(data.publicKey, data.rawBody, data.signature, data.timestamp)
 }
