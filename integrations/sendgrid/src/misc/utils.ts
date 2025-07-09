@@ -62,3 +62,5 @@ const _maskApiKey = (apiKey: string) => {
 
   return apiKey.slice(0, cutoffPosition)
 }
+
+export const unixTimestampToUtcDatetime = (unixTimestamp: number) => new Date(unixTimestamp * 1000).toISOString()
