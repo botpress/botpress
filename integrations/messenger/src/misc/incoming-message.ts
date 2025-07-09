@@ -127,19 +127,19 @@ export async function handleMessage(
           type: 'image',
           payload: { imageUrl },
         })
-      } else if (attachment.type == 'audio') {
+      } else if (attachment.type === 'audio') {
         const { url: audioUrl } = await _getOrDownloadMedia(attachment.payload.url, client, ctx)
         await createMessage({
           type: 'audio',
           payload: { audioUrl },
         })
-      } else if (attachment.type == 'video') {
+      } else if (attachment.type === 'video') {
         const { url: videoUrl } = await _getOrDownloadMedia(attachment.payload.url, client, ctx)
         await createMessage({
           type: 'video',
           payload: { videoUrl },
         })
-      } else if (attachment.type == 'file') {
+      } else if (attachment.type === 'file') {
         const { url: fileUrl, fileName } = await _getOrDownloadMedia(attachment.payload.url, client, ctx)
         await createMessage({
           type: 'file',
