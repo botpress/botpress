@@ -1,4 +1,5 @@
 import { z } from '@botpress/sdk'
+import dedent from 'dedent'
 
 export const ToolCallSchema = z.object({
   id: z.string(),
@@ -79,13 +80,20 @@ export const ModelSchema = ModelRefSchema.extend({
   }),
 })
 
+const ReasoningEffortSchema = z.enum(['low', 'medium', 'high', 'dynamic', 'none'])
+type ReasoningEffort = z.infer<typeof ReasoningEffortSchema>
+
+export const DefaultReasoningEffort = 'none' satisfies ReasoningEffort
+
 export const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
   z.object({
     model: modelRefSchema.describe('Model to use for content generation').optional(),
-    reasoningEffort: z
-      .enum(['low', 'medium', 'high'])
-      .optional()
-      .describe('Reasoning effort level to use for models that support reasoning'),
+    reasoningEffort: ReasoningEffortSchema.optional().describe(
+      dedent`
+          Reasoning effort level to use for models that support reasoning. Specifying "none" will indicate the LLM to not use reasoning. If not provided the model will default to "${DefaultReasoningEffort}". A "dynamic" effort will indicate the provider to automatically determine the reasoning effort (if the provider supports it, otherwise it will default to "medium").
+          Note: A higher reasoning effort will incurr in higher output token charges from the LLM provider.
+        `
+    ),
     systemPrompt: z.string().optional().describe('Optional system prompt to guide the model'),
     messages: z.array(MessageSchema).describe('Array of messages for the model to process'),
     responseFormat: z
