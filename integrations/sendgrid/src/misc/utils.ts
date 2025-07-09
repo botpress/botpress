@@ -65,16 +65,17 @@ const _maskApiKey = (apiKey: string) => {
 
 export const unixTimestampToUtcDatetime = (unixTimestamp: number) => new Date(unixTimestamp * 1000).toISOString()
 
-export const safeParseJson = (json: string) => {
+export type SafeJsonParseResult = { success: true; data: unknown } | { success: false; error: Error }
+export const safeParseJson = (json: string): SafeJsonParseResult => {
   try {
     return {
       success: true,
-      data: JSON.parse(json) as object,
+      data: JSON.parse(json),
     } as const
   } catch (thrown: unknown) {
     return {
       success: false,
-      error: thrown,
+      error: thrown instanceof Error ? thrown : new Error(String(thrown)),
     } as const
   }
 }
