@@ -31,17 +31,3 @@ type SendGridError = {
 type SendGridErrorResponseBody = {
   errors: SendGridError[]
 }
-
-// This will be removed soon (Once I implement the remaining webhook events)
-export type SendGridWebhookEvent<T extends string = string> = object & {
-  /** The type of event that was triggered */
-  event: T
-  sg_event_id: string
-  /** A SendGrid ID for a sent email message
-   *
-   *  @remark As far as I know, this is only absent for webhook
-   *   account events (Since they aren't tied to a sent email). */
-  sg_message_id?: string
-  /** A Unix timestamp of when the event was triggered in SendGrid's system */
-  timestamp: number
-}
