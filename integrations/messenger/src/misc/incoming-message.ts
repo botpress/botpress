@@ -1,9 +1,9 @@
 import { RuntimeError } from '@botpress/client'
+import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
+import axios from 'axios'
 import { MessengerMessage } from './types'
 import { FileMetadata, generateIdFromUrl, getMediaMetadata, getMessengerClient } from './utils'
 import * as bp from '.botpress'
-import axios from 'axios'
-import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 
 type IntegrationLogger = bp.Logger
 
