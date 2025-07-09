@@ -6,66 +6,54 @@ import * as bp from '.botpress'
 
 const googleAIClient = new GoogleGenAI({ apiKey: bp.secrets.GOOGLE_AI_API_KEY })
 
-const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'models/gemini-1.5-flash-002'
+const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'models/gemini-2.0-flash'
 
-// NOTE: Gemini output token limits are actually much higher than the limits enforced below, but we're limiting it to 128K for now as they have a tiered token cost that goes up for prompts longer than 128K tokens, as our model pricing is currently based on a flat price per 1M tokens (no matter the prompt size) which is the standard across all major LLM providers except for Google AI.
-// Reference: https://ai.google.dev/pricing
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
+  'gemini-2.5-flash': {
+    name: 'Gemini 2.5 Flash',
+    description:
+      'Gemini 2.5 Flash is Google\'s state-of-the-art workhorse model, specifically designed for advanced reasoning, coding, mathematics, and scientific tasks. It includes built-in "thinking" capabilities, enabling it to provide responses with greater accuracy and nuanced context handling.',
+    tags: ['recommended', 'low-cost', 'general-purpose', 'vision'],
+    input: {
+      // Note: Cost for input audio tokens is significantly higher, but we don't yet support audio content for input.
+      costPer1MTokens: 0.3,
+      maxTokens: 1_048_576,
+    },
+    output: {
+      costPer1MTokens: 2.5,
+      maxTokens: 65_536,
+    },
+  },
+  'gemini-2.5-pro': {
+    name: 'Gemini 2.5 Pro',
+    description:
+      "Gemini 2.5 Pro is Google's state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through responses with enhanced accuracy and nuanced context handling. Gemini 2.5 Pro achieves top-tier performance on multiple benchmarks, reflecting superior human-preference alignment and complex problem-solving abilities.",
+    tags: ['recommended', 'general-purpose', 'vision'],
+    input: {
+      // Note: Cost for input audio tokens is significantly higher, but we don't yet support audio content for input.
+      costPer1MTokens: 1.25,
+      // Note: Gemini 2.5 Pro output token limits are actually much higher than the limit enforced below, but we're limiting it for now as they have a tiered token cost that goes up for prompts longer than a certain amount of tokens, as our model pricing is currently based on a flat price per 1M tokens (no matter the prompt size) which is the standard across all major LLM providers except for Google AI.
+      // Reference: https://ai.google.dev/gemini-api/docs/pricing
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 10,
+      maxTokens: 65_536,
+    },
+  },
   'models/gemini-2.0-flash': {
     name: 'Gemini 2.0 Flash',
     description:
       'Gemini 2.0 Flash delivers next-gen features and improved capabilities, including superior speed, native tool use, multimodal generation, and a 1M token context window.',
-    tags: ['recommended', 'low-cost', 'general-purpose', 'vision'],
+    tags: ['low-cost', 'general-purpose', 'vision'],
     input: {
-      // Note: Cost per 1M input audio tokens is significantly higher, but we don't yet support audio content for input.
+      // Note: Cost for input audio tokens is significantly higher, but we don't yet support audio content for input.
       costPer1MTokens: 0.1,
       maxTokens: 1_048_576,
     },
     output: {
       costPer1MTokens: 0.4,
       maxTokens: 8192,
-    },
-  },
-  'models/gemini-1.5-flash-8b-001': {
-    name: 'Gemini 1.5 Flash-8B',
-    description:
-      "A small model designed for lower intelligence tasks. Google AI's fastest and most cost-efficient model with great performance for high-frequency tasks.",
-    tags: ['low-cost', 'general-purpose', 'vision'],
-    input: {
-      costPer1MTokens: 0.0375,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 0.15,
-      maxTokens: 128_000,
-    },
-  },
-  'models/gemini-1.5-flash-002': {
-    name: 'Gemini 1.5 Flash',
-    description:
-      "A fast and versatile model for scaling across diverse tasks. Google AI's most balanced multimodal model with great performance for most tasks.",
-    tags: ['recommended', 'general-purpose', 'vision'],
-    input: {
-      costPer1MTokens: 0.075,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 0.3,
-      maxTokens: 128_000,
-    },
-  },
-  'models/gemini-1.5-pro-002': {
-    name: 'Gemini 1.5 Pro',
-    description:
-      "A mid-size multimodal model that is optimized for a wide-range of reasoning tasks. Google AI's best-performing model with features for a wide variety of reasoning tasks.",
-    tags: ['recommended', 'general-purpose', 'vision'],
-    input: {
-      costPer1MTokens: 1.25,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 5,
-      maxTokens: 128_000,
     },
   },
 }
