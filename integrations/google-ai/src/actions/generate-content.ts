@@ -1,7 +1,5 @@
 import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
-import { GenerateContentInput } from '@botpress/common/src/llm'
-import { DefaultReasoningEffort } from '@botpress/common/src/llm/schemas'
 import { IntegrationLogger } from '@botpress/sdk'
 import {
   GoogleGenAI,
@@ -21,7 +19,7 @@ import {
 import crypto from 'crypto'
 import { DefaultModelId, DiscontinuedModelIds, ModelId } from 'src/schemas'
 
-type ReasoningEffort = NonNullable<GenerateContentInput['reasoningEffort']>
+type ReasoningEffort = NonNullable<llm.GenerateContentInput['reasoningEffort']>
 
 export const ThinkingModeBudgetTokens: Record<ReasoningEffort, number> = {
   dynamic: -1, // Passing this value indicates Gemini to automatically determine the reasoning effort.
@@ -136,7 +134,7 @@ async function buildGenerateContentRequest(
       tools: buildTools(input),
       maxOutputTokens,
       thinkingConfig: {
-        thinkingBudget: ThinkingModeBudgetTokens[input.reasoningEffort ?? DefaultReasoningEffort],
+        thinkingBudget: ThinkingModeBudgetTokens[input.reasoningEffort ?? llm.schemas.DefaultReasoningEffort],
         includeThoughts: false,
       },
       topP: input.topP,
