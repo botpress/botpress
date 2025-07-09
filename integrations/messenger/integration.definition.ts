@@ -92,23 +92,18 @@ export default new IntegrationDefinition({
     CLIENT_SECRET: {
       description: 'The client secret of your Meta app.',
     },
-    ACCESS_TOKEN: {
-      description: 'Access token for internal Meta App',
+    OAUTH_CONFIG_ID: {
+      description: 'The OAuth configuration ID for the OAuth Meta app',
     },
     VERIFY_TOKEN: {
       description: 'The verify token for the Meta Webhooks subscription, optional since its only useful for oAuth.',
       optional: true,
+    },
+    ACCESS_TOKEN: {
+      description: 'Access token for internal Meta App',
     },
   },
   user: {
     tags: { id: { title: 'User ID', description: 'The Messenger ID of the user' } },
   },
 }).extend(typingIndicator, () => ({ entities: {} }))
-
-export const getOAuthConfigId = () => {
-  if (process.env.BP_WEBHOOK_URL?.includes('dev')) {
-    return 505750508672935
-  }
-
-  return 506253762185261
-}
