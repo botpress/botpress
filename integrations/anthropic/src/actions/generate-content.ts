@@ -39,6 +39,7 @@ export async function generateContent(
       )
 
     modelId = replacementModelId
+    input.model = { id: modelId }
   }
 
   const model = params.models[modelId]
