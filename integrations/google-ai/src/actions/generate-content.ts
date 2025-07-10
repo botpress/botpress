@@ -107,7 +107,7 @@ export async function generateContent(
 
 async function buildGenerateContentRequest(
   input: llm.GenerateContentInput,
-  modelId: string,
+  modelId: ModelId,
   model: llm.ModelDetails,
   logger: IntegrationLogger
 ): Promise<GenerateContentParameters> {
@@ -126,6 +126,9 @@ async function buildGenerateContentRequest(
     }
   }
 
+  const thinkingBudget = ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'] // Default to not use reasoning as Gemini 2.5+ models use optional reasoning
+  const useThinking = modelId !== 'models/gemini-2.0-flash' // Gemini 2.0 doesn't support thinking mode
+
   return {
     model: modelId,
     contents: await buildContents(input),
@@ -134,10 +137,12 @@ async function buildGenerateContentRequest(
       toolConfig: buildToolConfig(input),
       tools: buildTools(input),
       maxOutputTokens,
-      thinkingConfig: {
-        thinkingBudget: ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'], // Default to not use reasoning as Gemini 2.5+ models use optional reasoning
-        includeThoughts: false,
-      },
+      thinkingConfig: useThinking
+        ? {
+            thinkingBudget,
+            includeThoughts: false,
+          }
+        : undefined,
       topP: input.topP,
       temperature: input.temperature,
       stopSequences: input.stopSequences,
