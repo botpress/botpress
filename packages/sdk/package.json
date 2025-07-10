@@ -1,6 +1,6 @@
 {
   "name": "@botpress/sdk",
-  "version": "4.14.1",
+  "version": "4.14.2",
   "description": "Botpress SDK",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -25,7 +25,7 @@
     "tsup": "^8.0.2"
   },
   "peerDependencies": {
-    "@bpinternal/zui": "^1.0.0",
+    "@bpinternal/zui": "^1.0.1",
     "esbuild": "^0.16.12"
   },
   "peerDependenciesMeta": {

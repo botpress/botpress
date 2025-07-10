@@ -1994,7 +1994,7 @@ importers:
         specifier: 1.17.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.14.1
+        specifier: 4.14.2
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2106,7 +2106,7 @@ importers:
         specifier: 1.17.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.14.1
+        specifier: 4.14.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2122,7 +2122,7 @@ importers:
         specifier: 1.17.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.14.1
+        specifier: 4.14.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2135,7 +2135,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.14.1
+        specifier: 4.14.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2151,7 +2151,7 @@ importers:
         specifier: 1.17.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.14.1
+        specifier: 4.14.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2167,7 +2167,7 @@ importers:
         specifier: 1.17.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.14.1
+        specifier: 4.14.2
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2224,8 +2224,8 @@ importers:
         specifier: workspace:*
         version: link:../common
       '@bpinternal/zui':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.1
+        version: 1.0.1
       '@size-limit/file':
         specifier: ^11.1.6
         version: 11.1.6(size-limit@11.1.6)
@@ -2311,8 +2311,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       '@bpinternal/zui':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.1
+        version: 1.0.1
       bytes:
         specifier: ^3.1.2
         version: 3.1.2
@@ -2408,8 +2408,8 @@ importers:
         specifier: 1.17.1
         version: link:../client
       '@bpinternal/zui':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.1
+        version: 1.0.1
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2442,8 +2442,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.1
+        version: 1.0.1
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -2485,8 +2485,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.1
+        version: 1.0.1
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -4655,8 +4655,8 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@1.0.0:
-    resolution: {integrity: sha512-X58KuXe66+oVY9ckODqBGRuQLbQdG0sMjZh+Vk2UdAsG91nZS2g3AND/0sDuqTvnfx343FuwJnvspiXv0Zkiug==}
+  /@bpinternal/zui@1.0.1:
+    resolution: {integrity: sha512-uIT0BwsPXkjP9PbBnN0i4Yvk5tKaR69U3yVDsTW0QwoUbNXKcLCGXGjffZWy+wZ2O1qOXBmdlgXUGUUIJkMgEg==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   /@colors/colors@1.6.0:
