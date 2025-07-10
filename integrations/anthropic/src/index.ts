@@ -10,9 +10,7 @@ const anthropic = new Anthropic({
   timeout: 10 * 60 * 1000, // 10 minute timeout, we set it here to avoid the error thrown by the Anthropic SDK when not using streaming if the request maxTokens parameters is too high (see: https://github.com/anthropics/anthropic-sdk-typescript?tab=readme-ov-file#long-requests)
 })
 
-type ReasoningEffort = NonNullable<GenerateContentInput['reasoningEffort']>
-
-export const DefaultReasoningEffort: ReasoningEffort = 'medium'
+export type ReasoningEffort = NonNullable<GenerateContentInput['reasoningEffort']>
 
 export const ThinkingModeBudgetTokens: Record<ReasoningEffort, number> = {
   none: 0,
@@ -24,13 +22,19 @@ export const ThinkingModeBudgetTokens: Record<ReasoningEffort, number> = {
   // https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking
 }
 
+export const DeprecatedReasoningModelIdReplacements: Record<string, ModelId> = {
+  // These "reasoning" model IDs didn't really exist in Anthropic, we used it as a simple way for users to switch between the reasoning mode and the standard mode, but this approach has been deprecated in favor of specifying a reasoning effort in the request to activate reasoning in the model.
+  'claude-sonnet-4-reasoning-20250514': 'claude-sonnet-4-20250514',
+  'claude-3-7-sonnet-reasoning-20250219': 'claude-3-7-sonnet-20250219',
+}
+
 const LanguageModels: Record<ModelId, llm.ModelDetails> = {
   // Reference: https://docs.anthropic.com/en/docs/about-claude/models
   // NOTE: We don't support returning "thinking" blocks from Claude in the integration action output as the concept of "thinking" blocks is a Claude-specific feature that other providers don't have. For now we won't support this as an official feature in the integration so it needs to be taken into account when using reasoning mode and passing a multi-turn conversation history in the generateContent action input.
   // For more information, see: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#preserving-thinking-blocks
   // NOTE: We intentionally didn't include the Opus model as it's the most expensive model in the market, it's not very popular, and no users have ever requested it so far.
   'claude-sonnet-4-20250514': {
-    name: 'Claude Sonnet 4 (Standard Mode)',
+    name: 'Claude Sonnet 4',
     description:
       'Claude Sonnet 4 significantly enhances the capabilities of its predecessor, Sonnet 3.7, excelling in both coding and reasoning tasks with improved precision and controllability. Sonnet 4 balances capability and computational efficiency, making it suitable for a broad range of applications from routine coding tasks to complex software development projects. Key enhancements include improved autonomous codebase navigation, reduced error rates in agent-driven workflows, and increased reliability in following intricate instructions.',
     tags: ['recommended', 'vision', 'general-purpose', 'agents', 'coding', 'function-calling', 'storytelling'],
@@ -43,57 +47,11 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
       maxTokens: 64_000,
     },
   },
-  'claude-sonnet-4-reasoning-20250514': {
-    name: 'Claude Sonnet 4 (Reasoning Mode)',
-    description:
-      'This model uses the "Extended Thinking" mode and will use a significantly higher amount of output tokens than the Standard Mode, so this model should only be used for tasks that actually require it.\n\nClaude Sonnet 4 significantly enhances the capabilities of its predecessor, Sonnet 3.7, excelling in both coding and reasoning tasks with improved precision and controllability. Sonnet 4 balances capability and computational efficiency, making it suitable for a broad range of applications from routine coding tasks to complex software development projects. Key enhancements include improved autonomous codebase navigation, reduced error rates in agent-driven workflows, and increased reliability in following intricate instructions.',
-    tags: [
-      'recommended',
-      'vision',
-      'reasoning',
-      'general-purpose',
-      'agents',
-      'coding',
-      'function-calling',
-      'storytelling',
-    ],
-    input: {
-      costPer1MTokens: 3,
-      maxTokens: 200_000,
-    },
-    output: {
-      costPer1MTokens: 15,
-      maxTokens: 64_000,
-    },
-  },
   'claude-3-7-sonnet-20250219': {
-    name: 'Claude 3.7 Sonnet (Standard Mode)',
+    name: 'Claude 3.7 Sonnet',
     description:
       'Claude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. The model demonstrates notable improvements in coding, particularly in front-end development and full-stack updates, and excels in agentic workflows, where it can autonomously navigate multi-step processes.',
     tags: ['recommended', 'vision', 'general-purpose', 'agents', 'coding', 'function-calling', 'storytelling'],
-    input: {
-      costPer1MTokens: 3,
-      maxTokens: 200_000,
-    },
-    output: {
-      costPer1MTokens: 15,
-      maxTokens: 64_000,
-    },
-  },
-  'claude-3-7-sonnet-reasoning-20250219': {
-    name: 'Claude 3.7 Sonnet (Reasoning Mode)',
-    description:
-      'This model uses the "Extended Thinking" mode and will use a significantly higher amount of output tokens than the Standard Mode, so this model should only be used for tasks that actually require it.\n\nClaude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. The model demonstrates notable improvements in coding, particularly in front-end development and full-stack updates, and excels in agentic workflows, where it can autonomously navigate multi-step processes.',
-    tags: [
-      'recommended',
-      'vision',
-      'reasoning',
-      'general-purpose',
-      'agents',
-      'coding',
-      'function-calling',
-      'storytelling',
-    ],
     input: {
       costPer1MTokens: 3,
       maxTokens: 200_000,

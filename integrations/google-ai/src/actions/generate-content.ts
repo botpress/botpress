@@ -47,6 +47,7 @@ export async function generateContent(
         `The model "${modelId}" has been discontinued, using "${DefaultModelId}" instead. Please update your bot to use the latest models from Google AI.`
       )
     modelId = DefaultModelId
+    input.model = { id: modelId }
   }
 
   const model = params.models[modelId]
@@ -134,7 +135,7 @@ async function buildGenerateContentRequest(
       tools: buildTools(input),
       maxOutputTokens,
       thinkingConfig: {
-        thinkingBudget: ThinkingModeBudgetTokens[input.reasoningEffort ?? llm.schemas.DefaultReasoningEffort],
+        thinkingBudget: ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'], // Default to not use reasoning as Gemini 2.5+ models use optional reasoning
         includeThoughts: false,
       },
       topP: input.topP,
