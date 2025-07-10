@@ -132,6 +132,10 @@ describe('WhatsApp Markdown Converter', () => {
       expect(convertMarkdownToWhatsApp('<test@test.com>')).toBe('test@test.com (mailto:test@test.com)')
     })
 
+    it('should not convert normal email text to link', () => {
+      expect(convertMarkdownToWhatsApp('test@test.com')).toBe('test@test.com')
+    })
+
     it('should convert links with title', () => {
       const input = '[Link with title](https://example.com "Title")'
       const expected = 'Link with title (https://example.com)'
