@@ -62,15 +62,12 @@ type _BooleanSchema = util.Satisfies<{ type: 'boolean' }, JSONSchema7>
 type _NullSchema = util.Satisfies<{ type: 'null' }, JSONSchema7>
 type _UndefinedSchema = util.Satisfies<{ not: true }, JSONSchema7>
 type _NeverSchema = util.Satisfies<{ not: true }, JSONSchema7>
-type _ArraySchema = util.Satisfies<
-  { type: 'array'; items: ZuiJSONSchema; minItems?: number; maxItems?: number },
-  JSONSchema7
->
-type _UnionSchema = util.Satisfies<{ anyOf: ZuiJSONSchema[] }, JSONSchema7>
-type _DiscriminatedUnionSchema = util.Satisfies<{ anyOf: ZuiJSONSchema[] }, JSONSchema7>
-type _IntersectionSchema = util.Satisfies<{ allOf: ZuiJSONSchema[] }, JSONSchema7>
+type _ArraySchema = util.Satisfies<{ type: 'array'; items: Schema; minItems?: number; maxItems?: number }, JSONSchema7>
+type _UnionSchema = util.Satisfies<{ anyOf: Schema[] }, JSONSchema7>
+type _DiscriminatedUnionSchema = util.Satisfies<{ anyOf: Schema[] }, JSONSchema7>
+type _IntersectionSchema = util.Satisfies<{ allOf: Schema[] }, JSONSchema7>
 type _SetSchema = util.Satisfies<
-  { type: 'array'; items: ZuiJSONSchema; uniqueItems: true; minItems?: number; maxItems?: number },
+  { type: 'array'; items: Schema; uniqueItems: true; minItems?: number; maxItems?: number },
   JSONSchema7
 >
 type _EnumSchema = util.Satisfies<{ type: 'string'; enum: string[] }, JSONSchema7>
@@ -78,22 +75,19 @@ type _RefSchema = util.Satisfies<{ $ref: string }, JSONSchema7>
 type _ObjectSchema = util.Satisfies<
   {
     type: 'object'
-    properties: { [key: string]: ZuiJSONSchema }
-    additionalProperties?: ZuiJSONSchema | boolean
+    properties: { [key: string]: Schema }
+    additionalProperties?: Schema | boolean
     required?: string[]
   },
   JSONSchema7
 >
-type _TupleSchema = util.Satisfies<
-  { type: 'array'; items: ZuiJSONSchema[]; additionalItems?: ZuiJSONSchema },
-  JSONSchema7
->
-type _RecordSchema = util.Satisfies<{ type: 'object'; additionalProperties: ZuiJSONSchema }, JSONSchema7>
+type _TupleSchema = util.Satisfies<{ type: 'array'; items: Schema[]; additionalItems?: Schema }, JSONSchema7>
+type _RecordSchema = util.Satisfies<{ type: 'object'; additionalProperties: Schema }, JSONSchema7>
 type _LiteralStringSchema = util.Satisfies<{ type: 'string'; const: string }, JSONSchema7>
 type _LiteralNumberSchema = util.Satisfies<{ type: 'number'; const: number }, JSONSchema7>
 type _LiteralBooleanSchema = util.Satisfies<{ type: 'boolean'; const: boolean }, JSONSchema7>
-type _OptionalSchema = util.Satisfies<{ anyOf: [ZuiJSONSchema, UndefinedSchema] }, JSONSchema7>
-type _NullableSchema = util.Satisfies<{ anyOf: [ZuiJSONSchema, NullSchema] }, JSONSchema7>
+type _OptionalSchema = util.Satisfies<{ anyOf: [Schema, UndefinedSchema] }, JSONSchema7>
+type _NullableSchema = util.Satisfies<{ anyOf: [Schema, NullSchema] }, JSONSchema7>
 
 export type StringSchema = _StringSchema & BaseZuiJSONSchema
 export type NumberSchema = _NumberSchema & BaseZuiJSONSchema
@@ -118,10 +112,12 @@ export type LiteralNumberSchema = _LiteralNumberSchema & BaseZuiJSONSchema
 export type LiteralBooleanSchema = _LiteralBooleanSchema & BaseZuiJSONSchema
 export type OptionalSchema = _OptionalSchema & BaseZuiJSONSchema<OptionalDef>
 export type NullableSchema = _NullableSchema & BaseZuiJSONSchema<NullableDef>
-
 export type LiteralSchema = LiteralStringSchema | LiteralNumberSchema | LiteralBooleanSchema
 
-export type ZuiJSONSchema =
+/**
+ * Zui flavored JSON Schema; a subset of JSONSchema7 that includes Zui extensions
+ */
+export type Schema =
   | StringSchema
   | NumberSchema
   | BooleanSchema

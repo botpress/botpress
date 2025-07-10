@@ -12,7 +12,7 @@ import { zodTupleToJsonTuple } from './type-processors/tuple'
  * @param schema zui schema
  * @returns ZUI flavored JSON schema
  */
-export function toJSONSchema(schema: z.Schema): json.ZuiJSONSchema {
+export function toJSONSchema(schema: z.Schema): json.Schema {
   const schemaTyped = schema as z.ZodFirstPartySchemaTypes
   const def = schemaTyped._def
 
@@ -80,7 +80,7 @@ export function toJSONSchema(schema: z.Schema): json.ZuiJSONSchema {
       const required = requiredProperties.length ? requiredProperties.map(([key]) => key) : undefined
       const properties = shape
         .map(([key, value]) => [key, value.mandatory()] satisfies [string, z.ZodType])
-        .map(([key, value]) => [key, toJSONSchema(value)] satisfies [string, json.ZuiJSONSchema])
+        .map(([key, value]) => [key, toJSONSchema(value)] satisfies [string, json.Schema])
 
       let additionalProperties: json.ObjectSchema['additionalProperties'] = false
       if (def.unknownKeys instanceof z.ZodType) {

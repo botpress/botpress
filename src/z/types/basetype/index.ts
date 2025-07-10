@@ -45,7 +45,7 @@ import { CatchFn } from '../catch'
 import { toTypescriptType, TypescriptGenerationOptions } from '../../../transforms/zui-to-typescript-type'
 import { toTypescriptSchema } from '../../../transforms/zui-to-typescript-schema'
 import { toJSONSchema } from '../../../transforms/zui-to-json-schema'
-import { ZuiJSONSchema } from '../../../transforms/common/json-schema'
+import { Schema as ZuiJSONSchema } from '../../../transforms/common/json-schema'
 
 /**
  * This type is not part of the original Zod library, it's been added in Zui to:

@@ -4,7 +4,7 @@ import * as json from '../../common/json-schema'
 
 export const zodTupleToJsonTuple = (
   zodTuple: z.ZodTuple,
-  toSchema: (x: z.ZodTypeAny) => json.ZuiJSONSchema,
+  toSchema: (x: z.ZodTypeAny) => json.Schema,
 ): json.TupleSchema => {
   const schema: json.TupleSchema = {
     type: 'array',

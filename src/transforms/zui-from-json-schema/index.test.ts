@@ -2,7 +2,7 @@ import z from '../../z'
 import { describe, test, expect } from 'vitest'
 import { fromJSONSchema } from './index'
 import { JSONSchema7 } from 'json-schema'
-import { ZuiJSONSchema } from '../common/json-schema'
+import { Schema as ZuiJSONSchema } from '../common/json-schema'
 
 const buildSchema = (s: JSONSchema7, xZui: ZuiJSONSchema['x-zui'] = undefined): JSONSchema7 => {
   return { ...s, 'x-zui': xZui } as JSONSchema7
