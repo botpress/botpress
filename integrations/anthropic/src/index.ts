@@ -15,9 +15,11 @@ type ReasoningEffort = NonNullable<GenerateContentInput['reasoningEffort']>
 export const DefaultReasoningEffort: ReasoningEffort = 'medium'
 
 export const ThinkingModeBudgetTokens: Record<ReasoningEffort, number> = {
+  none: 0,
+  dynamic: 8192, // Note: Anthropic doesn't support dynamic reasoning, so we default this to the same value as "medium"
   low: 2048,
   medium: 8192,
-  high: 16384,
+  high: 16_384,
   // Note: we cannot go above 20K tokens for the thinking mode budget as that would require us to use streaming, see:
   // https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking
 }
