@@ -24,7 +24,7 @@ const commonConfigSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '3.0.3',
+  version: '3.4.0',
   title: 'Messenger',
   description: 'Give your bot access to one of the world’s largest messaging platform.',
   icon: 'icon.svg',
