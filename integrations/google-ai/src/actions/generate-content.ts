@@ -134,7 +134,7 @@ async function buildGenerateContentRequest(
       tools: buildTools(input),
       maxOutputTokens,
       thinkingConfig: {
-        thinkingBudget: ThinkingModeBudgetTokens[input.reasoningEffort ?? llm.schemas.DefaultReasoningEffort],
+        thinkingBudget: ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'], // Default to not use reasoning as Gemini 2.5+ models use optional reasoning
         includeThoughts: false,
       },
       topP: input.topP,

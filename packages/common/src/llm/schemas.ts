@@ -81,16 +81,13 @@ export const ModelSchema = ModelRefSchema.extend({
 })
 
 const ReasoningEffortSchema = z.enum(['low', 'medium', 'high', 'dynamic', 'none'])
-type ReasoningEffort = z.infer<typeof ReasoningEffortSchema>
-
-export const DefaultReasoningEffort = 'none' satisfies ReasoningEffort
 
 export const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
   z.object({
     model: modelRefSchema.describe('Model to use for content generation').optional(),
     reasoningEffort: ReasoningEffortSchema.optional().describe(
       dedent`
-          Reasoning effort level to use for models that support reasoning. Specifying "none" will indicate the LLM to not use reasoning. If not provided the model will default to "${DefaultReasoningEffort}". A "dynamic" effort will indicate the provider to automatically determine the reasoning effort (if the provider supports it, otherwise it will default to "medium").
+          Reasoning effort level to use for models that support reasoning. Specifying "none" will indicate the LLM to not use reasoning (for models that support optional reasoning). A "dynamic" effort will indicate the provider to automatically determine the reasoning effort (if supported by the provider). If not provided the model will not use reasoning for models with optional reasoning or use the default reasoning effort specified by the provider for reasoning-only models.
           Note: A higher reasoning effort will incurr in higher output token charges from the LLM provider.
         `
     ),
