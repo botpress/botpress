@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["unicorn", "typescript", "oxc", "oxc-security", "import", "promise", "n", "vitest"],
+  "plugins": ["unicorn", "typescript", "oxc", "import", "promise", "n", "vitest"],
   "env": {
     "browser": true,
     "es2024": true,
@@ -64,7 +64,7 @@
     "eslint/no-debugger": "error",
     "eslint/no-sparse-arrays": "error",
     "eslint/no-unreachable": "error",
-    // "eslint/max-lines-per-function": "off",
+    "eslint/max-lines-per-function": "off",
     "eslint/default-case": "error",
     "eslint/default-case-last": "error",
     "eslint/max-depth": "error",
@@ -103,7 +103,7 @@
     // ],
     // "eslint/type-annotation-spacing": "error",
     // "eslint/brace-style": "off",
-    // "eslint/curly": "error",
+    "eslint/curly": ["error", "multi-line"],
     // "eslint/eol-last": "error",
     "eslint/eqeqeq": ["error", "smart"],
     // "typescript/no-shadow": "off",
@@ -140,16 +140,15 @@
     // "eslint/object-shorthand": "error",
     "eslint/no-unused-vars": "off",
     "typescript/no-unused-vars": "off",
-    // "unused-imports/no-unused-imports": "error",
-    // "unused-imports/no-unused-vars": [
-    //   "error",
-    //   {
-    //     "vars": "all",
-    //     "varsIgnorePattern": "^_",
-    //     "args": "after-used",
-    //     "argsIgnorePattern": "^_"
-    //   }
-    // ],
+    "unused-imports/no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "^_",
+        "args": "after-used",
+        "argsIgnorePattern": "^_"
+      }
+    ],
     // "typescript/naming-convention": [
     //   "warn",
     //   {
