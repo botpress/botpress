@@ -523,7 +523,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
       checks: [],
       typeName: ZodFirstPartyTypeKind.ZodString,
       coerce: params?.coerce ?? false,
-      ...processCreateParams(params),
+      ...processCreateParams({ ...params, supportsExtensions: ['secret'] }),
     })
   }
 

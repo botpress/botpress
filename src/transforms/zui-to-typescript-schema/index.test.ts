@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, it } from 'vitest'
 import { toTypescriptSchema as toTypescript } from '.'
 import { evalZuiString } from '../common/eval-zui-string'
 import * as errors from '../common/errors'
@@ -30,7 +30,7 @@ const assert = (source: ZodType) => ({
   },
 })
 
-describe.concurrent('toTypescriptZuiString', () => {
+describe.concurrent('toTypescriptSchema', () => {
   describe.concurrent('string', () => {
     test('no checks', () => {
       const schema = z.string()
@@ -151,6 +151,62 @@ describe.concurrent('toTypescriptZuiString', () => {
       assert(schema).toGenerateItself()
       const evaluated = generate(schema)
       expect(evaluated._def.checks).toEqual([{ kind: 'ip', message: undefined }])
+    })
+
+    describe.concurrent('optional', () => {
+      it('should preserve .secret modifier', () => {
+        // Arrange
+        const schema = z.string().secret().optional()
+
+        // Act & Assert
+        assert(schema).toGenerateItself()
+        expect(toTypescript(schema)).toContain('z.string().secret(')
+      })
+
+      it('should preserve .disabled modifier', () => {
+        // Arrange
+        const schema = z.string().disabled().optional()
+
+        // Act & Assert
+        assert(schema).toGenerateItself()
+        expect(toTypescript(schema)).toContain('z.string().disabled(')
+      })
+
+      it('should preserve .hidden modifier', () => {
+        // Arrange
+        const schema = z.string().hidden().optional()
+
+        // Act & Assert
+        assert(schema).toGenerateItself()
+        expect(toTypescript(schema)).toContain('z.string().hidden(')
+      })
+
+      it('should preserve .title modifier', () => {
+        // Arrange
+        const schema = z.string().title('a').optional()
+
+        // Act & Assert
+        assert(schema).toGenerateItself()
+        expect(toTypescript(schema)).toContain('z.string().title(')
+      })
+
+      it('should preserve .placeholder modifier', () => {
+        // Arrange
+        const schema = z.string().placeholder('a').optional()
+
+        // Act & Assert
+        assert(schema).toGenerateItself()
+        expect(toTypescript(schema)).toContain('z.string().placeholder(')
+      })
+
+      it('should preserve .displayAs modifier', () => {
+        // Arrange
+        const schema = z.string().displayAs({ id: '', params: {} }).optional()
+
+        // Act & Assert
+        assert(schema).toGenerateItself()
+        expect(toTypescript(schema)).toContain('z.string().displayAs(')
+      })
     })
   })
   describe.concurrent('number', () => {

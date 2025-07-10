@@ -232,16 +232,32 @@ export const getParsedType = (data: any): ZodParsedType => {
       return ZodParsedType.unknown
   }
 }
-export function processCreateParams(params: RawCreateParams): ProcessedCreateParams {
+
+export function processCreateParams(
+  params: RawCreateParams & ({ supportsExtensions?: 'secret'[] } | undefined),
+): ProcessedCreateParams {
   if (!params) return {}
 
-  const { errorMap, invalid_type_error, required_error, description } = params
+  const {
+    errorMap,
+    invalid_type_error,
+    required_error,
+    description,
+    supportsExtensions,
+    [zuiKey]: zuiExtensions,
+  } = params
 
   if (errorMap && (invalid_type_error || required_error)) {
     throw new Error(`Can't use "invalid_type_error" or "required_error" in conjunction with custom error map.`)
   }
 
-  if (errorMap) return { errorMap: errorMap, description, [zuiKey]: params?.[zuiKey] }
+  const filteredZuiExtensions = zuiExtensions
+    ? Object.fromEntries(
+        Object.entries(zuiExtensions).filter(([key]) => key !== 'secret' || supportsExtensions?.includes('secret')),
+      )
+    : undefined
+
+  if (errorMap) return { errorMap: errorMap, description, [zuiKey]: filteredZuiExtensions }
 
   const customMap: ZodErrorMap = (iss, ctx) => {
     if (iss.code !== 'invalid_type') return { message: ctx.defaultError }
@@ -250,5 +266,5 @@ export function processCreateParams(params: RawCreateParams): ProcessedCreatePar
     }
     return { message: invalid_type_error ?? ctx.defaultError }
   }
-  return { errorMap: customMap, description, [zuiKey]: params?.[zuiKey] }
+  return { errorMap: customMap, description, [zuiKey]: filteredZuiExtensions }
 }

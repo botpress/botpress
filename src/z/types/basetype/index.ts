@@ -134,13 +134,13 @@ export type RawCreateParams =
       invalid_type_error?: string
       required_error?: string
       description?: string
-      [zuiKey]?: any
+      [zuiKey]?: ZuiExtensionObject
     }
   | undefined
 export type ProcessedCreateParams = {
   errorMap?: ZodErrorMap
   description?: string
-  [zuiKey]?: any
+  [zuiKey]?: ZuiExtensionObject
 }
 export type SafeParseSuccess<Output> = {
   success: true
