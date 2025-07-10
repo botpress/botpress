@@ -1303,6 +1303,9 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
+      '@bpinternal/slackdown':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@slack/types':
         specifier: ^2.13.1
         version: 2.13.1
@@ -4584,6 +4587,13 @@ packages:
       cross-spawn: 7.0.6
       retry: 0.13.1
     dev: true
+
+  /@bpinternal/slackdown@0.1.0:
+    resolution: {integrity: sha512-Gz6xR/BQcfbpxiors8W94JmEl+eoNI7kRncNbduTaSD7saIqGnYokwoVqZw4FzSUSLgpiXCQCnUnoQsc+Yt63Q==}
+    engines: {node: '>=22.17.0'}
+    dependencies:
+      ts-regex-builder: 1.8.2
+    dev: false
 
   /@bpinternal/thicktoken@1.0.2:
     resolution: {integrity: sha512-3PJXxIPkoFwFl+RmZMoMj0usHchP2krMKUlGyvDSd/sEHf+qA1rJjRJq7em/Y+lXDNlzis7k6j3QBYudGPvLAQ==}
@@ -17378,6 +17388,11 @@ packages:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     dev: true
+
+  /ts-regex-builder@1.8.2:
+    resolution: {integrity: sha512-Y8HovHFheDKm/jgLIWSO8o81xA/I9O5AGc3/vNG1sVSskatOifr3SQzAsatBXGLjL3nYhQif1MpwQRS5GF8ADg==}
+    engines: {node: '>= 18.0.0'}
+    dev: false
 
   /tsafe@1.6.6:
     resolution: {integrity: sha512-gzkapsdbMNwBnTIjgO758GujLCj031IgHK/PKr2mrmkCSJMhSOR5FeOuSxKLMUoYc0vAA4RGEYYbjt/v6afD3g==}
