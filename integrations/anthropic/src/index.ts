@@ -18,6 +18,8 @@ export const ThinkingModeBudgetTokens: Record<ReasoningEffort, number> = {
   low: 2048,
   medium: 8192,
   high: 16384,
+  dynamic: 8192, // treating "dynamic" as "medium"
+  none: 0,
   // Note: we cannot go above 20K tokens for the thinking mode budget as that would require us to use streaming, see:
   // https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking
 }

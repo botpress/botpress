@@ -3,7 +3,7 @@ import { llm, speechToText, textToImage } from '@botpress/common'
 import crypto from 'crypto'
 import { TextToSpeechPricePer1MCharacters } from 'integration.definition'
 import OpenAI from 'openai'
-import { ImageGenerateParams, Images } from 'openai/resources'
+import { ChatCompletionReasoningEffort, ImageGenerateParams, Images } from 'openai/resources'
 import { SpeechCreateParams } from 'openai/resources/audio/speech'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
@@ -288,8 +288,13 @@ export default new bp.Integration({
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
           overrideRequest: (request) => {
             if (input.model?.id.startsWith('o1-') || input.model?.id.startsWith('o3-')) {
-              request.reasoning_effort = input.reasoningEffort
-
+              request.reasoning_effort = input.reasoningEffort as ChatCompletionReasoningEffort
+              // for o* models, reasoning effort can only be low, medium, or high
+              if (request.reasoning_effort && !['low', 'medium', 'high'].includes(request.reasoning_effort)) {
+                throw new InvalidPayloadError(
+                  `Invalid reasoning effort "${request.reasoning_effort}" for model "${input.model?.id}". Valid values are: low, medium, high, null.`
+                )
+              }
               // The o1 models don't allow setting temperature
               delete request.temperature
             }
