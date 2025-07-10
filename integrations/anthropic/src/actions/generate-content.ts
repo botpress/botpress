@@ -5,7 +5,7 @@ import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
 import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
-import { DeprecatedReasoningModelIds, ThinkingModeBudgetTokens } from 'src'
+import { DeprecatedReasoningModelIdReplacements, ThinkingModeBudgetTokens } from 'src'
 import { ModelId } from 'src/schemas'
 
 // Reference: https://docs.anthropic.com/en/api/errors
@@ -25,8 +25,8 @@ export async function generateContent(
 ): Promise<llm.GenerateContentOutput> {
   let modelId = (input.model?.id || params.defaultModel) as ModelId
 
-  if (modelId in DeprecatedReasoningModelIds) {
-    const replacementModelId = DeprecatedReasoningModelIds[modelId]!
+  if (modelId in DeprecatedReasoningModelIdReplacements) {
+    const replacementModelId = DeprecatedReasoningModelIdReplacements[modelId]!
 
     if (input.reasoningEffort === undefined) {
       input.reasoningEffort = 'medium'

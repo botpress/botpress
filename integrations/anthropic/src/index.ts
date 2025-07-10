@@ -22,7 +22,7 @@ export const ThinkingModeBudgetTokens: Record<ReasoningEffort, number> = {
   // https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking
 }
 
-export const DeprecatedReasoningModelIds: Record<string, ModelId> = {
+export const DeprecatedReasoningModelIdReplacements: Record<string, ModelId> = {
   // These "reasoning" model IDs didn't really exist in Anthropic, we used it as a simple way for users to switch between the reasoning mode and the standard mode, but this approach has been deprecated in favor of specifying a reasoning effort in the request to activate reasoning in the model.
   'claude-sonnet-4-reasoning-20250514': 'claude-sonnet-4-20250514',
   'claude-3-7-sonnet-reasoning-20250219': 'claude-3-7-sonnet-20250219',
