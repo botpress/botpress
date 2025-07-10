@@ -47,6 +47,7 @@ export async function generateContent(
         `The model "${modelId}" has been discontinued, using "${DefaultModelId}" instead. Please update your bot to use the latest models from Google AI.`
       )
     modelId = DefaultModelId
+    input.model = { id: modelId }
   }
 
   const model = params.models[modelId]
