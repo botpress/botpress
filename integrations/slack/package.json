@@ -14,6 +14,7 @@
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
+    "@bpinternal/slackdown": "^0.1.0",
     "@slack/types": "^2.13.1",
     "@slack/web-api": "^6.8.0",
     "axios": "^1.3.4",
