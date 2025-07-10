@@ -25,7 +25,6 @@ const integration = new bp.Integration({
         },
       })
       return {
-        // eslint-disable-next-line unused-imports/no-unused-vars
         items: res.issues.map(({ linearIds, ...item }) => item),
         meta: { nextToken: res.nextCursor },
       }
