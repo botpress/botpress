@@ -127,7 +127,7 @@ async function buildGenerateContentRequest(
   }
 
   const thinkingBudget = ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'] // Default to not use reasoning as Gemini 2.5+ models use optional reasoning
-  const modelSupportsThinking = modelId !== 'models/gemini-2.0-flash' // Gemini 2.0 doesn't support thinking mode
+  const useThinking = modelId !== 'models/gemini-2.0-flash' // Gemini 2.0 doesn't support thinking mode
 
   return {
     model: modelId,
@@ -137,7 +137,7 @@ async function buildGenerateContentRequest(
       toolConfig: buildToolConfig(input),
       tools: buildTools(input),
       maxOutputTokens,
-      thinkingConfig: modelSupportsThinking
+      thinkingConfig: useThinking
         ? {
             thinkingBudget,
             includeThoughts: false,
