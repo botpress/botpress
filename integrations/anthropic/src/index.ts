@@ -47,11 +47,39 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
       maxTokens: 64_000,
     },
   },
+  'claude-sonnet-4-reasoning-20250514': {
+    name: 'Claude Sonnet 4 (Reasoning Mode)',
+    description:
+      'This model uses the "Extended Thinking" mode and will use a significantly higher amount of output tokens than the Standard Mode, so this model should only be used for tasks that actually require it.\n\nClaude Sonnet 4 significantly enhances the capabilities of its predecessor, Sonnet 3.7, excelling in both coding and reasoning tasks with improved precision and controllability. Sonnet 4 balances capability and computational efficiency, making it suitable for a broad range of applications from routine coding tasks to complex software development projects. Key enhancements include improved autonomous codebase navigation, reduced error rates in agent-driven workflows, and increased reliability in following intricate instructions.',
+    tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
+    input: {
+      costPer1MTokens: 3,
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 15,
+      maxTokens: 64_000,
+    },
+  },
   'claude-3-7-sonnet-20250219': {
     name: 'Claude 3.7 Sonnet',
     description:
       'Claude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. The model demonstrates notable improvements in coding, particularly in front-end development and full-stack updates, and excels in agentic workflows, where it can autonomously navigate multi-step processes.',
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    input: {
+      costPer1MTokens: 3,
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 15,
+      maxTokens: 64_000,
+    },
+  },
+  'claude-3-7-sonnet-reasoning-20250219': {
+    name: 'Claude 3.7 Sonnet (Reasoning Mode)',
+    description:
+      'This model uses the "Extended Thinking" mode and will use a significantly higher amount of output tokens than the Standard Mode, so this model should only be used for tasks that actually require it.\n\nClaude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. The model demonstrates notable improvements in coding, particularly in front-end development and full-stack updates, and excels in agentic workflows, where it can autonomously navigate multi-step processes.',
+    tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
     input: {
       costPer1MTokens: 3,
       maxTokens: 200_000,

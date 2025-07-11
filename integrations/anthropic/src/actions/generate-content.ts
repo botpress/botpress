@@ -32,11 +32,12 @@ export async function generateContent(
       input.reasoningEffort = 'medium'
     }
 
-    logger
-      .forBot()
-      .warn(
-        `The model "${modelId}" has been deprecated, using "${replacementModelId}" instead with a "${input.reasoningEffort}" reasoning effort`
-      )
+    // TODO: Uncomment this when we have removed the "reasoning" model IDs from the model list.
+    // logger
+    //   .forBot()
+    //   .warn(
+    //     `The model "${modelId}" has been deprecated, using "${replacementModelId}" instead with a "${input.reasoningEffort}" reasoning effort`
+    //   )
 
     modelId = replacementModelId
     input.model = { id: modelId }
