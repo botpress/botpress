@@ -450,4 +450,49 @@ return { action: 'listen' }
       }
     `)
   })
+
+  // See FT-1770
+  it('should handle various types of apostrophes in Message without parsing failure', async () => {
+    const code = `
+// Simulate a knowledge base answer with various types of apostrophes
+yield <Message>
+Here are examples with different apostrophes:
+• French apostrophe: l’option « Mot de passe oublié »
+• Backtick \` or \\\` works?
+• Straight apostrophe: don't, can't, won't
+• Curly apostrophe: don’t, can’t, won’t
+• Smart single quotes: ‘single’, ’right’, ‘left’
+• Smart double quotes: “double”, ”right”, “left”
+• Mixed: l’école, don’t, can't, won’t, what\`s
+• With contractions: it’s, that’s, what’s
+• Possessive: John’s, Mary’s, children’s
+</Message>
+return { action: 'listen' }
+`
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message, user }, code)
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "
+      Here are examples with different apostrophes: 
+      • French apostrophe: l’option « Mot de passe oublié » 
+      • Backtick \` or \\\` works? 
+      • Straight apostrophe: don't, can't, won't 
+      • Curly apostrophe: don’t, can’t, won’t 
+      • Smart single quotes: ‘single’, ’right’, ‘left’ 
+      • Smart double quotes: “double”, ”right”, “left” 
+      • Mixed: l’école, don’t, can't, won’t, what\`s 
+      • With contractions: it’s, that’s, what’s 
+      • Possessive: John’s, Mary’s, children’s 
+      ",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
 })
