@@ -458,7 +458,7 @@ return { action: 'listen' }
 yield <Message>
 Here are examples with different apostrophes:
 • French apostrophe: l’option « Mot de passe oublié »
-• Backtick \` works?
+• Backtick \` or \\\` works?
 • Straight apostrophe: don't, can't, won't
 • Curly apostrophe: don’t, can’t, won’t
 • Smart single quotes: ‘single’, ’right’, ‘left’
@@ -480,7 +480,7 @@ return { action: 'listen' }
           "
       Here are examples with different apostrophes: 
       • French apostrophe: l’option « Mot de passe oublié » 
-      • Backtick \` works? 
+      • Backtick \` or \\\` works? 
       • Straight apostrophe: don't, can't, won't 
       • Curly apostrophe: don’t, can’t, won’t 
       • Smart single quotes: ‘single’, ’right’, ‘left’ 
