@@ -37,7 +37,7 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
     name: 'Claude Sonnet 4',
     description:
       'Claude Sonnet 4 significantly enhances the capabilities of its predecessor, Sonnet 3.7, excelling in both coding and reasoning tasks with improved precision and controllability. Sonnet 4 balances capability and computational efficiency, making it suitable for a broad range of applications from routine coding tasks to complex software development projects. Key enhancements include improved autonomous codebase navigation, reduced error rates in agent-driven workflows, and increased reliability in following intricate instructions.',
-    tags: ['recommended', 'vision', 'general-purpose', 'agents', 'coding', 'function-calling', 'storytelling'],
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
     input: {
       costPer1MTokens: 3,
       maxTokens: 200_000,
@@ -51,7 +51,7 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
     name: 'Claude 3.7 Sonnet',
     description:
       'Claude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. The model demonstrates notable improvements in coding, particularly in front-end development and full-stack updates, and excels in agentic workflows, where it can autonomously navigate multi-step processes.',
-    tags: ['recommended', 'vision', 'general-purpose', 'agents', 'coding', 'function-calling', 'storytelling'],
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
     input: {
       costPer1MTokens: 3,
       maxTokens: 200_000,

@@ -13,7 +13,7 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
     name: 'Gemini 2.5 Flash',
     description:
       'Gemini 2.5 Flash is Google\'s state-of-the-art workhorse model, specifically designed for advanced reasoning, coding, mathematics, and scientific tasks. It includes built-in "thinking" capabilities, enabling it to provide responses with greater accuracy and nuanced context handling.',
-    tags: ['recommended', 'low-cost', 'general-purpose', 'vision'],
+    tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision'],
     input: {
       // Note: Cost for input audio tokens is significantly higher, but we don't yet support audio content for input.
       costPer1MTokens: 0.3,
@@ -28,7 +28,7 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
     name: 'Gemini 2.5 Pro',
     description:
       "Gemini 2.5 Pro is Google's state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through responses with enhanced accuracy and nuanced context handling. Gemini 2.5 Pro achieves top-tier performance on multiple benchmarks, reflecting superior human-preference alignment and complex problem-solving abilities.",
-    tags: ['recommended', 'general-purpose', 'vision'],
+    tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
     input: {
       // Note: Cost for input audio tokens is significantly higher, but we don't yet support audio content for input.
       costPer1MTokens: 1.25,
