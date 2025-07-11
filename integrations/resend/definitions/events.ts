@@ -11,10 +11,15 @@ const _baseWebhookEmailEventSchema = z.object({
   subject: z.string().describe('The subject of the email').title('Email subject'),
   from: z.string().describe('The sender of the email').title('Email sender'),
   to: z.array(z.string()).min(1).describe('The recipients of the email').title('Email recipients'),
-  cc: z.array(z.string()).min(1).optional(),
-  bcc: z.array(z.string()).min(1).optional(),
-  headers: z.array(emailHeaderSchema).min(1).optional(),
-  tags: z.array(emailTagSchema).min(1).optional(),
+  cc: z.array(z.string()).min(1).optional().describe('The carbon copy recipients of the email').title('Carbon Copy'),
+  bcc: z
+    .array(z.string())
+    .min(1)
+    .optional()
+    .describe('The blind carbon copy recipients of the email')
+    .title('Blind Carbon Copy'),
+  headers: z.array(emailHeaderSchema).min(1).optional().describe('The headers of the email').title('Email headers'),
+  tags: z.array(emailTagSchema).min(1).optional().describe('The tags of the email').title('Email tags'),
 })
 
 export const sentEmailEventSchema = _baseWebhookEmailEventSchema
