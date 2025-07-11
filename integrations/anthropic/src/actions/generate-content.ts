@@ -5,7 +5,7 @@ import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
 import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
-import { DefaultReasoningEffort, ThinkingModeBudgetTokens } from 'src'
+import { DeprecatedReasoningModelIdReplacements, ThinkingModeBudgetTokens } from 'src'
 import { ModelId } from 'src/schemas'
 
 // Reference: https://docs.anthropic.com/en/api/errors
@@ -24,7 +24,26 @@ export async function generateContent(
   }
 ): Promise<llm.GenerateContentOutput> {
   let modelId = (input.model?.id || params.defaultModel) as ModelId
-  let model = params.models[modelId]
+
+  if (modelId in DeprecatedReasoningModelIdReplacements) {
+    const replacementModelId = DeprecatedReasoningModelIdReplacements[modelId]!
+
+    if (input.reasoningEffort === undefined) {
+      input.reasoningEffort = 'medium'
+    }
+
+    // TODO: Uncomment this when we have removed the "reasoning" model IDs from the model list.
+    // logger
+    //   .forBot()
+    //   .warn(
+    //     `The model "${modelId}" has been deprecated, using "${replacementModelId}" instead with a "${input.reasoningEffort}" reasoning effort`
+    //   )
+
+    modelId = replacementModelId
+    input.model = { id: modelId }
+  }
+
+  const model = params.models[modelId]
 
   if (!model) {
     throw new InvalidPayloadError(
@@ -80,24 +99,14 @@ export async function generateContent(
     messages,
   }
 
-  const isReasoningModel =
-    modelId === 'claude-3-7-sonnet-reasoning-20250219' || modelId === 'claude-sonnet-4-reasoning-20250514'
+  const thinkingBudgetTokens = ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'] // Default to not use reasoning as Claude models use optional reasoning
 
-  if (isReasoningModel) {
-    // NOTE: The "reasoning" model IDs don't really exist in Anthropic, we use it as a simple way for users to switch between the reasoning mode and the standard mode.
-    if (modelId === 'claude-3-7-sonnet-reasoning-20250219') {
-      modelId = 'claude-3-7-sonnet-20250219'
-    } else if (modelId === 'claude-sonnet-4-reasoning-20250514') {
-      modelId = 'claude-sonnet-4-20250514'
-    }
-
-    request.model = modelId
-    model = params.models[modelId]
-
-    // Reference: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
+  if (thinkingBudgetTokens) {
+    // Claude requires a non-zero thinking budget when thinking mode is enabled.
     request.thinking = {
+      // Reference: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
       type: 'enabled',
-      budget_tokens: ThinkingModeBudgetTokens[input.reasoningEffort ?? DefaultReasoningEffort],
+      budget_tokens: thinkingBudgetTokens,
     }
 
     // IMPORTANT: Thinking mode requires the max tokens to be greater than the thinking budget tokens, and we assume here that the max tokens indicated in the action input don't take into account the thinking budget tokens.
