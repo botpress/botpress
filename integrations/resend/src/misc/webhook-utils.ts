@@ -86,8 +86,7 @@ export const verifyWebhookSignature = (data: Extract<ParsedWebhookData, { signin
   try {
     wh.verify(data.payload, headers)
     return true
-    // eslint-disable-next-line unused-imports/no-unused-vars
-  } catch (thrown: unknown) {
+  } catch {
     return false
   }
 }
