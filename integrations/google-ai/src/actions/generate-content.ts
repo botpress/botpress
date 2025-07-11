@@ -216,10 +216,10 @@ async function buildContents(input: llm.GenerateContentInput): Promise<Content[]
       })
     }
 
-    let role = message.role
+    let role: string = message.role
     if (input.model!.id !== <ModelId>'models/gemini-2.0-flash' && role === 'assistant') {
       // Google AI requires the "model" role instead of "assistant" as of Gemini 2.5 (see: https://ai.google.dev/api/caching#Content)
-      role = 'model' as any
+      role = 'model'
     }
 
     content.push({
