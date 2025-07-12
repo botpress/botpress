@@ -127,7 +127,7 @@ async function buildGenerateContentRequest(
   }
 
   const thinkingBudget = ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'] // Default to not use reasoning as Gemini 2.5+ models use optional reasoning
-  const useThinking = modelId !== 'models/gemini-2.0-flash' // Gemini 2.0 doesn't support thinking mode
+  const modelSupportsThinking = modelId !== 'models/gemini-2.0-flash' // Gemini 2.0 doesn't support thinking mode
 
   return {
     model: modelId,
@@ -137,7 +137,7 @@ async function buildGenerateContentRequest(
       toolConfig: buildToolConfig(input),
       tools: buildTools(input),
       maxOutputTokens,
-      thinkingConfig: useThinking
+      thinkingConfig: modelSupportsThinking
         ? {
             thinkingBudget,
             includeThoughts: false,
@@ -216,8 +216,14 @@ async function buildContents(input: llm.GenerateContentInput): Promise<Content[]
       })
     }
 
+    let role: string = message.role
+    if (input.model!.id !== <ModelId>'models/gemini-2.0-flash' && role === 'assistant') {
+      // Google AI requires the "model" role instead of "assistant" as of Gemini 2.5 (see: https://ai.google.dev/api/caching#Content)
+      role = 'model'
+    }
+
     content.push({
-      role: message.role,
+      role,
       parts,
     })
   }
