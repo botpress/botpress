@@ -36,7 +36,8 @@ const escalation = new Exit({
 while (await chat.iterate()) {
   const result = await execute({
     instructions: 'You are a helpful assistant. Greet the user and suggest topics for discussion using buttons.',
-    // when `chat` is used, the <ListenExit> is automatically added to the available exits
+    // when `chat` is used, the <ListenExit> is automatically added to the exits
+    // <ListenExit> is basically what allows the agent to stop execution and wait for the user's input
     exits: [exit, escalation],
     chat,
     client,
