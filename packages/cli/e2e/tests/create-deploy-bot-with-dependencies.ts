@@ -131,7 +131,7 @@ const _deployInterface = async ({
   await _installAndBuild({ argv, workDir, dependencies })
 
   await impl
-    .deploy({ ...argv, workDir, createNewBot: undefined, botId: undefined, public: true })
+    .deploy({ ...argv, workDir, createNewBot: undefined, botId: undefined, visibility: 'public' })
     .then(utils.handleExitCode)
 
   return {
