@@ -27,11 +27,40 @@ import { execute } from 'llmz'
 const client = new Client({ botId: '...', token: '...' })
 
 const result = await execute({
-  instructions: 'Calculate the sum of integers from 1-100 divisible by 3',
+  instructions: 'What is the sum of integers between 14 and 1078 divisible by 3, 9, or 5?',
   client,
 })
 
-console.log(result.output) // 1683
+console.log(result.output) // 271575
+```
+
+**Instruction:**
+
+```typescript
+'What is the sum of integers between 14 and 1078 divisible by 3, 9, or 5?'
+```
+
+**LLMz generates and safely executes real TypeScript:**
+
+```typescript
+// Calculating the sum of all integers between 14 and 1078 divisible by 3, 9 or 5
+let sum = 0
+
+// Loop through numbers between 14 and 1078 (inclusive)
+for (let i = 14; i <= 1078; i++) {
+  if (i % 3 === 0 || i % 9 === 0 || i % 5 === 0) {
+    sum += i // Add to sum if divisible by 3, 9, or 5
+  }
+}
+
+// Return the final result
+return { action: 'done', value: { success: true, result: sum } }
+```
+
+**Result:**
+
+```json
+{ "success": true, "result": 271575 }
 ```
 
 ---
@@ -55,34 +84,6 @@ console.log(result.output) // 1683
 
 ---
 
-## 🎬 Demo: See it in Action!
-
-**Instruction:**
-
-```typescript
-'What is the sum of integers between 14 and 1078 divisible by 3, 9, or 5?'
-```
-
-**LLMz generates real TypeScript:**
-
-```typescript
-let sum = 0
-for (let i = 14; i <= 1078; i++) {
-  if (i % 3 === 0 || i % 9 === 0 || i % 5 === 0) {
-    sum += i
-  }
-}
-return { action: 'done', value: { success: true, result: sum } }
-```
-
-**Result:**
-
-```json
-{ "success": true, "result": 271575 }
-```
-
----
-
 ## 🌟 Battle-Tested at Massive Scale
 
 LLMz isn't experimental. It's been driving production workloads globally:
@@ -90,24 +91,3 @@ LLMz isn't experimental. It's been driving production workloads globally:
 - **1+ year** in production
 - **Millions** of active users
 - **Hundreds of thousands** of deployed agents
-
----
-
-## 🛠️ Powerful Features
-
-### 🧠 Built-in Thinking
-
-- Agents "think" with inline comments and conditionals, naturally guiding their actions.
-
-### 🚨 Complete Debugging & Security
-
-- Full sandboxed environment
-- Detailed state and execution snapshots
-- Robust error handling with graceful degradation
-
-### 📚 Production-Grade Capabilities
-
-- Infinite token compression
-- Built-in safety guardrails
-- Multi-agent orchestration
-- Human-in-the-loop workflows
