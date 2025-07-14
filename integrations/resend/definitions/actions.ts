@@ -3,8 +3,8 @@ import { EMAIL_ADDRESS_DESCRIPTION, EmailAddressSchema, NonBlankString } from '.
 
 /** The common send email input schema which will be exposed to users in Botpress Studio */
 export const sendMailInputSchema = z.object({
-  to: EmailAddressSchema.describe(EMAIL_ADDRESS_DESCRIPTION).title('Email Recipient'),
   from: EmailAddressSchema.describe(EMAIL_ADDRESS_DESCRIPTION).title('Email Sender'),
+  to: EmailAddressSchema.describe(EMAIL_ADDRESS_DESCRIPTION).title('Email Recipient'),
   cc: z.array(EmailAddressSchema).optional().describe('List of carbon copy recipients').title('Carbon Copy'),
   bcc: z
     .array(EmailAddressSchema)
