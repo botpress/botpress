@@ -1,6 +1,6 @@
 {
-  "name": "@bp-templates/hello-world",
-  "integrationName": "nathaniel-girard/imap",
+  "name": "@botpresshub/email",
+  "integrationName": "nathaniel-girard/email",
   "scripts": {
     "check:type": "tsc --noEmit"
   },
