@@ -89,6 +89,16 @@ Regardless of the configuration mode you choose, you can optionally set a custom
 - **Bot Name**: If provided, this name will be displayed as the sender in Slack conversations.
 - **Bot Avatar URL**: If provided, the bot's avatar will be updated to the image at this URL. The image should be square, at least 512x512 pixels, and no larger than 1024x1024 pixels. The URL must be publicly accessible. Supported formats include GIF, PNG, JPG, JPEG, HEIC, and HEIF.
 
+## Replying in threads instead of the main channel
+
+To minimize disruption in busy Slack channels, you can activate reply threading in the integration settings. This feature creates a thread for each incoming message, where the bot will respond. For a more targeted approach, enable the "Require Bot Mention for Reply Threading Option" to only create threads when the bot is mentioned by name.
+
+Note that enabling reply threading alone doesn't stop your bot from posting in the main channel. To restrict responses exclusively to threads, modify your workflow in the Botpress Studio to terminate when receiving messages from the main channel:
+
+1. Insert an empty Standard Node at the very beginning of your Main workflow and connect it to your existing flow.
+2. Add an Expression card with the condition `event.channel === 'channel'`.
+3. Create an End card and connect the Expression card to it.
+
 ## Limitations
 
 Standard Slack API limitations apply to the Slack integration in Botpress. These limitations include rate limits, message size restrictions, and other constraints imposed by the Slack platform. Ensure that your chatbot adheres to these limitations to maintain optimal performance and reliability.
