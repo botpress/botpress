@@ -36,9 +36,11 @@ export const parseWebhookData = (props: bp.HandlerProps): Result<ParsedWebhookDa
 
   if (!signingSecret) {
     if (svixId || svixSignature || svixTimestamp) {
-      props.logger.warn(
-        "Webhook signatures are enabled in Resend but the signing secret hasn't been provided in the Botpress configuration"
-      )
+      props.logger
+        .forBot()
+        .warn(
+          "Webhook signatures are enabled in Resend but the signing secret hasn't been provided in the Botpress configuration"
+        )
     }
 
     return {
