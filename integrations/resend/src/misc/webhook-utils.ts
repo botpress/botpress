@@ -25,8 +25,7 @@ export const parseWebhookData = (props: bp.HandlerProps): Result<ParsedWebhookDa
 
   const result = safeParseJson(props.req.body)
   if (!result.success) {
-    props.logger.error('Unable to parse Resent Webhook Payload', result.error)
-    return { success: false, error: result.error }
+    return { success: false, error: new Error('Unable to parse Resend Webhook Payload', result.error) }
   }
 
   const parsedBody = result.data
