@@ -35,64 +35,7 @@ export const getMessages = async function (range: string, props: GetMessagesProp
           struct: true,
         })
 
-        f.on('message', (msg: Imap.ImapMessage, seqno: number) => {
-          const uid: string = seqno.toString()
-          let subject: string = ''
-          let body: string = ''
-          let inReplyTo: string | undefined
-          let date: Date | undefined
-
-          let headerBuffer: string = ''
-
-          msg.on('body', (stream: NodeJS.ReadableStream, info: any) => {
-            let buffer = ''
-            stream.on('data', function (chunk: any) {
-              buffer += chunk.toString('utf8')
-            })
-            stream.once('end', function () {
-              if (info.which === 'HEADER') {
-                headerBuffer = buffer // Store the header buffer
-                try {
-                  const parsedHeader = Imap.parseHeader(headerBuffer)
-                  subject = (parsedHeader.subject || ['']).join(' ')
-
-                  inReplyTo = parsedHeader['in-reply-to']?.[0]
-                  if (parsedHeader.date && parsedHeader.date.length > 0) {
-                    date = parsedHeader.date[0] !== undefined ? new Date(parsedHeader.date[0]) : undefined
-                  }
-                } catch (e) {
-                  console.error('Error parsing header:', e)
-                }
-              } else if (info.which === 'TEXT') {
-                body = buffer
-              }
-            })
-          })
-
-          let partsProcessed = 0
-          const totalParts = 2 // For HEADER and TEXT
-
-          msg.on('body', (stream: NodeJS.ReadableStream) => {
-            // ... (same as above)
-            stream.once('end', () => {
-              partsProcessed++
-              if (partsProcessed === totalParts) {
-                // All parts for this message have been processed
-                messages.push({
-                  id: uid,
-                  subject,
-                  body,
-                  inReplyTo, // Include inReplyTo here
-                  date,
-                })
-              }
-            })
-          })
-        })
-
-        f.once('end', function () {
-          imap.end()
-        })
+        handleFetch(imap, f, messages)
       })
     })
 
@@ -109,6 +52,66 @@ export const getMessages = async function (range: string, props: GetMessagesProp
 
   await messageFetchPromise
   return messages
+}
+
+const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: Message[]) {
+  f.on('message', (msg: Imap.ImapMessage, seqno: number) => {
+    const uid: string = seqno.toString()
+    let subject: string = ''
+    let body: string = ''
+    let inReplyTo: string | undefined
+    let date: Date | undefined
+
+    let headerBuffer: string = ''
+
+    msg.on('body', (stream: NodeJS.ReadableStream, info: any) => {
+      let buffer = ''
+      stream.on('data', function (chunk: any) {
+        buffer += chunk.toString('utf8')
+      })
+      stream.once('end', function () {
+        if (info.which === 'HEADER') {
+          headerBuffer = buffer // Store the header buffer
+          try {
+            const parsedHeader = Imap.parseHeader(headerBuffer)
+            subject = (parsedHeader.subject || ['']).join(' ')
+
+            inReplyTo = parsedHeader['in-reply-to']?.[0]
+            if (parsedHeader.date && parsedHeader.date.length > 0) {
+              date = parsedHeader.date[0] !== undefined ? new Date(parsedHeader.date[0]) : undefined
+            }
+          } catch (e) {
+            console.error('Error parsing header:', e)
+          }
+        } else if (info.which === 'TEXT') {
+          body = buffer
+        }
+      })
+    })
+
+    let partsProcessed = 0
+    const totalParts = 2 // For HEADER and TEXT
+
+    msg.on('body', (stream: NodeJS.ReadableStream) => {
+      // ... (same as above)
+      stream.once('end', () => {
+        partsProcessed++
+        if (partsProcessed === totalParts) {
+          // All parts for this message have been processed
+          messages.push({
+            id: uid,
+            subject,
+            body,
+            inReplyTo, // Include inReplyTo here
+            date,
+          })
+        }
+      })
+    })
+  })
+  f.once('end', function () {
+    imap.end()
+  })
 }
 
 const getConfig = function (ctx: any) {
