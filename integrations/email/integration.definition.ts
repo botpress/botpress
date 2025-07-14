@@ -26,7 +26,7 @@ export default new IntegrationDefinition({
               subject: z.string(),
               body: z.string(),
               inReplyTo: z.string().optional(),
-              date: z.date(),
+              date: z.date().optional(),
             })
           ),
         }),

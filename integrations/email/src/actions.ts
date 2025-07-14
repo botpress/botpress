@@ -2,7 +2,6 @@ import * as sdk from '@botpress/sdk'
 import Imap from 'imap'
 import 'dotenv/config'
 import nodemailer from 'nodemailer'
-import { TIntegration } from '.botpress'
 import * as bp from '.botpress'
 
 const config = {
@@ -22,10 +21,10 @@ export const actions = {
   },
 
   syncEmails: async (props) => {
-    const messages = await getMessages('1:10', props)
+    const messages = await getMessages('1:*', props)
 
     const ids = []
-    for (let { id } of messages) {
+    for (const { id } of messages) {
       ids.push({ id })
     }
     const seenMessages = await props.client.getOrSetState({
@@ -36,9 +35,9 @@ export const actions = {
     })
 
     const unseenMessages = []
-    for (const { id, subject, inReplyTo } of messages) {
+    for (const { id, subject, inReplyTo, body, date } of messages) {
       if (!seenMessages.state.payload.seenMails.some((mail: { id: string }) => mail.id === id)) {
-        unseenMessages.push({ id, subject, inReplyTo }) // Include inReplyTo
+        unseenMessages.push({ id, subject, inReplyTo, body, date }) // Include inReplyTo
       }
     }
     await props.client.setState({
@@ -125,7 +124,7 @@ const getMessages = async function (range: string, props: GetMessagesProps): Pro
 
                   inReplyTo = parsedHeader['in-reply-to']?.[0]
                   if (parsedHeader.date && parsedHeader.date.length > 0) {
-                    date = new Date(parsedHeader.date[0])
+                    date = parsedHeader.date[0] !== undefined ? new Date(parsedHeader.date[0]) : undefined
                   }
                 } catch (e) {
                   console.error('Error parsing header:', e)
@@ -139,7 +138,7 @@ const getMessages = async function (range: string, props: GetMessagesProps): Pro
           let partsProcessed = 0
           const totalParts = 2 // For HEADER and TEXT
 
-          msg.on('body', (stream: NodeJS.ReadableStream, info: any) => {
+          msg.on('body', (stream: NodeJS.ReadableStream) => {
             // ... (same as above)
             stream.once('end', () => {
               partsProcessed++
