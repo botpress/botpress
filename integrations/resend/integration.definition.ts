@@ -14,13 +14,22 @@ import {
 export default new IntegrationDefinition({
   name: 'resend',
   title: 'Resend',
-  version: '0.1.1',
+  version: '0.1.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send markdown rich-text emails using the Resend email service.',
   configuration: {
     schema: z.object({
       apiKey: z.string().secret().min(1).describe('Your Resend API Key').title('Resend API Key'),
+      signingSecret: z
+        .string()
+        // .secret() // Uncomment secret once the ZUI bug has been fixed (Linear Issue: DEV-3073)
+        .min(1)
+        .optional()
+        .describe(
+          'The secret key used to verify the authenticity of the webhook requests (Found in the webhook details page)'
+        )
+        .title('Webhook Signing Secret'),
     }),
   },
   actions: {
