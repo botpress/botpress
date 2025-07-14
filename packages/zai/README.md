@@ -273,6 +273,9 @@ const sentiment = await zai.learn('sentiment-analysis').check('This product is a
 // Later, the same check will be more accurate based on learned examples
 ```
 
+Learning is **disabled** by default. When enabled, Zai uses a [Botpress Table](https://botpress.com/docs/learn/reference/tables) to store the input/output and feedback on the generation.
+It uses the Botpress Tables semantic search capabilities to retrieve examples that are most similar to the current task as examples of input/output.
+
 ## ⚙️ Configuration
 
 ### Basic Setup
