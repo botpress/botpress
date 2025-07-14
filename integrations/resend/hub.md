@@ -38,7 +38,7 @@
 4. Copy the webhook URL from the Botpress integration config & paste it into Resend's "Endpoint URL" input field
 5. Select which webhook events you want to listen for
 6. Click "Add" (Below the "Select events to listen" section)
-7. Copy the "Signing Secret" from Resend and paste it into the "Webhook Signing Secret" of the Botpress integration config
+7. (Optional, but recommended) Copy the "Signing Secret" from Resend and paste it into the "Webhook Signing Secret" of the Botpress integration config
 8. Now your bot is ready to listen for events from Resend
 
 ## Side Notes
