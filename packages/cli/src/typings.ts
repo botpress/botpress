@@ -1,6 +1,4 @@
-import type yargs from '@bpinternal/yargs-extra'
-
-import type { YargsConfig, YargsSchema } from '@bpinternal/yargs-extra'
+import type { default as yargs, YargsConfig, YargsSchema } from '@bpinternal/yargs-extra'
 
 export type CommandPositionalOption = yargs.PositionalOptions & { positional: true; idx: number }
 export type CommandNamedOption = YargsSchema[string] & { positional?: false }
