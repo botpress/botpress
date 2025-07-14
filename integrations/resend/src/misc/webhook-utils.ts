@@ -51,11 +51,9 @@ export const parseWebhookData = (props: bp.HandlerProps): Result<ParsedWebhookDa
   }
 
   if (!svixId || !svixSignature || !svixTimestamp) {
-    const error = new Error('A signing secret was provided but webhook request is missing the required headers')
-    props.logger.error(error.message)
     return {
       success: false,
-      error,
+      error: new Error('A signing secret was provided but webhook request is missing the required headers'),
     }
   }
 
