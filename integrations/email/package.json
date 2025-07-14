@@ -1,0 +1,20 @@
+{
+  "name": "@bp-templates/hello-world",
+  "integrationName": "nathaniel-girard/imap",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "1.16.1",
+    "@botpress/sdk": "4.14.0",
+    "dotenv": "^17.2.0",
+    "imap": "^0.8.17",
+    "nodemailer": "^7.0.5"
+  },
+  "devDependencies": {
+    "@types/imap": "^0.8.42",
+    "@types/node": "^18.19.67",
+    "typescript": "^5.6.3"
+  }
+}

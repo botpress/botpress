@@ -640,6 +640,34 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/email:
+    dependencies:
+      '@botpress/client':
+        specifier: 1.16.1
+        version: 1.16.1
+      '@botpress/sdk':
+        specifier: 4.14.0
+        version: 4.14.0(@bpinternal/zui@1.0.1)
+      dotenv:
+        specifier: ^17.2.0
+        version: 17.2.0
+      imap:
+        specifier: ^0.8.17
+        version: 0.8.19
+      nodemailer:
+        specifier: ^7.0.5
+        version: 7.0.5
+    devDependencies:
+      '@types/imap':
+        specifier: ^0.8.42
+        version: 0.8.42
+      '@types/node':
+        specifier: ^18.19.67
+        version: 18.19.76
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
+
   integrations/fireworks-ai:
     dependencies:
       '@botpress/client':
@@ -4457,6 +4485,35 @@ packages:
       - openapi-types
       - supports-color
     dev: true
+
+  /@botpress/client@1.16.1:
+    resolution: {integrity: sha512-amkqZKYAZRe7ocQearb6dNJgfrUWrLqUeb06g2KWoJfBCp+a71T7dE/Asleie0TRVqkogZn1Nv0dZ5PAZqcGKg==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      axios: 1.9.0
+      axios-retry: 4.5.0(axios@1.9.0)
+      browser-or-node: 2.1.1
+      qs: 6.13.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@botpress/sdk@4.14.0(@bpinternal/zui@1.0.1):
+    resolution: {integrity: sha512-vzSZ8utJ/XULiHghuBKIYr9XSYjBglj50l3e9xEhdEiEtSU+zVfbIRQogZamlfsVA0DuLd0sLGV+jm72gCyPUw==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@bpinternal/zui': ^1.0.0
+      esbuild: ^0.16.12
+    peerDependenciesMeta:
+      esbuild:
+        optional: true
+    dependencies:
+      '@botpress/client': 1.16.1
+      '@bpinternal/zui': 1.0.1
+      browser-or-node: 2.1.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /@bpinternal/const@0.1.0:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -8313,6 +8370,12 @@ packages:
       '@types/unist': 3.0.3
     dev: false
 
+  /@types/imap@0.8.42:
+    resolution: {integrity: sha512-FusePG9Cp2GYN6OLow9xBCkjznFkAR7WCz0Fm+j1p/ER6C8V8P71DtjpSmwrZsS7zekCeqdTPHEk9N5OgPwcsg==}
+    dependencies:
+      '@types/node': 18.19.76
+    dev: true
+
   /@types/is-stream@1.1.0:
     resolution: {integrity: sha512-jkZatu4QVbR60mpIzjINmtS1ZF4a/FqdTUTBeQDVOQ2PYyidtwFKr0B5G6ERukKwliq+7mIXvxyppwzG5EgRYg==}
     dependencies:
@@ -8356,7 +8419,7 @@ packages:
   /@types/jsonwebtoken@9.0.3:
     resolution: {integrity: sha512-b0jGiOgHtZ2jqdPgPnP6WLCXZk1T8p06A/vPGzUvxpFGgKMbjXJDjC5m52ErqBnIuWZFgGoIJyRdeG5AyreJjA==}
     dependencies:
-      '@types/node': 18.19.67
+      '@types/node': 18.19.76
 
   /@types/keyv@3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
@@ -9317,6 +9380,15 @@ packages:
       axios: 0.x || 1.x
     dependencies:
       axios: 1.6.1
+      is-retry-allowed: 2.2.0
+    dev: false
+
+  /axios-retry@4.5.0(axios@1.9.0):
+    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
+    peerDependencies:
+      axios: 0.x || 1.x
+    dependencies:
+      axios: 1.9.0
       is-retry-allowed: 2.2.0
     dev: false
 
@@ -10730,6 +10802,11 @@ packages:
   /dotenv@16.4.4:
     resolution: {integrity: sha512-XvPXc8XAQThSjAbY6cQ/9PcBXmFoWuw1sQ3b8HqUCR6ziGXjkTi//kB9SWa2UwqlgdAIuRqAa/9hVljzPehbYg==}
     engines: {node: '>=12'}
+
+  /dotenv@17.2.0:
+    resolution: {integrity: sha512-Q4sgBT60gzd0BB0lSyYD3xM4YxrXA9y4uBDof1JNYGzOXrQdQ6yX+7XIAqoFOGQFOTK1D3Hts5OllpxMDZFONQ==}
+    engines: {node: '>=12'}
+    dev: false
 
   /dotenv@8.6.0:
     resolution: {integrity: sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==}
@@ -12705,6 +12782,14 @@ packages:
     engines: {node: '>= 4'}
     dev: true
 
+  /imap@0.8.19:
+    resolution: {integrity: sha512-z5DxEA1uRnZG73UcPA4ES5NSCGnPuuouUx43OPX7KZx1yzq3N8/vx2mtXEShT5inxB3pRgnfG1hijfu7XN2YMw==}
+    engines: {node: '>=0.8.0'}
+    dependencies:
+      readable-stream: 1.1.14
+      utf7: 1.0.2
+    dev: false
+
   /immer@9.0.21:
     resolution: {integrity: sha512-bc4NBHqOqSfRW7POMkHd51LvClaeMXpm8dx0e8oE2GORbq5aRK7Bxl4FyzVLdGtLmvLKL7BTDBG5ACQm4HWjTA==}
     dev: false
@@ -13141,6 +13226,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       is-docker: 2.2.1
+    dev: false
+
+  /isarray@0.0.1:
+    resolution: {integrity: sha512-D2S+3GLxWH+uhrNEcoh/fnmYeP8E8/zHl644d/jdA0g2uyXvy3sb0qxotE+ne0LtccHknQzWwZEzhak7oJ0COQ==}
     dev: false
 
   /isarray@1.0.0:
@@ -15071,6 +15160,11 @@ packages:
     engines: {node: '>=6.0.0'}
     dev: false
 
+  /nodemailer@7.0.5:
+    resolution: {integrity: sha512-nsrh2lO3j4GkLLXoeEksAMgAOqxOv6QumNRVQTJwKH4nuiww6iC2y7GyANs9kRAxCexg3+lTWM3PZ91iLlVjfg==}
+    engines: {node: '>=6.0.0'}
+    dev: false
+
   /nopt@7.2.1:
     resolution: {integrity: sha512-taM24ViiimT/XntxbPyJQzCG+p4EKOpgD3mxFwW38mGjVUrfERQOeY4EDHjdnptttfHuHQXFx+lTP08Q+mLa/w==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
@@ -15263,7 +15357,7 @@ packages:
       zod:
         optional: true
     dependencies:
-      '@types/node': 18.19.67
+      '@types/node': 18.19.76
       '@types/node-fetch': 2.6.12
       abort-controller: 3.0.0
       agentkeepalive: 4.5.0
@@ -15929,6 +16023,15 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
+  /readable-stream@1.1.14:
+    resolution: {integrity: sha512-+MeVjFf4L44XUkhM1eYbD8fyEsxcV81pqMSR5gblfcLCHfZvbrqy4/qYHE+/R5HoBUT11WV5O08Cr1n3YXkWVQ==}
+    dependencies:
+      core-util-is: 1.0.2
+      inherits: 2.0.4
+      isarray: 0.0.1
+      string_decoder: 0.10.31
+    dev: false
+
   /readable-stream@2.3.8:
     resolution: {integrity: sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==}
     dependencies:
@@ -16353,6 +16456,11 @@ packages:
     resolution: {integrity: sha512-5TF+l7p4+OsnP8BCCvSyZiSPc4x4//p5uPwK8TCnVPJYRmU2aYKMpOXvw8zM5a5JvuuCGN1jmsMwuU2W02ukfA==}
     dependencies:
       parseley: 0.12.1
+    dev: false
+
+  /semver@5.3.0:
+    resolution: {integrity: sha512-mfmm3/H9+67MCVix1h+IXTpDwL6710LyHuk7+cWC9T1mE0qz4iHhh6r4hU2wrIT9iTsAAC2XQRvfblL028cpLw==}
+    hasBin: true
     dev: false
 
   /semver@5.7.1:
@@ -16855,6 +16963,10 @@ packages:
       call-bind: 1.0.8
       define-properties: 1.2.1
       es-object-atoms: 1.0.0
+
+  /string_decoder@0.10.31:
+    resolution: {integrity: sha512-ev2QzSzWPYmy9GuqfIVildA4OdcGLeFZQrq5ys6RtiuF+RQQiZWr8TZNyAcuVXyQRYfEO+MsoB/1BuQVhOJuoQ==}
+    dev: false
 
   /string_decoder@1.1.1:
     resolution: {integrity: sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==}
@@ -17938,6 +18050,12 @@ packages:
 
   /url-template@2.0.8:
     resolution: {integrity: sha512-XdVKMF4SJ0nP/O7XIPB0JwAEuT9lDIYnNsK8yGVe43y0AWoKeJNdv3ZNWh7ksJ6KqQFjOO6ox/VEitLnaVNufw==}
+    dev: false
+
+  /utf7@1.0.2:
+    resolution: {integrity: sha512-qQrPtYLLLl12NF4DrM9CvfkxkYI97xOb5dsnGZHE3teFr0tWiEZ9UdgMPczv24vl708cYMpe6mGXGHrotIp3Bw==}
+    dependencies:
+      semver: 5.3.0
     dev: false
 
   /util-deprecate@1.0.2:
