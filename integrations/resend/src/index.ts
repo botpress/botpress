@@ -31,7 +31,10 @@ export default new bp.Integration({
   channels: {},
   handler: async (props) => {
     const result = parseWebhookData(props)
-    if (!result.success) return
+    if (!result.success) {
+      props.logger.forBot().error(result.error.message, result.error)
+      return
+    }
 
     const eventPayload = emailWebhookEventPayloadSchemas.parse(result.data)
     await dispatchIntegrationEvent(props, eventPayload)
