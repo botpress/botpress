@@ -2,8 +2,8 @@ import * as sdk from '@botpress/sdk'
 import Imap from 'imap'
 import 'dotenv/config'
 import nodemailer from 'nodemailer'
-import * as bp from '.botpress'
 import { TIntegration } from '.botpress'
+import * as bp from '.botpress'
 
 const config = {
   user: '',
@@ -14,7 +14,7 @@ const config = {
   tlsOptions: { rejectUnauthorized: false },
 }
 
-export const actions: ActionHandlers<TIntegration> = {
+export const actions = {
   listEmails: async (props) => {
     const messages = await getMessages('1:*', props)
 
@@ -22,11 +22,11 @@ export const actions: ActionHandlers<TIntegration> = {
   },
 
   syncEmails: async (props) => {
-    const messages: { id: string; subject: string; inReplyTo?: string }[] = await getMessages('1:10', props)
+    const messages = await getMessages('1:10', props)
 
     const ids = []
     for (let { id } of messages) {
-      ids.push({ id: id })
+      ids.push({ id })
     }
     const seenMessages = await props.client.getOrSetState({
       name: 'seenMails',
@@ -67,28 +67,42 @@ export const actions: ActionHandlers<TIntegration> = {
     })
     return { message: 'Success' }
   },
+} as const satisfies bp.IntegrationProps['actions']
+
+interface Message {
+  id: string
+  subject: string
+  body: string
+  inReplyTo?: string
+  date?: Date
 }
 
-const getMessages = async function (range: string, props) {
-  const messages: { id: string; subject: string; body: string; inReplyTo?: string; date?: Date }[] = []
-  getConfig(props.ctx)
-  const imap = new Imap(config)
+interface GetMessagesProps {
+  ctx: any
+  client?: any
+  input?: any
+}
 
-  function openInbox(cb: any) {
+const getMessages = async function (range: string, props: GetMessagesProps): Promise<Message[]> {
+  const messages: Message[] = []
+  getConfig(props.ctx)
+  const imap: Imap = new Imap(config)
+
+  function openInbox(cb: (err: any, box: any) => void): void {
     imap.openBox('INBOX', true, cb)
   }
 
-  const messageFetchPromise = new Promise<void>((resolve, reject) => {
+  const messageFetchPromise: Promise<void> = new Promise<void>((resolve, reject) => {
     imap.once('ready', function () {
       openInbox((err: any, box: any) => {
         if (err) return reject(new sdk.RuntimeError(err))
 
-        const f = imap.seq.fetch(range, {
+        const f: Imap.ImapFetch = imap.seq.fetch(range, {
           bodies: ['HEADER', 'TEXT'],
           struct: true,
         })
 
-        f.on('message', (msg, seqno) => {
+        f.on('message', (msg: Imap.ImapMessage, seqno: number) => {
           const uid: string = seqno.toString()
           let subject: string = ''
           let body: string = ''
@@ -97,7 +111,7 @@ const getMessages = async function (range: string, props) {
 
           let headerBuffer: string = ''
 
-          msg.on('body', (stream: any, info: any) => {
+          msg.on('body', (stream: NodeJS.ReadableStream, info: any) => {
             let buffer = ''
             stream.on('data', function (chunk: any) {
               buffer += chunk.toString('utf8')
@@ -109,7 +123,7 @@ const getMessages = async function (range: string, props) {
                   const parsedHeader = Imap.parseHeader(headerBuffer)
                   subject = (parsedHeader.subject || ['']).join(' ')
 
-                  inReplyTo = (parsedHeader['in-reply-to'] && parsedHeader['in-reply-to'][0]) || undefined
+                  inReplyTo = parsedHeader['in-reply-to']?.[0]
                   if (parsedHeader.date && parsedHeader.date.length > 0) {
                     date = new Date(parsedHeader.date[0])
                   }
@@ -125,7 +139,7 @@ const getMessages = async function (range: string, props) {
           let partsProcessed = 0
           const totalParts = 2 // For HEADER and TEXT
 
-          msg.on('body', (stream: any, info: any) => {
+          msg.on('body', (stream: NodeJS.ReadableStream, info: any) => {
             // ... (same as above)
             stream.once('end', () => {
               partsProcessed++
@@ -153,7 +167,7 @@ const getMessages = async function (range: string, props) {
       resolve()
     })
 
-    imap.once('error', (err) => {
+    imap.once('error', (err: any) => {
       reject(new sdk.RuntimeError(err))
     })
 

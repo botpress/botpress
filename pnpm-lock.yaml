@@ -648,6 +648,9 @@ importers:
       '@botpress/sdk':
         specifier: 4.14.0
         version: 4.14.0(@bpinternal/zui@1.0.1)
+      '@types/nodemailer':
+        specifier: ^6.4.17
+        version: 6.4.17
       dotenv:
         specifier: ^17.2.0
         version: 17.2.0
@@ -8507,6 +8510,12 @@ packages:
     resolution: {integrity: sha512-Xxr6BBRCAOQixvonOye19wnzyDiUtTeqldOOmj3CkeblonbccA12PFwlufvRdrpjXxqnmUaeiU5EOA+7s5diUQ==}
     dependencies:
       undici-types: 6.20.0
+    dev: false
+
+  /@types/nodemailer@6.4.17:
+    resolution: {integrity: sha512-I9CCaIp6DTldEg7vyUTZi8+9Vo0hi1/T8gv3C89yk1rSAAzoKQ8H8ki/jBYJSFoH/BisgLP8tkZMlQ91CIquww==}
+    dependencies:
+      '@types/node': 18.19.76
     dev: false
 
   /@types/nodemailer@6.4.8:
