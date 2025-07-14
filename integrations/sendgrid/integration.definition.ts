@@ -27,7 +27,7 @@ export default new IntegrationDefinition({
         .describe(
           'The public key used to verify the cryptographic signature of the webhook requests (Found in the edit webhook menu)'
         )
-        .title('Public Webhook Signature Key'),
+        .title('Webhook Verification Key'),
     }),
   },
   actions: {
