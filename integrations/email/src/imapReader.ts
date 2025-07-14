@@ -8,6 +8,7 @@ interface Message {
   body: string
   inReplyTo?: string
   date?: Date
+  sender: string
 }
 
 interface GetMessagesProps {

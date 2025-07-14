@@ -1,5 +1,14 @@
-import { z, IntegrationDefinition } from '@botpress/sdk'
+import sdk, { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { integrationName } from './package.json'
+
+const EmailMessage = z.object({
+  id: z.string(),
+  subject: z.string(),
+  body: z.string(),
+  inReplyTo: z.string().optional(),
+  date: z.date().optional(),
+  sender: z.string(),
+})
 
 export default new IntegrationDefinition({
   name: integrationName,
@@ -20,15 +29,7 @@ export default new IntegrationDefinition({
       input: { schema: z.object({}) },
       output: {
         schema: z.object({
-          messages: z.array(
-            z.object({
-              id: z.string(),
-              subject: z.string(),
-              body: z.string(),
-              inReplyTo: z.string().optional(),
-              date: z.date().optional(),
-            })
-          ),
+          messages: EmailMessage,
         }),
       },
     },
@@ -39,15 +40,7 @@ export default new IntegrationDefinition({
       input: { schema: z.object({}) },
       output: {
         schema: z.object({
-          messages: z.array(
-            z.object({
-              id: z.string(),
-              subject: z.string(),
-              body: z.string(),
-              inReplyTo: z.string().optional(),
-              date: z.date().optional(),
-            })
-          ),
+          messages: EmailMessage,
         }),
       },
     },
@@ -56,7 +49,6 @@ export default new IntegrationDefinition({
       description: 'Send an email using SMTP',
       input: {
         schema: z.object({
-          from: z.string(),
           to: z.string(),
           subject: z.string().optional(),
           text: z.string().optional(),
@@ -67,6 +59,17 @@ export default new IntegrationDefinition({
           message: z.string().optional(),
         }),
       },
+    },
+  },
+  channels: {
+    default: {
+      messages: { text: messages.defaults.text },
+      conversation: { tags: {} },
+    },
+  },
+  user: {
+    tags: {
+      email: { title: 'User email', description: 'Required' },
     },
   },
 })
