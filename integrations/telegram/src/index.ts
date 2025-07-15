@@ -168,13 +168,13 @@ const integration = new bp.Integration({
     ok(data.message, 'Handler received a non-message update, so the event was ignored')
 
     const message = data.message as TelegramMessage
-    const conversationId = message.chat.id
-    const userId = message.from?.id
+    const telegramConversationId = message.chat.id
+    const telegramUserId = message.from?.id
     const messageId = message.message_id
 
     ok(!message.from?.is_bot, 'Handler received a message from a bot, so the message was ignored')
-    ok(conversationId, 'Handler received message with empty "chat.id" value')
-    ok(userId, 'Handler received message with empty "from.id" value')
+    ok(telegramConversationId, 'Handler received message with empty "chat.id" value')
+    ok(telegramUserId, 'Handler received message with empty "from.id" value')
     ok(messageId, 'Handler received an empty message id')
 
     const fromUser = message.from as User
@@ -183,18 +183,18 @@ const integration = new bp.Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        id: conversationId.toString(),
-        fromUserId: userId.toString(),
+        id: telegramConversationId.toString(),
+        fromUserId: telegramUserId.toString(),
         fromUserUsername: fromUser.username,
         fromUserName: userName,
-        chatId: conversationId.toString(),
+        chatId: telegramConversationId.toString(),
       },
       discriminateByTags: ['id'],
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        id: userId.toString(),
+        id: telegramUserId.toString(),
       },
       ...(userName && { name: userName }),
       discriminateByTags: ['id'],
@@ -204,7 +204,7 @@ const integration = new bp.Integration({
       pictureUrl: !user.pictureUrl
         ? await getUserPictureDataUri({
             botToken: ctx.configuration.botToken,
-            telegramUserId: userId,
+            telegramUserId,
             logger,
           })
         : undefined,
@@ -228,12 +228,12 @@ const integration = new bp.Integration({
       telegram: telegraf.telegram,
     })
 
-    logger.forBot().debug(`Received message from user ${userId}: ${JSON.stringify(message, null, 2)}`)
+    logger.forBot().debug(`Received message from user ${telegramUserId}: ${JSON.stringify(message, null, 2)}`)
 
     await client.createMessage({
       tags: {
         id: messageId.toString(),
-        chatId: conversationId.toString(),
+        chatId: telegramConversationId.toString(),
       },
       ...bpMessage,
       userId: user.id,
