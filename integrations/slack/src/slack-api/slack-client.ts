@@ -119,6 +119,10 @@ export class SlackClient {
     return this._teamId
   }
 
+  public getGrantedScopes(): Readonly<string[]> {
+    return this._grantedScopes
+  }
+
   public hasAllScopes(requiredScopes: string[]): boolean {
     return requiredScopes.every((scope) => this._grantedScopes.includes(scope))
   }
