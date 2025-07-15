@@ -189,6 +189,7 @@ const integration = new bp.Integration({
         fromUserName: userName,
         chatId: conversationId.toString(),
       },
+      discriminateByTags: ['id'],
     })
 
     const { user } = await client.getOrCreateUser({
@@ -196,6 +197,7 @@ const integration = new bp.Integration({
         id: userId.toString(),
       },
       ...(userName && { name: userName }),
+      discriminateByTags: ['id'],
     })
 
     const userFieldsToUpdate = {
