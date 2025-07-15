@@ -1,5 +1,5 @@
 import { meta } from '@botpress/common'
-import { getClientSecret, getVerifyToken } from '../misc/client'
+import { getClientSecret, getVerifyToken } from '../misc/auth'
 import { handleMessage } from '../misc/incoming-message'
 import { MessengerPayload } from '../misc/types'
 import { oauth } from './handlers'

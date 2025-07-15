@@ -1,5 +1,5 @@
 import { MessengerClient } from 'messaging-api-messenger'
-import { getMessengerClient } from './utils'
+import { create as createMessengerClient } from './messenger-client'
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
@@ -13,7 +13,7 @@ export async function sendMessage(
   { ack, client, ctx, conversation }: SendMessageProps,
   send: (client: MessengerClient, recipientId: string) => Promise<{ messageId: string }>
 ) {
-  const messengerClient = await getMessengerClient(client, ctx)
+  const messengerClient = await createMessengerClient(client, ctx)
   const recipientId = getRecipientId(conversation)
   const { messageId } = await send(messengerClient, recipientId)
   await ack({ tags: { id: messageId } })
