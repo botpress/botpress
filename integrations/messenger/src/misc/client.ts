@@ -176,3 +176,14 @@ export function getVerifyToken(ctx: bp.Context): string {
 
   return verifyToken
 }
+
+export function getClientSecret(ctx: bp.Context): string | undefined {
+  let value: string | undefined
+  if (ctx.configurationType === 'manualApp') {
+    value = ctx.configuration.clientSecret
+  } else {
+    value = bp.secrets.CLIENT_SECRET
+  }
+
+  return value?.length ? value : undefined
+}

@@ -1,3 +1,4 @@
-import { handler as subscribeHandler } from './subscribe'
+import subscribeHandler from './subscribe-handler'
+import validateRequestSignature from './validate-request-signature'
 
-export default { subscribeHandler }
+export default { subscribeHandler, validateRequestSignature }

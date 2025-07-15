@@ -40,7 +40,7 @@ export default new IntegrationDefinition({
           .string()
           .title('Client Secret')
           .optional()
-          .describe('Meta app secret used for webhook signature check'),
+          .describe('Meta app secret used for webhook signature check. Leave empty to disable signature check.'),
         pageId: z.string().min(1).describe('Id from the Facebook page').title('Page ID'),
       }),
     },

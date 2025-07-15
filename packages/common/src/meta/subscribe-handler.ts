@@ -3,7 +3,7 @@ import { IntegrationProps } from '@botpress/sdk'
 type IntegrationHandler = IntegrationProps['handler']
 type IntegrationHandlerProps = Pick<Parameters<IntegrationHandler>[0], 'req'>
 
-export const handler = async (props: IntegrationHandlerProps & { verifyToken: string }) => {
+const handler = async (props: IntegrationHandlerProps & { verifyToken: string }) => {
   const { req } = props
 
   const queryParams = new URLSearchParams(req.query)
@@ -27,3 +27,5 @@ export const handler = async (props: IntegrationHandlerProps & { verifyToken: st
     body: challenge,
   }
 }
+
+export default handler
