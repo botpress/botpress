@@ -83,7 +83,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
     const missingScopes = REQUIRED_SLACK_SCOPES.filter((scope) => !grantedScopes.includes(scope))
 
     throw new sdk.RuntimeError(
-      `The Slack access token is missing required scopes. Please re-authorize the app.\n\n` +
+      'The Slack access token is missing required scopes. Please re-authorize the app.\n\n' +
         `Missing scopes: ${missingScopes.join(', ')}.\n` +
         `Granted scopes: ${grantedScopes.join(', ')}.`
     )
