@@ -68,7 +68,7 @@ const _resetHandler: WizardHandler = async ({ responses, client, ctx }) => {
     id: ctx.integrationId,
     payload: {},
   })
-  return responses.redirectToExternalUrl(_getOAuthRedirectUri(ctx))
+  return responses.redirectToExternalUrl(_getOAuthAuthorizationPromptUri(ctx))
 }
 
 const _oauthCallbackHandler: WizardHandler = async ({ responses, query, client, ctx, logger }) => {
@@ -81,7 +81,7 @@ const _oauthCallbackHandler: WizardHandler = async ({ responses, query, client, 
   }
 
   const metaClient = new MetaClient(logger)
-  const accessToken = await metaClient.getAccessToken(authorizationCode, _getOAuthRedirectUri())
+  const accessToken = await metaClient.getAccessToken(authorizationCode, _getOAuthRedirectUri(ctx))
 
   await _patchCredentials(client, ctx, { accessToken })
 
@@ -105,8 +105,8 @@ const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logge
       label: page.name,
       value: page.id,
     })),
-    pageTitle: 'Select a page',
-    htmlOrMarkdownPageContents: 'Choose a page to use in this bot:',
+    pageTitle: 'Select Page',
+    htmlOrMarkdownPageContents: 'Choose a page to use for this bot:',
     nextStepId: 'setup',
   })
 }
@@ -143,12 +143,12 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
   return responses.displayButtons({
     pageTitle: 'Configuration Complete',
     htmlOrMarkdownPageContents: `
-    Your configuration is now complete and the selected Facebook page will start answering as this bot, you can open it on Messenger and test it.
+Your configuration is now complete, and this bot will begin responding for the selected Facebook page. You can open it on Messenger to test it.
 
-    **Here are some things to verify if you are unable to talk with your bot on Messenger**
+**Here are some things to verify if you are unable to communicate with your bot on Messenger**
 
-    - Confirm if you are talking with the page that was selected for this bot
-    - Double check if you published this bot
+-  Confirm that you are interacting with the page selected for this bot.
+-  Double-check that you have published this bot.
     `,
     buttons: [
       {
@@ -167,16 +167,18 @@ const _endHandler: WizardHandler = ({ responses }) => {
   })
 }
 
-const _getOAuthRedirectUri = (ctx?: bp.Context) =>
+const _getOAuthAuthorizationPromptUri = (ctx?: bp.Context) =>
   'https://www.facebook.com/v19.0/dialog/oauth?' +
   'client_id=' +
   bp.secrets.CLIENT_ID +
   '&redirect_uri=' +
-  oauthWizard.getWizardStepUrl('oauth-callback', ctx) +
+  _getOAuthRedirectUri(ctx) +
   '&config_id=' +
   bp.secrets.OAUTH_CONFIG_ID +
   '&override_default_response_type=true' + // TODO: What does this do?
   '&response_type=code'
+
+const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('oauth-callback', ctx).toString()
 
 // client.patchState is not working correctly
 const _patchCredentials = async (client: bp.Client, ctx: bp.Context, newState: Partial<OAuthState['payload']>) => {
