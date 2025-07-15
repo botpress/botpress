@@ -1,28 +1,15 @@
-import { Request } from '@botpress/sdk'
 import queryString from 'query-string'
-import { getInterstitialUrl, redirectTo } from 'src/misc/html-utils'
-import { handleMessage } from 'src/misc/incoming-message'
-import { MessengerPayload } from 'src/misc/types'
-import { handleWizard } from 'src/misc/wizard'
+import { handleMessage } from '../misc/incoming-message'
+import { MessengerPayload } from '../misc/types'
+import { oauth } from './handlers'
 import * as bp from '.botpress'
 
 const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx, logger }) => {
-  if (detectIdentifierIssue(req, ctx)) {
-    return redirectTo(getInterstitialUrl(false, 'Not allowed'))
-  }
-
-  if (req.query?.includes('code') || req.query?.includes('wizard-step')) {
-    try {
-      return await handleWizard(req, client, ctx, logger)
-    } catch (err: any) {
-      const errorMessage = '(OAuth registration) Error: ' + err.message
-      logger.forBot().error(errorMessage)
-      return redirectTo(getInterstitialUrl(false, errorMessage))
-    }
+  if (req.path.startsWith('/oauth')) {
+    return oauth.handler({ req, client, ctx, logger })
   }
 
   logger.forBot().debug('Handler received request from Messenger with payload:', req.body)
-
   if (req.query) {
     const query: Record<string, string | string[] | null> = queryString.parse(req.query)
 
@@ -76,16 +63,6 @@ const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx, logge
   }
 
   return
-}
-
-const detectIdentifierIssue = (req: Request, ctx: bp.Context) => {
-  /* because of the wizard, we need to accept the query param "state" as an identifier
-   * but we need to prevent anyone of using anything other than the webhookId there for security reasons
-   */
-
-  const query = queryString.parse(req.query)
-
-  return !!(query['state']?.length && query['state'] !== ctx.webhookId)
 }
 
 export default handler satisfies bp.IntegrationProps['handler']
