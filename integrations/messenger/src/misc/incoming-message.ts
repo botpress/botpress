@@ -1,5 +1,5 @@
-import { MessengerMessage } from './types'
 import { create as createMessengerClient } from './messenger-client'
+import { MessengerMessage } from './types'
 import * as bp from '.botpress'
 
 type IntegrationLogger = bp.Logger
