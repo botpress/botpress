@@ -460,7 +460,7 @@ importers:
         version: 9.0.0
       zod:
         specifier: npm:@botpress/sdk
-        version: link:../../packages/sdk
+        version: /@botpress/sdk@4.14.2(@bpinternal/zui@1.0.3)
     devDependencies:
       '@botpress/chat-api':
         specifier: workspace:*
@@ -2210,6 +2210,18 @@ importers:
         specifier: ^8.0.2
         version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
 
+  packages/workflow:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:^
+        version: link:../client
+      '@botpress/sdk':
+        specifier: workspace:^
+        version: link:../sdk
+      glob:
+        specifier: ^9.3.4
+        version: 9.3.5
+
   packages/zai:
     dependencies:
       '@botpress/client':
@@ -3942,6 +3954,35 @@ packages:
       - openapi-types
       - supports-color
 
+  /@botpress/client@1.17.1:
+    resolution: {integrity: sha512-ys7yrxDgMO5FJiVjyR8iMn4mIYxlyj0L2atjwA2Z8hq58jXWn7jEGCzMZo8mMeennk1KYqRl4hOX4v1HfDPRuw==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      axios: 1.7.9
+      axios-retry: 4.5.0(axios@1.7.9)
+      browser-or-node: 2.1.1
+      qs: 6.13.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@botpress/sdk@4.14.2(@bpinternal/zui@1.0.3):
+    resolution: {integrity: sha512-DNNG1EYVUu75mR0SFPbGVExfBPIIcIP89J3LAr6xkb4lW2eGuzkzg5LLGsLmNz3DBA4GnOVO3TLCbNTyvxpC8g==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@bpinternal/zui': ^1.0.1
+      esbuild: ^0.16.12
+    peerDependenciesMeta:
+      esbuild:
+        optional: true
+    dependencies:
+      '@botpress/client': 1.17.1
+      '@bpinternal/zui': 1.0.3
+      browser-or-node: 2.1.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@bpinternal/const@0.0.20:
     resolution: {integrity: sha512-AVeQy25M9eXMvjnLZVbFmr++qkONYrwW7qLXD9q9ccD4WLEgMmJZ6e+BSUnwPEBQ8LiqWQXf/YJ1MJxoVkcyNw==}
     dependencies:
@@ -4112,6 +4153,11 @@ packages:
     peerDependenciesMeta:
       react:
         optional: true
+
+  /@bpinternal/zui@1.0.3:
+    resolution: {integrity: sha512-ZKlW50Y39kIu8NhOltql+5eqmQh3sxHPahxtACjqiMFIl6SR3Jy6+udYVRfIgagkuSTVavil5TPz25bxqIof6w==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+    dev: false
 
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -8339,6 +8385,15 @@ packages:
       is-retry-allowed: 2.2.0
     dev: false
 
+  /axios-retry@4.5.0(axios@1.7.9):
+    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
+    peerDependencies:
+      axios: 0.x || 1.x
+    dependencies:
+      axios: 1.7.9
+      is-retry-allowed: 2.2.0
+    dev: false
+
   /axios@0.21.4(debug@4.4.0):
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
@@ -11072,7 +11127,6 @@ packages:
       minimatch: 8.0.4
       minipass: 4.2.8
       path-scurry: 1.10.2
-    dev: true
 
   /globals@11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -13124,7 +13178,6 @@ packages:
     engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
       brace-expansion: 2.0.1
-    dev: true
 
   /minimatch@9.0.1:
     resolution: {integrity: sha512-0jWhJpD/MdhPXwPuiRkCbfYfSKp2qnn2eOc279qI7f+osl/l+prKSrvhg157zSYvx/1nmgn2NqdT6k2Z7zSH9w==}
@@ -13145,7 +13198,6 @@ packages:
   /minipass@4.2.8:
     resolution: {integrity: sha512-fNzuVyifolSLFL4NzpF+wEF4qrgqaaKX0haXPQEdQ7NKAN+WecoKMHV09YcuL/DHxrUsYQOK3MiuDf7Ip2OXfQ==}
     engines: {node: '>=8'}
-    dev: true
 
   /minipass@6.0.2:
     resolution: {integrity: sha512-MzWSV5nYVT7mVyWCwn2o7JH13w2TBRmmSqSRCKzTw+lmft9X4z+3wjvs06Tzijo5z4W/kahUCDpRXTF+ZrmF/w==}

@@ -1,0 +1,36 @@
+\documentclass[twocolumn]{article}
+\usepackage{lipsum}
+\usepackage{booktabs}
+\begin{document}
+
+\title{Two-Column Document with Lorem Ipsum}
+\author{Your Name}
+\date{\today}
+
+\maketitle
+
+\begin{abstract}
+This is a sample document with two columns filled with Lorem Ipsum text.
+\end{abstract}
+
+
+\lipsum[1-10] % Adjust the range to change the amount of Lorem Ipsum text
+
+\pagebreak
+\begin{table}[h]
+    \centering
+    \caption{EU Countries Information}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Country} & \textbf{Population (millions)} & \textbf{Area (km\textsuperscript{2})} & \textbf{Capital} & \textbf{Official Language} \\
+        \midrule
+        Austria & 8.9 & 83,879 & Vienna & German \\
+        Belgium & 11.5 & 30,689 & Brussels & Dutch, French, German \\
+        Czech Republic & 10.7 & 78,866 & Prague & Czech \\
+        Denmark & 5.8 & 42,951 & Copenhagen & Danish \\
+        Finland & 5.5 & 338,424 & Helsinki & Finnish, Swedish \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\end{document}
