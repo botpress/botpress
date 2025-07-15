@@ -1119,9 +1119,6 @@ importers:
       messaging-api-messenger:
         specifier: ^1.1.0
         version: 1.1.0
-      query-string:
-        specifier: ^6.14.1
-        version: 6.14.1
     devDependencies:
       '@botpress/common':
         specifier: workspace:*

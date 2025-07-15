@@ -89,17 +89,16 @@ export default new IntegrationDefinition({
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: {
-      description: 'The client ID of your Meta app.',
+      description: 'The client ID of your Meta app',
     },
     CLIENT_SECRET: {
-      description: 'The client secret of your Meta app.',
+      description: 'The client secret of your Meta app',
     },
     OAUTH_CONFIG_ID: {
       description: 'The OAuth configuration ID for the OAuth Meta app',
     },
     VERIFY_TOKEN: {
-      description: 'The verify token for the Meta Webhooks subscription, optional since its only useful for oAuth.',
-      optional: true,
+      description: 'The verify token for the Meta Webhooks subscription',
     },
     ACCESS_TOKEN: {
       description: 'Access token for internal Meta App',

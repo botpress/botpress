@@ -164,3 +164,15 @@ export async function getCredentials(
     clientId: bp.secrets.CLIENT_ID,
   }
 }
+
+export function getVerifyToken(ctx: bp.Context): string {
+  // Should normally be verified in the fallbackHandler script with OAuth and Sandbox
+  let verifyToken: string
+  if (ctx.configurationType === 'manualApp') {
+    verifyToken = ctx.configuration.verifyToken
+  } else {
+    verifyToken = bp.secrets.VERIFY_TOKEN
+  }
+
+  return verifyToken
+}

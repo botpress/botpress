@@ -1,47 +1,20 @@
-import queryString from 'query-string'
+import { meta } from '@botpress/common'
+import { getVerifyToken } from '../misc/client'
 import { handleMessage } from '../misc/incoming-message'
 import { MessengerPayload } from '../misc/types'
 import { oauth } from './handlers'
 import * as bp from '.botpress'
 
-const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx, logger }) => {
+const handler: bp.IntegrationProps['handler'] = async (props) => {
+  const { req, client, ctx, logger } = props
   if (req.path.startsWith('/oauth')) {
     return oauth.handler({ req, client, ctx, logger })
   }
 
   logger.forBot().debug('Handler received request from Messenger with payload:', req.body)
-  if (req.query) {
-    const query: Record<string, string | string[] | null> = queryString.parse(req.query)
-
-    const mode = query['hub.mode']
-    const token = query['hub.verify_token']
-    const challenge = query['hub.challenge']
-
-    // For oAuth, this is handled at fallbackHandler.vrl
-    if (mode === 'subscribe' && ctx.configurationType === 'manualApp') {
-      if (token === ctx.configuration.verifyToken) {
-        if (!challenge) {
-          logger.forBot().warn('Returning HTTP 400 as no challenge parameter was received in query string of request')
-          return {
-            status: 400,
-          }
-        }
-
-        return {
-          body: typeof challenge === 'string' ? challenge : '',
-        }
-      } else {
-        logger.forBot().warn("Returning HTTP 403 as the Messenger token doesn't match the one in the bot configuration")
-        return {
-          status: 403,
-        }
-      }
-    } else {
-      logger.forBot().warn(`Returning HTTP 400 as the '${mode}' mode received in the query string isn't supported`)
-      return {
-        status: 400,
-      }
-    }
+  const queryParams = new URLSearchParams(req.query)
+  if (queryParams.has('hub.mode')) {
+    return await meta.subscribeHandler({ ...props, verifyToken: getVerifyToken(ctx) })
   }
 
   if (!req.body) {
