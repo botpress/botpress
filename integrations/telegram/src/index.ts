@@ -240,45 +240,6 @@ const integration = new bp.Integration({
       conversationId: conversation.id,
     })
   }),
-  createUser: async ({ client, tags, ctx }) => {
-    const strId = tags.id
-    const userId = Number(strId)
-
-    if (isNaN(userId)) {
-      return
-    }
-
-    const telegraf = new Telegraf(ctx.configuration.botToken)
-    const member = await telegraf.telegram.getChatMember(userId, userId)
-
-    const { user } = await client.getOrCreateUser({ tags: { id: `${member.user.id}` } })
-
-    return {
-      body: JSON.stringify({ user: { id: user.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
-  createConversation: async ({ client, channel, tags, ctx }) => {
-    const chatId = tags.id
-    if (!chatId) {
-      return
-    }
-
-    const telegraf = new Telegraf(ctx.configuration.botToken)
-    const chat = await telegraf.telegram.getChat(chatId)
-
-    const { conversation } = await client.getOrCreateConversation({
-      channel,
-      tags: { id: chat.id.toString() },
-    })
-
-    return {
-      body: JSON.stringify({ conversation: { id: conversation.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
 })
 
 export default sentryHelpers.wrapIntegration(integration, {
