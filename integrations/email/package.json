@@ -1,8 +1,8 @@
 {
   "name": "@botpresshub/email",
-  "integrationName": "nathaniel-girard/email",
   "scripts": {
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "build": "bp build"
   },
   "private": true,
   "dependencies": {

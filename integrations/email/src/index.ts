@@ -2,7 +2,9 @@ import { actions, sendNodemailerMail } from './actions'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
-  register: async () => {},
+  register: async () => {
+    // TODO: test the config here to throw as early as possible
+  },
   unregister: async () => {},
   actions,
   handler: async () => {},

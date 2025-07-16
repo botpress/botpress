@@ -1,16 +1,7 @@
-import sdk, { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { integrationName } from './package.json'
+import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 
-export interface EmailMessage {
-  id: string
-  subject: string
-  body: string
-  inReplyTo?: string
-  date?: Date
-  sender: string
-}
-
-const EmailMessageObject = z.object({
+export type EmailMessage = z.infer<typeof emailMessageSchema>
+const emailMessageSchema = z.object({
   id: z.string(),
   subject: z.string(),
   body: z.string(),
@@ -20,7 +11,7 @@ const EmailMessageObject = z.object({
 })
 
 export default new IntegrationDefinition({
-  name: integrationName,
+  name: 'email',
   version: '0.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -38,19 +29,16 @@ export default new IntegrationDefinition({
       input: { schema: z.object({}) },
       output: {
         schema: z.object({
-          messages: z.array(EmailMessageObject),
+          messages: z.array(emailMessageSchema),
         }),
       },
     },
     syncEmails: {
       title: 'Sync Emails',
-      description:
-        'Reads all emails in the inbox. Call periodically to refresh the inbox (the integration will only add new emails)',
+      description: 'Sends unseen emails as new messages. Call periodically to allow your bot to receive new emails.',
       input: { schema: z.object({}) },
       output: {
-        schema: z.object({
-          messages: z.array(EmailMessageObject),
-        }),
+        schema: z.object({}),
       },
     },
     sendMail: {
@@ -73,7 +61,11 @@ export default new IntegrationDefinition({
   channels: {
     default: {
       messages: { text: messages.defaults.text },
-      conversation: { tags: {} },
+      conversation: {
+        tags: {
+          subject: { title: 'Thread Subject', description: 'Subject for the conversation' },
+        },
+      },
     },
   },
   user: {

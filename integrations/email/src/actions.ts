@@ -5,54 +5,62 @@ import * as bp from '.botpress'
 
 export const actions = {
   listEmails: async (props) => {
+    // TODO: add paging mechanism
     const messages = await getMessages('1:*', props)
-
-    for (const message of messages) {
-      // const user = await props.client.getOrCreateUser({
-      //   tags: { email: message.sender },
-      //   discriminateByTags: ['email'],
-      // })
-      // const conversation = await props.client.getOrCreateConversation({ channel: 'default', tags: [] })
-      // const message = props.client.getOrCreateMessage({
-      //   conversationId: conversation.conversation.id,
-      //   payload: { text: '' },
-      //   tags: [],
-      //   type: 'text',
-      //   userId: user.user.id,
-      // })
-    }
-
     return { messages }
   },
 
   syncEmails: async (props) => {
-    const messages = await getMessages('1:*', props)
-
-    const ids = []
-    for (const { id } of messages) {
-      ids.push({ id })
-    }
-    const seenMessages = await props.client.getOrSetState({
+    const {
+      state: { payload: seenMessages },
+    } = await props.client.getOrSetState({
       name: 'seenMails',
       id: props.ctx.integrationId,
       type: 'integration',
       payload: { seenMails: [] },
     })
 
-    const unseenMessages = []
-    for (const message of messages) {
-      if (!seenMessages.state.payload.seenMails.some((mail: { id: string }) => mail.id === message.id)) {
-        unseenMessages.push(message)
+    const allMessages = await getMessages('1:*', props)
+    for (const message of allMessages) {
+      const messageAlreadySeen = seenMessages.seenMails.some((m) => m.id === message.id)
+      if (messageAlreadySeen) {
+        continue
       }
+
+      const user = await props.client.getOrCreateUser({
+        tags: { email: message.sender },
+      })
+
+      const { conversation } = await props.client.getOrCreateConversation({
+        channel: 'default',
+        tags: {
+          subject: message.subject,
+        },
+      })
+
+      await props.client.getOrCreateMessage({
+        conversationId: conversation.id,
+        userId: user.user.id,
+        payload: { text: message.body },
+        tags: {},
+        type: 'text',
+      })
     }
+
     await props.client.setState({
       name: 'seenMails',
       id: props.ctx.integrationId,
       type: 'integration',
-      payload: { seenMails: ids },
+      payload: {
+        seenMails: _unique([
+          //
+          ...seenMessages.seenMails.map((m) => m.id),
+          ...allMessages.map((m) => m.id),
+        ]).map((id) => ({ id })),
+      },
     })
 
-    return { messages: unseenMessages }
+    return {}
   },
   sendMail: async (props) => {
     return await sendNodemailerMail(props.ctx.configuration, props.input.to, props.input.subject, props.input.text)
@@ -81,3 +89,5 @@ export const sendNodemailerMail = async (
   })
   return { message: 'Success' }
 }
+
+const _unique = <T>(arr: T[]) => Array.from(new Set(arr))

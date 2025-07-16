@@ -3,7 +3,7 @@ import * as sdk from '@botpress/sdk'
 import Imap from 'imap'
 import { EmailMessage } from 'integration.definition'
 
-interface GetMessagesProps {
+type GetMessagesProps = {
   ctx: any
   client?: any
   input?: any
