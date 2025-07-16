@@ -1,4 +1,8 @@
-import { createAsyncFnWrapperWithErrorRedaction, defaultErrorRedactor } from '@botpress/common'
+import {
+  createAsyncFnWrapperWithErrorRedaction,
+  createErrorHandlingDecorator,
+  defaultErrorRedactor,
+} from '@botpress/common'
 
 /*
   Since emails can be quite sensitive, by default we will not expose the
@@ -6,4 +10,5 @@ import { createAsyncFnWrapperWithErrorRedaction, defaultErrorRedactor } from '@b
   message if we're not given a RuntimeError. This is done by the default
   error redactor function.
 */
-export const wrapWithTryCatch = createAsyncFnWrapperWithErrorRedaction(defaultErrorRedactor)
+export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction(defaultErrorRedactor)
+export const handleErrorsDecorator = createErrorHandlingDecorator(wrapAsyncFnWithTryCatch)

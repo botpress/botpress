@@ -19,9 +19,9 @@ export class GoogleClient {
     ctx: bp.Context
     refreshToken?: string
   }) {
-    const token = refreshToken ?? (await this._getRefreshTokenFromStates({ client, ctx }))
+    const token = refreshToken ?? (await GoogleClient._getRefreshTokenFromStates({ client, ctx }))
 
-    const oauth2Client = this._getOAuthClient({ ctx })
+    const oauth2Client = GoogleClient._getOAuthClient({ ctx })
     oauth2Client.setCredentials({ refresh_token: token })
 
     const gmailClient = google.gmail({ version: 'v1', auth: oauth2Client })
