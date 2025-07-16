@@ -5,7 +5,7 @@ import typingIndicator from './bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '0.7.4',
+  version: '1.0.0',
   title: 'Telegram',
   description: 'Engage with your audience in real-time.',
   icon: 'icon.svg',
@@ -30,7 +30,6 @@ export default new IntegrationDefinition({
       message: { tags: { id: {}, chatId: {} } },
       conversation: {
         tags: { id: {}, fromUserId: {}, fromUserUsername: {}, fromUserName: {}, chatId: {} },
-        creation: { enabled: true, requiredTags: ['id'] },
       },
     },
   },
@@ -41,7 +40,6 @@ export default new IntegrationDefinition({
     tags: {
       id: {},
     },
-    creation: { enabled: true, requiredTags: ['id'] },
   },
 }).extend(typingIndicator, () => ({
   entities: {},
