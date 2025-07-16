@@ -1,7 +1,16 @@
 import sdk, { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { integrationName } from './package.json'
 
-const EmailMessage = z.object({
+export interface EmailMessage {
+  id: string
+  subject: string
+  body: string
+  inReplyTo?: string
+  date?: Date
+  sender: string
+}
+
+const EmailMessageObject = z.object({
   id: z.string(),
   subject: z.string(),
   body: z.string(),
@@ -29,7 +38,7 @@ export default new IntegrationDefinition({
       input: { schema: z.object({}) },
       output: {
         schema: z.object({
-          messages: EmailMessage,
+          messages: z.array(EmailMessageObject),
         }),
       },
     },
@@ -40,7 +49,7 @@ export default new IntegrationDefinition({
       input: { schema: z.object({}) },
       output: {
         schema: z.object({
-          messages: EmailMessage,
+          messages: z.array(EmailMessageObject),
         }),
       },
     },

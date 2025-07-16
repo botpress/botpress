@@ -7,22 +7,22 @@ export const actions = {
   listEmails: async (props) => {
     const messages = await getMessages('1:*', props)
 
-    for (let message of messages) {
-      const user = await props.client.getOrCreateUser({
-        tags: { email: message.sender },
-        discriminateByTags: [{ email: message.sender }],
-      })
-      const conversation = await props.client.getOrCreateConversation({ channel: 'default', tags: [] })
+    for (const message of messages) {
+      // const user = await props.client.getOrCreateUser({
+      //   tags: { email: message.sender },
+      //   discriminateByTags: ['email'],
+      // })
+      // const conversation = await props.client.getOrCreateConversation({ channel: 'default', tags: [] })
+      // const message = props.client.getOrCreateMessage({
+      //   conversationId: conversation.conversation.id,
+      //   payload: { text: '' },
+      //   tags: [],
+      //   type: 'text',
+      //   userId: user.user.id,
+      // })
     }
-    // const message = props.client.getOrCreateMessage({
-    //   conversationId: conversation.conversation.id,
-    //   payload: { text: '' },
-    //   tags: [],
-    //   type: 'text',
-    //   userId: user.user.id,
-    // })
 
-    return { messages: messages.flat() }
+    return { messages }
   },
 
   syncEmails: async (props) => {
@@ -40,9 +40,9 @@ export const actions = {
     })
 
     const unseenMessages = []
-    for (const { id, subject, inReplyTo, body, date } of messages) {
-      if (!seenMessages.state.payload.seenMails.some((mail: { id: string }) => mail.id === id)) {
-        unseenMessages.push({ id, subject, inReplyTo, body, date }) // Include inReplyTo
+    for (const message of messages) {
+      if (!seenMessages.state.payload.seenMails.some((mail: { id: string }) => mail.id === message.id)) {
+        unseenMessages.push(message)
       }
     }
     await props.client.setState({

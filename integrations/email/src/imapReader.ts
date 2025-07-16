@@ -1,15 +1,7 @@
 import 'dotenv/config'
 import * as sdk from '@botpress/sdk'
 import Imap from 'imap'
-
-interface Message {
-  id: string
-  subject: string
-  body: string
-  inReplyTo?: string
-  date?: Date
-  sender: string
-}
+import { EmailMessage } from 'integration.definition'
 
 interface GetMessagesProps {
   ctx: any
@@ -17,8 +9,8 @@ interface GetMessagesProps {
   input?: any
 }
 
-export const getMessages = async function (range: string, props: GetMessagesProps): Promise<Message[]> {
-  const messages: Message[] = []
+export const getMessages = async function (range: string, props: GetMessagesProps): Promise<EmailMessage[]> {
+  const messages: EmailMessage[] = []
   getConfig(props.ctx)
   const imap: Imap = new Imap(config)
 
@@ -55,13 +47,14 @@ export const getMessages = async function (range: string, props: GetMessagesProp
   return messages
 }
 
-const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: Message[]) {
+const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: EmailMessage[]) {
   f.on('message', (msg: Imap.ImapMessage, seqno: number) => {
     const uid: string = seqno.toString()
     let subject: string = ''
     let body: string = ''
     let inReplyTo: string | undefined
     let date: Date | undefined
+    let sender: string
 
     let headerBuffer: string = ''
 
@@ -72,10 +65,14 @@ const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: Message[]
       })
       stream.once('end', function () {
         if (info.which === 'HEADER') {
-          headerBuffer = buffer // Store the header buffer
+          headerBuffer = buffer
           try {
             const parsedHeader = Imap.parseHeader(headerBuffer)
             subject = (parsedHeader.subject || ['']).join(' ')
+            sender = (parsedHeader.from || ['']).join(' ')
+            if (sender.includes('<') && sender.includes('>')) {
+              sender = sender.substring(sender.indexOf('<') + 1, sender.lastIndexOf('>'))
+            }
 
             inReplyTo = parsedHeader['in-reply-to']?.[0]
             if (parsedHeader.date && parsedHeader.date.length > 0) {
@@ -94,7 +91,6 @@ const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: Message[]
     const totalParts = 2 // For HEADER and TEXT
 
     msg.on('body', (stream: NodeJS.ReadableStream) => {
-      // ... (same as above)
       stream.once('end', () => {
         partsProcessed++
         if (partsProcessed === totalParts) {
@@ -103,8 +99,9 @@ const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: Message[]
             id: uid,
             subject,
             body,
-            inReplyTo, // Include inReplyTo here
+            inReplyTo,
             date,
+            sender,
           })
         }
       })
