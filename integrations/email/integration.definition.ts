@@ -64,6 +64,7 @@ export default new IntegrationDefinition({
       conversation: {
         tags: {
           subject: { title: 'Thread Subject', description: 'Subject for the conversation' },
+          to: { title: 'Recipient', description: 'Recipient email address for the conversation' },
         },
       },
     },

@@ -27,7 +27,7 @@ export const actions = {
         continue
       }
 
-      const user = await props.client.getOrCreateUser({
+      const { user } = await props.client.getOrCreateUser({
         tags: { email: message.sender },
       })
 
@@ -35,12 +35,14 @@ export const actions = {
         channel: 'default',
         tags: {
           subject: message.subject,
+          to: user.tags.email,
         },
       })
+      props.logger.forBot().info("created conversation '" + conversation.tags.subject + "'.")
 
-      await props.client.getOrCreateMessage({
+      await props.client.createMessage({
         conversationId: conversation.id,
-        userId: user.user.id,
+        userId: user.id,
         payload: { text: message.body },
         tags: {},
         type: 'text',
