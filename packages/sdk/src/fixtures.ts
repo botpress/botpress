@@ -47,11 +47,39 @@ type _FooBarBazIntegration = {
           foo: string
         }
       }
+      message: {
+        tags: {
+          fooMessageTag1: ''
+          fooMessageTag2: ''
+          fooMessageTag3: ''
+        }
+      }
+      conversation: {
+        tags: {
+          fooConversationTag1: ''
+          fooConversationTag2: ''
+          fooConversationTag3: ''
+        }
+      }
     }>
     channelBar: DefaultChannel<{
       messages: {
         messageBar: {
           bar: number
+        }
+      }
+      message: {
+        tags: {
+          barMessageTag1: ''
+          barMessageTag2: ''
+          barMessageTag3: ''
+        }
+      }
+      conversation: {
+        tags: {
+          barConversationTag1: ''
+          barConversationTag2: ''
+          barConversationTag3: ''
         }
       }
     }>
@@ -61,7 +89,28 @@ type _FooBarBazIntegration = {
           baz: boolean
         }
       }
+      message: {
+        tags: {
+          bazMessageTag1: ''
+          bazMessageTag2: ''
+          bazMessageTag3: ''
+        }
+      }
+      conversation: {
+        tags: {
+          bazConversationTag1: ''
+          bazConversationTag2: ''
+          bazConversationTag3: ''
+        }
+      }
     }>
+  }
+  user: {
+    tags: {
+      fooUserTag1: ''
+      fooUserTag2: ''
+      fooUserTag3: ''
+    }
   }
 }
 
@@ -122,9 +171,27 @@ export type FooBarBazBot = DefaultBot<{
         result: unknown
       }
     }
+    do: {
+      input: {
+        parameters: Record<string, number>
+      }
+      output: {
+        result: number
+      }
+    }
   }
   states: {
-    currentUser: { name: string; age: number }
+    currentUser: {
+      type: 'conversation'
+      payload: { name: string; age: number }
+    }
+  }
+  workflows: {
+    fooWorkflow: {
+      tags: { foo: string }
+      input: { string: string; optionalNumber?: number }
+      output: { optionalString?: string; number: number }
+    }
   }
 }>
 
@@ -143,6 +210,42 @@ export type FooBarBazPlugin = DefaultPlugin<{
       output: {
         result: unknown
       }
+    }
+  }
+  workflows: {
+    fooWorkflow: {
+      tags: { foo: string }
+      input: { string: string; optionalNumber?: number }
+      output: { optionalString?: string; number: number }
+    }
+  }
+  states: {
+    alpha: {
+      type: 'conversation'
+      payload: { alpha: string }
+    }
+    beta: {
+      type: 'user'
+      payload: { beta: number }
+    }
+    gamma: {
+      type: 'bot'
+      payload: { gamma: boolean }
+    }
+    delta: {
+      type: 'conversation'
+      payload: { delta: null }
+    }
+    epsilon: {
+      type: 'workflow'
+      payload: { epsilon: null }
+    }
+  }
+  events: {
+    somethingHappened: {
+      a: string
+      b: number
+      c: boolean
     }
   }
 }>

@@ -26,3 +26,4 @@ bp_modules
 .genenv/
 .genenv.*
 .turbo
+*.md.ts

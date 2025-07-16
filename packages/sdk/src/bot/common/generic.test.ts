@@ -11,7 +11,8 @@ test('DefaultBot with missing key should return a valid BaseBot', () => {
   type Default = DefaultBot<{
     states: {
       foo: {
-        current: string
+        type: 'user'
+        payload: { current: string }
       }
     }
   }>

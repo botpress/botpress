@@ -8,6 +8,8 @@ export const prepareCreateInterfaceBody = async (
 ): Promise<types.CreateInterfaceRequestBody> => ({
   name: intrface.name,
   version: intrface.version,
+  title: 'title' in intrface ? intrface.title : undefined,
+  description: 'description' in intrface ? intrface.description : undefined,
   entities: intrface.entities
     ? await utils.records.mapValuesAsync(intrface.entities, async (entity) => ({
         ...entity,
@@ -42,14 +44,21 @@ export const prepareCreateInterfaceBody = async (
         })),
       }))
     : {},
+  attributes: intrface.attributes,
 })
 
 export const prepareUpdateInterfaceBody = (
   localInterface: types.CreateInterfaceRequestBody & { id: string },
   remoteInterface: client.Interface
 ): types.UpdateInterfaceRequestBody => {
-  const actions = utils.records.setNullOnMissingValues(localInterface.actions, remoteInterface.actions)
-  const events = utils.records.setNullOnMissingValues(localInterface.events, remoteInterface.events)
+  const actions = utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localInterface.actions, remoteInterface.actions),
+    remoteItems: remoteInterface.actions,
+  })
+  const events = utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localInterface.events, remoteInterface.events),
+    remoteItems: remoteInterface.events,
+  })
   const entities = utils.records.setNullOnMissingValues(localInterface.entities, remoteInterface.entities)
 
   const currentChannels: types.UpdateInterfaceRequestBody['channels'] = localInterface.channels
@@ -64,11 +73,14 @@ export const prepareUpdateInterfaceBody = (
 
   const channels = utils.records.setNullOnMissingValues(currentChannels, remoteInterface.channels)
 
+  const attributes = utils.records.setNullOnMissingValues(localInterface.attributes, remoteInterface.attributes)
+
   return {
     ...localInterface,
     entities,
     actions,
     events,
     channels,
+    attributes,
   }
 }

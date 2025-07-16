@@ -22,8 +22,7 @@ export const createDeployIntegration: Test = {
     const integrationSuffix = uuid.v4().replace(/-/g, '')
     const name = `myintegration${integrationSuffix}`
     const integrationName = `${workspaceHandle}/${name}`
-    const integrationDirName = `${workspaceHandle}-${name}`
-    const integrationDir = pathlib.join(baseDir, integrationDirName)
+    const integrationDir = pathlib.join(baseDir, name)
 
     const argv = {
       ...defaults,
@@ -40,7 +39,7 @@ export const createDeployIntegration: Test = {
     })
 
     await impl
-      .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })
+      .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration', template: 'empty' })
       .then(utils.handleExitCode)
     await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
     await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)

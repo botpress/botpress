@@ -1,21 +1,52 @@
 import * as sdk from '@botpress/sdk'
-import { zuiSchemaToTypeScriptType } from '../../generators'
+import * as consts from '../../consts'
+import * as gen from '../../generators'
 import { Module, ReExportTypeModule } from '../../module'
 import * as strings from '../../strings'
 
-export class StateModule extends Module {
-  public constructor(
-    name: string,
-    private _state: sdk.BotStateDefinition
-  ) {
+export class StatePayloadModule extends Module {
+  public constructor(private _state: sdk.BotStateDefinition) {
     super({
-      path: `${name}.ts`,
-      exportName: strings.typeName(name),
+      path: 'payload.ts',
+      exportName: strings.typeName('Payload'),
     })
   }
 
   public async getContent() {
-    return zuiSchemaToTypeScriptType(this._state.schema, this.exportName)
+    return gen.zuiSchemaToTypeScriptType(this._state.schema, 'Payload')
+  }
+}
+
+export class StateModule extends Module {
+  private _payloadModule: StatePayloadModule
+
+  public constructor(
+    private _name: string,
+    private _state: sdk.BotStateDefinition
+  ) {
+    super({
+      path: consts.INDEX_FILE,
+      exportName: strings.typeName(_name),
+    })
+
+    this._payloadModule = new StatePayloadModule(_state)
+    this.pushDep(this._payloadModule)
+  }
+
+  public async getContent(): Promise<string> {
+    const { _payloadModule } = this
+    const payloadImport = _payloadModule.import(this)
+
+    const exportName = strings.typeName(this._name)
+
+    return [
+      consts.GENERATED_HEADER,
+      `import * as ${_payloadModule.name} from './${payloadImport}'`,
+      `export type ${exportName} = {`,
+      `  type: ${gen.primitiveToTypescriptValue(this._state.type)},`,
+      `  payload: ${_payloadModule.name}.${_payloadModule.exportName}`,
+      '}',
+    ].join('\n')
   }
 }
 
@@ -24,6 +55,7 @@ export class StatesModule extends ReExportTypeModule {
     super({ exportName: strings.typeName('states') })
     for (const [stateName, state] of Object.entries(states)) {
       const module = new StateModule(stateName, state)
+      module.unshift(stateName)
       this.pushDep(module)
     }
   }

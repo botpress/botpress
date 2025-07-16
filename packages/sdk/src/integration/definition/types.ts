@@ -32,6 +32,7 @@ export type AdditionalConfigurationDefinition<TConfig extends BaseConfigs[string
 export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent> & {
   title?: string
   description?: string
+  attributes?: Record<string, string>
 }
 
 export type MessageDefinition<TMessage extends BaseMessages[string] = BaseMessages[string]> = SchemaDefinition<TMessage>
@@ -64,10 +65,13 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
   billable?: boolean
   cacheable?: boolean
+  attributes?: Record<string, string>
 }
 
+export type StateType = 'integration' | 'conversation' | 'user'
+
 export type StateDefinition<TState extends BaseStates[string] = BaseStates[string]> = SchemaDefinition<TState> & {
-  type: 'integration' | 'conversation' | 'user'
+  type: StateType
 }
 
 export type UserDefinition = Partial<{

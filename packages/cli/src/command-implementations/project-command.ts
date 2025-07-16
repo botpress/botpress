@@ -33,6 +33,10 @@ export type ProjectDefinition = LintIgnoredConfig &
     | { type: 'plugin'; definition: sdk.PluginDefinition }
   )
 
+export type PluginTagNames = {
+  immutableTags: { user: string[]; conversation: string[]; message: string[] }
+}
+
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
     const absWorkDir = utils.path.absoluteFrom(utils.path.cwd(), argv.workDir)
@@ -294,7 +298,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     integrationDef: sdk.IntegrationDefinition
   ): Promise<apiUtils.CreateIntegrationRequestBody> {
     const partialBody = await apiUtils.prepareCreateIntegrationBody(integrationDef)
-    const code = await this.readProjectFile(this.projectPaths.abs.outFileCJS)
+
+    let code: string | undefined = undefined
+    if (fs.existsSync(this.projectPaths.abs.outFileCJS)) {
+      code = await this.readProjectFile(this.projectPaths.abs.outFileCJS)
+    }
+
     const icon = await this.readProjectFile(integrationDef.icon, 'base64')
     const readme = await this.readProjectFile(integrationDef.readme, 'base64')
     const extractScript = await this.readProjectFile(integrationDef.identifier?.extractScript)
@@ -336,14 +345,59 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   protected async prepareBotDependencies(
     botDef: sdk.BotDefinition,
     api: apiUtils.ApiClient
-  ): Promise<Partial<apiUtils.UpdateBotRequestBody>> {
+  ): Promise<Partial<apiUtils.UpdateBotRequestBody> & PluginTagNames> {
     const integrations = await this._fetchDependencies(botDef.integrations ?? {}, ({ name, version }) =>
-      api.getIntegration({ type: 'name', name, version })
+      api.getPublicOrPrivateIntegration({ type: 'name', name, version })
     )
+
+    const plugins = await this._fetchDependencies(
+      botDef.plugins ?? {},
+      async ({ name, version }) => await api.getPublicOrPrivatePlugin({ type: 'name', name, version })
+    )
+
+    const pluginsWithBackingIntegrations = await utils.records.mapValuesAsync(plugins, async (plugin) => ({
+      ...plugin,
+      interfaces: await this._fetchDependencies(
+        plugin.interfaces ?? {},
+        async (interfaceExtension) => await api.getPublicOrPrivateIntegration({ ...interfaceExtension, type: 'name' })
+      ),
+    }))
+
     return {
       integrations: _(integrations)
         .keyBy((i) => i.id)
         .value(),
+      plugins: utils.records.mapValues(pluginsWithBackingIntegrations, (plugin) => ({
+        ...plugin,
+        interfaces: utils.records.mapValues(plugin.interfaces ?? {}, (iface) => ({
+          ...iface,
+          integrationId: iface.id,
+        })),
+      })),
+      // Tags that are defined by plugins and that cannot be updated:
+      immutableTags: {
+        user: [
+          ...new Set(
+            Object.values(pluginsWithBackingIntegrations).flatMap((plugin) =>
+              Object.keys(plugin.definition.user?.tags ?? {})
+            )
+          ),
+        ],
+        conversation: [
+          ...new Set(
+            Object.values(pluginsWithBackingIntegrations).flatMap((plugin) =>
+              Object.keys(plugin.definition.conversation?.tags ?? {})
+            )
+          ),
+        ],
+        message: [
+          ...new Set(
+            Object.values(pluginsWithBackingIntegrations).flatMap((plugin) =>
+              Object.keys(plugin.definition.message?.tags ?? {})
+            )
+          ),
+        ],
+      },
     }
   }
 
@@ -362,7 +416,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     api: apiUtils.ApiClient
   ): Promise<Partial<apiUtils.CreatePluginRequestBody>> {
     const integrations = await this._fetchDependencies(pluginDef.integrations ?? {}, ({ name, version }) =>
-      api.getIntegration({ type: 'name', name, version })
+      api.getPublicOrPrivateIntegration({ type: 'name', name, version })
     )
     const interfaces = await this._fetchDependencies(pluginDef.interfaces ?? {}, ({ name, version }) =>
       api.getPublicInterface({ type: 'name', name, version })

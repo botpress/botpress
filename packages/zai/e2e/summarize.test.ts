@@ -1,17 +1,22 @@
 import { check } from '@botpress/vai'
-import { describe, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 import { BotpressDocumentation, getZai } from './utils'
 
 describe('zai.summarize', () => {
   const zai = getZai()
 
-  it.skip('summarize long document to a concise 2000 token summary', async () => {
-    const result = await zai.summarize(BotpressDocumentation, {
-      length: 2000,
-      prompt: `Extract the Table of Contents for the Botpress Documentation. Pay special attention to all the different features. Focus on horizontal coverage of features rather than going in depth into one feature. The goal is to have a complete overview of what the documentation covers.`,
-    })
+  it('summarize long document to a concise 2000 token summary', async () => {
+    let progress: number = 0
 
+    const result = await zai
+      .summarize(BotpressDocumentation, {
+        length: 2000,
+        prompt: `Extract the Table of Contents for the Botpress Documentation. Pay special attention to all the different features. Focus on horizontal coverage of features rather than going in depth into one feature. The goal is to have a complete overview of what the documentation covers.`,
+      })
+      .on('progress', () => (progress = progress + 1))
+
+    expect(progress).toBeGreaterThanOrEqual(10)
     check(result, 'The text is a summary of the Botpress documentation').toBe(true)
     check(result, 'The text explains shortly what botpress is').toBe(true)
     check(result, 'The text uses markdown format').toBe(true)

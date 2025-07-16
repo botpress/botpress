@@ -95,6 +95,21 @@ export const createErrorHandlingDecorator =
    */
   (errorMessage: string) =>
   (_target: unknown, _propertyKey: string, descriptor: PropertyDescriptor): void => {
+    // Async generators are a special case:
+    if (descriptor.value.constructor?.name === 'AsyncGeneratorFunction') {
+      const _originalGenerator: (...args: unknown[]) => AsyncGenerator<unknown, void, unknown> = descriptor.value
+      descriptor.value = async function* (...args: unknown[]) {
+        try {
+          yield* _originalGenerator.apply(this, args)
+        } catch (thrown: unknown) {
+          await asyncFnWrapperWithErrorRedaction(async () => {
+            throw thrown
+          }, errorMessage)()
+        }
+      }
+      return
+    }
+
     const _originalMethod: (...args: unknown[]) => Promise<unknown> = descriptor.value
     descriptor.value = function (...args: unknown[]) {
       return asyncFnWrapperWithErrorRedaction(_originalMethod.bind(this), errorMessage).apply(this, args)

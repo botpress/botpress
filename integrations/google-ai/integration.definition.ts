@@ -1,19 +1,19 @@
 /* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { languageModelId } from 'src/schemas'
+import { ModelId } from 'src/schemas'
 import llm from './bp_modules/llm'
 
 export default new IntegrationDefinition({
   name: 'google-ai',
   title: 'Google AI',
   description: 'Gain access to Gemini models for content generation, chat responses, and advanced language tasks.',
-  version: '4.0.0',
+  version: '6.0.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
     modelRef: {
       schema: z.object({
-        id: languageModelId,
+        id: ModelId,
       }),
     },
   },

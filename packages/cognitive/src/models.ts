@@ -1,15 +1,17 @@
-import { ResourceNotFoundError } from '@botpress/client'
 import { ExtendedClient, getExtendedClient } from './bp-client'
-import { Model as RawModel } from './llm'
+import { isForbiddenOrUnauthorizedError, isNotFoundError } from './errors'
+import { Model as RawModel } from './schemas.gen'
 import { BotpressClientLike } from './types'
 
 export const DOWNTIME_THRESHOLD_MINUTES = 5
 const PREFERENCES_FILE_SUFFIX = 'models.config.json'
 
+export const DEFAULT_INTEGRATIONS = ['google-ai', 'anthropic', 'openai', 'cerebras', 'fireworks-ai', 'groq']
+
 // Biases for vendors and models
 const VendorPreferences = ['google-ai', 'anthropic', 'openai']
-const BestModelPreferences = ['4o', '3-5-sonnet', 'gemini-1.5-pro']
-const FastModelPreferences = ['gemini-1.5-flash', '4o-mini', 'flash', 'haiku']
+const BestModelPreferences = ['4.1', '4o', '3-5-sonnet', 'gemini-1.5-pro']
+const FastModelPreferences = ['gemini-1.5-flash', '4.1-mini', '4.1-nano', '4o-mini', 'flash', 'haiku']
 
 const InputPricePenalty = 3 // $3 per 1M tokens
 const OutputPricePenalty = 10 // $10 per 1M tokens
@@ -110,16 +112,29 @@ export class RemoteModelProvider extends ModelProvider {
     this._client = getExtendedClient(client)
   }
 
-  public async fetchInstalledModels() {
-    const { bot } = await this._client.getBot({ id: this._client.botId })
-    const models: any[] = []
+  private async _fetchInstalledIntegrationNames() {
+    try {
+      const { bot } = await this._client.getBot({ id: this._client.botId })
+      const integrations = Object.values(bot.integrations).filter((x) => x.status === 'registered')
+      return integrations.map((x) => x.name)
+    } catch (err) {
+      if (isForbiddenOrUnauthorizedError(err)) {
+        // This happens when the bot (with a BAK token) tries to access the .getBot endpoint
+        return DEFAULT_INTEGRATIONS
+      }
 
-    const registered = Object.values(bot.integrations).filter((x) => x.status === 'registered')
+      throw err
+    }
+  }
+
+  public async fetchInstalledModels() {
+    const integrationNames = await this._fetchInstalledIntegrationNames()
+    const models: Model[] = []
 
     await Promise.allSettled(
-      registered.map(async (integration) => {
+      integrationNames.map(async (integration) => {
         const { output } = await this._client.callAction({
-          type: `${integration.name}:listLanguageModels`,
+          type: `${integration}:listLanguageModels`,
           input: {},
         })
 
@@ -130,15 +145,15 @@ export class RemoteModelProvider extends ModelProvider {
         for (const model of output.models as RawModel[]) {
           if (model.name && model.id && model.input && model.tags) {
             models.push({
-              ref: `${integration.name}:${model.id}`,
-              integration: integration.name,
+              ref: `${integration}:${model.id}`,
+              integration,
               id: model.id,
               name: model.name,
               description: model.description,
               input: model.input,
               output: model.output,
               tags: model.tags,
-            } satisfies Model)
+            })
           }
         }
       })
@@ -169,9 +184,10 @@ export class RemoteModelProvider extends ModelProvider {
         return data as ModelPreferences
       }
     } catch (err) {
-      if (err instanceof ResourceNotFoundError) {
+      if (isNotFoundError(err)) {
         return null
       }
+
       throw err
     }
   }

@@ -1,12 +1,12 @@
 import { addReaction } from './add-reaction'
 import { findTarget } from './find-target'
-import { syncMembers } from './list-users'
-import { retrieveMessage } from './retreive-message'
+import { getUserProfile } from './get-user-profile'
+import { retrieveMessage } from './retrieve-message'
 import { startDmConversation } from './start-dm'
+import { syncMembers } from './sync-members'
 import { startTypingIndicator, stopTypingIndicator } from './typing-indicator'
 import { updateChannelTopic } from './update-channel-topic'
-
-import * as bp from '.botpress'
+import type * as bp from '.botpress'
 
 export default {
   addReaction,
@@ -17,4 +17,5 @@ export default {
   updateChannelTopic,
   startTypingIndicator,
   stopTypingIndicator,
+  getUserProfile,
 } satisfies bp.IntegrationProps['actions']

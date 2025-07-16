@@ -1,9 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { MessageCreateParams, MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages'
+import { ToolChoiceAny, ToolChoiceTool, ToolChoiceAuto } from '@anthropic-ai/sdk/resources'
+import { MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages'
 import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
 import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
+import { DeprecatedReasoningModelIdReplacements, ThinkingModeBudgetTokens } from 'src'
+import { ModelId } from 'src/schemas'
 
 // Reference: https://docs.anthropic.com/en/api/errors
 const AnthropicInnerErrorSchema = z.object({
@@ -11,17 +14,37 @@ const AnthropicInnerErrorSchema = z.object({
   error: z.object({ type: z.string(), message: z.string() }),
 })
 
-export async function generateContent<M extends string>(
+export async function generateContent(
   input: llm.GenerateContentInput,
   anthropic: Anthropic,
   logger: IntegrationLogger,
   params: {
-    models: Record<M, llm.ModelDetails>
-    defaultModel: M
+    models: Record<ModelId, llm.ModelDetails>
+    defaultModel: ModelId
   }
 ): Promise<llm.GenerateContentOutput> {
-  const modelId = (input.model?.id || params.defaultModel) as M
+  let modelId = (input.model?.id || params.defaultModel) as ModelId
+
+  if (modelId in DeprecatedReasoningModelIdReplacements) {
+    const replacementModelId = DeprecatedReasoningModelIdReplacements[modelId]!
+
+    if (input.reasoningEffort === undefined) {
+      input.reasoningEffort = 'medium'
+    }
+
+    // TODO: Uncomment this when we have removed the "reasoning" model IDs from the model list.
+    // logger
+    //   .forBot()
+    //   .warn(
+    //     `The model "${modelId}" has been deprecated, using "${replacementModelId}" instead with a "${input.reasoningEffort}" reasoning effort`
+    //   )
+
+    modelId = replacementModelId
+    input.model = { id: modelId }
+  }
+
   const model = params.models[modelId]
+
   if (!model) {
     throw new InvalidPayloadError(
       `Model ID "${modelId}" is not allowed, supported model IDs are: ${Object.keys(params.models).join(', ')}`
@@ -63,7 +86,7 @@ export async function generateContent<M extends string>(
 
   const request: MessageCreateParamsNonStreaming = {
     model: modelId,
-    max_tokens: input.maxTokens || model.output.maxTokens,
+    max_tokens: input.maxTokens ?? model.output.maxTokens,
     temperature: input.temperature,
     top_p: input.topP,
     system: input.systemPrompt,
@@ -74,6 +97,34 @@ export async function generateContent<M extends string>(
     tools: mapToAnthropicTools(input),
     tool_choice: mapToAnthropicToolChoice(input.toolChoice),
     messages,
+  }
+
+  const thinkingBudgetTokens = ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'] // Default to not use reasoning as Claude models use optional reasoning
+
+  if (thinkingBudgetTokens) {
+    // Claude requires a non-zero thinking budget when thinking mode is enabled.
+    request.thinking = {
+      // Reference: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking
+      type: 'enabled',
+      budget_tokens: thinkingBudgetTokens,
+    }
+
+    // IMPORTANT: Thinking mode requires the max tokens to be greater than the thinking budget tokens, and we assume here that the max tokens indicated in the action input don't take into account the thinking budget tokens.
+    request.max_tokens = request.thinking.budget_tokens + request.max_tokens
+
+    // Note: These params aren't supported in thinking mode, see: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking
+    request.temperature = undefined
+    request.top_k = undefined
+    request.top_p = undefined
+  }
+
+  if (request.max_tokens > model.output.maxTokens) {
+    request.max_tokens = model.output.maxTokens
+    logger
+      .forBot()
+      .warn(
+        `Received maxTokens parameter greater than the maximum output tokens allowed for model "${modelId}", capped parameter value to ${request.max_tokens}`
+      )
   }
 
   if (input.debug) {
@@ -106,7 +157,7 @@ export async function generateContent<M extends string>(
   const cost = inputCost + outputCost
 
   const content = response.content
-    .filter((x): x is Anthropic.TextBlock => x.type === 'text') // Claude models only return "text" or "tool_use" blocks at the moment.
+    .filter((x): x is Anthropic.TextBlock => x.type === 'text') // Claude models only return "text", "thinking", or "tool_use" blocks at the moment.
     .map((content) => content.text)
     .join('\n\n')
 
@@ -270,11 +321,11 @@ function mapToAnthropicToolChoice(
 
   switch (toolChoice.type) {
     case 'any':
-      return <MessageCreateParams.ToolChoiceAny>{ type: 'any' }
+      return <ToolChoiceAny>{ type: 'any' }
     case 'auto':
-      return <MessageCreateParams.ToolChoiceAuto>{ type: 'auto' }
+      return <ToolChoiceAuto>{ type: 'auto' }
     case 'specific':
-      return <MessageCreateParams.ToolChoiceTool>{
+      return <ToolChoiceTool>{
         type: 'tool',
         name: toolChoice.functionName,
       }

@@ -1,6 +1,7 @@
 import { getZendeskClient } from './client'
 import { articlePublished } from './events/article-published'
 import { articleUnpublished } from './events/article-unpublished'
+import { executeMessageReceived } from './events/message-received'
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
 import type { TriggerPayload } from './triggers'
@@ -39,50 +40,12 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
   switch (zendeskTrigger.type) {
     case 'newMessage':
-      const { conversation } = await client.getOrCreateConversation({
-        channel: 'hitl',
-        tags: {
-          id: zendeskTrigger.ticketId,
-        },
-      })
-
-      if (!zendeskTrigger.currentUser.externalId?.length) {
-        const { user: newUser } = await client.getOrCreateUser({
-          name: zendeskTrigger.currentUser.name,
-          tags: {
-            id: zendeskTrigger.currentUser.id,
-            email: zendeskTrigger.currentUser.email,
-            role: zendeskTrigger.currentUser.role,
-          },
-        })
-
-        await zendeskClient.updateUser(zendeskTrigger.currentUser.id, {
-          external_id: newUser.id,
-        })
-      }
-
-      const { user } = await client.getOrCreateUser({
-        tags: {
-          id: zendeskTrigger.currentUser.id,
-        },
-      })
-
-      const messageWithoutAuthor = zendeskTrigger.comment.split('\n').slice(3).join('\n')
-
-      await client.createMessage({
-        tags: {},
-        type: 'text',
-        userId: user.id,
-        conversationId: conversation.id,
-        payload: { text: messageWithoutAuthor },
-      })
-
-      return
-
+      return await executeMessageReceived({ zendeskClient, zendeskTrigger, client, ctx, logger })
     case 'ticketAssigned':
-      return await executeTicketAssigned({ zendeskTrigger, client })
+      return await executeTicketAssigned({ zendeskTrigger, client, ctx, logger })
     case 'ticketSolved':
-      return await executeTicketSolved({ zendeskTrigger, client })
+      await executeMessageReceived({ zendeskClient, zendeskTrigger, client, ctx, logger })
+      return await executeTicketSolved({ zendeskTrigger, client, ctx, logger })
 
     default:
       logger.forBot().warn('Unsupported trigger type: ' + zendeskTrigger.type)

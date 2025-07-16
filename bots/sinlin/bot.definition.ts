@@ -22,6 +22,7 @@ export default new sdk.BotDefinition({})
     configuration: {},
   })
   .addPlugin(synchronizer, {
+    alias: 'linear',
     configuration: {
       tableName: 'linearIssuesTable',
     },

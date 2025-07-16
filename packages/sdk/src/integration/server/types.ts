@@ -5,15 +5,6 @@ import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration, ToTags } from '../common'
 import { type IntegrationLogger } from './integration-logger'
 
-type IntegrationOperation =
-  | 'webhook_received'
-  | 'message_created'
-  | 'action_triggered'
-  | 'register'
-  | 'unregister'
-  | 'ping'
-  | 'create_user'
-  | 'create_conversation'
 type IntegrationContextConfig<TIntegration extends BaseIntegration> =
   | {
       configurationType: null
@@ -31,7 +22,7 @@ export type IntegrationContext<TIntegration extends BaseIntegration = BaseIntegr
   botUserId: string
   integrationId: string
   webhookId: string
-  operation: IntegrationOperation
+  operation: string
 } & IntegrationContextConfig<TIntegration>
 
 export type CommonHandlerProps<TIntegration extends BaseIntegration> = {
@@ -141,6 +132,12 @@ export type ChannelHandlers<TIntegration extends BaseIntegration> = {
   }
 }
 
+export type UnknownOperationHandler<TIntegration extends BaseIntegration> = (
+  props: CommonHandlerProps<TIntegration> & {
+    req: Request
+  }
+) => Promise<Response | void>
+
 export type IntegrationHandlers<TIntegration extends BaseIntegration> = {
   register: RegisterHandler<TIntegration>
   unregister: UnregisterHandler<TIntegration>
@@ -149,4 +146,5 @@ export type IntegrationHandlers<TIntegration extends BaseIntegration> = {
   createConversation?: CreateConversationHandler<TIntegration>
   actions: ActionHandlers<TIntegration>
   channels: ChannelHandlers<TIntegration>
+  unknownOperationHandler?: UnknownOperationHandler<TIntegration>
 }

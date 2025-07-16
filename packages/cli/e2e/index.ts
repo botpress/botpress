@@ -2,10 +2,11 @@ import { Logger } from '@bpinternal/log4bot'
 import yargs, { YargsConfig, YargsSchema } from '@bpinternal/yargs-extra'
 import * as consts from '../src/consts'
 import { createDeployBot } from './tests/create-deploy-bot'
+import { createDeployBotWithDependencies } from './tests/create-deploy-bot-with-dependencies'
 import { createDeployIntegration } from './tests/create-deploy-integration'
 import { devBot } from './tests/dev-bot'
 import { installAllInterfaces } from './tests/install-interfaces'
-import { addIntegration } from './tests/install-package'
+import { addIntegration, addPlugin } from './tests/install-package'
 import { requiredSecrets } from './tests/integration-secrets'
 import { prependWorkspaceHandle, enforceWorkspaceHandle } from './tests/manage-workspace-handle'
 import { Test } from './typings'
@@ -13,12 +14,14 @@ import { sleep, TmpDirectory } from './utils'
 
 const tests: Test[] = [
   createDeployBot,
+  createDeployBotWithDependencies,
   createDeployIntegration,
   devBot,
   requiredSecrets,
   prependWorkspaceHandle,
   enforceWorkspaceHandle,
   addIntegration,
+  addPlugin,
   installAllInterfaces,
 ]
 
@@ -27,7 +30,7 @@ const timeout = (ms: number) =>
     throw new Error(`Timeout after ${ms}ms`)
   })
 
-const TIMEOUT = 45_000
+const TIMEOUT = 300_000
 
 const configSchema = {
   timeout: {

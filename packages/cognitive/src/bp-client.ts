@@ -10,7 +10,26 @@ export type ExtendedClient = Client & {
   abortable: (signal: AbortSignal) => ExtendedClient
 }
 
-export const getExtendedClient = (client: BotpressClientLike): ExtendedClient => {
+type InternalClientType = BotpressClientLike & {
+  _client?: InternalClientType
+  config: {
+    headers: Record<string, string>
+  }
+}
+
+export const getExtendedClient = (_client: unknown): ExtendedClient => {
+  const client = _client as InternalClientType
+
+  if (!client || client === null || typeof client !== 'object') {
+    throw new Error('Client must be a valid instance of a Botpress client (@botpress/client)')
+  }
+
+  if (typeof client._client === 'object' && !!client._client) {
+    try {
+      return getExtendedClient(client._client)
+    } catch {}
+  }
+
   if (
     typeof client.constructor !== 'function' ||
     typeof client.callAction !== 'function' ||

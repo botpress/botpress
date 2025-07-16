@@ -1,8 +1,8 @@
 import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
-import { SlackScopes } from 'src/misc/slack-scopes'
 
-export const startDmConversation = wrapActionAndInjectSlackClient('startDmConversation', {
-  async action({ client, slackClient, ctx }, { slackUserId }) {
+export const startDmConversation = wrapActionAndInjectSlackClient(
+  { actionName: 'startDmConversation', errorMessage: 'Failed to start DM conversation' },
+  async ({ client, slackClient }, { slackUserId }) => {
     const { user } = await client.getOrCreateUser({
       tags: {
         id: slackUserId,
@@ -16,34 +16,15 @@ export const startDmConversation = wrapActionAndInjectSlackClient('startDmConver
       }
     }
 
-    await SlackScopes.ensureHasAllScopes({
-      client,
-      ctx,
-      requiredScopes: ['im:write'],
-      operation: 'conversations.open',
-    })
-
-    const { ok, channel } = await slackClient.conversations.open({
-      users: slackUserId,
-    })
-
-    if (!ok || !channel) {
-      throw new Error('Could not open conversation')
-    }
+    const channelId = await slackClient.startDmWithUser(slackUserId)
 
     const { conversation } = await client.getOrCreateConversation({
       channel: 'dm',
       tags: {
-        id: channel.id,
-      },
-    })
-
-    await client.updateConversation({
-      id: conversation.id,
-      tags: {
+        id: channelId,
         title: `DM with ${user.name}`,
-        id: channel.id,
       },
+      discriminateByTags: ['id'],
     })
 
     await client.updateUser({
@@ -58,6 +39,5 @@ export const startDmConversation = wrapActionAndInjectSlackClient('startDmConver
       conversationId: conversation.id,
       userId: user.id,
     }
-  },
-  errorMessage: 'Failed to start DM conversation',
-})
+  }
+)

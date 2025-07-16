@@ -11,23 +11,19 @@
     "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx"
   },
   "dependencies": {
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
+    "@bpinternal/slackdown": "^0.1.0",
     "@slack/types": "^2.13.1",
     "@slack/web-api": "^6.8.0",
     "axios": "^1.3.4",
-    "fuse.js": "^6.6.2",
-    "lodash": "^4.17.21",
-    "query-string": "^6.14.1",
-    "verror": "^1.10.1"
+    "fuse.js": "^6.6.2"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
-    "@botpress/common": "workspace:*",
-    "@sentry/cli": "^2.39.1",
-    "@types/lodash": "^4.14.191",
-    "@types/verror": "^1.10.6"
+    "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
     "typing-indicator": "../../interfaces/typing-indicator"

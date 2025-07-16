@@ -64,7 +64,7 @@ test('api allows sending and receiving messages using botpress IDs', async () =>
     client,
     conversationId,
   })
-}, 20_000)
+})
 
 test('api allows sending and receiving messages using foreign IDs', async () => {
   const userId = utils.getUserFid()
@@ -77,7 +77,7 @@ test('api allows sending and receiving messages using foreign IDs', async () => 
     client,
     conversationId,
   })
-}, 20_000)
+})
 
 test('api allows sending and receiving messages using remotly generated JWTs', async () => {
   const userId = utils.getUserFid()
@@ -91,7 +91,7 @@ test('api allows sending and receiving messages using remotly generated JWTs', a
     client,
     conversationId,
   })
-}, 20_000)
+})
 
 test('api allows deleting a message', async () => {
   const client = await chat.Client.connect({ apiUrl })
@@ -130,7 +130,7 @@ test('api allows deleting a message', async () => {
       id: createdMessage.id,
     })
   ).rejects.toThrow(chat.ResourceNotFoundError)
-}, 20_000)
+})
 
 test('api allows sending and receiving messages with metadata', async () => {
   type Message = Awaited<ReturnType<chat.Client['listMessages']>>['messages'][number]

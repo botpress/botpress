@@ -1,5 +1,6 @@
 import type * as client from '@botpress/client'
 import chalk from 'chalk'
+import _ from 'lodash'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { parsePackageRef } from '../package-ref'
@@ -18,7 +19,7 @@ export class GetPluginCommand extends GlobalCommand<GetPluginCommandDefinition> 
     }
 
     try {
-      const plugin = await api.findPublicPlugin(parsedRef)
+      const plugin = await api.findPublicOrPrivatePlugin(parsedRef)
       if (plugin) {
         this.logger.success(`Plugin ${chalk.bold(this.argv.pluginRef)}:`)
         this.logger.json(plugin)
@@ -37,10 +38,13 @@ export class ListPluginsCommand extends GlobalCommand<ListPluginsCommandDefiniti
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
 
-    const lister = (req: { nextToken?: string }) => api.client.listPlugins({ nextToken: req.nextToken })
+    const privateLister = (req: { nextToken?: string }) => api.client.listPlugins({ nextToken: req.nextToken })
+    const publicLister = (req: { nextToken?: string }) => api.client.listPublicPlugins({ nextToken: req.nextToken })
 
     try {
-      const plugins = await api.listAllPages(lister, (r) => r.plugins)
+      const privatePlugins = await api.listAllPages(privateLister, (r) => r.plugins)
+      const publicPlugins = await api.listAllPages(publicLister, (r) => r.plugins)
+      const plugins = _.uniqBy([...privatePlugins, ...publicPlugins], (p) => p.id)
 
       this.logger.success('Plugins:')
       this.logger.json(plugins)
@@ -64,7 +68,7 @@ export class DeletePluginCommand extends GlobalCommand<DeletePluginCommandDefini
 
     let plugin: client.Plugin | undefined
     try {
-      plugin = await api.findPublicPlugin(parsedRef)
+      plugin = await api.findPublicOrPrivatePlugin(parsedRef)
     } catch (thrown) {
       throw errors.BotpressCLIError.wrap(thrown, `Could not get plugin ${this.argv.pluginRef}`)
     }

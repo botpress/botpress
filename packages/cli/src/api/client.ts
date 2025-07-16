@@ -1,19 +1,23 @@
 import * as client from '@botpress/client'
-import semver from 'semver'
 import yn from 'yn'
 import type { Logger } from '../logger'
-import { formatPackageRef, ApiPackageRef, NamePackageRef, isLatest } from '../package-ref'
+import { formatPackageRef, ApiPackageRef, NamePackageRef } from '../package-ref'
 import * as utils from '../utils'
 import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
+import * as retry from './retry'
 
 import {
   ApiClientProps,
   PublicIntegration,
   PrivateIntegration,
-  Integration,
-  Interface,
-  Plugin,
+  PublicOrPrivateIntegration,
+  PublicInterface,
+  PrivateInterface,
+  PublicOrPrivateInterface,
+  PrivatePlugin,
+  PublicPlugin,
+  PublicOrPrivatePlugin,
   BotSummary,
 } from './types'
 
@@ -36,7 +40,13 @@ export class ApiClient {
     private _logger: Logger
   ) {
     const { apiUrl, token, workspaceId, botId } = props
-    this.client = new client.Client({ apiUrl, token, workspaceId, botId })
+    this.client = new client.Client({
+      apiUrl,
+      token,
+      workspaceId,
+      botId,
+      retry: retry.config,
+    })
     this.url = apiUrl
     this.token = token
     this.workspaceId = workspaceId
@@ -82,15 +92,15 @@ export class ApiClient {
     return this.client.updateWorkspace({ id: this.workspaceId, ...props })
   }
 
-  public async getIntegration(ref: ApiPackageRef): Promise<Integration> {
-    const integration = await this.findIntegration(ref)
+  public async getPublicOrPrivateIntegration(ref: ApiPackageRef): Promise<PublicOrPrivateIntegration> {
+    const integration = await this.findPublicOrPrivateIntegration(ref)
     if (!integration) {
       throw new Error(`Integration "${formatPackageRef(ref)}" not found`)
     }
     return integration
   }
 
-  public async findIntegration(ref: ApiPackageRef): Promise<Integration | undefined> {
+  public async findPublicOrPrivateIntegration(ref: ApiPackageRef): Promise<PublicOrPrivateIntegration | undefined> {
     const formatted = formatPackageRef(ref)
 
     const privateIntegration = await this.findPrivateIntegration(ref)
@@ -126,16 +136,48 @@ export class ApiClient {
     if (ref.type === 'id') {
       return this.client
         .getPublicIntegrationById(ref)
-        .then((r) => r.integration)
+        .then((r) => ({ ...r.integration, public: true }) as const)
         .catch(this._returnUndefinedOnError('ResourceNotFound'))
     }
     return this.client
       .getPublicIntegration(ref)
-      .then((r) => r.integration)
+      .then((r) => ({ ...r.integration, public: true }) as const)
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
   }
 
-  public async getPublicInterface(ref: ApiPackageRef): Promise<Interface> {
+  public async findPublicOrPrivateInterface(ref: ApiPackageRef): Promise<PublicOrPrivateInterface | undefined> {
+    const formatted = formatPackageRef(ref)
+
+    const privateInterface = await this.findPrivateInterface(ref)
+    if (privateInterface) {
+      this._logger.debug(`Found interface "${formatted}" in workspace`)
+      return privateInterface
+    }
+
+    const publicInterface = await this.findPublicInterface(ref)
+    if (publicInterface) {
+      this._logger.debug(`Found interface "${formatted}" in hub`)
+      return publicInterface
+    }
+
+    return
+  }
+
+  public async findPrivateInterface(ref: ApiPackageRef): Promise<PrivateInterface | undefined> {
+    const { workspaceId } = this
+    if (ref.type === 'id') {
+      return this.client
+        .getInterface(ref)
+        .then((r) => ({ ...r.interface, workspaceId }))
+        .catch(this._returnUndefinedOnError('ResourceNotFound'))
+    }
+    return this.client
+      .getInterfaceByName(ref)
+      .then((r) => ({ ...r.interface, workspaceId }))
+      .catch(this._returnUndefinedOnError('ResourceNotFound'))
+  }
+
+  public async getPublicInterface(ref: ApiPackageRef): Promise<PublicInterface> {
     const intrface = await this.findPublicInterface(ref)
     if (!intrface) {
       throw new Error(`Interface "${formatPackageRef(ref)}" not found`)
@@ -143,62 +185,72 @@ export class ApiClient {
     return intrface
   }
 
-  public async findPublicInterface(ref: ApiPackageRef): Promise<Interface | undefined> {
+  public async findPublicInterface(ref: ApiPackageRef): Promise<PublicInterface | undefined> {
     if (ref.type === 'id') {
       return this.client
-        .getInterface(ref)
-        .then((r) => r.interface)
+        .getPublicInterfaceById(ref)
+        .then((r) => ({ ...r.interface, public: true }) as const)
         .catch(this._returnUndefinedOnError('ResourceNotFound'))
     }
 
-    if (isLatest(ref)) {
-      // TODO: handle latest keyword in backend
-      return this._findLatestInterfaceVersion(ref)
-    }
-
     return this.client
-      .getInterfaceByName(ref)
-      .then((r) => r.interface)
+      .getPublicInterface(ref)
+      .then((r) => ({ ...r.interface, public: true }) as const)
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
   }
 
-  public async findPublicPlugin(ref: ApiPackageRef): Promise<Plugin | undefined> {
+  public async findPublicPlugin(ref: ApiPackageRef): Promise<PublicPlugin | undefined> {
+    if (ref.type === 'id') {
+      return this.client
+        .getPublicPluginById(ref)
+        .then((r) => ({ ...r.plugin, public: true }) as const)
+        .catch(this._returnUndefinedOnError('ResourceNotFound'))
+    }
+
+    return this.client
+      .getPublicPlugin(ref)
+      .then((r) => ({ ...r.plugin, public: true }) as const)
+      .catch(this._returnUndefinedOnError('ResourceNotFound'))
+  }
+
+  public async getPublicOrPrivatePlugin(ref: ApiPackageRef): Promise<PublicOrPrivatePlugin> {
+    const plugin = await this.findPublicOrPrivatePlugin(ref)
+    if (!plugin) {
+      throw new Error(`Plugin "${formatPackageRef(ref)}" not found`)
+    }
+    return plugin
+  }
+
+  public async findPublicOrPrivatePlugin(ref: ApiPackageRef): Promise<PublicOrPrivatePlugin | undefined> {
+    const formatted = formatPackageRef(ref)
+
+    const privatePlugin = await this.findPrivatePlugin(ref)
+    if (privatePlugin) {
+      this._logger.debug(`Found plugin "${formatted}" in workspace`)
+      return privatePlugin
+    }
+
+    const publicPlugin = await this.findPublicPlugin(ref)
+    if (publicPlugin) {
+      this._logger.debug(`Found plugin "${formatted}" in hub`)
+      return publicPlugin
+    }
+
+    return
+  }
+
+  public async findPrivatePlugin(ref: ApiPackageRef): Promise<PrivatePlugin | undefined> {
+    const { workspaceId } = this
     if (ref.type === 'id') {
       return this.client
         .getPlugin(ref)
-        .then((r) => r.plugin)
+        .then((r) => ({ ...r.plugin, workspaceId }))
         .catch(this._returnUndefinedOnError('ResourceNotFound'))
     }
-
-    if (isLatest(ref)) {
-      // TODO: handle latest keyword in backend
-      return this._findLatestPluginVersion(ref)
-    }
-
     return this.client
       .getPluginByName(ref)
-      .then((r) => r.plugin)
+      .then((r) => ({ ...r.plugin, workspaceId }))
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
-  }
-
-  private _findLatestInterfaceVersion = async ({ name }: NamePackageRef): Promise<Interface | undefined> => {
-    const { interfaces: allVersions } = await this.client.listInterfaces({ name })
-    const sorted = allVersions.sort((a, b) => semver.compare(b.version, a.version))
-    const latestVersion = sorted[0]
-    if (!latestVersion) {
-      return
-    }
-    return this.client.getInterface({ id: latestVersion.id }).then((r) => r.interface)
-  }
-
-  private _findLatestPluginVersion = async ({ name }: NamePackageRef): Promise<Plugin | undefined> => {
-    const { plugins: allVersions } = await this.client.listPlugins({ name })
-    const sorted = allVersions.sort((a, b) => semver.compare(b.version, a.version))
-    const latestVersion = sorted[0]
-    if (!latestVersion) {
-      return
-    }
-    return this.client.getPlugin({ id: latestVersion.id }).then((r) => r.plugin)
   }
 
   public async testLogin(): Promise<void> {
@@ -207,12 +259,12 @@ export class ApiClient {
 
   public listAllPages = paging.listAllPages
 
-  public async findPreviousIntegrationVersion(ref: NamePackageRef): Promise<Integration | undefined> {
+  public async findPreviousIntegrationVersion(ref: NamePackageRef): Promise<PublicOrPrivateIntegration | undefined> {
     const previous = await findPreviousIntegrationVersion(this.client, ref)
     if (!previous) {
       return
     }
-    return this.findIntegration({ type: 'id', id: previous.id })
+    return this.findPublicOrPrivateIntegration({ type: 'id', id: previous.id })
   }
 
   public async findBotByName(name: string): Promise<BotSummary | undefined> {

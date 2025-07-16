@@ -4,6 +4,8 @@ import * as utils from '../utils'
 
 type PackageRef = { name: string; version: string }
 
+const PLUGIN_PREFIX_SEP = '#'
+
 export const validateBotDefinition = (b: sdk.BotDefinition): void => {
   const { actions, events, states } = b
 
@@ -34,12 +36,12 @@ export const validateBotDefinition = (b: sdk.BotDefinition): void => {
       }
     }
 
-    const interfaceDepdencies = plugin.definition.interfaces ?? {}
-    for (const dep of Object.values(interfaceDepdencies)) {
-      const interfaceImpl = plugin.interfaces[dep.name]
+    const interfaceDependencies = plugin.definition.interfaces ?? {}
+    for (const [interfaceAlias, dep] of Object.entries(interfaceDependencies)) {
+      const interfaceImpl = plugin.interfaces[interfaceAlias]
       if (!interfaceImpl) {
         throw new errors.BotpressCLIError(
-          `Plugin "${pluginName}" has a dependency on interface "${dep.name}@${dep.version}", but the bot does not specify an implementation for it.`
+          `Plugin "${pluginName}" has a dependency on interface "${dep.name}@${dep.version}" (aliased as "${interfaceAlias}"), but the bot does not specify an implementation for it.`
         )
       }
 
@@ -53,7 +55,10 @@ export const validateBotDefinition = (b: sdk.BotDefinition): void => {
 }
 
 const _nonCamelCaseKeys = (obj: Record<string, any>): string[] =>
-  Object.keys(obj).filter((k) => !utils.casing.is.camelCase(k))
+  Object.keys(obj).filter((key) => {
+    const tokens: string[] = key.split(PLUGIN_PREFIX_SEP, 2)
+    return !utils.casing.is.camelCase(tokens.at(-1)!)
+  })
 
 const _hasIntegrationDependency = (b: sdk.BotDefinition, dep: PackageRef): boolean => {
   const integrationInstances = Object.entries(b.integrations ?? {}).map(([_k, v]) => v)

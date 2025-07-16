@@ -13,40 +13,46 @@ type PackageReference = NameVersion & {
   uri?: string
 }
 
+type Attributes = { attributes?: Record<string, string> }
+
 type IntegrationPackageDefinitionInterface = utils.Merge<PackageReference, integration.InterfaceExtension>
-type IntegrationPackageDefinition = NameVersion & {
-  configuration?: integration.ConfigurationDefinition
-  configurations?: Record<string, integration.AdditionalConfigurationDefinition>
-  events?: Record<string, integration.EventDefinition>
-  actions?: Record<string, integration.ActionDefinition>
-  channels?: Record<string, integration.ChannelDefinition>
-  states?: Record<string, integration.StateDefinition>
-  user?: integration.UserDefinition
-  secrets?: Record<string, integration.SecretDefinition>
-  entities?: Record<string, integration.EntityDefinition>
-  interfaces?: Record<string, IntegrationPackageDefinitionInterface>
-}
+type IntegrationPackageDefinition = NameVersion &
+  Attributes & {
+    configuration?: integration.ConfigurationDefinition
+    configurations?: Record<string, integration.AdditionalConfigurationDefinition>
+    events?: Record<string, integration.EventDefinition>
+    actions?: Record<string, integration.ActionDefinition>
+    channels?: Record<string, integration.ChannelDefinition>
+    states?: Record<string, integration.StateDefinition>
+    user?: integration.UserDefinition
+    secrets?: Record<string, integration.SecretDefinition>
+    entities?: Record<string, integration.EntityDefinition>
+    interfaces?: Record<string, IntegrationPackageDefinitionInterface>
+  }
 
-type InterfacePackageDefinition = NameVersion & {
-  entities?: Record<string, integration.EntityDefinition>
-  events?: Record<string, integration.EventDefinition>
-  actions?: Record<string, integration.ActionDefinition>
-  channels?: Record<string, integration.ChannelDefinition>
-}
+type InterfacePackageDefinition = NameVersion &
+  Attributes & {
+    entities?: Record<string, integration.EntityDefinition>
+    events?: Record<string, integration.EventDefinition>
+    actions?: Record<string, integration.ActionDefinition>
+    channels?: Record<string, integration.ChannelDefinition>
+  }
 
-type PluginPackageDefinition = NameVersion & {
-  integrations?: Record<string, PackageReference>
-  interfaces?: Record<string, PackageReference>
-  user?: plugin.UserDefinition
-  conversation?: plugin.ConversationDefinition
-  message?: plugin.MessageDefinition
-  states?: Record<string, plugin.StateDefinition>
-  configuration?: plugin.ConfigurationDefinition
-  events?: Record<string, plugin.EventDefinition>
-  recurringEvents?: Record<string, plugin.RecurringEventDefinition>
-  actions?: Record<string, plugin.ActionDefinition>
-  tables?: Record<string, plugin.TableDefinition>
-}
+type PluginPackageDefinition = NameVersion &
+  Attributes & {
+    integrations?: Record<string, PackageReference>
+    interfaces?: Record<string, PackageReference>
+    user?: plugin.UserDefinition
+    conversation?: plugin.ConversationDefinition
+    message?: plugin.MessageDefinition
+    states?: Record<string, plugin.StateDefinition>
+    configuration?: plugin.ConfigurationDefinition
+    events?: Record<string, plugin.EventDefinition>
+    recurringEvents?: Record<string, plugin.RecurringEventDefinition>
+    actions?: Record<string, plugin.ActionDefinition>
+    tables?: Record<string, plugin.TableDefinition>
+    workflows?: Record<string, plugin.WorkflowDefinition>
+  }
 
 export type IntegrationPackage = PackageReference & {
   type: 'integration'

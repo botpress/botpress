@@ -35,7 +35,9 @@ export const createDeployBot: Test = {
       retry: retry.config,
     })
 
-    await impl.init({ ...argv, workDir: baseDir, name: botName, type: 'bot' }).then(utils.handleExitCode)
+    await impl
+      .init({ ...argv, workDir: baseDir, name: botName, type: 'bot', template: 'empty' })
+      .then(utils.handleExitCode)
     await utils.fixBotpressDependencies({ workDir: botDir, target: dependencies })
     await utils.npmInstall({ workDir: botDir }).then(utils.handleExitCode)
     await impl.build({ ...argv, workDir: botDir }).then(utils.handleExitCode)

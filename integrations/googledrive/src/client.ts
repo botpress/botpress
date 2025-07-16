@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { Readable, Stream } from 'stream'
 import { v4 as uuidv4 } from 'uuid'
 import { getAuthenticatedGoogleClient } from './auth'
-import { handleNotFoundError, handleRateLimitError } from './error-handling'
+import { handleNotFoundError, handleRateLimitError, isGaxiosError } from './error-handling'
 import { serializeToken } from './file-notification-token'
 import { FilesCache } from './files-cache'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE, INDEXABLE_MIMETYPES } from './mime-types'
@@ -54,10 +54,17 @@ type TryWatchAllOutput = {
 const MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS = 86400 * 1000 // 24 hours
 const MAX_EXPORT_FILE_SIZE_BYTES = 10000000 // 10MB, as per the Google Drive API doc
 const MYDRIVE_ID_ALIAS = 'root'
-const PAGE_SIZE = 10
+const PAGE_SIZE = 100
 const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
-const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size'
+const GOOGLE_API_FILE_FIELDS =
+  'id, name, mimeType, parents, size, sha256Checksum, md5Checksum, version, trashed, modifiedTime, driveId, sharedWithMeTime'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
+
+const INCLUDE_FILES_FROM_ALL_DRIVES = {
+  includeItemsFromAllDrives: true,
+  supportsAllDrives: true,
+} as const
+
 export class Client {
   private constructor(
     private _ctx: bp.Context,
@@ -85,6 +92,18 @@ export class Client {
 
   public setCache(filesCache: FilesCache) {
     this._filesCache = filesCache
+  }
+
+  public async getRootFolderId(): Promise<string> {
+    try {
+      const response = await this._googleClient.files.get({ fileId: MYDRIVE_ID_ALIAS })
+      return response.data.id!
+    } catch (thrown: unknown) {
+      if (isGaxiosError(thrown) && thrown.toString().includes('File not found: ')) {
+        return thrown.toString().split('File not found: ')[1]!.slice(0, -1)
+      }
+      throw thrown
+    }
   }
 
   public async listFiles({ nextToken }: ListItemsInput): Promise<ListFilesOutput> {
@@ -154,9 +173,35 @@ export class Client {
 
   public async getChildren(folderId: string): Promise<GenericFile[]> {
     const files = await listAllItems(this._listBaseGenericFiles.bind(this), {
-      searchQuery: `'${folderId}' in parents`,
+      searchQuery: this._getParentsFilter(folderId),
     })
     return await Promise.all(files.map((f) => this._getCompleteFile(f)))
+  }
+
+  public async getChildrenSubset({
+    folderId,
+    extraQuery,
+    nextToken,
+  }: {
+    folderId: string
+    extraQuery?: string
+    nextToken?: string
+  }) {
+    const searchQuery = this._getParentsFilter(folderId) + (extraQuery ? ` and ${extraQuery}` : '')
+    const listResponse = await this._googleClient.files.list({
+      corpora: 'user',
+      fields: GOOGLE_API_FILELIST_FIELDS,
+      q: `${searchQuery} and trashed != true`,
+      pageToken: nextToken,
+      pageSize: PAGE_SIZE,
+      spaces: 'drive',
+      ...INCLUDE_FILES_FROM_ALL_DRIVES,
+    })
+    return { files: listResponse.data.files, nextToken: listResponse.data.nextPageToken ?? undefined }
+  }
+
+  private _getParentsFilter(parentId: string): string {
+    return parentId === MYDRIVE_ID_ALIAS ? 'not trashed' : `'${parentId}' in parents`
   }
 
   public async createFile({ name, parentId, mimeType }: CreateFileArgs): Promise<File> {
@@ -359,13 +404,8 @@ export class Client {
    * Removes internal fields and adds computed attributes
    */
   private async _getCompleteFileFromBaseFile(file: BaseNormalFile): Promise<File> {
-    const { id, mimeType, name, parentId, size } = file
     return {
-      id,
-      mimeType,
-      name,
-      parentId,
-      size,
+      ...file,
       path: await this._getFilePath({ type: 'normal', ...file }),
     }
   }
@@ -399,9 +439,11 @@ export class Client {
     const listResponse = await this._googleClient.files.list({
       corpora: 'user',
       fields: GOOGLE_API_FILELIST_FIELDS,
-      q: searchQuery,
+      q: (searchQuery ?? '') + (searchQuery?.length ? ' and ' : '') + 'trashed != true',
       pageToken: nextToken,
       pageSize: PAGE_SIZE,
+      spaces: 'drive',
+      ...INCLUDE_FILES_FROM_ALL_DRIVES,
     })
 
     const newNextToken = listResponse.data.nextPageToken ?? undefined
@@ -434,6 +476,7 @@ export class Client {
     const response = await this._googleClient.files.get({
       fileId: id,
       fields: GOOGLE_API_FILE_FIELDS,
+      ...INCLUDE_FILES_FROM_ALL_DRIVES,
     })
     const file = parseBaseGeneric(response.data)
     this._filesCache.set(file)
@@ -445,6 +488,7 @@ export class Client {
       {
         fileId,
         alt: 'media',
+        ...INCLUDE_FILES_FROM_ALL_DRIVES,
       },
       {
         responseType: 'stream',
@@ -458,6 +502,7 @@ export class Client {
       {
         fileId,
         mimeType,
+        ...INCLUDE_FILES_FROM_ALL_DRIVES,
       },
       {
         responseType: 'stream',
@@ -492,12 +537,19 @@ export class Client {
     return indexableContentType ?? defaultContentType
   }
 
-  private _getFilePath = async (file: BaseDiscriminatedFile): Promise<string[]> => {
+  private _getFilePath = async (file: BaseDiscriminatedFile, pathAcc?: string[]): Promise<string[]> => {
+    const path = [file.name, ...(pathAcc ?? [])]
+
     if (!file.parentId) {
-      return [file.name]
+      return path
     }
 
-    const parent = await this._getOrFetchFile(file.parentId)
-    return [...(await this._getFilePath(parent)), file.name]
+    try {
+      const parent = await this._getOrFetchFile(file.parentId)
+
+      return await this._getFilePath(parent, path)
+    } catch {
+      return path
+    }
   }
 }

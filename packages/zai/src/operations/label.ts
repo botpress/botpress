@@ -1,7 +1,10 @@
 // eslint-disable consistent-type-definitions
 import { z } from '@bpinternal/zui'
 
-import { clamp, chunk } from 'lodash-es'
+import { chunk, clamp } from 'lodash-es'
+import { ZaiContext } from '../context'
+import { Response } from '../response'
+import { getTokenizer } from '../tokenizer'
 import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
@@ -14,6 +17,7 @@ const LABELS = {
   PROBABLY_YES: 'PROBABLY_YES',
   ABSOLUTELY_YES: 'ABSOLUTELY_YES',
 } as const
+
 const ALL_LABELS = Object.values(LABELS).join(' | ')
 
 type Example<T extends string> = {
@@ -21,11 +25,16 @@ type Example<T extends string> = {
   labels: Partial<Record<T, { label: Label; explanation?: string }>>
 }
 
-export type Options<T extends string> = Omit<z.input<typeof Options>, 'examples'> & {
-  examples?: Array<Partial<Example<T>>>
+export type Options<T extends string> = {
+  /** Examples to help the user make a decision */
+  examples?: Array<Example<T>>
+  /** Instructions to guide the user on how to extract the data */
+  instructions?: string
+  /** The maximum number of tokens per chunk */
+  chunkLength?: number
 }
 
-const Options = z.object({
+const _Options = z.object({
   examples: z
     .array(
       z.object({
@@ -47,7 +56,7 @@ const Options = z.object({
 
 type Labels<T extends string> = Record<T, string>
 
-const Labels = z.record(z.string().min(1).max(250), z.string()).superRefine((labels, ctx) => {
+const _Labels = z.record(z.string().min(1).max(250), z.string()).superRefine((labels, ctx) => {
   const keys = Object.keys(labels)
 
   for (const key of keys) {
@@ -77,9 +86,16 @@ declare module '@botpress/zai' {
       input: unknown,
       labels: Labels<T>,
       options?: Options<T>
-    ): Promise<{
-      [K in T]: boolean
-    }>
+    ): Response<
+      {
+        [K in T]: {
+          explanation: string
+          value: boolean
+          confidence: number
+        }
+      },
+      { [K in T]: boolean }
+    >
   }
 }
 
@@ -100,15 +116,42 @@ const parseLabel = (label: string): Label => {
   return LABELS.AMBIGUOUS
 }
 
-Zai.prototype.label = async function <T extends string>(this: Zai, input, _labels, _options) {
-  const options = Options.parse(_options ?? {})
-  const labels = Labels.parse(_labels)
-  const tokenizer = await this.getTokenizer()
+const getConfidence = (label: Label) => {
+  switch (label) {
+    case LABELS.ABSOLUTELY_NOT:
+    case LABELS.ABSOLUTELY_YES:
+      return 1
 
-  const taskId = this.taskId
+    case LABELS.PROBABLY_NOT:
+    case LABELS.PROBABLY_YES:
+      return 0.5
+    default:
+      return 0
+  }
+}
+
+const label = async <T extends string>(
+  input: unknown,
+  _labels: Labels<T>,
+  _options: Options<T> | undefined,
+  ctx: ZaiContext
+): Promise<{
+  [K in T]: {
+    explanation: string
+    value: boolean
+    confidence: number
+  }
+}> => {
+  ctx.controller.signal.throwIfAborted()
+  const options = _Options.parse(_options ?? {}) as unknown as Options<T>
+  const labels = _Labels.parse(_labels) as Labels<T>
+  const tokenizer = await getTokenizer()
+  const model = await ctx.getModel()
+
+  const taskId = ctx.taskId
   const taskType = 'zai.label'
 
-  const TOTAL_MAX_TOKENS = clamp(options.chunkLength, 1000, this.Model.input.maxTokens - PROMPT_INPUT_BUFFER)
+  const TOTAL_MAX_TOKENS = clamp(options.chunkLength, 1000, model.input.maxTokens - PROMPT_INPUT_BUFFER)
   const CHUNK_EXAMPLES_MAX_TOKENS = clamp(Math.floor(TOTAL_MAX_TOKENS * 0.5), 250, 10_000)
   const CHUNK_INPUT_MAX_TOKENS = clamp(
     TOTAL_MAX_TOKENS - CHUNK_EXAMPLES_MAX_TOKENS,
@@ -121,20 +164,26 @@ Zai.prototype.label = async function <T extends string>(this: Zai, input, _label
   if (tokenizer.count(inputAsString) > CHUNK_INPUT_MAX_TOKENS) {
     const tokens = tokenizer.split(inputAsString)
     const chunks = chunk(tokens, CHUNK_INPUT_MAX_TOKENS).map((x) => x.join(''))
-    const allLabels = await Promise.all(chunks.map((chunk) => this.label(chunk, _labels)))
+    const allLabels = await Promise.all(chunks.map((chunk) => label(chunk, _labels, _options, ctx)))
 
     // Merge all the labels together (those who are true will remain true)
     return allLabels.reduce((acc, x) => {
       Object.keys(x).forEach((key) => {
-        if (acc[key] === true) {
-          acc[key] = true
+        if (acc[key]?.value === true) {
+          acc[key] = acc[key]
+        } else if (x[key]?.value === true) {
+          acc[key] = x[key]
         } else {
           acc[key] = acc[key] || x[key]
         }
       })
       return acc
     }, {}) as {
-      [K in T]: boolean
+      [K in T]: {
+        explanation: string
+        value: boolean
+        confidence: number
+      }
     }
   }
 
@@ -151,31 +200,42 @@ Zai.prototype.label = async function <T extends string>(this: Zai, input, _label
 
   const convertToAnswer = (mapping: { [K in T]: { explanation: string; label: Label } }) => {
     return Object.keys(labels).reduce((acc, key) => {
-      acc[key] = mapping[key]?.label === 'ABSOLUTELY_YES' || mapping[key]?.label === 'PROBABLY_YES'
+      acc[key] = {
+        explanation: mapping[key]?.explanation ?? '',
+        value: mapping[key]?.label === LABELS.ABSOLUTELY_YES || mapping[key]?.label === LABELS.PROBABLY_YES,
+        confidence: getConfidence(mapping[key]?.label),
+      }
       return acc
-    }, {}) as { [K in T]: boolean }
+    }, {}) as {
+      [K in T]: {
+        explanation: string
+        value: boolean
+        confidence: number
+      }
+    }
   }
 
-  const examples = taskId
-    ? await this.adapter.getExamples<
-        string,
-        {
-          [K in T]: {
-            explanation: string
-            label: Label
+  const examples =
+    taskId && ctx.adapter
+      ? await ctx.adapter.getExamples<
+          string,
+          {
+            [K in T]: {
+              explanation: string
+              label: Label
+            }
           }
-        }
-      >({
-        input: inputAsString,
-        taskType,
-        taskId,
-      })
-    : []
+        >({
+          input: inputAsString,
+          taskType,
+          taskId,
+        })
+      : []
 
   options.examples.forEach((example) => {
     examples.push({
       key: fastHash(JSON.stringify(example)),
-      input: example.input,
+      input: stringify(example.input),
       similarity: 1,
       explanation: '',
       output: example.labels as unknown as {
@@ -239,7 +299,7 @@ ${END}
     })
     .join('\n\n')
 
-  const output = await this.callModel({
+  const { extracted, meta } = await ctx.generateContent({
     stopSequences: [END],
     systemPrompt: `
 You need to tag the input with the following labels based on the question asked:
@@ -290,44 +350,96 @@ The Expert Examples are there to help you make your decision. They have been pro
 For example, you can say: "According to Expert Example #1, ..."`.trim(),
       },
     ],
+    transform: (text) =>
+      Object.keys(labels).reduce((acc, key) => {
+        const match = text.match(new RegExp(`■${key}:【(.+)】:(\\w{2,})■`, 'i'))
+        if (match) {
+          const explanation = match[1].trim()
+          const label = parseLabel(match[2])
+          acc[key] = {
+            explanation,
+            label,
+          }
+        } else {
+          acc[key] = {
+            explanation: '',
+            label: LABELS.AMBIGUOUS,
+          }
+        }
+        return acc
+      }, {}) as {
+        [K in T]: {
+          explanation: string
+          label: Label
+        }
+      },
   })
 
-  const answer = output.choices[0].content as string
-
-  const final = Object.keys(labels).reduce((acc, key) => {
-    const match = answer.match(new RegExp(`■${key}:【(.+)】:(\\w{2,})■`, 'i'))
-    if (match) {
-      const explanation = match[1].trim()
-      const label = parseLabel(match[2])
-      acc[key] = {
-        explanation,
-        label,
-      }
-    } else {
-      acc[key] = {
-        explanation: '',
-        label: LABELS.AMBIGUOUS,
-      }
-    }
-    return acc
-  }, {}) as {
-    [K in T]: {
-      explanation: string
-      label: Label
-    }
-  }
-
-  if (taskId) {
-    await this.adapter.saveExample({
+  if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
+    await ctx.adapter.saveExample({
       key: Key,
       taskType,
       taskId,
       instructions: options.instructions ?? '',
-      metadata: output.metadata,
+      metadata: {
+        cost: {
+          input: meta.cost.input,
+          output: meta.cost.output,
+        },
+        latency: meta.latency,
+        model: ctx.modelId,
+        tokens: {
+          input: meta.tokens.input,
+          output: meta.tokens.output,
+        },
+      },
       input: inputAsString,
-      output: final,
+      output: extracted,
     })
   }
 
-  return convertToAnswer(final)
+  return convertToAnswer(extracted)
+}
+
+Zai.prototype.label = function <T extends string>(
+  this: Zai,
+  input: unknown,
+  labels: Labels<T>,
+  _options?: Options<T>
+): Response<
+  {
+    [K in T]: {
+      explanation: string
+      value: boolean
+      confidence: number
+    }
+  },
+  { [K in T]: boolean }
+> {
+  const context = new ZaiContext({
+    client: this.client,
+    modelId: this.Model,
+    taskId: this.taskId,
+    taskType: 'zai.label',
+    adapter: this.adapter,
+  })
+
+  return new Response<
+    {
+      [K in T]: {
+        explanation: string
+        value: boolean
+        confidence: number
+      }
+    },
+    { [K in T]: boolean }
+  >(context, label(input, labels, _options, context), (result) =>
+    Object.keys(result).reduce(
+      (acc, key) => {
+        acc[key] = result[key].value
+        return acc
+      },
+      {} as { [K in T]: boolean }
+    )
+  )
 }

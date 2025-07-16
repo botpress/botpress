@@ -1,3 +1,4 @@
+export * as attributes from './attribute-utils'
 export * as cache from './cache-utils'
 export * as casing from './case-utils'
 export * as emitter from './event-emitter'

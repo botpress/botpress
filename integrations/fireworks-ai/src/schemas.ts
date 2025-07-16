@@ -2,19 +2,20 @@ import { z } from '@botpress/sdk'
 
 export const languageModelId = z
   .enum([
+    'accounts/fireworks/models/deepseek-r1-0528',
+    'accounts/fireworks/models/deepseek-v3-0324',
+    'accounts/fireworks/models/llama4-maverick-instruct-basic',
+    'accounts/fireworks/models/llama4-scout-instruct-basic',
+    'accounts/fireworks/models/llama-v3p3-70b-instruct',
     'accounts/fireworks/models/deepseek-r1',
+    'accounts/fireworks/models/deepseek-r1-basic',
     'accounts/fireworks/models/deepseek-v3',
     'accounts/fireworks/models/llama-v3p1-405b-instruct',
     'accounts/fireworks/models/llama-v3p1-70b-instruct',
     'accounts/fireworks/models/llama-v3p1-8b-instruct',
     'accounts/fireworks/models/mixtral-8x22b-instruct',
     'accounts/fireworks/models/mixtral-8x7b-instruct',
-    'accounts/fireworks/models/firefunction-v2',
-    'accounts/fireworks/models/firellava-13b',
-    'accounts/fireworks/models/deepseek-coder-v2-instruct',
-    'accounts/fireworks/models/deepseek-coder-v2-lite-instruct',
     'accounts/fireworks/models/mythomax-l2-13b',
-    'accounts/fireworks/models/qwen2-72b-instruct',
     'accounts/fireworks/models/gemma2-9b-it',
   ])
   .describe('Model to use for content generation')

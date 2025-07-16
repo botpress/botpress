@@ -1,4 +1,4 @@
-import { isApiError, Client, RuntimeError } from '@botpress/client'
+import { isApiError, Client, RuntimeError, InvalidPayloadError } from '@botpress/client'
 import { retryConfig } from '../../retry'
 import { Request, Response, parseBody } from '../../serve'
 import { IntegrationSpecificClient } from '../client'
@@ -16,6 +16,7 @@ import {
   CreateUserPayload,
   UnregisterPayload,
   CreateConversationPayload,
+  IntegrationContext,
 } from './types'
 
 export * from './types'
@@ -26,57 +27,79 @@ type ServerProps = CommonHandlerProps<BaseIntegration> & {
   instance: IntegrationHandlers<BaseIntegration>
 }
 
+const extractTracingHeaders = (headers: Record<string, string | undefined>) => {
+  return ['traceparent', 'tracestate', 'sentry-trace'].reduce<Record<string, string>>((acc, header) => {
+    if (headers[header]) {
+      acc[header] = headers[header]
+    }
+    return acc
+  }, {})
+}
+
+const getServerProps = (
+  ctx: IntegrationContext,
+  req: Request,
+  instance: IntegrationHandlers<BaseIntegration>
+): ServerProps => {
+  const [, traceId] = (req.headers['traceparent'] || '').split('-')
+
+  const vanillaClient = new Client({
+    botId: ctx.botId,
+    integrationId: ctx.integrationId,
+    retry: retryConfig,
+    headers: extractTracingHeaders(req.headers),
+  })
+  const client = new IntegrationSpecificClient<BaseIntegration>(vanillaClient)
+  const logger = new IntegrationLogger({ traceId })
+
+  return {
+    ctx,
+    req,
+    client,
+    logger,
+    instance,
+  }
+}
+
+const handleOperation = async (props: ServerProps) => {
+  const { ctx } = props
+  switch (ctx.operation) {
+    case 'webhook_received':
+      return await onWebhook(props)
+    case 'register':
+      return await onRegister(props)
+    case 'unregister':
+      return await onUnregister(props)
+    case 'message_created':
+      return await onMessageCreated(props)
+    case 'action_triggered':
+      return await onActionTriggered(props)
+    case 'ping':
+      return await onPing(props)
+    case 'create_user':
+      return await onCreateUser(props)
+    case 'create_conversation':
+      return await onCreateConversation(props)
+    default:
+      throw new InvalidPayloadError(`Unknown operation ${ctx.operation}`)
+  }
+}
+
 export const integrationHandler =
   (instance: IntegrationHandlers<BaseIntegration>) =>
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
-
-    const vanillaClient = new Client({
-      botId: ctx.botId,
-      integrationId: ctx.integrationId,
-      retry: retryConfig,
-    })
-    const client = new IntegrationSpecificClient<BaseIntegration>(vanillaClient)
-    const logger = new IntegrationLogger()
-
-    const props = {
-      ctx,
-      req,
-      client,
-      logger,
-      instance,
-    }
+    const props = getServerProps(ctx, req, instance)
+    const { logger } = props
 
     try {
       let response: Response | void
-      switch (ctx.operation) {
-        case 'webhook_received':
-          response = await onWebhook(props)
-          break
-        case 'register':
-          response = await onRegister(props)
-          break
-        case 'unregister':
-          response = await onUnregister(props)
-          break
-        case 'message_created':
-          response = await onMessageCreated(props)
-          break
-        case 'action_triggered':
-          response = await onActionTriggered(props)
-          break
-        case 'ping':
-          response = await onPing(props)
-          break
-        case 'create_user':
-          response = await onCreateUser(props)
-          break
-        case 'create_conversation':
-          response = await onCreateConversation(props)
-          break
-        default:
-          throw new Error(`Unknown operation ${ctx.operation}`)
+      response = await onUnknownOperationHandler(props)
+      if (response) {
+        return { ...response, status: response.status ?? 200 }
       }
+
+      response = await handleOperation(props)
       return response ? { ...response, status: response.status ?? 200 } : { status: 200 }
     } catch (error) {
       if (isApiError(error)) {
@@ -182,4 +205,23 @@ const onActionTriggered = async ({ req, ctx, client, logger, instance }: ServerP
   return {
     body: JSON.stringify(response),
   }
+}
+
+const onUnknownOperationHandler = async ({
+  instance,
+  client,
+  ctx,
+  logger,
+  req,
+}: ServerProps): Promise<Response | void> => {
+  const handler = instance.unknownOperationHandler
+  if (!handler) {
+    return
+  }
+  return await handler({
+    client,
+    ctx,
+    logger,
+    req,
+  })
 }

@@ -1,8 +1,17 @@
+import * as sdk from '@botpress/sdk'
 import { TodoistClient } from './todoist-api'
 import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async ({ logger, client, ctx }) => {
   logger.forBot().info('Registering Todoist integration')
+
+  if (ctx.configurationType === null) {
+    try {
+      await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    } catch {
+      throw new sdk.RuntimeError('Please authenticate with Todoist before enabling the integration')
+    }
+  }
 
   const todoistClient = await TodoistClient.create({ client, ctx })
   const userIdentity = await todoistClient.getAuthenticatedUserIdentity()

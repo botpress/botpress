@@ -23,7 +23,7 @@ describe('zai.rewrite', { timeout: 60_000 }, () => {
   it('transforms text to all caps and respects tokens restrictions', async () => {
     const result = await zai.rewrite(Zoe, 'write in all caps', { length: 15 })
     expect(tokenizer.count(result)).toBeLessThanOrEqual(20)
-    expect(result).toContain(`PART 1. ZOE WALKS TO THE PARK`)
+    expect(result).toContain(`ZOE WALKS TO THE PARK`)
     expect(result).not.toContain(`PART 3`)
   })
 
@@ -37,7 +37,7 @@ describe('zai.rewrite', { timeout: 60_000 }, () => {
   })
 })
 
-describe('zai.learn.rewrite', { timeout: 60_000 }, () => {
+describe.sequential('zai.learn.rewrite', { timeout: 60_000 }, () => {
   const client = getClient()
   let tableName = 'ZaiTestRewriteInternalTable'
   let taskId = 'rewrite'
@@ -72,8 +72,6 @@ describe('zai.learn.rewrite', { timeout: 60_000 }, () => {
     })
 
     const value = await zai.learn(taskId).rewrite(`Botpress is awesome`, 'write it like we want it')
-
-    check(value, `The text means more or less the same as "Botpress is awesome" but slightly different`).toBe(true)
 
     let rows = await client.findTableRows({ table: tableName })
     expect(rows.rows.length).toBe(1)

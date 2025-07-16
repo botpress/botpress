@@ -18,14 +18,13 @@ export class EventModule extends Module {
     if (!this._event.schema) {
       return `export const ${this.exportName} = z.object({});`
     }
-    return jsonSchemaToTypescriptZuiSchema(
-      this._event.schema,
-      this.exportName,
-      gen.primitiveRecordToTypescriptValues({
+    return jsonSchemaToTypescriptZuiSchema(this._event.schema, this.exportName, {
+      ...gen.primitiveRecordToTypescriptValues({
         title: this._event.title,
         description: this._event.description,
-      })
-    )
+      }),
+      ...(this._event.attributes ? { attributes: gen.stringifySingleLine(this._event.attributes) } : undefined),
+    })
   }
 }
 

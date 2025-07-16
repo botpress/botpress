@@ -83,6 +83,20 @@ describe('AtLeastOneProperty<T>', () => {
       ]
     >
   })
+
+  test('when T is undefined, should not allow any properties', () => {
+    type A = utils.AtLeastOneProperty<undefined>
+    type B = {}
+    type C = { foo: 1 }
+    type _assertion = utils.AssertAll<
+      [
+        //
+        utils.AssertExtends<B, A>,
+        utils.AssertExtends<A, B>,
+        utils.AssertNotExtends<A, C>,
+      ]
+    >
+  })
 })
 
 describe('ExactlyOneProperty<T>', () => {
@@ -292,4 +306,35 @@ test('deep partial should make all properties optional', () => {
       utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
+})
+
+test('IsStricterFunction and function extension', () => {
+  type Foo = { foo: string }
+  type FooPrime = Foo & { metadata: object }
+
+  type Bar = { bar: number }
+  type BarPrime = Bar & { metadata: object }
+
+  type A = (a: Foo) => Bar
+  type B = (a: FooPrime) => Bar
+  type C = (a: Foo) => BarPrime
+
+  type _assertion = utils.AssertAll<
+    [
+      //
+      utils.IsExtend<A, B>,
+      utils.IsExtend<C, A>,
+      utils.Not<utils.IsExtend<B, A>>,
+      utils.IsStricterFunction<B, A>,
+    ]
+  >
+})
+
+test('Normalize Function should not change function type', () => {
+  type MyFunc = (a: string, b: number) => Promise<{ c: boolean }>
+
+  type Expected = MyFunc
+  type Actual = utils.Normalize<MyFunc>
+
+  type _assertion = utils.AssertTrue<utils.IsIdentical<Actual, Expected>>
 })

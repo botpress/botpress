@@ -8,6 +8,10 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "openai": "^4.53.0"
+    "dedent": "^1.6.0",
+    "marked": "^15.0.1",
+    "openai": "^4.86.1",
+    "preact": "^10.26.6",
+    "preact-render-to-string": "^6.5.13"
   }
 }

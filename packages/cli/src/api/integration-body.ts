@@ -51,6 +51,8 @@ export const prepareCreateIntegrationBody = async (
         schema: await utils.schema.mapZodToJsonSchema(entity),
       }))
     : undefined,
+  attributes: integration.attributes,
+  extraOperations: '__advanced' in integration ? integration.__advanced?.extraOperations : undefined,
 })
 
 type UpdateIntegrationChannelsBody = NonNullable<types.UpdateIntegrationRequestBody['channels']>
@@ -61,8 +63,14 @@ export const prepareUpdateIntegrationBody = (
   localIntegration: types.UpdateIntegrationRequestBody,
   remoteIntegration: client.Integration
 ): types.UpdateIntegrationRequestBody => {
-  const actions = utils.records.setNullOnMissingValues(localIntegration.actions, remoteIntegration.actions)
-  const events = utils.records.setNullOnMissingValues(localIntegration.events, remoteIntegration.events)
+  const actions = utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localIntegration.actions, remoteIntegration.actions),
+    remoteItems: remoteIntegration.actions,
+  })
+  const events = utils.attributes.prepareAttributeUpdateBody({
+    localItems: utils.records.setNullOnMissingValues(localIntegration.events, remoteIntegration.events),
+    remoteItems: remoteIntegration.events,
+  })
   const states = utils.records.setNullOnMissingValues(localIntegration.states, remoteIntegration.states)
   const entities = utils.records.setNullOnMissingValues(localIntegration.entities, remoteIntegration.entities)
   const user = {
@@ -79,6 +87,12 @@ export const prepareUpdateIntegrationBody = (
     remoteIntegration.configurations
   )
 
+  const readme = localIntegration.readme
+  const icon = localIntegration.icon
+
+  const attributes = utils.records.setNullOnMissingValues(localIntegration.attributes, remoteIntegration.attributes)
+
+  const extraOperations = localIntegration.extraOperations
   return {
     ..._maybeRemoveVrlScripts(localIntegration, remoteIntegration),
     actions,
@@ -89,6 +103,10 @@ export const prepareUpdateIntegrationBody = (
     channels,
     interfaces,
     configurations,
+    readme,
+    icon,
+    attributes,
+    extraOperations,
   }
 }
 

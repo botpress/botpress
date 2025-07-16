@@ -1,8 +1,10 @@
+import { buildConversationTranscript } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { getZendeskClient } from '../client'
 import * as bp from '.botpress'
 
-export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ ctx, input, client }) => {
+export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (props) => {
+  const { ctx, input, client } = props
   const zendeskClient = getZendeskClient(ctx.configuration)
 
   const { user } = await client.getUser({
@@ -13,11 +15,9 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     throw new sdk.RuntimeError(`User ${user.id} not linked in Zendesk`)
   }
 
-  const ticket = await zendeskClient.createTicket(
-    input.title ?? 'Untitled Ticket',
-    input.description ?? 'Someone opened a ticket using your Botpress chatbot',
-    { id: zendeskAuthorId }
-  )
+  const ticket = await zendeskClient.createTicket(input.title ?? 'Untitled Ticket', await _buildTicketBody(props), {
+    id: zendeskAuthorId,
+  })
 
   const zendeskTicketId = `${ticket.id}`
   const { conversation } = await client.getOrCreateConversation({
@@ -27,11 +27,21 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     },
   })
 
-  // TODO: possibly display the message history
+  await zendeskClient.updateTicket(zendeskTicketId, {
+    external_id: conversation.id,
+  })
 
   return {
     conversationId: conversation.id,
   }
+}
+
+const _buildTicketBody = async ({ input, client, ctx }: bp.ActionProps['startHitl']) => {
+  const description = input.description?.trim() || 'Someone opened a ticket using your Botpress chatbot.'
+
+  const messageHistory = await buildConversationTranscript({ client, ctx, messages: input.messageHistory })
+
+  return description + (messageHistory.length ? `\n\n---\n\n${messageHistory}` : '')
 }
 
 export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx, input, client }) => {
@@ -47,12 +57,7 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx
   const zendeskClient = getZendeskClient(ctx.configuration)
 
   try {
-    const originalTicket = await zendeskClient.getTicket(ticketId)
     await zendeskClient.updateTicket(ticketId, {
-      comment: {
-        body: input.reason,
-        author_id: originalTicket.requester_id,
-      },
       status: 'closed',
     })
     return {}

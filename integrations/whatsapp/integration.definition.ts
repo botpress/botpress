@@ -1,76 +1,133 @@
-/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import proactiveConversation from 'bp_modules/proactive-conversation'
 import typingIndicator from 'bp_modules/typing-indicator'
 
-export const channel = 'channel' // TODO: Rename to "whatsapp" once support for integration versioning is finished.
-
-const TagsForCreatingConversation = {
-  phoneNumberId: {
-    title: 'Phone Number ID',
-    description:
-      'Whatsapp Phone Number ID to use as sender. If not provided it defaults to the one set in the configuration.',
-  },
-  userPhone: {
-    title: 'User phone number',
-    description: 'Phone number of the Whatsapp user to start the conversation with.',
-  },
-  templateName: {
-    title: 'Message Template name',
-    description: 'Name of the Whatsapp Message Template to start the conversation with.',
-  },
-  templateLanguage: {
-    title: 'Message Template language (optional)',
-    description:
-      'Language of the Whatsapp Message Template to start the conversation with. Defaults to "en_US" (U.S. English).',
-  },
-  templateVariables: {
-    title: 'Message Template variables (optional)',
-    description: 'JSON array representation of variable values to pass to the Whatsapp Message Template.',
-  },
-}
-
 export const INTEGRATION_NAME = 'whatsapp'
+
+const MAX_BUTTON_LABEL_LENGTH = 20
 
 const commonConfigSchema = z.object({
   typingIndicatorEmoji: z
     .boolean()
     .default(false)
+    .title('Typing Indicator Emoji')
     .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
+  downloadMedia: z
+    .boolean()
+    .default(true)
+    .title('Download Media')
+    .describe(
+      'Automatically download media files using the Files API for content access. If disabled, temporary WhatsApp media URLs will be used, which require authentication with a valid access token.'
+    ),
+  downloadedMediaExpiry: z
+    .number()
+    .default(24)
+    .optional()
+    .title('Downloaded Media Expiry')
+    .describe(
+      'Expiry time in hours for downloaded media files. An expiry time of 0 means the files will never expire.'
+    ),
 })
+
+const dropdownButtonLabelSchema = z
+  .string()
+  .max(MAX_BUTTON_LABEL_LENGTH)
+  .optional()
+  .title('Button Label')
+  .describe('Label for the dropdown button')
+
+const startConversationProps = {
+  title: 'Start Conversation',
+  description:
+    'Proactively starts a conversation with a WhatsApp user by sending them a message using a WhatsApp Message Template',
+  input: {
+    schema: z.object({
+      conversation: z.object({
+        userPhone: z
+          .string()
+          .min(1)
+          .title('User Phone Number')
+          .describe('Phone number of the WhatsApp user to start a conversation with'),
+        templateName: z
+          .string()
+          .min(1)
+          .title('Message Template name')
+          .describe('Name of the WhatsApp Message Template to start the conversation with'),
+        templateLanguage: z
+          .string()
+          .optional()
+          .title('Message Template language')
+          .describe(
+            'Language of the WhatsApp Message Template to start the conversation with. Defaults to "en" (English)'
+          ),
+        templateVariablesJson: z
+          .string()
+          .optional()
+          .title('Message Template variables')
+          .describe(
+            'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template)'
+          ),
+        botPhoneNumberId: z
+          .string()
+          .optional()
+          .title('Bot Phone Number ID')
+          .describe('Phone number ID to use as sender (uses the default phone number ID if not provided)'),
+      }),
+    }),
+  },
+}
+
+const defaultBotPhoneNumberId = {
+  title: 'Default Bot Phone Number ID',
+  description: 'Default Phone ID used by the bot for starting conversations',
+}
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '3.0.0',
+  version: '4.2.3',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configurations: {
-    manualApp: {
+    manual: {
       title: 'Manual Configuration',
       description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
-      ui: {
-        phoneNumberId: {
-          title: 'Default Phone Number ID for starting conversations',
-        },
-      },
       schema: z
         .object({
           verifyToken: z
             .string()
             .min(1)
+            .secret()
+            .title('Verify Token')
             .describe(
               'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
             ),
           accessToken: z
             .string()
             .min(1)
+            .secret()
+            .title('Access Token')
             .describe('Access Token from a System Account that has permission to the Meta app'),
-          clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
-          phoneNumberId: z.string().min(1).describe('Default Phone id used for starting conversations'),
+          clientSecret: z
+            .string()
+            .secret()
+            .optional()
+            .title('Client Secret')
+            .describe('Meta app secret used for webhook signature check'),
+          defaultBotPhoneNumberId: z
+            .string()
+            .min(1)
+            .title(defaultBotPhoneNumberId.title)
+            .describe(defaultBotPhoneNumberId.description),
         })
         .merge(commonConfigSchema),
+    },
+    sandbox: {
+      title: 'Sandbox',
+      description: 'Sandbox configuration, for testing purposes only',
+      schema: commonConfigSchema,
     },
   },
   configuration: {
@@ -85,10 +142,30 @@ export default new IntegrationDefinition({
     fallbackHandlerScript: 'fallbackHandler.vrl',
   },
   channels: {
-    [channel]: {
+    channel: {
+      title: 'WhatsApp conversation',
+      description: 'Conversation between a WhatsApp user and the bot',
       messages: {
         ...messages.defaults,
-        markdown: messages.markdown,
+        text: {
+          schema: messages.defaults.text.schema.extend({
+            value: z
+              .string()
+              .optional()
+              .title('value')
+              .describe('Underlying value of the message, if any (e.g. button payload, list reply payload, etc.)'),
+          }),
+        },
+        dropdown: {
+          schema: messages.defaults.dropdown.schema.extend({
+            buttonLabel: dropdownButtonLabelSchema,
+          }),
+        },
+        choice: {
+          schema: messages.defaults.choice.schema.extend({
+            buttonLabel: dropdownButtonLabelSchema,
+          }),
+        },
         file: {
           schema: messages.defaults.file.schema.extend({
             filename: z.string().optional(),
@@ -97,84 +174,155 @@ export default new IntegrationDefinition({
       },
       message: {
         tags: {
-          id: {},
+          id: {
+            title: 'Message ID',
+            description: 'The WhatsApp message ID',
+          },
+          reaction: {
+            title: 'Reaction',
+            description: 'A reaction added to the message',
+          },
+          replyTo: {
+            title: 'Reply To',
+            description: 'The ID of the message that this message is a reply to',
+          },
         },
       },
       conversation: {
-        tags: TagsForCreatingConversation,
+        tags: {
+          botPhoneNumberId: {
+            title: 'Bot Phone Number ID',
+            description: 'WhatsApp Phone Number ID of the bot',
+          },
+          userPhone: {
+            title: 'User Phone Number',
+            description: 'Phone number of the WhatsApp user having a conversation with the bot.',
+          },
+        },
       },
     },
   },
   user: {
     tags: {
-      userId: {},
-      name: {},
+      userId: {
+        title: 'User ID',
+        description: 'WhatsApp user ID',
+      },
+      name: {
+        title: 'Name',
+        description: 'WhatsApp user display name',
+      },
     },
   },
   actions: {
     startConversation: {
-      title: 'Start Conversation',
-      description:
-        "Proactively starts a conversation with a user's Whatsapp phone number by sending them a message using a Whatsapp Message Template.",
-      input: {
-        schema: z.object({
-          userPhone: z.string().describe(TagsForCreatingConversation.userPhone.description),
-          templateName: z.string().describe(TagsForCreatingConversation.templateName.description),
-          templateLanguage: z.string().optional().describe(TagsForCreatingConversation.templateLanguage.description),
-          templateVariablesJson: z
-            .string()
-            .optional()
-            .describe(TagsForCreatingConversation.templateVariables.description),
-          senderPhoneNumberId: z.string().optional().describe(TagsForCreatingConversation.phoneNumberId.description),
-        }),
-      },
+      ...startConversationProps,
       output: {
         schema: z.object({
-          conversationId: z.string(),
+          conversationId: z.string().title('Conversation ID').describe('ID of the conversation created'),
         }),
       },
     },
   },
-  events: {},
+  events: {
+    reactionAdded: {
+      title: 'Reaction Added',
+      description: 'Triggered when a user adds a reaction to a message',
+      schema: z.object({
+        reaction: z.string().title('Reaction').describe('The reaction that was added'),
+        messageId: z.string().title('Message ID').describe('ID of the message that was reacted to'),
+        userId: z.string().optional().title('User ID').describe('ID of the user who added the reaction'),
+        conversationId: z.string().optional().title('Conversation ID').describe('ID of the conversation'),
+      }),
+    },
+    reactionRemoved: {
+      title: 'Reaction Removed',
+      description: 'Triggered when a user removes a reaction from a message',
+      schema: z.object({
+        reaction: z.string().title('Reaction').describe('The reaction that was removed'),
+        messageId: z.string().title('Message ID').describe('ID of the message that was reacted to'),
+        userId: z.string().optional().title('User ID').describe('ID of the user who removed the reaction'),
+        conversationId: z.string().optional().title('Conversation ID').describe('ID of the conversation'),
+      }),
+    },
+  },
   states: {
     credentials: {
       type: 'integration',
       schema: z.object({
-        accessToken: z.string().optional(),
-        phoneNumberId: z.string().optional(),
-        wabaId: z.string().optional(),
+        accessToken: z
+          .string()
+          .optional()
+          .title('Access token')
+          .describe('Access token used to authenticate requests to the WhatsApp Business Platform API'),
+        defaultBotPhoneNumberId: z
+          .string()
+          .optional()
+          .title(defaultBotPhoneNumberId.title)
+          .describe(defaultBotPhoneNumberId.description),
+        wabaId: z
+          .string()
+          .optional()
+          .title('WhatsApp Business Account ID')
+          .describe('WhatsApp Business Account ID used to subscribe to webhook events'),
       }),
     },
   },
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: {
-      description: 'The client ID of your Meta app.',
+      description: 'The client ID of the OAuth Meta app',
     },
     CLIENT_SECRET: {
-      description: 'The client secret of your Meta app.',
+      description: 'The client secret of the OAuth Meta app.',
+    },
+    OAUTH_CONFIG_ID: {
+      description: 'The OAuth configuration ID for the OAuth Meta app',
+    },
+    VERIFY_TOKEN: {
+      description: 'The verify token for the OAuth Meta App Webhooks subscription',
     },
     ACCESS_TOKEN: {
-      description: 'Access token for internal Meta App',
+      description: 'Access token for the internal Meta App',
     },
     NUMBER_PIN: {
       description: '6 Digits Pin used for phone number registration',
+    },
+    SANDBOX_CLIENT_SECRET: {
+      description: 'The client secret of the Sandbox Meta app',
+    },
+    SANDBOX_VERIFY_TOKEN: {
+      description: 'The verify token for the Sandbox Meta App Webhooks subscription',
+    },
+    SANDBOX_ACCESS_TOKEN: {
+      description: 'Access token for the Sandbox Meta App',
+    },
+    SANDBOX_PHONE_NUMBER_ID: {
+      description: 'Phone number ID of the Sandbox WhatsApp Business profile',
     },
     SEGMENT_KEY: {
       description: 'Tracking key for general product analytics',
       optional: true,
     },
-    VERIFY_TOKEN: {
-      description: 'The verify token for the Meta Webhooks subscription, optional since its only useful for oAuth.',
-      optional: true,
+  },
+  entities: {
+    proactiveConversation: {
+      title: 'Proactive Conversation',
+      description: 'Proactive conversation with a WhatsApp user',
+      schema: startConversationProps.input.schema.shape['conversation'],
     },
   },
-}).extend(typingIndicator, () => ({ entities: {} }))
-
-export const getOAuthConfigId = () => {
-  if (process.env.BP_WEBHOOK_URL?.includes('dev')) {
-    return '1535672497288913'
-  }
-
-  return '1620101672166859'
-}
+})
+  .extend(typingIndicator, () => ({ entities: {} }))
+  .extend(proactiveConversation, ({ entities }) => ({
+    entities: {
+      conversation: entities.proactiveConversation,
+    },
+    actions: {
+      getOrCreateConversation: {
+        name: 'startConversation',
+        title: startConversationProps.title,
+        description: startConversationProps.description,
+      },
+    },
+  }))

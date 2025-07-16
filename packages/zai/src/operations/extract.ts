@@ -1,16 +1,27 @@
 // eslint-disable consistent-type-definitions
-import { z } from '@bpinternal/zui'
+import { z, ZodObject } from '@bpinternal/zui'
 
 import JSON5 from 'json5'
 import { jsonrepair } from 'jsonrepair'
 
 import { chunk, isArray } from 'lodash-es'
+import { ZaiContext } from '../context'
+import { Response } from '../response'
+import { getTokenizer } from '../tokenizer'
 import { fastHash, stringify, takeUntilTokens } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 import { JsonParsingError } from './errors'
 
-export type Options = z.input<typeof Options>
+export type Options = {
+  /** Instructions to guide the user on how to extract the data */
+  instructions?: string
+  /** The maximum number of tokens per chunk */
+  chunkLength?: number
+  /** Whether to strictly follow the schema or not */
+  strict?: boolean
+}
+
 const Options = z.object({
   instructions: z.string().optional().describe('Instructions to guide the user on how to extract the data'),
   chunkLength: z
@@ -20,17 +31,17 @@ const Options = z.object({
     .optional()
     .describe('The maximum number of tokens per chunk')
     .default(16_000),
+  strict: z.boolean().optional().default(true).describe('Whether to strictly follow the schema or not'),
 })
+
+type __Z<T extends any = any> = { _output: T }
+type OfType<O, T extends __Z = __Z<O>> = T extends __Z<O> ? T : never
+type AnyObjectOrArray = Record<string, unknown> | Array<unknown>
 
 declare module '@botpress/zai' {
   interface Zai {
     /** Extracts one or many elements from an arbitrary input */
-    extract<S extends z.AnyZodObject>(input: unknown, schema: S, options?: Options): Promise<z.infer<S>>
-    extract<S extends z.AnyZodObject>(
-      input: unknown,
-      schema: z.ZodArray<S>,
-      options?: Options
-    ): Promise<Array<z.infer<S>>>
+    extract<S extends OfType<any>>(input: unknown, schema: S, options?: Options): Response<S['_output']>
   }
 }
 
@@ -38,52 +49,104 @@ const START = '■json_start■'
 const END = '■json_end■'
 const NO_MORE = '■NO_MORE_ELEMENT■'
 
-Zai.prototype.extract = async function (this: Zai, input, schema, _options) {
+const extract = async <S extends OfType<AnyObjectOrArray>>(
+  input: unknown,
+  _schema: S,
+  _options: Options | undefined,
+  ctx: ZaiContext
+): Promise<S['_output']> => {
+  ctx.controller.signal.throwIfAborted()
+  let schema = _schema as any as z.ZodType
   const options = Options.parse(_options ?? {})
-  const tokenizer = await this.getTokenizer()
+  const tokenizer = await getTokenizer()
+  const model = await ctx.getModel()
 
-  const taskId = this.taskId
+  const taskId = ctx.taskId
   const taskType = 'zai.extract'
 
-  const PROMPT_COMPONENT = Math.max(this.Model.input.maxTokens - PROMPT_INPUT_BUFFER, 100)
+  const PROMPT_COMPONENT = Math.max(model.input.maxTokens - PROMPT_INPUT_BUFFER, 100)
 
   let isArrayOfObjects = false
+  let wrappedValue = false
   const originalSchema = schema
 
-  if (schema instanceof z.ZodObject) {
-    // Do nothing
-  } else if (schema instanceof z.ZodArray) {
-    if (schema._def.type instanceof z.ZodObject) {
-      isArrayOfObjects = true
-      schema = schema._def.type
-    } else {
-      throw new Error('Schema must be a ZodObject or a ZodArray<ZodObject>')
+  const baseType = (schema.naked ? schema.naked() : schema)?.constructor?.name ?? 'unknown'
+
+  if (baseType === 'ZodArray') {
+    isArrayOfObjects = true
+    let elementType = (schema as any).element
+    if (elementType.naked) {
+      elementType = elementType.naked()
     }
-  } else {
-    throw new Error('Schema must be either a ZuiObject or a ZuiArray<ZuiObject>')
+
+    if (elementType?.constructor?.name === 'ZodObject') {
+      schema = elementType
+    } else {
+      wrappedValue = true
+      schema = z.object({
+        value: elementType,
+      })
+    }
+  } else if (baseType !== 'ZodObject') {
+    wrappedValue = true
+    schema = z.object({
+      value: originalSchema,
+    })
   }
 
-  const schemaTypescript = schema.toTypescript({ declaration: false })
+  if (!options.strict) {
+    try {
+      schema = (schema as ZodObject).partial()
+    } catch {}
+  }
+
+  const schemaTypescript = schema.toTypescriptType({ declaration: false })
   const schemaLength = tokenizer.count(schemaTypescript)
 
-  options.chunkLength = Math.min(options.chunkLength, this.Model.input.maxTokens - PROMPT_INPUT_BUFFER - schemaLength)
+  options.chunkLength = Math.min(options.chunkLength, model.input.maxTokens - PROMPT_INPUT_BUFFER - schemaLength)
 
-  const keys = Object.keys(schema.shape)
+  const keys = Object.keys((schema as ZodObject).shape)
 
-  let inputAsString = stringify(input)
+  const inputAsString = stringify(input)
 
   if (tokenizer.count(inputAsString) > options.chunkLength) {
-    // If we want to extract an array of objects, we will run this function recursively
-    if (isArrayOfObjects) {
-      const tokens = tokenizer.split(inputAsString)
-      const chunks = chunk(tokens, options.chunkLength).map((x) => x.join(''))
-      const all = await Promise.all(chunks.map((chunk) => this.extract(chunk, originalSchema as z.AnyZodObject)))
+    const tokens = tokenizer.split(inputAsString)
+    const chunks = chunk(tokens, options.chunkLength).map((x) => x.join(''))
+    const all = await Promise.allSettled(
+      chunks.map((chunk) =>
+        extract(
+          chunk,
+          originalSchema,
+          {
+            ...options,
+            strict: false, // We don't want to fail on strict mode for sub-chunks
+          },
+          ctx
+        )
+      )
+    ).then((results) =>
+      results.filter((x) => x.status === 'fulfilled').map((x) => (x as PromiseFulfilledResult<S['_output']>).value)
+    )
 
-      return all.flat()
-    } else {
-      // Truncate the input to fit the model's input size
-      inputAsString = tokenizer.truncate(stringify(input), options.chunkLength)
-    }
+    ctx.controller.signal.throwIfAborted()
+
+    // We run this function recursively until all chunks are merged into a single output
+    const rows = all.map((x, idx) => `<part-${idx + 1}>\n${stringify(x, true)}\n</part-${idx + 1}>`).join('\n')
+    return extract(
+      `
+The result has been split into ${all.length} parts. Recursively merge the result into the final result.
+When merging arrays, take unique values.
+When merging conflictual (but defined) information, take the most reasonable and frequent value.
+Non-defined values are OK and normal. Don't delete fields because of null values. Focus on defined values.
+
+Here's the data:
+${rows}
+
+Merge it back into a final result.`.trim(),
+      originalSchema,
+      options,
+      ctx
+    )
   }
 
   const instructions: string[] = []
@@ -109,6 +172,10 @@ Zai.prototype.extract = async function (this: Zai, input, schema, _options) {
     instructions.push(`The element must be a JSON object with exactly the format: ${START}${shape}${END}`)
   }
 
+  if (!options.strict) {
+    instructions.push('You may ignore any fields that are not present in the input. All keys are optional.')
+  }
+
   // All tokens remaining after the input and condition are accounted can be used for examples
   const EXAMPLES_TOKENS = PROMPT_COMPONENT - tokenizer.count(inputAsString) - tokenizer.count(instructions.join('\n'))
 
@@ -121,17 +188,18 @@ Zai.prototype.extract = async function (this: Zai, input, schema, _options) {
     })
   )
 
-  const examples = taskId
-    ? await this.adapter.getExamples<string, unknown>({
-        input: inputAsString,
-        taskType,
-        taskId,
-      })
-    : []
+  const examples =
+    taskId && ctx.adapter
+      ? await ctx.adapter.getExamples<string, unknown>({
+          input: inputAsString,
+          taskType,
+          taskId,
+        })
+      : []
 
   const exactMatch = examples.find((x) => x.key === Key)
   if (exactMatch) {
-    return exactMatch.output
+    return exactMatch.output as any as S['_output']
   }
 
   const defaultExample = isArrayOfObjects
@@ -229,7 +297,7 @@ ${END}`.trim()
     .map(formatExample)
     .flat()
 
-  const output = await this.callModel({
+  const { meta, extracted } = await ctx.generateContent({
     systemPrompt: `
 Extract the following information from the input:
 ${schemaTypescript}
@@ -246,47 +314,90 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
         content: formatInput(inputAsString, schemaTypescript, options.instructions ?? ''),
       },
     ],
+    transform: (text) =>
+      (text || '{}')
+        ?.split(START)
+        .filter((x) => x.trim().length > 0 && x.includes('}'))
+        .map((x) => {
+          try {
+            const json = x.slice(0, x.indexOf(END)).trim()
+            const repairedJson = jsonrepair(json)
+            const parsedJson = JSON5.parse(repairedJson)
+            const safe = schema.safeParse(parsedJson)
+
+            if (safe.success) {
+              return safe.data
+            }
+
+            if (options.strict) {
+              throw new JsonParsingError(x, safe.error)
+            }
+
+            return parsedJson
+          } catch (error) {
+            throw new JsonParsingError(x, error instanceof Error ? error : new Error('Unknown error'))
+          }
+        })
+        .filter((x) => x !== null),
   })
-
-  const answer = output.choices[0]?.content as string
-
-  const elements = answer
-    .split(START)
-    .filter((x) => x.trim().length > 0)
-    .map((x) => {
-      try {
-        const json = x.slice(0, x.indexOf(END)).trim()
-        const repairedJson = jsonrepair(json)
-        const parsedJson = JSON5.parse(repairedJson)
-
-        return schema.parse(parsedJson)
-      } catch (error) {
-        throw new JsonParsingError(x, error instanceof Error ? error : new Error('Unknown error'))
-      }
-    })
-    .filter((x) => x !== null)
 
   let final: any
 
   if (isArrayOfObjects) {
-    final = elements
-  } else if (elements.length === 0) {
-    final = schema.parse({})
+    final = extracted
+  } else if (extracted.length === 0) {
+    final = options.strict ? schema.parse({}) : {}
   } else {
-    final = elements[0]
+    final = extracted[0]
   }
 
-  if (taskId) {
-    await this.adapter.saveExample({
+  if (wrappedValue) {
+    if (Array.isArray(final)) {
+      final = final.map((x) => ('value' in x ? x.value : x))
+    } else {
+      final = 'value' in final ? final.value : final
+    }
+  }
+
+  if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
+    await ctx.adapter.saveExample({
       key: Key,
       taskId: `zai/${taskId}`,
       taskType,
       instructions: options.instructions ?? 'No specific instructions',
       input: inputAsString,
       output: final,
-      metadata: output.metadata,
+      metadata: {
+        cost: {
+          input: meta.cost.input,
+          output: meta.cost.output,
+        },
+        latency: meta.latency,
+        model: ctx.modelId,
+        tokens: {
+          input: meta.tokens.input,
+          output: meta.tokens.output,
+        },
+      },
     })
   }
 
   return final
+}
+
+Zai.prototype.extract = function <S extends OfType<AnyObjectOrArray>>(
+  this: Zai,
+  input: unknown,
+  schema: S,
+  _options?: Options
+): Response<S['_output']> {
+  const context = new ZaiContext({
+    client: this.client,
+    modelId: this.Model,
+    taskId: this.taskId,
+    taskType: 'zai.extract',
+    adapter: this.adapter,
+  })
+
+  return new Response<S['_output']>(context, extract(input, schema, _options, context), (result) => result)
 }

@@ -1,7 +1,7 @@
 import { type Client } from '@botpress/client'
-import { z } from '@bpinternal/zui'
+import { transforms, z } from '@bpinternal/zui'
 
-import { BotpressClient, GenerationMetadata } from '../utils'
+import { GenerationMetadata } from '../utils'
 import { Adapter, GetExamplesProps, SaveExampleProps } from './adapter'
 
 const CRITICAL_TAGS = {
@@ -20,17 +20,37 @@ const OPTIONAL_TAGS = {
 
 const FACTOR = 30
 
+type Props = {
+  client: Client
+  tableName: string
+}
+
 const Props = z.object({
-  client: BotpressClient,
+  client: z.custom(() => true),
   tableName: z
     .string()
     .regex(
-      /^[a-zA-Z0-9_]{1,45}Table$/,
-      'Table name must be lowercase and contain only letters, numbers and underscores'
+      /^[a-zA-Z0-9_]{1,45}Table$/i,
+      'Table name must be lowercase and contain only letters, numbers and underscores. It must also end with "Table". Example: "ActiveLearningTable"'
     ),
 })
 
-export type TableSchema = z.input<typeof TableSchema>
+export type TableSchema = {
+  taskType: string
+  taskId: string
+  key: string
+  instructions: string
+  input: Record<string, unknown>
+  output: Record<string, unknown>
+  explanation: string | null
+  metadata: GenerationMetadata
+  status: 'pending' | 'rejected' | 'approved'
+  feedback: {
+    rating: 'very-bad' | 'bad' | 'good' | 'very-good'
+    comment: string | null
+  } | null
+}
+
 const TableSchema = z.object({
   taskType: z.string().describe('The type of the task (filter, extract, etc.)'),
   taskId: z.string(),
@@ -39,7 +59,7 @@ const TableSchema = z.object({
   input: z.object({}).passthrough().describe('The input to the task'),
   output: z.object({}).passthrough().describe('The expected output'),
   explanation: z.string().nullable(),
-  metadata: GenerationMetadata,
+  metadata: z.object({}).passthrough(),
   status: z.enum(['pending', 'rejected', 'approved']),
   feedback: z
     .object({
@@ -53,7 +73,7 @@ const TableSchema = z.object({
 const searchableColumns = ['input'] as const satisfies Array<keyof typeof TableSchema.shape> as string[]
 
 const TableJsonSchema = Object.entries(TableSchema.shape).reduce((acc, [key, value]) => {
-  acc[key] = value.toJsonSchema()
+  acc[key] = transforms.toJSONSchemaLegacy(value)
   acc[key]['x-zui'] ??= {}
   acc[key]['x-zui'].searchable = searchableColumns.includes(key)
   return acc
@@ -65,9 +85,9 @@ export class TableAdapter extends Adapter {
 
   private _status: 'initialized' | 'ready' | 'error'
 
-  public constructor(props: z.input<typeof Props>) {
+  public constructor(props: Props) {
     super()
-    props = Props.parse(props)
+    props = Props.parse(props) as Props
     this._client = props.client
     this._tableName = props.tableName
     this._status = 'ready'
@@ -131,6 +151,7 @@ export class TableAdapter extends Adapter {
             explanation: explanation ?? null,
             status,
             metadata,
+            feedback: null, // Feedback is not provided at this point
           } satisfies TableSchema,
         ],
       })

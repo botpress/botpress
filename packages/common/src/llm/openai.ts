@@ -80,11 +80,26 @@ export async function generateContent<M extends string>(
     })
   }
 
+  let maxTokens: number | undefined = undefined
+
+  if (input.maxTokens) {
+    if (input.maxTokens <= model.output.maxTokens) {
+      maxTokens = input.maxTokens
+    } else {
+      maxTokens = model.output.maxTokens
+      logger
+        .forBot()
+        .warn(
+          `Received maxTokens parameter greater than the maximum output tokens allowed for model "${modelId}", capping maxTokens to ${maxTokens}`
+        )
+    }
+  }
+
   let response: OpenAI.Chat.Completions.ChatCompletion | undefined
 
   let request: ChatCompletionCreateParamsNonStreaming = {
     model: modelId,
-    max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and is defaulting this to 0
+    max_tokens: maxTokens,
     temperature: input.temperature,
     top_p: input.topP,
     response_format: input.responseFormat === 'json_object' ? { type: 'json_object' } : undefined,
@@ -147,7 +162,7 @@ export async function generateContent<M extends string>(
     choices: response.choices.map((choice) => ({
       role: choice.message.role,
       type: 'text', // note: OpenAI only returns text messages (TODO: investigate response format for image generation)
-      content: choice.message.content,
+      content: choice.message.content ?? null, // Some OpenAI-compatible providers (e.g. Cerebras) might not return a `content` at all (e.g. when doing a tool call) so we always fallback to null if it's not present.
       index: choice.index,
       stopReason: mapToStopReason(choice.finish_reason),
       toolCalls: mapToToolCalls(choice.message.tool_calls, logger, props.provider),

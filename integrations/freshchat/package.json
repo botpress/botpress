@@ -7,14 +7,15 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
     "build": "bp add -y && bp build",
+    "deploy": "bp deploy",
     "eslint": "eslint ./ --ext .ts --ext .tsx --fix"
   },
   "dependencies": {
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "axios": "^1.4.0",
-    "lodash": "^4.17.21"
+    "axios": "^1.4.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

@@ -21,7 +21,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          extra_filters: '-F @botpress/*'
+          extra_filters: '-F @botpress/* -F llmz'
 
       - name: Publish Client
         uses: botpress/gh-actions/publish-if-not-exists@master
@@ -56,5 +56,10 @@ jobs:
       - name: Publish Zai
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
-          path: './packages/vai'
+          path: './packages/zai'
+          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
+      - name: Publish LLMz
+        uses: botpress/gh-actions/publish-if-not-exists@master
+        with:
+          path: './packages/llmz'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'

@@ -1,19 +1,22 @@
 import { Client } from '@botpress/client'
+import { BotpressClientLike, Cognitive, Model } from '@botpress/cognitive'
+
 import { type TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
 import { z } from '@bpinternal/zui'
 
 import { Adapter } from './adapters/adapter'
 import { TableAdapter } from './adapters/botpress-table'
 import { MemoryAdapter } from './adapters/memory'
-import { GenerateContentInput, GenerateContentOutput, Model } from './llm'
-import { Models } from './models'
 
-import { BotpressClient, GenerationMetadata } from './utils'
+type ModelId = Required<Parameters<Cognitive['generateContent']>[0]['model']>
 
-type ModelId = Model['id']
+type ActiveLearning = {
+  enable: boolean
+  tableName: string
+  taskId: string
+}
 
-type ActiveLearning = z.input<typeof ActiveLearning>
-const ActiveLearning = z.object({
+const _ActiveLearning = z.object({
   enable: z.boolean().describe('Whether to enable active learning').default(false),
   tableName: z
     .string()
@@ -33,15 +36,25 @@ const ActiveLearning = z.object({
     .default('default'),
 })
 
-type ZaiConfig = z.input<typeof ZaiConfig>
-const ZaiConfig = z.object({
-  client: BotpressClient,
+type ZaiConfig = {
+  client: BotpressClientLike | Cognitive
+  userId?: string
+  modelId?: ModelId | string
+  activeLearning?: ActiveLearning
+  namespace?: string
+}
+
+const _ZaiConfig = z.object({
+  client: z.custom<BotpressClientLike | Cognitive>(),
   userId: z.string().describe('The ID of the user consuming the API').optional(),
-  retry: z.object({ maxRetries: z.number().min(0).max(100) }).default({ maxRetries: 3 }),
   modelId: z
     .custom<ModelId | string>(
       (value) => {
-        if (typeof value !== 'string' || !value.includes('__')) {
+        if (typeof value !== 'string') {
+          return false
+        }
+
+        if (value !== 'best' && value !== 'fast' && !value.includes(':')) {
           return false
         }
 
@@ -52,8 +65,8 @@ const ZaiConfig = z.object({
       }
     )
     .describe('The ID of the model you want to use')
-    .default('openai__gpt-4o-mini-2024-07-18' satisfies ModelId),
-  activeLearning: ActiveLearning.default({ enable: false }),
+    .default('best' satisfies ModelId),
+  activeLearning: _ActiveLearning.default({ enable: false }),
   namespace: z
     .string()
     .regex(
@@ -65,97 +78,48 @@ const ZaiConfig = z.object({
 
 export class Zai {
   protected static tokenizer: TextTokenizer = null!
-  protected client: Client
+  protected client: Cognitive
 
   private _originalConfig: ZaiConfig
 
   private _userId: string | undefined
-  private _integration: string
-  private _model: string
-  private _retry: { maxRetries: number }
 
-  protected Model: Model
+  protected Model: ModelId
+  protected ModelDetails: Model
   protected namespace: string
   protected adapter: Adapter
   protected activeLearning: ActiveLearning
 
   public constructor(config: ZaiConfig) {
     this._originalConfig = config
-    const parsed = ZaiConfig.parse(config)
+    const parsed = _ZaiConfig.parse(config) as ZaiConfig
 
-    this.client = parsed.client
-    const [integration, modelId] = parsed.modelId.split('__')
+    this.client = Cognitive.isCognitiveClient(parsed.client)
+      ? (parsed.client as unknown as Cognitive)
+      : new Cognitive({ client: parsed.client })
 
-    if (!integration?.length || !modelId?.length) {
-      throw new Error(`Invalid model ID: ${parsed.modelId}. Expected format: <integration>__<modelId>`)
-    }
-
-    this._integration = integration!
-    this._model = modelId!
     this.namespace = parsed.namespace
     this._userId = parsed.userId
-    this._retry = parsed.retry as { maxRetries: number }
-    this.Model = Models.find((m) => m.id === parsed.modelId)!
-    this.activeLearning = parsed.activeLearning
+    this.Model = parsed.modelId as ModelId
+    this.activeLearning = parsed.activeLearning as ActiveLearning
 
     this.adapter = parsed.activeLearning?.enable
-      ? new TableAdapter({ client: this.client, tableName: parsed.activeLearning.tableName })
+      ? new TableAdapter({
+          client: this.client.client as unknown as Client,
+          tableName: parsed.activeLearning.tableName,
+        })
       : new MemoryAdapter([])
   }
 
   /** @internal */
   protected async callModel(
-    props: Partial<GenerateContentInput>
-  ): Promise<GenerateContentOutput & { metadata: GenerationMetadata }> {
-    let retries = this._retry.maxRetries
-    while (retries-- >= 0) {
-      try {
-        return await this._callModel(props)
-      } catch {
-        if (retries >= 0) {
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-        } else {
-          throw new Error('Failed to call model after multiple retries')
-        }
-      }
-    }
-
-    throw new Error('Failed to call model after multiple retries')
-  }
-
-  /** @internal */
-  private async _callModel(
-    props: Partial<GenerateContentInput>
-  ): Promise<GenerateContentOutput & { metadata: GenerationMetadata }> {
-    let retries = this._retry.maxRetries
-    do {
-      const start = Date.now()
-      const input: GenerateContentInput = {
-        messages: [],
-        temperature: 0.0,
-        topP: 1,
-        model: { id: this._model },
-        userId: this._userId,
-        ...props,
-      }
-
-      const { output } = (await this.client.callAction({
-        type: `${this._integration}:generateContent`,
-        input,
-      })) as unknown as { output: GenerateContentOutput }
-
-      const latency = Date.now() - start
-
-      return {
-        ...output,
-        metadata: {
-          model: this._model,
-          latency,
-          cost: { input: output.usage.inputCost, output: output.usage.outputCost },
-          tokens: { input: output.usage.inputTokens, output: output.usage.outputTokens },
-        },
-      }
-    } while (--retries > 0)
+    props: Parameters<Cognitive['generateContent']>[0]
+  ): ReturnType<Cognitive['generateContent']> {
+    return this.client.generateContent({
+      ...props,
+      model: this.Model,
+      userId: this._userId,
+    })
   }
 
   protected async getTokenizer() {
@@ -167,6 +131,12 @@ export class Zai {
       return getWasmTokenizer() as TextTokenizer
     })()
     return Zai.tokenizer
+  }
+
+  protected async fetchModelDetails(): Promise<void> {
+    if (!this.ModelDetails) {
+      this.ModelDetails = await this.client.getModelDetails(this.Model)
+    }
   }
 
   protected get taskId() {

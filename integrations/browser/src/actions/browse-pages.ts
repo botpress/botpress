@@ -1,35 +1,51 @@
+import { IntegrationLogger } from '@botpress/sdk'
 import axios from 'axios'
+import { FullPage } from 'src/definitions/actions'
 import * as bp from '.botpress'
 
 type FireCrawlResponse = {
   success: boolean
   data: {
-    content: string
+    markdown: string
     metadata: {
       ogLocaleAlternate: string[]
+      favicon?: string
+      title?: string | string[] | null
+      description?: string | string[] | null
       sourceURL: string
-      pageStatusCode: number
+      error: string | null
+      statusCode: number
     }
   }
-  returnCode: number
 }
 
 const COST_PER_PAGE = 0.0015
 
+const fixOutput = (val: unknown): string => {
+  if (typeof val === 'string') {
+    return val
+  } else if (Array.isArray(val)) {
+    return val.join(' ')
+  }
+  return ''
+}
+
 const getPageContent = async (props: {
   url: string
-  logger: any
+  logger: IntegrationLogger
   waitFor?: number
-}): Promise<{ content: string; url: string }> => {
+  timeout?: number
+  maxAge?: number
+}): Promise<FullPage> => {
   const startTime = Date.now()
-  const { data } = await axios.post<FireCrawlResponse>(
-    'https://api.firecrawl.dev/v0/scrape',
+  const { data: result } = await axios.post<FireCrawlResponse>(
+    'https://api.firecrawl.dev/v1/scrape',
     {
       url: props.url,
-      pageOptions: {
-        onlyMainContent: true,
-        waitFor: props.waitFor,
-      },
+      onlyMainContent: true,
+      waitFor: props.waitFor,
+      timeout: props.timeout,
+      maxAge: 60 * 60 * 24 * 7, // 1 week
     },
     {
       headers: {
@@ -38,9 +54,21 @@ const getPageContent = async (props: {
     }
   )
 
-  props.logger.forBot().info(`Browsing ${props.url} took ${Date.now() - startTime}ms`)
+  const { metadata, markdown } = result.data
 
-  return { content: data.data.content, url: props.url }
+  props.logger.forBot().info(`Browsing ${props.url} took ${Date.now() - startTime}ms`, {
+    size: markdown.length,
+    statusCode: metadata.statusCode,
+    error: metadata.error,
+  })
+
+  return {
+    url: props.url,
+    content: markdown,
+    favicon: fixOutput(metadata.favicon),
+    title: fixOutput(metadata.title),
+    description: fixOutput(metadata.description),
+  }
 }
 
 export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async ({ input, logger, metadata }) => {
@@ -48,7 +76,7 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
 
   try {
     const pageContentPromises = await Promise.allSettled(
-      input.urls.map((url) => getPageContent({ url, logger, waitFor: input.waitFor }))
+      input.urls.map((url) => getPageContent({ url, logger, waitFor: input.waitFor, timeout: input.timeout }))
     )
 
     const results = pageContentPromises
@@ -66,6 +94,6 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
     logger.forBot().error('There was an error while browsing the page.', err)
     throw err
   } finally {
-    logger.forBot().info(`Browsing took ${Date.now() - startTime}ms`)
+    logger.forBot().info(`Browsing ${input.urls.length} urls took ${Date.now() - startTime}ms`)
   }
 }

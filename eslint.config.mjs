@@ -1,6 +1,5 @@
 import importPlugin from 'eslint-plugin-import';
 import jsdoc from "eslint-plugin-jsdoc";
-import unusedImports from "eslint-plugin-unused-imports";
 import prettier from "eslint-plugin-prettier";
 import globals from "globals";
 import tsParser from "@typescript-eslint/parser";
@@ -20,7 +19,9 @@ const ignores = [
     "**/gen/",
     "**/.turbo/",
     "**/.genenv/",
-    "**/.ignore.me.*"
+    "**/.ignore.me.*",
+    "**/*.md.ts",
+    "packages/llmz/examples/"
 ];
 
 export default [{
@@ -32,7 +33,6 @@ export default [{
     files: ["**/*.{ts,tsx}"],
     plugins: {
         jsdoc,
-        "unused-imports": unusedImports,
         '@stylistic': stylistic,
         "@typescript-eslint": tseslint.plugin,
         prettier,
@@ -59,7 +59,6 @@ export default [{
         ...prettier.configs.recommended.rules,
 
         complexity: ["off"],
-        "max-lines-per-function": "off",
         "prefer-const": "warn",
 
         "@stylistic/member-delimiter-style": ["error", {
@@ -84,7 +83,6 @@ export default [{
         "@stylistic/type-annotation-spacing": "error",
         "@stylistic/brace-style": "off",
         "@stylistic/eol-last": "error",
-        eqeqeq: ["error", "smart"],
         "@typescript-eslint/no-shadow": "off",
 
         "import/order": ["warn", {
@@ -103,14 +101,6 @@ export default [{
         "@stylistic/linebreak-style": ["error", "unix"],
         "@stylistic/no-trailing-spaces": "error",
         "object-shorthand": "error",
-        "unused-imports/no-unused-imports": "error",
-
-        "unused-imports/no-unused-vars": ["error", {
-            vars: "all",
-            varsIgnorePattern: "^_",
-            args: "after-used",
-            argsIgnorePattern: "^_",
-        }],
 
         "@typescript-eslint/naming-convention": ["warn", {
             selector: "memberLike",

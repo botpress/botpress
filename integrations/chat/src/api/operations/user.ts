@@ -117,10 +117,10 @@ export const updateUser: types.AuthenticatedOperations['updateUser'] = async (pr
   const req = await fidHandler.mapRequest()
 
   const {
-    body: { name, pictureUrl },
+    body: { name, pictureUrl, profile },
   } = req
 
-  const { user } = await props.client.updateUser({ id: req.auth.userId, name, pictureUrl, tags: {} })
+  const { user } = await props.client.updateUser({ id: req.auth.userId, name, pictureUrl, tags: { profile } })
 
   return fidHandler.mapResponse({
     body: {

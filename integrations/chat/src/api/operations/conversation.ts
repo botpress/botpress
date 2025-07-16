@@ -33,8 +33,13 @@ export const getConversation: types.AuthenticatedOperations['getConversation'] =
   const req = await fidHandler.mapRequest()
 
   const { conversation } = await props.client.getConversation({ id: req.params.id })
-  if (conversation.tags.owner !== req.auth.userId) {
-    throw new errors.ForbiddenError('You are not the owner of this conversation')
+
+  const { participant } = await props.apiUtils.findParticipant({
+    id: conversation.id,
+    userId: req.auth.userId,
+  })
+  if (!participant) {
+    throw new errors.ForbiddenError("You are not a participant in this message's conversation")
   }
 
   return fidHandler.mapResponse({
@@ -307,13 +312,12 @@ export const listParticipants: types.AuthenticatedOperations['listParticipants']
   const fidHandler = fid.handlers.listParticipants(props, foreignReq)
   const req = await fidHandler.mapRequest()
 
-  const {
-    conversation: {
-      tags: { owner },
-    },
-  } = await props.client.getConversation({ id: req.params.conversationId })
-  if (owner !== req.auth.userId) {
-    throw new errors.ForbiddenError('You are not the owner of this conversation')
+  const { participant } = await props.apiUtils.findParticipant({
+    id: req.params.conversationId,
+    userId: req.auth.userId,
+  })
+  if (!participant) {
+    throw new errors.ForbiddenError("You are not a participant in this message's conversation")
   }
 
   const { users: participants, meta } = await props.client.listUsers({

@@ -11,6 +11,7 @@ export type ModuleProps = {
 
 export abstract class Module {
   private _localDependencies: Module[] = []
+  private _customTypeName: string | undefined
 
   public get path(): string {
     return this._def.path.split(pathlib.sep).map(strings.fileName).join(pathlib.sep)
@@ -43,9 +44,22 @@ export abstract class Module {
     return [...this._localDependencies]
   }
 
+  public get typeName(): string {
+    return this._customTypeName ?? this.name
+  }
+
+  public get importAlias(): string {
+    return this.typeName.split(pathlib.sep).map(strings.importAlias).join('__')
+  }
+
   protected constructor(private _def: ModuleProps) {}
 
   public abstract getContent(): Promise<string>
+
+  public setCustomTypeName(alias: string): this {
+    this._customTypeName = alias
+    return this
+  }
 
   public pushDep(...dependencies: Module[]): this {
     this._localDependencies.push(...dependencies)
@@ -97,8 +111,7 @@ export class ReExportTypeModule extends Module {
     let content = consts.GENERATED_HEADER
 
     for (const m of this.deps) {
-      const { name } = m
-      const importAlias = strings.importAlias(name)
+      const { importAlias } = m
       const importFrom = m.import(this)
       content += `import * as ${importAlias} from "./${importFrom}";\n`
       content += `export * as ${importAlias} from "./${importFrom}";\n`
@@ -107,9 +120,8 @@ export class ReExportTypeModule extends Module {
     content += '\n'
 
     content += `export type ${this.exportName} = {\n`
-    for (const { name, exportName: exports } of this.deps) {
-      const importAlias = strings.importAlias(name)
-      content += `  "${name}": ${importAlias}.${exports};\n`
+    for (const { importAlias, typeName, exportName: exports } of this.deps) {
+      content += `  "${typeName}": ${importAlias}.${exports};\n`
     }
     content += '}'
 
@@ -134,8 +146,7 @@ export class ReExportVariableModule extends Module {
     let content = consts.GENERATED_HEADER
 
     for (const m of this.deps) {
-      const { name } = m
-      const importAlias = strings.importAlias(name)
+      const { importAlias } = m
       const importFrom = m.import(this)
       content += `import * as ${importAlias} from "./${importFrom}";\n`
       content += `export * as ${importAlias} from "./${importFrom}";\n`
@@ -144,7 +155,7 @@ export class ReExportVariableModule extends Module {
     content += '\n'
 
     const depProps: Record<string, string> = Object.fromEntries(
-      this.deps.map(({ name, exportName }) => [name, `${strings.importAlias(name)}.${exportName}`])
+      this.deps.map(({ name, exportName, importAlias }) => [name, `${importAlias}.${exportName}`])
     )
 
     const allProps = { ...depProps, ...this._extraProps }

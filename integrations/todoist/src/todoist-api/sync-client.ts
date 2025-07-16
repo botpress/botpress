@@ -12,7 +12,7 @@ export class TodoistSyncClient {
   }
 
   public async getAuthenticatedUserIdentity() {
-    const identity = await this._post({
+    const identity = await this._get({
       endpoint: 'user',
       responseSchema: {
         id: z.string(),
@@ -43,6 +43,22 @@ export class TodoistSyncClient {
         method: 'POST',
         body: JSON.stringify(params),
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      },
+      responseSchema,
+    })
+  }
+
+  private async _get<T extends ZodRawShape>({
+    endpoint,
+    responseSchema,
+  }: {
+    endpoint: string
+    responseSchema: T
+  }): Promise<z.infer<ZodObject<T, 'strip'>>> {
+    return this._sendRequest({
+      endpoint,
+      init: {
+        method: 'GET',
       },
       responseSchema,
     })

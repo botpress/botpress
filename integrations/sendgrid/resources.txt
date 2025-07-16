@@ -1,0 +1,15 @@
+This document includes resources used to build the
+integration and may be helpful in it's maintenance
+
+
+Brand icons:
+    - https://sendgrid.com/en-us/resource/brand
+
+Documentation:
+    - [Developer Documentation] https://www.twilio.com/docs/sendgrid/for-developers
+    - [OpenAPI Spec] https://github.com/twilio/sendgrid-oai/tree/main/spec
+
+Packages:
+    - https://www.npmjs.com/package/@sendgrid/mail
+    - https://www.npmjs.com/package/@sendgrid/client
+    - https://www.npmjs.com/package/@sendgrid/helpers

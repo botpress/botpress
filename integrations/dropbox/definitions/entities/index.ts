@@ -1,9 +1,10 @@
 import * as sdk from '@botpress/sdk'
 
+import { Deleted } from './deleted'
 import { File } from './file'
 import { Folder } from './folder'
 
-export { File, Folder }
+export { File, Folder, Deleted }
 
 export const entities = {
   file: {

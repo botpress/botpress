@@ -6,6 +6,10 @@
       "outputs": ["src/gen/**"],
       "dependsOn": ["^generate", "^build"]
     },
+    "llmz#generate": {
+      "outputs": ["src/**/*.md.ts"],
+      "dependsOn": ["^generate", "^build"]
+    },
     "build": {
       "outputs": ["bp_modules/**", ".botpress/**"],
       "dependsOn": ["generate", "^build"]
@@ -37,6 +41,10 @@
     "@botpress/zai#build": {
       "outputs": ["dist/**"],
       "dependsOn": ["generate", "^build"]
+    },
+    "llmz#build": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["generate", "^build", "@botpress/cognitive#build"]
     },
     "check:type": {},
     "check:bplint": {}

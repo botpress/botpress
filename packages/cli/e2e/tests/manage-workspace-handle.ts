@@ -1,4 +1,5 @@
 import { Client } from '@botpress/client'
+import * as fs from 'fs'
 import pathlib from 'path'
 import impl from '../../src/command-implementations'
 import { ApiIntegration, fetchAllIntegrations } from '../api'
@@ -20,6 +21,7 @@ export const prependWorkspaceHandle: Test = {
 
     const integrationSuffix = utils.getUUID()
     const integrationName = `myintegration${integrationSuffix}`
+    const integrationNameWithHandle = `${workspaceHandle}/${integrationName}`
     const integrationDirName = integrationName
     const integrationDir = pathlib.join(baseDir, integrationDirName)
 
@@ -38,8 +40,15 @@ export const prependWorkspaceHandle: Test = {
     })
 
     await impl
-      .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })
+      .init({ ...argv, workDir: baseDir, name: integrationNameWithHandle, type: 'integration', template: 'empty' })
       .then(utils.handleExitCode)
+
+    // Remove handle from package.json:
+    const pkgJsonPath = pathlib.join(integrationDir, 'package.json')
+    const pkgJson = await fs.promises.readFile(pkgJsonPath, 'utf-8').then(JSON.parse)
+    pkgJson.name = pkgJson.name.slice(workspaceHandle.length + 1)
+    await fs.promises.writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2))
+
     await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
     await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)
     await impl.build({ ...argv, workDir: integrationDir }).then(utils.handleExitCode)
@@ -80,8 +89,7 @@ export const enforceWorkspaceHandle: Test = {
     const name = 'myintegration'
     const handle = `myhandle${randomSuffix}`
     const integrationName = `${handle}/${name}`
-    const integrationDirName = `${handle}-${name}`
-    const integrationDir = pathlib.join(baseDir, integrationDirName)
+    const integrationDir = pathlib.join(baseDir, name)
 
     const argv = {
       ...defaults,
@@ -91,7 +99,7 @@ export const enforceWorkspaceHandle: Test = {
     }
 
     await impl
-      .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })
+      .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration', template: 'empty' })
       .then(utils.handleExitCode)
     await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
     await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)

@@ -36,7 +36,8 @@ type StateResponse<
     state: utils.Merge<
       Awaited<Res<client.Client['getState']>>['state'],
       {
-        payload: TBot['states'][TState]
+        type: utils.Cast<TBot['states'][TState]['type'], string>
+        payload: TBot['states'][TState]['payload']
       }
     >
   }
@@ -53,6 +54,16 @@ export type ListParticipants<_TBot extends common.BaseBot> = client.Client['list
 export type AddParticipant<_TBot extends common.BaseBot> = client.Client['addParticipant']
 export type GetParticipant<_TBot extends common.BaseBot> = client.Client['getParticipant']
 export type RemoveParticipant<_TBot extends common.BaseBot> = client.Client['removeParticipant']
+
+export type CreateEvent<TBot extends common.BaseBot> = <TEvent extends keyof TBot['events']>(
+  x: utils.Merge<
+    Arg<client.Client['createEvent']>,
+    {
+      type: utils.Cast<TEvent, string>
+      payload: TBot['events'][TEvent]
+    }
+  >
+) => Promise<EventResponse<TBot>>
 
 export type GetEvent<TBot extends common.BaseBot> = (x: Arg<client.Client['getEvent']>) => Promise<EventResponse<TBot>>
 export type ListEvents<_TBot extends common.BaseBot> = client.Client['listEvents'] // TODO: type properly
@@ -99,7 +110,8 @@ export type GetState<TBot extends common.BaseBot> = <TState extends keyof TBot['
   x: utils.Merge<
     Arg<client.Client['getState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TBot['states'][TState]['type'], string>
     }
   >
 ) => Promise<StateResponse<TBot, TState>>
@@ -108,8 +120,9 @@ export type SetState<TBot extends common.BaseBot> = <TState extends keyof TBot['
   x: utils.Merge<
     Arg<client.Client['setState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
-      payload: TBot['states'][TState] | null
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TBot['states'][TState]['type'], string>
+      payload: TBot['states'][TState]['payload'] | null
     }
   >
 ) => Promise<StateResponse<TBot, TState>>
@@ -118,8 +131,9 @@ export type GetOrSetState<TBot extends common.BaseBot> = <TState extends keyof T
   x: utils.Merge<
     Arg<client.Client['getOrSetState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
-      payload: TBot['states'][TState]
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TBot['states'][TState]['type'], string>
+      payload: TBot['states'][TState]['payload']
     }
   >
 ) => Promise<StateResponse<TBot, TState>>
@@ -128,18 +142,12 @@ export type PatchState<TBot extends common.BaseBot> = <TState extends keyof TBot
   x: utils.Merge<
     Arg<client.Client['patchState']>,
     {
-      name: utils.Cast<TState, string> // TODO: use state name to infer state type
-      payload: Partial<TBot['states'][TState]>
+      name: utils.Cast<TState, string>
+      type: utils.Cast<TBot['states'][TState]['type'], string>
+      payload: Partial<TBot['states'][TState]['payload']>
     }
   >
-) => Promise<{
-  state: utils.Merge<
-    Awaited<Res<client.Client['patchState']>>['state'],
-    {
-      payload: TBot['states'][TState]
-    }
-  >
-}>
+) => Promise<StateResponse<TBot, TState>>
 
 export type CallAction<TBot extends common.BaseBot> = <ActionType extends keyof common.EnumerateActions<TBot>>(
   x: utils.Merge<
@@ -168,6 +176,45 @@ export type ListFiles<_TBot extends common.BaseBot> = client.Client['listFiles']
 export type GetFile<_TBot extends common.BaseBot> = client.Client['getFile']
 export type UpdateFileMetadata<_TBot extends common.BaseBot> = client.Client['updateFileMetadata']
 export type SearchFiles<_TBot extends common.BaseBot> = client.Client['searchFiles']
+
+export type CreateWorkflow<TBot extends common.BaseBot> = <TWorkflowName extends utils.StringKeys<TBot['workflows']>>(
+  x: utils.Merge<
+    Arg<client.Client['createWorkflow']>,
+    {
+      name: utils.Cast<TWorkflowName, string>
+      input: utils.Cast<TBot['workflows'][TWorkflowName], common.IntegrationInstanceActionDefinition>['input']
+      tags?: utils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
+    }
+  >
+) => Promise<
+  Readonly<{
+    workflow: utils.Merge<
+      Awaited<Res<client.Client['createWorkflow']>>['workflow'],
+      {
+        name: NoInfer<TWorkflowName>
+      }
+    >
+  }>
+>
+
+// FIXME: there's no way to infer types for getWorkflow, since all we have is its id
+export type GetWorkflow<_TBot extends common.BaseBot> = client.Client['getWorkflow']
+
+// FIXME: there's no way to infer types for updateWorkflow, since all we have is its id
+export type UpdateWorkflow<_TBot extends common.BaseBot> = client.Client['updateWorkflow']
+
+// FIXME: there's no way to infer types for deleteWorkflow, since all we have is its id
+export type DeleteWorkflow<_TBot extends common.BaseBot> = client.Client['deleteWorkflow']
+
+export type ListWorkflows<TBot extends common.BaseBot> = <TWorkflowName extends utils.StringKeys<TBot['workflows']>>(
+  x: utils.Merge<
+    Arg<client.Client['listWorkflows']>,
+    {
+      name?: utils.Cast<TWorkflowName, string>
+      tags?: utils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
+    }
+  >
+) => Promise<Readonly<Awaited<Res<client.Client['listWorkflows']>>>>
 
 export type GetTableRow<TBot extends common.BaseBot> = <
   TableName extends keyof common.EnumerateTables<TBot>,
@@ -277,11 +324,13 @@ export type FindTableRows<TBot extends common.BaseBot> = <
     Arg<client.Client['findTableRows']>,
     {
       table: utils.Cast<TableName, string>
-      filter?: TableRowFilter<TBot, TableName, Columns>
-      group?: utils.AtLeastOneProperty<{
-        [K in Extract<keyof Columns, string>]: TableRowQueryGroup | TableRowQueryGroup[]
-      }>
-      orderBy?: Extract<keyof Columns, string>
+      filter?: TableRowFilter<TBot, NoInfer<TableName>, NoInfer<Columns>>
+      group?: NoInfer<
+        utils.AtLeastOneProperty<{
+          [K in Extract<keyof Columns, string>]: TableRowQueryGroup | TableRowQueryGroup[]
+        }>
+      >
+      orderBy?: NoInfer<Extract<keyof Columns, string>>
     }
   >
 ) => Promise<
@@ -335,8 +384,8 @@ export type UpsertTableRows<TBot extends common.BaseBot> = <
     Arg<client.Client['upsertTableRows']>,
     {
       table: utils.Cast<TableName, string>
-      rows: utils.AtLeastOne<utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>> & { id: number }>
-      keyColumn?: Extract<keyof common.EnumerateTables<TBot>[TableName], string> | 'id'
+      rows: utils.AtLeastOne<utils.Cast<common.EnumerateTables<TBot>[TableName], Record<string, any>> & { id?: number }>
+      keyColumn?: NoInfer<Extract<keyof common.EnumerateTables<TBot>[TableName], string>> | 'id'
     }
   >
 ) => Promise<
@@ -363,6 +412,7 @@ export type ClientOperations<TBot extends common.BaseBot> = {
   getParticipant: GetParticipant<TBot>
   removeParticipant: RemoveParticipant<TBot>
   getEvent: GetEvent<TBot>
+  createEvent: CreateEvent<TBot>
   listEvents: ListEvents<TBot>
   createMessage: CreateMessage<TBot>
   getOrCreateMessage: GetOrCreateMessage<TBot>
@@ -408,7 +458,7 @@ type ClientHooksBefore = {
 }
 
 type ClientHooksAfter = {
-  [K in client.Operation]?: (x: client.ClientOutputs[K]) => Promise<client.ClientOutputs[K]>
+  [K in client.Operation]?: (y: client.ClientOutputs[K], x: client.ClientInputs[K]) => Promise<client.ClientOutputs[K]>
 }
 
 export type ClientHooks = {

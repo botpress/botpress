@@ -60,6 +60,38 @@ const integration = new bp.Integration({
       })
       return {}
     },
+    getOrCreateUser: async ({ client, input, ctx }) => {
+      const suncoClient = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
+      const suncoUser = await suncoClient.users.getUser(ctx.configuration.appId, input.user.id)
+      const suncoProfile = suncoUser.user?.profile
+
+      const name = input.name ?? [suncoProfile?.givenName, suncoProfile?.surname].join(' ').trim()
+      const { user } = await client.getOrCreateUser({
+        tags: { id: `${suncoUser.user?.id}` },
+        name,
+        pictureUrl: input.pictureUrl ?? suncoProfile?.avatarUrl,
+      })
+
+      return {
+        userId: user.id,
+      }
+    },
+    getOrCreateConversation: async ({ client, input, ctx }) => {
+      const suncoClient = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
+      const suncoConversation = await suncoClient.conversations.getConversation(
+        ctx.configuration.appId,
+        input.conversation.id
+      )
+
+      const { conversation } = await client.getOrCreateConversation({
+        channel: 'channel',
+        tags: { id: `${suncoConversation.conversation?.id}` },
+      })
+
+      return {
+        conversationId: conversation.id,
+      }
+    },
   },
   channels: {
     channel: {
@@ -156,6 +188,8 @@ const integration = new bp.Integration({
         tags: {
           id: payload.message.author.userId,
         },
+        name: payload.message.author.displayName,
+        pictureUrl: payload.message.author.avatarUrl,
       })
 
       await client.createMessage({
@@ -165,43 +199,6 @@ const integration = new bp.Integration({
         conversationId: conversation.id,
         payload: { text: payload.message.content.text },
       })
-    }
-  },
-  createUser: async ({ client, tags, ctx }) => {
-    const userId = tags.id
-    if (!userId) {
-      return
-    }
-
-    const suncoClient = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
-    const suncoUser = await suncoClient.users.getUser(ctx.configuration.appId, userId)
-
-    const { user } = await client.getOrCreateUser({ tags: { id: `${suncoUser.user?.id}` } })
-
-    return {
-      body: JSON.stringify({ user: { id: user.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
-  createConversation: async ({ client, channel, tags, ctx }) => {
-    const conversationId = tags.id
-    if (!conversationId) {
-      return
-    }
-
-    const suncoClient = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
-    const suncoConversation = await suncoClient.conversations.getConversation(ctx.configuration.appId, conversationId)
-
-    const { conversation } = await client.getOrCreateConversation({
-      channel,
-      tags: { id: `${suncoConversation.conversation?.id}` },
-    })
-
-    return {
-      body: JSON.stringify({ conversation: { id: conversation.id } }),
-      headers: {},
-      statusCode: 200,
     }
   },
 })

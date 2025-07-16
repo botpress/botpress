@@ -1,5 +1,6 @@
-import { IntegrationDefinition, z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import filesReadonly from './bp_modules/files-readonly'
 import {
   fileSchema,
   createFileArgSchema,
@@ -19,18 +20,18 @@ import {
   fileChannelSchema,
 } from './src/schemas'
 
-export default new IntegrationDefinition({
+export default new sdk.IntegrationDefinition({
   name: 'googledrive',
   title: 'Google Drive',
   description: 'Access and manage your Google Drive files from your bot.',
-  version: '0.0.4',
+  version: '0.3.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
-    schema: z.object({}),
+    schema: sdk.z.object({}),
   },
   actions: {
     listFiles: {
@@ -96,7 +97,7 @@ export default new IntegrationDefinition({
         schema: deleteFileArgSchema,
       },
       output: {
-        schema: z.object({}),
+        schema: sdk.z.object({}),
       },
     },
     uploadFileData: {
@@ -106,7 +107,7 @@ export default new IntegrationDefinition({
         schema: uploadFileDataArgSchema,
       },
       output: {
-        schema: z.object({}),
+        schema: sdk.z.object({}),
       },
     },
     downloadFileData: {
@@ -123,10 +124,10 @@ export default new IntegrationDefinition({
       title: 'Sync Channels',
       description: 'Sync channels for file change subscriptions',
       input: {
-        schema: z.object({}),
+        schema: sdk.z.object({}),
       },
       output: {
-        schema: z.object({}),
+        schema: sdk.z.object({}),
       },
     },
   },
@@ -155,8 +156,8 @@ export default new IntegrationDefinition({
   states: {
     configuration: {
       type: 'integration',
-      schema: z.object({
-        refreshToken: z
+      schema: sdk.z.object({
+        refreshToken: sdk.z
           .string()
           .title('Refresh token')
           .describe('The refresh token to use to authenticate with Google. It gets exchanged for a bearer token'),
@@ -164,18 +165,18 @@ export default new IntegrationDefinition({
     },
     filesCache: {
       type: 'integration',
-      schema: z.object({
-        filesCache: z
-          .record(z.string(), baseDiscriminatedFileSchema)
+      schema: sdk.z.object({
+        filesCache: sdk.z
+          .record(sdk.z.string(), baseDiscriminatedFileSchema)
           .title('Files cache')
           .describe('Map of known files'),
       }),
     },
     filesChannelsCache: {
       type: 'integration',
-      schema: z.object({
-        filesChannelsCache: z
-          .record(z.string(), fileChannelSchema)
+      schema: sdk.z.object({
+        filesChannelsCache: sdk.z
+          .record(sdk.z.string(), fileChannelSchema)
           .title('Files change subscription channels')
           .describe('Serialized set of channels for file change subscriptions'),
       }),
@@ -192,5 +193,27 @@ export default new IntegrationDefinition({
     WEBHOOK_SECRET: {
       description: 'The secret used to sign webhook tokens. Should be a high-entropy string that only Botpress knows',
     },
+    FILE_PICKER_API_KEY: {
+      description: 'The API key used to access the Google Picker API',
+    },
   },
-})
+}).extend(filesReadonly, ({}) => ({
+  entities: {},
+  actions: {
+    listItemsInFolder: {
+      name: 'filesReadonlyListItemsInFolder',
+      attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+    },
+    transferFileToBotpress: {
+      name: 'filesReadonlyTransferFileToBotpress',
+      attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
+    },
+  },
+  events: {
+    fileCreated: { name: 'filesReadonlyFileCreated' },
+    fileUpdated: { name: 'filesReadonlyFileUpdated' },
+    fileDeleted: { name: 'filesReadonlyFileDeleted' },
+    folderDeletedRecursive: { name: 'filesReadonlyFolderDeletedRecursive' },
+    aggregateFileChanges: { name: 'filesReadonlyAggregateFileChanges' },
+  },
+}))

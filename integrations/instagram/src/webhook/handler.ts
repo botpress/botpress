@@ -1,8 +1,10 @@
+import { isSandboxCommand } from '@botpress/common'
 import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getClientSecret } from 'src/misc/client'
-import { messagesHandler } from './handlers/messages'
+import { messagingHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
+import { sandboxHandler } from './handlers/sandbox'
 import { subscribeHandler } from './handlers/subscribe'
 import * as bp from '.botpress'
 
@@ -12,6 +14,11 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
     return await oauthCallbackHandler(props)
   }
 
+  if (isSandboxCommand(props)) {
+    return await sandboxHandler(props)
+  }
+
+  props.logger.debug('Received request with body:', req.body ?? '[empty]')
   const queryParams = new URLSearchParams(req.query)
   if (queryParams.has('hub.mode')) {
     return await subscribeHandler(props)
@@ -21,7 +28,7 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   if (validationResult.error) {
     return { status: 403, body: validationResult.message }
   }
-  return await messagesHandler(props)
+  return await messagingHandler(props)
 }
 
 const _validateRequestAuthentication = (
@@ -29,6 +36,10 @@ const _validateRequestAuthentication = (
   { ctx }: { ctx: bp.Context }
 ): { error: true; message: string } | { error: false } => {
   const secret = getClientSecret(ctx)
+  if (!secret) {
+    return { error: false }
+  }
+
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(req.body ?? '')

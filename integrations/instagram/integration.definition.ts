@@ -5,9 +5,12 @@ import proactiveUser from 'bp_modules/proactive-user'
 
 export const INTEGRATION_NAME = 'instagram'
 
+// File message type unsupported both ways
+const { file: _file, ...channelMessages } = messages.defaults
+
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.0.0',
+  version: '3.1.0',
   title: 'Instagram',
   description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
@@ -41,6 +44,11 @@ export default new IntegrationDefinition({
         instagramId: z.string().title('Instagram account ID').describe('Instagram Account Id from API setup View'),
       }),
     },
+    sandbox: {
+      title: 'Sandbox Configuration',
+      description: 'Sandbox configuration, for testing purposes only',
+      schema: z.object({}),
+    },
   },
   states: {
     oauth: {
@@ -69,7 +77,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Direct Message',
       description: 'Direct message conversation between an Instagram user and the bot',
-      messages: { ...messages.defaults, markdown: messages.markdown },
+      messages: channelMessages,
       message: {
         tags: {
           id: {
@@ -101,13 +109,25 @@ export default new IntegrationDefinition({
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: {
-      description: 'The client ID of your Meta app.',
+      description: 'The client ID of the OAuth Meta app.',
     },
     CLIENT_SECRET: {
-      description: 'The client secret of your Meta app.',
+      description: 'The client secret of the OAuth Meta app.',
     },
     VERIFY_TOKEN: {
-      description: 'The verify token of your Meta app.',
+      description: 'The verify token of the OAuth Meta app.',
+    },
+    SANDBOX_CLIENT_SECRET: {
+      description: 'The client secret of the Sandbox Meta app',
+    },
+    SANDBOX_VERIFY_TOKEN: {
+      description: 'The verify token for the Sandbox Meta App Webhooks subscription',
+    },
+    SANDBOX_ACCESS_TOKEN: {
+      description: 'Access token for the Sandbox Meta App',
+    },
+    SANDBOX_INSTAGRAM_ID: {
+      description: 'Instagram ID for the Sandbox Instagram profile',
     },
   },
   user: {

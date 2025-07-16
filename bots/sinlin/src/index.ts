@@ -1,10 +1,9 @@
 import { Client } from '@botpress/client'
 import * as bp from '.botpress'
 
-const { tableName } = bp.synchronizer.configuration
+const { tableName } = bp.linear.configuration
 
-const getBlankClient = (props: bp.EventHandlerProps | bp.MessageHandlerProps): Client =>
-  (props.client as any)._client as Client
+const getVanillaClient = (props: bp.EventHandlerProps | bp.MessageHandlerProps): Client => props.client._inner
 
 const summarize = (str: string, maxLength: number = 1000): string =>
   str.length > maxLength ? str.substring(0, maxLength) + '...' : str
@@ -31,7 +30,7 @@ const commands: Record<string, Command> = {
   '/sync': {
     description: 'Sync issues',
     handler: async (props: bp.MessageHandlerProps) => {
-      await bot.actionHandlers.synchronize({ ...props, input: {} })
+      await bot.actionHandlers['linear#clear']({ ...props, input: {} })
       await reply(props, 'Issues synced')
     },
   },
@@ -39,7 +38,7 @@ const commands: Record<string, Command> = {
     description: 'List issues',
     handler: async (props: bp.MessageHandlerProps) => {
       const tableState = await props.client
-        .getOrSetState({ type: 'bot', id: props.ctx.botId, name: 'table', payload: { tableCreated: false } })
+        .getOrSetState({ type: 'bot', id: props.ctx.botId, name: 'linear#table', payload: { tableCreated: false } })
         .then((r) => r.state.payload)
 
       if (!tableState.tableCreated) {
@@ -47,7 +46,7 @@ const commands: Record<string, Command> = {
         return
       }
 
-      const { rows } = await getBlankClient(props).findTableRows({
+      const { rows } = await getVanillaClient(props).findTableRows({
         table: tableName,
         filter: {},
         limit: 10,
@@ -68,7 +67,7 @@ const commands: Record<string, Command> = {
   '/clear': {
     description: 'Clear issues',
     handler: async (props: bp.MessageHandlerProps) => {
-      await bot.actionHandlers.clear({ ...props, input: {} })
+      await bot.actionHandlers['linear#clear']({ ...props, input: {} })
       await reply(props, 'Table cleared')
     },
   },

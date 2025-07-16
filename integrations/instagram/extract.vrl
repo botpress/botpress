@@ -1,7 +1,6 @@
-metaId = null
 body = parse_json!(.body)
 if body.object == "instagram"  {
-    metaId = body.entry[0].id
+    body.entry[0].id
+} else {
+    null
 }
-
-metaId

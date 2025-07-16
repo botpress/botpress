@@ -5,7 +5,9 @@
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint"
+    "check:bplint": "bp lint",
+    "uploadSandboxScripts": "ts-node -T ../../scripts/upload-sandbox-scripts.ts --integrationPath='./'",
+    "refreshTokens": "ts-node -T ./refreshTokens.ts"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",
@@ -20,7 +22,7 @@
     "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
-    "proactiveUser": "../../interfaces/proactive-user",
-    "proactiveConversation": "../../interfaces/proactive-conversation"
+    "proactive-user": "../../interfaces/proactive-user",
+    "proactive-conversation": "../../interfaces/proactive-conversation"
   }
 }

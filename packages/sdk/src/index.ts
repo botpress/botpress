@@ -1,5 +1,5 @@
 export * as messages from './message'
-export * from './const'
+export * from './public-consts'
 export * from './serve'
 export * from './zui'
 
@@ -56,6 +56,7 @@ export {
   MessageDefinition as BotMessageDefinition,
   ActionDefinition as BotActionDefinition,
   TableDefinition as BotTableDefinition,
+  WorkflowDefinition as BotWorkflowDefinition,
   BotLogger,
 } from './bot'
 

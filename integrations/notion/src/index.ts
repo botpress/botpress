@@ -1,35 +1,19 @@
-import { addCommentToDiscussion, addCommentToPage, addPageToDb, deleteBlock, getDb } from './actions'
+import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { actions } from './actions'
+import { register, unregister } from './setup'
+import { handler } from './webhook-events'
 import * as bp from '.botpress'
 
-class NotImplementedError extends Error {
-  public constructor() {
-    super('Not implemented')
-  }
-}
-
-export default new bp.Integration({
-  createConversation: async ({ client, channel }) => {
-    const { conversation } = await client.getOrCreateConversation({
-      channel,
-      tags: {},
-    })
-    return {
-      body: JSON.stringify({ conversation: { id: conversation.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
+const integration = new bp.Integration({
   channels: {},
-  register: async () => {},
-  unregister: async () => {},
-  actions: {
-    deleteBlock,
-    addCommentToDiscussion,
-    addCommentToPage,
-    addPageToDb,
-    getDb,
-  },
-  handler: async () => {
-    throw new NotImplementedError()
-  },
+  register,
+  unregister,
+  actions,
+  handler,
+})
+
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
 })

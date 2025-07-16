@@ -1,20 +1,14 @@
-import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { File as FileEntity, Folder as FolderEntity } from '../definitions'
 import { wrapAction } from './action-wrapper'
-import { DropboxClient } from './dropbox-api'
+import * as filesReadonlyMapping from './files-readonly/mapping'
+import { register, unregister } from './setup'
+import * as webhookEvents from './webhook-events'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
-  async register(props) {
-    const dropboxClient = await DropboxClient.create({ ctx: props.ctx, client: props.client })
-    const authTest = await dropboxClient.isProperlyAuthenticated()
-
-    if (!authTest) {
-      throw new sdk.RuntimeError('Dropbox authentication failed. Please check your access token.')
-    }
-  },
-
-  async unregister() {},
+  register,
+  unregister,
 
   actions: {
     createFile: wrapAction({ actionName: 'createFile' }, async ({ dropboxClient }, { contents, path }) => ({
@@ -23,7 +17,12 @@ const integration = new bp.Integration({
     listItemsInFolder: wrapAction(
       { actionName: 'listItemsInFolder' },
       ({ dropboxClient }, { path, recursive, nextToken }) =>
-        dropboxClient.listItemsInFolder({ path: path ?? '', recursive: recursive ?? false, nextToken })
+        dropboxClient
+          .listItemsInFolder({ path: path ?? '', recursive: recursive ?? false, nextToken })
+          .then(({ items, nextToken, hasMore }) => ({
+            items: items.filter((it) => it.itemType !== 'deleted'),
+            nextToken: hasMore ? nextToken : undefined,
+          }))
     ),
     deleteItem: wrapAction({ actionName: 'deleteItem' }, ({ dropboxClient }, { path }) =>
       dropboxClient.deleteItem({ path })
@@ -52,18 +51,82 @@ const integration = new bp.Integration({
       newFolder: await dropboxClient.createFolder({ path }),
     })),
     copyItem: wrapAction({ actionName: 'copyItem' }, async ({ dropboxClient }, { fromPath, toPath }) => ({
-      newItem: await dropboxClient.copyItemToNewPath({ fromPath, toPath }),
+      newItem: (await dropboxClient.copyItemToNewPath({ fromPath, toPath })) as
+        | FileEntity.InferredType
+        | FolderEntity.InferredType,
     })),
     moveItem: wrapAction({ actionName: 'moveItem' }, async ({ dropboxClient }, { fromPath, toPath }) => ({
-      newItem: await dropboxClient.moveItemToNewPath({ fromPath, toPath }),
+      newItem: (await dropboxClient.moveItemToNewPath({ fromPath, toPath })) as
+        | FileEntity.InferredType
+        | FolderEntity.InferredType,
     })),
     searchItems: wrapAction(
       { actionName: 'searchItems' },
-      async ({ dropboxClient }, searchParams) => await dropboxClient.searchItems(searchParams)
+      async ({ dropboxClient }, searchParams) =>
+        await dropboxClient.searchItems(searchParams).then(({ nextToken, results }) => ({
+          nextToken,
+          results: results
+            .filter(({ item }) => item.itemType !== 'deleted')
+            .map(({ item, matchType }) => ({
+              item: item as FileEntity.InferredType | FolderEntity.InferredType,
+              matchType,
+            })),
+        }))
+    ),
+
+    filesReadonlyTransferFileToBotpress: wrapAction(
+      { actionName: 'filesReadonlyTransferFileToBotpress' },
+      async ({ dropboxClient, client }, { file: fileToTransfer, fileKey, shouldIndex }) => {
+        const fileBuffer = await dropboxClient.getFileContents({ path: fileToTransfer.id })
+
+        const { file: uploadedFile } = await client.uploadFile({
+          key: fileKey,
+          content: fileBuffer,
+          index: shouldIndex,
+        })
+
+        return { botpressFileId: uploadedFile.id }
+      }
+    ),
+    filesReadonlyListItemsInFolder: wrapAction(
+      { actionName: 'filesReadonlyListItemsInFolder' },
+      async ({ dropboxClient }, { folderId, filters, nextToken: prevToken }) => {
+        const parentId = folderId ?? ''
+        const { items, nextToken, hasMore } = await dropboxClient.listItemsInFolder({
+          path: parentId,
+          recursive: false,
+          nextToken: prevToken,
+        })
+
+        const mappedAndFilteredItems = items
+          .filter((item) => item.itemType !== 'deleted')
+          .map((item) =>
+            item.itemType === 'file' ? filesReadonlyMapping.mapFile(item) : filesReadonlyMapping.mapFolder(item)
+          )
+          .filter(
+            (item) =>
+              !(
+                (filters?.itemType && item.type !== filters.itemType) ||
+                (filters?.maxSizeInBytes &&
+                  item.type === 'file' &&
+                  item.sizeInBytes &&
+                  item.sizeInBytes > filters.maxSizeInBytes) ||
+                (filters?.modifiedAfter &&
+                  item.type === 'file' &&
+                  item.lastModifiedDate &&
+                  new Date(item.lastModifiedDate) < new Date(filters.modifiedAfter))
+              )
+          )
+
+        return {
+          items: mappedAndFilteredItems,
+          meta: { nextToken: hasMore ? nextToken : undefined },
+        }
+      }
     ),
   },
 
-  async handler() {},
+  handler: webhookEvents.handler,
 
   channels: {},
 })

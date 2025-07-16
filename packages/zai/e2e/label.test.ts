@@ -4,25 +4,33 @@ import { BotpressDocumentation, getClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
 import { check } from '@botpress/vai'
 
+const getValues = <T extends Record<string, { value: boolean }>>(records: T) =>
+  Object.entries(records).reduce((acc, [key, value]) => {
+    acc[key] = value.value
+    return acc
+  }, {}) as Record<keyof T, boolean>
+
 describe('zai.label', { timeout: 60_000 }, () => {
   const zai = getZai()
 
   it('simple labels on small text', async () => {
-    const labels = await zai.label(
-      {
-        name: 'John',
-        story: ['John donated to charity last month.', 'John is loved by his community.'],
-        criminal_record: 'John has no criminal record.',
-      },
-      {
-        is_human: 'is the person a human?',
-        good_person: 'is the person a good person?',
-        bad_person: 'is the person a bad person?',
-        is_criminal: 'is the person a criminal?',
-      }
-    )
+    const { output: labels } = await zai
+      .label(
+        {
+          name: 'John',
+          story: ['John donated to charity last month.', 'John is loved by his community.'],
+          criminal_record: 'John has no criminal record.',
+        },
+        {
+          is_human: 'is the person a human?',
+          good_person: 'is the person a good person?',
+          bad_person: 'is the person a bad person?',
+          is_criminal: 'is the person a criminal?',
+        }
+      )
+      .result()
 
-    expect(labels).toMatchInlineSnapshot(`
+    expect(getValues(labels)).toMatchInlineSnapshot(`
       {
         "bad_person": false,
         "good_person": true,
@@ -124,7 +132,7 @@ describe('zai.label', { timeout: 60_000 }, () => {
   })
 })
 
-describe('zai.learn.label', { timeout: 60_000 }, () => {
+describe.sequential('zai.learn.label', { timeout: 60_000 }, () => {
   const client = getClient()
   let tableName = 'ZaiTestLabelInternalTable'
   let taskId = 'label'

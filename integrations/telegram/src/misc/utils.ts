@@ -1,9 +1,9 @@
 import { axios } from '@botpress/client'
 import { Response, RuntimeError } from '@botpress/sdk'
-import { AssertionError, ok } from 'assert'
+import { ok } from 'assert'
 import _ from 'lodash'
 import { Context, Markup, Telegraf, Telegram } from 'telegraf'
-import { PhotoSize, Update, User } from 'telegraf/typings/core/types/typegram'
+import { PhotoSize, Update, User, Sticker } from 'telegraf/typings/core/types/typegram'
 import { Card, AckFunction, Logger, MessageHandlerProps, BotpressMessage, TelegramMessage } from './types'
 import * as bp from '.botpress'
 
@@ -170,6 +170,17 @@ export const convertTelegramMessageToBotpressMessage = async ({
     }
   }
 
+  if ('sticker' in message) {
+    const stickerMessage = message as TelegramMessage & { sticker: Sticker }
+    const fileUrl = await telegram.getFileLink(stickerMessage.sticker.file_id)
+    return {
+      type: 'image',
+      payload: {
+        imageUrl: fileUrl.toString(),
+      },
+    }
+  }
+
   if ('audio' in message) {
     const fileUrl = await telegram.getFileLink(message.audio.file_id)
     return {
@@ -238,12 +249,9 @@ export const wrapHandler =
       return await handler({
         ...args,
       })
-    } catch (err) {
-      if (err instanceof AssertionError) {
-        args.logger.forBot().error('Assertion Error:', err.message)
-        return { status: 200 }
-      }
-
-      throw err
+    } catch (thrown) {
+      const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+      args.logger.forBot().error('Assertion Error:', err.message)
+      return { status: 200 }
     }
   }

@@ -8,7 +8,7 @@ import * as consts from './consts'
 export type Primitive = string | number | boolean | null | undefined
 
 export const zuiSchemaToTypeScriptType = async (zuiSchema: sdk.z.Schema, name: string): Promise<string> => {
-  let code = zuiSchema.toTypescript()
+  let code = zuiSchema.toTypescriptType()
   code = `export type ${name} = ${code}`
   code = await prettier.format(code, { parser: 'typescript' })
   return [
@@ -24,7 +24,7 @@ export const jsonSchemaToTypescriptZuiSchema = async (
   extraProps: Record<string, string> = {}
 ): Promise<string> => {
   schema = await utils.schema.dereferenceSchema(schema)
-  const zuiSchema = sdk.z.fromJsonSchema(schema)
+  const zuiSchema = sdk.transforms.fromJSONSchemaLegacy(schema)
 
   const allProps = {
     ...extraProps,
@@ -34,9 +34,7 @@ export const jsonSchemaToTypescriptZuiSchema = async (
   let code = [
     consts.GENERATED_HEADER,
     'import { z } from "@botpress/sdk"',
-    `export const ${name} = {`,
-    ...Object.entries(allProps).map(([key, value]) => `  ${key}: ${value},`),
-    '}',
+    `export const ${name} = ${typescriptValuesToRecordString(allProps)}`,
   ].join('\n')
   code = await prettier.format(code, { parser: 'typescript' })
   return code
@@ -61,3 +59,9 @@ export function primitiveRecordToTypescriptValues(x: Record<string, Primitive>):
     .fromPairs()
     .value()
 }
+
+export const primitiveRecordToRecordString = (record: Record<string, Primitive>): string =>
+  typescriptValuesToRecordString(primitiveRecordToTypescriptValues(record))
+
+export const typescriptValuesToRecordString = (record: Record<string, string>): string =>
+  ['{', ...Object.entries(record).map(([key, value]) => `  ${key}: ${value},`), '}'].join('\n')

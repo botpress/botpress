@@ -1,33 +1,65 @@
+import { z } from '@botpress/sdk'
 import * as bp from '.botpress'
 
-export type InstagramPayload = {
-  object: string
-  entry: InstagramEntry[]
-}
+const InstagramMessageBaseSchema = z.object({
+  sender: z.object({ id: z.string() }),
+  recipient: z.object({ id: z.string() }),
+  timestamp: z.number(),
+})
 
-export type InstagramEntry = {
-  id: string
-  time: number
-  messaging: InstagramMessage[]
-}
+const InstagramMessagingEntryAttachmentTypeSchema = z.enum([
+  'audio',
+  'file',
+  'image',
+  'share',
+  'story_mention',
+  'video',
+  'ig_reel',
+  'reel',
+])
+export const InstagramMessagingEntryMessageSchema = InstagramMessageBaseSchema.extend({
+  message: z.object({
+    mid: z.string(),
+    attachments: z
+      .array(z.object({ type: InstagramMessagingEntryAttachmentTypeSchema, payload: z.object({ url: z.string() }) }))
+      .optional(),
+    is_echo: z.boolean().optional(),
+    quick_reply: z.object({ payload: z.string() }).optional(),
+    text: z.string().optional(),
+  }),
+})
 
-export type InstagramMessage = {
-  sender: { id: string }
-  recipient: { id: string }
-  timestamp: number
-  message?: {
-    mid: string
-    text: string
-    is_echo: boolean
-    quick_reply?: { payload: string }
-    attachments?: { type: string; payload: { url: string } }[]
-  }
-  postback?: {
-    mid: string
-    payload: string
-    title: string
-  }
-}
+export const InstagramMessagingEntryPostbackSchema = InstagramMessageBaseSchema.extend({
+  postback: z.object({
+    mid: z.string(),
+    title: z.string(),
+    payload: z.string(),
+  }),
+})
+
+const InstagramMessagingEntryOtherSchema = InstagramMessageBaseSchema
+
+const InstagramMessagingEntrySchema = z.union([
+  InstagramMessagingEntryMessageSchema,
+  InstagramMessagingEntryPostbackSchema,
+  InstagramMessagingEntryOtherSchema,
+])
+
+const InstagramEntrySchema = z.object({
+  id: z.string(),
+  time: z.number(),
+  messaging: z.array(InstagramMessagingEntrySchema),
+})
+
+export const InstagramPayloadSchema = z.object({
+  object: z.string(),
+  entry: z.array(InstagramEntrySchema),
+})
+
+export type InstagramPayload = z.infer<typeof InstagramPayloadSchema>
+export type InstagramMessagingEntry = z.infer<typeof InstagramMessagingEntrySchema>
+export type InstagramMessagingEntryPostback = z.infer<typeof InstagramMessagingEntryPostbackSchema>
+export type InstagramMessagingEntryMessage = z.infer<typeof InstagramMessagingEntryMessageSchema>
 
 export type Carousel = bp.channels.channel.carousel.Carousel
 export type Card = bp.channels.channel.card.Card
