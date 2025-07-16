@@ -77,6 +77,17 @@ export class GoogleClient {
     return message.data
   }
 
+  public async listMessages(query?: string, maxResults?: number, pageToken?: string) {
+    const messages = await this._gmail.users.messages.list({
+      userId: 'me',
+      q: query,
+      maxResults,
+      pageToken,
+    })
+
+    return messages.data
+  }
+
   public async sendRawEmail(raw: string, threadId?: string) {
     const newMail = await this._gmail.users.messages.send({ requestBody: { raw, threadId }, userId: 'me' })
 
