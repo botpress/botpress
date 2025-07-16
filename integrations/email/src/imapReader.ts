@@ -44,6 +44,7 @@ export const getMessages = async function (range: string, props: GetMessagesProp
   })
 
   await messageFetchPromise
+
   return messages
 }
 
@@ -113,8 +114,8 @@ const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: EmailMess
 }
 
 const getConfig = function (ctx: any) {
-  config.user = ctx.user || process.env.IMAP_USER
-  config.password = ctx.password || process.env.IMAP_PASSWORD
+  config.user = ctx.configuration.user || process.env.IMAP_USER
+  config.password = ctx.configuration.password || process.env.IMAP_PASSWORD
   return config
 }
 
