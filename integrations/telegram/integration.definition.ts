@@ -19,7 +19,6 @@ export default new IntegrationDefinition({
     channel: {
       messages: {
         ...messages.defaults,
-        markdown: messages.markdown,
         audio: {
           ...messages.defaults.audio,
           schema: messages.defaults.audio.schema.extend({
