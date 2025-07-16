@@ -50,7 +50,7 @@ export const getMessages = async function (range: string, props: GetMessagesProp
 
 const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: EmailMessage[]) {
   f.on('message', (msg: Imap.ImapMessage, seqno: number) => {
-    const uid: string = seqno.toString()
+    let uid: string = ''
     let subject: string = ''
     let body: string = ''
     let inReplyTo: string | undefined
@@ -76,6 +76,10 @@ const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: EmailMess
             }
 
             inReplyTo = parsedHeader['in-reply-to']?.[0]
+            if (!parsedHeader['message-id']?.[0]) {
+              throw new sdk.RuntimeError('Email message is missing a message-id (uid)')
+            }
+            uid = parsedHeader['message-id']?.[0]
             if (parsedHeader.date && parsedHeader.date.length > 0) {
               date = parsedHeader.date[0] !== undefined ? new Date(parsedHeader.date[0]) : undefined
             }
