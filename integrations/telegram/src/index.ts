@@ -58,11 +58,13 @@ const integration = new bp.Integration({
     channel: {
       messages: {
         text: async ({ payload, ctx, conversation, ack, logger }) => {
+          const { text } = payload
           const client = new Telegraf(ctx.configuration.botToken)
           const chat = getChat(conversation)
-          const { text } = payload
-          logger.forBot().debug(`Sending text message to Telegram chat ${chat}:`, text)
-          const message = await client.telegram.sendMessage(chat, text)
+          logger.forBot().debug(`Sending markdown message to Telegram chat ${chat}:`, text)
+          const message = await client.telegram.sendMessage(chat, text, {
+            parse_mode: 'MarkdownV2',
+          })
           await ackMessage(message, ack)
         },
         image: async ({ payload, ctx, conversation, ack, logger }) => {
@@ -70,15 +72,6 @@ const integration = new bp.Integration({
           const chat = getChat(conversation)
           logger.forBot().debug(`Sending image message to Telegram chat ${chat}`, payload.imageUrl)
           const message = await client.telegram.sendPhoto(chat, payload.imageUrl)
-          await ackMessage(message, ack)
-        },
-        markdown: async ({ payload, ctx, conversation, ack, logger }) => {
-          const client = new Telegraf(ctx.configuration.botToken)
-          const chat = getChat(conversation)
-          logger.forBot().debug(`Sending markdown message to Telegram chat ${chat}:`, payload.markdown)
-          const message = await client.telegram.sendMessage(chat, payload.markdown, {
-            parse_mode: 'MarkdownV2',
-          })
           await ackMessage(message, ack)
         },
         audio: async ({ payload, ctx, conversation, ack, logger }) => {
