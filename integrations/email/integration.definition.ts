@@ -10,9 +10,6 @@ const emailMessageSchema = z.object({
   sender: z.string(),
 })
 
-export type EmailThread = z.infer<typeof emailThreadSchema>
-const emailThreadSchema = z.array(emailMessageSchema)
-
 export type SendMailProps = z.infer<typeof sendMailSchema>
 const sendMailSchema = z.object({
   to: z.string(),
@@ -41,7 +38,7 @@ export default new IntegrationDefinition({
       input: { schema: z.object({}) },
       output: {
         schema: z.object({
-          messages: z.array(emailThreadSchema),
+          messages: z.array(emailMessageSchema),
         }),
       },
     },
