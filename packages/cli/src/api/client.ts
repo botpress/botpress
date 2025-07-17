@@ -9,7 +9,7 @@ import * as retry from './retry'
 
 import {
   ApiClientProps,
-  PublicIntegration,
+  PublicOrUnlistedIntegration,
   PrivateIntegration,
   PublicOrPrivateIntegration,
   PublicInterface,
@@ -132,16 +132,16 @@ export class ApiClient {
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
   }
 
-  public async findPublicIntegration(ref: ApiPackageRef): Promise<PublicIntegration | undefined> {
+  public async findPublicIntegration(ref: ApiPackageRef): Promise<PublicOrUnlistedIntegration | undefined> {
     if (ref.type === 'id') {
       return this.client
         .getPublicIntegrationById(ref)
-        .then((r) => ({ ...r.integration, public: true }) as const)
+        .then((r) => ({ ...r.integration, visibility: r.integration.visibility as 'public' | 'unlisted' }) as const)
         .catch(this._returnUndefinedOnError('ResourceNotFound'))
     }
     return this.client
       .getPublicIntegration(ref)
-      .then((r) => ({ ...r.integration, public: true }) as const)
+      .then((r) => ({ ...r.integration, visibility: r.integration.visibility as 'public' | 'unlisted' }) as const)
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
   }
 
