@@ -70,8 +70,8 @@ export default new IntegrationDefinition({
       messages: { text: messages.defaults.text },
       conversation: {
         tags: {
-          id: {
-            title: 'Foreign id',
+          firstMessageId: {
+            title: 'First Message Id',
             description: 'The foreign id (from the IMAP server) of the first incoming message of the conversation',
           },
           subject: { title: 'Thread Subject', description: 'Subject for the conversation' },

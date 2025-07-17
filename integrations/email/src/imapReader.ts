@@ -49,7 +49,7 @@ export const getMessages = async function (range: string, props: GetMessagesProp
 }
 
 const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: EmailMessage[]) {
-  f.on('message', (msg: Imap.ImapMessage, seqno: number) => {
+  f.on('message', (msg: Imap.ImapMessage) => {
     let uid: string = ''
     let subject: string = ''
     let body: string = ''
@@ -69,13 +69,21 @@ const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: EmailMess
         if (info.which === 'HEADER') {
           headerBuffer = buffer
           try {
-            const headerResult = parseHeader(headerBuffer)
-            subject = headerResult.subject
-            sender = headerResult.sender
-            inReplyTo = headerResult.inReplyTo
-            uid = headerResult.uid
-            firstMessageId = headerResult.firstMessageId
-            date = headerResult.date
+            const parsedHeader = Imap.parseHeader(headerBuffer)
+            subject = (parsedHeader.subject || ['']).join(' ')
+            sender = (parsedHeader.from || ['']).join(' ')
+            if (sender.includes('<') && sender.includes('>')) {
+              sender = sender.substring(sender.indexOf('<') + 1, sender.lastIndexOf('>'))
+            }
+
+            inReplyTo = parsedHeader['in-reply-to']?.[0]
+            if (!parsedHeader['message-id']?.[0]) {
+              throw new sdk.RuntimeError('Email message is missing a message-id (uid)')
+            }
+            uid = parsedHeader['message-id']?.[0]
+            if (parsedHeader.date && parsedHeader.date.length > 0) {
+              date = parsedHeader.date[0] !== undefined ? new Date(parsedHeader.date[0]) : undefined
+            }
           } catch (e) {
             console.error('Error parsing header:', e)
           }

@@ -32,22 +32,22 @@ export const actions = {
         tags: { email: message.sender },
       })
 
-      let conversationId: string
+      let firstMessageId: string
       if (message.firstMessageId) {
-        conversationId = message.firstMessageId
+        firstMessageId = message.firstMessageId
       } else {
-        conversationId = message.id
+        firstMessageId = message.id
       }
 
       const { conversation } = await props.client.getOrCreateConversation({
         channel: 'default',
         tags: {
-          id: conversationId,
+          firstMessageId,
           subject: message.subject,
           to: user.tags.email,
           latestEmail: message.id,
         },
-        discriminateByTags: ['id'],
+        discriminateByTags: ['firstMessageId'],
       })
       props.logger.forBot().info("created conversation '" + conversation.tags.subject + "'.")
 
