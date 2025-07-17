@@ -1,13 +1,13 @@
 import { MessengerTypes } from 'messaging-api-messenger'
 
-import { Card, Carousel, Choice, Dropdown, Location, MessengerAttachment } from './types'
+import { Card, Carousel, Choice, Dropdown, Location, MessengerOutMessageAttachment } from './types'
 
 export function formatGoogleMapLink(payload: Location) {
   return `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
 }
 
 export function formatCardElement(payload: Card) {
-  const buttons: MessengerAttachment[] = []
+  const buttons: MessengerOutMessageAttachment[] = []
 
   payload.actions.forEach((action) => {
     switch (action.action) {
