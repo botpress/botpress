@@ -5,13 +5,13 @@ import { MessengerPayload } from '../misc/types'
 import { oauth } from './handlers'
 import * as bp from '.botpress'
 
-const handler: bp.IntegrationProps['handler'] = async (props) => {
+const _handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, client, ctx, logger } = props
   if (req.path.startsWith('/oauth')) {
     return oauth.handler({ req, client, ctx, logger })
   }
 
-  logger.forBot().debug('Received request with body:', req.body ?? '[empty]')
+  logger.debug('Received request with body:', req.body ?? '[empty]')
   const queryParams = new URLSearchParams(req.query)
   if (queryParams.has('hub.mode')) {
     return await meta.subscribeHandler({ ...props, verifyToken: getVerifyToken(ctx) })
@@ -41,4 +41,16 @@ const handler: bp.IntegrationProps['handler'] = async (props) => {
   return
 }
 
-export default handler satisfies bp.IntegrationProps['handler']
+const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
+  try {
+    const response = await _handler(props)
+    if (response?.status && response.status >= 400) {
+      props.logger.error(`Messenger handler failed with status ${response.status}: ${response.body}`)
+    }
+    return response
+  } catch (error: any) {
+    return { status: 500, body: error?.message ?? 'Unknown error thrown' }
+  }
+}
+
+export default _handlerWrapper satisfies bp.IntegrationProps['handler']
