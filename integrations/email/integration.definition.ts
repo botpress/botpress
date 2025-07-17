@@ -8,6 +8,7 @@ const emailMessageSchema = z.object({
   inReplyTo: z.string().optional(),
   date: z.date().optional(),
   sender: z.string(),
+  firstMessageId: z.string().optional(),
 })
 
 export type SendMailProps = z.infer<typeof sendMailSchema>
@@ -65,9 +66,14 @@ export default new IntegrationDefinition({
   },
   channels: {
     default: {
+      message: { tags: { id: { title: 'Foreign id', description: 'The foreign email id ' } } },
       messages: { text: messages.defaults.text },
       conversation: {
         tags: {
+          id: {
+            title: 'Foreign id',
+            description: 'The foreign id (from the IMAP server) of the first incoming message of the conversation',
+          },
           subject: { title: 'Thread Subject', description: 'Subject for the conversation' },
           to: { title: 'Recipient', description: 'Recipient email address for the conversation' },
           latestEmail: {

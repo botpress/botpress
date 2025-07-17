@@ -56,6 +56,7 @@ const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: EmailMess
     let inReplyTo: string | undefined
     let date: Date | undefined
     let sender: string
+    let firstMessageId: string | undefined
 
     let headerBuffer: string = ''
 
@@ -68,21 +69,13 @@ const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: EmailMess
         if (info.which === 'HEADER') {
           headerBuffer = buffer
           try {
-            const parsedHeader = Imap.parseHeader(headerBuffer)
-            subject = (parsedHeader.subject || ['']).join(' ')
-            sender = (parsedHeader.from || ['']).join(' ')
-            if (sender.includes('<') && sender.includes('>')) {
-              sender = sender.substring(sender.indexOf('<') + 1, sender.lastIndexOf('>'))
-            }
-
-            inReplyTo = parsedHeader['in-reply-to']?.[0]
-            if (!parsedHeader['message-id']?.[0]) {
-              throw new sdk.RuntimeError('Email message is missing a message-id (uid)')
-            }
-            uid = parsedHeader['message-id']?.[0]
-            if (parsedHeader.date && parsedHeader.date.length > 0) {
-              date = parsedHeader.date[0] !== undefined ? new Date(parsedHeader.date[0]) : undefined
-            }
+            const headerResult = parseHeader(headerBuffer)
+            subject = headerResult.subject
+            sender = headerResult.sender
+            inReplyTo = headerResult.inReplyTo
+            uid = headerResult.uid
+            firstMessageId = headerResult.firstMessageId
+            date = headerResult.date
           } catch (e) {
             console.error('Error parsing header:', e)
           }
@@ -107,6 +100,7 @@ const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: EmailMess
             inReplyTo,
             date,
             sender,
+            firstMessageId,
           })
         }
       })
@@ -130,4 +124,13 @@ const config = {
   port: 993,
   tls: true,
   tlsOptions: { rejectUnauthorized: false },
+}
+
+function getStringBetweenAngles(input: string): string | undefined {
+  const start = input.indexOf('<')
+  const end = input.indexOf('>')
+  if (start !== -1 && end !== -1 && end > start) {
+    return input.substring(start, end + 1)
+  }
+  return undefined
 }
