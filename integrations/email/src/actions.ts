@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { SendMailProps } from 'integration.definition'
 import nodemailer from 'nodemailer'
 import { getMessages } from './imapReader'
 import * as bp from '.botpress'
@@ -36,6 +37,7 @@ export const actions = {
         tags: {
           subject: message.subject,
           to: user.tags.email,
+          latestEmail: message.id,
         },
       })
       props.logger.forBot().info("created conversation '" + conversation.tags.subject + "'.")
@@ -65,16 +67,11 @@ export const actions = {
     return {}
   },
   sendMail: async (props) => {
-    return await sendNodemailerMail(props.ctx.configuration, props.input.to, props.input.subject, props.input.text)
+    return await sendNodemailerMail(props.ctx.configuration, props.input)
   },
 } as const satisfies bp.IntegrationProps['actions']
 
-export const sendNodemailerMail = async (
-  config: { user: any; password: any },
-  to: string,
-  subject: string | undefined,
-  text: string | undefined
-) => {
+export const sendNodemailerMail = async (config: { user: any; password: any }, props: SendMailProps) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -85,9 +82,7 @@ export const sendNodemailerMail = async (
 
   await transporter.sendMail({
     from: config.user,
-    to,
-    subject,
-    text,
+    ...props,
   })
   return { message: 'Success' }
 }

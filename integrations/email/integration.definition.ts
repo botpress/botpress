@@ -10,6 +10,15 @@ const emailMessageSchema = z.object({
   sender: z.string(),
 })
 
+export type SendMailProps = z.infer<typeof sendMailSchema>
+const sendMailSchema = z.object({
+  to: z.string(),
+  subject: z.string().optional(),
+  text: z.string().optional(),
+  inReplyTo: z.string().optional(),
+  replyTo: z.string().optional(),
+})
+
 export default new IntegrationDefinition({
   name: 'email',
   version: '0.0.1',
@@ -45,11 +54,7 @@ export default new IntegrationDefinition({
       title: 'Send Mail',
       description: 'Send an email using SMTP',
       input: {
-        schema: z.object({
-          to: z.string(),
-          subject: z.string().optional(),
-          text: z.string().optional(),
-        }),
+        schema: sendMailSchema,
       },
       output: {
         schema: z.object({
@@ -65,6 +70,10 @@ export default new IntegrationDefinition({
         tags: {
           subject: { title: 'Thread Subject', description: 'Subject for the conversation' },
           to: { title: 'Recipient', description: 'Recipient email address for the conversation' },
+          latestEmail: {
+            title: 'Email id',
+            description: 'The id of the latest email received (to put in the In-Reply-To header)',
+          },
         },
       },
     },
