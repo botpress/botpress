@@ -36,6 +36,7 @@ class FreshchatClient {
     userId: string
     messages: FreshchatMessage[]
     channelId: string
+    priority?: 'Low' | 'Medium' | 'High' | 'Urgent'
   }): Promise<{ conversation_id: string; channel_id: string }> {
     const { data } = await this._client.post('/conversations', {
       channel_id: args.channelId,
@@ -45,6 +46,9 @@ class FreshchatClient {
           id: args.userId,
         },
       ],
+      properties: {
+        ...(args.priority ? { priority: args.priority } : {}),
+      },
     })
     return data
   }

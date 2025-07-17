@@ -1,12 +1,12 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import hitl from './bp_modules/hitl'
 import { INTEGRATION_NAME } from './src/const'
 import { events, configuration, channels, states, user } from './src/definitions'
 
-export default new IntegrationDefinition({
+export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'Freshchat (Beta)',
-  version: '1.2.0',
+  version: '1.3.0',
   icon: 'icon.svg',
   description: 'This integration allows your bot to use Freshchat as a HITL Provider',
   readme: 'hub.md',
@@ -15,8 +15,21 @@ export default new IntegrationDefinition({
   channels,
   events,
   user,
-}).extend(hitl, () => ({
-  entities: {},
+  entities: {
+    hitlConversation: {
+      title: 'HITL Conversation',
+      description: 'A support request',
+      schema: sdk.z.object({
+        priority: sdk.z
+          .enum(['Low', 'Medium', 'High', 'Urgent'])
+          .title('Conversation Priority')
+          .describe('Priority of the conversation. Leave empty for default priority.')
+          .optional(),
+      }),
+    },
+  },
+}).extend(hitl, (self) => ({
+  entities: { hitlSession: self.entities.hitlConversation },
   channels: {
     hitl: {
       title: 'Freshchat',
