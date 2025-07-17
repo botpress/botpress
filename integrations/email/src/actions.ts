@@ -1,5 +1,4 @@
 import 'dotenv/config'
-import { SendMailProps } from 'integration.definition'
 import nodemailer from 'nodemailer'
 import { getMessages } from './imapReader'
 import * as bp from '.botpress'
@@ -23,10 +22,11 @@ export const actions = {
 
     const allMessages = await getMessages('1:*', props)
     for (const message of allMessages) {
+      console.log(message.sender)
+      if (message.sender === props.ctx.configuration.user) continue
+
       const messageAlreadySeen = seenMessages.seenMails.some((m) => m.id === message.id)
-      if (messageAlreadySeen) {
-        continue
-      }
+      if (messageAlreadySeen) continue
 
       const { user } = await props.client.getOrCreateUser({
         tags: { email: message.sender },
@@ -80,7 +80,10 @@ export const actions = {
   },
 } as const satisfies bp.IntegrationProps['actions']
 
-export const sendNodemailerMail = async (config: { user: any; password: any }, props: SendMailProps) => {
+export const sendNodemailerMail = async (
+  config: { user: string; password: string },
+  props: bp.actions.sendMail.input.Input
+) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
