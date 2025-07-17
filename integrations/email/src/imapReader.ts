@@ -1,18 +1,14 @@
 import 'dotenv/config'
 import * as sdk from '@botpress/sdk'
 import Imap from 'imap'
-import { EmailMessage } from 'integration.definition'
+import * as bp from '.botpress'
 
-type GetMessagesProps = {
-  ctx: any
-  client?: any
-  input?: any
-}
-
-export const getMessages = async function (range: string, props: GetMessagesProps): Promise<EmailMessage[]> {
-  const messages: EmailMessage[] = []
-  getConfig(props.ctx)
-  const imap: Imap = new Imap(config)
+export const getMessages = async function (
+  range: string,
+  ctx: bp.configuration.Configuration
+): Promise<bp.actions.listEmails.output.Output['messages']> {
+  const messages: bp.actions.listEmails.output.Output['messages'] = []
+  const imap: Imap = new Imap(getConfig(ctx))
 
   function openInbox(cb: (err: any, box: any) => void): void {
     imap.openBox('INBOX', true, cb)
@@ -48,7 +44,11 @@ export const getMessages = async function (range: string, props: GetMessagesProp
   return messages
 }
 
-const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: EmailMessage[]) {
+const handleFetch = function (
+  imap: Imap,
+  f: Imap.ImapFetch,
+  messages: bp.actions.listEmails.output.Output['messages']
+) {
   f.on('message', (msg: Imap.ImapMessage) => {
     let uid: string = ''
     let subject: string = ''
@@ -83,6 +83,10 @@ const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: EmailMess
             uid = parsedHeader['message-id']?.[0]
             if (parsedHeader.date && parsedHeader.date.length > 0) {
               date = parsedHeader.date[0] !== undefined ? new Date(parsedHeader.date[0]) : undefined
+            }
+            firstMessageId = parsedHeader['references']?.[0]
+            if (firstMessageId) {
+              firstMessageId = getStringBetweenAngles(firstMessageId)
             }
           } catch (e) {
             console.error('Error parsing header:', e)
@@ -119,19 +123,15 @@ const handleFetch = function (imap: Imap, f: Imap.ImapFetch, messages: EmailMess
   })
 }
 
-const getConfig = function (ctx: any) {
-  config.user = ctx.configuration.user || process.env.IMAP_USER
-  config.password = ctx.configuration.password || process.env.IMAP_PASSWORD
-  return config
-}
-
-const config = {
-  user: '',
-  password: '',
-  host: 'imap.gmail.com',
-  port: 993,
-  tls: true,
-  tlsOptions: { rejectUnauthorized: false },
+const getConfig = function (config: bp.configuration.Configuration) {
+  return {
+    user: config.user,
+    password: config.password,
+    host: 'imap.gmail.com',
+    port: 993,
+    tls: true,
+    tlsOptions: { rejectUnauthorized: false },
+  }
 }
 
 function getStringBetweenAngles(input: string): string | undefined {

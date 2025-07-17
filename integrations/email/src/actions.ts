@@ -6,7 +6,7 @@ import * as bp from '.botpress'
 export const actions = {
   listEmails: async (props) => {
     // TODO: add paging mechanism
-    const messages = await getMessages('1:*', props)
+    const messages = await getMessages('1:*', props.ctx.configuration)
     return { messages }
   },
 
@@ -20,7 +20,7 @@ export const actions = {
       payload: { seenMails: [] },
     })
 
-    const allMessages = await getMessages('1:*', props)
+    const allMessages = await getMessages('1:*', props.ctx.configuration)
     for (const message of allMessages) {
       console.log(message.sender)
       if (message.sender === props.ctx.configuration.user) continue
