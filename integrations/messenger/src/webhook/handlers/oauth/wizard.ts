@@ -7,7 +7,7 @@ type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
 
 const ERROR_ACCESS_TOKEN_UNAVAILABLE = 'Access token is not available, please try again'
 
-const handler = async (props: bp.HandlerProps) => {
+export const handler = async (props: bp.HandlerProps) => {
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
     .addStep({
       id: 'start',
@@ -199,8 +199,4 @@ const _getOAuthCredentials = async (client: bp.Client, ctx: bp.Context) => {
   return await client
     .getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
     .then((result) => result.state.payload)
-}
-
-export default {
-  handler,
 }
