@@ -1,23 +1,34 @@
-import 'dotenv/config'
 import { getMessages } from './imap'
 import { sendNodemailerMail } from './smtp'
 import * as bp from '.botpress'
 
+const DEFAULT_START_PAGE = 0
+const DEFAULT_PER_PAGE = 50
+
 export const listEmails = async (props: bp.ActionProps['listEmails']) => {
   // TODO: add paging mechanism
-  const messages = await getMessages('1:*', { integrationConfig: props.ctx.configuration, logger: props.logger })
+  const page = props.input.page ? props.input.page : DEFAULT_START_PAGE,
+    perPage = props.input.perPage ? props.input.perPage : DEFAULT_PER_PAGE
+  const messages = await getMessages(
+    { page, perPage },
+    {
+      integrationConfig: props.ctx.configuration,
+      logger: props.logger,
+    }
+  )
+  console.log(messages)
   return { messages }
 }
 
 export const syncEmails = async (props: bp.ActionProps['syncEmails']) => {
-  const res = await _syncEmails(props, true)
+  const res = await _syncEmails(props, { enableNewMessageNotification: true })
   props.logger.forBot().info(`Synced the messages in the inbox at [${new Date().toISOString()}]`)
   return res
 }
 
 export const _syncEmails = async (
   props: { ctx: bp.Context; client: bp.Client; logger: bp.Logger },
-  enableNewMessageNotification: boolean
+  options: { enableNewMessageNotification: boolean }
 ) => {
   const {
     state: { payload: seenMessages },
@@ -27,15 +38,21 @@ export const _syncEmails = async (
     type: 'integration',
     payload: { seenMails: [] },
   })
-
-  const allMessages = await getMessages('1:*', { integrationConfig: props.ctx.configuration, logger: props.logger })
+  const allMessages = await getMessages(
+    { page: DEFAULT_START_PAGE, perPage: DEFAULT_PER_PAGE },
+    {
+      integrationConfig: props.ctx.configuration,
+      logger: props.logger,
+    },
+    { bodyNeeded: options.enableNewMessageNotification }
+  )
   for (const message of allMessages) {
     if (message.sender === props.ctx.configuration.user) continue
 
     const messageAlreadySeen = seenMessages.seenMails.some((m) => m.id === message.id)
     if (messageAlreadySeen) continue
 
-    if (enableNewMessageNotification) {
+    if (options.enableNewMessageNotification) {
       props.logger.forBot().info(`Detecting a new email from '${message.sender}': ${message.subject}`)
       await notifyNewMessage(props, message)
     }

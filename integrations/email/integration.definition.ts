@@ -38,7 +38,12 @@ export default new IntegrationDefinition({
     listEmails: {
       title: 'List emails',
       description: 'List all emails in the inbox',
-      input: { schema: z.object({}) },
+      input: {
+        schema: z.object({
+          page: z.number().describe('The page number in the inbox. Starts at 0').optional(),
+          perPage: z.number().describe('The number of emails per page').optional(),
+        }),
+      },
       output: {
         schema: z.object({
           messages: z.array(emailMessageSchema),

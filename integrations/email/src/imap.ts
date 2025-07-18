@@ -12,9 +12,18 @@ type HeaderData = {
   firstMessageId: string | undefined
 }
 
+const getPageFromEnd = async (props: { page: number; perPage: number; totalMessages: number }) => {
+  const start = props.page * props.perPage + 1
+  const end = start + props.perPage - 1
+  const range = `${start}:${end}`
+  console.log(range) //TODO
+  return range
+}
+
 export const getMessages = async function (
-  range: string,
-  props: { integrationConfig: bp.configuration.Configuration; logger: bp.Logger }
+  range: { page: number; perPage: number },
+  props: { integrationConfig: bp.configuration.Configuration; logger: bp.Logger },
+  options?: { bodyNeeded: boolean }
 ): Promise<bp.actions.listEmails.output.Output['messages']> {
   const messages: bp.actions.listEmails.output.Output['messages'] = []
   const imap: Imap = new Imap(getConfig(props.integrationConfig))
@@ -24,7 +33,16 @@ export const getMessages = async function (
   }
 
   const messageFetchPromise: Promise<void> = new Promise<void>((resolve, reject) => {
+    let totalMessages: number
     imap.once('ready', function () {
+      imap.status('INBOX', (err, box) => {
+        if (err) {
+          imap.end()
+          return reject(new sdk.RuntimeError('An error occurred while fetching INBOX status for total messages.', err))
+        }
+        imap.end()
+        totalMessages = box.messages.total
+      })
       openInbox((err) => {
         if (err)
           return reject(
@@ -33,13 +51,18 @@ export const getMessages = async function (
               err
             )
           )
+        const imapBodies = ['HEADER']
+        if (options?.bodyNeeded || !options) imapBodies.push('TEXT')
+        const actualRange = await getPageFromEnd({ page: range.page, perPage: range.perPage, totalMessages })
+          .then((actualRange) => {
+            const f: Imap.ImapFetch = imap.seq.fetch(actualRange, {
+              bodies: imapBodies,
+              struct: true,
+            })
 
-        const f: Imap.ImapFetch = imap.seq.fetch(range, {
-          bodies: ['HEADER', 'TEXT'],
-          struct: true,
-        })
-
-        handleFetch(imap, f, messages)
+            handleFetch(imap, f, messages)
+          })
+          .catch(reject)
       })
     })
 
