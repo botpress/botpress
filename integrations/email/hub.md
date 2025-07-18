@@ -20,6 +20,14 @@ host: imap.gmail.com #for gmail
 
 To use:
 
+#### Sending emails
+
+```json
+{
+TODO
+}
+```
+
 ## Actions
 
 ### `listEmails`

@@ -25,42 +25,9 @@ export const syncEmails = async (props: bp.ActionProps['syncEmails']) => {
 
     const messageAlreadySeen = seenMessages.seenMails.some((m) => m.id === message.id)
     if (messageAlreadySeen) continue
-    props.logger.forBot().info(`Detecting a new email from '${message.sender}'`)
 
-    const { user } = await props.client.getOrCreateUser({
-      tags: { email: message.sender },
-    })
-
-    let firstMessageId: string
-    if (message.firstMessageId) {
-      firstMessageId = message.firstMessageId
-    } else {
-      firstMessageId = message.id
-    }
-
-    const { conversation } = await props.client.getOrCreateConversation({
-      channel: 'default',
-      tags: {
-        firstMessageId,
-        subject: message.subject,
-        to: user.tags.email,
-        latestEmail: message.id,
-      },
-      discriminateByTags: ['firstMessageId'],
-    })
-    props.logger
-      .forBot()
-      .info(
-        `Created conversation with id '${conversation.tags.firstMessageId}' and subject '${conversation.tags.subject}'.`
-      )
-
-    await props.client.createMessage({
-      conversationId: conversation.id,
-      userId: user.id,
-      payload: { text: message.body },
-      tags: { id: message.id },
-      type: 'text',
-    })
+    props.logger.forBot().info(`Detecting a new email from '${message.sender}': ${message.subject}`)
+    await notifyNewMessage(props, message)
   }
 
   await props.client.setState({
@@ -77,6 +44,46 @@ export const syncEmails = async (props: bp.ActionProps['syncEmails']) => {
   })
 
   return {}
+}
+
+const notifyNewMessage = async (
+  props: bp.ActionProps['syncEmails'],
+  message: bp.actions.listEmails.output.Output['messages'][0]
+) => {
+  const { user } = await props.client.getOrCreateUser({
+    tags: { email: message.sender },
+  })
+
+  let firstMessageId: string
+  if (message.firstMessageId) {
+    firstMessageId = message.firstMessageId
+  } else {
+    firstMessageId = message.id
+  }
+
+  const { conversation } = await props.client.getOrCreateConversation({
+    channel: 'default',
+    tags: {
+      firstMessageId,
+      subject: message.subject,
+      to: user.tags.email,
+      latestEmail: message.id,
+    },
+    discriminateByTags: ['firstMessageId'],
+  })
+  props.logger
+    .forBot()
+    .info(
+      `Created conversation with id '${conversation.tags.firstMessageId}' and subject '${conversation.tags.subject}'.`
+    )
+
+  await props.client.createMessage({
+    conversationId: conversation.id,
+    userId: user.id,
+    payload: { text: message.body },
+    tags: { id: message.id },
+    type: 'text',
+  })
 }
 
 export const sendEmail = async (props: bp.ActionProps['sendEmail']) => {
