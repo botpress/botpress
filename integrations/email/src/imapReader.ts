@@ -5,19 +5,19 @@ import * as bp from '.botpress'
 
 export const getMessages = async function (
   range: string,
-  ctx: bp.configuration.Configuration
+  props: { integrationConfig: bp.configuration.Configuration; logger: bp.Logger }
 ): Promise<bp.actions.listEmails.output.Output['messages']> {
   const messages: bp.actions.listEmails.output.Output['messages'] = []
-  const imap: Imap = new Imap(getConfig(ctx))
+  const imap: Imap = new Imap(getConfig(props.integrationConfig))
 
-  function openInbox(cb: (err: any, box: any) => void): void {
+  function openInbox(cb: (err: Error, box: Imap.Box) => void): void {
     imap.openBox('INBOX', true, cb)
   }
 
   const messageFetchPromise: Promise<void> = new Promise<void>((resolve, reject) => {
     imap.once('ready', function () {
-      openInbox((err: any) => {
-        if (err) return reject(new sdk.RuntimeError(err))
+      openInbox((err) => {
+        if (err) return reject(new sdk.RuntimeError(err.message))
 
         const f: Imap.ImapFetch = imap.seq.fetch(range, {
           bodies: ['HEADER', 'TEXT'],
@@ -32,14 +32,16 @@ export const getMessages = async function (
       resolve()
     })
 
-    imap.once('error', (err: any) => {
-      reject(new sdk.RuntimeError(err))
+    imap.once('error', (err: Error) => {
+      reject(new sdk.RuntimeError(err.message))
     })
 
     imap.connect()
   })
 
   await messageFetchPromise
+
+  props.logger.forBot().info('Finished reading all messages in inbox.')
 
   return messages
 }
@@ -60,9 +62,9 @@ const handleFetch = function (
 
     let headerBuffer: string = ''
 
-    msg.on('body', (stream: NodeJS.ReadableStream, info: any) => {
+    msg.on('body', (stream: NodeJS.ReadableStream, info) => {
       let buffer = ''
-      stream.on('data', function (chunk: any) {
+      stream.on('data', function (chunk) {
         buffer += chunk.toString('utf8')
       })
       stream.once('end', function () {
@@ -127,7 +129,7 @@ const getConfig = function (config: bp.configuration.Configuration) {
   return {
     user: config.user,
     password: config.password,
-    host: 'imap.gmail.com',
+    host: config.host,
     port: 993,
     tls: true,
     tlsOptions: { rejectUnauthorized: false },

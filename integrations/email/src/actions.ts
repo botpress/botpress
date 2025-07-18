@@ -6,7 +6,7 @@ import * as bp from '.botpress'
 export const actions = {
   listEmails: async (props) => {
     // TODO: add paging mechanism
-    const messages = await getMessages('1:*', props.ctx.configuration)
+    const messages = await getMessages('1:*', { integrationConfig: props.ctx.configuration, logger: props.logger })
     return { messages }
   },
 
@@ -20,13 +20,13 @@ export const actions = {
       payload: { seenMails: [] },
     })
 
-    const allMessages = await getMessages('1:*', props.ctx.configuration)
+    const allMessages = await getMessages('1:*', { integrationConfig: props.ctx.configuration, logger: props.logger })
     for (const message of allMessages) {
-      console.log(message.sender)
       if (message.sender === props.ctx.configuration.user) continue
 
       const messageAlreadySeen = seenMessages.seenMails.some((m) => m.id === message.id)
       if (messageAlreadySeen) continue
+      props.logger.forBot().info(`Detecting a new email from '${message.sender}'`)
 
       const { user } = await props.client.getOrCreateUser({
         tags: { email: message.sender },
@@ -49,7 +49,11 @@ export const actions = {
         },
         discriminateByTags: ['firstMessageId'],
       })
-      props.logger.forBot().info("created conversation '" + conversation.tags.subject + "'.")
+      props.logger
+        .forBot()
+        .info(
+          `Created conversation with id '${conversation.tags.firstMessageId}' and subject '${conversation.tags.subject}'.`
+        )
 
       await props.client.createMessage({
         conversationId: conversation.id,
@@ -75,7 +79,7 @@ export const actions = {
 
     return {}
   },
-  sendMail: async (props) => {
+  sendEmail: async (props) => {
     return await sendNodemailerMail(props.ctx.configuration, props.input)
   },
 } as const satisfies bp.IntegrationProps['actions']

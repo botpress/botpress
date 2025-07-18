@@ -16,7 +16,7 @@ export default new IntegrationDefinition({
   version: '0.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
-  configuration: { schema: z.object({ user: z.string(), password: z.string() }).required() },
+  configuration: { schema: z.object({ user: z.string(), password: z.string(), host: z.string() }).required() },
   states: {
     seenMails: {
       type: 'integration',
@@ -42,8 +42,8 @@ export default new IntegrationDefinition({
         schema: z.object({}),
       },
     },
-    sendMail: {
-      title: 'Send Mail',
+    sendEmail: {
+      title: 'Send Email',
       description: 'Send an email using SMTP',
       input: {
         schema: z.object({
