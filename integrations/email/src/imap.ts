@@ -12,11 +12,12 @@ type HeaderData = {
   firstMessageId: string | undefined
 }
 
-const getPageFromEnd = async (props: { page: number; perPage: number; totalMessages: number }) => {
-  const start = props.page * props.perPage + 1
-  const end = start + props.perPage - 1
+const getPageFromEnd = (props: { page: number; perPage: number; totalMessages: number }) => {
+  const end = Math.max(1, props.totalMessages - props.page * props.perPage)
+  const start = Math.max(1, end - props.perPage + 1)
+
   const range = `${start}:${end}`
-  console.log(range) //TODO
+  console.log(range)
   return range
 }
 
@@ -33,36 +34,29 @@ export const getMessages = async function (
   }
 
   const messageFetchPromise: Promise<void> = new Promise<void>((resolve, reject) => {
-    let totalMessages: number
-    imap.once('ready', function () {
-      imap.status('INBOX', (err, box) => {
+    imap.once('ready', () => {
+      openInbox((err, box) => {
         if (err) {
-          imap.end()
-          return reject(new sdk.RuntimeError('An error occurred while fetching INBOX status for total messages.', err))
-        }
-        imap.end()
-        totalMessages = box.messages.total
-      })
-      openInbox((err) => {
-        if (err)
           return reject(
             new sdk.RuntimeError(
               'An error occured while opening the inbox. Verify the integration configuration parameters.',
               err
             )
           )
-        const imapBodies = ['HEADER']
-        if (options?.bodyNeeded || !options) imapBodies.push('TEXT')
-        const actualRange = await getPageFromEnd({ page: range.page, perPage: range.perPage, totalMessages })
-          .then((actualRange) => {
-            const f: Imap.ImapFetch = imap.seq.fetch(actualRange, {
-              bodies: imapBodies,
-              struct: true,
-            })
+        }
 
-            handleFetch(imap, f, messages)
-          })
-          .catch(reject)
+        const totalMessages = box.messages.total
+        const imapBodies = ['HEADER']
+        if (options?.bodyNeeded || !options) {
+          imapBodies.push('TEXT')
+        }
+
+        const actualRange = getPageFromEnd({ page: range.page, perPage: range.perPage, totalMessages })
+        const f: Imap.ImapFetch = imap.seq.fetch(actualRange, {
+          bodies: imapBodies,
+          struct: true,
+        })
+        handleFetch(imap, f, messages).catch(reject)
       })
     })
 
@@ -85,43 +79,51 @@ const handleFetch = function (
   imap: Imap,
   f: Imap.ImapFetch,
   messages: bp.actions.listEmails.output.Output['messages']
-) {
-  f.on('message', (msg: Imap.ImapMessage) => {
-    let headerData: HeaderData
-    let body: string
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    f.on('message', (msg: Imap.ImapMessage) => {
+      let headerData: HeaderData
+      let body: string
 
-    msg.on('body', (stream: NodeJS.ReadableStream, info) => {
-      let buffer = ''
-      stream.on('data', function (chunk) {
-        buffer += chunk.toString('utf8')
+      msg.on('body', (stream: NodeJS.ReadableStream, info) => {
+        let buffer = ''
+        stream.on('data', function (chunk) {
+          buffer += chunk.toString('utf8')
+        })
+        stream.once('end', function () {
+          if (info.which === 'HEADER') {
+            headerData = parseHeader(buffer)
+          } else if (info.which === 'TEXT') {
+            body = buffer
+          }
+        })
       })
-      stream.once('end', function () {
-        if (info.which === 'HEADER') {
-          headerData = parseHeader(buffer)
-        } else if (info.which === 'TEXT') {
-          body = buffer
-        }
+
+      let partsProcessed = 0
+      const totalParts = 2 // For HEADER and TEXT
+
+      msg.on('body', (stream: NodeJS.ReadableStream) => {
+        stream.once('end', () => {
+          partsProcessed++
+          if (partsProcessed === totalParts) {
+            // All parts for this message have been processed
+            messages.push({
+              ...headerData,
+              body,
+            })
+          }
+        })
       })
     })
 
-    let partsProcessed = 0
-    const totalParts = 2 // For HEADER and TEXT
-
-    msg.on('body', (stream: NodeJS.ReadableStream) => {
-      stream.once('end', () => {
-        partsProcessed++
-        if (partsProcessed === totalParts) {
-          // All parts for this message have been processed
-          messages.push({
-            ...headerData,
-            body,
-          })
-        }
-      })
+    f.once('error', (err) => {
+      reject(new sdk.RuntimeError('An error occured while fetching messages.', err))
     })
-  })
-  f.once('end', function () {
-    imap.end()
+
+    f.once('end', function () {
+      imap.end()
+      resolve()
+    })
   })
 }
 

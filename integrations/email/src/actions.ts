@@ -16,7 +16,6 @@ export const listEmails = async (props: bp.ActionProps['listEmails']) => {
       logger: props.logger,
     }
   )
-  console.log(messages)
   return { messages }
 }
 
