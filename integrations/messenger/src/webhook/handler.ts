@@ -1,13 +1,13 @@
 import { meta } from '@botpress/common'
 import { getClientSecret, getVerifyToken } from '../misc/auth'
 import { MessengerPayloadSchema } from '../misc/types'
-import { oauth as oauthHandling, message as messageHandling } from './handlers'
+import { oauthHandler, messageHandler } from './handlers'
 import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, client, ctx, logger } = props
   if (req.path.startsWith('/oauth')) {
-    return oauthHandling.handler({ req, client, ctx, logger })
+    return oauthHandler({ req, client, ctx, logger })
   }
 
   logger.debug('Received request with body:', req.body ?? '[empty]')
@@ -29,7 +29,7 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
     const data = MessengerPayloadSchema.parse(JSON.parse(req.body))
     for (const { messaging } of data.entry) {
       const message = messaging[0]
-      await messageHandling.handler(message, { client, ctx, logger })
+      await messageHandler(message, { client, ctx, logger })
     }
   } catch (e: any) {
     logger.forBot().error('Error while handling request:', e)

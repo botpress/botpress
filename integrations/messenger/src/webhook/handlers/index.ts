@@ -1,2 +1,2 @@
-export { default as oauth } from './oauth'
-export { default as message } from './message'
+export { handler as oauthHandler } from './oauth'
+export { handler as messageHandler } from './message'

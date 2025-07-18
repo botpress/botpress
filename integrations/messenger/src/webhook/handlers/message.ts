@@ -4,7 +4,7 @@ import * as bp from '.botpress'
 
 type IntegrationLogger = bp.Logger
 
-async function handler(
+export async function handler(
   message: MessengerMessaging,
   { client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: IntegrationLogger }
 ) {
@@ -62,8 +62,4 @@ async function handler(
     conversationId: conversation.id,
     payload: { text },
   })
-}
-
-export default {
-  handler,
 }
