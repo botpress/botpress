@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { getMessages } from './imapReader'
+import { getMessages } from './imap'
 import { sendNodemailerMail } from './smtp'
 import * as bp from '.botpress'
 
