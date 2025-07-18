@@ -2,11 +2,11 @@ import nodemailer from 'nodemailer'
 import * as bp from '.botpress'
 
 export const sendNodemailerMail = async (
-  config: { user: string; password: string },
+  config: bp.Context['configuration'],
   props: bp.actions.sendEmail.input.Input
 ) => {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: config.smtpHost,
     auth: {
       user: config.user,
       pass: config.password,

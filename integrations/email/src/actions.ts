@@ -10,7 +10,9 @@ export const listEmails = async (props: bp.ActionProps['listEmails']) => {
 }
 
 export const syncEmails = async (props: bp.ActionProps['syncEmails']) => {
-  return await _syncEmails(props, true)
+  const res = await _syncEmails(props, true)
+  props.logger.forBot().info(`Synced the messages in the inbox at [${new Date().toISOString()}]`)
+  return res
 }
 
 export const _syncEmails = async (
@@ -33,8 +35,10 @@ export const _syncEmails = async (
     const messageAlreadySeen = seenMessages.seenMails.some((m) => m.id === message.id)
     if (messageAlreadySeen) continue
 
-    props.logger.forBot().info(`Detecting a new email from '${message.sender}': ${message.subject}`)
-    if (enableNewMessageNotification) await notifyNewMessage(props, message)
+    if (enableNewMessageNotification) {
+      props.logger.forBot().info(`Detecting a new email from '${message.sender}': ${message.subject}`)
+      await notifyNewMessage(props, message)
+    }
   }
 
   await props.client.setState({

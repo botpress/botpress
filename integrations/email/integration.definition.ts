@@ -16,7 +16,18 @@ export default new IntegrationDefinition({
   version: '0.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
-  configuration: { schema: z.object({ user: z.string(), password: z.string(), host: z.string() }).required() },
+  configuration: {
+    schema: z
+      .object({
+        user: z
+          .string()
+          .describe('The email account you want to use to receive and send messages. Example: example@gmail.com'),
+        password: z.string().describe('The password to the email account.'),
+        imapHost: z.string().describe('The imap server you want to connect to. Example: imap.gmail.com'),
+        smtpHost: z.string().describe('The smtp server you want to connect to. Example: smtp.gmail.com'),
+      })
+      .required(),
+  },
   states: {
     seenMails: {
       type: 'integration',

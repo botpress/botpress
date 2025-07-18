@@ -55,9 +55,6 @@ export const getMessages = async function (
   })
 
   await messageFetchPromise
-
-  props.logger.forBot().info('Finished reading all messages in inbox.')
-
   return messages
 }
 
@@ -109,7 +106,7 @@ const getConfig = function (config: bp.configuration.Configuration) {
   return {
     user: config.user,
     password: config.password,
-    host: config.host,
+    host: config.imapHost,
     port: 993,
     tls: true,
     tlsOptions: { rejectUnauthorized: false },
