@@ -4,7 +4,10 @@ import crypto from 'crypto'
 type IntegrationHandler = IntegrationProps['handler']
 type IntegrationHandlerProps = Pick<Parameters<IntegrationHandler>[0], 'req'>
 
-const validateRequestSignature = async ({ req, clientSecret }: IntegrationHandlerProps & { clientSecret?: string }) => {
+export const validateRequestSignature = async ({
+  req,
+  clientSecret,
+}: IntegrationHandlerProps & { clientSecret?: string }) => {
   if (!clientSecret) {
     return { error: false }
   }
@@ -20,5 +23,3 @@ const validateRequestSignature = async ({ req, clientSecret }: IntegrationHandle
 
   return { error: false }
 }
-
-export default validateRequestSignature

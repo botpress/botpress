@@ -9,5 +9,4 @@ export * from './collectable-async-generator'
 export * from './conversation-transcript'
 export * from './user-resolver'
 export * from './sandbox'
-import meta from './meta'
-export { meta }
+export * as meta from './meta'
