@@ -1,6 +1,16 @@
 import { RuntimeError } from '@botpress/sdk'
-import { sendMessage } from '../misc/outgoing-message'
-import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage } from '../misc/utils'
+import { MessengerTypes, MessengerClient } from 'messaging-api-messenger'
+import { create as createMessengerClient } from '../misc/messenger-client'
+import {
+  Card,
+  Carousel,
+  Choice,
+  Dropdown,
+  Location,
+  MessengerOutMessageAttachment,
+  SendMessageProps,
+} from '../misc/types'
+import { getGoogleMapLinkFromLocation, getRecipientId } from '../misc/utils'
 import * as bp from '.botpress'
 
 const channel: bp.IntegrationProps['channels']['channel'] = {
@@ -37,7 +47,7 @@ const channel: bp.IntegrationProps['channels']['channel'] = {
       }),
     location: async ({ payload, ...props }) =>
       sendMessage(props, async (messenger, recipientId) => {
-        const googleMapLink = formatGoogleMapLink(payload)
+        const googleMapLink = getGoogleMapLinkFromLocation(payload)
 
         props.logger.forBot().debug('Sending location message from bot to Messenger:', googleMapLink)
         return messenger.sendText(recipientId, googleMapLink)
@@ -74,6 +84,87 @@ const channel: bp.IntegrationProps['channels']['channel'] = {
       throw new RuntimeError('Not implemented')
     },
   },
+}
+
+export function formatCardElement(payload: Card) {
+  const buttons: MessengerOutMessageAttachment[] = []
+
+  payload.actions.forEach((action) => {
+    switch (action.action) {
+      case 'postback':
+        buttons.push({
+          type: 'postback',
+          title: action.label,
+          payload: action.value,
+        })
+        break
+      case 'say':
+        buttons.push({
+          type: 'postback',
+          title: action.label,
+          payload: action.value,
+        })
+        break
+      case 'url':
+        buttons.push({
+          type: 'web_url',
+          title: action.label,
+          url: action.value,
+        })
+        break
+      default:
+        break
+    }
+  })
+  return {
+    title: payload.title,
+    image_url: payload.imageUrl,
+    subtitle: payload.subtitle,
+    buttons,
+  }
+}
+
+async function sendMessage(
+  { ack, client, ctx, conversation }: SendMessageProps,
+  send: (client: MessengerClient, recipientId: string) => Promise<{ messageId: string }>
+) {
+  const messengerClient = await createMessengerClient(client, ctx)
+  const recipientId = getRecipientId(conversation)
+  const { messageId } = await send(messengerClient, recipientId)
+  await ack({ tags: { id: messageId } })
+}
+
+function getCarouselMessage(payload: Carousel): MessengerTypes.AttachmentMessage {
+  return {
+    attachment: {
+      type: 'template',
+      payload: {
+        templateType: 'generic',
+        elements: payload.items.map(formatCardElement),
+      },
+    },
+  }
+}
+
+function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.TextMessage {
+  if (!payload.options.length) {
+    return { text: payload.text }
+  }
+
+  if (payload.options.length > 13) {
+    return {
+      text: `${payload.text}\n\n${payload.options.map((o, idx) => `${idx + 1}. ${o.label}`).join('\n')}`,
+    }
+  }
+
+  return {
+    text: payload.text,
+    quickReplies: payload.options.map((option) => ({
+      contentType: 'text',
+      title: option.label,
+      payload: option.value,
+    })),
+  }
 }
 
 export default channel

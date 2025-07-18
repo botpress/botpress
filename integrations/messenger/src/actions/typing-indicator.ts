@@ -1,6 +1,6 @@
 import { MessengerTypes } from 'messaging-api-messenger'
-import { create as createMessengerClient } from 'src/misc/messenger-client'
-import { getRecipientId } from 'src/misc/outgoing-message'
+import { create as createMessengerClient } from '../misc/messenger-client'
+import { getRecipientId } from '../misc/utils'
 import * as bp from '.botpress'
 
 export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIndicator'] = async (props) => {

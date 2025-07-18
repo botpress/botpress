@@ -7,6 +7,13 @@ export type Choice = bp.channels.channel.choice.Choice
 export type Dropdown = bp.channels.channel.dropdown.Dropdown
 export type Location = bp.channels.channel.location.Location
 
+type Channels = bp.Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
+
+export type SendMessageProps = Pick<MessageHandlerProps, 'client' | 'ctx' | 'conversation' | 'ack'>
+
 const MessengerOutMessagePostbackAttachmentSchema = z.object({
   type: z.literal('postback'),
   title: z.string(),
