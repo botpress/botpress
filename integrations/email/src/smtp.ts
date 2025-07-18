@@ -17,5 +17,5 @@ export const sendNodemailerMail = async (
     from: config.user,
     ...props,
   })
-  return { message: 'Success' }
+  return {}
 }

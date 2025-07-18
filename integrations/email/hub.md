@@ -3,6 +3,7 @@
 ## Description
 
 This integration provides Internet Messaging Access Protocol (IMAP) and Simple Messaging Transport Protocol (SMTP) actions to read and send email messages.
+The integration **does not** support HTML yet.
 
 ## Getting started
 

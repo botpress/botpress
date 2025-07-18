@@ -31,7 +31,9 @@ export default new IntegrationDefinition({
   states: {
     seenMails: {
       type: 'integration',
-      schema: z.object({ seenMails: z.array(z.object({ id: z.string() })) }),
+      schema: z.object({
+        seenMails: z.array(z.object({ id: z.string().describe('The id of all mails seen previously by syncEmails') })),
+      }),
     },
   },
   actions: {
@@ -63,17 +65,20 @@ export default new IntegrationDefinition({
       description: 'Send an email using SMTP',
       input: {
         schema: z.object({
-          to: z.string(),
-          subject: z.string().optional(),
-          text: z.string().optional(),
-          inReplyTo: z.string().optional(),
-          replyTo: z.string().optional(),
+          to: z.string().describe('The email address of the recipient'),
+          subject: z.string().optional().describe('The subject of the outgoing email'),
+          text: z.string().optional().describe('The text contained in the body of the email'),
+          inReplyTo: z.string().optional().describe('The id of the email you want to reply to'),
+          replyTo: z
+            .string()
+            .optional()
+            .describe(
+              'The email address to which replies should be sent. This allows recipients to reply to a different address than the sender'
+            ),
         }),
       },
       output: {
-        schema: z.object({
-          message: z.string().optional(),
-        }),
+        schema: z.object({}),
       },
     },
   },
