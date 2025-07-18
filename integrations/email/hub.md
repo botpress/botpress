@@ -1,21 +1,35 @@
 # Email integration
 
-## Internet Messaging Access Protocol (IMAP)
+## Description
 
-This integration allows to give the bot IMAP capabilities.
+This integration provides Internet Messaging Access Protocol (IMAP) and Simple Messaging Transport Protocol (SMTP) actions to read and send email messages.
 
-### Implemented IMAP actions
+## Getting started
 
-#### New Email
+### Configuration
+
+The configuration contains three required fields. Here is an example of config
+
+```yml
+user: yourEmailAccount@gmail.com
+password: yourAccountPassword
+host: imap.gmail.com #for gmail
+```
+
+### Usage example
+
+To use:
+
+## Actions
+
+### `listEmails`
 
 Upon receiving a new email, the bot will summarize it to you.
 
-## Simple Messaging Transport Protocol (SMTP)
-
-Allows to send messages via SMTP
-
-### Implemented SMTP actions
-
-#### Send Email
+### `sendEmail`
 
 Send an email to someone using a provided email
+
+### `syncEmails`
+
+Refresh emails and create new messages for the emails you have not seen yet.
