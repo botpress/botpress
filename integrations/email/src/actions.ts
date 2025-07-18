@@ -6,9 +6,8 @@ const DEFAULT_START_PAGE = 0
 const DEFAULT_PER_PAGE = 50
 
 export const listEmails = async (props: bp.ActionProps['listEmails']) => {
-  // TODO: add paging mechanism
-  const page = props.input.page ? props.input.page : DEFAULT_START_PAGE,
-    perPage = props.input.perPage ? props.input.perPage : DEFAULT_PER_PAGE
+  const page = props.input.page ?? DEFAULT_START_PAGE
+  const perPage = props.input.perPage ?? DEFAULT_PER_PAGE
   const messages = await getMessages(
     { page, perPage },
     {
@@ -81,12 +80,7 @@ const notifyNewMessage = async (
     tags: { email: message.sender },
   })
 
-  let firstMessageId: string
-  if (message.firstMessageId) {
-    firstMessageId = message.firstMessageId
-  } else {
-    firstMessageId = message.id
-  }
+  const firstMessageId = message.firstMessageId || message.id
 
   const { conversation } = await props.client.getOrCreateConversation({
     channel: 'default',
