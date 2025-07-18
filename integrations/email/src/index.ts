@@ -13,11 +13,11 @@ export default new bp.Integration({
       messages: {
         text: async (props) => {
           await sendNodemailerMail(props.ctx.configuration, {
-            to: props.conversation.tags.to!,
+            to: props.conversation.tags.to,
             subject: 'Sent from botpress email integration',
             text: props.payload.text,
             inReplyTo: props.conversation.tags.latestEmail,
-            replyTo: props.conversation.tags.latestEmail !== undefined ? props.ctx.configuration.user! : undefined,
+            replyTo: props.conversation.tags.latestEmail !== undefined ? props.ctx.configuration.user : undefined,
           })
         },
       },
