@@ -1,5 +1,5 @@
+import { create as createMessengerClient } from './messenger-client'
 import { MessengerMessage } from './types'
-import { getMessengerClient } from './utils'
 import * as bp from '.botpress'
 
 type IntegrationLogger = bp.Logger
@@ -42,7 +42,7 @@ export async function handleMessage(
 
   if (!user.name || !user.pictureUrl) {
     try {
-      const messengerClient = await getMessengerClient(client, ctx)
+      const messengerClient = await createMessengerClient(client, ctx)
       const profile = await messengerClient.getUserProfile(message.sender.id, { fields: ['id', 'name', 'profile_pic'] })
       logger.forBot().debug('Fetched latest Messenger user profile: ', profile)
 

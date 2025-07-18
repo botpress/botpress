@@ -4,7 +4,6 @@ import wizard from './wizard'
 import * as bp from '.botpress'
 
 const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx, logger }) => {
-  logger.debug('OAuth handler received request:', JSON.stringify(req))
   if (!isOAuthWizardUrl(req.path)) {
     return {
       status: 404,

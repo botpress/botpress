@@ -1,17 +1,6 @@
-import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
-import { getCredentials } from 'src/misc/client'
+import { MessengerTypes } from 'messaging-api-messenger'
+
 import { Card, Carousel, Choice, Dropdown, Location, MessengerAttachment } from './types'
-import * as bp from '.botpress'
-
-export async function getMessengerClient(client: bp.Client, ctx: bp.Context) {
-  const { accessToken, clientId, clientSecret } = await getCredentials(client, ctx)
-
-  return new MessengerClient({
-    accessToken,
-    appSecret: clientSecret,
-    appId: clientId,
-  })
-}
 
 export function formatGoogleMapLink(payload: Location) {
   return `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`

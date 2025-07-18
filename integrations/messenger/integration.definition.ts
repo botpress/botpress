@@ -40,7 +40,7 @@ export default new IntegrationDefinition({
           .string()
           .title('Client Secret')
           .optional()
-          .describe('Meta app secret used for webhook signature check'),
+          .describe('Meta app secret used for webhook signature check. Leave empty to disable signature check.'),
         pageId: z.string().min(1).describe('Id from the Facebook page').title('Page ID'),
       }),
     },
@@ -89,17 +89,16 @@ export default new IntegrationDefinition({
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: {
-      description: 'The client ID of your Meta app.',
+      description: 'The client ID of your Meta app',
     },
     CLIENT_SECRET: {
-      description: 'The client secret of your Meta app.',
+      description: 'The client secret of your Meta app',
     },
     OAUTH_CONFIG_ID: {
       description: 'The OAuth configuration ID for the OAuth Meta app',
     },
     VERIFY_TOKEN: {
-      description: 'The verify token for the Meta Webhooks subscription, optional since its only useful for oAuth.',
-      optional: true,
+      description: 'The verify token for the Meta Webhooks subscription',
     },
     ACCESS_TOKEN: {
       description: 'Access token for internal Meta App',

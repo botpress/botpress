@@ -138,29 +138,3 @@ export class MetaClient {
     }
   }
 }
-
-export async function getCredentials(
-  client: bp.Client,
-  ctx: bp.Context
-): Promise<{ accessToken: string; clientSecret: string; clientId: string }> {
-  if (ctx.configurationType === 'manualApp') {
-    return {
-      accessToken: ctx.configuration.accessToken || '',
-      clientSecret: ctx.configuration.clientSecret || '',
-      clientId: ctx.configuration.clientId || '',
-    }
-  }
-
-  // Otherwise use the page token obtained from the OAuth flow and stored in the state
-  const { state } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
-
-  if (!state.payload.pageToken) {
-    throw new Error('There is no access token, please reauthorize')
-  }
-
-  return {
-    accessToken: state.payload.pageToken,
-    clientSecret: bp.secrets.CLIENT_SECRET,
-    clientId: bp.secrets.CLIENT_ID,
-  }
-}
