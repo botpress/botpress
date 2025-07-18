@@ -15,29 +15,3 @@ user: yourEmailAccount@gmail.com
 password: yourAccountPassword
 host: imap.gmail.com #for gmail
 ```
-
-### Usage example
-
-To use:
-
-#### Sending emails
-
-```json
-{
-TODO
-}
-```
-
-## Actions
-
-### `listEmails`
-
-Upon receiving a new email, the bot will summarize it to you.
-
-### `sendEmail`
-
-Send an email to someone using a provided email
-
-### `syncEmails`
-
-Refresh emails and create new messages for the emails you have not seen yet.
