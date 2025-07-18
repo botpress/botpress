@@ -17,7 +17,13 @@ export const getMessages = async function (
   const messageFetchPromise: Promise<void> = new Promise<void>((resolve, reject) => {
     imap.once('ready', function () {
       openInbox((err) => {
-        if (err) return reject(new sdk.RuntimeError(err.message))
+        if (err)
+          return reject(
+            new sdk.RuntimeError(
+              'An error occured while opening the inbox. Verify the integration configuration parameters.',
+              err
+            )
+          )
 
         const f: Imap.ImapFetch = imap.seq.fetch(range, {
           bodies: ['HEADER', 'TEXT'],
@@ -33,7 +39,7 @@ export const getMessages = async function (
     })
 
     imap.once('error', (err: Error) => {
-      reject(new sdk.RuntimeError(err.message))
+      reject(new sdk.RuntimeError('An error occured while reading the inbox.', err))
     })
 
     imap.connect()

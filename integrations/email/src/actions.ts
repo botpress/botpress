@@ -10,6 +10,13 @@ export const listEmails = async (props: bp.ActionProps['listEmails']) => {
 }
 
 export const syncEmails = async (props: bp.ActionProps['syncEmails']) => {
+  return await _syncEmails(props, true)
+}
+
+export const _syncEmails = async (
+  props: { ctx: bp.Context; client: bp.Client; logger: bp.Logger },
+  enableNewMessageNotification: boolean
+) => {
   const {
     state: { payload: seenMessages },
   } = await props.client.getOrSetState({
@@ -27,7 +34,7 @@ export const syncEmails = async (props: bp.ActionProps['syncEmails']) => {
     if (messageAlreadySeen) continue
 
     props.logger.forBot().info(`Detecting a new email from '${message.sender}': ${message.subject}`)
-    await notifyNewMessage(props, message)
+    if (enableNewMessageNotification) await notifyNewMessage(props, message)
   }
 
   await props.client.setState({
@@ -47,7 +54,7 @@ export const syncEmails = async (props: bp.ActionProps['syncEmails']) => {
 }
 
 const notifyNewMessage = async (
-  props: bp.ActionProps['syncEmails'],
+  props: { client: bp.Client; logger: bp.Logger },
   message: bp.actions.listEmails.output.Output['messages'][0]
 ) => {
   const { user } = await props.client.getOrCreateUser({

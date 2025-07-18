@@ -3,8 +3,9 @@ import { defaultChannel } from './channels'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
-  register: async () => {
-    // TODO: test the config here to throw as early as possible
+  register: async (props) => {
+    await actions._syncEmails(props, false)
+    props.logger.forBot().info('Finished syncing to the inbox for the first time')
   },
   unregister: async () => {},
   actions: {
