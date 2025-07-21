@@ -6055,7 +6055,7 @@ packages:
     dependencies:
       '@types/node': 22.10.2
     optionalDependencies:
-      axios: 1.10.0
+      axios: 1.9.0
     transitivePeerDependencies:
       - debug
     dev: false
@@ -6700,7 +6700,7 @@ packages:
       react-promise-suspense: 0.3.4
     dev: false
 
-  /@react-email/render@1.1.2(react-dom@19.1.0)(react@19.1.0):
+  /@react-email/render@1.1.2(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-RnRehYN3v9gVlNMehHPHhyp2RQo7+pSkHDtXPvg3s0GbzM9SQMW4Qrf8GRNvtpLC4gsI+Wt0VatNRUFqjvevbw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
@@ -6709,8 +6709,8 @@ packages:
     dependencies:
       html-to-text: 9.0.5
       prettier: 3.5.3
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
       react-promise-suspense: 0.3.4
     dev: false
 
@@ -16092,15 +16092,6 @@ packages:
       scheduler: 0.23.2
     dev: false
 
-  /react-dom@19.1.0(react@19.1.0):
-    resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
-    peerDependencies:
-      react: ^19.1.0
-    dependencies:
-      react: 19.1.0
-      scheduler: 0.26.0
-    dev: false
-
   /react-is@18.2.0:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: true
@@ -16116,11 +16107,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
-
-  /react@19.1.0:
-    resolution: {integrity: sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==}
-    engines: {node: '>=0.10.0'}
     dev: false
 
   /readable-stream@1.1.14:
@@ -16337,11 +16323,11 @@ packages:
     resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
     dev: false
 
-  /resend@4.6.0(react-dom@19.1.0)(react@19.1.0):
+  /resend@4.6.0(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-D5T2I82FvEUYFlrHzaDvVtr5ADHdhuoLaXgLFGABKyNtQgPWIuz0Vp2L2Evx779qjK37aF4kcw1yXJDHhA2JnQ==}
     engines: {node: '>=18'}
     dependencies:
-      '@react-email/render': 1.1.2(react-dom@19.1.0)(react@19.1.0)
+      '@react-email/render': 1.1.2(react-dom@18.3.1)(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
@@ -16540,10 +16526,6 @@ packages:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
-
-  /scheduler@0.26.0:
-    resolution: {integrity: sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==}
     dev: false
 
   /scmp@2.1.0:
