@@ -1,7 +1,7 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
+import { getPartialMetaClientCredentials, patchMetaClientCredentials } from '../../../misc/auth'
 import { MetaClient } from '../../../misc/meta-client'
 import * as bp from '.botpress'
-import { Oauth as OAuthState } from '.botpress/implementation/typings/states/oauth'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
 
@@ -81,16 +81,19 @@ const _oauthCallbackHandler: WizardHandler = async ({ responses, query, client, 
   }
 
   const metaClient = new MetaClient(logger)
-  const accessToken = await metaClient.getAccessToken(authorizationCode, _getOAuthRedirectUri(ctx))
+  const accessToken = await metaClient.exchangeAuthorizationCodeForAccessToken(
+    authorizationCode,
+    _getOAuthRedirectUri(ctx)
+  )
 
-  await _patchCredentials(client, ctx, { accessToken })
+  await patchMetaClientCredentials(client, ctx, { accessToken })
 
   return responses.redirectToStep('select-page')
 }
 
 const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logger }) => {
   const metaClient = new MetaClient(logger)
-  const { accessToken } = await _getOAuthCredentials(client, ctx)
+  const { accessToken } = await getPartialMetaClientCredentials(client, ctx).catch(() => ({ accessToken: undefined }))
   if (!accessToken) {
     return responses.endWizard({
       success: false,
@@ -113,7 +116,7 @@ const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logge
 
 const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, selectedChoice }) => {
   const metaClient = new MetaClient(logger)
-  const { accessToken } = await _getOAuthCredentials(client, ctx)
+  const { accessToken } = await getPartialMetaClientCredentials(client, ctx).catch(() => ({ accessToken: undefined }))
   if (!accessToken) {
     return responses.endWizard({
       success: false,
@@ -129,10 +132,10 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
   }
 
   const pageId = selectedChoice
-  await _patchCredentials(client, ctx, { pageId })
+  await patchMetaClientCredentials(client, ctx, { pageId })
 
   const pageToken = await metaClient.getPageToken(accessToken, pageId)
-  await _patchCredentials(client, ctx, { pageToken })
+  await patchMetaClientCredentials(client, ctx, { pageToken })
 
   await metaClient.subscribeToWebhooks(pageToken, pageId)
 
@@ -179,24 +182,3 @@ const _getOAuthAuthorizationPromptUri = (ctx?: bp.Context) =>
   '&response_type=code'
 
 const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('oauth-callback', ctx).toString()
-
-// client.patchState is not working correctly
-const _patchCredentials = async (client: bp.Client, ctx: bp.Context, newState: Partial<OAuthState['payload']>) => {
-  const currentState = await _getOAuthCredentials(client, ctx).catch(() => ({}))
-
-  await client.setState({
-    type: 'integration',
-    name: 'oauth',
-    id: ctx.integrationId,
-    payload: {
-      ...currentState,
-      ...newState,
-    },
-  })
-}
-
-const _getOAuthCredentials = async (client: bp.Client, ctx: bp.Context) => {
-  return await client
-    .getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
-    .then((result) => result.state.payload)
-}
