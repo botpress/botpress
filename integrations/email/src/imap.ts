@@ -7,7 +7,7 @@ type HeaderData = {
   id: string
   subject: string
   inReplyTo: string | undefined
-  date: Date | undefined
+  date: string | undefined
   sender: string
   firstMessageId: string | undefined
 }
@@ -143,7 +143,7 @@ const _parseHeader = (buffer: string): HeaderData => {
     sender = '',
     id = ''
   let inReplyTo: string | undefined, firstMessageId: string | undefined
-  let date: Date | undefined
+  let date: string | undefined
 
   try {
     const parsedHeader = Imap.parseHeader(headerBuffer)
@@ -159,7 +159,7 @@ const _parseHeader = (buffer: string): HeaderData => {
     }
     id = parsedHeader['message-id']?.[0]
     if (parsedHeader.date && parsedHeader.date.length > 0) {
-      date = parsedHeader.date[0] !== undefined ? new Date(parsedHeader.date[0]) : undefined
+      date = parsedHeader.date[0]
     }
     const references = parsedHeader['references']?.[0]
     if (references) {

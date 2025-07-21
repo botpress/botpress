@@ -47,7 +47,7 @@ const _syncEmails = async (
     name: 'lastSyncTimestamp',
     id: props.ctx.integrationId,
     type: 'integration',
-    payload: { lastSyncTimestamp: new Date() },
+    payload: { lastSyncTimestamp: new Date().toISOString() },
   })
 
   const allMessages = await imap.getMessages(
@@ -63,7 +63,7 @@ const _syncEmails = async (
     if (message.sender === props.ctx.configuration.user) continue
 
     const messageAlreadySeen =
-      message.date && lastSyncTimestamp && message.date <= new Date(lastSyncTimestamp.lastSyncTimestamp)
+      message.date && lastSyncTimestamp && new Date(message.date) <= new Date(lastSyncTimestamp.lastSyncTimestamp)
     if (messageAlreadySeen) continue
 
     if (options.enableNewMessageNotification) {
@@ -77,7 +77,7 @@ const _syncEmails = async (
     id: props.ctx.integrationId,
     type: 'integration',
     payload: {
-      lastSyncTimestamp: new Date(),
+      lastSyncTimestamp: new Date().toISOString(),
     },
   })
 

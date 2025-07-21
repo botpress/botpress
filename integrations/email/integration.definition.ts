@@ -21,7 +21,7 @@ export default new IntegrationDefinition({
     lastSyncTimestamp: {
       type: 'integration',
       schema: z.object({
-        lastSyncTimestamp: z.date(),
+        lastSyncTimestamp: z.string().datetime(),
       }),
     },
     syncLock: {
@@ -47,7 +47,7 @@ export default new IntegrationDefinition({
               subject: z.string(),
               body: z.string(),
               inReplyTo: z.string().optional(),
-              date: z.date().optional(),
+              date: z.string().datetime().optional(),
               sender: z.string(),
               firstMessageId: z.string().optional(),
             })

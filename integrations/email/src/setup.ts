@@ -11,7 +11,7 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
     name: 'lastSyncTimestamp',
     id: props.ctx.integrationId,
     type: 'integration',
-    payload: { lastSyncTimestamp: new Date() },
+    payload: { lastSyncTimestamp: new Date().toISOString() },
   })
 
   try {
