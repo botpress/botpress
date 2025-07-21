@@ -147,10 +147,12 @@ function _getStringBetweenAngles(input: string): string | undefined {
 
 const _parseHeader = (buffer: string): HeaderData => {
   const headerBuffer = buffer
-  let subject = '',
-    sender = '',
-    id = ''
-  let inReplyTo: string | undefined, firstMessageId: string | undefined
+
+  let subject = ''
+  let sender = ''
+  let id = ''
+  let inReplyTo: string | undefined
+  let firstMessageId: string | undefined
   let date: string | undefined
 
   try {
@@ -176,5 +178,6 @@ const _parseHeader = (buffer: string): HeaderData => {
   } catch (e) {
     console.error('Error parsing header:', e)
   }
+
   return { date, firstMessageId, id, inReplyTo, sender, subject }
 }
