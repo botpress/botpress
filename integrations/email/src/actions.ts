@@ -108,7 +108,7 @@ const notifyNewMessage = async (
 }
 
 export const sendEmail = async (props: bp.ActionProps['sendEmail']) => {
-  return await sendNodemailerMail(props.ctx.configuration, props.input)
+  return await sendNodemailerMail(props.ctx.configuration, props.input, props.logger)
 }
 
 const _unique = <T>(arr: T[]) => Array.from(new Set(arr))

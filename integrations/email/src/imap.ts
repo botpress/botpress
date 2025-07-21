@@ -17,7 +17,6 @@ const getPageFromEnd = (props: { page: number; perPage: number; totalMessages: n
   const start = Math.max(1, end - props.perPage + 1)
 
   const range = `${start}:${end}`
-  console.log(range)
   return range
 }
 
