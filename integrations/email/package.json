@@ -9,7 +9,6 @@
     "@botpress/client": "1.16.1",
     "@botpress/sdk": "4.14.0",
     "@types/nodemailer": "^6.4.17",
-    "dotenv": "^17.2.0",
     "imap": "^0.8.17",
     "nodemailer": "^7.0.5"
   },

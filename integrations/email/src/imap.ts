@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import * as sdk from '@botpress/sdk'
 import Imap from 'imap'
 import * as bp from '.botpress'
@@ -20,7 +19,6 @@ const getPageFromEnd = (props: { page: number; perPage: number; totalMessages: n
   return range
 }
 
-// Refactored `getMessages` function
 export const getMessages = async function (
   range: { page: number; perPage: number },
   props: { integrationConfig: bp.configuration.Configuration; logger: bp.Logger },
