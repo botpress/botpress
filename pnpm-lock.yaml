@@ -643,10 +643,10 @@ importers:
   integrations/email:
     dependencies:
       '@botpress/client':
-        specifier: 1.20.0
-        version: 1.20.0
+        specifier: workspace:*
+        version: link:../../packages/client
       '@botpress/sdk':
-        specifier: 4.14.3
+        specifier: workspace:*
         version: link:../../packages/sdk
       imap:
         specifier: ^0.8.17
@@ -4512,18 +4512,6 @@ packages:
       - openapi-types
       - supports-color
     dev: true
-
-  /@botpress/client@1.20.0:
-    resolution: {integrity: sha512-21tDe0mKbrYW1AgPM4nfAEfpML5tZiI1FGHpOjwcFEDZiNgU+YAPdZsAvwXv57bkNxzhI9oISq9qgCZ6YBFR4A==}
-    engines: {node: '>=18.0.0'}
-    dependencies:
-      axios: 1.9.0
-      axios-retry: 4.5.0(axios@1.9.0)
-      browser-or-node: 2.1.1
-      qs: 6.13.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
 
   /@bpinternal/const@0.1.0:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -9404,15 +9392,6 @@ packages:
       axios: 0.x || 1.x
     dependencies:
       axios: 1.6.1
-      is-retry-allowed: 2.2.0
-    dev: false
-
-  /axios-retry@4.5.0(axios@1.9.0):
-    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
-    peerDependencies:
-      axios: 0.x || 1.x
-    dependencies:
-      axios: 1.9.0
       is-retry-allowed: 2.2.0
     dev: false
 
