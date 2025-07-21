@@ -1,14 +1,14 @@
 import { meta } from '@botpress/common'
 import { getClientSecret, getVerifyToken } from '../misc/auth'
-import { handleMessage } from '../misc/incoming-message'
-import { MessengerPayload } from '../misc/types'
-import { oauth } from './handlers'
+import { messengerPayloadSchema } from '../misc/types'
+import { safeJsonParse } from '../misc/utils'
+import { oauthHandler, messageHandler } from './handlers'
 import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, client, ctx, logger } = props
   if (req.path.startsWith('/oauth')) {
-    return oauth.handler({ req, client, ctx, logger })
+    return oauthHandler({ req, client, ctx, logger })
   }
 
   logger.debug('Received request with body:', req.body ?? '[empty]')
@@ -26,16 +26,23 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
     logger.forBot().warn('Handler received an empty body, so the message was ignored')
     return
   }
-  try {
-    const data = JSON.parse(req.body) as MessengerPayload
 
-    for (const { messaging } of data.entry) {
-      for (const message of messaging) {
-        await handleMessage(message, { client, ctx, logger })
-      }
-    }
-  } catch (e: any) {
-    logger.forBot().error('Error while handling request:', e)
+  const jsonParseResult = safeJsonParse(req.body)
+  if (!jsonParseResult.success) {
+    logger.forBot().warn('Error while parsing body as JSON:', jsonParseResult.data)
+    return
+  }
+
+  const parseResult = messengerPayloadSchema.safeParse(jsonParseResult.data)
+  if (!parseResult.success) {
+    logger.forBot().warn('Error while parsing body as Messenger payload:', parseResult.error.message)
+    return
+  }
+  const data = parseResult.data
+
+  for (const { messaging } of data.entry) {
+    const message = messaging[0]
+    await messageHandler(message, { client, ctx, logger })
   }
 
   return

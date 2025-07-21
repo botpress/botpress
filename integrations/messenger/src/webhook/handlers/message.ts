@@ -1,18 +1,17 @@
-import { create as createMessengerClient } from './messenger-client'
-import { MessengerMessage } from './types'
+import { create as createMessengerClient } from '../../misc/messenger-client'
+import { MessengerMessaging } from '../../misc/types'
 import * as bp from '.botpress'
 
 type IntegrationLogger = bp.Logger
 
-export async function handleMessage(
-  message: MessengerMessage,
+export async function handler(
+  message: MessengerMessaging,
   { client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: IntegrationLogger }
 ) {
   const { sender, recipient, message: textMessage, postback } = message
 
   let text: string
   let messageId: string
-
   if (textMessage?.text) {
     text = textMessage.text
     messageId = textMessage.mid
