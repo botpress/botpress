@@ -31,7 +31,7 @@ jobs:
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'production'
-          extra_filter: "-F '!intercom' -F '!notion' -F '!sendgrid' -F '!resend'"
+          extra_filter: "-F '!intercom' -F '!notion' -F '!sendgrid' -F '!resend' -F '!email'"
           force: ${{ github.event.inputs.force == 'true' }}
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
