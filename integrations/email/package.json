@@ -2,7 +2,8 @@
   "name": "@botpresshub/email",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build": "bp build"
+    "build": "bp build",
+    "test": "vitest"
   },
   "private": true,
   "dependencies": {
