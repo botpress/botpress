@@ -63,7 +63,7 @@ export const getMessages = async function (
     )
   }
 
-  props.logger.forBot().info(`Done reading ${messages.length} messages from the inbox`)
+  props.logger.forBot().info(`Read ${messages.length} messages from the inbox`)
   return messages
 }
 
