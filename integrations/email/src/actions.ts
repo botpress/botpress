@@ -12,7 +12,7 @@ export const listEmails = async (props: bp.ActionProps['listEmails']) => {
   const messages = await getMessages(
     { page, perPage },
     {
-      integrationConfig: props.ctx.configuration,
+      ctx: props.ctx,
       logger: props.logger,
     }
   )
@@ -34,7 +34,12 @@ export const register = async (props: { client: bp.Client; ctx: bp.Context; logg
     type: 'integration',
     payload: { lastSyncTimestamp: new Date() },
   })
-
+  try {
+    await getMessages({ page: 0, perPage: 1 }, props)
+  } catch (thrown: unknown) {
+    const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
+    throw new sdk.RuntimeError('An error occured when registering the integration. Verify your configuration.', err)
+  }
   props.logger.forBot().info('Finished syncing to the inbox for the first time')
 }
 
@@ -57,7 +62,7 @@ export const _syncEmails = async (
   const allMessages = await getMessages(
     { page: DEFAULT_START_PAGE, perPage: DEFAULT_PER_PAGE },
     {
-      integrationConfig: props.ctx.configuration,
+      ctx: props.ctx,
       logger: props.logger,
     },
     { bodyNeeded: options.enableNewMessageNotification }

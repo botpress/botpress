@@ -24,11 +24,11 @@ export const getPageFromEnd = (props: { page: number; perPage: number; totalMess
 
 export const getMessages = async function (
   range: { page: number; perPage: number },
-  props: { integrationConfig: bp.configuration.Configuration; logger: bp.Logger },
+  props: { ctx: bp.Context; logger: bp.Logger },
   options?: { bodyNeeded: boolean }
 ): Promise<bp.actions.listEmails.output.Output['messages']> {
   const messages: bp.actions.listEmails.output.Output['messages'] = []
-  const imap: Imap = new Imap(getConfig(props.integrationConfig))
+  const imap: Imap = new Imap(getConfig(props.ctx.configuration))
 
   await new Promise<void>((resolve, reject) => {
     imap.once('ready', resolve)
