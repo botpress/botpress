@@ -71,6 +71,7 @@ export const getMessages = async function (
   })
 
   await messageFetchPromise
+  props.logger.forBot().info(`Done reading ${messages.length} from the inbox.`)
   return messages
 }
 
