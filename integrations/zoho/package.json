@@ -10,7 +10,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "axios": "^1.4.0",
-    "form-data": "^4.0.0"
+    "form-data": "^4.0.4"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*"
