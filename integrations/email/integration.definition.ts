@@ -87,13 +87,13 @@ export default new IntegrationDefinition({
   },
   channels: {
     default: {
-      message: { tags: { id: { title: 'Foreign id', description: 'The foreign email id ' } } },
+      message: { tags: { id: { title: 'Email id', description: 'The email id ' } } },
       messages: { text: messages.defaults.text },
       conversation: {
         tags: {
           firstMessageId: {
             title: 'First Message Id',
-            description: 'The foreign id (from the IMAP server) of the first incoming message of the conversation',
+            description: 'The id (from the IMAP server) of the first incoming message of the conversation',
           },
           subject: { title: 'Thread Subject', description: 'Subject for the conversation' },
           to: { title: 'Recipient', description: 'Recipient email address for the conversation' },
