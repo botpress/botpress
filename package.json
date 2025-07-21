@@ -39,7 +39,7 @@
     "@bpinternal/readiness": "^0.0.16",
     "@bpinternal/retry-cli": "^0.1.1",
     "@stylistic/eslint-plugin": "^2.12.1",
-    "@types/node": "^18.19.67",
+    "@types/node": "^22.16.4",
     "@typescript-eslint/eslint-plugin": "^8.19.1",
     "@typescript-eslint/parser": "^8.19.1",
     "axios": "1.9.0",
