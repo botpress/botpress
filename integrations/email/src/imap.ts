@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import Imap from 'imap'
+import * as paging from './paging'
 import * as bp from '.botpress'
 
 type HeaderData = {
@@ -9,17 +10,6 @@ type HeaderData = {
   date: Date | undefined
   sender: string
   firstMessageId: string | undefined
-}
-
-export const getPageFromEnd = (props: { page: number; perPage: number; totalMessages: number }) => {
-  if (props.totalMessages === 0) {
-    throw new sdk.RuntimeError('Could not read the inbox: the number of messages in the inbox is 0')
-  }
-  const end = Math.max(1, props.totalMessages - props.page * props.perPage)
-  const start = Math.max(1, end - props.perPage + 1)
-
-  const range = `${start}:${end}`
-  return range
 }
 
 export const getMessages = async function (
@@ -43,14 +33,19 @@ export const getMessages = async function (
       imap.openBox('INBOX', true, cb)
     )) as Imap.Box
 
-    const totalMessages = box.messages.total
     const imapBodies = ['HEADER']
     if (options?.bodyNeeded || !options) {
       imapBodies.push('TEXT')
     }
 
-    const actualRange = getPageFromEnd({ page: range.page, perPage: range.perPage, totalMessages })
-    const f: Imap.ImapFetch = imap.seq.fetch(actualRange, {
+    const { firstElementIndex, lastElementIndex } = paging.pageToSpan({
+      page: range.page,
+      perPage: range.perPage,
+      totalElements: box.messages.total,
+    })
+
+    const imapRange = `${firstElementIndex}:${lastElementIndex}`
+    const f: Imap.ImapFetch = imap.seq.fetch(imapRange, {
       bodies: imapBodies,
       struct: true,
     })
