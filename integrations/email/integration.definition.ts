@@ -29,11 +29,15 @@ export default new IntegrationDefinition({
       .required(),
   },
   states: {
-    seenMails: {
+    lastSyncTimestamp: {
       type: 'integration',
       schema: z.object({
-        seenMails: z.array(z.object({ id: z.string().describe('The id of all mails seen previously by syncEmails') })),
+        lastSyncTimestamp: z.date(),
       }),
+    },
+    syncLock: {
+      type: 'integration',
+      schema: z.object({ currentlySyncing: z.boolean().default(false) }),
     },
   },
   actions: {

@@ -38,7 +38,7 @@ export const getMessages = async function (
         if (err) {
           return reject(
             new sdk.RuntimeError(
-              'An error occured while opening the inbox. Verify the integration configuration parameters.',
+              'An error occured while opening the inbox. Verify the integration configuration parameters',
               err
             )
           )
@@ -64,14 +64,14 @@ export const getMessages = async function (
     })
 
     imap.once('error', (err: Error) => {
-      reject(new sdk.RuntimeError('An error occured while reading the inbox.', err))
+      reject(new sdk.RuntimeError('An error occured while reading the inbox', err))
     })
 
     imap.connect()
   })
 
   await messageFetchPromise
-  props.logger.forBot().info(`Done reading ${messages.length} from the inbox.`)
+  props.logger.forBot().info(`Done reading ${messages.length} messages from the inbox`)
   return messages
 }
 
@@ -117,7 +117,7 @@ const handleFetch = function (
     })
 
     f.once('error', (err) => {
-      reject(new sdk.RuntimeError('An error occured while fetching messages.', err))
+      reject(new sdk.RuntimeError('An error occured while fetching messages', err))
     })
 
     f.once('end', function () {

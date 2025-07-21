@@ -4,8 +4,7 @@ import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async (props) => {
-    await actions._syncEmails(props, { enableNewMessageNotification: false })
-    props.logger.forBot().info('Finished syncing to the inbox for the first time')
+    await actions.register(props)
   },
   unregister: async () => {},
   actions: {

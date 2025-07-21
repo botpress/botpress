@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import { getMessages } from './imap'
 import { sendNodemailerMail } from './smtp'
 import * as bp from '.botpress'
@@ -19,22 +20,39 @@ export const listEmails = async (props: bp.ActionProps['listEmails']) => {
 }
 
 export const syncEmails = async (props: bp.ActionProps['syncEmails']) => {
+  props.logger.forBot().info(`Starting sync in the inbox at [${new Date().toISOString()}]`)
   const res = await _syncEmails(props, { enableNewMessageNotification: true })
-  props.logger.forBot().info(`Synced the messages in the inbox at [${new Date().toISOString()}]`)
+  props.logger.forBot().info(`Finished sync in the inbox at [${new Date().toISOString()}]`)
   return res
+}
+
+export const register = async (props: { client: bp.Client; ctx: bp.Context; logger: bp.Logger }) => {
+  await _setlock({ client: props.client, ctx: props.ctx }, false)
+  await props.client.setState({
+    name: 'lastSyncTimestamp',
+    id: props.ctx.integrationId,
+    type: 'integration',
+    payload: { lastSyncTimestamp: new Date() },
+  })
+
+  props.logger.forBot().info('Finished syncing to the inbox for the first time')
 }
 
 export const _syncEmails = async (
   props: { ctx: bp.Context; client: bp.Client; logger: bp.Logger },
   options: { enableNewMessageNotification: boolean }
 ) => {
+  const currentlySyncing = await _readLock(props)
+  if (currentlySyncing) throw new sdk.RuntimeError('The bot is still syncing the messages. Try again later.')
+  await _setlock(props, true)
+
   const {
-    state: { payload: seenMessages },
+    state: { payload: lastSyncTimestamp },
   } = await props.client.getOrSetState({
-    name: 'seenMails',
+    name: 'lastSyncTimestamp',
     id: props.ctx.integrationId,
     type: 'integration',
-    payload: { seenMails: [] },
+    payload: { lastSyncTimestamp: new Date() },
   })
   const allMessages = await getMessages(
     { page: DEFAULT_START_PAGE, perPage: DEFAULT_PER_PAGE },
@@ -47,7 +65,8 @@ export const _syncEmails = async (
   for (const message of allMessages) {
     if (message.sender === props.ctx.configuration.user) continue
 
-    const messageAlreadySeen = seenMessages.seenMails.some((m) => m.id === message.id)
+    const messageAlreadySeen =
+      message.date && lastSyncTimestamp && message.date <= new Date(lastSyncTimestamp.lastSyncTimestamp)
     if (messageAlreadySeen) continue
 
     if (options.enableNewMessageNotification) {
@@ -57,17 +76,15 @@ export const _syncEmails = async (
   }
 
   await props.client.setState({
-    name: 'seenMails',
+    name: 'lastSyncTimestamp',
     id: props.ctx.integrationId,
     type: 'integration',
     payload: {
-      seenMails: _unique([
-        //
-        ...seenMessages.seenMails.map((m) => m.id),
-        ...allMessages.map((m) => m.id),
-      ]).map((id) => ({ id })),
+      lastSyncTimestamp: new Date(),
     },
   })
+
+  await _setlock(props, false)
 
   return {}
 }
@@ -95,7 +112,7 @@ const notifyNewMessage = async (
   props.logger
     .forBot()
     .info(
-      `Created conversation with id '${conversation.tags.firstMessageId}' and subject '${conversation.tags.subject}'.`
+      `Retrieved or created conversation with id '${conversation.tags.firstMessageId}' and subject '${conversation.tags.subject}'.`
     )
 
   await props.client.createMessage({
@@ -111,4 +128,22 @@ export const sendEmail = async (props: bp.ActionProps['sendEmail']) => {
   return await sendNodemailerMail(props.ctx.configuration, props.input, props.logger)
 }
 
-const _unique = <T>(arr: T[]) => Array.from(new Set(arr))
+const _setlock = async (props: { client: bp.Client; ctx: bp.Context }, value: boolean) => {
+  await props.client.getOrSetState({
+    name: 'syncLock',
+    id: props.ctx.integrationId,
+    type: 'integration',
+    payload: {
+      currentlySyncing: value,
+    },
+  })
+}
+
+const _readLock = async (props: { client: bp.Client; ctx: bp.Context }): Promise<boolean> => {
+  const syncLock = await props.client.getState({
+    name: 'syncLock',
+    id: props.ctx.integrationId,
+    type: 'integration',
+  })
+  return syncLock.state.payload.currentlySyncing ?? false
+}
