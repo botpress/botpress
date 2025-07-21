@@ -1,16 +1,20 @@
 import * as sdk from '@botpress/sdk'
-import { getMessages } from './imap'
+import * as imap from './imap'
 import * as locking from './locking'
-import { sendNodemailerMail } from './smtp'
+import * as smtp from './smtp'
 import * as bp from '.botpress'
 
 const DEFAULT_START_PAGE = 0
 const DEFAULT_PER_PAGE = 50
 
+export const sendEmail = async (props: bp.ActionProps['sendEmail']) => {
+  return await smtp.sendNodemailerMail(props.ctx.configuration, props.input, props.logger)
+}
+
 export const listEmails = async (props: bp.ActionProps['listEmails']) => {
   const page = props.input.page ?? DEFAULT_START_PAGE
   const perPage = props.input.perPage ?? DEFAULT_PER_PAGE
-  const messages = await getMessages(
+  const messages = await imap.getMessages(
     { page, perPage },
     {
       ctx: props.ctx,
@@ -27,26 +31,7 @@ export const syncEmails = async (props: bp.ActionProps['syncEmails']) => {
   return res
 }
 
-export const register = async (props: { client: bp.Client; ctx: bp.Context; logger: bp.Logger }) => {
-  const lock = new locking.LockHandler({ client: props.client, ctx: props.ctx })
-  await lock.setLock(false)
-
-  await props.client.setState({
-    name: 'lastSyncTimestamp',
-    id: props.ctx.integrationId,
-    type: 'integration',
-    payload: { lastSyncTimestamp: new Date() },
-  })
-  try {
-    await getMessages({ page: 0, perPage: 1 }, props)
-  } catch (thrown: unknown) {
-    const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-    throw new sdk.RuntimeError('An error occured when registering the integration. Verify your configuration.', err)
-  }
-  props.logger.forBot().info('Finished syncing to the inbox for the first time')
-}
-
-export const _syncEmails = async (
+const _syncEmails = async (
   props: { ctx: bp.Context; client: bp.Client; logger: bp.Logger },
   options: { enableNewMessageNotification: boolean }
 ) => {
@@ -64,7 +49,8 @@ export const _syncEmails = async (
     type: 'integration',
     payload: { lastSyncTimestamp: new Date() },
   })
-  const allMessages = await getMessages(
+
+  const allMessages = await imap.getMessages(
     { page: DEFAULT_START_PAGE, perPage: DEFAULT_PER_PAGE },
     {
       ctx: props.ctx,
@@ -72,6 +58,7 @@ export const _syncEmails = async (
     },
     { bodyNeeded: options.enableNewMessageNotification }
   )
+
   for (const message of allMessages) {
     if (message.sender === props.ctx.configuration.user) continue
 
@@ -81,7 +68,7 @@ export const _syncEmails = async (
 
     if (options.enableNewMessageNotification) {
       props.logger.forBot().info(`Detecting a new email from '${message.sender}': ${message.subject}`)
-      await notifyNewMessage(props, message)
+      await _notifyNewMessage(props, message)
     }
   }
 
@@ -99,7 +86,7 @@ export const _syncEmails = async (
   return {}
 }
 
-const notifyNewMessage = async (
+const _notifyNewMessage = async (
   props: { client: bp.Client; logger: bp.Logger },
   message: bp.actions.listEmails.output.Output['messages'][0]
 ) => {
@@ -132,8 +119,4 @@ const notifyNewMessage = async (
     tags: { id: message.id },
     type: 'text',
   })
-}
-
-export const sendEmail = async (props: bp.ActionProps['sendEmail']) => {
-  return await sendNodemailerMail(props.ctx.configuration, props.input, props.logger)
 }
