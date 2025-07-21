@@ -20,6 +20,7 @@ const getPageFromEnd = (props: { page: number; perPage: number; totalMessages: n
   return range
 }
 
+// Refactored `getMessages` function
 export const getMessages = async function (
   range: { page: number; perPage: number },
   props: { integrationConfig: bp.configuration.Configuration; logger: bp.Logger },
@@ -28,49 +29,42 @@ export const getMessages = async function (
   const messages: bp.actions.listEmails.output.Output['messages'] = []
   const imap: Imap = new Imap(getConfig(props.integrationConfig))
 
-  function openInbox(cb: (err: Error, box: Imap.Box) => void): void {
-    imap.openBox('INBOX', true, cb)
-  }
-
-  const messageFetchPromise: Promise<void> = new Promise<void>((resolve, reject) => {
-    imap.once('ready', () => {
-      openInbox((err, box) => {
-        if (err) {
-          return reject(
-            new sdk.RuntimeError(
-              'An error occured while opening the inbox. Verify the integration configuration parameters',
-              err
-            )
-          )
-        }
-
-        const totalMessages = box.messages.total
-        const imapBodies = ['HEADER']
-        if (options?.bodyNeeded || !options) {
-          imapBodies.push('TEXT')
-        }
-
-        const actualRange = getPageFromEnd({ page: range.page, perPage: range.perPage, totalMessages })
-        const f: Imap.ImapFetch = imap.seq.fetch(actualRange, {
-          bodies: imapBodies,
-          struct: true,
-        })
-        handleFetch(imap, f, messages).catch(reject)
-      })
-    })
-
-    imap.once('end', () => {
-      resolve()
-    })
-
+  await new Promise<void>((resolve, reject) => {
+    imap.once('ready', resolve)
     imap.once('error', (err: Error) => {
-      reject(new sdk.RuntimeError('An error occured while reading the inbox', err))
+      reject(new sdk.RuntimeError('An error occured while connecting to the inbox', err))
     })
-
     imap.connect()
   })
 
-  await messageFetchPromise
+  try {
+    const box = (await _toPromise((cb: (error: Error, mailbox: Imap.Box) => void) =>
+      imap.openBox('INBOX', true, cb)
+    )) as Imap.Box
+
+    const totalMessages = box.messages.total
+    const imapBodies = ['HEADER']
+    if (options?.bodyNeeded || !options) {
+      imapBodies.push('TEXT')
+    }
+
+    const actualRange = getPageFromEnd({ page: range.page, perPage: range.perPage, totalMessages })
+    const f: Imap.ImapFetch = imap.seq.fetch(actualRange, {
+      bodies: imapBodies,
+      struct: true,
+    })
+
+    await handleFetch(imap, f, messages)
+  } catch (err: any) {
+    if (imap.state !== 'disconnected') {
+      imap.end()
+    }
+    throw new sdk.RuntimeError(
+      'An error occured while opening the inbox or fetching messages. Verify the integration configuration parameters.',
+      err
+    )
+  }
+
   props.logger.forBot().info(`Done reading ${messages.length} messages from the inbox`)
   return messages
 }
@@ -179,4 +173,16 @@ const parseHeader = (buffer: string): HeaderData => {
     console.error('Error parsing header:', e)
   }
   return { date, firstMessageId, id, inReplyTo, sender, subject }
+}
+
+const _toPromise = (cb: Function) => {
+  return new Promise((resolve, reject) => {
+    cb((err: any, result: any) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(result)
+      }
+    })
+  })
 }
