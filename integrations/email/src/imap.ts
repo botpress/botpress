@@ -29,9 +29,15 @@ export const getMessages = async function (
   })
 
   try {
-    const box = (await _toPromise((cb: (error: Error, mailbox: Imap.Box) => void) =>
-      imap.openBox('INBOX', true, cb)
-    )) as Imap.Box
+    const box = await new Promise<Imap.Box>((resolve, reject) => {
+      imap.openBox('INBOX', true, (err, box) => {
+        if (err) {
+          reject(new sdk.RuntimeError('An error occured while opening the inbox', err))
+        } else {
+          resolve(box)
+        }
+      })
+    })
 
     const imapBodies = ['HEADER']
     if (options?.bodyNeeded || !options) {
@@ -51,10 +57,12 @@ export const getMessages = async function (
     })
 
     await _handleFetch(imap, f, messages)
-  } catch (err: any) {
+  } catch (thrown: unknown) {
     if (imap.state !== 'disconnected') {
       imap.end()
     }
+
+    const err = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw new sdk.RuntimeError(
       'An error occured while opening the inbox or fetching messages. Verify the integration configuration parameters.',
       err
@@ -169,16 +177,4 @@ const _parseHeader = (buffer: string): HeaderData => {
     console.error('Error parsing header:', e)
   }
   return { date, firstMessageId, id, inReplyTo, sender, subject }
-}
-
-const _toPromise = (cb: Function) => {
-  return new Promise((resolve, reject) => {
-    cb((err: any, result: any) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(result)
-      }
-    })
-  })
 }
