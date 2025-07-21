@@ -43,11 +43,10 @@ const _syncEmails = async (
 
   const {
     state: { payload: lastSyncTimestamp },
-  } = await props.client.getOrSetState({
+  } = await props.client.getState({
     name: 'lastSyncTimestamp',
     id: props.ctx.integrationId,
     type: 'integration',
-    payload: { lastSyncTimestamp: new Date().toISOString() },
   })
 
   const allMessages = await imap.getMessages(
