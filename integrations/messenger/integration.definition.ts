@@ -34,7 +34,7 @@ export default new IntegrationDefinition({
           .title('Verify Token')
           .min(1)
           .describe(
-            'Token used for verification when subscribing to webhooks on the Meta app (input a random string of your choice)'
+            'Token used for verification when subscribing to webhooks on the Meta app (enter a random string of your choice)'
           ),
         accessToken: z
           .string()
