@@ -1,15 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import { MessengerTypes, MessengerClient } from 'messaging-api-messenger'
 import { create as createMessengerClient } from '../misc/messenger-client'
-import {
-  Card,
-  Carousel,
-  Choice,
-  Dropdown,
-  Location,
-  MessengerOutMessageAttachment,
-  SendMessageProps,
-} from '../misc/types'
+import { Card, Carousel, Choice, Dropdown, MessengerOutMessageAttachment, SendMessageProps } from '../misc/types'
 import { getGoogleMapLinkFromLocation, getRecipientId } from '../misc/utils'
 import * as bp from '.botpress'
 
@@ -87,33 +79,28 @@ const channel: bp.IntegrationProps['channels']['channel'] = {
 }
 
 export function formatCardElement(payload: Card) {
-  const buttons: MessengerOutMessageAttachment[] = []
-
-  payload.actions.forEach((action) => {
+  const buttons: MessengerOutMessageAttachment[] = payload.actions.map((action) => {
     switch (action.action) {
       case 'postback':
-        buttons.push({
+        return {
           type: 'postback',
           title: action.label,
           payload: action.value,
-        })
-        break
+        }
       case 'say':
-        buttons.push({
+        return {
           type: 'postback',
           title: action.label,
           payload: action.value,
-        })
-        break
+        }
       case 'url':
-        buttons.push({
+        return {
           type: 'web_url',
           title: action.label,
           url: action.value,
-        })
-        break
+        }
       default:
-        break
+        throw new RuntimeError(`Unknown action type: ${action.action}`)
     }
   })
   return {

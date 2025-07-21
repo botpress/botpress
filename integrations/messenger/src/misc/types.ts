@@ -14,32 +14,30 @@ type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 export type SendMessageProps = Pick<MessageHandlerProps, 'client' | 'ctx' | 'conversation' | 'ack'>
 
-const MessengerOutMessagePostbackAttachmentSchema = z.object({
-  type: z.literal('postback'),
-  title: z.string(),
-  payload: z.string(),
-})
+type MessengerOutMessagePostbackAttachment = {
+  type: 'postback'
+  title: string
+  payload: string
+}
 
-const MessengerOutMessageSayAttachmentSchema = z.object({
-  type: z.literal('postback'),
-  title: z.string(),
-  payload: z.string(),
-})
+type MessengerOutMessageSayAttachment = {
+  type: 'postback'
+  title: string
+  payload: string
+}
 
-const MessengerOutMessageUrlAttachmentSchema = z.object({
-  type: z.literal('web_url'),
-  title: z.string(),
-  url: z.string(),
-})
+type MessengerOutMessageUrlAttachment = {
+  type: 'web_url'
+  title: string
+  url: string
+}
 
-export const MessengerOutMessageAttachmentSchema = z.union([
-  MessengerOutMessagePostbackAttachmentSchema,
-  MessengerOutMessageSayAttachmentSchema,
-  MessengerOutMessageUrlAttachmentSchema,
-])
-export type MessengerOutMessageAttachment = z.infer<typeof MessengerOutMessageAttachmentSchema>
+export type MessengerOutMessageAttachment =
+  | MessengerOutMessagePostbackAttachment
+  | MessengerOutMessageSayAttachment
+  | MessengerOutMessageUrlAttachment
 
-const MessengerMessagingSchema = z.object({
+const messengerMessagingSchema = z.object({
   sender: z.object({ id: z.string() }),
   recipient: z.object({ id: z.string() }),
   timestamp: z.number(),
@@ -59,15 +57,15 @@ const MessengerMessagingSchema = z.object({
     })
     .optional(),
 })
-export type MessengerMessaging = z.infer<typeof MessengerMessagingSchema>
+export type MessengerMessaging = z.infer<typeof messengerMessagingSchema>
 
-const MessengerEntrySchema = z.object({
+const messengerEntrySchema = z.object({
   id: z.string(),
   time: z.number(),
-  messaging: z.tuple([MessengerMessagingSchema]),
+  messaging: z.tuple([messengerMessagingSchema]),
 })
 
-export const MessengerPayloadSchema = z.object({
+export const messengerPayloadSchema = z.object({
   object: z.literal('page'),
-  entry: z.array(MessengerEntrySchema),
+  entry: z.array(messengerEntrySchema),
 })

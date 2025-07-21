@@ -13,3 +13,11 @@ export function getRecipientId(conversation: SendMessageProps['conversation']): 
 
   return recipientId
 }
+
+export function safeJsonParse(x: any) {
+  try {
+    return { data: JSON.parse(x), success: true }
+  } catch {
+    return { data: x, success: false }
+  }
+}
