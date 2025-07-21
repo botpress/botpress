@@ -2359,6 +2359,9 @@ importers:
       '@types/ms':
         specifier: ^0.7.34
         version: 0.7.34
+      '@types/node':
+        specifier: ^22.16.4
+        version: 22.16.4
       chalk:
         specifier: ^4.1.2
         version: 4.1.2
