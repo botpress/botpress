@@ -12,8 +12,9 @@ type HeaderData = {
 }
 
 export const getPageFromEnd = (props: { page: number; perPage: number; totalMessages: number }) => {
-  if (props.totalMessages == 0)
+  if (props.totalMessages === 0) {
     throw new sdk.RuntimeError('Could not read the inbox: the number of messages in the inbox is 0')
+  }
   const end = Math.max(1, props.totalMessages - props.page * props.perPage)
   const start = Math.max(1, end - props.perPage + 1)
 
