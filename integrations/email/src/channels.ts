@@ -1,12 +1,13 @@
 import { RuntimeError } from '@botpress/sdk'
-import { sendNodemailerMail } from './smtp'
+import * as smtp from './smtp'
 import * as bp from '.botpress'
 
 export const defaultChannel = {
   messages: {
     text: async (props) => {
       if (!props.conversation.tags.to) throw new RuntimeError("Tried sending an email without a 'to' header")
-      await sendNodemailerMail(
+
+      await smtp.sendNodemailerMail(
         props.ctx.configuration,
         {
           to: props.conversation.tags.to,

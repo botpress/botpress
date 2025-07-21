@@ -1,15 +1,20 @@
 import * as sdk from '@botpress/sdk'
-import { getMessages } from './imap'
-import { sendNodemailerMail } from './smtp'
+import * as imap from './imap'
+import * as locking from './locking'
+import * as smtp from './smtp'
 import * as bp from '.botpress'
 
 const DEFAULT_START_PAGE = 0
 const DEFAULT_PER_PAGE = 50
 
-export const listEmails = async (props: bp.ActionProps['listEmails']) => {
+export const sendEmail: bp.IntegrationProps['actions']['sendEmail'] = async (props) => {
+  return await smtp.sendNodemailerMail(props.ctx.configuration, props.input, props.logger)
+}
+
+export const listEmails: bp.IntegrationProps['actions']['listEmails'] = async (props) => {
   const page = props.input.page ?? DEFAULT_START_PAGE
   const perPage = props.input.perPage ?? DEFAULT_PER_PAGE
-  const messages = await getMessages(
+  const messages = await imap.getMessages(
     { page, perPage },
     {
       ctx: props.ctx,
@@ -19,47 +24,32 @@ export const listEmails = async (props: bp.ActionProps['listEmails']) => {
   return { messages }
 }
 
-export const syncEmails = async (props: bp.ActionProps['syncEmails']) => {
+export const syncEmails: bp.IntegrationProps['actions']['syncEmails'] = async (props) => {
   props.logger.forBot().info(`Starting sync in the inbox at [${new Date().toISOString()}]`)
   const res = await _syncEmails(props, { enableNewMessageNotification: true })
   props.logger.forBot().info(`Finished sync in the inbox at [${new Date().toISOString()}]`)
   return res
 }
 
-export const register = async (props: { client: bp.Client; ctx: bp.Context; logger: bp.Logger }) => {
-  await _setlock({ client: props.client, ctx: props.ctx }, false)
-  await props.client.setState({
-    name: 'lastSyncTimestamp',
-    id: props.ctx.integrationId,
-    type: 'integration',
-    payload: { lastSyncTimestamp: new Date() },
-  })
-  try {
-    await getMessages({ page: 0, perPage: 1 }, props)
-  } catch (thrown: unknown) {
-    const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-    throw new sdk.RuntimeError('An error occured when registering the integration. Verify your configuration.', err)
-  }
-  props.logger.forBot().info('Finished syncing to the inbox for the first time')
-}
-
-export const _syncEmails = async (
+const _syncEmails = async (
   props: { ctx: bp.Context; client: bp.Client; logger: bp.Logger },
   options: { enableNewMessageNotification: boolean }
 ) => {
-  const currentlySyncing = await _readLock(props)
+  const lock = new locking.LockHandler({ client: props.client, ctx: props.ctx })
+
+  const currentlySyncing = await lock.readLock()
   if (currentlySyncing) throw new sdk.RuntimeError('The bot is still syncing the messages. Try again later.')
-  await _setlock(props, true)
+  await lock.setLock(true)
 
   const {
     state: { payload: lastSyncTimestamp },
-  } = await props.client.getOrSetState({
+  } = await props.client.getState({
     name: 'lastSyncTimestamp',
     id: props.ctx.integrationId,
     type: 'integration',
-    payload: { lastSyncTimestamp: new Date() },
   })
-  const allMessages = await getMessages(
+
+  const allMessages = await imap.getMessages(
     { page: DEFAULT_START_PAGE, perPage: DEFAULT_PER_PAGE },
     {
       ctx: props.ctx,
@@ -67,16 +57,17 @@ export const _syncEmails = async (
     },
     { bodyNeeded: options.enableNewMessageNotification }
   )
+
   for (const message of allMessages) {
     if (message.sender === props.ctx.configuration.user) continue
 
     const messageAlreadySeen =
-      message.date && lastSyncTimestamp && message.date <= new Date(lastSyncTimestamp.lastSyncTimestamp)
+      message.date && lastSyncTimestamp && new Date(message.date) <= new Date(lastSyncTimestamp.lastSyncTimestamp)
     if (messageAlreadySeen) continue
 
     if (options.enableNewMessageNotification) {
       props.logger.forBot().info(`Detecting a new email from '${message.sender}': ${message.subject}`)
-      await notifyNewMessage(props, message)
+      await _notifyNewMessage(props, message)
     }
   }
 
@@ -85,16 +76,16 @@ export const _syncEmails = async (
     id: props.ctx.integrationId,
     type: 'integration',
     payload: {
-      lastSyncTimestamp: new Date(),
+      lastSyncTimestamp: new Date().toISOString(),
     },
   })
 
-  await _setlock(props, false)
+  await lock.setLock(false)
 
   return {}
 }
 
-const notifyNewMessage = async (
+const _notifyNewMessage = async (
   props: { client: bp.Client; logger: bp.Logger },
   message: bp.actions.listEmails.output.Output['messages'][0]
 ) => {
@@ -127,28 +118,4 @@ const notifyNewMessage = async (
     tags: { id: message.id },
     type: 'text',
   })
-}
-
-export const sendEmail = async (props: bp.ActionProps['sendEmail']) => {
-  return await sendNodemailerMail(props.ctx.configuration, props.input, props.logger)
-}
-
-const _setlock = async (props: { client: bp.Client; ctx: bp.Context }, value: boolean) => {
-  await props.client.getOrSetState({
-    name: 'syncLock',
-    id: props.ctx.integrationId,
-    type: 'integration',
-    payload: {
-      currentlySyncing: value,
-    },
-  })
-}
-
-const _readLock = async (props: { client: bp.Client; ctx: bp.Context }): Promise<boolean> => {
-  const syncLock = await props.client.getState({
-    name: 'syncLock',
-    id: props.ctx.integrationId,
-    type: 'integration',
-  })
-  return syncLock.state.payload.currentlySyncing ?? false
 }

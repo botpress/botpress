@@ -1,19 +1,18 @@
 import * as actions from './actions'
-import { defaultChannel } from './channels'
+import * as channels from './channels'
+import * as setup from './setup'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
-  register: async (props) => {
-    await actions.register(props)
-  },
-  unregister: async () => {},
+  register: setup.register,
+  unregister: setup.unregister,
   actions: {
     listEmails: actions.listEmails,
     syncEmails: actions.syncEmails,
     sendEmail: actions.sendEmail,
   },
-  handler: async () => {},
   channels: {
-    default: defaultChannel,
+    default: channels.defaultChannel,
   },
+  handler: async () => {},
 })

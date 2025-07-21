@@ -1,25 +1,15 @@
 import * as sdk from '@botpress/sdk'
 import Imap from 'imap'
+import * as paging from './paging'
 import * as bp from '.botpress'
 
 type HeaderData = {
   id: string
   subject: string
   inReplyTo: string | undefined
-  date: Date | undefined
+  date: string | undefined
   sender: string
   firstMessageId: string | undefined
-}
-
-export const getPageFromEnd = (props: { page: number; perPage: number; totalMessages: number }) => {
-  if (props.totalMessages === 0) {
-    throw new sdk.RuntimeError('Could not read the inbox: the number of messages in the inbox is 0')
-  }
-  const end = Math.max(1, props.totalMessages - props.page * props.perPage)
-  const start = Math.max(1, end - props.perPage + 1)
-
-  const range = `${start}:${end}`
-  return range
 }
 
 export const getMessages = async function (
@@ -28,7 +18,7 @@ export const getMessages = async function (
   options?: { bodyNeeded: boolean }
 ): Promise<bp.actions.listEmails.output.Output['messages']> {
   const messages: bp.actions.listEmails.output.Output['messages'] = []
-  const imap: Imap = new Imap(getConfig(props.ctx.configuration))
+  const imap: Imap = new Imap(_getConfig(props.ctx.configuration))
 
   await new Promise<void>((resolve, reject) => {
     imap.once('ready', resolve)
@@ -39,27 +29,40 @@ export const getMessages = async function (
   })
 
   try {
-    const box = (await _toPromise((cb: (error: Error, mailbox: Imap.Box) => void) =>
-      imap.openBox('INBOX', true, cb)
-    )) as Imap.Box
+    const box = await new Promise<Imap.Box>((resolve, reject) => {
+      imap.openBox('INBOX', true, (err, box) => {
+        if (err) {
+          reject(new sdk.RuntimeError('An error occured while opening the inbox', err))
+        } else {
+          resolve(box)
+        }
+      })
+    })
 
-    const totalMessages = box.messages.total
     const imapBodies = ['HEADER']
     if (options?.bodyNeeded || !options) {
       imapBodies.push('TEXT')
     }
 
-    const actualRange = getPageFromEnd({ page: range.page, perPage: range.perPage, totalMessages })
-    const f: Imap.ImapFetch = imap.seq.fetch(actualRange, {
+    const { firstElementIndex, lastElementIndex } = paging.pageToSpan({
+      page: range.page,
+      perPage: range.perPage,
+      totalElements: box.messages.total,
+    })
+
+    const imapRange = `${firstElementIndex}:${lastElementIndex}`
+    const f: Imap.ImapFetch = imap.seq.fetch(imapRange, {
       bodies: imapBodies,
       struct: true,
     })
 
-    await handleFetch(imap, f, messages)
-  } catch (err: any) {
+    await _handleFetch(imap, f, messages)
+  } catch (thrown: unknown) {
     if (imap.state !== 'disconnected') {
       imap.end()
     }
+
+    const err = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw new sdk.RuntimeError(
       'An error occured while opening the inbox or fetching messages. Verify the integration configuration parameters.',
       err
@@ -70,7 +73,7 @@ export const getMessages = async function (
   return messages
 }
 
-const handleFetch = function (
+const _handleFetch = function (
   imap: Imap,
   f: Imap.ImapFetch,
   messages: bp.actions.listEmails.output.Output['messages']
@@ -87,7 +90,7 @@ const handleFetch = function (
         })
         stream.once('end', function () {
           if (info.which === 'HEADER') {
-            headerData = parseHeader(buffer)
+            headerData = _parseHeader(buffer)
           } else if (info.which === 'TEXT') {
             body = buffer
           }
@@ -122,7 +125,7 @@ const handleFetch = function (
   })
 }
 
-const getConfig = function (config: bp.configuration.Configuration) {
+const _getConfig = function (config: bp.configuration.Configuration) {
   return {
     user: config.user,
     password: config.password,
@@ -133,7 +136,7 @@ const getConfig = function (config: bp.configuration.Configuration) {
   }
 }
 
-function getStringBetweenAngles(input: string): string | undefined {
+function _getStringBetweenAngles(input: string): string | undefined {
   const start = input.indexOf('<')
   const end = input.indexOf('>')
   if (start !== -1 && end !== -1 && end > start) {
@@ -142,13 +145,15 @@ function getStringBetweenAngles(input: string): string | undefined {
   return undefined
 }
 
-const parseHeader = (buffer: string): HeaderData => {
+const _parseHeader = (buffer: string): HeaderData => {
   const headerBuffer = buffer
-  let subject = '',
-    sender = '',
-    id = ''
-  let inReplyTo: string | undefined, firstMessageId: string | undefined
-  let date: Date | undefined
+
+  let subject = ''
+  let sender = ''
+  let id = ''
+  let inReplyTo: string | undefined
+  let firstMessageId: string | undefined
+  let date: string | undefined
 
   try {
     const parsedHeader = Imap.parseHeader(headerBuffer)
@@ -164,26 +169,15 @@ const parseHeader = (buffer: string): HeaderData => {
     }
     id = parsedHeader['message-id']?.[0]
     if (parsedHeader.date && parsedHeader.date.length > 0) {
-      date = parsedHeader.date[0] !== undefined ? new Date(parsedHeader.date[0]) : undefined
+      date = parsedHeader.date[0]
     }
     const references = parsedHeader['references']?.[0]
     if (references) {
-      firstMessageId = getStringBetweenAngles(references)
+      firstMessageId = _getStringBetweenAngles(references)
     }
   } catch (e) {
     console.error('Error parsing header:', e)
   }
-  return { date, firstMessageId, id, inReplyTo, sender, subject }
-}
 
-const _toPromise = (cb: Function) => {
-  return new Promise((resolve, reject) => {
-    cb((err: any, result: any) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(result)
-      }
-    })
-  })
+  return { date, firstMessageId, id, inReplyTo, sender, subject }
 }

@@ -1,16 +1,5 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 
-export type EmailMessage = z.infer<typeof emailMessageSchema>
-const emailMessageSchema = z.object({
-  id: z.string(),
-  subject: z.string(),
-  body: z.string(),
-  inReplyTo: z.string().optional(),
-  date: z.date().optional(),
-  sender: z.string(),
-  firstMessageId: z.string().optional(),
-})
-
 export default new IntegrationDefinition({
   name: 'email',
   version: '0.0.1',
@@ -32,7 +21,7 @@ export default new IntegrationDefinition({
     lastSyncTimestamp: {
       type: 'integration',
       schema: z.object({
-        lastSyncTimestamp: z.date(),
+        lastSyncTimestamp: z.string().datetime(),
       }),
     },
     syncLock: {
@@ -52,7 +41,17 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          messages: z.array(emailMessageSchema),
+          messages: z.array(
+            z.object({
+              id: z.string(),
+              subject: z.string(),
+              body: z.string(),
+              inReplyTo: z.string().optional(),
+              date: z.string().datetime().optional(),
+              sender: z.string(),
+              firstMessageId: z.string().optional(),
+            })
+          ),
         }),
       },
     },
@@ -88,13 +87,13 @@ export default new IntegrationDefinition({
   },
   channels: {
     default: {
-      message: { tags: { id: { title: 'Foreign id', description: 'The foreign email id ' } } },
+      message: { tags: { id: { title: 'Email id', description: 'The email id ' } } },
       messages: { text: messages.defaults.text },
       conversation: {
         tags: {
           firstMessageId: {
             title: 'First Message Id',
-            description: 'The foreign id (from the IMAP server) of the first incoming message of the conversation',
+            description: 'The id (from the IMAP server) of the first incoming message of the conversation',
           },
           subject: { title: 'Thread Subject', description: 'Subject for the conversation' },
           to: { title: 'Recipient', description: 'Recipient email address for the conversation' },
