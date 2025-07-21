@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import { getMessages } from './imap'
+import * as locking from './locking'
 import { sendNodemailerMail } from './smtp'
 import * as bp from '.botpress'
 
@@ -27,7 +28,9 @@ export const syncEmails = async (props: bp.ActionProps['syncEmails']) => {
 }
 
 export const register = async (props: { client: bp.Client; ctx: bp.Context; logger: bp.Logger }) => {
-  await _setlock({ client: props.client, ctx: props.ctx }, false)
+  const lock = new locking.LockHandler({ client: props.client, ctx: props.ctx })
+  await lock.setLock(false)
+
   await props.client.setState({
     name: 'lastSyncTimestamp',
     id: props.ctx.integrationId,
@@ -47,9 +50,11 @@ export const _syncEmails = async (
   props: { ctx: bp.Context; client: bp.Client; logger: bp.Logger },
   options: { enableNewMessageNotification: boolean }
 ) => {
-  const currentlySyncing = await _readLock(props)
+  const lock = new locking.LockHandler({ client: props.client, ctx: props.ctx })
+
+  const currentlySyncing = await lock.readLock()
   if (currentlySyncing) throw new sdk.RuntimeError('The bot is still syncing the messages. Try again later.')
-  await _setlock(props, true)
+  await lock.setLock(true)
 
   const {
     state: { payload: lastSyncTimestamp },
@@ -89,7 +94,7 @@ export const _syncEmails = async (
     },
   })
 
-  await _setlock(props, false)
+  await lock.setLock(false)
 
   return {}
 }
@@ -131,24 +136,4 @@ const notifyNewMessage = async (
 
 export const sendEmail = async (props: bp.ActionProps['sendEmail']) => {
   return await sendNodemailerMail(props.ctx.configuration, props.input, props.logger)
-}
-
-const _setlock = async (props: { client: bp.Client; ctx: bp.Context }, value: boolean) => {
-  await props.client.getOrSetState({
-    name: 'syncLock',
-    id: props.ctx.integrationId,
-    type: 'integration',
-    payload: {
-      currentlySyncing: value,
-    },
-  })
-}
-
-const _readLock = async (props: { client: bp.Client; ctx: bp.Context }): Promise<boolean> => {
-  const syncLock = await props.client.getState({
-    name: 'syncLock',
-    id: props.ctx.integrationId,
-    type: 'integration',
-  })
-  return syncLock.state.payload.currentlySyncing ?? false
 }
