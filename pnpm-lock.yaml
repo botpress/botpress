@@ -1982,7 +1982,7 @@ importers:
         specifier: 0.5.1
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.19.0
+        specifier: 1.20.0
         version: link:../client
       '@botpress/sdk':
         specifier: 4.14.3
@@ -2094,7 +2094,7 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.19.0
+        specifier: 1.20.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 4.14.3
@@ -2110,7 +2110,7 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.19.0
+        specifier: 1.20.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 4.14.3
@@ -2139,7 +2139,7 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.19.0
+        specifier: 1.20.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 4.14.3
@@ -2155,7 +2155,7 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.19.0
+        specifier: 1.20.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 4.14.3
@@ -2293,7 +2293,7 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.19.0
+        specifier: 1.20.0
         version: link:../client
       '@botpress/cognitive':
         specifier: 0.1.31
@@ -2396,7 +2396,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.19.0
+        specifier: 1.20.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^1.0.1
@@ -2427,7 +2427,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.19.0
+        specifier: 1.20.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
