@@ -7,11 +7,11 @@ import * as bp from '.botpress'
 const DEFAULT_START_PAGE = 0
 const DEFAULT_PER_PAGE = 50
 
-export const sendEmail = async (props: bp.ActionProps['sendEmail']) => {
+export const sendEmail: bp.IntegrationProps['actions']['sendEmail'] = async (props) => {
   return await smtp.sendNodemailerMail(props.ctx.configuration, props.input, props.logger)
 }
 
-export const listEmails = async (props: bp.ActionProps['listEmails']) => {
+export const listEmails: bp.IntegrationProps['actions']['listEmails'] = async (props) => {
   const page = props.input.page ?? DEFAULT_START_PAGE
   const perPage = props.input.perPage ?? DEFAULT_PER_PAGE
   const messages = await imap.getMessages(
@@ -24,7 +24,7 @@ export const listEmails = async (props: bp.ActionProps['listEmails']) => {
   return { messages }
 }
 
-export const syncEmails = async (props: bp.ActionProps['syncEmails']) => {
+export const syncEmails: bp.IntegrationProps['actions']['syncEmails'] = async (props) => {
   props.logger.forBot().info(`Starting sync in the inbox at [${new Date().toISOString()}]`)
   const res = await _syncEmails(props, { enableNewMessageNotification: true })
   props.logger.forBot().info(`Finished sync in the inbox at [${new Date().toISOString()}]`)
