@@ -28,7 +28,7 @@ export const getMessages = async function (
   options?: { bodyNeeded: boolean }
 ): Promise<bp.actions.listEmails.output.Output['messages']> {
   const messages: bp.actions.listEmails.output.Output['messages'] = []
-  const imap: Imap = new Imap(getConfig(props.ctx.configuration))
+  const imap: Imap = new Imap(_getConfig(props.ctx.configuration))
 
   await new Promise<void>((resolve, reject) => {
     imap.once('ready', resolve)
@@ -55,7 +55,7 @@ export const getMessages = async function (
       struct: true,
     })
 
-    await handleFetch(imap, f, messages)
+    await _handleFetch(imap, f, messages)
   } catch (err: any) {
     if (imap.state !== 'disconnected') {
       imap.end()
@@ -70,7 +70,7 @@ export const getMessages = async function (
   return messages
 }
 
-const handleFetch = function (
+const _handleFetch = function (
   imap: Imap,
   f: Imap.ImapFetch,
   messages: bp.actions.listEmails.output.Output['messages']
@@ -87,7 +87,7 @@ const handleFetch = function (
         })
         stream.once('end', function () {
           if (info.which === 'HEADER') {
-            headerData = parseHeader(buffer)
+            headerData = _parseHeader(buffer)
           } else if (info.which === 'TEXT') {
             body = buffer
           }
@@ -122,7 +122,7 @@ const handleFetch = function (
   })
 }
 
-const getConfig = function (config: bp.configuration.Configuration) {
+const _getConfig = function (config: bp.configuration.Configuration) {
   return {
     user: config.user,
     password: config.password,
@@ -133,7 +133,7 @@ const getConfig = function (config: bp.configuration.Configuration) {
   }
 }
 
-function getStringBetweenAngles(input: string): string | undefined {
+function _getStringBetweenAngles(input: string): string | undefined {
   const start = input.indexOf('<')
   const end = input.indexOf('>')
   if (start !== -1 && end !== -1 && end > start) {
@@ -142,7 +142,7 @@ function getStringBetweenAngles(input: string): string | undefined {
   return undefined
 }
 
-const parseHeader = (buffer: string): HeaderData => {
+const _parseHeader = (buffer: string): HeaderData => {
   const headerBuffer = buffer
   let subject = '',
     sender = '',
@@ -168,7 +168,7 @@ const parseHeader = (buffer: string): HeaderData => {
     }
     const references = parsedHeader['references']?.[0]
     if (references) {
-      firstMessageId = getStringBetweenAngles(references)
+      firstMessageId = _getStringBetweenAngles(references)
     }
   } catch (e) {
     console.error('Error parsing header:', e)

@@ -1,5 +1,5 @@
-import { assert, expect, test, it } from 'vitest'
-import { getPageFromEnd } from '../src/imap'
+import { expect, test } from 'vitest'
+import { getPageFromEnd } from './imap'
 import * as sdk from '@botpress/sdk'
 
 test('getPageFromEnd with with zero messages throws', () => {

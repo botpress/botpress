@@ -1,16 +1,5 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 
-export type EmailMessage = z.infer<typeof emailMessageSchema>
-const emailMessageSchema = z.object({
-  id: z.string(),
-  subject: z.string(),
-  body: z.string(),
-  inReplyTo: z.string().optional(),
-  date: z.date().optional(),
-  sender: z.string(),
-  firstMessageId: z.string().optional(),
-})
-
 export default new IntegrationDefinition({
   name: 'email',
   version: '0.0.1',
@@ -52,7 +41,17 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          messages: z.array(emailMessageSchema),
+          messages: z.array(
+            z.object({
+              id: z.string(),
+              subject: z.string(),
+              body: z.string(),
+              inReplyTo: z.string().optional(),
+              date: z.date().optional(),
+              sender: z.string(),
+              firstMessageId: z.string().optional(),
+            })
+          ),
         }),
       },
     },
