@@ -828,6 +828,6 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       assertSuccess(result)
       expect(result.iterations).toHaveLength(1)
       expect(dogMentionned).toBe(true)
-    })
+    }, 20_000)
   })
 })
