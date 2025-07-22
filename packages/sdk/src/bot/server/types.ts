@@ -210,7 +210,7 @@ export type WorkflowPayloads<TBot extends common.BaseBot> = {
   [TWorkflowName in utils.StringKeys<TBot['workflows']>]: CommonHandlerProps<TBot> & {
     conversation?: client.Conversation
     user?: client.User
-    event: client.Event
+    event: WorkflowUpdateEvent
 
     /**
      * # EXPERIMENTAL

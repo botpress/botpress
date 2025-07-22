@@ -191,7 +191,7 @@ export type WorkflowPayloads<TPlugin extends common.BasePlugin> = {
   [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]: CommonHandlerProps<TPlugin> & {
     conversation?: client.Conversation
     user?: client.User
-    event: client.Event
+    event: bot.WorkflowUpdateEvent
 
     /**
      * # EXPERIMENTAL
