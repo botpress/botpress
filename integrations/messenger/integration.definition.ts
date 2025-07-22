@@ -4,6 +4,24 @@ import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
 
+const commonConfigSchema = z.object({
+  downloadMedia: z
+    .boolean()
+    .default(false)
+    .title('Download Media')
+    .describe(
+      'Automatically download media files using the Files API for content access. If disabled, Messenger media URLs will be used.'
+    ),
+  downloadedMediaExpiry: z
+    .number()
+    .default(24)
+    .optional()
+    .title('Downloaded Media Expiry')
+    .describe(
+      'Expiry time in hours for downloaded media files. An expiry time of 0 means the files will never expire.'
+    ),
+})
+
 export default new IntegrationDefinition({
   name: 'messenger',
   version: '4.0.0',
@@ -16,33 +34,35 @@ export default new IntegrationDefinition({
       linkTemplateScript: 'linkTemplate.vrl',
       required: true,
     },
-    schema: z.object({}),
+    schema: commonConfigSchema,
   },
   configurations: {
     manualApp: {
       title: 'Manual Configuration',
       description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
-      schema: z.object({
-        verifyToken: z
-          .string()
-          .title('Verify Token')
-          .min(1)
-          .describe(
-            'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
-          ),
-        accessToken: z
-          .string()
-          .title('Access Token')
-          .min(1)
-          .describe('Access Token from a System Account that has permission to the Meta app'),
-        clientId: z.string().title('Client ID').min(1).describe('Meta app client id'),
-        clientSecret: z
-          .string()
-          .title('Client Secret')
-          .optional()
-          .describe('Meta app secret used for webhook signature check. Leave empty to disable signature check.'),
-        pageId: z.string().min(1).describe('Id from the Facebook page').title('Page ID'),
-      }),
+      schema: z
+        .object({
+          verifyToken: z
+            .string()
+            .title('Verify Token')
+            .min(1)
+            .describe(
+              'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
+            ),
+          accessToken: z
+            .string()
+            .title('Access Token')
+            .min(1)
+            .describe('Access Token from a System Account that has permission to the Meta app'),
+          clientId: z.string().title('Client ID').min(1).describe('Meta app client id'),
+          clientSecret: z
+            .string()
+            .title('Client Secret')
+            .optional()
+            .describe('Meta app secret used for webhook signature check. Leave empty to disable signature check.'),
+          pageId: z.string().min(1).describe('Id from the Facebook page').title('Page ID'),
+        })
+        .merge(commonConfigSchema),
     },
   },
   identifier: {

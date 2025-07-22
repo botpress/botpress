@@ -1,13 +1,48 @@
-import { describe, it, expect, afterAll, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, afterAll, beforeEach, afterEach, vi } from 'vitest'
 import { BotpressDocumentation, getClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
+import { getCachedCognitiveClient, getCognitiveClient } from './client'
 
 describe('zai.check', { timeout: 60_000 }, () => {
   const zai = getZai()
 
   it('basic check on a string', async () => {
     const value = await zai.check('This text is very clearly written in English.', 'is an english sentence')
-    expect(value.value).toBe(true)
+    expect(value).toBe(true)
+  })
+
+  it('basic check on a string (full)', async () => {
+    const { output, usage } = await zai
+      .check('This text is very clearly written in English.', 'is an english sentence')
+      .result()
+
+    expect(output.value).toBe(true)
+    expect(output.explanation).toBeTypeOf('string')
+    expect(output.explanation.length).toBeGreaterThan(5)
+    expect(usage.requests.requests).toBeGreaterThanOrEqual(1)
+    expect(usage.requests.responses).toBeGreaterThanOrEqual(1)
+  })
+
+  it('can abort', async () => {
+    // no caching
+    const request = getZai(getCognitiveClient()).check(
+      'This text is very clearly written in English.',
+      'is an english sentence' + Date.now()
+    )
+
+    setTimeout(() => request.abort('CANCEL'), 50) // Abort after 50ms
+    await expect(request).rejects.toThrow('CANCEL')
+  })
+
+  it('can abort via external signal', async () => {
+    // no caching
+    const controller = new AbortController()
+    const request = getZai(getCognitiveClient())
+      .check('This text is very clearly written in English.', 'is an english sentence' + Date.now())
+      .bindSignal(controller.signal)
+
+    setTimeout(() => controller.abort('CANCEL2'), 50) // Abort after 50ms
+    await expect(request).rejects.toThrow('CANCEL2')
   })
 
   it('text that is too long gets truncated', async () => {
@@ -18,8 +53,8 @@ describe('zai.check', { timeout: 60_000 }, () => {
 
     const isAboutBirds = await zai.check(BotpressDocumentation, 'is a book about birds and their species')
 
-    expect(isBotpressDocumentation.value).toBe(true)
-    expect(isAboutBirds.value).toBe(false)
+    expect(isBotpressDocumentation).toBe(true)
+    expect(isAboutBirds).toBe(false)
   })
 
   it('works with any input type', async () => {
@@ -27,8 +62,36 @@ describe('zai.check', { timeout: 60_000 }, () => {
     const american = await zai.check(sly, 'person lives in north america')
     const european = await zai.check(sly, 'person lives in europe')
 
-    expect(american.value).toBe(true)
-    expect(european.value).toBe(false)
+    expect(american).toBe(true)
+    expect(european).toBe(false)
+  })
+
+  it('retries on generation failure', async () => {
+    const cognitive = getCachedCognitiveClient()
+    const mocked = getCachedCognitiveClient()
+
+    let callCount = 0
+
+    const mock = vi.fn().mockImplementation(async (input) => {
+      const output = await cognitive.generateContent(input)
+
+      if (callCount++ < 1) {
+        output.output.choices[0].content = '...'
+      }
+
+      return output
+    })
+
+    mocked.clone = vi.fn().mockReturnValue(mocked)
+    mocked.generateContent = mock
+
+    const isEnglish = await getZai(mocked).check(
+      'This text is very clearly written in English',
+      'is an english sentence'
+    )
+
+    expect(isEnglish).toBe(true)
+    expect(mock).toHaveBeenCalledTimes(2)
   })
 
   it('check with examples', async () => {
@@ -57,16 +120,16 @@ describe('zai.check', { timeout: 60_000 }, () => {
     const nike = await zai.check('Nike', 'competes with us', { examples })
     const adidas = await zai.check('Adidas', 'competes with us', { examples })
 
-    expect(moveworks.value).toBe(true)
-    expect(ada.value).toBe(true)
-    expect(voiceflow.value).toBe(true)
+    expect(moveworks).toBe(true)
+    expect(ada).toBe(true)
+    expect(voiceflow).toBe(true)
 
-    expect(nike.value).toBe(false)
-    expect(adidas.value).toBe(false)
+    expect(nike).toBe(false)
+    expect(adidas).toBe(false)
   })
 })
 
-describe('zai.learn.check', { timeout: 60_000 }, () => {
+describe('zai.learn.check', { timeout: 60_000, sequential: true }, () => {
   const client = getClient()
   let tableName = 'ZaiTestCheckInternalTable'
   let taskId = 'check'
@@ -100,7 +163,7 @@ describe('zai.learn.check', { timeout: 60_000 }, () => {
       tableName,
     })
 
-    const { value } = await zai.learn(taskId).check(`What's up`, 'is a greeting')
+    const value = await zai.learn(taskId).check(`What's up`, 'is a greeting')
     expect(value).toBe(true)
 
     let rows = await client.findTableRows({ table: tableName })
@@ -143,10 +206,10 @@ describe('zai.learn.check', { timeout: 60_000 }, () => {
       status: 'approved',
     })
 
-    const { value: second } = await zai.learn(taskId).check(`What's up`, 'is a greeting')
+    const second = await zai.learn(taskId).check(`What's up`, 'is a greeting')
     expect(second).toBe(false)
-
     rows = await client.findTableRows({ table: tableName })
+
     expect(rows.rows.length).toBe(4)
     expect(rows.rows[0].output.value).toEqual(second)
   })

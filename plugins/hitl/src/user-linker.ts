@@ -86,6 +86,6 @@ export class UserLinker {
 
   private _generateFakeEmail(user: client.User) {
     const botId = this._props.ctx.botId.replaceAll('_', '-')
-    return `${user.id}@${botId}.botpress.invalid`
+    return `${user.id}@no-reply.${botId}.botpress.com`
   }
 }

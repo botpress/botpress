@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { Cognitive } from '@botpress/cognitive'
+import { Cognitive, ModelProvider } from '@botpress/cognitive'
 import { diffLines } from 'diff'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -102,6 +102,47 @@ class CachedClient extends Client {
   }
 }
 
+const cognitiveProvider: ModelProvider = {
+  deleteModelPreferences: async () => {},
+  saveModelPreferences: async () => {},
+  fetchInstalledModels: async () => [
+    {
+      ref: 'openai:gpt-4o-2024-11-20',
+      integration: 'openai',
+      id: 'gpt-4o-2024-11-20',
+      name: 'GPT-4o (November 2024)',
+      description:
+        "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
+      input: {
+        costPer1MTokens: 2.5,
+        maxTokens: 128000,
+      },
+      output: {
+        costPer1MTokens: 10,
+        maxTokens: 16384,
+      },
+      tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    },
+  ],
+  fetchModelPreferences: async () => ({
+    best: ['openai:gpt-4o-2024-11-20'] as const,
+    fast: ['openai:gpt-4o-2024-11-20'] as const,
+    downtimes: [],
+  }),
+}
+
+export const getCognitiveClient = () => {
+  const cognitive = new Cognitive({
+    client: new Client({
+      apiUrl: process.env.CLOUD_API_ENDPOINT ?? 'https://api.botpress.dev',
+      botId: process.env.CLOUD_BOT_ID,
+      token: process.env.CLOUD_PAT,
+    }),
+    provider: cognitiveProvider,
+  })
+  return cognitive
+}
+
 export const getCachedCognitiveClient = () => {
   const cognitive = new Cognitive({
     client: new CachedClient({
@@ -109,34 +150,7 @@ export const getCachedCognitiveClient = () => {
       botId: process.env.CLOUD_BOT_ID,
       token: process.env.CLOUD_PAT,
     }),
-    provider: {
-      deleteModelPreferences: async () => {},
-      saveModelPreferences: async () => {},
-      fetchInstalledModels: async () => [
-        {
-          ref: 'openai:gpt-4o-2024-11-20',
-          integration: 'openai',
-          id: 'gpt-4o-2024-11-20',
-          name: 'GPT-4o (November 2024)',
-          description:
-            "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
-          input: {
-            costPer1MTokens: 2.5,
-            maxTokens: 128000,
-          },
-          output: {
-            costPer1MTokens: 10,
-            maxTokens: 16384,
-          },
-          tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
-        },
-      ],
-      fetchModelPreferences: async () => ({
-        best: ['openai:gpt-4o-2024-11-20'] as const,
-        fast: ['openai:gpt-4o-2024-11-20'] as const,
-        downtimes: [],
-      }),
-    },
+    provider: cognitiveProvider,
   })
   return cognitive
 }
