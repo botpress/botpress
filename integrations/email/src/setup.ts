@@ -20,8 +20,6 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
     const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
     throw new sdk.RuntimeError('An error occured when registering the integration. Verify your configuration.', err)
   }
-
-  props.logger.forBot().info('Finished syncing to the inbox for the first time')
 }
 
 export const unregister: bp.IntegrationProps['unregister'] = async () => {

@@ -31,6 +31,8 @@ export const listEmails: bp.IntegrationProps['actions']['listEmails'] = async (p
 export const getEmail: bp.IntegrationProps['actions']['getEmail'] = async (props) => {
   const email = await imap.getMessageById(props.input.id, props)
   if (!email) throw new sdk.RuntimeError('Could not find an email with corresponding id.')
+
+  props.logger.info(`Retrieved email with id ${props.input.id}`)
   return email
 }
 
