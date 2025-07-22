@@ -35,8 +35,7 @@ export default new IntegrationDefinition({
       description: 'List all emails in the inbox',
       input: {
         schema: z.object({
-          page: z.number().describe('The page number in the inbox. Starts at 0').optional(),
-          perPage: z.number().describe('The number of emails per page').optional(),
+          nextToken: z.string().optional().describe('The page number in the inbox. Starts at 0').optional(),
         }),
       },
       output: {
@@ -45,11 +44,34 @@ export default new IntegrationDefinition({
             z.object({
               id: z.string(),
               subject: z.string(),
-              body: z.string(),
               inReplyTo: z.string().optional(),
               date: z.string().datetime().optional(),
               sender: z.string(),
               firstMessageId: z.string().optional(),
+            })
+          ),
+          nextToken: z.string(),
+        }),
+      },
+    },
+    getEmail: {
+      title: 'Get emails',
+      description: 'Get the email with specified id from the inbox',
+      input: {
+        schema: z.object({
+          id: z.string(),
+        }),
+      },
+      output: {
+        schema: z.object({
+          message: z.array(
+            z.object({
+              id: z.string(),
+              subject: z.string(),
+              body: z.string(),
+              inReplyTo: z.string().optional(),
+              date: z.string().datetime().optional(),
+              sender: z.string(),
             })
           ),
         }),

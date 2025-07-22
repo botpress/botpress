@@ -12,15 +12,18 @@ type HeaderData = {
   firstMessageId: string | undefined
 }
 
+export type Email = bp.actions.listEmails.output.Output['messages'][0] & { body?: string }
+export type EmailResponse = { messages: Array<Email> } & { nextToken: string }
+
 export const getMessages = async function (
   range: { page: number; perPage: number },
   props: { ctx: bp.Context; logger: bp.Logger },
   options?: { bodyNeeded: boolean }
-): Promise<bp.actions.listEmails.output.Output['messages']> {
-  const messages: bp.actions.listEmails.output.Output['messages'] = []
+): Promise<EmailResponse> {
+  let messages: EmailResponse
   const imap: Imap = new Imap(_getConfig(props.ctx.configuration))
 
-  await new Promise<void>((resolve, reject) => {
+  await new Promise<EmailResponse>((resolve, reject) => {
     imap.once('ready', resolve)
     imap.once('error', (err: Error) => {
       reject(new sdk.RuntimeError('An error occured while connecting to the inbox', err))
@@ -55,8 +58,9 @@ export const getMessages = async function (
       bodies: imapBodies,
       struct: true,
     })
+    const nextToken = paging.getNextToken({ page: range.page, firstElementIndex })
 
-    await _handleFetch(imap, f, messages)
+    messages = { messages: await _handleFetch(imap, f), nextToken }
   } catch (thrown: unknown) {
     if (imap.state !== 'disconnected') {
       imap.end()
@@ -69,15 +73,12 @@ export const getMessages = async function (
     )
   }
 
-  props.logger.forBot().info(`Read ${messages.length} messages from the inbox`)
+  props.logger.forBot().info(`Read ${messages.messages.length} messages from the inbox`)
   return messages
 }
 
-const _handleFetch = function (
-  imap: Imap,
-  f: Imap.ImapFetch,
-  messages: bp.actions.listEmails.output.Output['messages']
-): Promise<void> {
+const _handleFetch = function (imap: Imap, f: Imap.ImapFetch): Promise<Array<Email>> {
+  const messages: Array<Email> = []
   return new Promise((resolve, reject) => {
     f.on('message', (msg: Imap.ImapMessage) => {
       let headerData: HeaderData
@@ -120,7 +121,7 @@ const _handleFetch = function (
 
     f.once('end', function () {
       imap.end()
-      resolve()
+      resolve(messages)
     })
   })
 }

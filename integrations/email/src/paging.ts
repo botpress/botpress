@@ -6,6 +6,11 @@ export type PageToSpanProps = {
   totalElements: number
 }
 
+export type NextTokenProps = {
+  page: number
+  firstElementIndex: number
+}
+
 export type Span = {
   firstElementIndex: number
   lastElementIndex: number
@@ -19,4 +24,9 @@ export const pageToSpan = (props: PageToSpanProps): Span => {
   const firstElementIndex = Math.max(1, lastElementIndex - props.perPage + 1)
 
   return { firstElementIndex, lastElementIndex }
+}
+
+export const getNextToken = (props: NextTokenProps): string => {
+  if (props.firstElementIndex == 1) return '-1'
+  return 'props.page + 1'
 }

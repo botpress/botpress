@@ -5,15 +5,15 @@ import * as smtp from './smtp'
 import * as bp from '.botpress'
 
 const DEFAULT_START_PAGE = 0
-const DEFAULT_PER_PAGE = 50
+const DEFAULT_ELEMENTS_PER_PAGE = 50
 
 export const sendEmail: bp.IntegrationProps['actions']['sendEmail'] = async (props) => {
   return await smtp.sendNodemailerMail(props.ctx.configuration, props.input, props.logger)
 }
 
 export const listEmails: bp.IntegrationProps['actions']['listEmails'] = async (props) => {
-  const page = props.input.page ?? DEFAULT_START_PAGE
-  const perPage = props.input.perPage ?? DEFAULT_PER_PAGE
+  const page = parseInt(props.input.nextToken ?? DEFAULT_START_PAGE.toString())
+  const perPage = DEFAULT_ELEMENTS_PER_PAGE
   const messages = await imap.getMessages(
     { page, perPage },
     {
@@ -21,8 +21,10 @@ export const listEmails: bp.IntegrationProps['actions']['listEmails'] = async (p
       logger: props.logger,
     }
   )
-  return { messages }
+  return messages
 }
+
+export const getEmail: bp.IntegrationProps['actions']['getEmail'] = async (props) => {}
 
 export const syncEmails: bp.IntegrationProps['actions']['syncEmails'] = async (props) => {
   props.logger.forBot().info(`Starting sync in the inbox at [${new Date().toISOString()}]`)
@@ -50,7 +52,7 @@ const _syncEmails = async (
   })
 
   const allMessages = await imap.getMessages(
-    { page: DEFAULT_START_PAGE, perPage: DEFAULT_PER_PAGE },
+    { page: DEFAULT_START_PAGE, perPage: DEFAULT_ELEMENTS_PER_PAGE },
     {
       ctx: props.ctx,
       logger: props.logger,
@@ -58,7 +60,7 @@ const _syncEmails = async (
     { bodyNeeded: options.enableNewMessageNotification }
   )
 
-  for (const message of allMessages) {
+  for (const message of allMessages.messages) {
     if (message.sender === props.ctx.configuration.user) continue
 
     const messageAlreadySeen =
@@ -85,10 +87,7 @@ const _syncEmails = async (
   return {}
 }
 
-const _notifyNewMessage = async (
-  props: { client: bp.Client; logger: bp.Logger },
-  message: bp.actions.listEmails.output.Output['messages'][0]
-) => {
+const _notifyNewMessage = async (props: { client: bp.Client; logger: bp.Logger }, message: imap.Email) => {
   const { user } = await props.client.getOrCreateUser({
     tags: { email: message.sender },
   })
@@ -114,7 +113,7 @@ const _notifyNewMessage = async (
   await props.client.createMessage({
     conversationId: conversation.id,
     userId: user.id,
-    payload: { text: message.body },
+    payload: { text: message.body ?? 'message has no body' },
     tags: { id: message.id },
     type: 'text',
   })

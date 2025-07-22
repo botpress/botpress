@@ -8,6 +8,7 @@ export default new bp.Integration({
   unregister: setup.unregister,
   actions: {
     listEmails: actions.listEmails,
+    getEmail: actions.getEmail,
     syncEmails: actions.syncEmails,
     sendEmail: actions.sendEmail,
   },
