@@ -1,6 +1,6 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 
-const EmailHeaders = z.object({
+const emailSchema = z.object({
   id: z.string(),
   subject: z.string(),
   inReplyTo: z.string().optional(),
@@ -49,7 +49,7 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          messages: z.array(EmailHeaders),
+          messages: z.array(emailSchema),
           nextToken: z.string().optional(),
         }),
       },
@@ -63,7 +63,7 @@ export default new IntegrationDefinition({
         }),
       },
       output: {
-        schema: EmailHeaders.extend({
+        schema: emailSchema.extend({
           body: z.string().optional(),
         }),
       },

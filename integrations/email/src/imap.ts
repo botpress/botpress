@@ -12,15 +12,15 @@ type HeaderData = {
   firstMessageId: string | undefined
 }
 
+const INBOX_ERROR_MESSAGE = 'An error occured while opening the inbox'
+
 export type Email = bp.actions.listEmails.output.Output['messages'][0] & { body?: string }
 export type EmailResponse = { messages: Array<Email> } & { nextToken?: string }
 
-export const getMessages = async function (
-  range: { page: number; perPage: number },
-  props: { ctx: bp.Context; logger: bp.Logger },
-  options?: { bodyNeeded: boolean }
-): Promise<EmailResponse> {
-  let messages: EmailResponse
+const _connectToImap = async (props: {
+  ctx: bp.Context
+  logger: bp.Logger
+}): Promise<{ imap: Imap; box: Imap.Box }> => {
   const imap: Imap = new Imap(_getConfig(props.ctx.configuration))
 
   await new Promise<EmailResponse>((resolve, reject) => {
@@ -31,16 +31,32 @@ export const getMessages = async function (
     imap.connect()
   })
 
-  try {
-    const box = await new Promise<Imap.Box>((resolve, reject) => {
+  return {
+    imap,
+    box: await new Promise<Imap.Box>((resolve, reject) => {
       imap.openBox('INBOX', true, (err, box) => {
         if (err) {
-          reject(new sdk.RuntimeError('An error occured while opening the inbox', err))
+          reject(new sdk.RuntimeError(INBOX_ERROR_MESSAGE, err))
         } else {
           resolve(box)
         }
       })
-    })
+    }),
+  }
+}
+
+export const getMessages = async function (
+  range: { page: number; perPage: number },
+  props: { ctx: bp.Context; logger: bp.Logger },
+  options?: { bodyNeeded: boolean }
+): Promise<EmailResponse> {
+  let messages: EmailResponse
+  let imap: Imap | undefined = undefined
+  let box: Imap.Box | undefined = undefined
+
+  try {
+    ;({ imap, box } = await _connectToImap(props))
+    if (!imap || !box) throw new sdk.RuntimeError(INBOX_ERROR_MESSAGE)
 
     const imapBodies = ['HEADER']
     if (options?.bodyNeeded || !options) {
@@ -62,8 +78,8 @@ export const getMessages = async function (
 
     messages = { messages: await _handleFetch(imap, f, imapBodies.length), nextToken }
   } catch (thrown: unknown) {
-    if (imap.state !== 'disconnected') {
-      imap.end()
+    if (imap?.state !== 'disconnected') {
+      imap?.end()
     }
 
     const err = thrown instanceof Error ? thrown : new Error(String(thrown))
@@ -130,26 +146,11 @@ export const getMessageById = async function (
   props: { ctx: bp.Context; logger: bp.Logger },
   options?: { bodyNeeded: boolean }
 ): Promise<Email | undefined> {
-  const imap: Imap = new Imap(_getConfig(props.ctx.configuration))
-
-  await new Promise<void>((resolve, reject) => {
-    imap.once('ready', resolve)
-    imap.once('error', (err: Error) => {
-      reject(new sdk.RuntimeError('An error occured while connecting to the inbox', err))
-    })
-    imap.connect()
-  })
+  let imap: Imap | undefined = undefined
 
   try {
-    await new Promise<Imap.Box>((resolve, reject) => {
-      imap.openBox('INBOX', true, (err, box) => {
-        if (err) {
-          reject(new sdk.RuntimeError('An error occured while opening the inbox', err))
-        } else {
-          resolve(box)
-        }
-      })
-    })
+    ;({ imap } = await _connectToImap(props))
+    if (!imap) throw new sdk.RuntimeError('')
 
     const imapBodies = ['HEADER']
     if (options?.bodyNeeded || !options) {
@@ -159,6 +160,7 @@ export const getMessageById = async function (
     // Search for the message by message-id
     const searchCriteria = [['HEADER', 'MESSAGE-ID', messageId]]
     const uids: number[] = await new Promise((resolve, reject) => {
+      if (!imap) throw new sdk.RuntimeError(INBOX_ERROR_MESSAGE)
       imap.search(searchCriteria, (err, results) => {
         if (err) {
           reject(new sdk.RuntimeError('An error occured while searching for the message', err))
@@ -181,8 +183,8 @@ export const getMessageById = async function (
     const messages = await _handleFetch(imap, f, imapBodies.length)
     return messages[0]
   } catch (thrown: unknown) {
-    if (imap.state !== 'disconnected') {
-      imap.end()
+    if (imap?.state !== 'disconnected') {
+      imap?.end()
     }
     const err = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw new sdk.RuntimeError('An error occured while searching for the message by message-id.', err)
