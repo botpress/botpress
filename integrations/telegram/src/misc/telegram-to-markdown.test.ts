@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { applyMarksToText, applyMarksToTextV2, MarkEffect, MarkSegment, splitAnyOverlaps } from './telegram-to-markdown'
+import { applyMarksToTextV2, MarkEffect, MarkSegment, splitAnyOverlaps } from './telegram-to-markdown'
 
 interface Mark {
   type: string
@@ -241,24 +241,6 @@ describe.each([
   },
 ] as TestCase[])('Telegram to Markdown Conversion', ({ input, marks, expects, description }) => {
   test(description, () => {
-    const consoleWarn = console.warn
-
-    console.warn = (firstArg: unknown, ...args: unknown[]) => {
-      if (typeof firstArg === 'string') {
-        if (firstArg.startsWith('Unknown mark type:')) {
-          throw new Error(firstArg)
-        }
-      }
-
-      consoleWarn(firstArg, ...args)
-    }
-
-    expect(applyMarksToText(input, marks)).toBe(expects)
-
-    console.warn = consoleWarn
-  })
-
-  test(`${description} V2`, () => {
     const consoleWarn = console.warn
 
     console.warn = (firstArg: unknown, ...args: unknown[]) => {
