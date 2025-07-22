@@ -1,19 +1,20 @@
 # Global
 * @botpress/engineering
 
-# Scripts
-/scripts @franklevasseur
-
 # Client, SDK, CLI
 /packages @botpress/engineering
 
 # Bots
-/packages/bots @franklevasseur
+/packages/bots @botpress/engineering
 
 # Plugins
 /plugins @botpress/engineering
+/plugins/hitl @pascal-botpress @franklevasseur @botpress/engineering
+/plugins/file-synchronizer @pascal-botpress @botpress/engineering
 
 # Integrations
+/integrations @botpress/engineering
+
 ## Utils
 /integrations/browser @allardy @botpress/engineering
 /integrations/charts @allardy @botpress/engineering
@@ -28,37 +29,42 @@
 /integrations/openai @AbrahamLopez10 @botpress/engineering
 
 ## Others
-/integrations/airtable @pascal-botpress @botpress/engineering
-/integrations/asana @SebastienPoitras @botpress/engineering
-/integrations/bigcommerce-sync @matthewbotpress @botpress/engineering
+/integrations/airtable @JustinBordage @botpress/engineering
+/integrations/asana @JustinBordage @botpress/engineering
+/integrations/bigcommerce-sync @Nathaniel-Girard @botpress/engineering
 /integrations/chat @franklevasseur @botpress/engineering
-/integrations/clickup @franklevasseur @botpress/engineering
+/integrations/clickup @JustinBordage @botpress/engineering
+/integrations/confluence @Nathaniel-Girard @botpress/engineering
 /integrations/dropbox @pascal-botpress @botpress/engineering
-/integrations/freshchat @SebastienPoitras @botpress/engineering
-/integrations/github @pascal-botpress @botpress/engineering
+/integrations/email @Nathaniel-Girard @botpress/engineering
+/integrations/freshchat @davidvitora @botpress/engineering
+/integrations/github @JustinBordage @pascal-botpress @botpress/engineering
 /integrations/gmail @pascal-botpress @botpress/engineering
 /integrations/googlecalendar @pascal-botpress @botpress/engineering
 /integrations/googledrive @pascal-botpress @botpress/engineering
 /integrations/gsheets @pascal-botpress @botpress/engineering
 /integrations/instagram @SebastienPoitras @botpress/engineering
-/integrations/intercom @SebastienPoitras @botpress/engineering
-/integrations/line @SebastienPoitras @botpress/engineering
+/integrations/intercom @Nathaniel-Girard @botpress/engineering
+/integrations/line @Nathaniel-Girard @botpress/engineering
 /integrations/linear @franklevasseur @botpress/engineering
-/integrations/mailchimp @SebastienPoitras @botpress/engineering
+/integrations/mailchimp @JustinBordage @botpress/engineering
 /integrations/messenger @SebastienPoitras @botpress/engineering
+/integrations/monday @JustinBordage @botpress/engineering
 /integrations/notion @pascal-botpress @botpress/engineering
+/integrations/resend @JustinBordage @botpress/engineering
+/integrations/sendgrid @JustinBordage @botpress/engineering
 /integrations/slack @pascal-botpress @botpress/engineering
-/integrations/stripe @SebastienPoitras @botpress/engineering
+/integrations/stripe @Nathaniel-Girard @botpress/engineering
 /integrations/sunco @SebastienPoitras @botpress/engineering
-/integrations/teams @franklevasseur @botpress/engineering
-/integrations/telegram @franklevasseur @botpress/engineering
-/integrations/todoist @SebastienPoitras @botpress/engineering
-/integrations/trello @pascal-botpress @botpress/engineering
+/integrations/teams @JustinBordage @davidvitora @botpress/engineering
+/integrations/telegram @franklevasseur @JustinBordage @botpress/engineering
+/integrations/todoist @JustinBordage @botpress/engineering
+/integrations/trello @JustinBordage @botpress/engineering
 /integrations/twilio @SebastienPoitras @botpress/engineering
-/integrations/viber @SebastienPoitras @botpress/engineering
-/integrations/vonage @SebastienPoitras @botpress/engineering
+/integrations/viber @Nathaniel-Girard @botpress/engineering
+/integrations/vonage @Nathaniel-Girard @botpress/engineering
 /integrations/webhook @franklevasseur @botpress/engineering
 /integrations/whatsapp @SebastienPoitras @botpress/engineering
-/integrations/zapier @SebastienPoitras @botpress/engineering
-/integrations/zendesk @franklevasseur @botpress/engineering
-/integrations/zoho @matthewbotpress @botpress/engineering
+/integrations/zapier @Nathaniel-Girard @botpress/engineering
+/integrations/zendesk @pascal-botpress @franklevasseur @botpress/engineering
+/integrations/zoho @Nathaniel-Girard @botpress/engineering
