@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/client'
-import { ConversationParameters, ConversationReference, TeamsInfo } from 'botbuilder'
+import { ConversationParameters, ConversationReference, TurnContext } from 'botbuilder'
+import { getUserByEmail } from '../client'
 import { getAdapter, getError } from '../utils'
 import * as bp from '.botpress'
 
@@ -42,15 +43,13 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
   // ── If we only have an email, call TeamsInfo.getMember to fetch the account ──
   if (!teamsUserId?.length && teamsUserEmail?.length) {
     try {
-      await adapter.continueConversation(convRef, async (tc) => {
-        const account = await TeamsInfo.getMember(tc, teamsUserEmail)
-        teamsUserId = account.id
-      })
+      const teamsUser = await getUserByEmail(ctx, teamsUserEmail)
+      teamsUserId = teamsUser?.id
     } catch (thrown) {
       const err = getError(thrown)
       throw new RuntimeError(
         `Could not look-up Teams user with email "${teamsUserEmail}" ` +
-          `(bot must be installed where that user is reachable) → ${err.message}`
+          `(bot must be installed where that user is reachable and have "User.Read.All" API Permission at the Azure Portal) → ${err.message}`
       )
     }
   }
@@ -64,10 +63,10 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
     ],
   } as Partial<ConversationParameters>
 
-  let teamsDMConversationId
+  let newConvRef: Partial<ConversationReference> | undefined = undefined
   try {
     await adapter.createConversation(convRef, conversationParameters, async (context) => {
-      teamsDMConversationId = context.activity.conversation.id
+      newConvRef = TurnContext.getConversationReference(context.activity)
     })
   } catch (thrown) {
     const err = getError(thrown)
@@ -77,22 +76,26 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
     )
   }
 
+  if (!newConvRef) {
+    throw new RuntimeError('Failed to get the reference for the new conversation')
+  }
+
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      id: teamsDMConversationId,
+      id: (newConvRef as Partial<ConversationReference>).conversation?.id,
     },
     discriminateByTags: ['id'],
   })
 
-  const { user } = await client.getOrCreateUser({
-    tags: {
-      id: teamsUserId,
-    },
+  await client.setState({
+    id: conversation.id,
+    name: 'conversation',
+    type: 'conversation',
+    payload: newConvRef,
   })
 
   return {
     conversationId: conversation.id,
-    userId: user.id,
   }
 }
