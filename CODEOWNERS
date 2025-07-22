@@ -1,17 +1,16 @@
 # Global
 * @botpress/engineering
 
-# Scripts
-/scripts @franklevasseur
-
 # Client, SDK, CLI
 /packages @botpress/engineering
 
 # Bots
-/packages/bots @franklevasseur
+/packages/bots @botpress/engineering
 
 # Plugins
 /plugins @botpress/engineering
+/plugins/hitl @pascal-botpress @franklevasseur @botpress/engineering
+/plugins/file-synchronizer @pascal-botpress @botpress/engineering
 
 # Integrations
 /integrations @botpress/engineering
