@@ -76,7 +76,7 @@ export type TableDefinition<TTable extends BaseTables[string] = BaseTables[strin
 >
 
 export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
-  enabled: boolean
+  enabled?: boolean
   disabledChannels?: StringKeys<NonNullable<I['definition']['channels']>>[]
 } & (
   | {
@@ -89,6 +89,7 @@ export type IntegrationConfigInstance<I extends IntegrationPackage = Integration
         configuration: z.infer<NonNullable<I['definition']['configurations']>[K]['schema']>
       }
     }>
+  | {}
 )
 
 export type PluginConfigInstance<P extends PluginPackage = PluginPackage> = {
@@ -199,7 +200,10 @@ export class BotDefinition<
     }
   }
 
-  public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
+  public addIntegration<I extends IntegrationPackage>(
+    integrationPkg: I,
+    config: IntegrationConfigInstance<I> = {}
+  ): this {
     const self = this as Writable<BotDefinition>
     if (!self.integrations) {
       self.integrations = {}
@@ -208,9 +212,9 @@ export class BotDefinition<
     self.integrations[integrationPkg.name] = {
       enabled: config.enabled,
       ...integrationPkg,
-      configurationType: config.configurationType,
-      configuration: config.configuration,
-      disabledChannels: config.disabledChannels,
+      ...('configurationType' in config ? { configurationType: config.configurationType } : {}),
+      ...('configuration' in config ? { configuration: config.configuration } : {}),
+      ...('disabledChannels' in config ? { disabledChannels: config.disabledChannels } : {}),
     }
     return this
   }
