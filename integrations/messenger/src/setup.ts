@@ -6,7 +6,7 @@ type RegisterProps = Parameters<bp.IntegrationProps['register']>[0]
 
 export const register: bp.IntegrationProps['register'] = async (props) => {
   const { ctx, client } = props
-  if (ctx.configurationType === 'manualApp') {
+  if (ctx.configurationType === 'manual') {
     await client.configureIntegration({
       identifier: null,
     })
