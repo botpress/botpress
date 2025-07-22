@@ -74,6 +74,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       userId: user.tags.id as string,
       messages,
       channelId,
+      priority: input.hitlSession?.priority,
     })
 
     const { conversation } = await client.getOrCreateConversation({
