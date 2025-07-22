@@ -1,17 +1,148 @@
-import { RuntimeError } from '@botpress/client'
-import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
+import { RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
-import { MessengerMessage } from './types'
-import { FileMetadata, generateIdFromUrl, getMediaMetadata, getMessengerClient } from './utils'
+import { create as createMessengerClient } from '../../misc/messenger-client'
+import {
+  MessengerMessagingEntry,
+  MessengerMessagingEntryMessage,
+  MessengerMessagingEntryPostback,
+} from '../../misc/types'
+import { FileMetadata, generateIdFromUrl, getMediaMetadata } from '../../misc/utils'
 import * as bp from '.botpress'
 
-type IntegrationLogger = bp.Logger
-
+type IncomingMessageTypes = keyof Pick<bp.channels.channel.Messages, 'audio' | 'image' | 'text' | 'video' | 'bloc'>
 type IncomingMessages = {
-  [TMessage in keyof bp.channels.channel.Messages]: {
+  [TMessage in IncomingMessageTypes]: {
     type: TMessage
     payload: bp.channels.channel.Messages[TMessage]
   }
+}
+type IncomingMessage = IncomingMessages[IncomingMessageTypes]
+
+export const handler = async (messagingEntry: MessengerMessagingEntry, props: bp.HandlerProps) => {
+  if ('message' in messagingEntry) {
+    await _messageHandler(messagingEntry, props)
+  }
+  if ('postback' in messagingEntry) {
+    await _postbackHandler(messagingEntry, props)
+  }
+}
+
+const _messageHandler = async (messagingEntry: MessengerMessagingEntryMessage, handlerProps: bp.HandlerProps) => {
+  const { message } = messagingEntry
+  const { client, ctx, logger } = handlerProps
+  logger
+    .forBot()
+    .debug(
+      `Received message from Instagram: text=${message.text ?? '[None]'}, attachments=[${message.attachments?.map((a) => `${a.type}:${a.payload.url}`).join(', ') ?? 'None'}]`
+    )
+
+  const incomingMessages: IncomingMessage[] = []
+  const { text, attachments } = message
+  if (text) {
+    incomingMessages.push({ type: 'text', payload: { text } })
+  }
+  if (attachments) {
+    for (const attachment of attachments) {
+      const { url } = await _getOrDownloadMedia(attachment.payload.url, client, ctx)
+      if (attachment.type === 'image') {
+        incomingMessages.push({ type: 'image', payload: { imageUrl: url } })
+      } else if (attachment.type === 'video') {
+        incomingMessages.push({ type: 'video', payload: { videoUrl: url } })
+      } else if (attachment.type === 'audio') {
+        incomingMessages.push({ type: 'audio', payload: { audioUrl: url } })
+      } else {
+        logger.forBot().warn(`Unsupported attachment type in incoming message: ${attachment.type}`)
+      }
+    }
+  }
+
+  let incomingMessage: IncomingMessage | undefined
+  if (incomingMessages.length > 1) {
+    const items = incomingMessages.filter((m) => m.type !== 'bloc')
+    incomingMessage = {
+      type: 'bloc',
+      payload: {
+        items,
+      },
+    }
+  } else {
+    incomingMessage = incomingMessages[0]
+  }
+
+  if (!incomingMessage) {
+    logger.forBot().debug('No incoming message to process')
+    return
+  }
+  await _commonMessagingHandler({
+    incomingMessage,
+    mid: message.mid,
+    messagingEntry,
+    handlerProps,
+  })
+}
+
+const _postbackHandler = async (messagingEntry: MessengerMessagingEntryPostback, handlerProps: bp.HandlerProps) => {
+  const { postback } = messagingEntry
+  handlerProps.logger
+    .forBot()
+    .debug(`Received postback from Messenger: label=${postback.title}, value=${postback.payload}`)
+  await _commonMessagingHandler({
+    incomingMessage: { type: 'text', payload: { text: postback.payload } },
+    mid: postback.mid,
+    messagingEntry,
+    handlerProps,
+  })
+}
+
+const _commonMessagingHandler = async ({
+  incomingMessage: { type, payload },
+  mid,
+  messagingEntry,
+  handlerProps,
+}: {
+  incomingMessage: IncomingMessage
+  mid: string
+  messagingEntry: MessengerMessagingEntry
+  handlerProps: bp.HandlerProps
+}) => {
+  const { client, ctx, logger } = handlerProps
+
+  const { sender, recipient } = messagingEntry
+  const { conversation } = await client.getOrCreateConversation({
+    channel: 'channel',
+    tags: { id: sender.id, senderId: sender.id, recipientId: recipient.id },
+  })
+
+  const { user } = await client.getOrCreateUser({
+    tags: {
+      id: sender.id,
+    },
+  })
+
+  if (!user.name || !user.pictureUrl) {
+    try {
+      const messengerClient = await createMessengerClient(client, ctx)
+      const profile = await messengerClient.getUserProfile(messagingEntry.sender.id, {
+        fields: ['id', 'name', 'profile_pic'],
+      })
+      logger.forBot().debug('Fetched latest Messenger user profile:', profile)
+      await client.updateUser({ id: user.id, name: profile.name, pictureUrl: profile.profilePic })
+    } catch (error) {
+      logger.forBot().error('Error while fetching user profile from Messenger', error)
+    }
+  }
+
+  await client.getOrCreateMessage({
+    tags: {
+      id: mid,
+      senderId: sender.id,
+      recipientId: recipient.id,
+    },
+    type,
+    payload,
+    userId: user.id,
+    conversationId: conversation.id,
+  })
 }
 
 function _getMediaExpiry(ctx: bp.Context) {
@@ -76,101 +207,4 @@ async function _downloadMedia(params: { url: string } & FileMetadata, client: bp
     })
 
   return { url: file.url, mimeType, fileSize, fileName }
-}
-
-export async function handleMessage(
-  message: MessengerMessage,
-  { client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: IntegrationLogger }
-) {
-  const { sender, recipient, message: textMessage, postback } = message
-
-  let text: string
-  let messageId: string
-
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'channel',
-    tags: {
-      id: sender.id,
-      senderId: sender.id,
-      recipientId: recipient.id,
-    },
-  })
-
-  const { user } = await client.getOrCreateUser({
-    tags: {
-      id: sender.id,
-    },
-  })
-
-  const createMessage = async ({ type, payload }: ValueOf<IncomingMessages>) => {
-    logger.forBot().debug(`Received ${type} message from Messenger:`, payload)
-    return client.createMessage({
-      tags: {
-        id: messageId,
-        senderId: message.sender.id,
-        recipientId: message.recipient.id,
-      },
-      type,
-      payload,
-      userId: user.id,
-      conversationId: conversation.id,
-    })
-  }
-
-  messageId = textMessage?.mid || ''
-
-  if (textMessage?.attachments?.length) {
-    for (const attachment of textMessage.attachments) {
-      if (attachment.type === 'image') {
-        const { url: imageUrl } = await _getOrDownloadMedia(attachment.payload.url, client, ctx)
-        await createMessage({
-          type: 'image',
-          payload: { imageUrl },
-        })
-      } else if (attachment.type === 'audio') {
-        const { url: audioUrl } = await _getOrDownloadMedia(attachment.payload.url, client, ctx)
-        await createMessage({
-          type: 'audio',
-          payload: { audioUrl },
-        })
-      } else if (attachment.type === 'video') {
-        const { url: videoUrl } = await _getOrDownloadMedia(attachment.payload.url, client, ctx)
-        await createMessage({
-          type: 'video',
-          payload: { videoUrl },
-        })
-      } else if (attachment.type === 'file') {
-        const { url: fileUrl, fileName } = await _getOrDownloadMedia(attachment.payload.url, client, ctx)
-        await createMessage({
-          type: 'file',
-          payload: { fileUrl, title: fileName },
-        })
-      }
-    }
-  }
-
-  if (textMessage?.text) {
-    text = textMessage.text
-    logger.forBot().debug(`Received text message from Messenger: ${textMessage.text}`)
-  } else if (postback?.payload) {
-    text = postback.payload
-    messageId = postback.mid
-    logger.forBot().debug(`Received postback from Messenger: ${postback.title}`)
-  } else {
-    return
-  }
-
-  if (!user.name || !user.pictureUrl) {
-    try {
-      const messengerClient = await createMessengerClient(client, ctx)
-      const profile = await messengerClient.getUserProfile(message.sender.id, { fields: ['id', 'name', 'profile_pic'] })
-      logger.forBot().debug('Fetched latest Messenger user profile: ', profile)
-
-      await client.updateUser({ id: user.id, name: profile.name, pictureUrl: profile.profilePic })
-    } catch (error) {
-      logger.forBot().error('Error while fetching user profile from Messenger:', error)
-    }
-  }
-
-  await createMessage({ type: 'text', payload: { text } })
 }
