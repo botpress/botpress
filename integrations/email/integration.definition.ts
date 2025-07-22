@@ -64,16 +64,12 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          message: z.array(
-            z.object({
-              id: z.string(),
-              subject: z.string(),
-              body: z.string(),
-              inReplyTo: z.string().optional(),
-              date: z.string().datetime().optional(),
-              sender: z.string(),
-            })
-          ),
+          id: z.string(),
+          subject: z.string(),
+          body: z.string().optional(),
+          inReplyTo: z.string().optional(),
+          date: z.string().datetime().optional(),
+          sender: z.string(),
         }),
       },
     },

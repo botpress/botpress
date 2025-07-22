@@ -24,7 +24,11 @@ export const listEmails: bp.IntegrationProps['actions']['listEmails'] = async (p
   return messages
 }
 
-export const getEmail: bp.IntegrationProps['actions']['getEmail'] = async (props) => {}
+export const getEmail: bp.IntegrationProps['actions']['getEmail'] = async (props) => {
+  const email = await imap.getMessageById(props.input.id, props)
+  if (!email) throw new sdk.RuntimeError('Could not find an email with corresponding id.')
+  return email
+}
 
 export const syncEmails: bp.IntegrationProps['actions']['syncEmails'] = async (props) => {
   props.logger.forBot().info(`Starting sync in the inbox at [${new Date().toISOString()}]`)
@@ -113,7 +117,7 @@ const _notifyNewMessage = async (props: { client: bp.Client; logger: bp.Logger }
   await props.client.createMessage({
     conversationId: conversation.id,
     userId: user.id,
-    payload: { text: message.body ?? 'message has no body' },
+    payload: { text: message.body ?? '' },
     tags: { id: message.id },
     type: 'text',
   })

@@ -54,7 +54,7 @@ export const getMessages = async function (
     })
 
     const imapRange = `${firstElementIndex}:${lastElementIndex}`
-    const f: Imap.ImapFetch = imap.seq.fetch(imapRange, {
+    const f: Imap.ImapFetch = imap.fetch(imapRange, {
       bodies: imapBodies,
       struct: true,
     })
@@ -124,6 +124,70 @@ const _handleFetch = function (imap: Imap, f: Imap.ImapFetch): Promise<Array<Ema
       resolve(messages)
     })
   })
+}
+
+export const getMessageById = async function (
+  messageId: string,
+  props: { ctx: bp.Context; logger: bp.Logger },
+  options?: { bodyNeeded: boolean }
+): Promise<Email | undefined> {
+  const imap: Imap = new Imap(_getConfig(props.ctx.configuration))
+
+  await new Promise<void>((resolve, reject) => {
+    imap.once('ready', resolve)
+    imap.once('error', (err: Error) => {
+      reject(new sdk.RuntimeError('An error occured while connecting to the inbox', err))
+    })
+    imap.connect()
+  })
+
+  try {
+    await new Promise<Imap.Box>((resolve, reject) => {
+      imap.openBox('INBOX', true, (err, box) => {
+        if (err) {
+          reject(new sdk.RuntimeError('An error occured while opening the inbox', err))
+        } else {
+          resolve(box)
+        }
+      })
+    })
+
+    const imapBodies = ['HEADER']
+    if (options?.bodyNeeded || !options) {
+      imapBodies.push('TEXT')
+    }
+
+    // Search for the message by message-id
+    const searchCriteria = [['HEADER', 'MESSAGE-ID', messageId]]
+    const uids: number[] = await new Promise((resolve, reject) => {
+      imap.search(searchCriteria, (err, results) => {
+        if (err) {
+          reject(new sdk.RuntimeError('An error occured while searching for the message', err))
+        } else {
+          resolve(results)
+        }
+      })
+    })
+
+    if (!uids || uids.length === 0) {
+      imap.end()
+      return undefined
+    }
+
+    const f: Imap.ImapFetch = imap.fetch(uids, {
+      bodies: imapBodies,
+      struct: true,
+    })
+
+    const messages = await _handleFetch(imap, f)
+    return messages[0]
+  } catch (thrown: unknown) {
+    if (imap.state !== 'disconnected') {
+      imap.end()
+    }
+    const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new sdk.RuntimeError('An error occured while searching for the message by message-id.', err)
+  }
 }
 
 const _getConfig = function (config: bp.configuration.Configuration) {
