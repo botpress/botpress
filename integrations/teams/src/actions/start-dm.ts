@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { ConversationParameters, ConversationReference, TurnContext } from 'botbuilder'
+import { ConversationParameters, ConversationReference, TeamsChannelAccount, TeamsInfo, TurnContext } from 'botbuilder'
 import { getUserByEmail } from '../client'
 import { getAdapter, getError } from '../utils'
 import * as bp from '.botpress'
@@ -63,10 +63,18 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
     ],
   } as Partial<ConversationParameters>
 
-  let newConvRef: Partial<ConversationReference> | undefined = undefined
+  let newConvRef: Partial<ConversationReference> | undefined
+  let newConvMember: TeamsChannelAccount | undefined
   try {
     await adapter.createConversation(convRef, conversationParameters, async (context) => {
       newConvRef = TurnContext.getConversationReference(context.activity)
+
+      //If the user already spoke to the bot on DM, the Teams user will be available
+      if (newConvRef.user?.id) {
+        try {
+          newConvMember = await TeamsInfo.getMember(context, newConvRef.user.id)
+        } catch (err) {}
+      }
     })
   } catch (thrown) {
     const err = getError(thrown)
@@ -76,14 +84,14 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
     )
   }
 
-  if (!newConvRef) {
+  if (!newConvRef?.conversation?.id) {
     throw new RuntimeError('Failed to get the reference for the new conversation')
   }
 
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      id: (newConvRef as Partial<ConversationReference>).conversation?.id,
+      id: newConvRef.conversation.id,
     },
     discriminateByTags: ['id'],
   })
@@ -95,7 +103,25 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
     payload: newConvRef,
   })
 
+  let userId
+  if (newConvMember) {
+    userId = (
+      await client.getOrCreateUser({
+        tags: {
+          id: newConvMember.id,
+          email: newConvMember.email,
+        },
+      })
+    ).user.id
+
+    await client.addParticipant({
+      id: conversation.id,
+      userId,
+    })
+  }
+
   return {
+    userId,
     conversationId: conversation.id,
   }
 }
