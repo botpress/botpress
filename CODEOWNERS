@@ -34,7 +34,7 @@
 /integrations/asana @JustinBordage @botpress/engineering
 /integrations/bigcommerce-sync @Nathaniel-Girard @botpress/engineering
 /integrations/chat @franklevasseur @botpress/engineering
-/integrations/clickup @Nathaniel-Girard @botpress/engineering
+/integrations/clickup @JustinBordage @botpress/engineering
 /integrations/confluence @Nathaniel-Girard @botpress/engineering
 /integrations/dropbox @pascal-botpress @botpress/engineering
 /integrations/email @Nathaniel-Girard @botpress/engineering
@@ -50,7 +50,7 @@
 /integrations/linear @franklevasseur @botpress/engineering
 /integrations/mailchimp @JustinBordage @botpress/engineering
 /integrations/messenger @SebastienPoitras @botpress/engineering
-/integrations/monday @Nathaniel-Girard @botpress/engineering
+/integrations/monday @JustinBordage @botpress/engineering
 /integrations/notion @pascal-botpress @botpress/engineering
 /integrations/resend @JustinBordage @botpress/engineering
 /integrations/sendgrid @JustinBordage @botpress/engineering
@@ -58,12 +58,12 @@
 /integrations/stripe @Nathaniel-Girard @botpress/engineering
 /integrations/sunco @SebastienPoitras @botpress/engineering
 /integrations/teams @JustinBordage @davidvitora @botpress/engineering
-/integrations/telegram @JustinBordage @franklevasseur @botpress/engineering
+/integrations/telegram @franklevasseur @JustinBordage @botpress/engineering
 /integrations/todoist @JustinBordage @botpress/engineering
 /integrations/trello @JustinBordage @botpress/engineering
 /integrations/twilio @SebastienPoitras @botpress/engineering
-/integrations/viber @JustinBordage @botpress/engineering
-/integrations/vonage @JustinBordage @botpress/engineering
+/integrations/viber @Nathaniel-Girard @botpress/engineering
+/integrations/vonage @Nathaniel-Girard @botpress/engineering
 /integrations/webhook @franklevasseur @botpress/engineering
 /integrations/whatsapp @SebastienPoitras @botpress/engineering
 /integrations/zapier @Nathaniel-Girard @botpress/engineering
