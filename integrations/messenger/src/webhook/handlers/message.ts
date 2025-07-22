@@ -33,7 +33,7 @@ const _messageHandler = async (messagingEntry: MessengerMessagingEntryMessage, h
   logger
     .forBot()
     .debug(
-      `Received message from Instagram: text=${message.text ?? '[None]'}, attachments=[${message.attachments?.map((a) => `${a.type}:${a.payload.url}`).join(', ') ?? 'None'}]`
+      `Received message from Messenger: text=${message.text ?? '[None]'}, attachments=[${message.attachments?.map((a) => `${a.type}:${a.payload.url}`).join(', ') ?? 'None'}]`
     )
 
   const incomingMessages: IncomingMessage[] = []
