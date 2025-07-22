@@ -178,7 +178,7 @@ export const getMessageById = async function (
       struct: true,
     })
 
-    const messages = await _handleFetch(imap, f)
+    const messages = await _handleFetch(imap, f, imapBodies.length)
     return messages[0]
   } catch (thrown: unknown) {
     if (imap.state !== 'disconnected') {

@@ -13,6 +13,9 @@ export const sendEmail: bp.IntegrationProps['actions']['sendEmail'] = async (pro
 
 export const listEmails: bp.IntegrationProps['actions']['listEmails'] = async (props) => {
   const page = parseInt(props.input.nextToken ?? DEFAULT_START_PAGE.toString())
+  if (page < 0) {
+    throw new sdk.RuntimeError('The nextToken value cannot be negative')
+  }
   const perPage = ELEMENTS_PER_PAGE
   const messages = await imap.getMessages(
     { page, perPage },
