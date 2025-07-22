@@ -6,7 +6,7 @@ export async function getMessengerClientCredentials(
   client: bp.Client,
   ctx: bp.Context
 ): Promise<{ accessToken: string; clientSecret: string; clientId: string }> {
-  if (ctx.configurationType === 'manualApp') {
+  if (ctx.configurationType === 'manual') {
     return {
       accessToken: ctx.configuration.accessToken || '',
       clientSecret: ctx.configuration.clientSecret || '',
@@ -64,7 +64,7 @@ export async function patchMetaClientCredentials(
 export function getVerifyToken(ctx: bp.Context): string {
   // Should normally be verified in the fallbackHandler script with OAuth and Sandbox
   let verifyToken: string
-  if (ctx.configurationType === 'manualApp') {
+  if (ctx.configurationType === 'manual') {
     verifyToken = ctx.configuration.verifyToken
   } else {
     verifyToken = bp.secrets.VERIFY_TOKEN
@@ -75,7 +75,7 @@ export function getVerifyToken(ctx: bp.Context): string {
 
 export function getClientSecret(ctx: bp.Context): string | undefined {
   let value: string | undefined
-  if (ctx.configurationType === 'manualApp') {
+  if (ctx.configurationType === 'manual') {
     value = ctx.configuration.clientSecret
   } else {
     value = bp.secrets.CLIENT_SECRET
