@@ -9,6 +9,13 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
   const { req, client, ctx } = props
   const bodyContent = JSON.parse(req.body || '{}')
 
+  await client.createEvent({
+    type: 'ping',
+    payload: {
+      description: "this is a test event"
+    }
+  })
+
   const data = bodyContent.message?.data
   console.info('data', data)
 
