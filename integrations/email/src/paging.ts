@@ -26,7 +26,7 @@ export const pageToSpan = (props: PageToSpanProps): Span => {
   return { firstElementIndex, lastElementIndex }
 }
 
-export const getNextToken = (props: NextTokenProps): string => {
-  if (props.firstElementIndex == 1) return '-1'
-  return 'props.page + 1'
+export const getNextToken = (props: NextTokenProps): string | undefined => {
+  if (props.firstElementIndex == 1) return undefined
+  return String(props.page + 1)
 }

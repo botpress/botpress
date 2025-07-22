@@ -1,5 +1,14 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 
+const EmailHeaders = z.object({
+  id: z.string(),
+  subject: z.string(),
+  inReplyTo: z.string().optional(),
+  date: z.string().optional().describe('ISO datetime'),
+  sender: z.string(),
+  firstMessageId: z.string().optional(),
+})
+
 export default new IntegrationDefinition({
   name: 'email',
   version: '0.0.1',
@@ -40,16 +49,7 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          messages: z.array(
-            z.object({
-              id: z.string(),
-              subject: z.string(),
-              inReplyTo: z.string().optional(),
-              date: z.string().datetime().optional(),
-              sender: z.string(),
-              firstMessageId: z.string().optional(),
-            })
-          ),
+          messages: z.array(EmailHeaders),
           nextToken: z.string(),
         }),
       },
@@ -63,13 +63,8 @@ export default new IntegrationDefinition({
         }),
       },
       output: {
-        schema: z.object({
-          id: z.string(),
-          subject: z.string(),
+        schema: EmailHeaders.extend({
           body: z.string().optional(),
-          inReplyTo: z.string().optional(),
-          date: z.string().datetime().optional(),
-          sender: z.string(),
         }),
       },
     },

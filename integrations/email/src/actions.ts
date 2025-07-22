@@ -5,7 +5,7 @@ import * as smtp from './smtp'
 import * as bp from '.botpress'
 
 const DEFAULT_START_PAGE = 0
-const DEFAULT_ELEMENTS_PER_PAGE = 50
+const ELEMENTS_PER_PAGE = 50
 
 export const sendEmail: bp.IntegrationProps['actions']['sendEmail'] = async (props) => {
   return await smtp.sendNodemailerMail(props.ctx.configuration, props.input, props.logger)
@@ -13,13 +13,14 @@ export const sendEmail: bp.IntegrationProps['actions']['sendEmail'] = async (pro
 
 export const listEmails: bp.IntegrationProps['actions']['listEmails'] = async (props) => {
   const page = parseInt(props.input.nextToken ?? DEFAULT_START_PAGE.toString())
-  const perPage = DEFAULT_ELEMENTS_PER_PAGE
+  const perPage = ELEMENTS_PER_PAGE
   const messages = await imap.getMessages(
     { page, perPage },
     {
       ctx: props.ctx,
       logger: props.logger,
-    }
+    },
+    { bodyNeeded: false }
   )
   return messages
 }
@@ -32,9 +33,10 @@ export const getEmail: bp.IntegrationProps['actions']['getEmail'] = async (props
 
 export const syncEmails: bp.IntegrationProps['actions']['syncEmails'] = async (props) => {
   props.logger.forBot().info(`Starting sync in the inbox at [${new Date().toISOString()}]`)
-  const res = await _syncEmails(props, { enableNewMessageNotification: true })
+  await _syncEmails(props, { enableNewMessageNotification: true })
   props.logger.forBot().info(`Finished sync in the inbox at [${new Date().toISOString()}]`)
-  return res
+
+  return {}
 }
 
 const _syncEmails = async (
@@ -56,7 +58,7 @@ const _syncEmails = async (
   })
 
   const allMessages = await imap.getMessages(
-    { page: DEFAULT_START_PAGE, perPage: DEFAULT_ELEMENTS_PER_PAGE },
+    { page: DEFAULT_START_PAGE, perPage: ELEMENTS_PER_PAGE },
     {
       ctx: props.ctx,
       logger: props.logger,

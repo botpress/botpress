@@ -13,7 +13,7 @@ type HeaderData = {
 }
 
 export type Email = bp.actions.listEmails.output.Output['messages'][0] & { body?: string }
-export type EmailResponse = { messages: Array<Email> } & { nextToken: string }
+export type EmailResponse = { messages: Array<Email> } & { nextToken?: string }
 
 export const getMessages = async function (
   range: { page: number; perPage: number },
@@ -54,13 +54,13 @@ export const getMessages = async function (
     })
 
     const imapRange = `${firstElementIndex}:${lastElementIndex}`
-    const f: Imap.ImapFetch = imap.fetch(imapRange, {
+    const f: Imap.ImapFetch = imap.seq.fetch(imapRange, {
       bodies: imapBodies,
       struct: true,
     })
     const nextToken = paging.getNextToken({ page: range.page, firstElementIndex })
 
-    messages = { messages: await _handleFetch(imap, f), nextToken }
+    messages = { messages: await _handleFetch(imap, f, imapBodies.length), nextToken }
   } catch (thrown: unknown) {
     if (imap.state !== 'disconnected') {
       imap.end()
@@ -77,7 +77,7 @@ export const getMessages = async function (
   return messages
 }
 
-const _handleFetch = function (imap: Imap, f: Imap.ImapFetch): Promise<Array<Email>> {
+const _handleFetch = function (imap: Imap, f: Imap.ImapFetch, totalParts: number): Promise<Array<Email>> {
   const messages: Array<Email> = []
   return new Promise((resolve, reject) => {
     f.on('message', (msg: Imap.ImapMessage) => {
@@ -99,7 +99,6 @@ const _handleFetch = function (imap: Imap, f: Imap.ImapFetch): Promise<Array<Ema
       })
 
       let partsProcessed = 0
-      const totalParts = 2 // For HEADER and TEXT
 
       msg.on('body', (stream: NodeJS.ReadableStream) => {
         stream.once('end', () => {
