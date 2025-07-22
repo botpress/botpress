@@ -37,29 +37,29 @@ export default new IntegrationDefinition({
     schema: commonConfigSchema,
   },
   configurations: {
-    manualApp: {
+    manual: {
       title: 'Manual Configuration',
-      description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
+      description: 'Configure by manually supplying the Meta app details',
       schema: z
         .object({
+          clientId: z.string().title('Client ID').min(1).describe('Meta app client id'),
+          clientSecret: z
+            .string()
+            .title('Client Secret')
+            .optional()
+            .describe('Meta App secret used for webhook signature check. Leave empty to disable signature check.'),
           verifyToken: z
             .string()
             .title('Verify Token')
             .min(1)
             .describe(
-              'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
+              'Token used for verification when subscribing to webhooks on the Meta app (enter a random string of your choice)'
             ),
           accessToken: z
             .string()
             .title('Access Token')
             .min(1)
             .describe('Access Token from a System Account that has permission to the Meta app'),
-          clientId: z.string().title('Client ID').min(1).describe('Meta app client id'),
-          clientSecret: z
-            .string()
-            .title('Client Secret')
-            .optional()
-            .describe('Meta app secret used for webhook signature check. Leave empty to disable signature check.'),
           pageId: z.string().min(1).describe('Id from the Facebook page').title('Page ID'),
         })
         .merge(commonConfigSchema),
