@@ -38,13 +38,13 @@
 /integrations/dropbox @pascal-botpress @botpress/engineering
 /integrations/email @Nathaniel-Girard @botpress/engineering
 /integrations/freshchat @davidvitora @botpress/engineering
-/integrations/github @Nathaniel-Girard @botpress/engineering
+/integrations/github @JustinBordage @pascal-botpress @botpress/engineering
 /integrations/gmail @pascal-botpress @botpress/engineering
 /integrations/googlecalendar @pascal-botpress @botpress/engineering
 /integrations/googledrive @pascal-botpress @botpress/engineering
 /integrations/gsheets @pascal-botpress @botpress/engineering
 /integrations/instagram @SebastienPoitras @botpress/engineering
-/integrations/intercom @JustinBordage @botpress/engineering
+/integrations/intercom @Nathaniel-Girard @botpress/engineering
 /integrations/line @Nathaniel-Girard @botpress/engineering
 /integrations/linear @franklevasseur @botpress/engineering
 /integrations/mailchimp @JustinBordage @botpress/engineering
