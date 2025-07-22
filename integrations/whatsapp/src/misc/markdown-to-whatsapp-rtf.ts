@@ -158,6 +158,11 @@ function _processInlineToken(token: Token, ctx: Context): string {
     case 'link':
       // Links: [text](url) -> text (url)
       const linkText = _processInlineTokens(_convertMarkedTokensToTokens(token.tokens), ctx)
+      const isTrueAutolink = /^<.*>$/.test(token.raw)
+      const isEmail = token.href.startsWith('mailto:')
+      if (isEmail && !isTrueAutolink) {
+        return linkText
+      }
       return linkText !== token.href ? `${linkText} (${token.href})` : token.href
 
     case 'image':

@@ -7,5 +7,6 @@
   },
   "editor.tabSize": 2,
   "git.branchProtection": ["master"],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "vitest.disableWorkspaceWarning": true
 }

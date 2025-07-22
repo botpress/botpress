@@ -130,23 +130,21 @@ Address: 123 Main St, Anytown, USA
 \n${TOKEN.repeat(500)}
 Phone: (123) 456-7890`
 
-    let reqs = 0
+    const { output, usage } = await zai
+      .extract(
+        text,
+        z.object({
+          name: z.string().describe('The name of the person'),
+          age: z.number().describe('The age of the person'),
+          address: z.string().describe('The address of the person'),
+          phone: z.string().describe('The phone number of the person'),
+        }),
+        { chunkLength: 250, strict: true }
+      )
+      .result()
 
-    cognitive.on('response', () => reqs++)
-
-    const person = await zai.extract(
-      text,
-      z.object({
-        name: z.string().describe('The name of the person'),
-        age: z.number().describe('The age of the person'),
-        address: z.string().describe('The address of the person'),
-        phone: z.string().describe('The phone number of the person'),
-      }),
-      { chunkLength: 250, strict: true }
-    )
-
-    expect(reqs).toBeGreaterThan(5)
-    expect(person).toMatchInlineSnapshot(`
+    expect(usage.requests.responses).toBeGreaterThan(5)
+    expect(output).toMatchInlineSnapshot(`
       {
         "address": "123 Main St, Anytown, USA",
         "age": 30,
@@ -166,17 +164,15 @@ Feature 3: Analytics
 \n${TOKEN.repeat(500)}
 Feature 4: Integrations`
 
-    let reqs = 0
+    const result = await zai
+      .extract(text, z.object({ features: z.array(z.string()) }), {
+        instructions: 'Extract all features from the text',
+        chunkLength: 250,
+      })
+      .result()
 
-    cognitive.on('response', () => reqs++)
-
-    const { features } = await zai.extract(text, z.object({ features: z.array(z.string()) }), {
-      instructions: 'Extract all features from the text',
-      chunkLength: 250,
-    })
-
-    expect(reqs).toBeGreaterThan(5)
-    expect(features.length).toBe(4)
+    expect(result.usage.requests.responses).toBeGreaterThan(5)
+    expect(result.output.features.length).toBe(4)
   })
 
   it('extract an array of objects from a super long text', async () => {
@@ -202,7 +198,7 @@ Feature 4: Integrations`
   })
 })
 
-describe('zai.learn.extract', () => {
+describe.sequential('zai.learn.extract', () => {
   const client = getClient()
   let tableName = 'ZaiTestExtractInternalTable'
   let taskId = 'extract'

@@ -5,6 +5,7 @@ import { formatPackageRef, ApiPackageRef, NamePackageRef } from '../package-ref'
 import * as utils from '../utils'
 import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
+import * as retry from './retry'
 
 import {
   ApiClientProps,
@@ -39,7 +40,13 @@ export class ApiClient {
     private _logger: Logger
   ) {
     const { apiUrl, token, workspaceId, botId } = props
-    this.client = new client.Client({ apiUrl, token, workspaceId, botId })
+    this.client = new client.Client({
+      apiUrl,
+      token,
+      workspaceId,
+      botId,
+      retry: retry.config,
+    })
     this.url = apiUrl
     this.token = token
     this.workspaceId = workspaceId

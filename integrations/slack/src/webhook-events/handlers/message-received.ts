@@ -1,3 +1,4 @@
+import { slackToMarkdown } from '@bpinternal/slackdown'
 import { AllMessageEvents } from '@slack/types'
 import { getBotpressConversationFromSlackThread, getBotpressUserFromSlackUser } from 'src/misc/utils'
 import { SlackClient } from 'src/slack-api'
@@ -47,12 +48,14 @@ export const handleEvent = async ({
     }
   }
 
-  if (typeof slackEvent.text !== 'string' || !slackEvent.text?.length) {
+  if (slackEvent.text === undefined || typeof slackEvent.text !== 'string' || !slackEvent.text?.length) {
     logger.forBot().debug('No text was received, so the message was ignored')
     return
   }
 
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
+
+  const textAsCommonmark = slackToMarkdown(slackEvent.text)
 
   await client.getOrCreateMessage({
     tags: {
@@ -64,7 +67,7 @@ export const handleEvent = async ({
     discriminateByTags: ['ts', 'channelId'],
     type: 'text',
     payload: {
-      text: slackEvent.text!,
+      text: textAsCommonmark,
 
       // TODO: declare in definition
       // targets: {
@@ -77,7 +80,7 @@ export const handleEvent = async ({
     conversationId: botpressConversation.id,
   })
 
-  const isSentInChannel = slackEvent.channel_type === 'channel'
+  const isSentInChannel = !slackEvent.thread_ts
   const isThreadingEnabled = ctx.configuration.createReplyThread?.enabled ?? false
   const threadingRequiresMention = ctx.configuration.createReplyThread?.onlyOnBotMention ?? false
 
@@ -101,7 +104,7 @@ export const handleEvent = async ({
       discriminateByTags: ['ts', 'channelId', 'forkedToThread'],
       type: 'text',
       payload: {
-        text: slackEvent.text!,
+        text: textAsCommonmark,
       },
       userId: botpressUser.id,
       conversationId: threadConversation.id,
