@@ -118,39 +118,9 @@ const _processMessage = async (
     return
   }
 
-  console.info('threadId', threadId)
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'channel',
-    tags: {
-      id: `${threadId}`,
-    },
-  })
-
-  console.info('conversation', conversation)
-
-  const { conversation: updatedConversation } = await client.updateConversation({
-    id: conversation.id,
-    tags: {
-      subject: message.headers['subject'],
-      email: userEmail,
-      references: message.headers['references'],
-      cc: message.headers['cc'],
-    },
-  })
-
-  console.info('updatedConversation', updatedConversation)
-
   if (!userEmail) {
     throw new Error('Handler received an empty from id')
   }
-
-  console.info('userEmail', userEmail)
-  const { user } = await client.getOrCreateUser({
-    tags: {
-      id: `${userEmail}`,
-    },
-    name: senderName,
-  })
 
   let content = message.textPlain ?? message.snippet
 
@@ -171,21 +141,25 @@ const _processMessage = async (
     }
   }
 
-  console.info('getOrCreateMessage', { threadId, userEmail, content, inReplyTo })
-  await client.getOrCreateMessage({
-    tags: { id: messageId },
-    type: 'text',
-    userId: user.id,
-    conversationId: conversation.id,
-    payload: { text: content },
-  })
-
-  await client.setState({
-    type: 'conversation',
-    name: 'thread',
-    id: conversation.id,
+  console.info('Creating email received event', { messageId, threadId, userEmail, subject: message.headers['subject'] })
+  await client.createEvent({
+    type: 'emailReceived',
     payload: {
+      messageId,
+      threadId,
+      subject: message.headers['subject'],
+      from: userEmail,
+      senderName,
+      to: message.headers['to'],
+      cc: message.headers['cc'],
+      bcc: message.headers['bcc'],
+      date: message.headers['date'],
+      content,
+      snippet: message.snippet,
       inReplyTo,
+      references: message.headers['references'],
+      labelIds: gmailMessage.labelIds || [],
+      isUnread: gmailMessage.labelIds?.includes('UNREAD') || false,
     },
   })
 }
