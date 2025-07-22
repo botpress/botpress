@@ -22,18 +22,31 @@ export type MarkSegment = {
 
 type MarkHandler = (text: string, data: Record<string, unknown>) => string
 
-type MarkHandlers = Record<string, MarkHandler>
-
-interface ApplyMarksOptions {
-  handlers?: MarkHandlers
-}
-
 interface TelegramMark {
   type: string
   offset: number
   length: number
   url?: string
   language?: string
+}
+
+const _handlers: Record<string, MarkHandler> = {
+  bold: (text: string) => `**${text}**`,
+  italic: (text: string) => `__${text}__`,
+  strikethrough: (text: string) => `~~${text}~~`,
+  code: (text: string) => `\`${text}\``,
+  text_link: (text: string, data: Record<string, unknown>) => `[${text}](${data?.url || '#'})`,
+  spoiler: (text: string) => `||${text}||`,
+  pre: (text: string, data: Record<string, unknown>) => `\`\`\`${data?.language || ''}\n${text}\n\`\`\``,
+  blockquote: (text: string) => `> ${text}`,
+  phone_number: (text: string) => {
+    return `[${text}](tel:${text.replace(/\D/g, '')})`
+  },
+  email: (text: string) => {
+    return `[${text}](mailto:${text})`
+  },
+  // Underline does nothing because the commonmark spec doesn't support it.
+  underline: (text: string, _: Record<string, unknown>) => text,
 }
 
 export function isOverlapping(a: Range, b: Range): boolean {
@@ -106,8 +119,8 @@ export function splitAnyOverlaps(ranges: MarkSegment[]): MarkSegment[] {
   )
 }
 
-export function applyMarksToTextV2(text: string, marks: TelegramMark[], options: ApplyMarksOptions = {}) {
-  const markSegments = marks.map(
+export function applyMarksToText(text: string, marks: TelegramMark[]) {
+  const segments = marks.map(
     (mark: TelegramMark): MarkSegment => ({
       start: mark.offset,
       // Blockquote can only affect the whole line
@@ -122,36 +135,9 @@ export function applyMarksToTextV2(text: string, marks: TelegramMark[], options:
     })
   )
 
-  return _applyMarksToTextV2(text, markSegments, options)
-}
-
-export function _applyMarksToTextV2(text: string, marks: MarkSegment[], options: ApplyMarksOptions = {}) {
-  const defaultHandlers: Record<string, MarkHandler> = {
-    bold: (text: string) => `**${text}**`,
-    italic: (text: string) => `__${text}__`,
-    strikethrough: (text: string) => `~~${text}~~`,
-    code: (text: string) => `\`${text}\``,
-    text_link: (text: string, data: Record<string, unknown>) => `[${text}](${data?.url || '#'})`,
-    spoiler: (text: string) => `||${text}||`,
-    pre: (text: string, data: Record<string, unknown>) => `\`\`\`${data?.language || ''}\n${text}\n\`\`\``,
-    blockquote: (text: string) => `> ${text}`,
-    phone_number: (text: string) => {
-      return `[${text}](tel:${text.replace(/\D/g, '')})`
-    },
-    email: (text: string) => {
-      return `[${text}](mailto:${text})`
-    },
-    // Underline does nothing because the commonmark spec doesn't support it.
-    underline: (text: string, _: Record<string, unknown>) => text,
-  }
-
-  const handlers = { ...defaultHandlers, ...options.handlers }
-
   const plainTextSegment = { start: 0, end: text.length, effects: [] }
-  const segments = splitAnyOverlaps(marks.concat(plainTextSegment))
-  segments.sort((a, b) => a.start - b.start)
-
-  return segments
+  return splitAnyOverlaps(segments.concat(plainTextSegment))
+    .sort((a, b) => a.start - b.start)
     .map((markSegment) => {
       const { start, end, effects } = markSegment
       let transformedText = text.substring(start, end)
@@ -160,7 +146,7 @@ export function _applyMarksToTextV2(text: string, marks: MarkSegment[], options:
         const { type, url, language } = effect
 
         // @ts-ignore
-        const handler = handlers[type] as Function | undefined
+        const handler = _handlers[type] as Function | undefined
         if (!handler) {
           console.warn(`Unknown mark type: ${type}`)
           continue

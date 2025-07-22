@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { applyMarksToTextV2, MarkEffect, MarkSegment, splitAnyOverlaps } from './telegram-to-markdown'
+import { applyMarksToText, MarkEffect, MarkSegment, splitAnyOverlaps } from './telegram-to-markdown'
 
 interface Mark {
   type: string
@@ -253,7 +253,7 @@ describe.each([
       consoleWarn(firstArg, ...args)
     }
 
-    expect(applyMarksToTextV2(input, marks)).toBe(expects)
+    expect(applyMarksToText(input, marks)).toBe(expects)
 
     console.warn = consoleWarn
   })
