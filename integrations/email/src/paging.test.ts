@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { pageToSpan, Span } from './paging'
+import { pageToSpan, Span, getNextToken, NextTokenProps } from './paging'
 import * as sdk from '@botpress/sdk'
 
 test('pageToSpan with with zero messages throws', () => {
@@ -32,4 +32,12 @@ test('pageToSpan with multiple pages on next page returns next page', () => {
     firstElementIndex: 201,
     lastElementIndex: 250,
   } satisfies Span)
+})
+
+test('given a page greater than one, getNextToken returns next token', () => {
+  expect(getNextToken({ page: 0, firstElementIndex: 10 })).toEqual(1)
+})
+
+test('given a page equal to one, getNextToken returns undefined', () => {
+  expect(getNextToken({ page: 0, firstElementIndex: 1 })).toEqual(undefined)
 })

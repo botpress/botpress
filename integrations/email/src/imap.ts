@@ -58,7 +58,7 @@ export const getMessages = async function (
       bodies: imapBodies,
       struct: true,
     })
-    const nextToken = paging.getNextToken({ page: range.page, firstElementIndex })
+    const nextToken = paging.getNextToken({ page: range.page, firstElementIndex })?.toString()
 
     messages = { messages: await _handleFetch(imap, f, imapBodies.length), nextToken }
   } catch (thrown: unknown) {
