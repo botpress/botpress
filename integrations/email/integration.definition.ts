@@ -50,7 +50,7 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({
           messages: z.array(EmailHeaders),
-          nextToken: z.string(),
+          nextToken: z.string().optional(),
         }),
       },
     },
