@@ -39,7 +39,7 @@ interface TelegramMark {
 
 const _handlers: Record<string, MarkHandler> = {
   bold: (text: string) => `**${text}**`,
-  italic: (text: string) => `__${text}__`,
+  italic: (text: string) => `_${text}_`,
   strikethrough: (text: string) => `~~${text}~~`,
   code: (text: string) => `\`${text}\``,
   text_link: (text: string, data: Record<string, unknown>) => `[${text}](${data?.url || '#'})`,
