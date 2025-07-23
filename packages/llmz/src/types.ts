@@ -133,6 +133,6 @@ export type ZuiType<Output = any, Input = Output> = {
   readonly _input: Input
 }
 
-export interface Serializable<J = unknown> {
+export type Serializable<J = unknown> = {
   toJSON(): J
 }
