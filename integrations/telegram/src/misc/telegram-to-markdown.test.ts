@@ -1,6 +1,122 @@
 import { describe, expect, test } from 'vitest'
 import { applyMarksToText, MarkEffect, MarkSegment, splitAnyOverlaps } from './telegram-to-markdown'
 
+export type TypedRange = {
+  /** Inclusive */
+  start: number
+  /** Exclusive */
+  end: number
+  type: string[]
+}
+
+/** Creates a range with one or more types associated
+ *
+ * @param {number} start - Inclusive Index
+ * @param {number} end - Exclusive Index
+ * @param {string | string[]} type */
+function TypedRange(start: number, end: number, type: string | string[]): TypedRange {
+  return {
+    start,
+    end,
+    type: Array.isArray(type) ? type : [type],
+  }
+}
+
+const testCases: [TypedRange[], TypedRange[], string][] = [
+  [
+    [TypedRange(0, 6, 'bold'), TypedRange(6, 8, 'italic')],
+    [TypedRange(0, 6, 'bold'), TypedRange(6, 8, 'italic')],
+    'Contiguous but no overlap',
+  ],
+  [
+    [TypedRange(0, 5, 'bold'), TypedRange(7, 8, 'italic')],
+    [TypedRange(0, 5, 'bold'), TypedRange(7, 8, 'italic')],
+    'No overlap with gap',
+  ],
+  [
+    [TypedRange(0, 6, 'bold'), TypedRange(3, 8, 'italic')],
+    [TypedRange(0, 3, 'bold'), TypedRange(3, 6, ['bold', 'italic']), TypedRange(6, 8, 'italic')],
+    'Overlap',
+  ],
+  [
+    [TypedRange(0, 6, 'bold'), TypedRange(5, 8, 'italic')],
+    [TypedRange(0, 5, 'bold'), TypedRange(5, 6, ['bold', 'italic']), TypedRange(6, 8, 'italic')],
+    'Overlap on boundary',
+  ],
+  [[TypedRange(0, 5, 'bold'), TypedRange(0, 5, 'italic')], [TypedRange(0, 5, ['bold', 'italic'])], 'Identical ranges'],
+  [
+    [TypedRange(1, 2, 'bold'), TypedRange(1, 2, 'italic')],
+    [TypedRange(1, 2, ['bold', 'italic'])],
+    'Identical ranges on single character',
+  ],
+  [
+    [TypedRange(0, 1, 'bold'), TypedRange(0, 8, 'italic')],
+    [TypedRange(0, 1, ['bold', 'italic']), TypedRange(1, 8, 'italic')],
+    'Overlap on single character',
+  ],
+  [
+    [TypedRange(6, 18, 'bold'), TypedRange(8, 20, 'italic'), TypedRange(6, 18, 'underline')],
+    [
+      TypedRange(6, 8, ['bold', 'underline']),
+      TypedRange(8, 18, ['bold', 'italic', 'underline']),
+      TypedRange(18, 20, 'italic'),
+    ],
+    'Multiple ranges',
+  ],
+  [
+    // This version of the "Multiple ranges" test adds the "TypedRange(0, 24, [])" to create segments without effects
+    [TypedRange(6, 18, 'bold'), TypedRange(8, 20, 'italic'), TypedRange(6, 18, 'underline'), TypedRange(0, 24, [])],
+    [
+      TypedRange(0, 6, []),
+      TypedRange(6, 8, ['bold', 'underline']),
+      TypedRange(8, 18, ['bold', 'italic', 'underline']),
+      TypedRange(18, 20, 'italic'),
+      TypedRange(20, 24, []),
+    ],
+    'Multiple ranges V2',
+  ],
+  [
+    [TypedRange(8, 15, 'bold'), TypedRange(8, 18, 'italic')],
+    [TypedRange(8, 15, ['bold', 'italic']), TypedRange(15, 18, 'italic')],
+    'Encapsulated range - Start',
+  ],
+  [
+    [TypedRange(6, 18, 'bold'), TypedRange(8, 14, 'italic')],
+    [TypedRange(6, 8, 'bold'), TypedRange(8, 14, ['bold', 'italic']), TypedRange(14, 18, 'bold')],
+    'Encapsulated range - Center',
+  ],
+  [
+    [TypedRange(6, 18, 'bold'), TypedRange(12, 18, 'italic')],
+    [TypedRange(6, 12, 'bold'), TypedRange(12, 18, ['bold', 'italic'])],
+    'Encapsulated range - End',
+  ],
+]
+
+const convertRangeToMark = ({ start, end, type }: TypedRange): MarkSegment => ({
+  start,
+  end,
+  effects: type.map((it) => ({ type: it })),
+})
+const convertMarkToRange = ({ start, end, effects }: MarkSegment): TypedRange => {
+  const type = effects.map((it: MarkEffect): string => it.type)
+  type.sort((a: string, b: string) => a.localeCompare(b))
+
+  return {
+    start,
+    end,
+    type,
+  }
+}
+describe.each(testCases)(
+  'Split the range overlaps test cases while maintaining types',
+  (rangesToSplit: TypedRange[], expects: TypedRange[], description: string) => {
+    test(description, () => {
+      const splitRanges = splitAnyOverlaps(rangesToSplit.map(convertRangeToMark))
+      expect(splitRanges.map(convertMarkToRange)).toEqual(expects)
+    })
+  }
+)
+
 interface Mark {
   type: string
   offset: number
@@ -258,119 +374,3 @@ describe.each([
     console.warn = consoleWarn
   })
 })
-
-export type TypedRange = {
-  /** Inclusive */
-  start: number
-  /** Exclusive */
-  end: number
-  type: string[]
-}
-
-/** Creates a range with one or more types associated
- *
- * @param {number} start - Inclusive Index
- * @param {number} end - Exclusive Index
- * @param {string | string[]} type */
-function TypedRange(start: number, end: number, type: string | string[]): TypedRange {
-  return {
-    start,
-    end,
-    type: Array.isArray(type) ? type : [type],
-  }
-}
-
-const testCases: [TypedRange[], TypedRange[], string][] = [
-  [
-    [TypedRange(0, 6, 'bold'), TypedRange(6, 8, 'italic')],
-    [TypedRange(0, 6, 'bold'), TypedRange(6, 8, 'italic')],
-    'Contiguous but no overlap',
-  ],
-  [
-    [TypedRange(0, 5, 'bold'), TypedRange(7, 8, 'italic')],
-    [TypedRange(0, 5, 'bold'), TypedRange(7, 8, 'italic')],
-    'No overlap with gap',
-  ],
-  [
-    [TypedRange(0, 6, 'bold'), TypedRange(3, 8, 'italic')],
-    [TypedRange(0, 3, 'bold'), TypedRange(3, 6, ['bold', 'italic']), TypedRange(6, 8, 'italic')],
-    'Overlap',
-  ],
-  [
-    [TypedRange(0, 6, 'bold'), TypedRange(5, 8, 'italic')],
-    [TypedRange(0, 5, 'bold'), TypedRange(5, 6, ['bold', 'italic']), TypedRange(6, 8, 'italic')],
-    'Overlap on boundary',
-  ],
-  [[TypedRange(0, 5, 'bold'), TypedRange(0, 5, 'italic')], [TypedRange(0, 5, ['bold', 'italic'])], 'Identical ranges'],
-  [
-    [TypedRange(1, 2, 'bold'), TypedRange(1, 2, 'italic')],
-    [TypedRange(1, 2, ['bold', 'italic'])],
-    'Identical ranges on single character',
-  ],
-  [
-    [TypedRange(0, 1, 'bold'), TypedRange(0, 8, 'italic')],
-    [TypedRange(0, 1, ['bold', 'italic']), TypedRange(1, 8, 'italic')],
-    'Overlap on single character',
-  ],
-  [
-    [TypedRange(6, 18, 'bold'), TypedRange(8, 20, 'italic'), TypedRange(6, 18, 'underline')],
-    [
-      TypedRange(6, 8, ['bold', 'underline']),
-      TypedRange(8, 18, ['bold', 'italic', 'underline']),
-      TypedRange(18, 20, 'italic'),
-    ],
-    'Multiple ranges',
-  ],
-  [
-    // This version of the "Multiple ranges" test adds the "TypedRange(0, 24, [])" to create segments without effects
-    [TypedRange(6, 18, 'bold'), TypedRange(8, 20, 'italic'), TypedRange(6, 18, 'underline'), TypedRange(0, 24, [])],
-    [
-      TypedRange(0, 6, []),
-      TypedRange(6, 8, ['bold', 'underline']),
-      TypedRange(8, 18, ['bold', 'italic', 'underline']),
-      TypedRange(18, 20, 'italic'),
-      TypedRange(20, 24, []),
-    ],
-    'Multiple ranges V2',
-  ],
-  [
-    [TypedRange(8, 15, 'bold'), TypedRange(8, 18, 'italic')],
-    [TypedRange(8, 15, ['bold', 'italic']), TypedRange(15, 18, 'italic')],
-    'Encapsulated range - Start',
-  ],
-  [
-    [TypedRange(6, 18, 'bold'), TypedRange(8, 14, 'italic')],
-    [TypedRange(6, 8, 'bold'), TypedRange(8, 14, ['bold', 'italic']), TypedRange(14, 18, 'bold')],
-    'Encapsulated range - Center',
-  ],
-  [
-    [TypedRange(6, 18, 'bold'), TypedRange(12, 18, 'italic')],
-    [TypedRange(6, 12, 'bold'), TypedRange(12, 18, ['bold', 'italic'])],
-    'Encapsulated range - End',
-  ],
-]
-
-const convertRangeToMark = ({ start, end, type }: TypedRange): MarkSegment => ({
-  start,
-  end,
-  effects: type.map((it) => ({ type: it })),
-})
-const convertMarkToRange = ({ start, end, effects }: MarkSegment): TypedRange => {
-  const type = effects.map((it: MarkEffect): string => it.type)
-  type.sort((a: string, b: string) => a.localeCompare(b))
-
-  return {
-    start,
-    end,
-    type,
-  }
-}
-describe.each(testCases)(
-  'Split the range overlaps test cases while maintaining types',
-  (rangesToSplit: TypedRange[], expects: TypedRange[], description: string) => {
-    test(description, () => {
-      const splitRanges = splitAnyOverlaps(rangesToSplit.map(convertRangeToMark))
-      expect(splitRanges.map(convertMarkToRange)).toEqual(expects)
-    })
-  }
-)
