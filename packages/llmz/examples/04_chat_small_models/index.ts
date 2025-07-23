@@ -1,6 +1,6 @@
 /**
  * Example 04: Small Models with Tools
- * 
+ *
  * This example demonstrates how LLMz works effectively with smaller, faster models.
  * It shows how to:
  * - Use smaller models for cost-effective operations
@@ -8,7 +8,7 @@
  * - Design tools with clear schemas and descriptions
  * - Handle CRUD operations through tools
  * - Enable trace logging for debugging tool calls
- * 
+ *
  * Key concepts:
  * - Model selection with options.model
  * - Tool-based state management
@@ -50,12 +50,12 @@ const getTicket = new Tool({
   async handler({ ticketId }) {
     // Search for the ticket in our data store
     const ticket = TICKETS.find((t) => t.id === ticketId)
-    
+
     // Handle not found case with descriptive error
     if (!ticket) {
       throw new Error(`Ticket with ID ${ticketId} not found.`)
     }
-    
+
     // Return formatted ticket information
     return `Ticket ID: ${ticket.id}, Status: ${ticket.status}, Description: ${ticket.description}`
   },
@@ -79,9 +79,7 @@ const closeTicket = new Tool({
     }
 
     // Update the ticket status using immutable pattern
-    TICKETS = TICKETS.map((ticket) => 
-      ticket.id === ticketId ? { ...ticket, status: 'Closed' } : ticket
-    )
+    TICKETS = TICKETS.map((ticket) => (ticket.id === ticketId ? { ...ticket, status: 'Closed' } : ticket))
 
     // Return structured confirmation response
     return {
@@ -125,15 +123,15 @@ while (await chat.iterate()) {
   await execute({
     instructions:
       'You are a helpful assistant. You can manage support tickets by listing, retrieving, or closing them.',
-    
+
     // Provide all ticket management tools to the agent
     tools: [getTicket, closeTicket, listTickets],
     client,
     chat,
-    
+
     // Enable lightweight trace logging to see tool calls
     onTrace: ({ trace }) => lightToolTrace(trace),
-    
+
     // Configure execution options
     options: {
       // Use a smaller, faster model for cost-effective operations

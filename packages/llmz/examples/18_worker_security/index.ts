@@ -1,6 +1,6 @@
 /**
  * Example 18: Security Testing and Sandbox Protection
- * 
+ *
  * This example demonstrates LLMz's security capabilities by testing various attack vectors.
  * It shows how to:
  * - Test sandbox isolation against malicious code
@@ -8,14 +8,14 @@
  * - Demonstrate timeout and resource protection
  * - Test against memory exhaustion attacks
  * - Validate security against process access attempts
- * 
+ *
  * Key concepts:
  * - Sandbox security and isolation
  * - Malicious code detection and prevention
  * - Resource limits and timeout protection
  * - VM escape prevention
  * - Security testing patterns
- * 
+ *
  * ⚠️  SECURITY TESTING ONLY - This file contains malicious code patterns for testing purposes
  */
 
@@ -229,14 +229,14 @@ for (const script of maliciousScripts) {
 
   // Execute the malicious code with security protections
   const result = await execute({
-    options: { 
-      loop: 1,         // Limit iterations
-      timeout: 2000    // 2 second timeout for protection
+    options: {
+      loop: 1, // Limit iterations
+      timeout: 2000, // 2 second timeout for protection
     },
     exits: [exit],
     client,
     onTrace: ({ trace }) => printTrace(trace),
-    
+
     // Inject the malicious code directly (simulating compromised generation)
     async onBeforeExecution(iteration) {
       iteration.code = script.code.trim()

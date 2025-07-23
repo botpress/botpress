@@ -1,6 +1,6 @@
 /**
  * Example 16: Advanced Tool Chaining
- * 
+ *
  * This example demonstrates sophisticated tool chaining and data flow in worker mode.
  * It shows how to:
  * - Chain multiple tools with complex data dependencies
@@ -8,7 +8,7 @@
  * - Perform data transformations and filtering between tool calls
  * - Execute complex multi-step workflows in a single turn
  * - Handle nested object structures and array operations
- * 
+ *
  * Key concepts:
  * - Multi-tool orchestration in single execution
  * - Complex data flow between tools
@@ -83,7 +83,7 @@ const ToolC = new Tool({
   output: z.number().describe("The 'secret' number"),
   async handler({ first_task, second_task }) {
     console.log('Tool C executed with input:', { first_task, second_task })
-    
+
     // Compute the final "secret" number by combining the inputs
     return first_task + second_task.reduce((acc, num) => acc + num, 0)
   },

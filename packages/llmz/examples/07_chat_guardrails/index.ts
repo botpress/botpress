@@ -1,6 +1,6 @@
 /**
  * Example 07: Code Guardrails and Safety
- * 
+ *
  * This example demonstrates how to implement safety guardrails for generated code.
  * It shows how to:
  * - Use Zai for automated code analysis and safety checks
@@ -8,7 +8,7 @@
  * - Implement pre-execution validation with onBeforeExecution
  * - Handle guardrail violations with ThinkSignal feedback
  * - Create a safety-first code generation workflow
- * 
+ *
  * Key concepts:
  * - Pre-execution safety validation
  * - AI-powered content analysis with Zai
@@ -53,13 +53,13 @@ while (await chat.iterate()) {
     client,
     chat,
     instructions: 'You are a helpful assistant. Greet the user and suggest topics for discussion using buttons.',
-    
+
     // Pre-execution safety validation
     // This runs before any generated code is executed
     async onBeforeExecution(iteration) {
       // Show loading indicator while checking safety
       loading(true, chalk.dim('👀 Checking guardrails...'))
-      
+
       // Use Zai to analyze the generated code against our guardrails
       const checks = await zai.label(iteration.code, guardrails)
       loading(false)
@@ -80,7 +80,7 @@ while (await chat.iterate()) {
       if (breaches.length > 0) {
         // Display violations to console for debugging
         console.log(chalk.red('🚨 Code violates guardrails: ' + breaches.map((x) => '- ' + x).join('\n')))
-        
+
         // Use ThinkSignal to provide feedback to the LLM
         // This causes the LLM to regenerate code that complies with guardrails
         const message = `🚨 Code violates the following guardrails:\n\n${breaches.join('\n')}\n\nPlease fix the code to comply with the guardrails and try again. Do not mention the error to the user.`

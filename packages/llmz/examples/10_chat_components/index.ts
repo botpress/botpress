@@ -1,6 +1,6 @@
 /**
  * Example 10: UI Components and JSX
- * 
+ *
  * This example demonstrates LLMz's component system for rich UI generation.
  * It shows how to:
  * - Define custom UI components with typed props
@@ -8,7 +8,7 @@
  * - Generate JSX code that uses custom components
  * - Combine tools and components for complete workflows
  * - Create reusable UI patterns with examples
- * 
+ *
  * Key concepts:
  * - Component definition with typed schemas
  * - JSX code generation and execution
@@ -36,7 +36,7 @@ const client = new Client({
 const PlaneTicketComponent = new Component({
   name: 'PlaneTicket',
   description: 'A component to display a plane ticket',
-  type: 'leaf',  // Leaf components don't contain children
+  type: 'leaf', // Leaf components don't contain children
   leaf: {
     // Define the props schema with validation
     props: z.object({
@@ -93,7 +93,7 @@ chat.transcript.push({
 // This defines the visual output when the component is used
 chat.registerComponent(PlaneTicketComponent, async (message) => {
   const { ticketNumber, from, to, date, price } = message.props
-  
+
   // Create a visually appealing ticket display
   const ticket = box([
     chalk.white.bold('             ✈️  FLIGHT TICKET'),
@@ -115,8 +115,8 @@ chat.registerComponent(PlaneTicketComponent, async (message) => {
 // Execute the travel agent workflow
 const result = await execute({
   instructions: `You are a travel agent. Help the user purchase a plane ticket. Show them the ticket using the right component.`,
-  tools: [purchaseTicket],   // Tool for purchasing tickets
-  chat,                      // Chat interface with component registration
+  tools: [purchaseTicket], // Tool for purchasing tickets
+  chat, // Chat interface with component registration
   client,
 })
 

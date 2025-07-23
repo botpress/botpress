@@ -1,6 +1,6 @@
 /**
  * Example 13: Worker Sandbox and Execution Control
- * 
+ *
  * This example demonstrates advanced execution control in worker mode.
  * It shows how to:
  * - Implement execution timeouts and cancellation with AbortController
@@ -8,7 +8,7 @@
  * - Create monitoring tools for long-running processes
  * - Handle execution signals and cleanup
  * - Control sandbox execution with safety limits
- * 
+ *
  * Key concepts:
  * - AbortController for execution cancellation
  * - Execution timeout patterns
@@ -48,7 +48,7 @@ const wait = new Tool({
     // Set up automatic abort after 5 seconds as a safety measure
     // This prevents infinite or excessively long waits
     setTimeout(() => controller.abort('5 seconds elasped'), 1000 * 5)
-    
+
     // Implement the actual wait using Promise and setTimeout
     await new Promise<void>((resolve) => {
       setTimeout(() => resolve(), input.ms)
@@ -71,28 +71,28 @@ const checkin = new Tool({
 const result = await execute({
   // Instructions for a potentially long-running process
   instructions: `console.log the number 1 to 10,000 in a for loop, pausing for 500 milliseconds between each number. Make sure to comment the code very well. Checkin when appropriate.`,
-  
+
   // Provide tools for timing control and monitoring
   tools: [wait, checkin],
   client,
-  
+
   // Attach the abort signal for execution cancellation
   // This allows external cancellation of the execution
   signal: controller.signal,
-  
+
   // Monitor execution progress with detailed tracing
   onTrace: ({ trace }) => {
     printTrace(trace)
-    
+
     // Track when LLM execution begins for timing calculations
     if (trace.type === 'llm_call_success') {
       startedAt = Date.now()
     }
   },
-  
+
   // Execution options for safety and control
   options: {
-    loop: 10,  // Limit to maximum 10 execution iterations
+    loop: 10, // Limit to maximum 10 execution iterations
     // This prevents infinite loops and provides bounds on execution
   },
 })

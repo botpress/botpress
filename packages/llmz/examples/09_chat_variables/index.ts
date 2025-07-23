@@ -1,6 +1,6 @@
 /**
  * Example 09: Variable Management and State
- * 
+ *
  * This example demonstrates advanced state management using ObjectInstance.
  * It shows how to:
  * - Create stateful variables that persist across executions
@@ -8,7 +8,7 @@
  * - Use ObjectInstance for structured data management
  * - Handle property writes and validation errors
  * - Track state changes with trace callbacks
- * 
+ *
  * Key concepts:
  * - ObjectInstance for stateful variable management
  * - Property validation with constraints (min/max, email format)
@@ -61,8 +61,8 @@ const getObjects = () =>
           name: 'name',
           description: 'The name of the user',
           type: z.string().describe('The name of the user').nullable(),
-          value: memory['name'] ?? null,  // Current value from memory
-          writable: true,                 // Allow LLM to modify this property
+          value: memory['name'] ?? null, // Current value from memory
+          writable: true, // Allow LLM to modify this property
         },
         {
           name: 'age',
@@ -70,8 +70,8 @@ const getObjects = () =>
           type: z
             .number()
             .describe('The age of the user')
-            .min(18, 'Sorry you must be at least 18 years old')      // Validation constraint
-            .max(40, 'Sorry you cannot be above 40 years old')      // Validation constraint
+            .min(18, 'Sorry you must be at least 18 years old') // Validation constraint
+            .max(40, 'Sorry you cannot be above 40 years old') // Validation constraint
             .nullable(),
           value: memory['age'] ?? null,
           writable: true,
@@ -79,7 +79,7 @@ const getObjects = () =>
         {
           name: 'email',
           description: "The user's email address",
-          type: z.string().email().describe("The user's email address").nullable(),  // Email format validation
+          type: z.string().email().describe("The user's email address").nullable(), // Email format validation
           value: memory['email'] ?? null,
           writable: true,
         },
@@ -97,16 +97,16 @@ while (await chat.iterate()) {
     instructions: `You need to fill in the user profile with the user's information.
   Fill the individual fields with the information you have at hand before asking the user for more information.`,
     exits: [completed, abort],
-    
+
     // Provide dynamic objects that reflect current state
     objects: getObjects,
-    
+
     // Monitor property changes and errors
     onTrace: ({ trace }) => {
       if (trace.type === 'property') {
         // Property was successfully updated
         console.log(`🧩 ${trace.object}.${trace.property} = ${trace.value}`)
-        
+
         // Persist the change to memory
         memory[trace.property] = trace.value
       } else if (trace.type === 'code_execution_exception') {

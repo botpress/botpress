@@ -1,6 +1,6 @@
 /**
  * Example 12: Worker File System Operations
- * 
+ *
  * This example demonstrates file system operations in worker mode.
  * It shows how to:
  * - Use objects instead of tools for more complex APIs
@@ -8,7 +8,7 @@
  * - Handle conditional logic based on file existence
  * - Use worker mode for automated file management tasks
  * - Work with exit conditions and structured outputs
- * 
+ *
  * Key concepts:
  * - Object vs Tool patterns (objects provide richer APIs)
  * - File system integration through utilities
@@ -47,15 +47,15 @@ const result = await execute({
 You need to make sure there's a file for today in the "/notes" folder.
 If the file exists, return its content.
 If the file does not exists, create the file with today's date as the name and write "Hello, world!" in it.`,
-  
+
   // Use objects instead of tools for richer API access
   // Objects provide more complex interfaces than simple input/output tools
   objects: [makeFileSystem(client)],
-  
+
   // Provide exit condition for task completion
   exits: [exit],
   client,
-  
+
   // Enable trace logging to see file system operations
   onTrace: ({ trace }) => printTrace(trace),
 })

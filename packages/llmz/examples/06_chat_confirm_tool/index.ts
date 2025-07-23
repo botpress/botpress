@@ -1,6 +1,6 @@
 /**
  * Example 06: Tool Confirmation Pattern
- * 
+ *
  * This example demonstrates how to implement user confirmation for destructive operations.
  * It shows how to:
  * - Use ThinkSignal to pause execution and request user confirmation
@@ -8,7 +8,7 @@
  * - Handle confirmation state management across execution cycles
  * - Use onExit callbacks to manage execution flow
  * - Protect against accidental destructive operations
- * 
+ *
  * Key concepts:
  * - ThinkSignal for interrupting execution flow
  * - Stateful confirmation management
@@ -33,8 +33,8 @@ const client = new Client({
 
 // State management for confirmation workflow
 // These flags coordinate the confirmation process across execution cycles
-let should_confirm = false  // Set when tool needs confirmation
-let confirming = false      // Set when user is being asked to confirm
+let should_confirm = false // Set when tool needs confirmation
+let confirming = false // Set when user is being asked to confirm
 
 // Tool that requires user confirmation before executing
 // Demonstrates the confirmation pattern for destructive operations
@@ -47,7 +47,7 @@ const overwriteData = new Tool({
     // First call: Request confirmation if not already confirming
     if (!confirming) {
       should_confirm = true
-      
+
       // ThinkSignal interrupts execution and sends a message to the agent
       // This causes the agent to pause and ask the user for confirmation
       throw new ThinkSignal('Please ask the user for confirmation before proceeding.')
@@ -76,7 +76,7 @@ while (await chat.iterate()) {
   Use buttons for quick responses when possible.`,
     tools: [overwriteData],
     onTrace: ({ trace }) => printTrace(trace, ['tool_call']),
-    
+
     // onExit callback manages confirmation state transitions
     // This ensures proper coordination between tool calls and user responses
     onExit: (exit) => {

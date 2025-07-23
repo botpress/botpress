@@ -1,6 +1,6 @@
 /**
  * Example 11: Minimal Worker Mode
- * 
+ *
  * This example demonstrates the simplest usage of LLMz in worker mode.
  * It shows how to:
  * - Execute mathematical computations through code generation
@@ -8,7 +8,7 @@
  * - Access generated code and execution results
  * - Handle success/failure states with proper result checking
  * - Demonstrate the power of code generation over traditional tool calling
- * 
+ *
  * Key concepts:
  * - Worker mode execution (no chat interface)
  * - Mathematical problem solving through code generation
@@ -57,7 +57,7 @@ if (result.isSuccess()) {
         // Display the final computed answer
         chalk.cyan.bold(JSON.stringify(result.output, null, 2)),
       ],
-      80  // Box width for nice formatting
+      80 // Box width for nice formatting
     )
   )
 }

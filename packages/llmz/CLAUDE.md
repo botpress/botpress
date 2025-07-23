@@ -11,14 +11,16 @@ LLMz is a revolutionary TypeScript AI agent framework that fundamentally changes
 ### Why Code Generation Works Better
 
 Traditional agent frameworks rely on JSON tool calling, which has significant limitations:
-- Hard-to-parse JSON schemas for LLMs  
+
+- Hard-to-parse JSON schemas for LLMs
 - Incapable of complex logic, loops, and conditionals
 - Multiple expensive roundtrips for each tool call
 - Unreliable beyond simple scenarios
 
 LLMz leverages the fact that models have been trained extensively on millions of TypeScript codebases, making them incredibly reliable at generating working code. This enables:
+
 - Complex logic and multi-tool orchestration in **one call**
-- Native LLM thinking via comments and code structure  
+- Native LLM thinking via comments and code structure
 - Complete type safety and predictable schemas
 - Seamless scaling in production environments
 
@@ -29,10 +31,11 @@ LLMz leverages the fact that models have been trained extensively on millions of
 LLMz exposes a single method (`execute`) that runs in a loop until one of these conditions:
 
 1. **An Exit is returned** - Agent completes with structured result
-2. **Agent waits for user input** (Chat Mode) - Returns control to user  
+2. **Agent waits for user input** (Chat Mode) - Returns control to user
 3. **Maximum iterations reached** - Safety limit to prevent infinite loops
 
 The loop automatically handles:
+
 - Tool calling and result processing
 - Thinking about outputs and context
 - Error recovery and retry logic
@@ -43,6 +46,7 @@ The loop automatically handles:
 Every LLMz code block follows a predictable structure:
 
 **Return Statement (Required)**:
+
 ```tsx
 // Chat mode - give turn back to user
 return { action: 'listen' }
@@ -52,6 +56,7 @@ return { action: 'done', result: calculatedValue }
 ```
 
 **Tool Calls with Logic**:
+
 ```tsx
 // Complex logic impossible with JSON tool calling
 const price = await getTicketPrice({ from: 'quebec', to: 'new york' })
@@ -65,6 +70,7 @@ if (price > 500) {
 ```
 
 **Comments for Planning**:
+
 ```tsx
 // Comments help LLM think step-by-step and plan ahead
 // Check user's budget first before proceeding with purchase
@@ -74,12 +80,14 @@ const budget = await getUserBudget()
 ### Execution Modes
 
 **Chat Mode**: Interactive conversational agents
+
 - Enabled when `chat` is provided to `execute()`
 - Agents can `yield` React components to user
 - Special `ListenExit` automatically available for user interaction
 - Transcript management for conversation history
 
-**Worker Mode**: Automated execution environments  
+**Worker Mode**: Automated execution environments
+
 - Enabled when `chat` is omitted from `execute()`
 - Focus on computational tasks and data processing
 - Uses `DefaultExit` if no custom exits provided
@@ -96,7 +104,7 @@ Hello, world!
 This is a second line.
 </Text>
 
-// Composed/nested components  
+// Composed/nested components
 yield <Message>
   <Text>What do you prefer?</Text>
   <Button>Cats</Button>
@@ -111,12 +119,14 @@ Components map to communication channels (Webchat, SMS, etc.) and can be complet
 ### Tools and Objects
 
 **Tools**: Type-safe functions with Zod/Zui schemas
+
 - Input/output validation and TypeScript inference
 - Synchronous and asynchronous support
 - Retry logic and error handling
 - Tool aliases for multiple names
 
 **Objects**: Namespaced containers for related tools and variables
+
 - Group related functionality together
 - Support both readonly and writable variables
 - Variable type validation with schemas
@@ -125,18 +135,21 @@ Components map to communication channels (Webchat, SMS, etc.) and can be complet
 ### Advanced Features
 
 **Snapshots**: Pausable/resumable execution
+
 - Throw `SnapshotSignal` to halt and serialize execution state
 - Resume later from exact same point
 - Useful for long-running workflows and async operations
 
-**Thinking**: Agent reflection and variable inspection  
-- Agent-initiated: `return { action: 'think' }` 
+**Thinking**: Agent reflection and variable inspection
+
+- Agent-initiated: `return { action: 'think' }`
 - Tool-initiated: Throw `ThinkSignal` to force reflection
 - Helps agents avoid rushed decisions and process complex information
 
 **Hooks**: Custom logic at execution points
+
 - `onTrace`: Non-blocking monitoring and logging
-- `onExit`: Validate exits and implement guardrails  
+- `onExit`: Validate exits and implement guardrails
 - `onBeforeExecution`: Code mutation and security checks
 - `onIterationEnd`: State augmentation between iterations
 
@@ -336,13 +349,15 @@ The Babel-based compilation system transforms generated code:
 4. **Source Maps**: Generated for debugging and error tracking
 
 Key transformations:
+
 - Tool call instrumentation for monitoring
 - Variable extraction and tracking
 - JSX component handling
 - Line number preservation for stack traces
 
 # important-instruction-reminders
+
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.

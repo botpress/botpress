@@ -1,6 +1,6 @@
 /**
  * Example 08: Multi-Agent System
- * 
+ *
  * This example demonstrates a sophisticated multi-agent orchestration system.
  * It shows how to:
  * - Implement multiple specialized agents (HR, IT, Sales)
@@ -8,7 +8,7 @@
  * - Handle agent handoffs and context switching
  * - Maintain conversation flow across different agent specializations
  * - Build complex agent hierarchies and routing
- * 
+ *
  * Key concepts:
  * - Multi-agent orchestration patterns
  * - Agent specialization and routing
@@ -23,10 +23,10 @@ import { execute } from 'llmz'
 import { CLIChat } from '../utils/cli-chat'
 
 // Import specialized agent definitions
-import { MainAgent } from './agent_main'    // Entry point/coordinator agent
-import { HRAgent } from './agent_hr'        // Human Resources specialist
-import { ITAgent } from './agent_it'        // Information Technology specialist
-import { SalesAgent } from './agent_sales'  // Sales and marketing specialist
+import { MainAgent } from './agent_main' // Entry point/coordinator agent
+import { HRAgent } from './agent_hr' // Human Resources specialist
+import { ITAgent } from './agent_it' // Information Technology specialist
+import { SalesAgent } from './agent_sales' // Sales and marketing specialist
 
 // Import the orchestration system
 import { MultiAgentOrchestrator } from './orchestrator'
@@ -43,8 +43,8 @@ const chat = new CLIChat()
 // Create orchestrator with all agents and set MainAgent as entry point
 // The orchestrator manages agent selection, context, and handoffs
 const orchestrator = new MultiAgentOrchestrator(
-  [MainAgent, HRAgent, ITAgent, SalesAgent],  // Available agents
-  MainAgent.name                              // Initial/default agent
+  [MainAgent, HRAgent, ITAgent, SalesAgent], // Available agents
+  MainAgent.name // Initial/default agent
 )
 
 // Main execution loop with agent orchestration

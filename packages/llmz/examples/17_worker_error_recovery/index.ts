@@ -1,6 +1,6 @@
 /**
  * Example 17: Error Recovery and Retry Logic
- * 
+ *
  * This example demonstrates LLMz's intelligent error recovery capabilities.
  * It shows how to:
  * - Handle tool errors with automatic retry and correction
@@ -8,7 +8,7 @@
  * - Use LLMz's built-in retry logic for failed operations
  * - Demonstrate self-correcting code generation
  * - Show how LLMs can learn from errors and adapt their approach
- * 
+ *
  * Key concepts:
  * - Automatic error recovery and retry mechanisms
  * - Error message analysis and correction
@@ -47,7 +47,7 @@ const errorProneTool = new Tool({
     if (input !== 'hello, world') {
       throw new Error('Invalid input, expected "hello, world"')
     }
-    
+
     // Return the secret code when input is correct
     return { code: 6600 }
   },
@@ -59,10 +59,10 @@ const result = await execute({
   instructions: `Return the secret code (getCode)`,
   tools: [errorProneTool],
   client,
-  
+
   // Enable trace logging to see the error recovery process
   onTrace: ({ trace }) => printTrace(trace),
-  
+
   // Note: No explicit retry configuration needed
   // LLMz has built-in intelligent retry logic that:
   // 1. Analyzes the error message

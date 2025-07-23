@@ -1,6 +1,6 @@
 /**
  * Example 15: Stack Trace Handling and Error Reporting
- * 
+ *
  * This example demonstrates LLMz's error handling and stack trace reporting capabilities.
  * It shows how to:
  * - Handle tool execution errors gracefully
@@ -8,7 +8,7 @@
  * - Implement error reporting and diagnostics
  * - Use execution status checking for error handling
  * - Display formatted error information to users
- * 
+ *
  * Key concepts:
  * - Error result status checking with isError()
  * - Execution error details and stack traces
@@ -51,7 +51,7 @@ const exit = new Exit({
 
 // Execute with a tool that will fail
 const result = await execute({
-  options: { loop: 1 },  // Limit to 1 iteration to avoid retry loops
+  options: { loop: 1 }, // Limit to 1 iteration to avoid retry loops
   instructions: `call the "demo" tool`,
   tools: [demo],
   exits: [exit],

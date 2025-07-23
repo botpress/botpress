@@ -1,6 +1,6 @@
 /**
  * Example 19: Tool Wrapping and Enhancement
- * 
+ *
  * This example demonstrates advanced tool composition patterns using tool wrapping.
  * It shows how to:
  * - Create enhanced versions of existing tools using clone()
@@ -8,7 +8,7 @@
  * - Implement decorator patterns for tool functionality
  * - Chain tool execution with pre/post processing
  * - Build composable tool architectures
- * 
+ *
  * Key concepts:
  * - Tool cloning and enhancement
  * - Schema extension and composition
@@ -64,20 +64,20 @@ const wrappedTool = normalTool.clone({
     schema!.extend({
       added: z.number().describe('Tool confirmation number'),
     }),
-  
+
   // Enhanced handler that calls the original tool and adds functionality
   async handler(input, ctx) {
     console.log(chalk.blue('✓') + ` Wrapped tool executed with input: ${input.greeting}`)
-    
+
     // Execute the original tool to get its result
     // This demonstrates composition and delegation patterns
     const result = await normalTool.execute(input, ctx)
-    
+
     // Return enhanced result with additional data
     // This shows how to augment tool outputs with new information
     return {
       message: `Wrapped tool executed with input: ${input.greeting}. Original message: ${result.message}`,
-      added: 666,  // Additional confirmation code
+      added: 666, // Additional confirmation code
     }
   },
 })
@@ -86,7 +86,7 @@ const wrappedTool = normalTool.clone({
 const result = await execute({
   instructions: `Greet the user and return the confirmation code`,
   exits: [exit],
-  
+
   // Use the wrapped tool instead of the original
   // The LLM will see the enhanced schema and functionality
   tools: [wrappedTool],

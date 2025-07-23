@@ -1,6 +1,6 @@
 /**
  * Example 14: Worker Snapshots and State Persistence
- * 
+ *
  * This example demonstrates LLMz's advanced snapshot system for pausing and resuming executions.
  * It shows how to:
  * - Create snapshots when long-running operations need to be deferred
@@ -8,7 +8,7 @@
  * - Resume execution from snapshots with resolved data
  * - Handle asynchronous operations that span multiple execution cycles
  * - Implement pausable workflows for better resource management
- * 
+ *
  * Key concepts:
  * - SnapshotSignal for creating execution snapshots
  * - Snapshot serialization and persistence
@@ -42,7 +42,7 @@ const LongRunningTool = new Tool({
   }),
   async handler({ input }) {
     console.log('Executing long-running tool with input:', input)
-    
+
     // Instead of performing the actual long-running operation,
     // throw a SnapshotSignal to pause execution and create a snapshot
     // This allows the operation to be completed later in a different context
