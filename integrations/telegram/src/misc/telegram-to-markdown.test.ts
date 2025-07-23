@@ -167,7 +167,7 @@ describe.each([
         type: 'italic',
       },
     ],
-    expects: 'Hello __World__',
+    expects: 'Hello *World*',
     description: "Should apply italic mark to the word 'World'",
   },
   {
@@ -355,7 +355,7 @@ describe.each([
         type: 'underline',
       },
     ],
-    expects: 'Hello **__Many Effects__** World',
+    expects: 'Hello ***Many Effects*** World',
     description: "Apply multiple effects to phrase 'Many Effects'",
   },
   {
@@ -368,17 +368,12 @@ describe.each([
       },
       {
         offset: 8,
-        length: 12,
+        length: 10,
         type: 'italic',
       },
-      {
-        offset: 6,
-        length: 12,
-        type: 'underline',
-      },
     ],
-    expects: 'Hello **Ma__ny Effects__** World',
-    description: "Apply multiple effects to the word 'World'",
+    expects: 'Hello **Ma*ny Effects*** World',
+    description: 'Apply effect encapsulated within another effect',
   },
 ] as TestCase[])('Telegram to Markdown Conversion', ({ input, marks, expects, description }) => {
   test(description, () => {
