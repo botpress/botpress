@@ -23,6 +23,8 @@ const Primitives = [
   'object',
 ]
 
+const LARGE_DECLARATION_LINES = 5
+
 const isPrimitive = (type: string) => Primitives.includes(type)
 const isArrayOfPrimitives = (type: string) => Primitives.map((p) => `${p}[]`).includes(type)
 
@@ -68,14 +70,20 @@ type DeclarationProps =
 export type TypescriptDeclarationType = DeclarationProps['type']
 export type TypescriptGenerationOptions = {
   formatter?: (typing: string) => string
-} & {
   declaration?: boolean | TypescriptDeclarationType
+  /**
+   * Whether to include closing tags in the generated TypeScript declarations when they exceed 5 lines.
+   * This improves readability for large type declarations by adding comments like "// end of TypeName".
+   */
+  includeClosingTags?: boolean
 }
 
 type SchemaTypes = z.Schema | KeyValue | FnParameters | Declaration | null
 
 type InternalOptions = {
   parent?: SchemaTypes
+  declaration?: boolean | TypescriptDeclarationType
+  includeClosingTags?: boolean
 }
 
 /**
@@ -87,7 +95,7 @@ type InternalOptions = {
 export function toTypescriptType(schema: z.Schema, options: TypescriptGenerationOptions = {}): string {
   const wrappedSchema: Declaration = getDeclarationProps(schema, options)
 
-  let dts = sUnwrapZod(wrappedSchema, {})
+  let dts = sUnwrapZod(wrappedSchema, options)
 
   if (options.formatter) {
     dts = options.formatter(dts)
@@ -99,6 +107,7 @@ export function toTypescriptType(schema: z.Schema, options: TypescriptGeneration
 function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | null, config: InternalOptions): string {
   const newConfig: InternalOptions = {
     ...config,
+    declaration: false,
     parent: schema,
   }
 
@@ -113,17 +122,19 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
   if (schema instanceof KeyValue) {
     if (schema.value instanceof z.ZodOptional) {
       let innerType = schema.value._def.innerType as z.Schema
-      return sUnwrapZod(new KeyValue(schema.key, innerType, true), newConfig)
+      if (innerType instanceof z.Schema && !innerType.description && schema.value.description) {
+        innerType = innerType?.describe(schema.value.description)
+      }
+
+      const optionalToken = schema.key.endsWith('?') ? '' : '?'
+      return sUnwrapZod(new KeyValue(schema.key + optionalToken, innerType), newConfig)
     }
 
-    const description = getMultilineComment(schema.value.description)
+    const description = getMultilineComment(schema.value._def.description || schema.value.description)
     const delimiter = description?.trim().length > 0 ? '\n' : ''
     const withoutDesc = schema.value.describe('')
 
-    // either we are children of a z.ZodOptional or there is a z.ZodOptional in the children
-    const isOptional = schema.optional || schema.value.isOptional()
-    const optionalModifier = isOptional ? '?' : ''
-    return `${delimiter}${description}${delimiter}${schema.key}${optionalModifier}: ${sUnwrapZod(withoutDesc, newConfig)}${delimiter}`
+    return `${delimiter}${description}${delimiter}${schema.key}: ${sUnwrapZod(withoutDesc, newConfig)}${delimiter}`
   }
 
   if (schema instanceof FnParameters) {
@@ -138,8 +149,9 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
       return args
     }
 
-    const typings = sUnwrapZod(schema.schema, newConfig)
+    const isLiteral = schema.schema.naked() instanceof z.ZodLiteral
 
+    const typings = sUnwrapZod(schema.schema, newConfig).trim()
     const startsWithPairs =
       (typings.startsWith('{') && typings.endsWith('}')) ||
       (typings.startsWith('[') && typings.endsWith(']')) ||
@@ -148,7 +160,7 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
       (typings.startsWith('Record<') && typings.endsWith('>')) ||
       isArrayOfPrimitives(typings)
 
-    if (startsWithPairs) {
+    if (startsWithPairs || isLiteral) {
       return `args: ${typings}`
     } else {
       return typings
@@ -210,10 +222,14 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
 
     case z.ZodFirstPartyTypeKind.ZodObject:
       const props = Object.entries(def.shape()).map(([key, value]) => {
-        return sUnwrapZod(new KeyValue(toPropertyKey(key), value), newConfig)
+        if (value instanceof z.Schema) {
+          return sUnwrapZod(new KeyValue(toPropertyKey(key), value), newConfig)
+        }
+        return `${key}: unknown`
       })
 
       return `{ ${props.join('; ')} }`
+
     case z.ZodFirstPartyTypeKind.ZodUnion:
       const options = def.options.map((option) => {
         return sUnwrapZod(option, newConfig)
@@ -233,7 +249,7 @@ ${opts.join(' | ')}`
 
     case z.ZodFirstPartyTypeKind.ZodTuple:
       if (def.items.length === 0) {
-        return ''
+        return '[]'
       }
 
       const items = def.items.map((i: any) => sUnwrapZod(i, newConfig))
@@ -253,6 +269,12 @@ ${opts.join(' | ')}`
     case z.ZodFirstPartyTypeKind.ZodFunction:
       const input = sUnwrapZod(new FnParameters(def.args), newConfig)
       const output = sUnwrapZod(new FnReturn(def.returns), newConfig)
+      const parentIsType = config?.parent instanceof Declaration && config?.parent.props.type === 'type'
+
+      if (config?.declaration && !parentIsType) {
+        return `${getMultilineComment(schemaTyped.description)}
+(${input}): ${output}`
+      }
 
       return `${getMultilineComment(schemaTyped.description)}
 (${input}) => ${output}`
@@ -315,17 +337,26 @@ const unwrapDeclaration = (declaration: Declaration, options: InternalOptions): 
     return sUnwrapZod(declaration.props.schema, options)
   }
 
-  const description = getMultilineComment(declaration.props.schema.description)
-  const withoutDesc = declaration.props.schema.describe('')
-  const typings = sUnwrapZod(withoutDesc, options)
+  const { schema, identifier } = declaration.props
+  const description = getMultilineComment(schema.description)
+  const withoutDesc = schema.describe('')
+  const typings = sUnwrapZod(withoutDesc, { ...options, declaration: true })
+
+  const isLargeDeclaration = typings.split('\n').length >= LARGE_DECLARATION_LINES
+  const closingTag = isLargeDeclaration && options.includeClosingTags ? `// end of ${identifier}` : ''
+
+  if (declaration.props.type !== 'type' && schema instanceof z.ZodFunction) {
+    return stripSpaces(`${description}
+declare function ${identifier}${typings};${closingTag}`)
+  }
 
   if (declaration.props.type === 'variable') {
-    return stripSpaces(`${description}declare const ${declaration.props.identifier}: ${typings};`)
+    return stripSpaces(`${description}declare const ${identifier}: ${typings};${closingTag}`)
   }
 
   const generics =
     declaration.props.args.length > 0 ? `<${declaration.props.args.map(toTypeArgumentName).join(', ')}>` : ''
-  return stripSpaces(`${description}type ${declaration.props.identifier}${generics} = ${typings};`)
+  return stripSpaces(`${description}type ${declaration.props.identifier}${generics} = ${typings};${closingTag}`)
 }
 
 const getDeclarationType = (options: TypescriptGenerationOptions): TypescriptDeclarationType => {

@@ -1,5 +1,11 @@
 import { expect, describe, it } from 'vitest'
-import { toTypeArgumentName, primitiveToTypescriptValue, unknownToTypescriptValue } from './utils'
+import {
+  toTypeArgumentName,
+  primitiveToTypescriptValue,
+  unknownToTypescriptValue,
+  getMultilineComment,
+  escapeString,
+} from './utils'
 
 describe.concurrent('primitiveToTypscriptLiteral', () => {
   it('converts a string to a valid typescript string value', () => {
@@ -93,4 +99,117 @@ describe.concurrent('unknownToTypescriptValue', () => {
       expect(actual).toEqual(input)
     },
   )
+})
+
+describe('getMultilineComment', () => {
+  it('single-lines', async () => {
+    expect(getMultilineComment(`Hello`)).toMatchInlineSnapshot(`"/** Hello */"`)
+    expect(getMultilineComment(`* Hello *`)).toMatchInlineSnapshot(`"/** * Hello * */"`)
+    expect(getMultilineComment(`/** Hello */`)).toMatchInlineSnapshot(`"/**  Hello  */"`)
+    expect(getMultilineComment(`Hello */ world`)).toMatchInlineSnapshot(`"/** Hello *\\/ world */"`)
+    expect(getMultilineComment(`🙌 works`)).toMatchInlineSnapshot(`"/** 🙌 works */"`)
+    expect(
+      getMultilineComment('Hello ' + String.fromCharCode('*'.charCodeAt(0), '/'.charCodeAt(0)) + ' world'),
+    ).toMatchInlineSnapshot(`"/** Hello *\\/ world */"`)
+  })
+
+  it('multi-lines', async () => {
+    expect(
+      getMultilineComment(
+        `
+Hello
+World`.trim(),
+      ),
+    ).toMatchInlineSnapshot(`
+      "/**
+       * Hello
+       * World
+       */"
+    `)
+
+    expect(
+      getMultilineComment(
+        `
+Hello
+* world
+what
+
+is
+*up`.trim(),
+      ),
+    ).toMatchInlineSnapshot(`
+      "/**
+       * Hello
+       * world
+       * what
+       * 
+       * is
+       * *up
+       */"
+    `)
+
+    expect(
+      getMultilineComment(
+        `
+Hello,
+World */`.trim(),
+      ),
+    ).toMatchInlineSnapshot(`
+      "/**
+       * Hello,
+       * World 
+       */"
+    `)
+  })
+
+  it('empty lines', async () => {
+    expect(getMultilineComment(``)).toMatchInlineSnapshot(`""`)
+    expect(getMultilineComment(`\n\n  \n \n    \n`)).toMatchInlineSnapshot(`""`)
+    expect(getMultilineComment(`\n\n  \n \n  .  \n`)).toMatchInlineSnapshot(`"/** . */"`)
+    expect(getMultilineComment(`\n\n Hello \n \n  .  \n\nworld\n\n\n\n\n\n`)).toMatchInlineSnapshot(`
+      "/**
+       * Hello
+       * 
+       * .
+       * 
+       * world
+       */"
+    `)
+    expect(getMultilineComment(`\n/**\n Hello \n \n \n\n \n \n\nworld\n\n\n*/\n\n\n`)).toMatchInlineSnapshot(`
+      "/**
+       * Hello
+       * 
+       * world
+       */"
+    `)
+  })
+})
+
+describe('Escape String', () => {
+  it('escapes a string containing nothing special', () => {
+    expect(escapeString('hello')).toBe("'hello'")
+  })
+
+  it('escapes a string containing single quotes', () => {
+    expect(escapeString("'hello'")).toMatchInlineSnapshot(`""\\'hello\\'""`)
+  })
+
+  it('escapes a string containing multiple lines', () => {
+    expect(escapeString('hello\nworld')).toMatchInlineSnapshot(`"'hello\\nworld'"`)
+  })
+
+  it('escapes a string containing double quotes', () => {
+    const world = 'world'
+    expect(escapeString(`"Hey ${world}"`)).toMatchInlineSnapshot(`"'\\"Hey world\\"'"`)
+  })
+
+  it('escapes a string containing double quotes', () => {
+    expect(
+      escapeString(`
+\`\`\`
+Hey world
+\`\`\`
+`),
+    ).toMatch(`"\\n\`\`\`\\nHey world\\n\`\`\`\\n"`)
+  })
 })
