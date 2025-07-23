@@ -2,6 +2,13 @@ import { Context, Iteration } from './context.js'
 import { SnapshotSignal } from './errors.js'
 import { Exit, ExitResult } from './exit.js'
 import { Snapshot } from './snapshots.js'
+import { Serializable } from './types.js'
+
+type ExecutionStatus = 'success' | 'error' | 'interrupted'
+
+export namespace ExecutionResult {
+  export type JSON = SuccessExecutionResult.JSON | ErrorExecutionResult.JSON | PartialExecutionResult.JSON
+}
 
 /**
  * Base class for all execution results returned by the `execute()` function.
@@ -99,11 +106,11 @@ import { Snapshot } from './snapshots.js'
  * @see {@link ErrorExecutionResult} For failed execution results
  * @see {@link PartialExecutionResult} For interrupted execution results
  */
-export abstract class ExecutionResult {
-  public readonly status: 'success' | 'error' | 'interrupted'
+export abstract class ExecutionResult implements Serializable<ExecutionResult.JSON> {
+  public readonly status: ExecutionStatus
   public readonly context: Context
 
-  protected constructor(status: 'success' | 'error' | 'interrupted', context: Context) {
+  protected constructor(status: ExecutionStatus, context: Context) {
     this.status = status
     this.context = context
   }
@@ -312,6 +319,19 @@ export abstract class ExecutionResult {
   public get iterations(): Iteration[] {
     return this.context.iterations ?? []
   }
+
+  public abstract toJSON(): ExecutionResult.JSON
+}
+
+export namespace SuccessExecutionResult {
+  export type JSON = {
+    status: 'success'
+    context: Context.JSON
+    result: {
+      exit: Exit.JSON
+      result: unknown
+    }
+  }
 }
 
 /**
@@ -360,7 +380,10 @@ export abstract class ExecutionResult {
  * }
  * ```
  */
-export class SuccessExecutionResult<TOutput = unknown> extends ExecutionResult {
+export class SuccessExecutionResult<TOutput = unknown>
+  extends ExecutionResult
+  implements Serializable<SuccessExecutionResult.JSON>
+{
   public readonly result: ExitResult<TOutput>
 
   public constructor(context: Context, result: ExitResult<TOutput>) {
@@ -391,6 +414,34 @@ export class SuccessExecutionResult<TOutput = unknown> extends ExecutionResult {
    */
   public get iteration(): Iteration {
     return this.context.iterations.at(-1)!
+  }
+
+  /**
+   * Serializes the execution result to JSON.
+   *
+   * This method converts the execution result into a JSON format that includes
+   * the execution status, context, and exit information. It is used for serialization
+   * and transmission of the execution result.
+   *
+   * @returns The JSON representation of the execution result.
+   */
+  public toJSON() {
+    return {
+      status: 'success' as const,
+      context: this.context.toJSON(),
+      result: {
+        exit: this.result.exit.toJSON(),
+        result: this.result.result,
+      },
+    } satisfies SuccessExecutionResult.JSON
+  }
+}
+
+export namespace ErrorExecutionResult {
+  export type JSON = {
+    status: 'error'
+    context: Context.JSON
+    error: unknown
   }
 }
 
@@ -426,7 +477,7 @@ export class SuccessExecutionResult<TOutput = unknown> extends ExecutionResult {
  * }
  * ```
  */
-export class ErrorExecutionResult extends ExecutionResult {
+export class ErrorExecutionResult extends ExecutionResult implements Serializable<ErrorExecutionResult.JSON> {
   public readonly error: unknown
 
   public constructor(context: Context, error: unknown) {
@@ -441,6 +492,27 @@ export class ErrorExecutionResult extends ExecutionResult {
    */
   public get output(): null {
     return null
+  }
+
+  public toJSON() {
+    return {
+      status: 'error' as const,
+      context: this.context.toJSON(),
+      error: this.error,
+    } satisfies ErrorExecutionResult.JSON
+  }
+}
+
+export namespace PartialExecutionResult {
+  export type JSON = {
+    status: 'interrupted'
+    context: Context.JSON
+    snapshot: Snapshot.JSON
+    signal: {
+      message: string
+      truncatedCode?: string
+      variables: Record<string, any>
+    }
   }
 }
 
@@ -496,7 +568,7 @@ export class ErrorExecutionResult extends ExecutionResult {
  * }
  * ```
  */
-export class PartialExecutionResult extends ExecutionResult {
+export class PartialExecutionResult extends ExecutionResult implements Serializable<PartialExecutionResult.JSON> {
   public readonly signal: SnapshotSignal
   public readonly snapshot: Snapshot
 
@@ -513,5 +585,23 @@ export class PartialExecutionResult extends ExecutionResult {
    */
   public get output(): null {
     return null
+  }
+
+  /**
+   * Serializes the execution result to JSON.
+   *
+   * @returns The JSON representation of the execution result.
+   */
+  public toJSON() {
+    return {
+      status: 'interrupted' as const,
+      context: this.context.toJSON(),
+      snapshot: this.snapshot.toJSON(),
+      signal: {
+        message: this.signal.message,
+        truncatedCode: this.signal.truncatedCode,
+        variables: this.signal.variables,
+      },
+    } satisfies PartialExecutionResult.JSON
   }
 }

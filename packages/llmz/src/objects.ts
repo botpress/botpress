@@ -3,6 +3,7 @@ import { z } from '@bpinternal/zui'
 import { formatTypings } from './formatting.js'
 import { hoistTypings } from './hoist.js'
 import { Tool } from './tool.js'
+import { Serializable } from './types.js'
 import { getTypings } from './typings.js'
 import { escapeString, getMultilineComment, isValidIdentifier } from './utils.js'
 
@@ -38,6 +39,16 @@ export type ObjectProperty = {
   description?: string
   /** Whether the LLM can modify this property (default: false) */
   writable?: boolean
+}
+
+export namespace ObjectInstance {
+  export type JSON = {
+    name: string
+    description?: string
+    properties?: ObjectProperty[]
+    tools?: Tool.JSON[]
+    metadata?: Record<string, unknown>
+  }
 }
 
 /**
@@ -238,7 +249,7 @@ export type ObjectProperty = {
  *
  * @see {@link https://github.com/botpress/botpress/blob/master/packages/llmz/examples/09_chat_variables/index.ts} Example usage
  */
-export class ObjectInstance {
+export class ObjectInstance implements Serializable<ObjectInstance.JSON> {
   public name: string
   public description?: string
   public properties?: ObjectProperty[]
@@ -418,6 +429,25 @@ export class ObjectInstance {
    */
   public async getTypings() {
     return getObjectTypings(this).withProperties().withTools().build()
+  }
+
+  /**
+   * Converts this ObjectInstance to its JSON representation.
+   *
+   * This method serializes the object into a JSON format that includes its name,
+   * description, properties, tools, and metadata. It is used for serialization
+   * and transmission of the object state.
+   *
+   * @returns JSON representation of the ObjectInstance
+   */
+  public toJSON() {
+    return {
+      name: this.name,
+      description: this.description,
+      properties: this.properties,
+      tools: (this.tools ?? []).map((tool) => tool.toJSON()),
+      metadata: this.metadata,
+    } satisfies ObjectInstance.JSON
   }
 }
 

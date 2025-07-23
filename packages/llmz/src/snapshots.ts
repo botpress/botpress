@@ -2,6 +2,7 @@ import { ulid } from 'ulid'
 
 import { ToolCall, SnapshotSignal } from './errors.js'
 import { extractType, inspect } from './inspect.js'
+import { Serializable } from './types.js'
 
 const MAX_SNAPSHOT_SIZE_BYTES = 4_000
 
@@ -20,6 +21,17 @@ export namespace SnapshotStatuses {
   export type Pending = { type: 'pending' }
   export type Resolved = { type: 'resolved'; value: unknown }
   export type Rejected = { type: 'rejected'; error: unknown }
+}
+
+export namespace Snapshot {
+  export type JSON = {
+    id: string
+    reason?: string
+    stack: string
+    variables: Variable[]
+    toolCall?: ToolCall
+    status: SnapshotStatus
+  }
 }
 
 /**
@@ -95,7 +107,7 @@ export namespace SnapshotStatuses {
  *
  * @see {@link https://github.com/botpress/botpress/blob/master/packages/llmz/examples/14_worker_snapshot/index.ts} Example usage
  */
-export class Snapshot {
+export class Snapshot implements Serializable<Snapshot.JSON> {
   public readonly id: string
   public readonly reason?: string
   public readonly stack: string
@@ -182,7 +194,7 @@ export class Snapshot {
       variables: this.variables,
       toolCall: this.toolCall,
       status: this.#status,
-    }
+    } satisfies Snapshot.JSON
   }
 
   /**

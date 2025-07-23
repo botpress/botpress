@@ -13,9 +13,9 @@ import { DualModePrompt } from './prompts/dual-modes.js'
 import { LLMzPrompts, Prompt } from './prompts/prompt.js'
 import { Snapshot } from './snapshots.js'
 import { Tool } from './tool.js'
-import { TranscriptArray } from './transcript.js'
+import { Transcript, TranscriptArray } from './transcript.js'
 import { wrapContent } from './truncator.js'
-import { ObjectMutation, Trace } from './types.js'
+import { ObjectMutation, Serializable, Trace } from './types.js'
 
 type Model = Parameters<InstanceType<typeof Cognitive>['generateContent']>[0]['model']
 
@@ -343,7 +343,39 @@ export const DefaultExit = new Exit({
   ]),
 })
 
-export class Iteration {
+export namespace Iteration {
+  export type JSON = {
+    id: string
+    messages: LLMzPrompts.Message[]
+    code?: string
+    traces: Trace[]
+    variables: Record<string, any>
+    started_ts: number
+    ended_ts?: number
+    status: IterationStatus
+    mutations: ObjectMutation[]
+    llm?: {
+      started_at: number
+      ended_at: number
+      status: 'success' | 'error'
+      cached: boolean
+      tokens: number
+      spend: number
+      output: string
+      model: string
+    }
+    transcript: Transcript.Message[]
+    tools: Tool.JSON[]
+    objects: ObjectInstance.JSON[]
+    exits: Exit.JSON[]
+    instructions?: string
+    duration?: string
+    error?: string | null
+    isChatEnabled?: boolean
+  }
+}
+
+export class Iteration implements Serializable<Iteration.JSON> {
   public id: string
   public messages: LLMzPrompts.Message[]
   public code?: string
@@ -494,9 +526,46 @@ export class Iteration {
     this.ended_ts = Date.now()
     this.status = status
   }
+
+  public toJSON() {
+    return {
+      id: this.id,
+      messages: [...this.messages],
+      code: this.code,
+      traces: [...this.traces],
+      variables: this.variables,
+      started_ts: this.started_ts,
+      ended_ts: this.ended_ts,
+      status: this.status,
+      mutations: [...this._mutations.values()],
+      llm: this.llm,
+      transcript: [...this._parameters.transcript],
+      tools: this._parameters.tools.map((tool) => tool.toJSON()),
+      objects: this._parameters.objects.map((obj) => obj.toJSON()),
+      exits: this._parameters.exits.map((exit) => exit.toJSON()),
+      instructions: this._parameters.instructions,
+      duration: this.duration,
+      error: this.error,
+      isChatEnabled: this.isChatEnabled,
+    } satisfies Iteration.JSON
+  }
 }
 
-export class Context {
+export namespace Context {
+  export type JSON = {
+    id: string
+    iterations: Iteration.JSON[]
+    iteration: number
+    timeout: number
+    loop: number
+    temperature: number
+    model?: Model
+    metadata: Record<string, any>
+    snapshot?: Snapshot.JSON
+  }
+}
+
+export class Context implements Serializable<Context.JSON> {
   public id: string
 
   public chat?: Chat
@@ -845,5 +914,19 @@ export class Context {
     if (this.temperature < 0 || this.temperature > 2) {
       throw new Error('Invalid temperature. Expected a number between 0 and 2.')
     }
+  }
+
+  public toJSON() {
+    return {
+      id: this.id,
+      iterations: this.iterations.map((iteration) => iteration.toJSON()),
+      iteration: this.iteration,
+      timeout: this.timeout,
+      loop: this.loop,
+      temperature: this.temperature,
+      model: this.model,
+      metadata: this.metadata,
+      snapshot: this.snapshot?.toJSON(),
+    } satisfies Context.JSON
   }
 }

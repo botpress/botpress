@@ -1,7 +1,7 @@
 import { transforms } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { uniq } from 'lodash-es'
-import { ZuiType } from './types.js'
+import { Serializable, ZuiType } from './types.js'
 import { isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
 
 /**
@@ -14,6 +14,16 @@ export type ExitResult<T = unknown> = {
   exit: Exit<T>
   /** The result data returned by the exit (validated against the exit's schema) */
   result: T
+}
+
+export namespace Exit {
+  export type JSON = {
+    name: string
+    aliases: string[]
+    description: string
+    metadata: Record<string, unknown>
+    schema?: JSONSchema7
+  }
 }
 
 /**
@@ -216,7 +226,7 @@ export type ExitResult<T = unknown> = {
  * @see {@link ListenExit} Built-in chat listening exit
  * @see {@link DefaultExit} Built-in completion exit
  */
-export class Exit<T = unknown> {
+export class Exit<T = unknown> implements Serializable<Exit.JSON> {
   /** The primary name of the exit (used in return statements) */
   public name: string
   /** Alternative names that can be used to reference this exit */
@@ -314,6 +324,32 @@ export class Exit<T = unknown> {
    */
   public match(result: ExitResult): result is ExitResult<T> {
     return result.exit instanceof Exit && this.name === result.exit.name
+  }
+
+  /**
+   * Serializes this exit to a JSON-compatible object.
+   *
+   * @returns JSON representation of the exit
+   *
+   * @example
+   * ```typescript
+   * const exit = new Exit({
+   *   name: 'complete',
+   *   description: 'Task completed successfully',
+   * })
+   *
+   * console.log(exit.toJSON())
+   * // { name: 'complete', aliases: [], description: 'Task completed successfully', metadata: {}, schema: undefined }
+   * ```
+   */
+  public toJSON() {
+    return {
+      name: this.name,
+      aliases: [...this.aliases],
+      description: this.description,
+      metadata: { ...this.metadata },
+      schema: this.schema,
+    } satisfies Exit.JSON
   }
 
   /**
