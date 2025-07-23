@@ -22,7 +22,7 @@ function TypedRange(start: number, end: number, type: string | string[]): TypedR
   }
 }
 
-const testCases: [TypedRange[], TypedRange[], string][] = [
+const splitRangeTestCases: [TypedRange[], TypedRange[], string][] = [
   [
     [TypedRange(0, 6, 'bold'), TypedRange(6, 8, 'italic')],
     [TypedRange(0, 6, 'bold'), TypedRange(6, 8, 'italic')],
@@ -52,7 +52,7 @@ const testCases: [TypedRange[], TypedRange[], string][] = [
   [
     [TypedRange(0, 1, 'bold'), TypedRange(0, 8, 'italic')],
     [TypedRange(0, 1, ['bold', 'italic']), TypedRange(1, 8, 'italic')],
-    'Overlap on single character',
+    'Single character encapsulated range',
   ],
   [
     [TypedRange(6, 18, 'bold'), TypedRange(8, 20, 'italic'), TypedRange(6, 18, 'underline')],
@@ -107,7 +107,7 @@ const convertMarkToRange = ({ start, end, effects }: MarkSegment): TypedRange =>
     type,
   }
 }
-describe.each(testCases)(
+describe.each(splitRangeTestCases)(
   'Split the range overlaps test cases while maintaining types',
   (rangesToSplit: TypedRange[], expects: TypedRange[], description: string) => {
     test(description, () => {
