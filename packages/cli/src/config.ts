@@ -311,6 +311,8 @@ const getPluginSchema = {
 const listPluginsSchema = {
   ...globalSchema,
   ...credentialsSchema,
+  name: { type: 'string', description: 'The name filter when listing plugins' },
+  versionNumber: { type: 'string', description: 'The version filter when listing plugins' },
 } satisfies CommandSchema
 
 const deletePluginSchema = {
