@@ -6,41 +6,44 @@ _Stop chaining tools. Start generating real code._
 
 ## 🚀 What is LLMz?
 
-**The Revolutionary Approach**: Traditional agent frameworks require multiple expensive LLM calls to chain tools together. Each tool call means waiting for the LLM to understand JSON schemas, generate JSON, parse responses, and make another call. This creates latency, complexity, and failure points.
+**The Revolutionary Approach**: Traditional agent frameworks require multiple expensive LLM calls to chain tools together. Each tool call means waiting for the LLM to understand JSON schemas (which aren't widely used on the web, so LLMs have limited training on them), generate sparse JSON that doesn't capture full function logic, parse responses, and make another call. While LLMs can return an array of tools to call, they can't run them conditionally or chain them effectively without actual code. This forces developers to create countless tool variants for minor differences, resulting in brittle systems and excessive API calls. This creates latency, complexity, and failure points.
 
 LLMz changes everything by generating TypeScript code in a single turn that executes everything at once. No more waiting. No more JSON parsing. No more fragile tool chains.
 
 **Code-First Philosophy**: Here's why this approach is revolutionary:
 
 **Traditional Tool Calling** (Multiple LLM calls, no logic):
-```
-LLM Call 1: Generate JSON to call weather tool
-→ Wait for response
-→ Parse JSON result
-→ Think about next step
 
-LLM Call 2: Generate JSON to call email tool
-→ Wait for response  
-→ Parse JSON result
-→ Format final response
+```
+LLM Call 1: Generate JSON to call getWeather tool
+→ Wait for response
+LLM Call 2: Look at weather tool output, decide next step
+→ Wait for response
+LLM Call 3: Generate JSON to call sendEmail tool
+→ Wait for response
+LLM Call 4: Look at sendEmail tool output, return success code
+→ Wait for response
 
 Total: 4+ API calls, no conditionals, no type safety
 ```
 
 **LLMz Approach** (Single turn with real code):
+
 ```typescript
 const weather = await getWeather({ city: 'San Francisco' })
 if (weather.temperature < 60) {
-  await sendEmail({ 
+  await sendEmail({
     to: 'team@company.com',
-    subject: `Cold weather alert: ${weather.temperature}°F` 
+    subject: `Cold weather alert: ${weather.temperature}°F`,
   })
 }
 return { action: 'done', result: 'Weather checked and team notified' }
 ```
+
 **Result: 1 API call, full logic, complete type safety**
 
 **Why TypeScript?**: LLMs have been trained on millions of TypeScript files from GitHub, Stack Overflow, and documentation. They understand:
+
 - Variable declarations and function calls
 - Conditional logic and loops
 - Async/await patterns
@@ -62,6 +65,7 @@ npm install llmz @botpress/client
 ```
 
 > **Prerequisites**: You'll need a Botpress account and API key. Get one free at [botpress.com](https://botpress.com). Set your environment variables:
+>
 > ```bash
 > export BOTPRESS_BOT_ID="your-bot-id"
 > export BOTPRESS_TOKEN="your-api-token"
@@ -80,7 +84,7 @@ const client = new Client({
 
 const result = await execute({
   instructions: 'Calculate the sum of all integers between 14 and 1078 that are divisible by 3, 9 or 5',
-  client
+  client,
 })
 
 if (result.isSuccess()) {
@@ -124,17 +128,19 @@ const chat = new CLIChat()
 
 while (await chat.iterate()) {
   await execute({
-    instructions: 'You are a helpful math tutor. Help students with problems step by step and suggest practice topics using buttons.',
+    instructions:
+      'You are a helpful math tutor. Help students with problems step by step and suggest practice topics using buttons.',
     chat, // Chat mode enabled by providing chat interface
-    client
+    client,
   })
 }
 ```
 
-**Try It**: 
+**Try It**:
+
 1. Copy the CLIChat utility from the LLMz examples folder
 2. Save the code above as `math-tutor.ts`
-3. Run `npx tsx math-tutor.ts` 
+3. Run `npx tsx math-tutor.ts`
 4. Start chatting: "Can you help me solve 2x + 5 = 13?"
 5. Watch the agent generate step-by-step solutions and suggest topics
 
@@ -152,54 +158,92 @@ The agent can solve equations, explain concepts, and generate practice problems 
 import { Tool } from 'llmz'
 import { z } from '@bpinternal/zui'
 
-const calculator = new Tool({
-  name: 'calculate',
-  description: 'Performs safe mathematical calculations like 2+2, 15*0.3, etc.',
-  input: z.object({ 
-    expression: z.string().describe('A mathematical expression to evaluate') 
+const getCurrentWeather = new Tool({
+  name: 'getCurrentWeather',
+  description: 'Gets current weather conditions for a specific city',
+  input: z.object({
+    city: z.string().describe('The city name to get weather for'),
+    units: z.enum(['celsius', 'fahrenheit']).default('celsius'),
   }),
-  output: z.object({ 
-    result: z.number().describe('The calculated result') 
+  output: z.object({
+    temperature: z.number().describe('Current temperature'),
+    condition: z.string().describe('Weather condition (sunny, cloudy, rainy, etc.)'),
+    humidity: z.number().describe('Humidity percentage'),
   }),
-  async handler({ expression }) {
-    // In production, use a safe math parser instead of eval
-    console.log(`Calculating: ${expression}`)
-    const result = eval(expression)
-    return { result }
-  }
+  async handler({ city, units }) {
+    // Simulate API call to weather service
+    console.log(`Fetching weather for ${city}...`)
+
+    // In production, call actual weather API like OpenWeatherMap
+    const temp = units === 'fahrenheit' ? 72 : 22
+    return {
+      temperature: temp,
+      condition: 'sunny',
+      humidity: 65,
+    }
+  },
 })
 ```
 
 > **Tool Anatomy**: Every tool has a name, description, type-safe input/output schemas with Zui, and an async handler function. The description helps the LLM understand when and how to use the tool.
 
-**Using the Tool**:
+**Using the Tool with Exit**:
 
 ```typescript
-const result = await execute({
-  instructions: "What's 15% of 2,847? Show your work.",
-  tools: [calculator],
-  client
+import { Exit } from 'llmz'
+
+const weatherAdviceExit = new Exit({
+  name: 'weatherAdvice',
+  description: 'Provides weather advice with structured output',
+  schema: z.object({
+    advice: z.string().describe('Human-readable weather advice'),
+    umbrellaNeeded: z.boolean().describe('Whether an umbrella is recommended'),
+  }),
 })
 
-if (result.isSuccess()) {
-  console.log('Result:', result.output)
+const result = await execute({
+  instructions: "What's the weather like in San Francisco? Should I bring a jacket?",
+  tools: [getCurrentWeather],
+  exits: [weatherAdviceExit],
+  client,
+})
+
+if (result.isSuccess() && result.is('weatherAdvice')) {
+  console.log('Advice:', result.output.advice)
+  console.log('Umbrella needed:', result.output.umbrellaNeeded)
 }
 ```
 
 **Generated Code Preview**: Here's what the LLM actually generates behind the scenes:
 
+**Iteration #1 - Fetch Weather Data:**
+
 ```typescript
 // LLM automatically generates this TypeScript code:
-const calculation = await calculate({ expression: '2847 * 0.15' })
-const result = calculation.result
+const weather = await getCurrentWeather({ city: 'San Francisco', units: 'celsius' })
 
-return { 
-  action: 'done', 
-  result: `15% of 2,847 is ${result}. Here's how I calculated it: 2,847 × 0.15 = ${result}` 
+// Use 'think' action to let the LLM iterate and generate nuanced advice
+return {
+  action: 'think',
+  weather,
 }
 ```
 
-**Notice**: The LLM naturally understood percentages, generated the correct expression, and formatted a helpful response. All type-safe and in one execution!
+**Iteration #2 - Generate Intelligent Advice:**
+
+```typescript
+// LLM sees the weather data from previous iteration and generates:
+// Note: the 'weather' variable survives across iterations automatically
+const advice = `It's ${weather.temperature}°C and ${weather.condition} in San Francisco! That's perfect weather - you won't need a jacket. The sunny conditions and comfortable temperature make it ideal for outdoor activities. Just bring sunglasses and enjoy the beautiful day!`
+
+return {
+  action: 'weatherAdvice',
+  advice,
+  umbrellaNeeded: weather.condition === 'rainy',
+}
+```
+
+**Notice**: The LLM fetched weather data, used the `think` action to iterate and generate personalized advice based on the conditions. More intelligent than hardcoded logic!
 
 ### Example 2: Complex Multi-Tool Workflows
 
@@ -259,7 +303,7 @@ const ToolC = new Tool({
 const result = await execute({
   instructions: "Get data from tool A, filter tool B's array for numbers > 50, then process everything with tool C.",
   tools: [ToolA, ToolB, ToolC],
-  client
+  client,
 })
 ```
 
@@ -271,17 +315,18 @@ const dataA = await getData()
 const deepNumber = dataA.pick.deep.deep_number
 
 const arrayB = await generateArray()
-const filteredArray = arrayB.filter(num => num > 50)
+const filteredArray = arrayB.filter((num) => num > 50)
 
 const result = await processData({
   number: deepNumber,
-  filteredArray: filteredArray
+  filteredArray: filteredArray,
 })
 
 return { action: 'exit', result }
 ```
 
-**Revolutionary**: Three tools coordinated with data extraction, filtering, and processing — all in one LLM call! Traditional frameworks would need 6+ API calls:
+Three tools coordinated with data extraction, filtering, and processing — all in one LLM call! Traditional frameworks would need 6+ API calls:
+
 1. Call tool A → 2. Parse response → 3. Extract nested data → 4. Call tool B → 5. Parse response → 6. Filter array → 7. Call tool C → 8. Parse final response
 
 ### Example 3: Interactive Chat with UI Components
@@ -303,14 +348,16 @@ const PlaneTicket = new Component({
       to: z.string().describe('The destination city'),
       date: z.string().describe('The date of the flight (YYYY-MM-DD)'),
       price: z.number().optional().describe('The price of the ticket'),
-    })
+    }),
   },
   // Provide usage examples to guide the LLM
-  examples: [{
-    name: 'PlaneTicket',
-    description: 'A simple plane ticket example',
-    code: '<PlaneTicket from="New York" to="Los Angeles" date="2023-10-01" price={299.99} ticketNumber="ABC-0000000" />'
-  }]
+  examples: [
+    {
+      name: 'PlaneTicket',
+      description: 'A simple plane ticket example',
+      code: '<PlaneTicket from="New York" to="Los Angeles" date="2023-10-01" price={299.99} ticketNumber="ABC-0000000" />',
+    },
+  ],
 })
 ```
 
@@ -340,9 +387,9 @@ const purchaseTicket = new Tool({
     return {
       price: 299.99,
       ticketNumber: `TICKET-${Date.now()}`,
-      confirmation: `Ticket from ${from} to ${to} on ${date} purchased successfully!`
+      confirmation: `Ticket from ${from} to ${to} on ${date} purchased successfully!`,
     }
-  }
+  },
 })
 
 const chat = new CLIChat()
@@ -362,10 +409,11 @@ chat.registerComponent(PlaneTicket, async (message) => {
 
 while (await chat.iterate()) {
   await execute({
-    instructions: 'You are a friendly flight booking assistant. Help users purchase tickets and display them using the PlaneTicket component.',
+    instructions:
+      'You are a friendly flight booking assistant. Help users purchase tickets and display them using the PlaneTicket component.',
     tools: [purchaseTicket],
     chat, // Components automatically available in chat mode
-    client
+    client,
   })
 }
 ```
@@ -380,7 +428,7 @@ yield <Text>I'll help you book a flight from New York to Los Angeles!</Text>
 
 const ticket = await purchase_ticket({
   from: 'New York',
-  to: 'Los Angeles', 
+  to: 'Los Angeles',
   date: '2024-12-15'
 })
 
@@ -399,7 +447,7 @@ yield <Text>Your booking is confirmed! Have a great trip! ✈️</Text>
 return { action: 'listen' }
 ```
 
-**Mind-blowing**: The LLM understands JSX syntax, calls tools, handles data flow, and renders beautiful components — all naturally!
+The LLM understands JSX syntax, calls tools, handles data flow, and renders beautiful components — all naturally!
 
 ---
 
@@ -410,16 +458,17 @@ return { action: 'listen' }
 **Computational Tasks**: When you need focused, deterministic execution without user interaction:
 
 - **Data processing and analysis**: "Process this CSV and find trends"
-- **Mathematical computations**: "Calculate compound interest over 10 years" 
+- **Mathematical computations**: "Calculate compound interest over 10 years"
 - **Batch operations**: "Resize 100 images and upload to S3"
 - **API integrations**: "Sync user data between systems"
 - **File transformations**: "Convert XML to JSON with validation"
 
-**Real Example**: 
+**Real Example**:
+
 ```typescript
 const result = await execute({
-  instructions: "Calculate the sum of all integers between 14 and 1078 that are divisible by 3, 9 or 5",
-  client
+  instructions: 'Calculate the sum of all integers between 14 and 1078 that are divisible by 3, 9 or 5',
+  client,
 })
 // Returns: computed result in seconds
 ```
@@ -435,13 +484,14 @@ const result = await execute({
 - **Real-time assistance**: Immediate help with visual feedback
 
 **Real Example**:
+
 ```typescript
 const chat = new CLIChat()
 while (await chat.iterate()) {
   await execute({
     instructions: "You're a helpful math tutor. Use buttons to suggest practice topics.",
     chat,
-    client
+    client,
   })
 }
 // Interactive tutoring with rich UI components
@@ -456,7 +506,7 @@ while (await chat.iterate()) {
 **Tool Anatomy**: Every LLMz tool is designed for reliability and clarity:
 
 - **Type-Safe**: Input/output validation with Zui schemas catches errors before execution
-- **Retry Logic**: Automatic retry with exponential backoff handles transient failures  
+- **Retry Logic**: Automatic retry with exponential backoff handles transient failures
 - **Rich Descriptions**: Detailed descriptions help LLMs understand when and how to use tools
 - **Static Inputs**: Pre-fill common parameters to reduce complexity
 - **Aliases**: Multiple names for the same tool for natural language flexibility
@@ -477,26 +527,26 @@ const apiTool = new Tool({
   retry: ({ attempt, error }) => {
     // Retry up to 3 times, but not for auth errors
     return attempt < 3 && !error.message.includes('Unauthorized')
-  }
+  },
 })
 
 // Tool with static inputs (pre-configured parameters)
 const webSearch = new Tool({
   name: 'search',
   description: 'Search the web for information',
-  input: z.object({ 
+  input: z.object({
     query: z.string(),
     count: z.number().default(10),
-    browsePages: z.boolean().default(false)
+    browsePages: z.boolean().default(false),
   }),
   output: z.object({ results: z.array(z.any()) }),
   async handler({ query, count, browsePages }) {
     // Search implementation
     return { results: [] }
-  }
+  },
 }).setStaticInputValues({
-  count: 10,           // Always return 10 results
-  browsePages: false   // Never auto-browse pages
+  count: 10, // Always return 10 results
+  browsePages: false, // Never auto-browse pages
 })
 
 // Tool with conditional authentication
@@ -511,7 +561,7 @@ const secureAction = new Tool({
       throw new Error('Unauthorized: Admin access required')
     }
     return { success: true }
-  }
+  },
 })
 ```
 
@@ -526,11 +576,11 @@ import { z } from '@bpinternal/zui'
 const successExit = new Exit({
   name: 'success',
   description: 'Task completed successfully with results',
-  schema: z.object({ 
+  schema: z.object({
     result: z.string().describe('The final result or outcome'),
     confidence: z.number().min(0).max(1).describe('Confidence level 0-1'),
-    timestamp: z.string().optional().describe('When the task completed')
-  })
+    timestamp: z.string().optional().describe('When the task completed'),
+  }),
 })
 ```
 
@@ -540,39 +590,39 @@ const successExit = new Exit({
 
 ```typescript
 const exits = [
-  new Exit({ 
-    name: 'success', 
+  new Exit({
+    name: 'success',
     description: 'Task completed successfully',
-    schema: z.object({ 
+    schema: z.object({
       data: z.any().describe('The processed data'),
-      summary: z.string().describe('Human-readable summary')
-    }) 
+      summary: z.string().describe('Human-readable summary'),
+    }),
   }),
-  new Exit({ 
-    name: 'needsMoreInfo', 
+  new Exit({
+    name: 'needsMoreInfo',
     description: 'Need additional information from user',
-    schema: z.object({ 
+    schema: z.object({
       question: z.string().describe('What information is needed'),
-      suggestedAnswers: z.array(z.string()).optional()
-    }) 
+      suggestedAnswers: z.array(z.string()).optional(),
+    }),
   }),
-  new Exit({ 
-    name: 'partialSuccess', 
+  new Exit({
+    name: 'partialSuccess',
     description: 'Task partially completed with some issues',
-    schema: z.object({ 
+    schema: z.object({
       completedItems: z.array(z.string()),
       failedItems: z.array(z.string()),
-      errors: z.array(z.string())
-    }) 
-  })
+      errors: z.array(z.string()),
+    }),
+  }),
 ]
 
 // Usage in execute:
 const result = await execute({
-  instructions: "Process this data file and handle any issues gracefully",
+  instructions: 'Process this data file and handle any issues gracefully',
   tools: [processData, validateData],
   exits,
-  client
+  client,
 })
 
 // Type-safe result handling:
@@ -601,33 +651,30 @@ const UserProfileObject = new ObjectInstance({
       description: 'The name of the user',
       type: z.string().nullable(),
       value: null, // Current value
-      writable: true // Allow LLM to modify
+      writable: true, // Allow LLM to modify
     },
     {
       name: 'age',
       description: 'The age of the user',
-      type: z.number()
-        .min(18, 'Must be at least 18 years old')
-        .max(40, 'Cannot be above 40 years old')
-        .nullable(),
+      type: z.number().min(18, 'Must be at least 18 years old').max(40, 'Cannot be above 40 years old').nullable(),
       value: null,
-      writable: true
+      writable: true,
     },
     {
       name: 'email',
       description: 'The user email address',
       type: z.string().email().nullable(),
       value: null,
-      writable: true
+      writable: true,
     },
     {
       name: 'apiKey',
       description: 'Secret API key',
       type: z.string(),
       value: 'secret-key-123',
-      writable: false // Read-only for security
-    }
-  ]
+      writable: false, // Read-only for security
+    },
+  ],
 })
 ```
 
@@ -656,8 +703,9 @@ return { action: 'listen' }
 ```
 
 **Powerful Features**:
+
 - **State Management**: Properties persist across tool calls within execution
-- **Type Safety**: All properties validated against Zui schemas  
+- **Type Safety**: All properties validated against Zui schemas
 - **Read/Write Control**: Protect sensitive data with readonly properties
 - **Validation**: Rich constraints with custom error messages
 
@@ -685,26 +733,21 @@ const searchKnowledgeBase = new Tool({
       tags: { purpose: 'support' },
       limit: 10,
       contextDepth: 3,
-      consolidate: true
+      consolidate: true,
     })
 
     if (!passages.length) {
-      throw new ThinkSignal(
-        'No results found',
-        'No results found in knowledge base. Escalate to human support.'
-      )
+      throw new ThinkSignal('No results found', 'No results found in knowledge base. Escalate to human support.')
     }
 
     // Format results with citations
-    const results = passages.map((p, i) => 
-      `[${i+1}] ${p.content}`
-    ).join('\n\n')
-    
+    const results = passages.map((p, i) => `[${i + 1}] ${p.content}`).join('\n\n')
+
     throw new ThinkSignal(
       'Found relevant information',
       `Search results:\n${results}\n\nUse this information to help the customer.`
     )
-  }
+  },
 })
 
 const createTicket = new Tool({
@@ -713,19 +756,19 @@ const createTicket = new Tool({
   input: z.object({
     issue: z.string().describe('Description of the issue'),
     priority: z.enum(['low', 'medium', 'high']).describe('Issue priority'),
-    category: z.string().describe('Issue category')
+    category: z.string().describe('Issue category'),
   }),
   output: z.object({
     ticketId: z.string(),
-    estimatedResolution: z.string()
+    estimatedResolution: z.string(),
   }),
   async handler({ issue, priority, category }) {
     const ticketId = `TICKET-${Date.now()}`
     const estimatedResolution = priority === 'high' ? '2 hours' : '24 hours'
-    
+
     console.log(`Created ${priority} priority ticket: ${ticketId}`)
     return { ticketId, estimatedResolution }
-  }
+  },
 })
 
 // Support UI components
@@ -738,9 +781,9 @@ const SupportCard = new Component({
       title: z.string(),
       content: z.string(),
       actionLabel: z.string().optional(),
-      urgency: z.enum(['low', 'medium', 'high']).optional()
-    })
-  }
+      urgency: z.enum(['low', 'medium', 'high']).optional(),
+    }),
+  },
 })
 
 const chat = new CLIChat()
@@ -749,7 +792,7 @@ const chat = new CLIChat()
 chat.registerComponent(SupportCard, async (message) => {
   const { title, content, actionLabel, urgency } = message.props
   const urgencyColor = urgency === 'high' ? chalk.red : urgency === 'medium' ? chalk.yellow : chalk.green
-  
+
   console.log(`
     📋 ${chalk.bold(title)}
     ${content}
@@ -769,7 +812,7 @@ while (await chat.iterate()) {
     - Use inline citations when referencing knowledge base results`,
     tools: [searchKnowledgeBase, createTicket],
     chat,
-    client
+    client,
   })
 }
 ```
@@ -783,7 +826,7 @@ while (await chat.iterate()) {
 const searchResults = await search('password reset account access login')
 
 // ThinkSignal provides context, then LLM continues:
-yield <SupportCard 
+yield <SupportCard
   title="Password Reset Issue"
   content="I found instructions for password reset issues. Here's how to regain access to your account:"
   urgency="medium"
@@ -817,6 +860,7 @@ yield <SupportCard
 ```
 
 **Demonstrated Features**:
+
 - **Smart Search**: Automatic knowledge base querying with ThinkSignal
 - **Conditional Logic**: Different paths based on search results and user responses
 - **Rich UI**: Support cards with urgency indicators and action buttons
@@ -837,35 +881,35 @@ const processCSV = new Tool({
   description: 'Process CSV data and extract insights',
   input: z.object({
     csvContent: z.string().describe('Raw CSV content'),
-    analysisType: z.string().describe('Type of analysis to perform')
+    analysisType: z.string().describe('Type of analysis to perform'),
   }),
   output: z.object({
     monthlyGrowth: z.array(z.object({ month: z.string(), growth: z.number() })),
     topProducts: z.array(z.object({ product: z.string(), sales: z.number() })),
-    insights: z.array(z.string())
+    insights: z.array(z.string()),
   }),
   async handler({ csvContent, analysisType }) {
     // Simulate CSV processing
     console.log(`Processing ${csvContent.split('\n').length} rows of data...`)
-    
+
     return {
       monthlyGrowth: [
         { month: 'Jan', growth: 0.15 },
         { month: 'Feb', growth: 0.08 },
-        { month: 'Mar', growth: 0.22 }
+        { month: 'Mar', growth: 0.22 },
       ],
       topProducts: [
         { product: 'Widget Pro', sales: 45000 },
         { product: 'Device X', sales: 38000 },
-        { product: 'Tool Kit', sales: 29000 }
+        { product: 'Tool Kit', sales: 29000 },
       ],
       insights: [
         'Strong Q1 performance with 15% average growth',
         'Widget Pro leads sales by significant margin',
-        'March showed exceptional 22% growth spike'
-      ]
+        'March showed exceptional 22% growth spike',
+      ],
     }
-  }
+  },
 })
 
 const generateReport = new Tool({
@@ -873,31 +917,31 @@ const generateReport = new Tool({
   description: 'Generate formatted analysis report',
   input: z.object({
     data: z.any().describe('Processed analysis data'),
-    title: z.string().describe('Report title')
+    title: z.string().describe('Report title'),
   }),
   output: z.object({
     report: z.string().describe('Formatted report content'),
-    summary: z.string().describe('Executive summary')
+    summary: z.string().describe('Executive summary'),
   }),
   async handler({ data, title }) {
     const report = `
 # ${title}
 
 ## Monthly Growth Analysis
-${data.monthlyGrowth.map(m => `- ${m.month}: ${(m.growth * 100).toFixed(1)}%`).join('\n')}
+${data.monthlyGrowth.map((m) => `- ${m.month}: ${(m.growth * 100).toFixed(1)}%`).join('\n')}
 
 ## Top Performing Products
-${data.topProducts.map((p, i) => `${i+1}. ${p.product}: $${p.sales.toLocaleString()}`).join('\n')}
+${data.topProducts.map((p, i) => `${i + 1}. ${p.product}: $${p.sales.toLocaleString()}`).join('\n')}
 
 ## Key Insights
-${data.insights.map(insight => `• ${insight}`).join('\n')}
+${data.insights.map((insight) => `• ${insight}`).join('\n')}
     `
-    
+
     return {
       report,
-      summary: `Analysis complete: ${data.monthlyGrowth.length} months analyzed, ${data.topProducts.length} top products identified`
+      summary: `Analysis complete: ${data.monthlyGrowth.length} months analyzed, ${data.topProducts.length} top products identified`,
     }
-  }
+  },
 })
 
 // Execute complete analysis pipeline
@@ -912,15 +956,17 @@ const result = await execute({
   `,
   objects: [fileSystem],
   tools: [processCSV, generateReport],
-  exits: [new Exit({ 
-    name: 'analysisComplete', 
-    schema: z.object({ 
-      reportPath: z.string(),
-      summary: z.string(),
-      keyFindings: z.array(z.string())
-    }) 
-  })],
-  client
+  exits: [
+    new Exit({
+      name: 'analysisComplete',
+      schema: z.object({
+        reportPath: z.string(),
+        summary: z.string(),
+        keyFindings: z.array(z.string()),
+      }),
+    }),
+  ],
+  client,
 })
 
 if (result.isSuccess()) {
@@ -938,7 +984,7 @@ console.log('Loaded sales data from file')
 
 const analysis = await processCSV({
   csvContent: csvData,
-  analysisType: 'quarterly_performance'
+  analysisType: 'quarterly_performance',
 })
 
 // LLM automatically generates insights and validation
@@ -955,7 +1001,7 @@ if (analysis.topProducts[0].sales > 40000) {
 
 const report = await generateReport({
   data: analysis,
-  title: 'Q1 2024 Sales Performance Analysis'
+  title: 'Q1 2024 Sales Performance Analysis',
 })
 
 await fs.writeFile('q1-analysis-report.md', report.report)
@@ -964,11 +1010,12 @@ return {
   action: 'analysisComplete',
   reportPath: 'q1-analysis-report.md',
   summary: report.summary,
-  keyFindings: [...analysis.insights, ...insights]
+  keyFindings: [...analysis.insights, ...insights],
 }
 ```
 
 **Revolutionary Benefits**:
+
 - **Single Execution**: Entire pipeline runs in one LLM call - no orchestration needed
 - **Smart Analysis**: LLM generates insights and business logic, not just data processing
 - **File Operations**: Seamless integration with file system through object namespacing
@@ -986,58 +1033,54 @@ const agents = [
   {
     name: 'MainAgent',
     description: 'Customer service coordinator and general inquiries',
-    positive_examples: [
-      'General questions', 'Account information', 'Billing inquiries'
-    ],
-    instructions: 'You are the main customer service agent. Help with general inquiries and route complex issues to specialists.',
-    tools: [generalHelp, accountLookup]
+    positive_examples: ['General questions', 'Account information', 'Billing inquiries'],
+    instructions:
+      'You are the main customer service agent. Help with general inquiries and route complex issues to specialists.',
+    tools: [generalHelp, accountLookup],
   },
   {
-    name: 'HRAgent', 
+    name: 'HRAgent',
     description: 'Human Resources specialist for employee matters',
-    positive_examples: [
-      'Employee benefits', 'Leave requests', 'HR policies'
-    ],
+    positive_examples: ['Employee benefits', 'Leave requests', 'HR policies'],
     instructions: 'You are an HR specialist. Handle employee-related inquiries with confidentiality and care.',
-    tools: [hrPolicies, leaveManagement, benefitsInfo]
+    tools: [hrPolicies, leaveManagement, benefitsInfo],
   },
   {
     name: 'ITAgent',
-    description: 'Technical support for IT issues', 
-    positive_examples: [
-      'Password resets', 'Software issues', 'Hardware problems'
-    ],
+    description: 'Technical support for IT issues',
+    positive_examples: ['Password resets', 'Software issues', 'Hardware problems'],
     instructions: 'You are an IT support specialist. Solve technical problems efficiently.',
-    tools: [passwordReset, systemDiagnostics, softwareSupport]
+    tools: [passwordReset, systemDiagnostics, softwareSupport],
   },
   {
     name: 'SalesAgent',
     description: 'Sales and product information specialist',
-    positive_examples: [
-      'Product information', 'Pricing', 'Sales inquiries'
-    ],
+    positive_examples: ['Product information', 'Pricing', 'Sales inquiries'],
     instructions: 'You are a sales specialist. Help customers with product information and sales.',
-    tools: [productCatalog, pricingInfo, salesQuotes]
-  }
+    tools: [productCatalog, pricingInfo, salesQuotes],
+  },
 ]
 
 // Multi-agent orchestration system
 class MultiAgentOrchestrator {
   private currentAgent: string
-  
-  constructor(private agents: Agent[], initialAgent: string) {
+
+  constructor(
+    private agents: Agent[],
+    initialAgent: string
+  ) {
     this.currentAgent = initialAgent
   }
-  
+
   get context() {
-    const agent = this.agents.find(a => a.name === this.currentAgent)
-    const availableAgents = this.agents.filter(a => a.name !== this.currentAgent)
-    
+    const agent = this.agents.find((a) => a.name === this.currentAgent)
+    const availableAgents = this.agents.filter((a) => a.name !== this.currentAgent)
+
     return {
       instructions: `${agent.instructions}
       
       Available specialists for handoff:
-      ${availableAgents.map(a => `- ${a.name}: ${a.description}`).join('\n')}
+      ${availableAgents.map((a) => `- ${a.name}: ${a.description}`).join('\n')}
       
       Use the 'handoff' exit to transfer complex inquiries to the appropriate specialist.`,
       tools: agent.tools,
@@ -1048,14 +1091,14 @@ class MultiAgentOrchestrator {
           schema: z.object({
             targetAgent: z.string(),
             reason: z.string(),
-            context: z.string()
-          })
+            context: z.string(),
+          }),
         }),
-        new Exit({ name: 'resolved', schema: z.object({ solution: z.string() }) })
-      ]
+        new Exit({ name: 'resolved', schema: z.object({ solution: z.string() }) }),
+      ],
     }
   }
-  
+
   hasHandedOff(result: ExecutionResult): boolean {
     if (result.is('handoff')) {
       console.log(`🔄 Handoff: ${this.currentAgent} → ${result.output.targetAgent}`)
@@ -1075,9 +1118,9 @@ while (true) {
   const result = await execute({
     ...orchestrator.context, // Dynamic agent context
     client,
-    chat
+    chat,
   })
-  
+
   if (!orchestrator.hasHandedOff(result)) {
     // No handoff - wait for next user input
     await chat.prompt()
@@ -1087,8 +1130,9 @@ while (true) {
 ```
 
 **Key Features**:
+
 - **Dynamic Context**: Each agent has specialized tools and instructions
-- **Seamless Handoffs**: Agents intelligently route complex inquiries to specialists  
+- **Seamless Handoffs**: Agents intelligently route complex inquiries to specialists
 - **Conversation Continuity**: Context preserved across agent transitions
 - **Scalable Architecture**: Easily add new specialized agents
 - **Automatic Routing**: LLM decides when and where to hand off conversations
@@ -1162,7 +1206,7 @@ while (true) {
 - 📚 **Complete Guide**: `/docs/llmz-complete-guide.md` - Comprehensive documentation
 - 🔬 **Examples Repository**: `/examples/` - 20+ practical examples in the LLMz repo
 - 🏃‍♂️ **Quick Start**: Run `pnpm start` in examples directory to explore
-- 🐛 **Report Issues**: GitHub Issues for bugs and feature requests  
+- 🐛 **Report Issues**: GitHub Issues for bugs and feature requests
 - 🎮 **Try Examples**: Start with `01_chat_basic` and `11_worker_minimal`
 - 🌟 **Production Use**: LLMz powers millions of agents at Botpress
 
@@ -1184,7 +1228,7 @@ while (true) {
 **Key Benefits Summary**:
 
 - ⚡ **10x Faster**: Single-turn execution vs multiple API calls
-- 🔒 **Production Ready**: Security, monitoring, and error handling built-in  
+- 🔒 **Production Ready**: Security, monitoring, and error handling built-in
 - 🧑‍💻 **Developer Friendly**: TypeScript ecosystem and tooling
 - 🎨 **Rich UIs**: React-like component system for interactive experiences
 - 📈 **Scalable**: From simple scripts to complex multi-agent systems
