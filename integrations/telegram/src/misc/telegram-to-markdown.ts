@@ -53,7 +53,7 @@ const _handlers: Record<string, MarkHandler> = {
     return `[${text}](mailto:${text})`
   },
   // Underline does nothing because the commonmark spec doesn't support it.
-  underline: (text: string, _: Record<string, unknown>) => text,
+  underline: (text: string) => text,
 }
 
 export function isOverlapping(a: Range, b: Range) {
