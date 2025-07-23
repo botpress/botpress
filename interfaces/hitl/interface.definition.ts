@@ -32,8 +32,14 @@ const messageSchema = sdk.z.union(messagePayloadSchemas as Tuple<sdk.AnyZodObjec
 
 export default new sdk.InterfaceDefinition({
   name: 'hitl',
-  version: '1.1.3',
-  entities: {},
+  version: '2.0.0',
+  entities: {
+    hitlSession: {
+      title: 'HITL session',
+      description: 'A HITL session, often referred to as a ticket or conversation in external systems',
+      schema: sdk.z.object({}),
+    },
+  },
   events: {
     hitlAssigned: {
       attributes: {
@@ -101,7 +107,7 @@ export default new sdk.InterfaceDefinition({
       title: 'Start new HITL session', // <= this is a downstream conversation / ticket
       description: 'Create a new HITL session in the external service and in Botpress',
       input: {
-        schema: () =>
+        schema: (entities) =>
           sdk.z.object({
             // Also known as downstreamUserId:
             userId: sdk.z.string().title('User ID').describe('ID of the Botpress user representing the end user'),
@@ -121,6 +127,11 @@ export default new sdk.InterfaceDefinition({
                 'Description of the HITL session. This corresponds to a ticket description in systems that use tickets.'
               )
               .optional(),
+
+            hitlSession: entities.hitlSession
+              .optional()
+              .title('Extra configuration')
+              .describe('Configuration of the HITL session'),
 
             // All messages sent prior to HITL session creation:
             messageHistory: sdk.z
