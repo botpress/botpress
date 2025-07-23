@@ -1,14 +1,18 @@
-import { meta } from '@botpress/common'
+import { isSandboxCommand, meta } from '@botpress/common'
 import { getClientSecret, getVerifyToken } from '../misc/auth'
 import { messengerPayloadSchema } from '../misc/types'
 import { safeJsonParse } from '../misc/utils'
-import { oauthHandler, messageHandler } from './handlers'
+import { oauthHandler, messageHandler, sandboxHandler } from './handlers'
 import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, client, ctx, logger } = props
   if (req.path.startsWith('/oauth')) {
     return oauthHandler({ req, client, ctx, logger })
+  }
+
+  if (isSandboxCommand(props)) {
+    return await sandboxHandler(props)
   }
 
   logger.debug('Received request with body:', req.body ?? '[empty]')

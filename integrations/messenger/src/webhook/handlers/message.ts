@@ -46,8 +46,8 @@ export async function handler(
       logger.forBot().debug('Fetched latest Messenger user profile: ', profile)
 
       await client.updateUser({ id: user.id, name: profile.name, pictureUrl: profile.profilePic })
-    } catch (error) {
-      logger.forBot().error('Error while fetching user profile from Messenger:', error)
+    } catch (error: any) {
+      logger.forBot().error('Error while fetching user profile from Messenger:', error?.message ?? '[Unknown error]')
     }
   }
 

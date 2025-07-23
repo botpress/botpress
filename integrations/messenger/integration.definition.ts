@@ -44,6 +44,11 @@ export default new IntegrationDefinition({
         pageId: z.string().min(1).describe('Id from the Facebook page').title('Page ID'),
       }),
     },
+    sandbox: {
+      title: 'Sandbox Configuration',
+      description: 'Sandbox configuration, for testing purposes only',
+      schema: z.object({}),
+    },
   },
   identifier: {
     extractScript: 'extract.vrl',
@@ -102,6 +107,21 @@ export default new IntegrationDefinition({
     },
     ACCESS_TOKEN: {
       description: 'Access token for internal Meta App',
+    },
+    SANDBOX_CLIENT_ID: {
+      description: 'The client ID of the Sandbox Meta app',
+    },
+    SANDBOX_CLIENT_SECRET: {
+      description: 'The client secret of the Sandbox Meta app',
+    },
+    SANDBOX_VERIFY_TOKEN: {
+      description: 'The verify token for the Sandbox Meta App Webhooks subscription',
+    },
+    SANDBOX_ACCESS_TOKEN: {
+      description: 'Access token for the Sandbox Meta App',
+    },
+    SANDBOX_PAGE_ID: {
+      description: 'Page ID for the Sandbox Facebook page',
     },
   },
   user: {
