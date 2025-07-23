@@ -364,10 +364,10 @@ describe.each([
       {
         offset: 6,
         length: 12,
-        type: 'underline',
+        type: 'strikethrough',
       },
     ],
-    expects: 'Hello ***Many Effects*** World',
+    expects: 'Hello ~~***Many Effects***~~ World',
     description: "Apply multiple effects to phrase 'Many Effects'",
   },
   {
