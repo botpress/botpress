@@ -5,6 +5,7 @@ import { clamp, isEqual, isPlainObject, omit } from 'lodash-es'
 import ms from 'ms'
 
 import { ulid } from 'ulid'
+import { createJoinedAbortController } from './abort-signal.js'
 import { Chat } from './chat.js'
 import { Context, Iteration } from './context.js'
 import {
@@ -71,7 +72,7 @@ export type ExecutionHooks = {
    * This hook will be called after each iteration ends, regardless of the status.
    * This is useful for logging, cleanup or to prevent or delay the next iteration from starting.
    */
-  onIterationEnd?: (iteration: Iteration) => Promise<void> | void
+  onIterationEnd?: (iteration: Iteration, controller: AbortController) => Promise<void> | void
 
   /**
    * BLOCKING HOOK
@@ -95,7 +96,7 @@ export type ExecutionHooks = {
    * This hook is called after the LLM generates the code for the iteration, but before it is executed.
    * It is useful for modifying the code to run, or for guarding against certain code patterns.
    */
-  onBeforeExecution?: (iteration: Iteration) => Promise<{ code?: string }>
+  onBeforeExecution?: (iteration: Iteration, controller: AbortController) => Promise<{ code?: string } | void>
 
   /**
    * BLOCKING HOOK
@@ -106,7 +107,12 @@ export type ExecutionHooks = {
    * This hook is called before any tool is executed.
    * It is useful for modifying the input to a tool or prevent a tool from executing.
    */
-  onBeforeTool?: (event: { iteration: Iteration; tool: Tool; input: any }) => Promise<{ input?: any }>
+  onBeforeTool?: (event: {
+    iteration: Iteration
+    tool: Tool
+    input: any
+    controller: AbortController
+  }) => Promise<{ input?: any } | void>
 
   /**
    * BLOCKING HOOK
@@ -117,7 +123,13 @@ export type ExecutionHooks = {
    * This hook is called after a tool is executed.
    * It is useful for modifying the output of a tool or for logging purposes.
    */
-  onAfterTool?: (event: { iteration: Iteration; tool: Tool; input: any; output: any }) => Promise<{ output?: any }>
+  onAfterTool?: (event: {
+    iteration: Iteration
+    tool: Tool
+    input: any
+    output: any
+    controller: AbortController
+  }) => Promise<{ output?: any } | void>
 }
 
 type Options = Partial<Pick<Context, 'loop' | 'temperature' | 'model' | 'timeout'>>
@@ -219,7 +231,8 @@ export const executeContext = async (props: ExecutionProps): Promise<ExecutionRe
 }
 
 export const _executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
-  const { signal, onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
+  const controller = createJoinedAbortController([props.signal])
+  const { onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
   const cognitive = Cognitive.isCognitiveClient(props.client) ? props.client : new Cognitive({ client: props.client })
   const cleanups: (() => void)[] = []
 
@@ -239,21 +252,20 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
   try {
     while (true) {
       if (ctx.iterations.length >= ctx.loop) {
-        // TODO:
         return new ErrorExecutionResult(ctx, new LoopExceededError())
       }
 
       const iteration = await ctx.nextIteration()
 
-      if (signal?.aborted) {
+      if (controller.signal.aborted) {
         iteration.end({
           type: 'aborted',
           aborted: {
-            reason: signal.reason ?? 'The operation was aborted',
+            reason: controller.signal.reason ?? 'The operation was aborted',
           },
         })
 
-        return new ErrorExecutionResult(ctx, signal.reason ?? 'The operation was aborted')
+        return new ErrorExecutionResult(ctx, controller.signal.reason ?? 'The operation was aborted')
       }
 
       cleanups.push(
@@ -269,7 +281,7 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
           iteration,
           ctx,
           cognitive,
-          abortSignal: signal,
+          controller,
           onExit,
           onBeforeExecution,
           onAfterTool,
@@ -287,7 +299,7 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
       }
 
       try {
-        await onIterationEnd?.(iteration)
+        await onIterationEnd?.(iteration, controller)
       } catch (err) {
         console.error(err)
       }
@@ -338,7 +350,7 @@ const executeIteration = async ({
   iteration,
   ctx,
   cognitive,
-  abortSignal,
+  controller,
   onExit,
   onBeforeExecution,
   onBeforeTool,
@@ -347,7 +359,7 @@ const executeIteration = async ({
   ctx: Context
   iteration: Iteration
   cognitive: Cognitive
-  abortSignal?: AbortController['signal']
+  controller: AbortController
 } & ExecutionHooks): Promise<void> => {
   let startedAt = Date.now()
   const traces = iteration.traces
@@ -374,7 +386,7 @@ const executeIteration = async ({
   })
 
   const output = await cognitive.generateContent({
-    signal: abortSignal,
+    signal: controller.signal,
     systemPrompt: messages.find((x) => x.role === 'system')?.content,
     model: model.ref,
     temperature: ctx.temperature,
@@ -398,7 +410,7 @@ const executeIteration = async ({
 
   if (typeof onBeforeExecution === 'function') {
     try {
-      const hookRes = await onBeforeExecution(iteration)
+      const hookRes = await onBeforeExecution(iteration, controller)
       if (typeof hookRes?.code === 'string' && hookRes.code.trim().length > 0) {
         iteration.code = hookRes.code.trim()
       }
@@ -504,6 +516,7 @@ const executeIteration = async ({
         iteration,
         beforeHook: onBeforeTool,
         afterHook: onAfterTool,
+        controller,
       })
     }
 
@@ -514,13 +527,13 @@ const executeIteration = async ({
   }
 
   for (const tool of iteration.tools) {
-    const wrapped = wrapTool({ tool, traces, iteration, beforeHook: onBeforeTool, afterHook: onAfterTool })
+    const wrapped = wrapTool({ tool, traces, iteration, beforeHook: onBeforeTool, afterHook: onAfterTool, controller })
     for (const key of [tool.name, ...(tool.aliases ?? [])]) {
       vmContext[key] = wrapped
     }
   }
 
-  if (abortSignal?.aborted) {
+  if (controller.signal.aborted) {
     traces.push({
       type: 'abort_signal',
       started_at: Date.now(),
@@ -531,7 +544,7 @@ const executeIteration = async ({
     return iteration.end({
       type: 'aborted',
       aborted: {
-        reason: abortSignal?.reason ?? 'The operation was aborted',
+        reason: controller.signal.reason ?? 'The operation was aborted',
       },
     })
   }
@@ -539,17 +552,21 @@ const executeIteration = async ({
   type Result = Awaited<ReturnType<typeof runAsyncFunction>>
 
   startedAt = Date.now()
-  const result: Result = await runAsyncFunction(vmContext, iteration.code, traces, abortSignal, ctx.timeout).catch(
-    (err) => {
-      return {
-        success: false,
-        error: err as Error,
-        lines_executed: [],
-        traces: [],
-        variables: {},
-      } satisfies Result
-    }
-  )
+  const result: Result = await runAsyncFunction(
+    vmContext,
+    iteration.code,
+    traces,
+    controller.signal,
+    ctx.timeout
+  ).catch((err) => {
+    return {
+      success: false,
+      error: err as Error,
+      lines_executed: [],
+      traces: [],
+      variables: {},
+    } satisfies Result
+  })
 
   if (result.error && result.error instanceof InvalidCodeError) {
     return iteration.end({
@@ -577,11 +594,11 @@ const executeIteration = async ({
     })
   }
 
-  if (abortSignal?.aborted) {
+  if (controller.signal.aborted) {
     return iteration.end({
       type: 'aborted',
       aborted: {
-        reason: abortSignal?.reason ?? 'The operation was aborted',
+        reason: controller.signal.reason ?? 'The operation was aborted',
       },
     })
   }
@@ -714,9 +731,10 @@ type Props = {
   iteration: Iteration
   beforeHook?: ExecutionHooks['onBeforeTool']
   afterHook?: ExecutionHooks['onAfterTool']
+  controller: AbortController
 }
 
-function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook }: Props) {
+function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, controller }: Props) {
   const getToolInput = (input: any) => tool.zInput.safeParse(input).data ?? input
 
   return function (input: any) {
@@ -779,6 +797,7 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook }: Pr
           iteration,
           tool,
           input,
+          controller,
         })
 
         if (typeof beforeRes?.input !== 'undefined') {
@@ -794,6 +813,7 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook }: Pr
           tool,
           input,
           output,
+          controller,
         })
 
         if (typeof afterRes?.output !== 'undefined') {
