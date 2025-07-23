@@ -8,7 +8,7 @@ import {
   splitAnyOverlaps,
 } from './telegram-to-markdown'
 
-function Range(start: number, end: number): Range {
+const Range = (start: number, end: number): Range => {
   return { start, end }
 }
 
@@ -50,7 +50,7 @@ export type TypedRange = {
  * @param {number} start - Inclusive Index
  * @param {number} end - Exclusive Index
  * @param {string | string[]} type */
-function TypedRange(start: number, end: number, type: string | string[]): TypedRange {
+const TypedRange = (start: number, end: number, type: string | string[]): TypedRange => {
   return {
     start,
     end,
@@ -153,7 +153,7 @@ describe.each(splitRangeTestCases)(
   }
 )
 
-interface Mark {
+type Mark = {
   type: string
   offset: number
   length: number

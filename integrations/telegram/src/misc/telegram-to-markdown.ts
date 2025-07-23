@@ -27,9 +27,7 @@ export type MarkSegment = {
   nestedEffects?: MarkSegment[]
 }
 
-type MarkHandler = (text: string, data: Record<string, unknown>) => string
-
-interface TelegramMark {
+export type TelegramMark = {
   type: string
   offset: number
   length: number
@@ -37,6 +35,7 @@ interface TelegramMark {
   language?: string
 }
 
+type MarkHandler = (text: string, data: Record<string, unknown>) => string
 const _handlers: Record<string, MarkHandler> = {
   bold: (text: string) => `**${text}**`,
   italic: (text: string) => `*${text}*`,
@@ -56,11 +55,11 @@ const _handlers: Record<string, MarkHandler> = {
   underline: (text: string) => text,
 }
 
-export function isOverlapping(a: Range, b: Range) {
+export const isOverlapping = (a: Range, b: Range) => {
   return a.start < b.end && b.start < a.end
 }
 
-export function splitIfOverlapping(rangeA: MarkSegment, rangeB: MarkSegment): MarkSegment[] {
+export const splitIfOverlapping = (rangeA: MarkSegment, rangeB: MarkSegment): MarkSegment[] => {
   if (!isOverlapping(rangeA, rangeB)) {
     return [rangeA]
   }
@@ -86,7 +85,7 @@ export function splitIfOverlapping(rangeA: MarkSegment, rangeB: MarkSegment): Ma
   return result
 }
 
-function _combineEffects(range: MarkSegment, otherIndex: number, arr: MarkSegment[]) {
+const _combineEffects = (range: MarkSegment, otherIndex: number, arr: MarkSegment[]) => {
   if (otherIndex !== -1) {
     const otherEffects = arr[otherIndex]?.effects ?? []
     const uniqueEffects = range.effects.filter(
@@ -97,7 +96,7 @@ function _combineEffects(range: MarkSegment, otherIndex: number, arr: MarkSegmen
 }
 
 const _byAscendingStartIndex = (a: MarkSegment, b: MarkSegment) => a.start - b.start
-export function splitAnyOverlaps(ranges: MarkSegment[]): MarkSegment[] {
+export const splitAnyOverlaps = (ranges: MarkSegment[]): MarkSegment[] => {
   const rangesToSplit = [...ranges]
   rangesToSplit.sort(_byAscendingStartIndex)
 
@@ -131,7 +130,7 @@ export function splitAnyOverlaps(ranges: MarkSegment[]): MarkSegment[] {
   )
 }
 
-export function applyMarksToText(text: string, marks: TelegramMark[]) {
+export const applyMarksToText = (text: string, marks: TelegramMark[]) => {
   const segments = marks.map(
     (mark: TelegramMark): MarkSegment => ({
       start: mark.offset,
