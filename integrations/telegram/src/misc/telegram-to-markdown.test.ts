@@ -150,7 +150,7 @@ describe.each(splitRangeTestCases)(
   }
 )
 
-type TestCase = {
+type TelegramToMarkdownTestCase = {
   input: string
   marks: TelegramMark[]
   expects: string
@@ -375,7 +375,7 @@ describe.each([
     expects: 'Hello **Ma*ny Effects*** World',
     description: 'Apply effect encapsulated within another effect',
   },
-] as TestCase[])('Telegram to Markdown Conversion', ({ input, marks, expects, description }) => {
+] as TelegramToMarkdownTestCase[])('Telegram to Markdown Conversion', ({ input, marks, expects, description }) => {
   test(description, () => {
     const consoleWarn = console.warn
 
