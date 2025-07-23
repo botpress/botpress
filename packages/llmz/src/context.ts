@@ -344,7 +344,6 @@ export namespace Context {
     id: string
     iterations: Iteration.JSON[]
     iteration: number
-    version: { name: string }
     timeout: number
     loop: number
     temperature: number
@@ -710,9 +709,6 @@ export class Context implements Serializable<Context.JSON> {
       id: this.id,
       iterations: this.iterations.map((iteration) => iteration.toJSON()),
       iteration: this.iteration,
-      version: {
-        name: this.version.constructor.name,
-      },
       timeout: this.timeout,
       loop: this.loop,
       temperature: this.temperature,

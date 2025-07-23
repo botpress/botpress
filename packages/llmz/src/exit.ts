@@ -70,7 +70,7 @@ export class Exit<T = unknown> implements Serializable<Exit.JSON> {
       description: this.description,
       metadata: { ...this.metadata },
       schema: this.schema,
-    }
+    } satisfies Exit.JSON
   }
 
   public constructor(props: {
