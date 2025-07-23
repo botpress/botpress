@@ -759,7 +759,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     expect(result.iterations).toHaveLength(1)
     assert(result.iterations[0]!.status.type === 'execution_error', 'First iteration should be an execution error')
     expect(result.iterations[0]!.status.execution_error.stack).toMatchInlineSnapshot(`
-      "001 | // Call the demo tool as instructed in Part 3
+      "001 | // Calling the demo tool as per the instructions
         002 | await demo()
       > 003 | return { action: 'done' }
       ...^^^^^^^^^^"
