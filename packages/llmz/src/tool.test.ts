@@ -548,7 +548,16 @@ describe('tool default values', () => {
 
     const result = await tool.execute({ a: 3 })
     expect(result).toBe(6)
-    expect(attempts).toMatchInlineSnapshot(`"declare function add3(args: { a: 23; b: number }): Promise<number>"`)
+    expect(attempts).toMatchInlineSnapshot(`
+      [
+        "attempt with a=3",
+        "retry called for attempt 1 with input={"a":3}",
+        "attempt with a=3",
+        "retry called for attempt 2 with input={"a":3}",
+        "attempt with a=3",
+        "SUCCESS attempt with a=3",
+      ]
+    `)
   })
 
   it('tool retry logic (2)', async () => {
