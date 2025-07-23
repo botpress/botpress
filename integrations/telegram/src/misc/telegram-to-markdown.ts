@@ -1,5 +1,7 @@
 export type Range = {
+  /** Inclusive */
   start: number
+  /** Exclusive */
   end: number
 }
 
@@ -10,7 +12,9 @@ export type MarkEffect = {
 }
 
 export type MarkSegment = {
+  /** Inclusive */
   start: number
+  /** Exclusive */
   end: number
   effects: MarkEffect[]
   /** Sub-effects MUST be within the
@@ -49,13 +53,13 @@ const _handlers: Record<string, MarkHandler> = {
   underline: (text: string, _: Record<string, unknown>) => text,
 }
 
-export function isOverlapping(a: Range, b: Range): boolean {
-  return Math.max(a.start, b.start) <= Math.min(a.end, b.end)
+export function isOverlapping(a: Range, b: Range) {
+  return a.start < b.end && b.start < a.end
 }
 
 export function splitIfOverlapping(rangeA: MarkSegment, rangeB: MarkSegment): MarkSegment[] {
   if (!isOverlapping(rangeA, rangeB)) {
-    return [rangeA, rangeB]
+    return [rangeA]
   }
 
   const result: MarkSegment[] = []
@@ -89,9 +93,10 @@ function _combineEffects(range: MarkSegment, otherIndex: number, arr: MarkSegmen
   }
 }
 
+const _byAscendingStartIndex = (a: MarkSegment, b: MarkSegment) => a.start - b.start
 export function splitAnyOverlaps(ranges: MarkSegment[]): MarkSegment[] {
   const rangesToSplit = [...ranges]
-  rangesToSplit.sort((a, b) => a.start - b.start)
+  rangesToSplit.sort(_byAscendingStartIndex)
 
   if (rangesToSplit.length < 2) {
     return rangesToSplit
@@ -100,20 +105,24 @@ export function splitAnyOverlaps(ranges: MarkSegment[]): MarkSegment[] {
   // TODO: Optimize if possible
   return rangesToSplit.reduce(
     (splitRanges: MarkSegment[], range: MarkSegment) => {
-      return (
-        splitRanges
-          .reduce((arr: MarkSegment[], otherRange: MarkSegment) => {
-            const newRanges = splitIfOverlapping(otherRange, range)
-            return arr.concat(newRanges)
-          }, [])
-          // TODO: Check performance trade-off of moving filter outside the outer "reduce" scope
-          .filter((range: MarkSegment, index: number, arr: MarkSegment[]) => {
-            if (range.start === range.end) return false
-            const otherIndex = arr.findIndex(({ start, end }) => range.start === start && range.end === end)
-            _combineEffects(range, otherIndex, arr)
-            return index === otherIndex
-          })
-      )
+      let newSplitRanges = splitRanges
+        .reduce((arr: MarkSegment[], otherRange: MarkSegment) => {
+          const newRanges = splitIfOverlapping(otherRange, range)
+          return arr.concat(newRanges)
+        }, [])
+        // TODO: Check performance trade-off of moving filter outside the outer "reduce" scope
+        .filter((range: MarkSegment, index: number, arr: MarkSegment[]) => {
+          if (range.start === range.end) return false
+          const otherIndex = arr.findIndex(({ start, end }) => range.start === start && range.end === end)
+          _combineEffects(range, otherIndex, arr)
+          return index === otherIndex
+        })
+
+      if (newSplitRanges.every((otherRange) => !isOverlapping(range, otherRange))) {
+        newSplitRanges = newSplitRanges.concat(range).sort(_byAscendingStartIndex)
+      }
+
+      return newSplitRanges
     },
     [rangesToSplit.shift()!]
   )
@@ -137,7 +146,7 @@ export function applyMarksToText(text: string, marks: TelegramMark[]) {
 
   const plainTextSegment = { start: 0, end: text.length, effects: [] }
   return splitAnyOverlaps(segments.concat(plainTextSegment))
-    .sort((a, b) => a.start - b.start)
+    .sort(_byAscendingStartIndex)
     .map((markSegment) => {
       const { start, end, effects } = markSegment
       let transformedText = text.substring(start, end)
