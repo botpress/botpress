@@ -23,18 +23,20 @@ export { Chat, type MessageHandler } from './chat.js'
 
 import { type ExecutionProps } from './llmz.js'
 import { ExecutionResult } from './result.js'
+import { wrapContent } from './truncator.js'
 import { toValidFunctionName, toValidObjectName } from './utils.js'
 export { Transcript } from './transcript.js'
 export { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
 export { type Trace, type Traces } from './types.js'
 export { type Iteration, ListenExit, ThinkExit, DefaultExit, IterationStatuses, IterationStatus } from './context.js'
+export { type Context } from './context.js'
 export type { LLMzPrompts } from './prompts/prompt.js'
 export { type ValueOrGetter, getValue } from './getter.js'
-export { Serialized } from './serialization.js'
 
 export const utils = {
   toValidObjectName,
   toValidFunctionName,
+  wrapContent,
 }
 
 export const execute = async (props: ExecutionProps) => {

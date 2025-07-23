@@ -3,6 +3,7 @@ import { z } from '@bpinternal/zui'
 import { formatTypings } from './formatting.js'
 import { hoistTypings } from './hoist.js'
 import { Tool } from './tool.js'
+import { Serializable } from './types.js'
 import { getTypings } from './typings.js'
 import { escapeString, getMultilineComment, isValidIdentifier } from './utils.js'
 
@@ -17,7 +18,17 @@ export type ObjectProperty = {
   writable?: boolean
 }
 
-export class ObjectInstance {
+export namespace ObjectInstance {
+  export type JSON = {
+    name: string
+    description?: string
+    properties?: ObjectProperty[]
+    tools?: Tool.JSON[]
+    metadata?: Record<string, unknown>
+  }
+}
+
+export class ObjectInstance implements Serializable<ObjectInstance.JSON> {
   public name: string
   public description?: string
   public properties?: ObjectProperty[]
@@ -113,7 +124,7 @@ export class ObjectInstance {
       properties: this.properties,
       tools: (this.tools ?? []).map((tool) => tool.toJSON()),
       metadata: this.metadata,
-    }
+    } satisfies ObjectInstance.JSON
   }
 }
 

@@ -1,7 +1,7 @@
 import { TypeOf, z, transforms, ZodObject, ZodType } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { isEmpty, uniq } from 'lodash-es'
-import { ZuiType } from './types.js'
+import { Serializable, ZuiType } from './types.js'
 import { getTypings as generateTypings } from './typings.js'
 import { convertObjectToZuiLiterals, isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
 
@@ -20,7 +20,20 @@ type ToolCallContext = {
   callId: string
 }
 
-export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
+export namespace Tool {
+  export type JSON = {
+    name: string
+    aliases: string[]
+    description?: string
+    metadata: Record<string, unknown>
+    input?: JSONSchema7
+    output?: JSONSchema7
+    staticInputValues?: SmartPartial<TypeOf<ZuiType>>
+    maxRetries: number
+  }
+}
+
+export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> implements Serializable<Tool.JSON> {
   private _staticInputValues?: unknown
 
   public name: string
@@ -303,6 +316,6 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
       output: this.output,
       staticInputValues: this._staticInputValues,
       maxRetries: this.MAX_RETRIES,
-    }
+    } satisfies Tool.JSON
   }
 }

@@ -1,7 +1,7 @@
 import { transforms } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { uniq } from 'lodash-es'
-import { ZuiType } from './types.js'
+import { Serializable, ZuiType } from './types.js'
 import { isJsonSchema, isValidIdentifier, isZuiSchema } from './utils.js'
 
 export type ExitResult<T = unknown> = {
@@ -9,7 +9,17 @@ export type ExitResult<T = unknown> = {
   result: T
 }
 
-export class Exit<T = unknown> {
+export namespace Exit {
+  export type JSON = {
+    name: string
+    aliases: string[]
+    description: string
+    metadata: Record<string, unknown>
+    schema?: JSONSchema7
+  }
+}
+
+export class Exit<T = unknown> implements Serializable<Exit.JSON> {
   public name: string
   public aliases: string[] = []
   public description: string
