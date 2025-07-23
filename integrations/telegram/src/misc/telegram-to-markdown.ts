@@ -17,11 +17,14 @@ export type MarkSegment = {
   /** Exclusive */
   end: number
   effects: MarkEffect[]
-  /** Sub-effects MUST be within the
-   *  bounds of the parent segment
+  /** A set of effect(s) that are encompassed by a parent effect scope
    *
-   *  @remark TBD if I'll integrate this (currently unused) */
-  subEffects?: MarkSegment[]
+   *  @remark The nested effects' range MUST be within the parent's bounds
+   *  @remark This is currently unused, but should be implemented
+   *   since having the same effect ending on one character and then
+   *   starting on next character tends to not parse correctly. This
+   *   could lead to unforeseen interpretations by an autonomous node. */
+  nestedEffects?: MarkSegment[]
 }
 
 type MarkHandler = (text: string, data: Record<string, unknown>) => string
@@ -145,29 +148,38 @@ export function applyMarksToText(text: string, marks: TelegramMark[]) {
   )
 
   const plainTextSegment = { start: 0, end: text.length, effects: [] }
-  return splitAnyOverlaps(segments.concat(plainTextSegment))
-    .sort(_byAscendingStartIndex)
-    .map((markSegment) => {
-      const { start, end, effects } = markSegment
-      let transformedText = text.substring(start, end)
+  return (
+    splitAnyOverlaps(segments.concat(plainTextSegment))
+      .sort(_byAscendingStartIndex)
+      /** TODO: Implement post-process optimization step to join contiguous
+       *   ranges if at least one effect is identical. This will then nest the
+       *   partial range effect within.
+       *
+       *   @remark "Hello World" where whole string is bold, but only "World"
+       *    is strikethrough currently yields "**Hello ****~~World~~**". The proposed
+       *    TODO above would change that to "**Hello ~~World~~**". */
+      .map((markSegment) => {
+        const { start, end, effects } = markSegment
+        let transformedText = text.substring(start, end)
 
-      for (const effect of effects) {
-        const { type, url, language } = effect
+        for (const effect of effects) {
+          const { type, url, language } = effect
 
-        // @ts-ignore
-        const handler = _handlers[type] as Function | undefined
-        if (!handler) {
-          console.warn(`Unknown mark type: ${type}`)
-          continue
+          // @ts-ignore
+          const handler = _handlers[type] as Function | undefined
+          if (!handler) {
+            console.warn(`Unknown mark type: ${type}`)
+            continue
+          }
+
+          transformedText = handler(transformedText, {
+            url,
+            language,
+          })
         }
 
-        transformedText = handler(transformedText, {
-          url,
-          language,
-        })
-      }
-
-      return transformedText
-    })
-    .join('')
+        return transformedText
+      })
+      .join('')
+  )
 }
