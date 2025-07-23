@@ -11,11 +11,7 @@ export type MarkEffect = {
   language?: string
 }
 
-export type MarkSegment = {
-  /** Inclusive */
-  start: number
-  /** Exclusive */
-  end: number
+export type MarkSegment = Range & {
   effects: MarkEffect[]
   /** A set of effect(s) that are encompassed by a parent effect scope
    *

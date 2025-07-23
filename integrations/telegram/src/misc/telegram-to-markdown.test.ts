@@ -2,10 +2,11 @@ import { describe, expect, test } from 'vitest'
 import {
   applyMarksToText,
   isOverlapping,
-  MarkEffect,
-  MarkSegment,
-  Range,
   splitAnyOverlaps,
+  type MarkEffect,
+  type MarkSegment,
+  type Range,
+  type TelegramMark,
 } from './telegram-to-markdown'
 
 const Range = (start: number, end: number): Range => {
@@ -37,11 +38,7 @@ describe.each(isOverlappingTestCases)(
   }
 )
 
-export type TypedRange = {
-  /** Inclusive */
-  start: number
-  /** Exclusive */
-  end: number
+export type TypedRange = Range & {
   type: string[]
 }
 
@@ -153,17 +150,9 @@ describe.each(splitRangeTestCases)(
   }
 )
 
-type Mark = {
-  type: string
-  offset: number
-  length: number
-  url?: string
-  language?: string
-}
-
 type TestCase = {
   input: string
-  marks: Mark[]
+  marks: TelegramMark[]
   expects: string
   description: string
 }
