@@ -1,13 +1,16 @@
 import { Context, Iteration } from './context.js'
 import { SnapshotSignal } from './errors.js'
 import { Exit, ExitResult } from './exit.js'
+import { Serialized } from './serialization.js'
 import { Snapshot } from './snapshots.js'
 
+type ExecutionStatus = 'success' | 'error' | 'interrupted'
+
 export abstract class ExecutionResult {
-  public readonly status: 'success' | 'error' | 'interrupted'
+  public readonly status: ExecutionStatus
   public readonly context: Context
 
-  protected constructor(status: 'success' | 'error' | 'interrupted', context: Context) {
+  protected constructor(status: ExecutionStatus, context: Context) {
     this.status = status
     this.context = context
   }
@@ -39,6 +42,12 @@ export abstract class ExecutionResult {
   public get iterations(): Iteration[] {
     return this.context.iterations ?? []
   }
+
+  public abstract toJSON(): {
+    status: ExecutionStatus
+    context: Serialized.Context
+    [key: string]: any
+  }
 }
 
 export class SuccessExecutionResult<TOutput = unknown> extends ExecutionResult {
@@ -56,6 +65,17 @@ export class SuccessExecutionResult<TOutput = unknown> extends ExecutionResult {
   public get iteration(): Iteration {
     return this.context.iterations.at(-1)!
   }
+
+  public toJSON() {
+    return {
+      status: 'success' as const,
+      context: this.context.toJSON(),
+      result: {
+        exit: this.result.exit.toJSON(),
+        result: this.result.result,
+      },
+    }
+  }
 }
 
 export class ErrorExecutionResult extends ExecutionResult {
@@ -68,6 +88,14 @@ export class ErrorExecutionResult extends ExecutionResult {
 
   public get output(): null {
     return null
+  }
+
+  public toJSON() {
+    return {
+      status: 'error' as const,
+      context: this.context.toJSON(),
+      error: this.error,
+    }
   }
 }
 
@@ -84,4 +112,23 @@ export class PartialExecutionResult extends ExecutionResult {
   public get output(): null {
     return null
   }
+
+  public toJSON() {
+    return {
+      status: 'interrupted' as const,
+      context: this.context.toJSON(),
+      snapshot: this.snapshot.toJSON(),
+      signal: {
+        message: this.signal.message,
+        truncatedCode: this.signal.truncatedCode,
+        variables: this.signal.variables,
+      },
+    }
+  }
 }
+
+export type AnyExecutionResult =
+  | ExecutionResult
+  | SuccessExecutionResult
+  | ErrorExecutionResult
+  | PartialExecutionResult

@@ -53,6 +53,16 @@ export class Exit<T = unknown> {
     return result.exit instanceof Exit && this.name === result.exit.name
   }
 
+  public toJSON() {
+    return {
+      name: this.name,
+      aliases: [...this.aliases],
+      description: this.description,
+      metadata: { ...this.metadata },
+      schema: this.schema,
+    }
+  }
+
   public constructor(props: {
     name: string
     aliases?: string[]

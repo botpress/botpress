@@ -477,6 +477,11 @@ describe('tool default values', () => {
       },
     })
 
+    const newTool6 = tool.clone({
+      name: 'addNothing',
+      staticInputValues: {},
+    })
+
     expect(await newTool1.getTypings()).toMatchInlineSnapshot(
       `"declare function add(args: { a: number; b: number; c: number }): Promise<number>"`
     )
@@ -493,12 +498,17 @@ describe('tool default values', () => {
       `"declare function add3(args: { a: number; b: number; c: 2 }): Promise<number>"`
     )
 
+    expect(await newTool6.getTypings()).toMatchInlineSnapshot(
+      `"declare function addNothing(args: {}): Promise<number>"`
+    )
+
     await tool.execute({ a: 1, b: 2 })
     await newTool1.execute({ a: 1, b: 2, c: 3 })
     await newTool2.execute(null)
     await newTool3.execute({ a: 1, b: 2 })
     await newTool4.execute({ b: 2, a: 1 })
     await newTool5.execute({ a: 1, b: 2, c: 5 })
+    await newTool6.execute({ a: 1, b: 2 })
 
     expect(handlers).toMatchInlineSnapshot(`
       [
@@ -508,6 +518,7 @@ describe('tool default values', () => {
         "tool clone 3",
         "tool original",
         "tool clone 1",
+        "tool original",
       ]
     `)
   })
@@ -537,16 +548,7 @@ describe('tool default values', () => {
 
     const result = await tool.execute({ a: 3 })
     expect(result).toBe(6)
-    expect(attempts).toMatchInlineSnapshot(`
-      [
-        "attempt with a=3",
-        "retry called for attempt 1 with input={"a":3}",
-        "attempt with a=3",
-        "retry called for attempt 2 with input={"a":3}",
-        "attempt with a=3",
-        "SUCCESS attempt with a=3",
-      ]
-    `)
+    expect(attempts).toMatchInlineSnapshot(`"declare function add3(args: { a: 23; b: number }): Promise<number>"`)
   })
 
   it('tool retry logic (2)', async () => {

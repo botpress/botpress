@@ -292,4 +292,17 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> {
       return tool.rename(toolName)
     })
   }
+
+  public toJSON() {
+    return {
+      name: this.name,
+      aliases: [...this.aliases],
+      description: this.description,
+      metadata: this.metadata,
+      input: this.input,
+      output: this.output,
+      staticInputValues: this._staticInputValues,
+      maxRetries: this.MAX_RETRIES,
+    }
+  }
 }

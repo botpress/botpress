@@ -282,6 +282,29 @@ export class Iteration {
     this.ended_ts = Date.now()
     this.status = status
   }
+
+  public toJSON() {
+    return {
+      id: this.id,
+      messages: [...this.messages],
+      code: this.code,
+      traces: [...this.traces],
+      variables: this.variables,
+      started_ts: this.started_ts,
+      ended_ts: this.ended_ts,
+      status: this.status,
+      mutations: [...this._mutations.values()],
+      llm: this.llm,
+      transcript: [...this._parameters.transcript],
+      tools: this._parameters.tools.map((tool) => tool.toJSON()),
+      objects: this._parameters.objects.map((obj) => obj.toJSON()),
+      exits: this._parameters.exits.map((exit) => exit.toJSON()),
+      instructions: this._parameters.instructions,
+      duration: this.duration,
+      error: this.error,
+      isChatEnabled: this.isChatEnabled,
+    }
+  }
 }
 
 export class Context {
@@ -632,6 +655,23 @@ export class Context {
 
     if (this.temperature < 0 || this.temperature > 2) {
       throw new Error('Invalid temperature. Expected a number between 0 and 2.')
+    }
+  }
+
+  public toJSON() {
+    return {
+      id: this.id,
+      iterations: this.iterations.map((iteration) => iteration.toJSON()),
+      iteration: this.iteration,
+      version: {
+        name: this.version.constructor.name,
+      },
+      timeout: this.timeout,
+      loop: this.loop,
+      temperature: this.temperature,
+      model: this.model,
+      metadata: this.metadata,
+      snapshot: this.snapshot?.toJSON(),
     }
   }
 }

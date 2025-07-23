@@ -105,6 +105,16 @@ export class ObjectInstance {
   public async getTypings() {
     return getObjectTypings(this).withProperties().withTools().build()
   }
+
+  public toJSON() {
+    return {
+      name: this.name,
+      description: this.description,
+      properties: this.properties,
+      tools: (this.tools ?? []).map((tool) => tool.toJSON()),
+      metadata: this.metadata,
+    }
+  }
 }
 
 function getObjectTypings(obj: ObjectInstance) {
