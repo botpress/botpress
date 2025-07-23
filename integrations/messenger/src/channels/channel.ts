@@ -7,70 +7,50 @@ import * as bp from '.botpress'
 
 const channel: bp.IntegrationProps['channels']['channel'] = {
   messages: {
-    text: async ({ payload, ...props }) =>
+    text: async (props) =>
       sendMessage(props, async (messenger, recipientId) => {
-        props.logger.forBot().debug('Sending text message from bot to Messenger:', payload.text)
-        return messenger.sendText(recipientId, payload.text)
+        return messenger.sendText(recipientId, props.payload.text)
       }),
-    image: async ({ payload, ...props }) =>
+    image: async (props) =>
       sendMessage(props, async (messenger, recipientId) => {
-        props.logger.forBot().debug('Sending image message from bot to Messenger:', payload.imageUrl)
-        return messenger.sendImage(recipientId, payload.imageUrl)
+        return messenger.sendImage(recipientId, props.payload.imageUrl)
       }),
-    markdown: async ({ payload, ...props }) =>
+    markdown: async (props) =>
       sendMessage(props, async (messenger, recipientId) => {
-        props.logger.forBot().debug('Sending markdown message from bot to Messenger:', payload.markdown)
-        return messenger.sendText(recipientId, payload.markdown)
+        return messenger.sendText(recipientId, props.payload.markdown)
       }),
-    audio: async ({ payload, ...props }) =>
+    audio: async (props) =>
       sendMessage(props, async (messenger, recipientId) => {
-        props.logger.forBot().debug('Sending audio message from bot to Messenger:', payload.audioUrl)
-        return messenger.sendAudio(recipientId, payload.audioUrl)
+        return messenger.sendAudio(recipientId, props.payload.audioUrl)
       }),
-    video: async ({ payload, ...props }) =>
+    video: async (props) =>
       sendMessage(props, async (messenger, recipientId) => {
-        props.logger.forBot().debug('Sending video message from bot to Messenger:', payload.videoUrl)
-        return messenger.sendVideo(recipientId, payload.videoUrl)
+        return messenger.sendVideo(recipientId, props.payload.videoUrl)
       }),
-    file: async ({ payload, ...props }) =>
+    file: async (props) =>
       sendMessage(props, async (messenger, recipientId) => {
-        props.logger.forBot().debug('Sending file message from bot to Messenger:', payload.fileUrl)
-        return messenger.sendFile(recipientId, payload.fileUrl)
+        return messenger.sendFile(recipientId, props.payload.fileUrl)
       }),
-    location: async ({ payload, ...props }) =>
+    location: async (props) =>
       sendMessage(props, async (messenger, recipientId) => {
-        const googleMapLink = getGoogleMapLinkFromLocation(payload)
-
-        props.logger.forBot().debug('Sending location message from bot to Messenger:', googleMapLink)
+        const googleMapLink = getGoogleMapLinkFromLocation(props.payload)
         return messenger.sendText(recipientId, googleMapLink)
       }),
-    carousel: async ({ payload, ...props }) =>
+    carousel: async (props) =>
       sendMessage(props, async (messenger, recipientId) => {
-        const carouselMessage = getCarouselMessage(payload)
-
-        props.logger.forBot().debug('Sending carousel message from bot to Messenger:', carouselMessage)
-        return messenger.sendMessage(recipientId, getCarouselMessage(payload))
+        return messenger.sendMessage(recipientId, getCarouselMessage(props.payload))
       }),
-    card: async ({ payload, ...props }) =>
+    card: async (props) =>
       sendMessage(props, async (messenger, recipientId) => {
-        const cardMessage = getCarouselMessage({ items: [payload] })
-
-        props.logger.forBot().debug('Sending card message from bot to Messenger:', cardMessage)
-        return messenger.sendMessage(recipientId, cardMessage)
+        return messenger.sendMessage(recipientId, getCarouselMessage({ items: [props.payload] }))
       }),
-    dropdown: async ({ payload, ...props }) =>
+    dropdown: async (props) =>
       sendMessage(props, async (messenger, recipientId) => {
-        const choiceMessage = getChoiceMessage(payload)
-
-        props.logger.forBot().debug('Sending dropdown message from bot to Messenger:', choiceMessage)
-        return messenger.sendMessage(recipientId, choiceMessage)
+        return messenger.sendMessage(recipientId, getChoiceMessage(props.payload))
       }),
-    choice: async ({ payload, ...props }) =>
+    choice: async (props) =>
       sendMessage(props, async (messenger, recipientId) => {
-        const choiceMessage = getChoiceMessage(payload)
-
-        props.logger.forBot().debug('Sending choice message from bot to Messenger:', choiceMessage)
-        return messenger.sendMessage(recipientId, getChoiceMessage(payload))
+        return messenger.sendMessage(recipientId, getChoiceMessage(props.payload))
       }),
     bloc: () => {
       throw new RuntimeError('Not implemented')
@@ -112,9 +92,14 @@ export function formatCardElement(payload: Card) {
 }
 
 async function sendMessage(
-  { ack, client, ctx, conversation }: SendMessageProps,
+  { ack, client, ctx, conversation, logger, type, payload }: SendMessageProps,
   send: (client: MessengerClient, recipientId: string) => Promise<{ messageId: string }>
 ) {
+  logger.forBot().debug(
+    `Sending ${type} message from bot to Messenger: ${Object.entries(payload)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(', ')}`
+  )
   const messengerClient = await createMessengerClient(client, ctx)
   const recipientId = getRecipientId(conversation)
   const { messageId } = await send(messengerClient, recipientId)
