@@ -17,7 +17,10 @@ import { Transcript } from './transcript.js'
 const client = getCachedCognitiveClient()
 
 function assertSuccess(result: ExecutionResult): asserts result is SuccessExecutionResult {
-  assert(result instanceof SuccessExecutionResult, `Expected result to be success but got ${result.status}`)
+  assert(
+    result instanceof SuccessExecutionResult,
+    `Expected result to be success but got ${result.status}\n${result.isError() ? result.error : ''}`.trim()
+  )
 }
 
 function assertError(result: ExecutionResult): asserts result is ErrorExecutionResult {
@@ -781,10 +784,11 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       instructions: 'exit by doing nothing. do not call any tool.',
       tools: [tDemo],
       client,
-      async onBeforeExecution(iteration) {
+      async onBeforeExecution() {
         await new Promise((resolve) => setTimeout(resolve, 10))
         // Mutate the code to change the action
-        iteration.code = `await demo('hello 123');\nreturn { action: 'done' }`
+
+        return { code: `await demo('hello 123');\nreturn { action: 'done' }` }
       },
     })
 
@@ -795,6 +799,54 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         "hello 123",
       ]
     `)
+  })
+
+  it('onBeforeTool and onAfterTool hooks (mutate input and output)', async () => {
+    let originalInputName: string | undefined
+    let calledInputName: string | undefined
+
+    const tGreeting = new Tool({
+      name: 'greeting',
+      input: z.object({
+        name: z.string(),
+      }),
+      output: z.string(),
+      handler: async ({ name }) => {
+        calledInputName = name
+        return `Hi there, ${name}!`
+      },
+    })
+
+    const eWithResult = new Exit({
+      name: 'done',
+      description: 'call this when you are done',
+      schema: z.object({
+        greeting: z.string(),
+      }),
+    })
+
+    const result = await llmz.executeContext({
+      options: { loop: 1 },
+      exits: [eWithResult],
+      instructions: 'Call the greeting tool with name "Alice" and exit right after with the result.',
+      tools: [tGreeting],
+      client,
+      async onBeforeTool({ input }) {
+        originalInputName = input.name
+        return { input: { name: 'Jacques' } }
+      },
+      async onAfterTool({ output }) {
+        return { output: output.toUpperCase() }
+      },
+    })
+
+    assertSuccess(result)
+    expect(result.iterations).toHaveLength(1)
+    assert(result.is(eWithResult), 'Result should be an exit success with the expected exit')
+
+    expect(originalInputName).toBe('Alice')
+    expect(calledInputName).toBe('Jacques')
+    expect(result.output.greeting).toMatchInlineSnapshot(`"HI THERE, JACQUES!"`)
   })
 
   describe('images', () => {
