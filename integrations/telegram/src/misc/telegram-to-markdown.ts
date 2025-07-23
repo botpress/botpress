@@ -1,3 +1,5 @@
+import { spliceText } from './string-utils'
+
 export type Range = {
   /** Inclusive */
   start: number
@@ -15,12 +17,8 @@ export type MarkSegment = Range & {
   effects: MarkEffect[]
   /** A set of effect(s) that are encompassed by a parent effect scope
    *
-   *  @remark The nested effects' range MUST be within the parent's bounds
-   *  @remark This is currently unused, but should be implemented
-   *   since having the same effect ending on one character and then
-   *   starting on next character tends to not parse correctly. This
-   *   could lead to unforeseen interpretations by an autonomous node. */
-  nestedEffects?: MarkSegment[]
+   *  @remark The nested segments' range MUST be within the parent's bounds */
+  children?: MarkSegment[]
 }
 
 export type TelegramMark = {
@@ -92,6 +90,7 @@ const _combineEffects = (range: MarkSegment, otherIndex: number, arr: MarkSegmen
 }
 
 const _byAscendingStartIndex = (a: MarkSegment, b: MarkSegment) => a.start - b.start
+const _byDescendingStartIndex = (a: MarkSegment, b: MarkSegment) => b.start - a.start
 export const splitAnyOverlaps = (ranges: MarkSegment[]): MarkSegment[] => {
   const rangesToSplit = [...ranges]
   rangesToSplit.sort(_byAscendingStartIndex)
@@ -126,6 +125,126 @@ export const splitAnyOverlaps = (ranges: MarkSegment[]): MarkSegment[] => {
   )
 }
 
+const _areSegmentsNonOverlappingContiguous = (text: string, sortedRanges: MarkSegment[]) => {
+  if (sortedRanges.length === 0) return true
+
+  // Not sure if this check should be done at runtime or if we should just trust the unit tests here
+  if (sortedRanges[0]!.start !== 0 || sortedRanges[sortedRanges.length - 1]!.end !== text.length) {
+    return false
+  }
+
+  return sortedRanges.every((range, index, arr) => {
+    const nextRange = arr[index + 1]
+    if (!nextRange) return true
+
+    return range.end === nextRange.start
+  })
+}
+
+const _hasMarkType = (otherSegment: MarkSegment, markType: string) => {
+  return otherSegment.effects.some((otherMark) => otherMark.type === markType)
+}
+
+export const postProcessNestedEffects = (
+  unprocessedSegments: MarkSegment[],
+  precheck?: (sortedSegments: MarkSegment[]) => void
+) => {
+  const reversedSegments: MarkSegment[] = [...unprocessedSegments].sort(_byDescendingStartIndex)
+  precheck?.(unprocessedSegments)
+
+  for (let index = reversedSegments.length - 1; index > 0; index--) {
+    const segment: MarkSegment = reversedSegments[index]!
+    if (segment.effects.length === 0) continue
+
+    const otherIndex = index - 1
+    const otherSegment: MarkSegment = reversedSegments[otherIndex]!
+
+    const sharedMarks: MarkEffect[] = []
+    const nonSharedMarks: MarkEffect[] = []
+    segment.effects
+      .concat(otherSegment.effects)
+      // Could probably incorporate this filter into the forEach
+      .filter((effect: MarkEffect, effectIndex: number, allEffects: MarkEffect[]) => {
+        return effectIndex === allEffects.findIndex((otherEffect) => otherEffect.type === effect.type)
+      })
+      .forEach((mark: MarkEffect) => {
+        if (_hasMarkType(segment, mark.type) && _hasMarkType(otherSegment, mark.type)) {
+          sharedMarks.push(mark)
+        } else {
+          nonSharedMarks.push(mark)
+        }
+      })
+
+    if (sharedMarks.length === 0) {
+      continue
+    }
+
+    const mergedSegment: MarkSegment = {
+      start: segment.start,
+      end: otherSegment.end,
+      effects: sharedMarks,
+    }
+
+    let childSegments: MarkSegment[] = [...(segment.children ?? [])]
+    if (nonSharedMarks.length > 0) {
+      childSegments = childSegments.concat({
+        start: otherSegment.start,
+        end: otherSegment.end,
+        effects: nonSharedMarks,
+      })
+    }
+    if (childSegments.length > 0) {
+      mergedSegment.children = childSegments
+    }
+
+    reversedSegments[otherIndex] = mergedSegment
+    reversedSegments.splice(index, 1)
+  }
+
+  // This is done after the above loop to not post-process
+  // the children before all the potential children are added
+  const processedSegments = reversedSegments.reverse()
+  processedSegments.forEach((segment) => {
+    if (segment.children) {
+      segment.children = postProcessNestedEffects(segment.children)
+    }
+  })
+
+  return processedSegments
+}
+
+export const applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: number = 0) => {
+  const { start, end, effects, children } = segment
+  const startIndex = start - offset
+  let transformedText = text.substring(startIndex, end - offset)
+
+  if (children) {
+    // Each child segment **should** be non-overlapping
+    children.forEach((child) => {
+      const transformedSegment = applyMarkToTextSegment(transformedText, child, start)
+      transformedText = spliceText(transformedText, child.start - start, child.end - start, transformedSegment)
+    })
+  }
+
+  for (const effect of effects) {
+    const { type, url, language } = effect
+
+    // @ts-ignore
+    const handler = _handlers[type] as Function | undefined
+    if (!handler) {
+      console.warn(`Unknown mark type: ${type}`)
+      continue
+    }
+
+    transformedText = handler(transformedText, {
+      url,
+      language,
+    })
+  }
+
+  return transformedText
+}
+
 export const applyMarksToText = (text: string, marks: TelegramMark[]) => {
   const segments = marks.map(
     (mark: TelegramMark): MarkSegment => ({
@@ -143,38 +262,12 @@ export const applyMarksToText = (text: string, marks: TelegramMark[]) => {
   )
 
   const plainTextSegment = { start: 0, end: text.length, effects: [] }
-  return (
-    splitAnyOverlaps(segments.concat(plainTextSegment))
-      .sort(_byAscendingStartIndex)
-      /** TODO: Implement post-process optimization step to join contiguous
-       *   ranges if at least one effect is identical. This will then nest the
-       *   partial range effect within.
-       *
-       *   @remark "Hello World" where whole string is bold, but only "World"
-       *    is strikethrough currently yields "**Hello ****~~World~~**". The proposed
-       *    TODO above would change that to "**Hello ~~World~~**". */
-      .map((markSegment) => {
-        const { start, end, effects } = markSegment
-        let transformedText = text.substring(start, end)
+  const nonOverlappingSegments = splitAnyOverlaps(segments.concat(plainTextSegment))
+  const processedSegments = postProcessNestedEffects(nonOverlappingSegments, (sortedSegments) => {
+    if (!_areSegmentsNonOverlappingContiguous(text, sortedSegments)) {
+      throw new Error('Nested effects are not contiguous')
+    }
+  })
 
-        for (const effect of effects) {
-          const { type, url, language } = effect
-
-          // @ts-ignore
-          const handler = _handlers[type] as Function | undefined
-          if (!handler) {
-            console.warn(`Unknown mark type: ${type}`)
-            continue
-          }
-
-          transformedText = handler(transformedText, {
-            url,
-            language,
-          })
-        }
-
-        return transformedText
-      })
-      .join('')
-  )
+  return processedSegments.map((markSegment) => applyMarkToTextSegment(text, markSegment)).join('')
 }

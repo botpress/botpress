@@ -7,6 +7,7 @@ import {
   type MarkSegment,
   type Range,
   type TelegramMark,
+  postProcessNestedEffects,
 } from './telegram-to-markdown'
 
 const Range = (start: number, end: number): Range => {
@@ -149,6 +150,86 @@ describe.each(splitRangeTestCases)(
     })
   }
 )
+
+type PostProcessTestCase = {
+  input: MarkSegment[]
+  expects: MarkSegment[]
+  description: string
+}
+
+const markSegment = (start: number, end: number, types: string[], children?: MarkSegment[]): MarkSegment => {
+  const segment: MarkSegment = {
+    start,
+    end,
+    effects: types.map((type) => ({ type })),
+  }
+
+  if (children) {
+    segment.children = children
+  }
+
+  return segment
+}
+
+describe.each([
+  {
+    input: [
+      markSegment(0, 1, ['bold']),
+      markSegment(1, 2, ['italic']),
+      markSegment(2, 3, ['bold']),
+      markSegment(3, 4, ['italic']),
+      markSegment(4, 5, ['bold']),
+      markSegment(5, 6, ['italic']),
+      markSegment(6, 7, ['bold']),
+      markSegment(7, 8, ['italic']),
+    ],
+    expects: [
+      markSegment(0, 1, ['bold']),
+      markSegment(1, 2, ['italic']),
+      markSegment(2, 3, ['bold']),
+      markSegment(3, 4, ['italic']),
+      markSegment(4, 5, ['bold']),
+      markSegment(5, 6, ['italic']),
+      markSegment(6, 7, ['bold']),
+      markSegment(7, 8, ['italic']),
+    ],
+    description: 'Alternating effects should remain unaffected',
+  },
+  {
+    input: [
+      markSegment(0, 6, ['bold']),
+      markSegment(6, 18, ['bold', 'italic']),
+      markSegment(18, 24, ['bold', 'italic', 'strikethrough']),
+      markSegment(24, 30, ['italic', 'strikethrough']),
+    ],
+    expects: [
+      markSegment(0, 24, ['bold'], [markSegment(6, 24, ['italic'], [markSegment(18, 24, ['strikethrough'])])]),
+      markSegment(24, 30, ['italic', 'strikethrough']),
+    ],
+    description: 'Check that partial overlapping types get correctly nested',
+  },
+  {
+    input: [
+      markSegment(0, 6, ['bold']),
+      markSegment(6, 18, ['bold', 'italic']),
+      markSegment(18, 24, ['bold', 'italic', 'strikethrough']),
+      markSegment(24, 30, ['bold', 'italic', 'strikethrough', 'underline']),
+    ],
+    expects: [
+      markSegment(
+        0,
+        30,
+        ['bold'],
+        [markSegment(6, 30, ['italic'], [markSegment(18, 30, ['strikethrough'], [markSegment(24, 30, ['underline'])])])]
+      ),
+    ],
+    description: 'Check that progressive overlapping types get correctly nested',
+  },
+])('Post-processing mark segments', ({ input, expects, description }: PostProcessTestCase) => {
+  test(description, () => {
+    expect(postProcessNestedEffects(input)).toEqual(expects)
+  })
+})
 
 type TelegramToMarkdownTestCase = {
   input: string
