@@ -75,7 +75,12 @@ const _sendHandoffMessage = (
   upstreamCm: conv.ConversationManager,
   sessionConfig: bp.configuration.Configuration
 ): Promise<void> =>
-  upstreamCm.respond({ type: 'text', text: sessionConfig.onHitlHandoffMessage ?? DEFAULT_HITL_HANDOFF_MESSAGE })
+  upstreamCm.respond({
+    type: 'text',
+    text: sessionConfig.onHitlHandoffMessage?.length
+      ? sessionConfig.onHitlHandoffMessage
+      : DEFAULT_HITL_HANDOFF_MESSAGE,
+  })
 
 const _buildMessageHistory = async (
   props: Props,
@@ -115,7 +120,9 @@ const _createDownstreamConversation = async (
 ): Promise<string> => {
   // Call startHitl in the hitl integration (zendesk, etc.):
   const { conversationId: downstreamConversationId } = await props.actions.hitl.startHitl({
-    ...input, // the Studio might pass additional fields here, so we spread the input to ensure everything is forwarded to the integration
+    title: input.title,
+    description: input.description,
+    hitlSession: input.hitlSession,
     userId: downstreamUserId,
     messageHistory,
   })

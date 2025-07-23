@@ -90,6 +90,7 @@ const _dispatchToHandlers = async (props: types.ServerProps, event: types.Workfl
   for (const handler of handlers!) {
     await handler({
       ...props,
+      event,
       conversation: event.payload.conversation,
       user: event.payload.user,
       workflow: wrapWorkflowInstance({ ...props, workflow: event.payload.workflow }),
