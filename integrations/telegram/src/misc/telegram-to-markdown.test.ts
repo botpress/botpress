@@ -1,5 +1,41 @@
 import { describe, expect, test } from 'vitest'
-import { applyMarksToText, MarkEffect, MarkSegment, splitAnyOverlaps } from './telegram-to-markdown'
+import {
+  applyMarksToText,
+  isOverlapping,
+  MarkEffect,
+  MarkSegment,
+  Range,
+  splitAnyOverlaps,
+} from './telegram-to-markdown'
+
+function Range(start: number, end: number): Range {
+  return { start, end }
+}
+
+type IsOverlappingTestCase = [[Range, Range], boolean, string]
+const isOverlappingTestCases: IsOverlappingTestCase[] = [
+  [[Range(0, 6), Range(6, 8)], false, 'Contiguous but no overlap'],
+  [[Range(0, 5), Range(6, 8)], false, 'No overlap with 1 character gap'],
+  [[Range(0, 5), Range(7, 8)], false, 'No overlap with gap'],
+  [[Range(0, 6), Range(3, 8)], true, 'Overlap'],
+  [[Range(0, 6), Range(5, 8)], true, 'Overlap on boundary'],
+  [[Range(0, 5), Range(0, 5)], true, 'Identical ranges'],
+  [[Range(1, 2), Range(1, 2)], true, 'Identical ranges on single character'],
+  [[Range(0, 1), Range(0, 8)], true, 'Single character encapsulated range'],
+  [[Range(8, 15), Range(8, 18)], true, 'Encapsulated range - Start'],
+  [[Range(6, 18), Range(8, 14)], true, 'Encapsulated range - Center'],
+  [[Range(6, 18), Range(12, 18)], true, 'Encapsulated range - End'],
+]
+
+describe.each(isOverlappingTestCases)(
+  'Test isOverlapping check accuracy',
+  ([rangeA, rangeB]: [Range, Range], expected: boolean, description: string) => {
+    test(description, () => {
+      expect(isOverlapping(rangeA, rangeB)).toBe(expected)
+      expect(isOverlapping(rangeB, rangeA)).toBe(expected)
+    })
+  }
+)
 
 export type TypedRange = {
   /** Inclusive */
