@@ -85,7 +85,7 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.13.0',
+  version: '0.13.1',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
