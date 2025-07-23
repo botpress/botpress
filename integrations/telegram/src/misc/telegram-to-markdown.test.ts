@@ -208,6 +208,18 @@ describe.each([
     description: "Should apply bold mark to the word 'World'",
   },
   {
+    input: 'Hello World',
+    marks: [
+      {
+        offset: 6,
+        length: 5,
+        type: 'underline',
+      },
+    ],
+    expects: 'Hello World',
+    description: 'Should ignore unsupported underline effect',
+  },
+  {
     input: 'this is ||not spoiler||',
     marks: [
       {
@@ -357,6 +369,31 @@ describe.each([
     ],
     expects: 'Hello ***Many Effects*** World',
     description: "Apply multiple effects to phrase 'Many Effects'",
+  },
+  {
+    input: 'Some Link',
+    marks: [
+      {
+        offset: 0,
+        length: 9,
+        type: 'text_link',
+        url: 'https://botpress.com/',
+      },
+      {
+        offset: 0,
+        length: 5,
+        type: 'italic',
+      },
+      {
+        offset: 5,
+        length: 4,
+        type: 'bold',
+      },
+    ],
+    // This 'expects' is technically invalid Markdown, it should
+    // actually be: "[*Some* **Link**](https://botpress.com/)"
+    expects: '[*Some ***Link**](https://botpress.com/)',
+    description: 'Apply multiple effects to phrase "Some Link"',
   },
   {
     input: 'Hello Many Effects World',
