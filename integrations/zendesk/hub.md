@@ -30,4 +30,5 @@ Once these steps are completed, your Zendesk articles will automatically sync to
 ### HITL
 
 #### Via Channel Types
+
 On the "Start HITL" card you can use only "via channel" types documented by [Zendesk Docs](https://developer.zendesk.com/documentation/ticketing/reference-guides/via-types)
