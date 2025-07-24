@@ -225,7 +225,7 @@ export const applyMarkToTextSegment = (text: string, segment: MarkSegment, offse
 
   if (children) {
     // Each child segment **should** be non-overlapping
-    children.forEach((child) => {
+    children.sort(_byDescendingStartIndex).forEach((child) => {
       const transformedSegment = applyMarkToTextSegment(transformedText, child, start)
       transformedText = spliceText(transformedText, child.start - start, child.end - start, transformedSegment)
     })
