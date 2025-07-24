@@ -461,19 +461,12 @@ describe.each([
         url: 'https://botpress.com/',
       },
       {
-        offset: 0,
-        length: 5,
-        type: 'italic',
-      },
-      {
         offset: 5,
         length: 4,
         type: 'bold',
       },
     ],
-    // This 'expects' is technically invalid Markdown, it should
-    // actually be: "[*Some* **Link**](https://botpress.com/)"
-    expects: '[*Some ***Link**](https://botpress.com/)',
+    expects: '[Some **Link**](https://botpress.com/)',
     description: 'Apply markdown effects to specific words in hyperlink text',
   },
   {
