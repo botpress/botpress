@@ -160,7 +160,7 @@ const _hasMarkType = (marks: MarkEffect[], markType: string) => {
   return marks.some((otherMark) => otherMark.type === markType)
 }
 
-export const postProcessNestedEffects = (
+const _postProcessNestedEffects = (
   unprocessedSegments: MarkSegment[],
   precheck?: (sortedSegments: MarkSegment[]) => void
 ) => {
@@ -226,7 +226,7 @@ export const postProcessNestedEffects = (
   const processedSegments = reversedSegments.reverse()
   processedSegments.forEach((segment) => {
     if (segment.children) {
-      segment.children = postProcessNestedEffects(segment.children)
+      segment.children = _postProcessNestedEffects(segment.children)
     }
   })
 
@@ -283,7 +283,7 @@ export const applyMarksToText = (text: string, marks: TelegramMark[]) => {
 
   const plainTextSegment = { start: 0, end: text.length, effects: [] }
   const nonOverlappingSegments = splitAnyOverlaps(segments.concat(plainTextSegment))
-  const processedSegments = postProcessNestedEffects(nonOverlappingSegments, (sortedSegments) => {
+  const processedSegments = _postProcessNestedEffects(nonOverlappingSegments, (sortedSegments) => {
     if (!_areSegmentsNonOverlappingContiguous(text, sortedSegments)) {
       throw new Error('Nested effects are not contiguous')
     }

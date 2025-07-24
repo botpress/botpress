@@ -3,7 +3,6 @@ import {
   applyMarksToText,
   isOverlapping,
   splitAnyOverlaps,
-  postProcessNestedEffects,
   type MarkEffect,
   type MarkSegment,
   type Range,
@@ -204,87 +203,6 @@ describe('Split the range overlaps test cases while maintaining types', () => {
   })
 })
 
-type PostProcessTestCase = {
-  input: MarkSegment[]
-  expects: MarkSegment[]
-  description: string
-}
-
-const markSegment = (start: number, end: number, types: string[], children?: MarkSegment[]): MarkSegment => {
-  const segment: MarkSegment = {
-    start,
-    end,
-    effects: types.map((type) => ({ type })),
-  }
-
-  if (children) {
-    segment.children = children
-  }
-
-  return segment
-}
-
-const postProcessingTestCases: PostProcessTestCase[] = [
-  {
-    input: [
-      markSegment(0, 1, ['bold']),
-      markSegment(1, 2, ['italic']),
-      markSegment(2, 3, ['bold']),
-      markSegment(3, 4, ['italic']),
-      markSegment(4, 5, ['bold']),
-      markSegment(5, 6, ['italic']),
-      markSegment(6, 7, ['bold']),
-      markSegment(7, 8, ['italic']),
-    ],
-    expects: [
-      markSegment(0, 1, ['bold']),
-      markSegment(1, 2, ['italic']),
-      markSegment(2, 3, ['bold']),
-      markSegment(3, 4, ['italic']),
-      markSegment(4, 5, ['bold']),
-      markSegment(5, 6, ['italic']),
-      markSegment(6, 7, ['bold']),
-      markSegment(7, 8, ['italic']),
-    ],
-    description: 'Alternating effects should remain unaffected',
-  },
-  {
-    input: [
-      markSegment(0, 6, ['bold']),
-      markSegment(6, 18, ['bold', 'italic']),
-      markSegment(18, 24, ['bold', 'italic', 'strikethrough']),
-      markSegment(24, 30, ['italic', 'strikethrough']),
-    ],
-    expects: [
-      markSegment(0, 24, ['bold'], [markSegment(6, 24, ['italic'], [markSegment(18, 24, ['strikethrough'])])]),
-      markSegment(24, 30, ['italic', 'strikethrough']),
-    ],
-    description: 'Check that partial overlapping types get correctly nested',
-  },
-  {
-    input: [
-      markSegment(0, 6, ['bold']),
-      markSegment(6, 18, ['bold', 'italic']),
-      markSegment(18, 24, ['bold', 'italic', 'strikethrough']),
-      markSegment(24, 30, ['bold', 'italic', 'strikethrough', 'underline']),
-    ],
-    expects: [
-      markSegment(
-        0,
-        30,
-        ['bold'],
-        [markSegment(6, 30, ['italic'], [markSegment(18, 30, ['strikethrough'], [markSegment(24, 30, ['underline'])])])]
-      ),
-    ],
-    description: 'Check that progressive overlapping types get correctly nested',
-  },
-]
-describe('Post-processing mark segments', () => {
-  test.each(postProcessingTestCases)('$description', ({ input, expects }: PostProcessTestCase) => {
-    expect(postProcessNestedEffects(input)).toEqual(expects)
-  })
-})
-
 type TelegramToMarkdownTestCase = TestCase<
   {
     text: string
@@ -378,6 +296,48 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
     },
     expects: '`this is ||not spoiler`||',
     description: 'Should apply code mark to the whole text',
+  },
+  {
+    input: {
+      text: 'abcdefgh',
+      marks: [
+        { offset: 0, length: 1, type: 'bold' },
+        { offset: 1, length: 1, type: 'strikethrough' },
+        { offset: 2, length: 1, type: 'bold' },
+        { offset: 3, length: 1, type: 'strikethrough' },
+        { offset: 4, length: 1, type: 'bold' },
+        { offset: 5, length: 1, type: 'strikethrough' },
+        { offset: 6, length: 1, type: 'bold' },
+        { offset: 7, length: 1, type: 'strikethrough' },
+      ],
+    },
+    expects: '**a**~~b~~**c**~~d~~**e**~~f~~**g**~~h~~',
+    description: 'Alternating effects should not intersect/nest',
+  },
+  {
+    input: {
+      text: 'FizzleWhizzyZigzagDazzleHuzzah',
+      marks: [
+        { offset: 0, length: 18, type: 'bold' },
+        { offset: 6, length: 18, type: 'strikethrough' },
+        { offset: 12, length: 12, type: 'italic' },
+      ],
+    },
+    expects: '**Fizzle~~Whizzy*Zigzag*~~**~~*Dazzle*~~Huzzah',
+    description: 'Check that partial overlapping types get correctly nested',
+  },
+  {
+    input: {
+      text: 'FizzleWhizzyZigzagDazzleHuzzah',
+      marks: [
+        { offset: 0, length: 24, type: 'spoiler' },
+        { offset: 6, length: 18, type: 'bold' },
+        { offset: 12, length: 12, type: 'italic' },
+        { offset: 18, length: 6, type: 'strikethrough' },
+      ],
+    },
+    expects: '||Fizzle**Whizzy*Zigzag~~Dazzle~~***||Huzzah',
+    description: 'Check that progressive overlapping types get correctly nested',
   },
   {
     input: {
