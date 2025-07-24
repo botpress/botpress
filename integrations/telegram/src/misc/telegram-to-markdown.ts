@@ -173,12 +173,6 @@ export const postProcessNestedEffects = (
       continue
     }
 
-    const mergedSegment: MarkSegment = {
-      start: segment.start,
-      end: otherSegment.end,
-      effects: sharedMarks,
-    }
-
     const otherSegmentNonSharedMarks: MarkEffect[] = otherSegment.effects.filter(
       (mark: MarkEffect) => !_hasMarkType(sharedMarks, mark.type)
     )
@@ -197,6 +191,12 @@ export const postProcessNestedEffects = (
         end: otherSegment.end,
         effects: otherSegmentNonSharedMarks,
       })
+    }
+
+    const mergedSegment: MarkSegment = {
+      start: segment.start,
+      end: otherSegment.end,
+      effects: sharedMarks,
     }
     if (childSegments.length > 0) {
       mergedSegment.children = childSegments
