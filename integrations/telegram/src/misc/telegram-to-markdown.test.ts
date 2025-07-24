@@ -474,7 +474,7 @@ describe.each([
     // This 'expects' is technically invalid Markdown, it should
     // actually be: "[*Some* **Link**](https://botpress.com/)"
     expects: '[*Some ***Link**](https://botpress.com/)',
-    description: 'Apply multiple effects to phrase "Some Link"',
+    description: 'Apply markdown effects to specific words in hyperlink text',
   },
   {
     input: 'Hello Many Effects World',
