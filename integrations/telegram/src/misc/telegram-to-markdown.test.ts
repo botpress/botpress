@@ -3,12 +3,18 @@ import {
   applyMarksToText,
   isOverlapping,
   splitAnyOverlaps,
+  postProcessNestedEffects,
   type MarkEffect,
   type MarkSegment,
   type Range,
   type TelegramMark,
-  postProcessNestedEffects,
 } from './telegram-to-markdown'
+
+type TestCase<INPUT = unknown, EXPECTED = unknown> = {
+  input: INPUT
+  expects: EXPECTED
+  description: string
+}
 
 const Range = (start: number, end: number): Range => {
   return { start, end }
@@ -231,306 +237,345 @@ describe.each([
   })
 })
 
-type TelegramToMarkdownTestCase = {
-  input: string
-  marks: TelegramMark[]
-  expects: string
-  description: string
-}
+type TelegramToMarkdownTestCase = TestCase<
+  {
+    text: string
+    marks: TelegramMark[]
+  },
+  string
+>
 
 describe.each([
   {
-    input: 'Hello World',
-    marks: [
-      {
-        offset: 6,
-        length: 5,
-        type: 'italic',
-      },
-    ],
+    input: {
+      text: 'Hello World',
+      marks: [
+        {
+          offset: 6,
+          length: 5,
+          type: 'italic',
+        },
+      ],
+    },
     expects: 'Hello *World*',
     description: "Should apply italic mark to the word 'World'",
   },
   {
-    input: 'Hello World',
-    marks: [
-      {
-        offset: 0,
-        length: 11,
-        type: 'text_link',
-        url: 'https://www.botpress.com/',
-      },
-    ],
+    input: {
+      text: 'Hello World',
+      marks: [
+        {
+          offset: 0,
+          length: 11,
+          type: 'text_link',
+          url: 'https://www.botpress.com/',
+        },
+      ],
+    },
     expects: '[Hello World](https://www.botpress.com/)',
     description: 'Should apply link mark to the whole text',
   },
   {
-    input: 'Strike',
-    marks: [
-      {
-        offset: 0,
-        length: 6,
-        type: 'strikethrough',
-      },
-    ],
+    input: {
+      text: 'Strike',
+      marks: [
+        {
+          offset: 0,
+          length: 6,
+          type: 'strikethrough',
+        },
+      ],
+    },
     expects: '~~Strike~~',
     description: 'Should apply strikethrough mark to the whole text',
   },
   {
-    input: 'Hello World',
-    marks: [
-      {
-        offset: 6,
-        length: 5,
-        type: 'bold',
-      },
-    ],
+    input: {
+      text: 'Hello World',
+      marks: [
+        {
+          offset: 6,
+          length: 5,
+          type: 'bold',
+        },
+      ],
+    },
     expects: 'Hello **World**',
     description: "Should apply bold mark to the word 'World'",
   },
   {
-    input: 'Hello World',
-    marks: [
-      {
-        offset: 6,
-        length: 5,
-        type: 'underline',
-      },
-    ],
+    input: {
+      text: 'Hello World',
+      marks: [
+        {
+          offset: 6,
+          length: 5,
+          type: 'underline',
+        },
+      ],
+    },
     expects: 'Hello World',
     description: 'Should ignore unsupported underline effect',
   },
   {
-    input: 'this is ||not spoiler||',
-    marks: [
-      {
-        offset: 0,
-        length: 21,
-        type: 'code',
-      },
-    ],
+    input: {
+      text: 'this is ||not spoiler||',
+      marks: [
+        {
+          offset: 0,
+          length: 21,
+          type: 'code',
+        },
+      ],
+    },
     expects: '`this is ||not spoiler`||',
     description: 'Should apply code mark to the whole text',
   },
   {
-    input: 'Spoiler ||Bold Spoiler|| __Italic__',
-    marks: [
-      {
-        offset: 0,
-        length: 7,
-        type: 'spoiler',
-      },
-      {
-        offset: 8,
-        length: 16,
-        type: 'bold',
-      },
-      {
-        offset: 25,
-        length: 10,
-        type: 'spoiler',
-      },
-    ],
+    input: {
+      text: 'Spoiler ||Bold Spoiler|| __Italic__',
+      marks: [
+        {
+          offset: 0,
+          length: 7,
+          type: 'spoiler',
+        },
+        {
+          offset: 8,
+          length: 16,
+          type: 'bold',
+        },
+        {
+          offset: 25,
+          length: 10,
+          type: 'spoiler',
+        },
+      ],
+    },
     expects: '||Spoiler|| **||Bold Spoiler||** ||__Italic__||',
     description: 'Apply Spoiler, then bold, then spoiler (ignoring 2nd spoiler & italic)',
   },
   {
-    input: 'console.log("Hello World")',
-    marks: [
-      {
-        offset: 0,
-        length: 26,
-        type: 'pre',
-        language: 'javascript',
-      },
-    ],
+    input: {
+      text: 'console.log("Hello World")',
+      marks: [
+        {
+          offset: 0,
+          length: 26,
+          type: 'pre',
+          language: 'javascript',
+        },
+      ],
+    },
     expects: '```javascript\nconsole.log("Hello World")\n```',
     description: 'Apply code block to the whole text',
   },
   {
-    input: 'Spoiler\n\n\n\n\n\nText',
-    marks: [
-      {
-        offset: 0,
-        length: 17,
-        type: 'spoiler',
-      },
-    ],
+    input: {
+      text: 'Spoiler\n\n\n\n\n\nText',
+      marks: [
+        {
+          offset: 0,
+          length: 17,
+          type: 'spoiler',
+        },
+      ],
+    },
     expects: '||Spoiler\n\n\n\n\n\nText||',
     description: 'Apply Spoiler to the whole multiline text',
   },
   {
-    input: '514-123-4567',
-    marks: [
-      {
-        offset: 0,
-        length: 12,
-        type: 'phone_number',
-      },
-    ],
+    input: {
+      text: '514-123-4567',
+      marks: [
+        {
+          offset: 0,
+          length: 12,
+          type: 'phone_number',
+        },
+      ],
+    },
     expects: '[514-123-4567](tel:5141234567)',
     description: 'Apply phone number markdown',
   },
   {
-    input: 'Hello',
-    marks: [
-      {
-        offset: 0,
-        length: 5,
-        type: 'blockquote',
-      },
-    ],
+    input: {
+      text: 'Hello',
+      marks: [
+        {
+          offset: 0,
+          length: 5,
+          type: 'blockquote',
+        },
+      ],
+    },
     expects: '> Hello',
     description: 'Apply blockquote markdown',
   },
   {
-    input: 'Hello\nNothing\nMore Quotes!',
-    marks: [
-      {
-        offset: 0,
-        length: 5,
-        type: 'blockquote',
-      },
-      {
-        offset: 14,
-        length: 12,
-        type: 'blockquote',
-      },
-    ],
+    input: {
+      text: 'Hello\nNothing\nMore Quotes!',
+      marks: [
+        {
+          offset: 0,
+          length: 5,
+          type: 'blockquote',
+        },
+        {
+          offset: 14,
+          length: 12,
+          type: 'blockquote',
+        },
+      ],
+    },
     expects: '> Hello\nNothing\n> More Quotes!',
     description: 'Apply blockquote markdown to multiple lines, with non-quote line in between',
   },
   {
-    input: 'something@yopmail.com',
-    marks: [
-      {
-        offset: 0,
-        length: 21,
-        type: 'email',
-      },
-    ],
+    input: {
+      text: 'something@yopmail.com',
+      marks: [
+        {
+          offset: 0,
+          length: 21,
+          type: 'email',
+        },
+      ],
+    },
     expects: '[something@yopmail.com](mailto:something@yopmail.com)',
     description: 'Apply email markdown with mailto link',
   },
   {
-    input: 'Hello Spoiler',
-    marks: [
-      {
-        offset: 0,
-        length: 13,
-        type: 'blockquote',
-      },
-      {
-        offset: 6,
-        length: 7,
-        type: 'spoiler',
-      },
-    ],
+    input: {
+      text: 'Hello Spoiler',
+      marks: [
+        {
+          offset: 0,
+          length: 13,
+          type: 'blockquote',
+        },
+        {
+          offset: 6,
+          length: 7,
+          type: 'spoiler',
+        },
+      ],
+    },
     expects: '> Hello ||Spoiler||',
     description: 'Apply blockquote markdown, with spoiler contained within',
   },
   {
-    input: 'Hello Many Effects World',
-    marks: [
-      {
-        offset: 6,
-        length: 12,
-        type: 'bold',
-      },
-      {
-        offset: 6,
-        length: 12,
-        type: 'italic',
-      },
-      {
-        offset: 6,
-        length: 12,
-        type: 'strikethrough',
-      },
-    ],
+    input: {
+      text: 'Hello Many Effects World',
+      marks: [
+        {
+          offset: 6,
+          length: 12,
+          type: 'bold',
+        },
+        {
+          offset: 6,
+          length: 12,
+          type: 'italic',
+        },
+        {
+          offset: 6,
+          length: 12,
+          type: 'strikethrough',
+        },
+      ],
+    },
     expects: 'Hello ~~***Many Effects***~~ World',
     description: "Apply multiple effects to phrase 'Many Effects'",
   },
   {
-    input: 'Some Link',
-    marks: [
-      {
-        offset: 0,
-        length: 9,
-        type: 'text_link',
-        url: 'https://botpress.com/',
-      },
-      {
-        offset: 5,
-        length: 4,
-        type: 'bold',
-      },
-    ],
+    input: {
+      text: 'Some Link',
+      marks: [
+        {
+          offset: 0,
+          length: 9,
+          type: 'text_link',
+          url: 'https://botpress.com/',
+        },
+        {
+          offset: 5,
+          length: 4,
+          type: 'bold',
+        },
+      ],
+    },
     expects: '[Some **Link**](https://botpress.com/)',
     description: 'Apply markdown effects to specific words in hyperlink text',
   },
   {
-    input: 'Some Nested Marks',
-    marks: [
-      {
-        offset: 0,
-        length: 17,
-        type: 'spoiler',
-      },
-      {
-        offset: 0,
-        length: 5,
-        type: 'italic',
-      },
-      {
-        offset: 5,
-        length: 6,
-        type: 'bold',
-      },
-    ],
+    input: {
+      text: 'Some Nested Marks',
+      marks: [
+        {
+          offset: 0,
+          length: 17,
+          type: 'spoiler',
+        },
+        {
+          offset: 0,
+          length: 5,
+          type: 'italic',
+        },
+        {
+          offset: 5,
+          length: 6,
+          type: 'bold',
+        },
+      ],
+    },
     expects: '||*Some* **Nested** Marks||',
     description: 'Nested effects maintain their start/end positions in post-process',
   },
   {
-    input: 'Some Nested Marks',
-    marks: [
-      {
-        offset: 0,
-        length: 5,
-        type: 'italic',
-      },
-      {
-        offset: 0,
-        length: 9,
-        type: 'spoiler',
-      },
-      {
-        offset: 5,
-        length: 6,
-        type: 'bold',
-      },
-    ],
+    input: {
+      text: 'Some Nested Marks',
+      marks: [
+        {
+          offset: 0,
+          length: 5,
+          type: 'italic',
+        },
+        {
+          offset: 0,
+          length: 9,
+          type: 'spoiler',
+        },
+        {
+          offset: 5,
+          length: 6,
+          type: 'bold',
+        },
+      ],
+    },
     expects: '||*Some* **Nest**||**ed** Marks',
     description: 'Ensure no overlapping when a longer mark partially nests/cuts off a smaller mark',
   },
   {
-    input: 'Hello Many Effects World',
-    marks: [
-      {
-        offset: 6,
-        length: 12,
-        type: 'bold',
-      },
-      {
-        offset: 8,
-        length: 10,
-        type: 'italic',
-      },
-    ],
+    input: {
+      text: 'Hello Many Effects World',
+      marks: [
+        {
+          offset: 6,
+          length: 12,
+          type: 'bold',
+        },
+        {
+          offset: 8,
+          length: 10,
+          type: 'italic',
+        },
+      ],
+    },
     expects: 'Hello **Ma*ny Effects*** World',
     description: 'Apply effect encapsulated within another effect',
   },
-] as TelegramToMarkdownTestCase[])('Telegram to Markdown Conversion', ({ input, marks, expects, description }) => {
+] as TelegramToMarkdownTestCase[])('Telegram to Markdown Conversion', ({ input, expects, description }) => {
   test(description, () => {
     const consoleWarn = console.warn
 
@@ -544,7 +589,7 @@ describe.each([
       consoleWarn(firstArg, ...args)
     }
 
-    expect(applyMarksToText(input, marks)).toBe(expects)
+    expect(applyMarksToText(input.text, input.marks)).toBe(expects)
 
     console.warn = consoleWarn
   })
