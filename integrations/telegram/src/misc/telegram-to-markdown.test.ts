@@ -79,15 +79,12 @@ const overlapTestCases: OverlapTestCase[] = [
   },
 ]
 
-describe.each(overlapTestCases)(
-  'Test isOverlapping check accuracy',
-  ({ input: [rangeA, rangeB], expects, description }) => {
-    test(description, () => {
-      expect(isOverlapping(rangeA, rangeB)).toBe(expects)
-      expect(isOverlapping(rangeB, rangeA)).toBe(expects)
-    })
-  }
-)
+describe('Test isOverlapping check accuracy', () => {
+  test.each(overlapTestCases)('$description', ({ input: [rangeA, rangeB], expects }: OverlapTestCase) => {
+    expect(isOverlapping(rangeA, rangeB)).toBe(expects)
+    expect(isOverlapping(rangeB, rangeA)).toBe(expects)
+  })
+})
 
 export type TypedRange = Range & {
   type: string[]
@@ -200,15 +197,12 @@ const convertMarkToRange = ({ start, end, effects }: MarkSegment): TypedRange =>
     type,
   }
 }
-describe.each(splitRangeTestCases)(
-  'Split the range overlaps test cases while maintaining types',
-  ({ input, expects, description }) => {
-    test(description, () => {
-      const splitRanges = splitAnyOverlaps(input.map(convertRangeToMark))
-      expect(splitRanges.map(convertMarkToRange)).toEqual(expects)
-    })
-  }
-)
+describe('Split the range overlaps test cases while maintaining types', () => {
+  test.each(splitRangeTestCases)('$description', ({ input, expects }: SplitRangeTestCase) => {
+    const splitRanges = splitAnyOverlaps(input.map(convertRangeToMark))
+    expect(splitRanges.map(convertMarkToRange)).toEqual(expects)
+  })
+})
 
 type PostProcessTestCase = {
   input: MarkSegment[]
@@ -230,7 +224,7 @@ const markSegment = (start: number, end: number, types: string[], children?: Mar
   return segment
 }
 
-describe.each([
+const postProcessingTestCases: PostProcessTestCase[] = [
   {
     input: [
       markSegment(0, 1, ['bold']),
@@ -284,8 +278,9 @@ describe.each([
     ],
     description: 'Check that progressive overlapping types get correctly nested',
   },
-])('Post-processing mark segments', ({ input, expects, description }: PostProcessTestCase) => {
-  test(description, () => {
+]
+describe('Post-processing mark segments', () => {
+  test.each(postProcessingTestCases)('$description', ({ input, expects }: PostProcessTestCase) => {
     expect(postProcessNestedEffects(input)).toEqual(expects)
   })
 })
@@ -298,7 +293,7 @@ type TelegramToMarkdownTestCase = TestCase<
   string
 >
 
-describe.each([
+const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
   {
     input: {
       text: 'Hello World',
@@ -628,8 +623,10 @@ describe.each([
     expects: 'Hello **Ma*ny Effects*** World',
     description: 'Apply effect encapsulated within another effect',
   },
-] as TelegramToMarkdownTestCase[])('Telegram to Markdown Conversion', ({ input, expects, description }) => {
-  test(description, () => {
+]
+
+describe('Telegram to Markdown Conversion', () => {
+  test.each(telegramToMarkdownTestCases)('$description', ({ input, expects }: TelegramToMarkdownTestCase) => {
     const consoleWarn = console.warn
 
     console.warn = (firstArg: unknown, ...args: unknown[]) => {
