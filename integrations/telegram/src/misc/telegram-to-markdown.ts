@@ -92,14 +92,12 @@ const _combineEffects = (range: MarkSegment, otherIndex: number, arr: MarkSegmen
 const _byAscendingStartIndex = (a: MarkSegment, b: MarkSegment) => a.start - b.start
 const _byDescendingStartIndex = (a: MarkSegment, b: MarkSegment) => b.start - a.start
 export const splitAnyOverlaps = (ranges: MarkSegment[]): MarkSegment[] => {
-  const rangesToSplit = [...ranges]
-  rangesToSplit.sort(_byAscendingStartIndex)
-
-  if (rangesToSplit.length < 2) {
-    return rangesToSplit
+  if (ranges.length < 2) {
+    return ranges
   }
 
   // TODO: Optimize if possible
+  const rangesToSplit = [...ranges].sort(_byAscendingStartIndex)
   return rangesToSplit.reduce(
     (splitRanges: MarkSegment[], range: MarkSegment) => {
       let newSplitRanges = splitRanges
