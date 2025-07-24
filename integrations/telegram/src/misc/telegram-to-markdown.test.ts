@@ -481,6 +481,30 @@ describe.each([
     marks: [
       {
         offset: 0,
+        length: 17,
+        type: 'spoiler',
+      },
+      {
+        offset: 0,
+        length: 5,
+        type: 'italic',
+      },
+      {
+        offset: 5,
+        length: 6,
+        type: 'bold',
+      },
+    ],
+    // This 'expects' is technically invalid Markdown, it
+    // should actually be: "||*Some* **Nested** Marks||"
+    expects: '||*Some ***Nested** Marks||',
+    description: 'Nested effects maintain their start/end positions in post-process',
+  },
+  {
+    input: 'Some Nested Marks',
+    marks: [
+      {
+        offset: 0,
         length: 5,
         type: 'italic',
       },
