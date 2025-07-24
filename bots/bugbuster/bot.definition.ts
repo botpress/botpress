@@ -35,7 +35,9 @@ export default new sdk.BotDefinition({
   })
   .addIntegration(slack, {
     enabled: true,
+    // @ts-ignore TODO: fix config
     configurationType: 'botToken',
+    // @ts-ignore TODO: fix config
     configuration: {
       botToken: genenv.BUGBUSTER_SLACK_BOT_TOKEN,
       signingSecret: genenv.BUGBUSTER_SLACK_SIGNING_SECRET,
