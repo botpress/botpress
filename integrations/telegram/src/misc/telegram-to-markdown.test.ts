@@ -20,27 +20,71 @@ const range = (start: number, end: number): Range => {
   return { start, end }
 }
 
-type IsOverlappingTestCase = [[Range, Range], boolean, string]
-const isOverlappingTestCases: IsOverlappingTestCase[] = [
-  [[range(0, 6), range(6, 8)], false, 'Contiguous but no overlap'],
-  [[range(0, 5), range(6, 8)], false, 'No overlap with 1 character gap'],
-  [[range(0, 5), range(7, 8)], false, 'No overlap with gap'],
-  [[range(0, 6), range(3, 8)], true, 'Overlap'],
-  [[range(0, 6), range(5, 8)], true, 'Overlap on boundary'],
-  [[range(0, 5), range(0, 5)], true, 'Identical ranges'],
-  [[range(1, 2), range(1, 2)], true, 'Identical ranges on single character'],
-  [[range(0, 1), range(0, 8)], true, 'Single character encapsulated range'],
-  [[range(8, 15), range(8, 18)], true, 'Encapsulated range - Start'],
-  [[range(6, 18), range(8, 14)], true, 'Encapsulated range - Center'],
-  [[range(6, 18), range(12, 18)], true, 'Encapsulated range - End'],
+type OverlapTestCase = TestCase<[Range, Range], boolean>
+const overlapTestCases: OverlapTestCase[] = [
+  {
+    input: [range(0, 6), range(6, 8)],
+    expects: false,
+    description: 'Contiguous but no overlap',
+  },
+  {
+    input: [range(0, 5), range(6, 8)],
+    expects: false,
+    description: 'No overlap with 1 character gap',
+  },
+  {
+    input: [range(0, 5), range(7, 8)],
+    expects: false,
+    description: 'No overlap with gap',
+  },
+  {
+    input: [range(0, 6), range(3, 8)],
+    expects: true,
+    description: 'Overlap',
+  },
+  {
+    input: [range(0, 6), range(5, 8)],
+    expects: true,
+    description: 'Overlap on boundary',
+  },
+  {
+    input: [range(0, 5), range(0, 5)],
+    expects: true,
+    description: 'Identical ranges',
+  },
+  {
+    input: [range(1, 2), range(1, 2)],
+    expects: true,
+    description: 'Identical ranges on single character',
+  },
+  {
+    input: [range(0, 1), range(0, 8)],
+    expects: true,
+    description: 'Single character encapsulated range',
+  },
+  {
+    input: [range(8, 15), range(8, 18)],
+    expects: true,
+    description: 'Encapsulated range - Start',
+  },
+  {
+    input: [range(6, 18), range(8, 14)],
+    expects: true,
+    description: 'Encapsulated range - Center',
+  },
+  {
+    input: [range(6, 18), range(12, 18)],
+    expects: true,
+    description: 'Encapsulated range - End',
+  },
 ]
 
-describe.each(isOverlappingTestCases)(
+describe.each(overlapTestCases)(
   'Test isOverlapping check accuracy',
-  ([rangeA, rangeB]: [Range, Range], expected: boolean, description: string) => {
+  ({ input: [rangeA, rangeB], expects, description }) => {
     test(description, () => {
-      expect(isOverlapping(rangeA, rangeB)).toBe(expected)
-      expect(isOverlapping(rangeB, rangeA)).toBe(expected)
+      expect(isOverlapping(rangeA, rangeB)).toBe(expects)
+      expect(isOverlapping(rangeB, rangeA)).toBe(expects)
     })
   }
 )
