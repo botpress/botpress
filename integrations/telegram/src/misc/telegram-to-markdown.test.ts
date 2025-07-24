@@ -16,23 +16,23 @@ type TestCase<INPUT = unknown, EXPECTED = unknown> = {
   description: string
 }
 
-const Range = (start: number, end: number): Range => {
+const range = (start: number, end: number): Range => {
   return { start, end }
 }
 
 type IsOverlappingTestCase = [[Range, Range], boolean, string]
 const isOverlappingTestCases: IsOverlappingTestCase[] = [
-  [[Range(0, 6), Range(6, 8)], false, 'Contiguous but no overlap'],
-  [[Range(0, 5), Range(6, 8)], false, 'No overlap with 1 character gap'],
-  [[Range(0, 5), Range(7, 8)], false, 'No overlap with gap'],
-  [[Range(0, 6), Range(3, 8)], true, 'Overlap'],
-  [[Range(0, 6), Range(5, 8)], true, 'Overlap on boundary'],
-  [[Range(0, 5), Range(0, 5)], true, 'Identical ranges'],
-  [[Range(1, 2), Range(1, 2)], true, 'Identical ranges on single character'],
-  [[Range(0, 1), Range(0, 8)], true, 'Single character encapsulated range'],
-  [[Range(8, 15), Range(8, 18)], true, 'Encapsulated range - Start'],
-  [[Range(6, 18), Range(8, 14)], true, 'Encapsulated range - Center'],
-  [[Range(6, 18), Range(12, 18)], true, 'Encapsulated range - End'],
+  [[range(0, 6), range(6, 8)], false, 'Contiguous but no overlap'],
+  [[range(0, 5), range(6, 8)], false, 'No overlap with 1 character gap'],
+  [[range(0, 5), range(7, 8)], false, 'No overlap with gap'],
+  [[range(0, 6), range(3, 8)], true, 'Overlap'],
+  [[range(0, 6), range(5, 8)], true, 'Overlap on boundary'],
+  [[range(0, 5), range(0, 5)], true, 'Identical ranges'],
+  [[range(1, 2), range(1, 2)], true, 'Identical ranges on single character'],
+  [[range(0, 1), range(0, 8)], true, 'Single character encapsulated range'],
+  [[range(8, 15), range(8, 18)], true, 'Encapsulated range - Start'],
+  [[range(6, 18), range(8, 14)], true, 'Encapsulated range - Center'],
+  [[range(6, 18), range(12, 18)], true, 'Encapsulated range - End'],
 ]
 
 describe.each(isOverlappingTestCases)(
@@ -54,7 +54,7 @@ export type TypedRange = Range & {
  * @param {number} start - Inclusive Index
  * @param {number} end - Exclusive Index
  * @param {string | string[]} type */
-const TypedRange = (start: number, end: number, type: string | string[]): TypedRange => {
+const typedRange = (start: number, end: number, type: string | string[]): TypedRange => {
   return {
     start,
     end,
@@ -64,70 +64,70 @@ const TypedRange = (start: number, end: number, type: string | string[]): TypedR
 
 const splitRangeTestCases: [TypedRange[], TypedRange[], string][] = [
   [
-    [TypedRange(0, 6, 'bold'), TypedRange(6, 8, 'italic')],
-    [TypedRange(0, 6, 'bold'), TypedRange(6, 8, 'italic')],
+    [typedRange(0, 6, 'bold'), typedRange(6, 8, 'italic')],
+    [typedRange(0, 6, 'bold'), typedRange(6, 8, 'italic')],
     'Contiguous but no overlap',
   ],
   [
-    [TypedRange(0, 5, 'bold'), TypedRange(7, 8, 'italic')],
-    [TypedRange(0, 5, 'bold'), TypedRange(7, 8, 'italic')],
+    [typedRange(0, 5, 'bold'), typedRange(7, 8, 'italic')],
+    [typedRange(0, 5, 'bold'), typedRange(7, 8, 'italic')],
     'No overlap with gap',
   ],
   [
-    [TypedRange(0, 6, 'bold'), TypedRange(3, 8, 'italic')],
-    [TypedRange(0, 3, 'bold'), TypedRange(3, 6, ['bold', 'italic']), TypedRange(6, 8, 'italic')],
+    [typedRange(0, 6, 'bold'), typedRange(3, 8, 'italic')],
+    [typedRange(0, 3, 'bold'), typedRange(3, 6, ['bold', 'italic']), typedRange(6, 8, 'italic')],
     'Overlap',
   ],
   [
-    [TypedRange(0, 6, 'bold'), TypedRange(5, 8, 'italic')],
-    [TypedRange(0, 5, 'bold'), TypedRange(5, 6, ['bold', 'italic']), TypedRange(6, 8, 'italic')],
+    [typedRange(0, 6, 'bold'), typedRange(5, 8, 'italic')],
+    [typedRange(0, 5, 'bold'), typedRange(5, 6, ['bold', 'italic']), typedRange(6, 8, 'italic')],
     'Overlap on boundary',
   ],
-  [[TypedRange(0, 5, 'bold'), TypedRange(0, 5, 'italic')], [TypedRange(0, 5, ['bold', 'italic'])], 'Identical ranges'],
+  [[typedRange(0, 5, 'bold'), typedRange(0, 5, 'italic')], [typedRange(0, 5, ['bold', 'italic'])], 'Identical ranges'],
   [
-    [TypedRange(1, 2, 'bold'), TypedRange(1, 2, 'italic')],
-    [TypedRange(1, 2, ['bold', 'italic'])],
+    [typedRange(1, 2, 'bold'), typedRange(1, 2, 'italic')],
+    [typedRange(1, 2, ['bold', 'italic'])],
     'Identical ranges on single character',
   ],
   [
-    [TypedRange(0, 1, 'bold'), TypedRange(0, 8, 'italic')],
-    [TypedRange(0, 1, ['bold', 'italic']), TypedRange(1, 8, 'italic')],
+    [typedRange(0, 1, 'bold'), typedRange(0, 8, 'italic')],
+    [typedRange(0, 1, ['bold', 'italic']), typedRange(1, 8, 'italic')],
     'Single character encapsulated range',
   ],
   [
-    [TypedRange(6, 18, 'bold'), TypedRange(8, 20, 'italic'), TypedRange(6, 18, 'underline')],
+    [typedRange(6, 18, 'bold'), typedRange(8, 20, 'italic'), typedRange(6, 18, 'underline')],
     [
-      TypedRange(6, 8, ['bold', 'underline']),
-      TypedRange(8, 18, ['bold', 'italic', 'underline']),
-      TypedRange(18, 20, 'italic'),
+      typedRange(6, 8, ['bold', 'underline']),
+      typedRange(8, 18, ['bold', 'italic', 'underline']),
+      typedRange(18, 20, 'italic'),
     ],
     'Multiple ranges',
   ],
   [
     // This version of the "Multiple ranges" test adds the "TypedRange(0, 24, [])" to create segments without effects
-    [TypedRange(6, 18, 'bold'), TypedRange(8, 20, 'italic'), TypedRange(6, 18, 'underline'), TypedRange(0, 24, [])],
+    [typedRange(6, 18, 'bold'), typedRange(8, 20, 'italic'), typedRange(6, 18, 'underline'), typedRange(0, 24, [])],
     [
-      TypedRange(0, 6, []),
-      TypedRange(6, 8, ['bold', 'underline']),
-      TypedRange(8, 18, ['bold', 'italic', 'underline']),
-      TypedRange(18, 20, 'italic'),
-      TypedRange(20, 24, []),
+      typedRange(0, 6, []),
+      typedRange(6, 8, ['bold', 'underline']),
+      typedRange(8, 18, ['bold', 'italic', 'underline']),
+      typedRange(18, 20, 'italic'),
+      typedRange(20, 24, []),
     ],
     'Multiple ranges V2',
   ],
   [
-    [TypedRange(8, 15, 'bold'), TypedRange(8, 18, 'italic')],
-    [TypedRange(8, 15, ['bold', 'italic']), TypedRange(15, 18, 'italic')],
+    [typedRange(8, 15, 'bold'), typedRange(8, 18, 'italic')],
+    [typedRange(8, 15, ['bold', 'italic']), typedRange(15, 18, 'italic')],
     'Encapsulated range - Start',
   ],
   [
-    [TypedRange(6, 18, 'bold'), TypedRange(8, 14, 'italic')],
-    [TypedRange(6, 8, 'bold'), TypedRange(8, 14, ['bold', 'italic']), TypedRange(14, 18, 'bold')],
+    [typedRange(6, 18, 'bold'), typedRange(8, 14, 'italic')],
+    [typedRange(6, 8, 'bold'), typedRange(8, 14, ['bold', 'italic']), typedRange(14, 18, 'bold')],
     'Encapsulated range - Center',
   ],
   [
-    [TypedRange(6, 18, 'bold'), TypedRange(12, 18, 'italic')],
-    [TypedRange(6, 12, 'bold'), TypedRange(12, 18, ['bold', 'italic'])],
+    [typedRange(6, 18, 'bold'), typedRange(12, 18, 'italic')],
+    [typedRange(6, 12, 'bold'), typedRange(12, 18, ['bold', 'italic'])],
     'Encapsulated range - End',
   ],
 ]
