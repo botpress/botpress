@@ -36,8 +36,15 @@ const _registerOAuth = async ({ client }: RegisterProps) => {
 
 const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterProps) => {
   const metaClient = new MetaClient(logger)
-  const { pageToken, pageId } = await getMetaClientCredentials(client, ctx)
-  await metaClient.unsubscribeFromWebhooks(pageToken, pageId)
+  const credentials = await getMetaClientCredentials(client, ctx).catch(() => undefined)
+  if (!credentials) {
+    return
+  }
+
+  const { pageToken, pageId } = credentials
+  if (await metaClient.isSubscribedToWebhooks(pageToken, pageId)) {
+    await metaClient.unsubscribeFromWebhooks(pageToken, pageId)
+  }
 }
 
 const _clearAllIdentifiers = async ({ client }: RegisterProps) => {
