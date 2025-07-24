@@ -111,6 +111,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@linear/sdk':
+        specifier: ^50.0.0
+        version: 50.0.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -121,9 +124,12 @@ importers:
       '@botpresshub/github':
         specifier: workspace:*
         version: link:../../integrations/github
-      '@botpresshub/slack':
+      '@botpresshub/linear':
         specifier: workspace:*
-        version: link:../../integrations/slack
+        version: link:../../integrations/linear
+      '@botpresshub/telegram':
+        specifier: workspace:*
+        version: link:../../integrations/telegram
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -6063,6 +6069,17 @@ packages:
 
   /@linear/sdk@2.6.0:
     resolution: {integrity: sha512-L7Bsd5Ooa+RusZ6Y1yuzsq3NnrSOqHbhZHvdY+anNTOEtFPKonFCNeUdWXpBlyM21rzx7MWq+TfjtMo9dbxxPQ==}
+    engines: {node: '>=12.x', yarn: 1.x}
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@15.8.0)
+      graphql: 15.8.0
+      isomorphic-unfetch: 3.1.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@linear/sdk@50.0.0:
+    resolution: {integrity: sha512-cqOTIkayqCDTBITCieuZ3acMiJmWZB0bR9FhfrfMs2B5PotntDgcfNCBW+21LcMwcBrq0A84kwK2AQzdu+Atsg==}
     engines: {node: '>=12.x', yarn: 1.x}
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@15.8.0)

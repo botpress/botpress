@@ -1,5 +1,4 @@
-import { listIssues } from '../list-issues'
-import * as listeners from '../listeners'
+import * as bpApi from '../bp-api-utils'
 import * as bp from '.botpress'
 
 /**
@@ -8,7 +7,8 @@ import * as bp from '.botpress'
  */
 export const handleSyncIssuesRequest: bp.EventHandlers['syncIssuesRequest'] = async (props) => {
   try {
-    const githubIssues = await listIssues(props)
+    const botpress = await bpApi.BotpressApi.create(props)
+    const githubIssues = await botpress.listGithubIssues()
 
     const unassignedIssues = githubIssues
       .map((issue) =>
@@ -24,7 +24,7 @@ export const handleSyncIssuesRequest: bp.EventHandlers['syncIssuesRequest'] = as
       .filter((issue) => !issue.assigneeId)
 
     if (!unassignedIssues.length) {
-      console.info('All issues are assigned in GitHub')
+      props.logger.info('All issues are assigned in GitHub')
       return
     }
 
@@ -32,9 +32,9 @@ export const handleSyncIssuesRequest: bp.EventHandlers['syncIssuesRequest'] = as
       'The following issues are not assigned in GitHub:',
       ...unassignedIssues.map((issue) => `\t${issue.displayName}`),
     ].join('\n')
-    console.info(message)
+    props.logger.info(message)
 
-    await listeners.notifyListeners(props, {
+    await botpress.notifyListeners({
       type: 'text',
       payload: {
         text: message,
@@ -42,7 +42,7 @@ export const handleSyncIssuesRequest: bp.EventHandlers['syncIssuesRequest'] = as
     })
   } catch (thrown) {
     // If recurring event fails to many times, bridge stops sending it... We don't want that
-    const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-    console.error(err.message)
+    const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+    props.logger.error(err.message)
   }
 }
