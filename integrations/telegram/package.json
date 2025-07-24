@@ -12,6 +12,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "lodash": "^4.17.21",
+    "markdown-it": "^14.1.0",
     "telegraf": "^4.16.3"
   },
   "devDependencies": {
@@ -19,7 +20,8 @@
     "@botpress/common": "workspace:*",
     "@botpresshub/typing-indicator": "workspace:*",
     "@sentry/cli": "^2.39.1",
-    "@types/lodash": "^4.14.191"
+    "@types/lodash": "^4.14.191",
+    "@types/markdown-it": "^14.1.2"
   },
   "bpDependencies": {
     "typing-indicator": "../../interfaces/typing-indicator"
