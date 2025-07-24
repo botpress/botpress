@@ -42,6 +42,12 @@ export default new IntegrationDefinition({
           .min(1)
           .describe('Access Token from a System Account that has permission to the Meta app'),
         pageId: z.string().min(1).describe('Id from the Facebook page').title('Page ID'),
+        shouldGetUserProfile: z
+          .boolean()
+          .default(true)
+          .optional()
+          .describe('Whether to get the user profile infos from Messenger when creating a new user')
+          .title('Get User Profile'),
       }),
     },
     sandbox: {
@@ -108,6 +114,9 @@ export default new IntegrationDefinition({
     ACCESS_TOKEN: {
       description: 'Access token for internal Meta App',
     },
+    SHOULD_GET_USER_PROFILE: {
+      description: "Whether to get the user profile infos from Messenger when creating a new user ('true' or 'false')",
+    },
     SANDBOX_CLIENT_ID: {
       description: 'The client ID of the Sandbox Meta app',
     },
@@ -122,6 +131,9 @@ export default new IntegrationDefinition({
     },
     SANDBOX_PAGE_ID: {
       description: 'Page ID for the Sandbox Facebook page',
+    },
+    SANDBOX_SHOULD_GET_USER_PROFILE: {
+      description: "Whether to get the user profile infos from Messenger when creating a new user ('true' or 'false')",
     },
   },
   user: {

@@ -2,12 +2,10 @@ import { create as createMessengerClient } from '../../misc/messenger-client'
 import { MessengerMessaging } from '../../misc/types'
 import * as bp from '.botpress'
 
-type IntegrationLogger = bp.Logger
+type User = Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
 
-export async function handler(
-  message: MessengerMessaging,
-  { client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: IntegrationLogger }
-) {
+export async function handler(message: MessengerMessaging, props: bp.HandlerProps) {
+  const { client, logger } = props
   const { sender, recipient, message: textMessage, postback } = message
 
   let text: string
@@ -38,18 +36,7 @@ export async function handler(
       id: sender.id,
     },
   })
-
-  if (!user.name || !user.pictureUrl) {
-    try {
-      const messengerClient = await createMessengerClient(client, ctx)
-      const profile = await messengerClient.getUserProfile(message.sender.id, { fields: ['id', 'name', 'profile_pic'] })
-      logger.forBot().debug('Fetched latest Messenger user profile: ', profile)
-
-      await client.updateUser({ id: user.id, name: profile.name, pictureUrl: profile.profilePic })
-    } catch (error: any) {
-      logger.forBot().error('Error while fetching user profile from Messenger:', error?.message ?? '[Unknown error]')
-    }
-  }
+  await _updateUserProfile(user, sender.id, props)
 
   await client.createMessage({
     tags: {
@@ -62,4 +49,36 @@ export async function handler(
     conversationId: conversation.id,
     payload: { text },
   })
+}
+
+const _shouldGetUserProfile = (props: bp.HandlerProps) => {
+  const { ctx } = props
+  if (ctx.configurationType === 'sandbox') {
+    return bp.secrets.SANDBOX_SHOULD_GET_USER_PROFILE === 'true'
+  }
+  if (ctx.configurationType === 'manual') {
+    return ctx.configuration.shouldGetUserProfile ?? true
+  }
+
+  return bp.secrets.SHOULD_GET_USER_PROFILE === 'true'
+}
+
+const _updateUserProfile = async (user: User, messengerUserId: string, props: bp.HandlerProps) => {
+  const { client, ctx, logger } = props
+  if (_shouldGetUserProfile(props) && (!user.name || !user.pictureUrl)) {
+    try {
+      const messengerClient = await createMessengerClient(client, ctx)
+      const profile = await messengerClient.getUserProfile(messengerUserId, { fields: ['id', 'name', 'profile_pic'] })
+      logger.forBot().debug('Fetched latest Messenger user profile: ', profile)
+
+      await client.updateUser({ id: user.id, name: profile.name, pictureUrl: profile.profilePic })
+    } catch (error: any) {
+      logger
+        .forBot()
+        .error(
+          'Error while fetching user profile from Messenger, make sure your app was granted the necessary permissions. Error:',
+          error?.message ?? '[Unknown error]'
+        )
+    }
+  }
 }
