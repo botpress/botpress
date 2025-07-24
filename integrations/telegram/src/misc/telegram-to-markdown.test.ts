@@ -488,9 +488,7 @@ describe.each([
         type: 'bold',
       },
     ],
-    // This 'expects' is technically invalid Markdown, it
-    // should actually be: "||*Some* **Nested** Marks||"
-    expects: '||*Some ***Nested** Marks||',
+    expects: '||*Some* **Nested** Marks||',
     description: 'Nested effects maintain their start/end positions in post-process',
   },
   {
@@ -512,9 +510,7 @@ describe.each([
         type: 'bold',
       },
     ],
-    // This 'expects' is technically invalid Markdown, it
-    // should actually be: "||*Some* **Nest||**ed** Marks"
-    expects: '||*Some ***Nest**||**ed** Marks',
+    expects: '||*Some* **Nest**||**ed** Marks',
     description: 'Ensure no overlapping when a longer mark partially nests/cuts off a smaller mark',
   },
   {

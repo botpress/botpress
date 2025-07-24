@@ -29,24 +29,40 @@ export type TelegramMark = {
   language?: string
 }
 
+const applyWhitespaceSensitiveMark = (markHandler: MarkHandler) => {
+  return (text: string, data: Record<string, unknown>): string => {
+    let startWhitespace: string | undefined = undefined
+    let endWhitespace: string | undefined = undefined
+    const matchAllResult = text.matchAll(/(?<start>^\s+)|(?<end>\s+$)/g)
+    Array.from(matchAllResult).forEach((match) => {
+      startWhitespace ??= match.groups?.start
+      endWhitespace ??= match.groups?.end
+    })
+
+    return `${startWhitespace ?? ''}${markHandler(text.trim(), data)}${endWhitespace ?? ''}`
+  }
+}
+
 type MarkHandler = (text: string, data: Record<string, unknown>) => string
 const _handlers: Record<string, MarkHandler> = {
-  bold: (text: string) => `**${text}**`,
-  italic: (text: string) => `*${text}*`,
-  strikethrough: (text: string) => `~~${text}~~`,
-  code: (text: string) => `\`${text}\``,
-  text_link: (text: string, data: Record<string, unknown>) => `[${text}](${data?.url || '#'})`,
-  spoiler: (text: string) => `||${text}||`,
+  bold: applyWhitespaceSensitiveMark((text: string) => `**${text}**`),
+  italic: applyWhitespaceSensitiveMark((text: string) => `*${text}*`),
+  strikethrough: applyWhitespaceSensitiveMark((text: string) => `~~${text}~~`),
+  code: applyWhitespaceSensitiveMark((text: string) => `\`${text}\``),
+  text_link: applyWhitespaceSensitiveMark(
+    (text: string, data: Record<string, unknown>) => `[${text}](${data?.url || '#'})`
+  ),
+  spoiler: applyWhitespaceSensitiveMark((text: string) => `||${text}||`),
   pre: (text: string, data: Record<string, unknown>) => `\`\`\`${data?.language || ''}\n${text}\n\`\`\``,
   blockquote: (text: string) => `> ${text}`,
-  phone_number: (text: string) => {
+  phone_number: applyWhitespaceSensitiveMark((text: string) => {
     return `[${text}](tel:${text.replace(/\D/g, '')})`
-  },
-  email: (text: string) => {
+  }),
+  email: applyWhitespaceSensitiveMark((text: string) => {
     return `[${text}](mailto:${text})`
-  },
+  }),
   // Underline does nothing because the commonmark spec doesn't support it.
-  underline: (text: string) => text,
+  underline: applyWhitespaceSensitiveMark((text: string) => text),
 }
 
 export const isOverlapping = (a: Range, b: Range) => {
