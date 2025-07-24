@@ -477,6 +477,30 @@ describe.each([
     description: 'Apply markdown effects to specific words in hyperlink text',
   },
   {
+    input: 'Some Nested Marks',
+    marks: [
+      {
+        offset: 0,
+        length: 5,
+        type: 'italic',
+      },
+      {
+        offset: 0,
+        length: 9,
+        type: 'spoiler',
+      },
+      {
+        offset: 5,
+        length: 6,
+        type: 'bold',
+      },
+    ],
+    // This 'expects' is technically invalid Markdown, it
+    // should actually be: "||*Some* **Nest||**ed** Marks"
+    expects: '||*Some ***Nest**||**ed** Marks',
+    description: 'Ensure no overlapping when a longer mark partially nests/cuts off a smaller mark',
+  },
+  {
     input: 'Hello Many Effects World',
     marks: [
       {

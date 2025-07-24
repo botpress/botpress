@@ -89,7 +89,9 @@ const _combineEffects = (range: MarkSegment, otherIndex: number, arr: MarkSegmen
   }
 }
 
-const _byAscendingStartIndex = (a: MarkSegment, b: MarkSegment) => a.start - b.start
+const _byAscendingStartThenByDescendingLength = (a: MarkSegment, b: MarkSegment) => {
+  return a.start !== b.start ? a.start - b.start : b.end - a.end
+}
 const _byDescendingStartIndex = (a: MarkSegment, b: MarkSegment) => b.start - a.start
 export const splitAnyOverlaps = (ranges: MarkSegment[]): MarkSegment[] => {
   if (ranges.length < 2) {
@@ -97,7 +99,7 @@ export const splitAnyOverlaps = (ranges: MarkSegment[]): MarkSegment[] => {
   }
 
   // TODO: Optimize if possible
-  const rangesToSplit = [...ranges].sort(_byAscendingStartIndex)
+  const rangesToSplit = [...ranges].sort(_byAscendingStartThenByDescendingLength)
   return rangesToSplit.reduce(
     (splitRanges: MarkSegment[], range: MarkSegment) => {
       let newSplitRanges = splitRanges
@@ -105,7 +107,6 @@ export const splitAnyOverlaps = (ranges: MarkSegment[]): MarkSegment[] => {
           const newRanges = splitIfOverlapping(otherRange, range)
           return arr.concat(newRanges)
         }, [])
-        // TODO: Check performance trade-off of moving filter outside the outer "reduce" scope
         .filter((range: MarkSegment, index: number, arr: MarkSegment[]) => {
           if (range.start === range.end) return false
           const otherIndex = arr.findIndex(({ start, end }) => range.start === start && range.end === end)
@@ -114,7 +115,7 @@ export const splitAnyOverlaps = (ranges: MarkSegment[]): MarkSegment[] => {
         })
 
       if (newSplitRanges.every((otherRange) => !isOverlapping(range, otherRange))) {
-        newSplitRanges = newSplitRanges.concat(range).sort(_byAscendingStartIndex)
+        newSplitRanges = newSplitRanges.concat(range).sort(_byAscendingStartThenByDescendingLength)
       }
 
       return newSplitRanges
@@ -148,7 +149,7 @@ export const postProcessNestedEffects = (
   precheck?: (sortedSegments: MarkSegment[]) => void
 ) => {
   const reversedSegments: MarkSegment[] = [...unprocessedSegments].sort(_byDescendingStartIndex)
-  precheck?.(unprocessedSegments)
+  precheck?.([...reversedSegments].reverse())
 
   for (let index = reversedSegments.length - 1; index > 0; index--) {
     const segment: MarkSegment = reversedSegments[index]!
