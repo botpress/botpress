@@ -141,8 +141,8 @@ const _areSegmentsNonOverlappingContiguous = (text: string, sortedRanges: MarkSe
   })
 }
 
-const _hasMarkType = (otherSegment: MarkSegment, markType: string) => {
-  return otherSegment.effects.some((otherMark) => otherMark.type === markType)
+const _hasMarkType = (marks: MarkEffect[], markType: string) => {
+  return marks.some((otherMark) => otherMark.type === markType)
 }
 
 export const postProcessNestedEffects = (
@@ -160,20 +160,14 @@ export const postProcessNestedEffects = (
     const otherSegment: MarkSegment = reversedSegments[otherIndex]!
 
     const sharedMarks: MarkEffect[] = []
-    const nonSharedMarks: MarkEffect[] = []
-    segment.effects
-      .concat(otherSegment.effects)
-      // Could probably incorporate this filter into the forEach
-      .filter((effect: MarkEffect, effectIndex: number, allEffects: MarkEffect[]) => {
-        return effectIndex === allEffects.findIndex((otherEffect) => otherEffect.type === effect.type)
-      })
-      .forEach((mark: MarkEffect) => {
-        if (_hasMarkType(segment, mark.type) && _hasMarkType(otherSegment, mark.type)) {
-          sharedMarks.push(mark)
-        } else {
-          nonSharedMarks.push(mark)
-        }
-      })
+    const segmentNonSharedMarks: MarkEffect[] = []
+    segment.effects.forEach((mark: MarkEffect) => {
+      if (_hasMarkType(otherSegment.effects, mark.type)) {
+        sharedMarks.push(mark)
+      } else {
+        segmentNonSharedMarks.push(mark)
+      }
+    })
 
     if (sharedMarks.length === 0) {
       continue
@@ -185,12 +179,23 @@ export const postProcessNestedEffects = (
       effects: sharedMarks,
     }
 
+    const otherSegmentNonSharedMarks: MarkEffect[] = otherSegment.effects.filter(
+      (mark: MarkEffect) => !_hasMarkType(sharedMarks, mark.type)
+    )
+
     let childSegments: MarkSegment[] = [...(segment.children ?? [])]
-    if (nonSharedMarks.length > 0) {
+    if (segmentNonSharedMarks.length > 0) {
+      childSegments = childSegments.concat({
+        start: segment.start,
+        end: segment.end,
+        effects: segmentNonSharedMarks,
+      })
+    }
+    if (otherSegmentNonSharedMarks.length > 0) {
       childSegments = childSegments.concat({
         start: otherSegment.start,
         end: otherSegment.end,
-        effects: nonSharedMarks,
+        effects: otherSegmentNonSharedMarks,
       })
     }
     if (childSegments.length > 0) {
