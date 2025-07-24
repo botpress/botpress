@@ -73,7 +73,7 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
       if (newConvRef.user?.id) {
         try {
           newConvMember = await TeamsInfo.getMember(context, newConvRef.user.id)
-        } catch (err) {}
+        } catch {}
       }
     })
   } catch (thrown) {
@@ -103,7 +103,7 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
     payload: newConvRef,
   })
 
-  let userId
+  let userId: string | undefined
   if (newConvMember) {
     userId = (
       await client.getOrCreateUser({
