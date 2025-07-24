@@ -80,7 +80,9 @@ const _handleTimeout = async (
   await downstreamCm.respond({
     // TODO: We might want to add a custom message for the human agent.
     type: 'text',
-    text: sessionConfig.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
+    text: sessionConfig.onUserHitlCancelledMessage?.length
+      ? sessionConfig.onUserHitlCancelledMessage
+      : DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   })
 
   await Promise.allSettled([
@@ -98,6 +100,8 @@ const _handleTimeout = async (
 
   await upstreamCm.respond({
     type: 'text',
-    text: sessionConfig.onAgentAssignedTimeoutMessage ?? DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE,
+    text: sessionConfig.onAgentAssignedTimeoutMessage?.length
+      ? sessionConfig.onAgentAssignedTimeoutMessage
+      : DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE,
   })
 }

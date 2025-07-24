@@ -4,7 +4,7 @@ import { getClient, getZai } from './utils'
 
 import { check } from '@botpress/vai'
 
-describe('zai.learn / generic', { timeout: 60_000 }, () => {
+describe.sequential('zai.learn / generic', { timeout: 60_000 }, () => {
   const client = getClient()
   let tableName = 'ZaiTestInternalTable'
   let taskId = 'test'
@@ -33,7 +33,7 @@ describe('zai.learn / generic', { timeout: 60_000 }, () => {
   })
 
   it('saves examples to tables', async () => {
-    const { value } = await zai
+    const value = await zai
       .learn(taskId)
       .check('This text is very clearly written in English.', 'is an english sentence')
 
@@ -69,7 +69,7 @@ describe('zai.learn / generic', { timeout: 60_000 }, () => {
       findTableRows,
     })
 
-    const { value } = await zai
+    const value = await zai
       .with({ client })
       .learn(taskId)
       .check('This text is very clearly written in English.', 'Text is in English')

@@ -223,6 +223,10 @@ export const convertObjectToZuiLiterals = (obj: unknown, nested = false): any =>
     if (nested) {
       return z.object(shape).catch(() => shape)
     }
+    // We need to return a zod empty object for empty objects otherwise clone doesn't work properly
+    if (Object.keys(shape).length === 0) {
+      return z.object({}).catch(() => shape)
+    }
     return shape
   }
 
