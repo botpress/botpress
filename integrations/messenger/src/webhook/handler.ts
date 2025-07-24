@@ -46,7 +46,7 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
 
   for (const { messaging } of data.entry) {
     const message = messaging[0]
-    await messageHandler(message, { client, ctx, logger })
+    await messageHandler(message, props)
   }
 
   return

@@ -182,10 +182,10 @@ describe('bot with plugins', () => {
     const textHandlers = bot.messageHandlers['text']
     expect(textHandlers?.map((h) => h.name)).toEqual(['fooText', 'barText', 'barGlobal', 'botText'])
 
-    const fooTextHandlers = bot.messageHandlers['foo:text']
+    const fooTextHandlers = bot.messageHandlers['foo#text']
     expect(fooTextHandlers?.map((h) => h.name)).toEqual(['fooText', 'barGlobal'])
 
-    const barTextHandlers = bot.messageHandlers['bar:text']
+    const barTextHandlers = bot.messageHandlers['bar#text']
     expect(barTextHandlers?.map((h) => h.name)).toEqual(['barText', 'barGlobal'])
   })
 
@@ -205,10 +205,10 @@ describe('bot with plugins', () => {
       'botSomethingHappend',
     ])
 
-    const fooHandlers = bot.eventHandlers['foo:somethingHappend']
+    const fooHandlers = bot.eventHandlers['foo#somethingHappend']
     expect(fooHandlers?.map((h) => h.name)).toEqual(['fooSomethingHappend', 'barGlobal'])
 
-    const barHandlers = bot.eventHandlers['bar:somethingHappend']
+    const barHandlers = bot.eventHandlers['bar#somethingHappend']
     expect(barHandlers?.map((h) => h.name)).toEqual(['barSomethingHappend', 'barGlobal'])
   })
 
@@ -219,7 +219,7 @@ describe('bot with plugins', () => {
     plugins.foo.on.event('creatable:itemCreated', async function fooItemCreated() {})
     plugins.foo.on.event('github:prOpened', async function fooPrOpened() {})
 
-    const somethingHappendHandlers = bot.eventHandlers['foo:somethingHappend']
+    const somethingHappendHandlers = bot.eventHandlers['foo#somethingHappend']
     const itemCreatedHandlers = bot.eventHandlers['creatable:itemCreated']
     const prOpenedHandlers = bot.eventHandlers['github:prOpened']
     expect(somethingHappendHandlers?.map((h) => h.name)).toEqual(['fooSomethingHappend'])
@@ -251,10 +251,10 @@ describe('bot with plugins', () => {
       'botSomethingHappend',
     ])
 
-    const fooHandlers = bot.hookHandlers.before_incoming_event['foo:somethingHappend']
+    const fooHandlers = bot.hookHandlers.before_incoming_event['foo#somethingHappend']
     expect(fooHandlers?.map((h) => h.name)).toEqual(['fooSomethingHappend', 'barGlobal'])
 
-    const barHandlers = bot.hookHandlers.before_incoming_event['bar:somethingHappend']
+    const barHandlers = bot.hookHandlers.before_incoming_event['bar#somethingHappend']
     expect(barHandlers?.map((h) => h.name)).toEqual(['barSomethingHappend', 'barGlobal'])
   })
 
@@ -271,7 +271,7 @@ describe('bot with plugins', () => {
       return {}
     })
 
-    const somethingHappendHandlers = bot.hookHandlers.before_incoming_event['foo:somethingHappend']
+    const somethingHappendHandlers = bot.hookHandlers.before_incoming_event['foo#somethingHappend']
     const itemCreatedHandlers = bot.hookHandlers.before_incoming_event['creatable:itemCreated']
     const prOpenedHandlers = bot.hookHandlers.before_incoming_event['github:prOpened']
     expect(somethingHappendHandlers?.map((h) => h.name)).toEqual(['fooSomethingHappend'])

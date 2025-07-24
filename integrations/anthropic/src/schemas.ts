@@ -1,10 +1,10 @@
 import { z } from '@botpress/sdk'
 
-export type ModelId = z.infer<typeof modelId>
+export type ModelId = z.infer<typeof ModelId>
 
 export const DefaultModel: ModelId = 'claude-sonnet-4-20250514'
 
-export const modelId = z
+export const ModelId = z
   .enum([
     'claude-sonnet-4-20250514',
     'claude-sonnet-4-reasoning-20250514',

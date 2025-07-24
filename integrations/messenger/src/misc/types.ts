@@ -40,32 +40,41 @@ export type MessengerOutMessageAttachment =
   | MessengerOutMessageSayAttachment
   | MessengerOutMessageUrlAttachment
 
-const messengerMessagingSchema = z.object({
+const baseMessengerMessagingEntrySchema = z.object({
   sender: z.object({ id: z.string() }),
   recipient: z.object({ id: z.string() }),
   timestamp: z.number(),
-  message: z
-    .object({
-      mid: z.string(),
-      text: z.string().optional(),
-      quick_reply: z.object({ payload: z.string() }).optional(),
-      attachments: z.array(z.object({ type: z.string(), payload: z.object({ url: z.string() }) })).optional(),
-    })
-    .optional(),
-  postback: z
-    .object({
-      mid: z.string(),
-      payload: z.string(),
-      title: z.string(),
-    })
-    .optional(),
 })
-export type MessengerMessaging = z.infer<typeof messengerMessagingSchema>
+
+const messengerMessagingEntryMessageSchema = baseMessengerMessagingEntrySchema.extend({
+  message: z.object({
+    mid: z.string(),
+    text: z.string().optional(),
+    quick_reply: z.object({ payload: z.string() }).optional(),
+    attachments: z.array(z.object({ type: z.string(), payload: z.object({ url: z.string() }) })).optional(),
+  }),
+})
+export type MessengerMessagingEntryMessage = z.infer<typeof messengerMessagingEntryMessageSchema>
+
+const messengerMessagingEntryPostbackSchema = baseMessengerMessagingEntrySchema.extend({
+  postback: z.object({
+    mid: z.string(),
+    payload: z.string(),
+    title: z.string(),
+  }),
+})
+export type MessengerMessagingEntryPostback = z.infer<typeof messengerMessagingEntryPostbackSchema>
+
+const messengerMessagingEntrySchema = z.union([
+  messengerMessagingEntryMessageSchema,
+  messengerMessagingEntryPostbackSchema,
+])
+export type MessengerMessagingEntry = z.infer<typeof messengerMessagingEntrySchema>
 
 const messengerEntrySchema = z.object({
   id: z.string(),
   time: z.number(),
-  messaging: z.tuple([messengerMessagingSchema]),
+  messaging: z.tuple([messengerMessagingEntrySchema]),
 })
 
 export const messengerPayloadSchema = z.object({

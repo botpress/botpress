@@ -1,13 +1,15 @@
-name: Check Windows
+name: Run CLI Tests Windows
 
-on: pull_request
+on:
+  pull_request: {}
+  workflow_dispatch: {}
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  check-windows:
+  run-cli-tests-windows:
     runs-on: windows-latest
     timeout-minutes: 15
     env:
