@@ -73,7 +73,7 @@ export default new IntegrationDefinition({
     sandbox: {
       title: 'Sandbox Configuration',
       description: 'Sandbox configuration, for testing purposes only',
-      schema: z.object({}),
+      schema: commonConfigSchema,
     },
   },
   identifier: {

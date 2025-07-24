@@ -106,7 +106,7 @@ const _commonMessagingHandler = async ({
   messagingEntry: MessengerMessagingEntry
   handlerProps: bp.HandlerProps
 }) => {
-  const { client, ctx, logger } = handlerProps
+  const { client } = handlerProps
 
   const { sender, recipient } = messagingEntry
   const { conversation } = await client.getOrCreateConversation({
@@ -119,7 +119,7 @@ const _commonMessagingHandler = async ({
       id: sender.id,
     },
   })
-  await _updateUserProfile(user, sender.id, props)
+  await _updateUserProfile(user, sender.id, handlerProps)
 
   await client.getOrCreateMessage({
     tags: {

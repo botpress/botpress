@@ -1,11 +1,11 @@
-import * as bp from '.botpress'
 import {
   CONVERSATION_CONNECTED_MESSAGE,
   CONVERSATION_DISCONNECTED_MESSAGE,
   extractSandboxCommand,
 } from '@botpress/common'
 import { create as createMessengerClient } from '../../misc/messenger-client'
-import { MessengerMessaging, messengerPayloadSchema } from '../../misc/types'
+import { MessengerMessagingEntry, messengerPayloadSchema } from '../../misc/types'
+import * as bp from '.botpress'
 
 const NO_MESSAGE_ERROR = { status: 400, body: 'No message found in request' } as const
 
@@ -46,7 +46,7 @@ const _sendConfirmationMessage = async (props: bp.HandlerProps, message: string)
   return
 }
 
-const _extractMessagingEntryFromRequest = (props: bp.HandlerProps): MessengerMessaging | undefined => {
+const _extractMessagingEntryFromRequest = (props: bp.HandlerProps): MessengerMessagingEntry | undefined => {
   const { req, logger } = props
   if (!req.body) {
     return undefined
