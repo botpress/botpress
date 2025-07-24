@@ -1,30 +1,49 @@
+/**
+ * Example 02: Chat with Exits
+ *
+ * This example demonstrates how to use custom exits in chat mode.
+ * It shows how to:
+ * - Define custom exit conditions with and without output schemas
+ * - Handle different exit types in the execution result
+ * - Use type-safe exit checking with result.is()
+ * - Implement escalation workflows with structured data
+ *
+ * Key concepts:
+ * - Exit definitions with typed schemas
+ * - Multiple exit conditions handling
+ * - Automatic ListenExit for user interaction
+ * - Type-safe result checking
+ */
+
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
 import { execute, Exit, ListenExit } from 'llmz'
 
 import { CLIChat } from '../utils/cli-chat'
 
+// Initialize Botpress client for LLM communication
 const client = new Client({
   botId: process.env.BOTPRESS_BOT_ID!,
   token: process.env.BOTPRESS_TOKEN!,
 })
 
-// An execution in chat mode can exit in two ways:
-// The agent listens for the user's input, or one of the user-defined exits is triggered.
-// In this example, we define two exits: one for exiting the chat and another for escalating the issue to a human agent.
+// Chat executions can terminate in multiple ways:
+// 1. ListenExit: Agent pauses to wait for user input (automatic in chat mode)
+// 2. Custom exits: User-defined conditions that end execution with specific outcomes
+// This example shows two custom exits for different termination scenarios
 
 const chat = new CLIChat()
 
-/** An exit with no output */
+// Define a simple exit without output data
+// When this exit is triggered, the execution ends with no additional information
 const exit = new Exit({
   name: 'exit',
   description: 'When the user wants to exit the program',
 })
 
-/**
- * An exit with an output schema
- * LLMz will try to parse the output of the agent to match the schema
- */
+// Define an exit with structured output schema
+// The LLM will generate data matching this schema when the exit is triggered
+// This enables type-safe data extraction from exit conditions
 const escalation = new Exit({
   name: 'escalation',
   description: 'Escalate the issue to a human agent',
@@ -33,18 +52,24 @@ const escalation = new Exit({
   }),
 })
 
+// Main conversation loop with exit handling
 while (await chat.iterate()) {
+  // Execute with custom exits defined
   const result = await execute({
     instructions: 'You are a helpful assistant. Greet the user and suggest topics for discussion using buttons.',
-    // when `chat` is used, the <ListenExit> is automatically added to the exits
-    // <ListenExit> is basically what allows the agent to stop execution and wait for the user's input
+
+    // Custom exits available to the agent
+    // Note: ListenExit is automatically added when using chat mode
     exits: [exit, escalation],
     chat,
     client,
   })
 
-  // .is(<exit>) checks if the result is an exit of the given type
+  // Type-safe exit checking using result.is()
+  // This provides compile-time safety and runtime type narrowing
+
   if (result.is(exit)) {
+    // Handle simple exit - no additional data
     console.log(`-----------------------`)
     console.log('👋 Goodbye!')
     console.log(`-----------------------`)
@@ -52,6 +77,7 @@ while (await chat.iterate()) {
   }
 
   if (result.is(escalation)) {
+    // Handle escalation exit - access typed output data
     console.log(`-----------------------`)
     console.log(`🚨 Escalation needed: ${result.output.reason}`)
     console.log(`-----------------------`)
@@ -59,7 +85,8 @@ while (await chat.iterate()) {
   }
 
   if (result.is(ListenExit)) {
-    // The agent is waiting for the user's input
-    // So we keep looping to capture the user input and iterate
+    // The agent has paused execution to wait for user input
+    // Continue the loop to process the next user message
+    // This is the normal flow for continuing conversations
   }
 }
