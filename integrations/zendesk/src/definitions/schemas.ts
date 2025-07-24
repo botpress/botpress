@@ -14,6 +14,7 @@ export const ticketSchema = z.object({
   tags: z.array(z.string()),
   externalId: z.string().nullable(),
   comment: z.record(z.any()).optional(),
+  via: z.record(z.any()).optional(),
 })
 
 const _zdTicketSchema = ticketSchema.transform((data) => ({

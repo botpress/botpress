@@ -1,6 +1,6 @@
 Optimize your customer support workflow with the Zendesk integration for your chatbot. Seamlessly manage tickets, engage customers, and access critical information—all within your bot. Elevate your customer service game and improve internal processes by triggering automations from real-time ticket updates.
 
-> 🤝 **Usage with HITL (Human in the Loop)**  
+> 🤝 **Usage with HITL (Human in the Loop)**
 > If you intend to use the Zendesk integration with HITL, ensure that you have the HITL plugin installed.
 
 ## Installation and Configuration
@@ -26,3 +26,8 @@ Password: `API_TOKEN`
 3.  Enable the integration to complete the setup.
 
 Once these steps are completed, your Zendesk articles will automatically sync to the specified knowledge base in Botpress. You can manually sync by using the "Sync KB" action.
+
+### HITL
+
+#### Via Channel Types
+On the "Start HITL" card you can use only "via channel" types documented by [Zendesk Docs](https://developer.zendesk.com/documentation/ticketing/reference-guides/via-types)
