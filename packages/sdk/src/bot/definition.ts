@@ -205,15 +205,13 @@ export class BotDefinition<
       self.integrations = {}
     }
 
-    self.integrations[integrationPkg.name] = config
-      ? {
-          enabled: config.enabled,
-          ...integrationPkg,
-          ...('configurationType' in config ? { configurationType: config.configurationType } : {}),
-          ...('configuration' in config ? { configuration: config.configuration } : {}),
-          ...('disabledChannels' in config ? { disabledChannels: config.disabledChannels } : {}),
-        }
-      : integrationPkg
+    self.integrations[integrationPkg.name] = {
+      ...integrationPkg,
+      enabled: config?.enabled,
+      configurationType: config?.configurationType,
+      configuration: config?.configuration,
+      disabledChannels: config?.disabledChannels,
+    }
     return this
   }
 
