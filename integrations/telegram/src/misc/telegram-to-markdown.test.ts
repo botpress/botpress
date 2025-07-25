@@ -1,136 +1,11 @@
 import { describe, expect, test } from 'vitest'
-import {
-  applyMarksToText,
-  splitAnyOverlaps,
-  type MarkEffect,
-  type MarkSegment,
-  type Range,
-  type TelegramMark,
-} from './telegram-to-markdown'
+import { applyMarksToText, type TelegramMark } from './telegram-to-markdown'
 
 type TestCase<INPUT = unknown, EXPECTED = unknown> = {
   input: INPUT
   expects: EXPECTED
   description: string
 }
-
-export type TypedRange = Range & {
-  type: string[]
-}
-
-/** Creates a range with one or more types associated
- *
- * @param {number} start - Inclusive Index
- * @param {number} end - Exclusive Index
- * @param {string | string[]} type */
-const typedRange = (start: number, end: number, type: string | string[]): TypedRange => {
-  return {
-    start,
-    end,
-    type: Array.isArray(type) ? type : [type],
-  }
-}
-
-type SplitRangeTestCase = TestCase<TypedRange[], TypedRange[]>
-const splitRangeTestCases: SplitRangeTestCase[] = [
-  {
-    input: [typedRange(0, 6, 'bold'), typedRange(6, 8, 'italic')],
-    expects: [typedRange(0, 6, 'bold'), typedRange(6, 8, 'italic')],
-    description: 'Contiguous but no overlap',
-  },
-  {
-    input: [typedRange(0, 5, 'bold'), typedRange(7, 8, 'italic')],
-    expects: [typedRange(0, 5, 'bold'), typedRange(7, 8, 'italic')],
-    description: 'No overlap with gap',
-  },
-  {
-    input: [typedRange(0, 6, 'bold'), typedRange(3, 8, 'italic')],
-    expects: [typedRange(0, 3, 'bold'), typedRange(3, 6, ['bold', 'italic']), typedRange(6, 8, 'italic')],
-    description: 'Overlap',
-  },
-  {
-    input: [typedRange(0, 6, 'bold'), typedRange(5, 8, 'italic')],
-    expects: [typedRange(0, 5, 'bold'), typedRange(5, 6, ['bold', 'italic']), typedRange(6, 8, 'italic')],
-    description: 'Overlap on boundary',
-  },
-  {
-    input: [typedRange(0, 5, 'bold'), typedRange(0, 5, 'italic')],
-    expects: [typedRange(0, 5, ['bold', 'italic'])],
-    description: 'Identical ranges',
-  },
-  {
-    input: [typedRange(1, 2, 'bold'), typedRange(1, 2, 'italic')],
-    expects: [typedRange(1, 2, ['bold', 'italic'])],
-    description: 'Identical ranges on single character',
-  },
-  {
-    input: [typedRange(0, 1, 'bold'), typedRange(0, 8, 'italic')],
-    expects: [typedRange(0, 1, ['bold', 'italic']), typedRange(1, 8, 'italic')],
-    description: 'Single character encapsulated range',
-  },
-  {
-    input: [typedRange(6, 18, 'bold'), typedRange(8, 20, 'italic'), typedRange(6, 18, 'underline')],
-    expects: [
-      typedRange(6, 8, ['bold', 'underline']),
-      typedRange(8, 18, ['bold', 'italic', 'underline']),
-      typedRange(18, 20, 'italic'),
-    ],
-    description: 'Multiple ranges',
-  },
-  {
-    input: [
-      typedRange(6, 18, 'bold'),
-      typedRange(8, 20, 'italic'),
-      typedRange(6, 18, 'underline'),
-      typedRange(0, 24, []),
-    ],
-    expects: [
-      typedRange(0, 6, []),
-      typedRange(6, 8, ['bold', 'underline']),
-      typedRange(8, 18, ['bold', 'italic', 'underline']),
-      typedRange(18, 20, 'italic'),
-      typedRange(20, 24, []),
-    ],
-    description: 'Multiple ranges V2',
-  },
-  {
-    input: [typedRange(8, 15, 'bold'), typedRange(8, 18, 'italic')],
-    expects: [typedRange(8, 15, ['bold', 'italic']), typedRange(15, 18, 'italic')],
-    description: 'Encapsulated range - Start',
-  },
-  {
-    input: [typedRange(6, 18, 'bold'), typedRange(8, 14, 'italic')],
-    expects: [typedRange(6, 8, 'bold'), typedRange(8, 14, ['bold', 'italic']), typedRange(14, 18, 'bold')],
-    description: 'Encapsulated range - Center',
-  },
-  {
-    input: [typedRange(6, 18, 'bold'), typedRange(12, 18, 'italic')],
-    expects: [typedRange(6, 12, 'bold'), typedRange(12, 18, ['bold', 'italic'])],
-    description: 'Encapsulated range - End',
-  },
-]
-
-const convertRangeToMark = ({ start, end, type }: TypedRange): MarkSegment => ({
-  start,
-  end,
-  effects: type.map((it) => ({ type: it })),
-})
-const convertMarkToRange = ({ start, end, effects }: MarkSegment): TypedRange => {
-  const type = effects.map((it: MarkEffect): string => it.type)
-  type.sort((a: string, b: string) => a.localeCompare(b))
-
-  return {
-    start,
-    end,
-    type,
-  }
-}
-describe('Split the range overlaps test cases while maintaining types', () => {
-  test.each(splitRangeTestCases)('$description', ({ input, expects }: SplitRangeTestCase) => {
-    const splitRanges = splitAnyOverlaps(input.map(convertRangeToMark))
-    expect(splitRanges.map(convertMarkToRange)).toEqual(expects)
-  })
-})
 
 type TelegramToMarkdownTestCase = TestCase<
   {
@@ -380,7 +255,7 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
       ],
     },
     expects: '~~**Multiple Effects**~~',
-    description: 'Multiple effects on the same range get combined',
+    description: 'Overlapping effects on the same range get combined',
   },
   {
     input: {
@@ -399,7 +274,7 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
       ],
     },
     expects: '~~**C**~~',
-    description: 'Multiple effects on a single character get combined',
+    description: 'Overlapping effects on a single character get combined',
   },
   {
     input: {
@@ -478,6 +353,32 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
     description: 'Encapsulated effect on a single character gets nested',
   },
   // ===== Advanced test cases =====
+  {
+    input: {
+      text: 'Multiple Effects',
+      marks: [
+        { offset: 0, length: 16, type: 'bold' },
+        { offset: 0, length: 16, type: 'strikethrough' },
+        { offset: 0, length: 16, type: 'italic' },
+        { offset: 0, length: 16, type: 'spoiler' },
+      ],
+    },
+    expects: '||*~~**Multiple Effects**~~*||',
+    description: 'Multiple effects on the same range get combined',
+  },
+  {
+    input: {
+      text: 'C',
+      marks: [
+        { offset: 0, length: 1, type: 'bold' },
+        { offset: 0, length: 1, type: 'strikethrough' },
+        { offset: 0, length: 1, type: 'italic' },
+        { offset: 0, length: 1, type: 'spoiler' },
+      ],
+    },
+    expects: '||*~~**C**~~*||',
+    description: 'Multiple effects on a single character get combined',
+  },
   {
     input: {
       text: 'FizzleWhizzyZigzagDazzleHuzzah',

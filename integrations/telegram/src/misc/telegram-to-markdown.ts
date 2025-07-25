@@ -1,19 +1,19 @@
 import { spliceText } from './string-utils'
 
-export type Range = {
+type Range = {
   /** Inclusive */
   start: number
   /** Exclusive */
   end: number
 }
 
-export type MarkEffect = {
+type MarkEffect = {
   type: string
   url?: string
   language?: string
 }
 
-export type MarkSegment = Range & {
+type MarkSegment = Range & {
   effects: MarkEffect[]
   /** A set of effect(s) that are encompassed by a parent effect scope
    *
@@ -109,7 +109,7 @@ const _byAscendingStartThenByDescendingLength = (a: MarkSegment, b: MarkSegment)
   return a.start !== b.start ? a.start - b.start : b.end - a.end
 }
 const _byDescendingStartIndex = (a: MarkSegment, b: MarkSegment) => b.start - a.start
-export const splitAnyOverlaps = (ranges: MarkSegment[]): MarkSegment[] => {
+const _splitAnyOverlaps = (ranges: MarkSegment[]): MarkSegment[] => {
   if (ranges.length < 2) {
     return ranges
   }
@@ -282,7 +282,7 @@ export const applyMarksToText = (text: string, marks: TelegramMark[]) => {
   )
 
   const plainTextSegment = { start: 0, end: text.length, effects: [] }
-  const nonOverlappingSegments = splitAnyOverlaps(segments.concat(plainTextSegment))
+  const nonOverlappingSegments = _splitAnyOverlaps(segments.concat(plainTextSegment))
   const processedSegments = _postProcessNestedEffects(nonOverlappingSegments, (sortedSegments) => {
     if (!_areSegmentsNonOverlappingContiguous(text, sortedSegments)) {
       throw new Error('Nested effects are not contiguous')
