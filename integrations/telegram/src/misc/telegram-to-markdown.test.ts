@@ -416,7 +416,7 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
       ],
     },
     expects: '||Spoiler\n\n\n\n\n\nText||',
-    description: 'Apply Spoiler to the whole multiline text',
+    description: 'Apply mark effect to multiline text',
   },
   {
     input: {
