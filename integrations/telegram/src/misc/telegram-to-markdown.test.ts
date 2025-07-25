@@ -212,49 +212,7 @@ type TelegramToMarkdownTestCase = TestCase<
 >
 
 const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
-  {
-    input: {
-      text: 'Hello World',
-      marks: [
-        {
-          offset: 6,
-          length: 5,
-          type: 'italic',
-        },
-      ],
-    },
-    expects: 'Hello *World*',
-    description: "Should apply italic mark to the word 'World'",
-  },
-  {
-    input: {
-      text: 'Hello World',
-      marks: [
-        {
-          offset: 0,
-          length: 11,
-          type: 'text_link',
-          url: 'https://www.botpress.com/',
-        },
-      ],
-    },
-    expects: '[Hello World](https://www.botpress.com/)',
-    description: 'Should apply link mark to the whole text',
-  },
-  {
-    input: {
-      text: 'Strike',
-      marks: [
-        {
-          offset: 0,
-          length: 6,
-          type: 'strikethrough',
-        },
-      ],
-    },
-    expects: '~~Strike~~',
-    description: 'Should apply strikethrough mark to the whole text',
-  },
+  // ==== Testing each mark type ====
   {
     input: {
       text: 'Hello World',
@@ -276,12 +234,26 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
         {
           offset: 6,
           length: 5,
-          type: 'underline',
+          type: 'italic',
         },
       ],
     },
-    expects: 'Hello World',
-    description: 'Should ignore unsupported underline effect',
+    expects: 'Hello *World*',
+    description: "Should apply italic mark to the word 'World'",
+  },
+  {
+    input: {
+      text: 'Strike',
+      marks: [
+        {
+          offset: 0,
+          length: 6,
+          type: 'strikethrough',
+        },
+      ],
+    },
+    expects: '~~Strike~~',
+    description: 'Should apply strikethrough mark to the whole text',
   },
   {
     input: {
@@ -297,6 +269,94 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
     expects: '`this is ||not spoiler`||',
     description: 'Should apply code mark to the whole text',
   },
+  {
+    input: {
+      text: 'console.log("Hello World")',
+      marks: [
+        {
+          offset: 0,
+          length: 26,
+          type: 'pre',
+          language: 'javascript',
+        },
+      ],
+    },
+    expects: '```javascript\nconsole.log("Hello World")\n```',
+    description: 'Apply code block to the whole text',
+  },
+  {
+    input: {
+      text: 'Hello',
+      marks: [
+        {
+          offset: 0,
+          length: 5,
+          type: 'blockquote',
+        },
+      ],
+    },
+    expects: '> Hello',
+    description: 'Apply blockquote markdown',
+  },
+  {
+    input: {
+      text: 'Hello World',
+      marks: [
+        {
+          offset: 0,
+          length: 11,
+          type: 'text_link',
+          url: 'https://www.botpress.com/',
+        },
+      ],
+    },
+    expects: '[Hello World](https://www.botpress.com/)',
+    description: 'Should apply link mark to the whole text',
+  },
+  {
+    input: {
+      text: '514-123-4567',
+      marks: [
+        {
+          offset: 0,
+          length: 12,
+          type: 'phone_number',
+        },
+      ],
+    },
+    expects: '[514-123-4567](tel:5141234567)',
+    description: 'Apply phone number markdown',
+  },
+  {
+    input: {
+      text: 'something@yopmail.com',
+      marks: [
+        {
+          offset: 0,
+          length: 21,
+          type: 'email',
+        },
+      ],
+    },
+    expects: '[something@yopmail.com](mailto:something@yopmail.com)',
+    description: 'Apply email markdown with mailto link',
+  },
+
+  {
+    input: {
+      text: 'Hello World',
+      marks: [
+        {
+          offset: 6,
+          length: 5,
+          type: 'underline',
+        },
+      ],
+    },
+    expects: 'Hello World',
+    description: 'Should ignore unsupported underline effect',
+  },
+  // ===== Effect Overlapping Tests =====
   {
     input: {
       text: 'abcdefgh',
@@ -365,21 +425,6 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
   },
   {
     input: {
-      text: 'console.log("Hello World")',
-      marks: [
-        {
-          offset: 0,
-          length: 26,
-          type: 'pre',
-          language: 'javascript',
-        },
-      ],
-    },
-    expects: '```javascript\nconsole.log("Hello World")\n```',
-    description: 'Apply code block to the whole text',
-  },
-  {
-    input: {
       text: 'Spoiler\n\n\n\n\n\nText',
       marks: [
         {
@@ -391,34 +436,6 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
     },
     expects: '||Spoiler\n\n\n\n\n\nText||',
     description: 'Apply Spoiler to the whole multiline text',
-  },
-  {
-    input: {
-      text: '514-123-4567',
-      marks: [
-        {
-          offset: 0,
-          length: 12,
-          type: 'phone_number',
-        },
-      ],
-    },
-    expects: '[514-123-4567](tel:5141234567)',
-    description: 'Apply phone number markdown',
-  },
-  {
-    input: {
-      text: 'Hello',
-      marks: [
-        {
-          offset: 0,
-          length: 5,
-          type: 'blockquote',
-        },
-      ],
-    },
-    expects: '> Hello',
-    description: 'Apply blockquote markdown',
   },
   {
     input: {
@@ -439,20 +456,7 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
     expects: '> Hello\nNothing\n> More Quotes!',
     description: 'Apply blockquote markdown to multiple lines, with non-quote line in between',
   },
-  {
-    input: {
-      text: 'something@yopmail.com',
-      marks: [
-        {
-          offset: 0,
-          length: 21,
-          type: 'email',
-        },
-      ],
-    },
-    expects: '[something@yopmail.com](mailto:something@yopmail.com)',
-    description: 'Apply email markdown with mailto link',
-  },
+
   {
     input: {
       text: 'Hello Spoiler',
