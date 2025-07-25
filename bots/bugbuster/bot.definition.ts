@@ -9,12 +9,15 @@ export default new sdk.BotDefinition({
     recentlyLinted: {
       type: 'bot',
       schema: sdk.z.object({
-        issues: sdk.z.array(
-          sdk.z.object({
-            id: sdk.z.string(),
-            lintedAt: sdk.z.string().datetime(),
-          })
-        ),
+        issues: sdk.z
+          .array(
+            sdk.z.object({
+              id: sdk.z.string(),
+              lintedAt: sdk.z.string().datetime(),
+            })
+          )
+          .title('Recently Linted Issues')
+          .describe('List of recently linted issues'),
       }),
     },
   },
