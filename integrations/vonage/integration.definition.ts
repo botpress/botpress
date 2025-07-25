@@ -1,6 +1,24 @@
 /* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import proactiveConversation from 'bp_modules/proactive-conversation'
+import proactiveUser from 'bp_modules/proactive-user'
+
+const startConversationProps = {
+  input: {
+    schema: z.object({
+      userId: z.string(),
+      channelId: z.string(),
+      channel: z.string(),
+    }),
+  },
+  output: { schema: z.object({ conversationId: z.string() }) },
+}
+
+const createUserProps = {
+  input: { schema: z.object({ channel: z.string(), userId: z.string() }) },
+  output: { schema: z.object({ userId: z.string() }) },
+}
 
 export default new IntegrationDefinition({
   name: 'vonage',
@@ -31,18 +49,33 @@ export default new IntegrationDefinition({
           channel: {},
           channelId: {},
         },
-        creation: { enabled: true, requiredTags: ['userId', 'channelId', 'channel'] },
       },
     },
   },
-  actions: {},
+  actions: { startConversation: startConversationProps, getOrCreateUser: createUserProps },
   events: {},
   user: {
     tags: {
       userId: {},
       channel: {},
     },
-    creation: { enabled: true, requiredTags: ['userId', 'channel'] },
   },
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  entities: {
+    proactiveConversation: {
+      title: 'Proactive Conversation',
+      description: 'Proactive conversation with an external service account',
+      schema: startConversationProps.input.schema,
+    },
+    proactiveUser: {
+      schema: createUserProps.input.schema,
+    },
+  },
 })
+  .extend(proactiveConversation, ({ entities }) => ({
+    entities: {
+      conversation: entities.proactiveConversation,
+    },
+    actions: { getOrCreateConversation: { name: 'startConversation' } },
+  }))
+  .extend(proactiveUser, ({ entities }) => ({ entities: { user: entities.proactiveUser } }))

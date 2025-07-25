@@ -2,11 +2,55 @@ import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as bp from '.botpress'
+import * as sdk from '@botpress/sdk'
 
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
-  actions: {},
+  actions: {
+    async startConversation(props) {
+      const vonageChannel = props.input.channel
+      const channelId = props.input.channelId
+      const userId = props.input.userId
+
+      if (!(vonageChannel && channelId && userId)) {
+        throw new sdk.RuntimeError('Could not create conversation: missing channel, channelId or userId')
+      }
+
+      const { conversation } = await props.client.getOrCreateConversation({
+        tags: {
+          channel: vonageChannel,
+          channelId,
+          userId,
+        },
+        channel: 'channel',
+      })
+
+      return {
+        conversationId: conversation.id,
+      }
+      // throw new Error('Function not implemented.')
+    },
+    async getOrCreateUser(props) {
+      const vonageChannel = props.input.channel
+      const userId = props.input.userId
+      if (!(vonageChannel && userId)) {
+        throw new sdk.RuntimeError('Could not create a user: missing channel or userId')
+      }
+
+      const { user } = await props.client.getOrCreateUser({
+        tags: {
+          channel: vonageChannel,
+          userId,
+        },
+      })
+
+      return {
+        userId: user.id,
+      }
+      // throw new Error('Function not implemented.')
+    },
+  },
   channels: {
     channel: {
       messages: {
@@ -95,50 +139,6 @@ const integration = new bp.Integration({
       conversationId: conversation.id,
       payload: { text: data.text },
     })
-  },
-  createUser: async ({ client, tags }) => {
-    const vonageChannel = tags.channel
-    const userId = tags.userId
-    if (!(vonageChannel && userId)) {
-      return
-    }
-
-    const { user } = await client.getOrCreateUser({
-      tags: {
-        channel: vonageChannel,
-        userId,
-      },
-    })
-
-    return {
-      body: JSON.stringify({ user: { id: user.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
-  createConversation: async ({ client, channel, tags }) => {
-    const vonageChannel = tags.channel
-    const channelId = tags.channelId
-    const userId = tags.userId
-
-    if (!(vonageChannel && channelId && userId)) {
-      return
-    }
-
-    const { conversation } = await client.getOrCreateConversation({
-      channel,
-      tags: {
-        channel: vonageChannel,
-        channelId,
-        userId,
-      },
-    })
-
-    return {
-      body: JSON.stringify({ conversation: { id: conversation.id } }),
-      headers: {},
-      statusCode: 200,
-    }
   },
 })
 
