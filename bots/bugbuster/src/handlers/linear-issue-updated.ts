@@ -1,7 +1,6 @@
 import * as genenv from '../../.genenv'
-import * as bpApi from '../bp-api-utils'
-import * as linApi from '../linear-api-utils'
 import * as linlint from '../linear-lint-issue'
+import * as utils from '../utils'
 import * as bp from '.botpress'
 
 export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] = async (props) => {
@@ -13,15 +12,15 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
 
   props.logger.info('Linear issue updated event received', `${teamKey}-${issueNumber}`)
 
-  const linear = await linApi.LinearApi.create(genenv.BUGBUSTER_LINEAR_API_KEY)
-  const botpress = await bpApi.BotpressApi.create(props)
+  const linear = await utils.linear.LinearApi.create(genenv.BUGBUSTER_LINEAR_API_KEY)
+  const botpress = await utils.botpress.BotpressApi.create(props)
 
   if (!linear.isTeam(teamKey) || teamKey !== 'SQD') {
     props.logger.error(`Ignoring issue of team "${teamKey}"`)
     return
   }
 
-  const issue = await linear.findIssue(teamKey, issueNumber)
+  const issue = await linear.findIssue({ teamKey, issueNumber })
   if (!issue) {
     props.logger.error(`Issue with number ${issueNumber} not found in team ${teamKey}`)
     return

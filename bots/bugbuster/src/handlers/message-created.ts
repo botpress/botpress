@@ -1,4 +1,4 @@
-import * as bpApi from '../bp-api-utils'
+import * as utils from '../utils'
 import * as bp from '.botpress'
 
 const MESSAGING_INTEGRATIONS = ['telegram', 'slack']
@@ -10,7 +10,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     return
   }
 
-  const botpress = await bpApi.BotpressApi.create(props)
+  const botpress = await utils.botpress.BotpressApi.create(props)
 
   if (message.type === 'text' && message.payload.text === '#start_listening') {
     const state = await botpress.readListeners()

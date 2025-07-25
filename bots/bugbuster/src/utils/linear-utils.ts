@@ -1,5 +1,5 @@
 import * as lin from '@linear/sdk'
-import * as utils from './utils'
+import * as utils from '.'
 
 const TEAM_KEYS = ['SQD', 'FT', 'BE', 'ENG'] as const
 export type TeamKey = (typeof TEAM_KEYS)[number]
@@ -53,7 +53,8 @@ export class LinearApi {
     return STATE_KEYS.includes(stateKey as StateKey)
   }
 
-  public async findIssue(teamKey: TeamKey, issueNumber: number): Promise<lin.Issue | undefined> {
+  public async findIssue(filter: { teamKey: TeamKey; issueNumber: number }): Promise<lin.Issue | undefined> {
+    const { teamKey, issueNumber } = filter
     const teamExists = this._teams.some((team) => team.key === teamKey)
     if (!teamExists) {
       return undefined
@@ -73,7 +74,8 @@ export class LinearApi {
     return issue
   }
 
-  public async findLabel(name: string, parentName?: string): Promise<lin.IssueLabel | undefined> {
+  public async findLabel(filter: { name: string; parentName?: string }): Promise<lin.IssueLabel | undefined> {
+    const { name, parentName } = filter
     const { nodes: labels } = await this._client.issueLabels({
       filter: {
         name: { eq: name },

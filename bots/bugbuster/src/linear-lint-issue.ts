@@ -1,8 +1,7 @@
 import * as lin from '@linear/sdk'
-import * as api from './linear-api-utils'
 import * as utils from './utils'
 
-export const lintIssue = async (client: api.LinearApi, issue: lin.Issue): Promise<string[]> => {
+export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue): Promise<string[]> => {
   const lints: string[] = []
 
   const status = client.issueStatus(issue)

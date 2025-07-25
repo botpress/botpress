@@ -1,4 +1,4 @@
-import * as bpApi from '../bp-api-utils'
+import * as utils from '../utils'
 import * as bp from '.botpress'
 
 /**
@@ -7,7 +7,7 @@ import * as bp from '.botpress'
  */
 export const handleSyncIssuesRequest: bp.EventHandlers['syncIssuesRequest'] = async (props) => {
   try {
-    const botpress = await bpApi.BotpressApi.create(props)
+    const botpress = await utils.botpress.BotpressApi.create(props)
     const githubIssues = await botpress.listGithubIssues()
 
     const unassignedIssues = githubIssues
