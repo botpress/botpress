@@ -38,6 +38,8 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
     return
   }
 
+  props.logger.warn(`Issue ${issue.identifier} has ${errors.length} lint errors:`)
+
   await linear.client.createComment({
     issueId: issue.id,
     body: [

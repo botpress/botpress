@@ -14,6 +14,7 @@ const STATE_KEYS = [
   'TRIAGE',
   'CANCELED',
   'BLOCKED',
+  'STALE',
 ] as const
 export type StateKey = (typeof STATE_KEYS)[number]
 

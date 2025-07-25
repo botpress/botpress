@@ -4,14 +4,16 @@ import * as utils from './utils'
 export type IssueLint = {
   message: string
 }
-export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue): Promise<IssueLint[]> => {
-  const lints: string[] = []
 
+const IGNORED_STATUSES: utils.linear.StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
+
+export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue): Promise<IssueLint[]> => {
   const status = client.issueStatus(issue)
-  if (status === 'TRIAGE' || status === 'PRODUCTION_DONE') {
-    return lints.map((message) => ({ message })) // No linting for TRIAGE or PRODUCTION_DONE
+  if (IGNORED_STATUSES.includes(status)) {
+    return []
   }
 
+  const lints: string[] = []
   const { nodes: labels } = await issue.labels()
 
   const hasType = await utils.promise.some(labels, async (label) => {
