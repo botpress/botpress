@@ -65,12 +65,12 @@ const _handlers: Record<string, MarkHandler> = {
   underline: (text: string) => text,
 }
 
-export const isOverlapping = (a: Range, b: Range) => {
+const _isOverlapping = (a: Range, b: Range) => {
   return a.start < b.end && b.start < a.end
 }
 
 export const splitIfOverlapping = (rangeA: MarkSegment, rangeB: MarkSegment): MarkSegment[] => {
-  if (!isOverlapping(rangeA, rangeB)) {
+  if (!_isOverlapping(rangeA, rangeB)) {
     return [rangeA]
   }
 
@@ -130,7 +130,7 @@ export const splitAnyOverlaps = (ranges: MarkSegment[]): MarkSegment[] => {
           return index === otherIndex
         })
 
-      if (newSplitRanges.every((otherRange) => !isOverlapping(range, otherRange))) {
+      if (newSplitRanges.every((otherRange) => !_isOverlapping(range, otherRange))) {
         newSplitRanges = newSplitRanges.concat(range).sort(_byAscendingStartThenByDescendingLength)
       }
 

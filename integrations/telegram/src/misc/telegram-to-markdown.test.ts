@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import {
   applyMarksToText,
-  isOverlapping,
   splitAnyOverlaps,
   type MarkEffect,
   type MarkSegment,
@@ -14,76 +13,6 @@ type TestCase<INPUT = unknown, EXPECTED = unknown> = {
   expects: EXPECTED
   description: string
 }
-
-const range = (start: number, end: number): Range => {
-  return { start, end }
-}
-
-type OverlapTestCase = TestCase<[Range, Range], boolean>
-const overlapTestCases: OverlapTestCase[] = [
-  {
-    input: [range(0, 6), range(6, 8)],
-    expects: false,
-    description: 'Contiguous but no overlap',
-  },
-  {
-    input: [range(0, 5), range(6, 8)],
-    expects: false,
-    description: 'No overlap with 1 character gap',
-  },
-  {
-    input: [range(0, 5), range(7, 8)],
-    expects: false,
-    description: 'No overlap with gap',
-  },
-  {
-    input: [range(0, 6), range(3, 8)],
-    expects: true,
-    description: 'Overlap',
-  },
-  {
-    input: [range(0, 6), range(5, 8)],
-    expects: true,
-    description: 'Overlap on boundary',
-  },
-  {
-    input: [range(0, 5), range(0, 5)],
-    expects: true,
-    description: 'Identical ranges',
-  },
-  {
-    input: [range(1, 2), range(1, 2)],
-    expects: true,
-    description: 'Identical ranges on single character',
-  },
-  {
-    input: [range(0, 1), range(0, 8)],
-    expects: true,
-    description: 'Single character encapsulated range',
-  },
-  {
-    input: [range(8, 15), range(8, 18)],
-    expects: true,
-    description: 'Encapsulated range - Start',
-  },
-  {
-    input: [range(6, 18), range(8, 14)],
-    expects: true,
-    description: 'Encapsulated range - Center',
-  },
-  {
-    input: [range(6, 18), range(12, 18)],
-    expects: true,
-    description: 'Encapsulated range - End',
-  },
-]
-
-describe('Test isOverlapping check accuracy', () => {
-  test.each(overlapTestCases)('$description', ({ input: [rangeA, rangeB], expects }: OverlapTestCase) => {
-    expect(isOverlapping(rangeA, rangeB)).toBe(expects)
-    expect(isOverlapping(rangeB, rangeA)).toBe(expects)
-  })
-})
 
 export type TypedRange = Range & {
   type: string[]
@@ -369,7 +298,6 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
     expects: '[something@yopmail.com](mailto:something@yopmail.com)',
     description: 'Apply email mark to text',
   },
-
   {
     input: {
       text: 'Underline',
@@ -400,8 +328,156 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
       ],
     },
     expects: '**a**~~b~~**c**~~d~~**e**~~f~~**g**~~h~~',
-    description: 'Alternating effects should not intersect/nest',
+    description: 'Contiguous non-overlapping effects should remain separate',
   },
+  {
+    input: {
+      text: 'Hello New World',
+      marks: [
+        { offset: 0, length: 5, type: 'bold' },
+        { offset: 10, length: 5, type: 'strikethrough' },
+      ],
+    },
+    expects: '**Hello** New ~~World~~',
+    description: 'Non-overlapping effects with gap should remain separate',
+  },
+  {
+    input: {
+      text: 'Hello New World',
+      marks: [
+        { offset: 0, length: 9, type: 'bold' },
+        { offset: 6, length: 9, type: 'italic' },
+      ],
+    },
+    expects: '**Hello *New*** *World*',
+    description: 'Overlapping effect segments should be merged',
+  },
+  {
+    input: {
+      text: 'Hello T World',
+      marks: [
+        { offset: 0, length: 7, type: 'bold' },
+        { offset: 6, length: 7, type: 'italic' },
+      ],
+    },
+    expects: '**Hello *T*** *World*',
+    description: 'Single character overlapping effect should be merged',
+  },
+  {
+    input: {
+      text: 'Multiple Effects',
+      marks: [
+        {
+          offset: 0,
+          length: 16,
+          type: 'bold',
+        },
+        {
+          offset: 0,
+          length: 16,
+          type: 'strikethrough',
+        },
+      ],
+    },
+    expects: '~~**Multiple Effects**~~',
+    description: 'Multiple effects on the same range get combined',
+  },
+  {
+    input: {
+      text: 'C',
+      marks: [
+        {
+          offset: 0,
+          length: 1,
+          type: 'bold',
+        },
+        {
+          offset: 0,
+          length: 1,
+          type: 'strikethrough',
+        },
+      ],
+    },
+    expects: '~~**C**~~',
+    description: 'Multiple effects on a single character get combined',
+  },
+  {
+    input: {
+      text: 'Once upon a time',
+      marks: [
+        {
+          offset: 0,
+          length: 4,
+          type: 'bold',
+        },
+        {
+          offset: 0,
+          length: 16,
+          type: 'italic',
+        },
+      ],
+    },
+    expects: '***Once** upon a time*',
+    description: 'Encapsulated effect (start) gets nested',
+  },
+  {
+    input: {
+      text: 'Once upon a time',
+      marks: [
+        {
+          offset: 5,
+          length: 4,
+          type: 'bold',
+        },
+        {
+          offset: 0,
+          length: 16,
+          type: 'italic',
+        },
+      ],
+    },
+    expects: '*Once **upon** a time*',
+    description: 'Encapsulated effect (center) gets nested',
+  },
+  {
+    input: {
+      text: 'Once upon a time',
+      marks: [
+        {
+          offset: 12,
+          length: 4,
+          type: 'bold',
+        },
+        {
+          offset: 0,
+          length: 16,
+          type: 'italic',
+        },
+      ],
+    },
+    expects: '*Once upon a **time***',
+    description: 'Encapsulated effect (end) gets nested',
+  },
+  {
+    input: {
+      text: 'Once upon a time',
+      marks: [
+        {
+          offset: 10,
+          length: 1,
+          type: 'bold',
+        },
+        {
+          offset: 0,
+          length: 16,
+          type: 'italic',
+        },
+      ],
+    },
+    expects: '*Once upon **a** time*',
+    description: 'Encapsulated effect on a single character gets nested',
+  },
+  // ===== Advanced test cases =====
   {
     input: {
       text: 'FizzleWhizzyZigzagDazzleHuzzah',
@@ -484,7 +560,6 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
     expects: '> Hello\nNothing\n> More Quotes!',
     description: 'Apply blockquote markdown to multiple lines, with non-quote line in between',
   },
-
   {
     input: {
       text: 'Hello Spoiler',
