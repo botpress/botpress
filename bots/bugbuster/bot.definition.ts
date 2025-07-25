@@ -4,28 +4,7 @@ import github from './bp_modules/github'
 import linear from './bp_modules/linear'
 import telegram from './bp_modules/telegram'
 
-export default new sdk.BotDefinition({
-  states: {
-    listeners: {
-      type: 'bot',
-      schema: sdk.z.object({
-        conversationIds: sdk.z.array(sdk.z.string()).title('Conversation IDs').describe('List of conversation IDs'),
-      }),
-    },
-  },
-  events: {
-    syncIssuesRequest: {
-      schema: sdk.z.object({}).title('Sync Issues Request').describe('Request to sync issues'),
-    },
-  },
-  recurringEvents: {
-    fetchIssues: {
-      type: 'syncIssuesRequest',
-      payload: {},
-      schedule: { cron: '0 0/6 * * *' }, // every 6 hours
-    },
-  },
-})
+export default new sdk.BotDefinition({})
   .addIntegration(github, {
     enabled: true,
     configurationType: 'manualPAT',

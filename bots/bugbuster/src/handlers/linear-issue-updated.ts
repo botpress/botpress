@@ -1,4 +1,3 @@
-import * as genenv from '../../.genenv'
 import * as linlint from '../linear-lint-issue'
 import * as utils from '../utils'
 import * as bp from '.botpress'
@@ -12,8 +11,7 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
 
   props.logger.info('Linear issue updated event received', `${teamKey}-${issueNumber}`)
 
-  const linear = await utils.linear.LinearApi.create(genenv.BUGBUSTER_LINEAR_API_KEY)
-  const botpress = await utils.botpress.BotpressApi.create(props)
+  const linear = await utils.linear.LinearApi.create()
 
   if (!linear.isTeam(teamKey) || teamKey !== 'SQD') {
     props.logger.error(`Ignoring issue of team "${teamKey}"`)
@@ -32,16 +30,14 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
     return
   }
 
-  const message = [
-    //
-    `Issue ${issue.identifier} has lint errors:`,
-    ...errors.map((error) => `- ${error}`),
-  ].join('\n')
+  // TODO: add a debounce mechanism to avoid multiple comments on the same issue
 
-  await botpress.notifyListeners({
-    type: 'text',
-    payload: {
-      text: message,
-    },
+  await linear.client.createComment({
+    issueId: issue.id,
+    body: [
+      `BugBuster Bot found the following problems with ${issue.identifier}:`,
+      '',
+      ...errors.map((error) => `- ${error.message}`),
+    ].join('\n'),
   })
 }

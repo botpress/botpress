@@ -1,7 +1,6 @@
 import * as bp from '.botpress'
 
 export type BotProps = bp.EventHandlerProps | bp.MessageHandlerProps
-export type BotListeners = bp.states.listeners.Listeners['payload']
 export type BotMessage = Pick<bp.ClientInputs['createMessage'], 'type' | 'payload'>
 export type GithubIssue = bp.integrations.github.actions.findTarget.output.Output['targets'][number]
 
@@ -28,42 +27,6 @@ export class BotpressApi {
       type: 'text',
       payload: { text: msg },
     })
-  }
-
-  public readListeners = async (): Promise<BotListeners> => {
-    const {
-      state: { payload: listeners },
-    } = await this._props.client.getOrSetState({
-      id: this._props.ctx.botId,
-      type: 'bot',
-      name: 'listeners',
-      payload: {
-        conversationIds: [],
-      },
-    })
-    return listeners
-  }
-
-  public writeListeners = async (state: BotListeners) => {
-    await this._props.client.setState({
-      id: this._props.ctx.botId,
-      type: 'bot',
-      name: 'listeners',
-      payload: state,
-    })
-  }
-
-  public notifyListeners = async (message: BotMessage) => {
-    const state = await this.readListeners()
-    this._props.logger.info(`Sending message to ${state.conversationIds.length} conversation(s)`)
-    for (const conversationId of state.conversationIds) {
-      await this._props.client.createMessage({
-        conversationId,
-        userId: this._props.ctx.botId,
-        tags: {},
-        ...message,
-      })
-    }
   }
 
   public listGithubIssues = async (): Promise<GithubIssue[]> => {

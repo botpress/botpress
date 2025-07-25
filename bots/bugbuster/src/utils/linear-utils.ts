@@ -1,4 +1,5 @@
 import * as lin from '@linear/sdk'
+import * as genenv from '../../.genenv'
 import * as utils from '.'
 
 const TEAM_KEYS = ['SQD', 'FT', 'BE', 'ENG'] as const
@@ -24,8 +25,8 @@ export class LinearApi {
     private _states: lin.WorkflowState[]
   ) {}
 
-  public static async create(apiKey: string): Promise<LinearApi> {
-    const client = new lin.LinearClient({ apiKey })
+  public static async create(): Promise<LinearApi> {
+    const client = new lin.LinearClient({ apiKey: genenv.BUGBUSTER_LINEAR_API_KEY })
     const me = await client.viewer
     if (!me) {
       throw new Error('Viewer not found. Please ensure you are authenticated.')

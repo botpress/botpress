@@ -1,12 +1,15 @@
 import * as lin from '@linear/sdk'
 import * as utils from './utils'
 
-export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue): Promise<string[]> => {
+export type IssueLint = {
+  message: string
+}
+export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue): Promise<IssueLint[]> => {
   const lints: string[] = []
 
   const status = client.issueStatus(issue)
   if (status === 'TRIAGE' || status === 'PRODUCTION_DONE') {
-    return lints // No linting for TRIAGE or PRODUCTION_DONE
+    return lints.map((message) => ({ message })) // No linting for TRIAGE or PRODUCTION_DONE
   }
 
   const { nodes: labels } = await issue.labels()
@@ -71,5 +74,5 @@ export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue
     )
   }
 
-  return lints
+  return lints.map((message) => ({ message }))
 }

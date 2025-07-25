@@ -1,4 +1,3 @@
-import * as genenv from '../../.genenv'
 import * as utils from '../utils'
 import * as bp from '.botpress'
 
@@ -7,7 +6,7 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
 
   props.logger.info('Received GitHub issue', githubIssue)
 
-  const linear = await utils.linear.LinearApi.create(genenv.BUGBUSTER_LINEAR_API_KEY)
+  const linear = await utils.linear.LinearApi.create()
 
   const githubLabel = await linear.findLabel({ name: 'github', parentName: 'origin' })
   if (!githubLabel) {
@@ -31,22 +30,5 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
   await linear.client.createComment({
     issueId: linearResponse.issueId,
     body: comment,
-  })
-
-  const linearIssue = await linearResponse?.issue
-
-  const message = [
-    'The following issue was just created in GitHub:',
-    githubIssue.issue.name,
-    githubIssue.issue.body,
-    `Linear issue: ${linearIssue?.identifier}`,
-  ].join('\n')
-
-  const botpress = await utils.botpress.BotpressApi.create(props)
-  await botpress.notifyListeners({
-    type: 'text',
-    payload: {
-      text: message,
-    },
   })
 }
