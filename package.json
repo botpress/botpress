@@ -7,7 +7,7 @@
     "test": "vitest --run",
     "check:bplint": "turbo check:bplint",
     "check:dep": "depsynky check --ignore-dev",
-    "check:sherif": "sherif -i zod -i axios -i query-string -i googleapis",
+    "check:sherif": "sherif -i zod -i axios -i query-string -i googleapis -i @linear/sdk",
     "check:format": "prettier --check .",
     "check:eslint": "eslint ./ --max-warnings=0",
     "check:oxlint": "oxlint -c .oxlintrc.json",
