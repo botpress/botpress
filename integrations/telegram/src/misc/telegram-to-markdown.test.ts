@@ -257,6 +257,20 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
   },
   {
     input: {
+      text: 'Spoiler',
+      marks: [
+        {
+          offset: 0,
+          length: 7,
+          type: 'spoiler',
+        },
+      ],
+    },
+    expects: '||Spoiler||',
+    description: 'Apply spoiler mark to text',
+  },
+  {
+    input: {
       text: 'this is ||not spoiler||',
       marks: [
         {
