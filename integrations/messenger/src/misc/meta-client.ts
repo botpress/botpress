@@ -89,7 +89,7 @@ export class MetaClient {
   }
 
   public async subscribeToWebhooks(pageToken: string, pageId: string) {
-    const { data } = await axios
+    const { data: responseData } = await axios
       .post(
         `${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`,
         {
@@ -106,13 +106,13 @@ export class MetaClient {
         throw new RuntimeError(ERROR_SUBSCRIBE_TO_WEBHOOKS)
       })
 
-    if (!data.success) {
+    if (!responseData.success) {
       throw new RuntimeError(ERROR_SUBSCRIBE_TO_WEBHOOKS)
     }
   }
 
   public async unsubscribeFromWebhooks(pageToken: string, pageId: string) {
-    const { data } = await axios
+    const { data: responseData } = await axios
       .delete(`${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`, {
         headers: {
           Authorization: 'Bearer ' + pageToken,
@@ -123,9 +123,22 @@ export class MetaClient {
         throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
       })
 
-    if (!data.success) {
+    if (!responseData.success) {
       throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
     }
+  }
+
+  public async isSubscribedToWebhooks(pageToken: string, pageId: string) {
+    const { data: responseData } = await axios.get(
+      `${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`,
+      {
+        headers: {
+          Authorization: 'Bearer ' + pageToken,
+        },
+      }
+    )
+    const { data: applications } = z.array(z.object({ id: z.string() })).safeParse(responseData.data)
+    return applications?.some((app) => app.id === this._clientId) ?? false
   }
 
   public async getUserManagedPages(userToken: string) {

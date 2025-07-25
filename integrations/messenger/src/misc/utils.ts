@@ -64,3 +64,10 @@ export async function generateIdFromUrl(url: string): Promise<string> {
     .join('')
     .slice(0, 24)
 }
+
+export function getErrorFromUnknown(thrown: unknown): Error {
+  if (thrown instanceof Error) {
+    return thrown
+  }
+  return new Error(String(thrown))
+}

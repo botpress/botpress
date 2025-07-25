@@ -12,7 +12,10 @@ type Messages = Channels[keyof Channels]['messages']
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 
-export type SendMessageProps = Pick<MessageHandlerProps, 'client' | 'ctx' | 'conversation' | 'ack'>
+export type SendMessageProps = Pick<
+  MessageHandlerProps,
+  'client' | 'ctx' | 'conversation' | 'ack' | 'logger' | 'type' | 'payload'
+>
 
 type MessengerOutMessagePostbackAttachment = {
   type: 'postback'

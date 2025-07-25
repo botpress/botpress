@@ -6,7 +6,7 @@ import {
   MessengerMessagingEntryMessage,
   MessengerMessagingEntryPostback,
 } from '../../misc/types'
-import { FileMetadata, generateIdFromUrl, getMediaMetadata } from '../../misc/utils'
+import { FileMetadata, generateIdFromUrl, getErrorFromUnknown, getMediaMetadata } from '../../misc/utils'
 import * as bp from '.botpress'
 
 type IncomingMessageTypes = keyof Pick<bp.channels.channel.Messages, 'audio' | 'image' | 'text' | 'video' | 'bloc'>
@@ -17,6 +17,7 @@ type IncomingMessages = {
   }
 }
 type IncomingMessage = IncomingMessages[IncomingMessageTypes]
+type User = Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
 
 export const handler = async (messagingEntry: MessengerMessagingEntry, props: bp.HandlerProps) => {
   if ('message' in messagingEntry) {
@@ -105,7 +106,7 @@ const _commonMessagingHandler = async ({
   messagingEntry: MessengerMessagingEntry
   handlerProps: bp.HandlerProps
 }) => {
-  const { client, ctx, logger } = handlerProps
+  const { client } = handlerProps
 
   const { sender, recipient } = messagingEntry
   const { conversation } = await client.getOrCreateConversation({
@@ -118,19 +119,7 @@ const _commonMessagingHandler = async ({
       id: sender.id,
     },
   })
-
-  if (!user.name || !user.pictureUrl) {
-    try {
-      const messengerClient = await createMessengerClient(client, ctx)
-      const profile = await messengerClient.getUserProfile(messagingEntry.sender.id, {
-        fields: ['id', 'name', 'profile_pic'],
-      })
-      logger.forBot().debug('Fetched latest Messenger user profile:', profile)
-      await client.updateUser({ id: user.id, name: profile.name, pictureUrl: profile.profilePic })
-    } catch (error) {
-      logger.forBot().error('Error while fetching user profile from Messenger', error)
-    }
-  }
+  await _updateUserProfile(user, sender.id, handlerProps)
 
   await client.getOrCreateMessage({
     tags: {
@@ -207,4 +196,36 @@ async function _downloadMedia(params: { url: string } & FileMetadata, client: bp
     })
 
   return { url: file.url, mimeType, fileSize, fileName }
+}
+
+const _shouldGetUserProfile = (props: bp.HandlerProps) => {
+  const { ctx } = props
+  if (ctx.configurationType === 'sandbox') {
+    return bp.secrets.SANDBOX_SHOULD_GET_USER_PROFILE === 'true'
+  }
+  if (ctx.configurationType === 'manual') {
+    return ctx.configuration.shouldGetUserProfile ?? true
+  }
+
+  return bp.secrets.SHOULD_GET_USER_PROFILE === 'true'
+}
+
+const _updateUserProfile = async (user: User, messengerUserId: string, props: bp.HandlerProps) => {
+  const { client, ctx, logger } = props
+  if (_shouldGetUserProfile(props) && (!user.name || !user.pictureUrl)) {
+    try {
+      const messengerClient = await createMessengerClient(client, ctx)
+      const profile = await messengerClient.getUserProfile(messengerUserId, { fields: ['id', 'name', 'profile_pic'] })
+      logger.forBot().debug('Fetched latest Messenger user profile: ', profile)
+
+      await client.updateUser({ id: user.id, name: profile.name, pictureUrl: profile.profilePic })
+    } catch (error) {
+      logger
+        .forBot()
+        .error(
+          'Error while fetching user profile from Messenger, make sure your app was granted the necessary permissions. Error:',
+          getErrorFromUnknown(error).message
+        )
+    }
+  }
 }
