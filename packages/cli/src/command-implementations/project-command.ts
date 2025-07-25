@@ -366,6 +366,15 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return {
       integrations: _(integrations)
         .keyBy((i) => i.id)
+        .mapValues(
+          ({ enabled, configurationType, configuration, disabledChannels }) =>
+            ({
+              enabled,
+              configurationType,
+              configuration,
+              disabledChannels,
+            }) satisfies NonNullable<apiUtils.UpdateBotRequestBody['integrations']>[string]
+        )
         .value(),
       plugins: utils.records.mapValues(pluginsWithBackingIntegrations, (plugin) => ({
         ...plugin,
