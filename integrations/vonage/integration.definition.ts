@@ -19,7 +19,7 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
-      messages: { ...messages.defaults, markdown: messages.markdown },
+      messages: { ...messages.defaults },
       message: {
         tags: {
           id: {},

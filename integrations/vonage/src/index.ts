@@ -18,10 +18,6 @@ const integration = new bp.Integration({
           const payload = { message_type: 'image', image: { url: props.payload.imageUrl } }
           await sendMessage(props, payload)
         },
-        markdown: async (props) => {
-          const payload = { message_type: 'text', text: props.payload.markdown }
-          await sendMessage(props, payload)
-        },
         audio: async (props) => {
           const payload = { message_type: 'audio', audio: { url: props.payload.audioUrl } }
           await sendMessage(props, payload)
@@ -74,10 +70,6 @@ const integration = new bp.Integration({
 
     if (data.message_type !== 'text') {
       throw new Error('Handler received an invalid message type')
-    }
-
-    if (data.channel !== 'whatsapp') {
-      throw new Error('Handler received an invalid channel')
     }
 
     const { conversation } = await client.getOrCreateConversation({
@@ -316,6 +308,7 @@ function formatCardPayload(payload: Card, count: number = 0) {
 type SendMessageProps = Pick<bp.AnyMessageProps, 'ctx' | 'conversation' | 'ack'>
 async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
   const { to, from, channel } = getRequestMetadata(conversation)
+  console.log(from)
   const response = await axios.post(
     'https://api.nexmo.com/v1/messages',
     {
