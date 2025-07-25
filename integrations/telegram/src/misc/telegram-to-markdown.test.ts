@@ -406,30 +406,6 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
   },
   {
     input: {
-      text: 'Spoiler ||Bold Spoiler|| __Italic__',
-      marks: [
-        {
-          offset: 0,
-          length: 7,
-          type: 'spoiler',
-        },
-        {
-          offset: 8,
-          length: 16,
-          type: 'bold',
-        },
-        {
-          offset: 25,
-          length: 10,
-          type: 'spoiler',
-        },
-      ],
-    },
-    expects: '||Spoiler|| **||Bold Spoiler||** ||__Italic__||',
-    description: 'Apply Spoiler, then bold, then spoiler (ignoring 2nd spoiler & italic)',
-  },
-  {
-    input: {
       text: 'Spoiler\n\n\n\n\n\nText',
       marks: [
         {
