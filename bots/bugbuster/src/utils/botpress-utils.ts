@@ -3,6 +3,9 @@ import * as bp from '.botpress'
 export type BotProps = bp.EventHandlerProps | bp.MessageHandlerProps
 export type BotMessage = Pick<bp.ClientInputs['createMessage'], 'type' | 'payload'>
 export type GithubIssue = bp.integrations.github.actions.findTarget.output.Output['targets'][number]
+export type IssueLintEntry = bp.states.recentlyLinted.RecentlyLinted['payload']['issues'][number]
+
+const RECENT_THRESHOLD: number = 1000 * 60 * 10 // 10 minutes
 
 export class BotpressApi {
   private constructor(private _props: BotProps) {}
@@ -41,5 +44,37 @@ export class BotpressApi {
       },
     })
     return githubIssues
+  }
+
+  public async getRecentlyLinted(): Promise<bp.states.recentlyLinted.RecentlyLinted['payload']['issues']> {
+    const { client } = this._props
+    const {
+      state: {
+        payload: { issues },
+      },
+    } = await client.getOrSetState({
+      id: this._props.ctx.botId,
+      type: 'bot',
+      name: 'recentlyLinted',
+      payload: { issues: [] },
+    })
+    return issues.filter(this._isRecentlyLinted)
+  }
+
+  public async setRecentlyLinted(issues: bp.states.recentlyLinted.RecentlyLinted['payload']['issues']): Promise<void> {
+    await this._props.client.setState({
+      id: this._props.ctx.botId,
+      type: 'bot',
+      name: 'recentlyLinted',
+      payload: {
+        issues: issues.filter(this._isRecentlyLinted),
+      },
+    })
+  }
+
+  private _isRecentlyLinted = (issue: IssueLintEntry): boolean => {
+    const lintedAt = new Date(issue.lintedAt).getTime()
+    const now = new Date().getTime()
+    return now - lintedAt < RECENT_THRESHOLD
   }
 }

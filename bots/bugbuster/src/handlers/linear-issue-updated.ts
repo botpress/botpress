@@ -24,13 +24,19 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
     return
   }
 
+  const botpress = await utils.botpress.BotpressApi.create(props)
+  const recentlyLinted = await botpress.getRecentlyLinted()
+
+  if (recentlyLinted.some(({ id: issueId }) => issue.id === issueId)) {
+    props.logger.info(`Issue ${issue.identifier} has already been linted recently, skipping...`)
+    return
+  }
+
   const errors = await linlint.lintIssue(linear, issue)
   if (errors.length === 0) {
     props.logger.info(`Issue ${issue.identifier} passed all lint checks.`)
     return
   }
-
-  // TODO: add a debounce mechanism to avoid multiple comments on the same issue
 
   await linear.client.createComment({
     issueId: issue.id,
@@ -40,4 +46,6 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
       ...errors.map((error) => `- ${error.message}`),
     ].join('\n'),
   })
+
+  await botpress.setRecentlyLinted([...recentlyLinted, { id: issue.id, lintedAt: new Date().toISOString() }])
 }
