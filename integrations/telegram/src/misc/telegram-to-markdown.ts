@@ -48,13 +48,13 @@ const _handlers: Record<string, MarkHandler> = {
   bold: applyWhitespaceSensitiveMark((text: string) => `**${text}**`),
   italic: applyWhitespaceSensitiveMark((text: string) => `*${text}*`),
   strikethrough: applyWhitespaceSensitiveMark((text: string) => `~~${text}~~`),
+  spoiler: applyWhitespaceSensitiveMark((text: string) => `||${text}||`),
   code: applyWhitespaceSensitiveMark((text: string) => `\`${text}\``),
+  pre: (text: string, data: Record<string, unknown>) => `\`\`\`${data?.language || ''}\n${text}\n\`\`\``,
+  blockquote: (text: string) => `> ${text}`,
   text_link: applyWhitespaceSensitiveMark(
     (text: string, data: Record<string, unknown>) => `[${text}](${data?.url || '#'})`
   ),
-  spoiler: applyWhitespaceSensitiveMark((text: string) => `||${text}||`),
-  pre: (text: string, data: Record<string, unknown>) => `\`\`\`${data?.language || ''}\n${text}\n\`\`\``,
-  blockquote: (text: string) => `> ${text}`,
   phone_number: applyWhitespaceSensitiveMark((text: string) => {
     return `[${text}](tel:${text.replace(/\D/g, '')})`
   }),
