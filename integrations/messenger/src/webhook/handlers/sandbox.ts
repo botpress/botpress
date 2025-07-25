@@ -5,6 +5,7 @@ import {
 } from '@botpress/common'
 import { create as createMessengerClient } from '../../misc/messenger-client'
 import { MessengerMessagingEntry, messengerPayloadSchema } from '../../misc/types'
+import { getErrorFromUnknown } from '../../misc/utils'
 import * as bp from '.botpress'
 
 const NO_MESSAGE_ERROR = { status: 400, body: 'No message found in request' } as const
@@ -56,8 +57,8 @@ const _extractMessagingEntryFromRequest = (props: bp.HandlerProps): MessengerMes
     const data = JSON.parse(req.body)
     const payload = messengerPayloadSchema.parse(data)
     return payload.entry[0]?.messaging[0]
-  } catch (e: any) {
-    logger.error('Error while extracting message from request:', e?.message ?? '[unknown error]')
+  } catch (error) {
+    logger.error('Error while extracting message from request:', getErrorFromUnknown(error).message)
     return undefined
   }
 }

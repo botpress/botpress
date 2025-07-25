@@ -8,49 +8,49 @@ import * as bp from '.botpress'
 const channel: bp.IntegrationProps['channels']['channel'] = {
   messages: {
     text: async (props) =>
-      sendMessage(props, async (messenger, recipientId) => {
+      _sendMessage(props, async (messenger, recipientId) => {
         return messenger.sendText(recipientId, props.payload.text)
       }),
     image: async (props) =>
-      sendMessage(props, async (messenger, recipientId) => {
+      _sendMessage(props, async (messenger, recipientId) => {
         return messenger.sendImage(recipientId, props.payload.imageUrl)
       }),
     markdown: async (props) =>
-      sendMessage(props, async (messenger, recipientId) => {
+      _sendMessage(props, async (messenger, recipientId) => {
         return messenger.sendText(recipientId, props.payload.markdown)
       }),
     audio: async (props) =>
-      sendMessage(props, async (messenger, recipientId) => {
+      _sendMessage(props, async (messenger, recipientId) => {
         return messenger.sendAudio(recipientId, props.payload.audioUrl)
       }),
     video: async (props) =>
-      sendMessage(props, async (messenger, recipientId) => {
+      _sendMessage(props, async (messenger, recipientId) => {
         return messenger.sendVideo(recipientId, props.payload.videoUrl)
       }),
     file: async (props) =>
-      sendMessage(props, async (messenger, recipientId) => {
+      _sendMessage(props, async (messenger, recipientId) => {
         return messenger.sendFile(recipientId, props.payload.fileUrl)
       }),
     location: async (props) =>
-      sendMessage(props, async (messenger, recipientId) => {
+      _sendMessage(props, async (messenger, recipientId) => {
         const googleMapLink = getGoogleMapLinkFromLocation(props.payload)
         return messenger.sendText(recipientId, googleMapLink)
       }),
     carousel: async (props) =>
-      sendMessage(props, async (messenger, recipientId) => {
-        return messenger.sendMessage(recipientId, getCarouselMessage(props.payload))
+      _sendMessage(props, async (messenger, recipientId) => {
+        return messenger.sendMessage(recipientId, _getCarouselMessage(props.payload))
       }),
     card: async (props) =>
-      sendMessage(props, async (messenger, recipientId) => {
-        return messenger.sendMessage(recipientId, getCarouselMessage({ items: [props.payload] }))
+      _sendMessage(props, async (messenger, recipientId) => {
+        return messenger.sendMessage(recipientId, _getCarouselMessage({ items: [props.payload] }))
       }),
     dropdown: async (props) =>
-      sendMessage(props, async (messenger, recipientId) => {
-        return messenger.sendMessage(recipientId, getChoiceMessage(props.payload))
+      _sendMessage(props, async (messenger, recipientId) => {
+        return messenger.sendMessage(recipientId, _getChoiceMessage(props.payload))
       }),
     choice: async (props) =>
-      sendMessage(props, async (messenger, recipientId) => {
-        return messenger.sendMessage(recipientId, getChoiceMessage(props.payload))
+      _sendMessage(props, async (messenger, recipientId) => {
+        return messenger.sendMessage(recipientId, _getChoiceMessage(props.payload))
       }),
     bloc: () => {
       throw new RuntimeError('Not implemented')
@@ -91,22 +91,24 @@ export function formatCardElement(payload: Card) {
   }
 }
 
-async function sendMessage(
+async function _sendMessage(
   { ack, client, ctx, conversation, logger, type, payload }: SendMessageProps,
   send: (client: MessengerClient, recipientId: string) => Promise<{ messageId: string }>
 ) {
-  logger.forBot().debug(
-    `Sending ${type} message from bot to Messenger: ${Object.entries(payload)
-      .map(([k, v]) => `${k}: ${v}`)
-      .join(', ')}`
-  )
+  logger.forBot().debug(`Sending ${type} message from bot to Messenger: ${_formatPayloadToStr(payload)}`)
   const messengerClient = await createMessengerClient(client, ctx)
   const recipientId = getRecipientId(conversation)
   const { messageId } = await send(messengerClient, recipientId)
   await ack({ tags: { id: messageId } })
 }
 
-function getCarouselMessage(payload: Carousel): MessengerTypes.AttachmentMessage {
+function _formatPayloadToStr(payload: any): string {
+  return Object.entries(payload)
+    .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+    .join(', ')
+}
+
+function _getCarouselMessage(payload: Carousel): MessengerTypes.AttachmentMessage {
   return {
     attachment: {
       type: 'template',
@@ -118,7 +120,7 @@ function getCarouselMessage(payload: Carousel): MessengerTypes.AttachmentMessage
   }
 }
 
-function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.TextMessage {
+function _getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.TextMessage {
   if (!payload.options.length) {
     return { text: payload.text }
   }

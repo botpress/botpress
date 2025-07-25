@@ -6,7 +6,7 @@ import {
   MessengerMessagingEntryMessage,
   MessengerMessagingEntryPostback,
 } from '../../misc/types'
-import { FileMetadata, generateIdFromUrl, getMediaMetadata } from '../../misc/utils'
+import { FileMetadata, generateIdFromUrl, getErrorFromUnknown, getMediaMetadata } from '../../misc/utils'
 import * as bp from '.botpress'
 
 type IncomingMessageTypes = keyof Pick<bp.channels.channel.Messages, 'audio' | 'image' | 'text' | 'video' | 'bloc'>
@@ -219,12 +219,12 @@ const _updateUserProfile = async (user: User, messengerUserId: string, props: bp
       logger.forBot().debug('Fetched latest Messenger user profile: ', profile)
 
       await client.updateUser({ id: user.id, name: profile.name, pictureUrl: profile.profilePic })
-    } catch (error: any) {
+    } catch (error) {
       logger
         .forBot()
         .error(
           'Error while fetching user profile from Messenger, make sure your app was granted the necessary permissions. Error:',
-          error?.message ?? '[Unknown error]'
+          getErrorFromUnknown(error).message
         )
     }
   }

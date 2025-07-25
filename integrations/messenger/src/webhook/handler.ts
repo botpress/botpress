@@ -1,7 +1,7 @@
 import { isSandboxCommand, meta } from '@botpress/common'
 import { getClientSecret, getVerifyToken } from '../misc/auth'
 import { messengerPayloadSchema } from '../misc/types'
-import { safeJsonParse } from '../misc/utils'
+import { getErrorFromUnknown, safeJsonParse } from '../misc/utils'
 import { oauthHandler, messageHandler, sandboxHandler } from './handlers'
 import * as bp from '.botpress'
 
@@ -59,8 +59,8 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
       props.logger.error(`Messenger handler failed with status ${response.status}: ${response.body}`)
     }
     return response
-  } catch (error: any) {
-    return { status: 500, body: error?.message ?? 'Unknown error thrown' }
+  } catch (error) {
+    return { status: 500, body: getErrorFromUnknown(error).message }
   }
 }
 
