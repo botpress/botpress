@@ -1,12 +1,17 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
-import type { Client, Workflow as WorkflowType } from '@botpress/client'
+import type { Workflow as WorkflowType } from '@botpress/client'
+import type { BotSpecificClient } from '@botpress/sdk/src/bot'
 
-type WorkflowContext = {
+export type Client = BotSpecificClient<any>
+
+export type WorkflowContext = {
   workflow: WorkflowType
   client: Client
+  abort: () => void
+  aborted: boolean
   state: {
     executionCount: number
-    steps: Record<string, unknown>
+    steps: Record<string, { output: unknown; attempts: number }>
   }
 }
 

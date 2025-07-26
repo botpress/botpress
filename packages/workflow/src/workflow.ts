@@ -1,58 +1,112 @@
-import type { Client } from '@botpress/client'
+import { z } from '@botpress/sdk'
 import type { WorkflowUpdateEvent } from '@botpress/sdk/src/bot'
-import { storage } from './context'
+import { type Client, saveState, storage, type WorkflowContext } from './context'
+import { AbortError, FailedError } from './error'
+import { type Step, step } from './step'
+import { type Wait, wait } from './wait'
 
-type WorkflowParams<T> = {
-  client: Client
+type WorkflowParams<I, O> = {
   name: string
-  event?: WorkflowUpdateEvent
-  run: () => Promise<T>
+  input: z.ZodType<I>
+  output: z.ZodType<O>
+  run: ({
+    event,
+    input,
+    ctx,
+    step,
+    wait,
+  }: {
+    event?: WorkflowUpdateEvent
+    input: I
+    ctx: WorkflowContext
+    step: Step
+    wait: Wait
+  }) => Promise<O>
 }
 
-export const workflow = async <T>({ client, run, name, event }: WorkflowParams<T>) => {
-  const workflow =
-    event && event.payload.workflow.name === name
-      ? event.payload.workflow
-      : await getOrCreateWorkflow({ client, name, event })
+export const workflow = <I, O>({ run, name }: WorkflowParams<I, O>) => {
+  return {
+    start: async ({ client, input, parentWorkflowId }: { client: Client; input: I; parentWorkflowId?: string }) => {
+      const { workflow } = await client.createWorkflow({
+        name,
+        status: 'pending',
+        input,
+        parentWorkflowId,
+      })
 
-  if (!workflow) {
-    throw new Error(`Workflow "${name}" not found`)
+      return workflow
+    },
+    run: async ({ event, input, client }: { event?: WorkflowUpdateEvent; input: I; client: Client }) => {
+      const workflow =
+        event && event.payload.workflow.name === name
+          ? event.payload.workflow
+          : await getOrCreateWorkflow({ client, name, event, input })
+
+      if (!workflow) {
+        throw new Error(`Workflow "${name}" not found`)
+      }
+
+      const state = await client.getOrSetState({
+        id: workflow.id,
+        type: 'workflow',
+        payload: {
+          executionCount: 0,
+          steps: {},
+        },
+        name: 'state',
+      })
+
+      state.state.payload.executionCount++
+
+      await saveState({ client, state: state.state.payload as any, workflowId: workflow.id })
+
+      const ctx = {
+        workflow,
+        client,
+        state: state.state.payload as any,
+        abort: () => {
+          ctx.aborted = true
+        },
+        aborted: false,
+      }
+
+      const output = await storage.run(ctx, () =>
+        run({ ctx, input, step, wait }).catch(async (e) => {
+          if (e instanceof FailedError) {
+            await client.updateWorkflow({
+              id: workflow.id,
+              status: 'failed',
+              output: {},
+            })
+
+            throw new AbortError()
+          }
+
+          throw e
+        })
+      )
+
+      await client.updateWorkflow({
+        id: workflow.id,
+        status: 'completed',
+        output: {
+          result: output,
+        },
+      })
+
+      return output
+    },
   }
-
-  const state = await client.getOrSetState({
-    id: workflow.id,
-    type: 'workflow',
-    payload: {
-      executionCount: 0,
-      steps: {},
-    },
-    name: 'state',
-  })
-
-  state.state.payload.executionCount++
-
-  const output = await storage.run({ workflow, client, state: state.state.payload as any }, run)
-
-  console.log('OUTPUT:', output)
-
-  await client.updateWorkflow({
-    id: workflow.id,
-    status: 'completed',
-    output: {
-      result: output,
-    },
-  })
-
-  return output
 }
 
 type GetOrCreateWorkflow = {
   client: Client
   name: string
   event?: WorkflowUpdateEvent
+  input?: unknown
 }
 
-const getOrCreateWorkflow = async ({ client, name, event }: GetOrCreateWorkflow) => {
+const getOrCreateWorkflow = async ({ client, name, event, input }: GetOrCreateWorkflow) => {
   const { workflows } = await client.listWorkflows({
     statuses: ['listening'],
     name,
@@ -63,6 +117,7 @@ const getOrCreateWorkflow = async ({ client, name, event }: GetOrCreateWorkflow)
       name,
       status: event ? 'in_progress' : 'pending',
       eventId: event?.id,
+      input,
     })
 
     // TODO remove this

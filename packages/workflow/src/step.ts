@@ -1,15 +1,34 @@
 import { getContext, saveState } from './context'
+import { AbortError, FailedError } from './error'
 
-export const step = async <T>(name: string, run: () => Promise<T>) => {
+export const step = async <T>(
+  name: string,
+  run: () => Promise<T>,
+  { maxAttempts = 3 }: { maxAttempts?: number } = {}
+) => {
   const context = getContext()
 
-  if (context.state.steps[name] !== undefined) {
-    return context.state.steps[name] as T
+  if (context.aborted) {
+    throw new AbortError()
   }
 
-  const output = await run()
+  if (context.state.steps[name]?.output !== undefined) {
+    return context.state.steps[name].output as T
+  }
 
-  context.state.steps[name] = output ?? null
+  let output: T
+
+  try {
+    output = await run()
+  } catch (e) {
+    if ((context.state.steps[name]?.attempts ?? 0) + 1 >= maxAttempts) {
+      throw new FailedError(`Step "${name}" failed after ${maxAttempts} attempts`)
+    }
+
+    throw e
+  }
+
+  context.state.steps[name] = { output: output ?? null, attempts: 0 }
 
   await saveState({
     client: context.client,
@@ -19,3 +38,5 @@ export const step = async <T>(name: string, run: () => Promise<T>) => {
 
   return output
 }
+
+export type Step = typeof step

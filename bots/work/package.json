@@ -1,0 +1,17 @@
+{
+  "name": "@bp-templates/empty-bot",
+  "scripts": {
+    "dev": "bp dev"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:^",
+    "@botpress/sdk": "workspace:^",
+    "@bpinternal/workflow": "workspace:^",
+    "glob": "^9.3.4"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.67",
+    "typescript": "^5.6.3"
+  }
+}

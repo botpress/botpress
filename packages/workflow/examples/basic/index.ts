@@ -1,38 +1,45 @@
+import { exit } from 'node:process'
 import { Client } from '@botpress/client'
-import { exit } from 'process'
+import { z } from '@botpress/sdk'
 import { step, workflow } from '../../src'
-import { getContext } from '../../src/context'
 
 const main = async () => {
   const client = new Client({
     botId: 'e682d427-e536-4ae3-8e21-e7500dfc43cf',
-    token: 'bp_pat_KRIiUjqCzn7zAyHyDYO8j03XNlgHNvBOV4Ga',
+    token: 'bp_pat_jUYnQRWTYw1ZAETDdDSOUrTDVaaKYJqPH9ty',
   })
 
-  const result = await workflow({
-    client,
+  const flow = workflow({
     name: 'basic',
-    run: async () => {
-      const context = getContext()
-      console.log('workflow ID:', context.workflow.id)
+    input: z.object({}),
+    output: z.object({}),
+    run: async ({ ctx, input }) => {
+      console.log('workflow ID:', ctx.workflow.id)
+      console.log('input:', input)
 
       const arr = await step('List needed sub-tasks', async () => {
         console.log('RUN 1')
         return ['task1', 'task2', 'task3']
       })
 
-      if (context.state.executionCount <= 1) {
+      if (ctx.state.executionCount <= 1) {
         console.log('exiting after 1st step')
         exit(0)
       }
 
+      console.log(ctx.state.executionCount)
+
       for (const item of arr) {
         await step(`Do ${item}`, async () => {
+          if (ctx.state.executionCount <= 3) {
+            throw new Error('test')
+          }
+
           console.log('RUN 2: ', item)
         })
       }
 
-      if (context.state.executionCount <= 2) {
+      if (ctx.state.executionCount <= 2) {
         console.log('exiting after 2nd step')
         exit(0)
       }
@@ -48,6 +55,13 @@ const main = async () => {
       })
 
       return b + c
+    },
+  })
+
+  const result = await flow.run({
+    client: client as any,
+    input: {
+      name: 'John',
     },
   })
 

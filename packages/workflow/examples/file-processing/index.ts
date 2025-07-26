@@ -1,8 +1,8 @@
 import { Client } from '@botpress/client'
 import glob from 'glob'
 import { exit } from 'process'
-import { step, workflow } from '../../src'
-import { getContext } from '../../src/context'
+import { step, workflow } from '../src'
+import { getContext } from '../src/context'
 
 const main = async () => {
   const client = new Client({

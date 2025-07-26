@@ -208,6 +208,7 @@ export type WorkflowUpdateEvent = utils.Merge<
 
 export type WorkflowPayloads<TBot extends common.BaseBot> = {
   [TWorkflowName in utils.StringKeys<TBot['workflows']>]: CommonHandlerProps<TBot> & {
+    event: WorkflowUpdateEvent
     conversation?: client.Conversation
     user?: client.User
 
