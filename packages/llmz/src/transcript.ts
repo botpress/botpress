@@ -70,7 +70,7 @@ export class TranscriptArray extends Array<Transcript.Message> {
     super(...items)
 
     items.forEach((item) => {
-      if (!['user', 'assistant'].includes(item.role)) {
+      if (!['user', 'assistant', 'event', 'summary'].includes(item.role)) {
         throw new Error(`Invalid role "${item.role}" in transcript message`)
       }
 
