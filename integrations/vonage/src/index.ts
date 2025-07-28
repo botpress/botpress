@@ -1,8 +1,8 @@
 import { RuntimeError } from '@botpress/client'
 import * as sdk from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import * as common from '@botpress/sdk-addons'
 import * as formatter from './payloadFormatter'
-import { sendMessage } from './vonage'
+import * as vonage from './vonage'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
@@ -55,45 +55,45 @@ const integration = new bp.Integration({
       messages: {
         text: async (props) => {
           const payload = { message_type: 'text', text: props.payload.text }
-          await sendMessage(props, payload)
+          await vonage.sendMessage(props, payload)
         },
         image: async (props) => {
           const payload = { message_type: 'image', image: { url: props.payload.imageUrl } }
-          await sendMessage(props, payload)
+          await vonage.sendMessage(props, payload)
         },
         audio: async (props) => {
           const payload = { message_type: 'audio', audio: { url: props.payload.audioUrl } }
-          await sendMessage(props, payload)
+          await vonage.sendMessage(props, payload)
         },
         video: async (props) => {
           const payload = { message_type: 'video', video: { url: props.payload.videoUrl } }
-          await sendMessage(props, payload)
+          await vonage.sendMessage(props, payload)
         },
         file: async (props) => {
           const payload = { message_type: 'file', file: { url: props.payload.fileUrl } }
-          await sendMessage(props, payload)
+          await vonage.sendMessage(props, payload)
         },
         location: async (props) => {
           const payload = formatter.formatLocationPayload(props.payload)
-          await sendMessage(props, payload)
+          await vonage.sendMessage(props, payload)
         },
         carousel: async (props) => {
           const payloads = formatter.formatCarouselPayload(props.payload)
           for (const payload of payloads) {
-            await sendMessage(props, payload)
+            await vonage.sendMessage(props, payload)
           }
         },
         card: async (props) => {
           const payload = formatter.formatCardPayload(props.payload)
-          await sendMessage(props, payload)
+          await vonage.sendMessage(props, payload)
         },
         dropdown: async (props) => {
           const payload = formatter.formatDropdownPayload(props.payload)
-          await sendMessage(props, payload)
+          await vonage.sendMessage(props, payload)
         },
         choice: async (props) => {
           const payload = formatter.formatChoicePayload(props.payload)
-          await sendMessage(props, payload)
+          await vonage.sendMessage(props, payload)
         },
         bloc: () => {
           throw new RuntimeError('Not implemented')
@@ -141,7 +141,7 @@ const integration = new bp.Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration, {
+export default common.sentry.wrapIntegration(integration, {
   dsn: bp.secrets.SENTRY_DSN,
   environment: bp.secrets.SENTRY_ENVIRONMENT,
   release: bp.secrets.SENTRY_RELEASE,

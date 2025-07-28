@@ -4,26 +4,6 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 
-const startConversationProps = {
-  title: 'Start proactive conversation',
-  description: 'Start a proactive conversation given a user',
-  input: {
-    schema: z.object({
-      conversation: z.object({
-        userId: z.string(),
-        channelId: z.string(),
-        channel: z.string(),
-      }),
-    }),
-  },
-  output: { schema: z.object({ conversationId: z.string() }) },
-}
-
-const createUserProps = {
-  input: { schema: z.object({ user: z.object({ channel: z.string(), userId: z.string() }) }) },
-  output: { schema: z.object({ userId: z.string() }) },
-}
-
 export default new IntegrationDefinition({
   name: 'vonage',
   version: '1.0.0',
@@ -56,7 +36,6 @@ export default new IntegrationDefinition({
       },
     },
   },
-  actions: { startConversation: startConversationProps, getOrCreateUser: createUserProps },
   events: {},
   user: {
     tags: {
@@ -66,24 +45,37 @@ export default new IntegrationDefinition({
   },
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
   entities: {
-    proactiveConversation: {
-      schema: startConversationProps.input.schema.shape['conversation'],
+    conversation: {
+      schema: z.object({
+        userId: z.string(),
+        channelId: z.string(),
+        channel: z.string(),
+      }),
     },
-    proactiveUser: {
-      schema: createUserProps.input.schema.shape['user'],
+    user: {
+      schema: z.object({ channel: z.string(), userId: z.string() }),
     },
   },
 })
   .extend(proactiveConversation, ({ entities }) => ({
     entities: {
-      conversation: entities.proactiveConversation,
+      conversation: entities.conversation,
     },
     actions: {
       getOrCreateConversation: {
         name: 'startConversation',
-        title: startConversationProps.title,
-        description: startConversationProps.description,
+        title: 'Start proactive conversation',
+        description: 'Start a proactive conversation given a user',
       },
     },
   }))
-  .extend(proactiveUser, ({ entities }) => ({ entities: { user: entities.proactiveUser } }))
+  .extend(proactiveUser, ({ entities }) => ({
+    entities: { user: entities.user },
+    actions: {
+      getOrCreateUser: {
+        name: 'getOrCreateUser',
+        title: 'Get or create user',
+        description: 'Get or create a user in the Vonage channel',
+      },
+    },
+  }))
