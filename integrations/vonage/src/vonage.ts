@@ -25,7 +25,7 @@ type SendMessageProps = Pick<bp.AnyMessageProps, 'ctx' | 'conversation' | 'ack'>
 export async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
   const { to, from, channel } = getRequestMetadata(conversation)
   const response = await axios.post(
-    'https://messages-sandbox.nexmo.com/v1/messages',
+    'https://api.nexmo.com/v1/messages',
     {
       ...payload,
       from,
