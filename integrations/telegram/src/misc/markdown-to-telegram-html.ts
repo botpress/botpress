@@ -9,7 +9,6 @@ const md = MarkdownIt({
 
 type ExtractedData = Partial<{
   images: { src: string; alt: string }[]
-  codeBlocks: { type: 'start' | 'end'; pos: number }[]
 }>
 
 md.renderer.rules.paragraph_open = () => '\n'
@@ -30,7 +29,11 @@ md.renderer.rules.image = (tokens, idx, _, env: ExtractedData) => {
   return ''
 }
 
-export function stdMarkdownToTelegramHtml(markdown: string) {
+export type MarkdownToTelegramHtmlResult = {
+  html: string
+  extractedData: ExtractedData
+}
+export function stdMarkdownToTelegramHtml(markdown: string): MarkdownToTelegramHtmlResult {
   const extractedData: ExtractedData = {}
   const telegramHtml = md
     .render(markdown, extractedData)
