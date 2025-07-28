@@ -80,12 +80,12 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     let apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
 
     if (this.argv.profile) {
-      if (token || workspaceId || apiUrl) {
+      if (credentials.token || credentials.workspaceId || credentials.apiUrl) {
         this.logger.warn(
           'You are currently using credentials as well as a profile. Your profile has overwritten the variables set via command line'
         )
       }
-      ;({ token, workspaceId, apiUrl } = await this._readProfileFromFS(this.argv.profile))
+      ;({ token, workspaceId, apiUrl } = await this._readProfileFromFS(this.argv.botpressHome, this.argv.profile))
     }
 
     if (!(token && workspaceId && apiUrl)) {
@@ -96,11 +96,13 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
       this.logger.log(`Using custom url ${apiUrl}`, { prefix: '🔗' })
     }
 
-    if (this.argv) return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
+    return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
   }
 
-  private async _readProfileFromFS(profile: string): Promise<{ token: string; workspaceId: string; apiUrl: string }> {
-    const botpressHome = process.env.BP_BOTPRESS_HOME
+  private async _readProfileFromFS(
+    botpressHome: string,
+    profile: string
+  ): Promise<{ token: string; workspaceId: string; apiUrl: string }> {
     if (!botpressHome) {
       throw new errors.BotpressCLIError('BP_BOTPRESS_HOME environment variable is not set')
     }
@@ -110,12 +112,12 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     }
     const iniContent = await fs.promises.readFile(profilePath, 'utf-8')
     const profiles = ini.parse(iniContent)
-    const requiredKeys = Object.keys(config.schemas.credentials)
+
     const profileData = profiles[profile]
     if (!profileData) {
       throw new errors.BotpressCLIError(`Profile "${profile}" not found in "${profilePath}"`)
     }
-    console.log(profileData)
+    const requiredKeys = Object.keys(config.schemas.credentials)
     const missingKeys = requiredKeys.filter((key) => !(key in profileData))
     if (missingKeys.length > 0) {
       throw new errors.BotpressCLIError(`Profile "${profile}" is missing required keys: ${missingKeys.join(', ')}`)
@@ -133,7 +135,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     return client
   }
 
-  private _notifyUpdateCli = async (): Promise<void> => {
+  private readonly _notifyUpdateCli = async (): Promise<void> => {
     try {
       this.logger.debug('Checking if cli is up to date')
 
