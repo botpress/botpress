@@ -48,4 +48,14 @@ export default {
   dev: { description: 'Run your project in dev mode', schema: config.schemas.dev },
   lint: { description: 'EXPERIMENTAL: Lint an integration definition', schema: config.schemas.lint },
   chat: { description: 'EXPERIMENTAL: Chat with a bot directly from the CLI', schema: config.schemas.chat },
+  profiles: {
+    description: 'EXPERIMENTAL: Profile related commands',
+    subcommands: {
+      list: {
+        description: 'List profiles present in the BP_BOTPRESS_HOME/.profiles directory',
+        schema: config.schemas.listProfiles,
+        alias: 'ls',
+      },
+    },
+  },
 } satisfies DefinitionTree

@@ -358,6 +358,8 @@ const chatSchema = {
   },
 } satisfies CommandSchema
 
+const listProfileSchema = { ...globalSchema } satisfies CommandSchema
+
 // exports
 
 export const schemas = {
@@ -391,4 +393,5 @@ export const schemas = {
   dev: devSchema,
   lint: lintSchema,
   chat: chatSchema,
+  listProfiles: listProfileSchema,
 } as const

@@ -23,6 +23,7 @@ import { LogoutCommand } from './logout-command'
 import * as plugins from './plugin-commands'
 import { ReadCommand } from './read-command'
 import { ServeCommand } from './serve-command'
+import { ProfilesCommand } from './profiles-command'
 
 type GlobalCtor<C extends GlobalCommandDefinition> = new (
   ...args: ConstructorParameters<typeof GlobalCommand<C>>
@@ -79,4 +80,5 @@ export default {
   dev: getHandler(DevCommand),
   lint: getHandler(LintCommand),
   chat: getHandler(ChatCommand),
+  profiles: { subcommands: { list: getHandler(ProfilesCommand) } },
 } satisfies ImplementationTree<typeof commandDefinitions>
