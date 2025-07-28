@@ -14,7 +14,7 @@ export type ApiClientFactory = {
   newClient: (props: ApiClientProps, logger: Logger) => ApiClient
 }
 
-export type PublicIntegration = client.Integration & { public: true }
+export type PublicOrUnlistedIntegration = client.Integration & { visibility: 'public' | 'unlisted' }
 export type PrivateIntegration = client.Integration & { workspaceId: string }
 export type PublicOrPrivateIntegration = client.Integration & { workspaceId?: string }
 export type IntegrationSummary = client.ClientOutputs['listIntegrations']['integrations'][number]
