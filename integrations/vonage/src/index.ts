@@ -9,9 +9,9 @@ const integration = new bp.Integration({
   unregister: async () => {},
   actions: {
     async startConversation(props) {
-      const vonageChannel = props.input.channel
-      const channelId = props.input.channelId
-      const userId = props.input.userId
+      const vonageChannel = props.input.conversation.channel
+      const channelId = props.input.conversation.channelId
+      const userId = props.input.conversation.userId
 
       if (!(vonageChannel && channelId && userId)) {
         throw new sdk.RuntimeError('Could not create conversation: missing channel, channelId or userId')
@@ -32,8 +32,8 @@ const integration = new bp.Integration({
       // throw new Error('Function not implemented.')
     },
     async getOrCreateUser(props) {
-      const vonageChannel = props.input.channel
-      const userId = props.input.userId
+      const vonageChannel = props.input.user.channel
+      const userId = props.input.user.userId
       if (!(vonageChannel && userId)) {
         throw new sdk.RuntimeError('Could not create a user: missing channel or userId')
       }
