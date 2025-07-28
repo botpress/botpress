@@ -1,7 +1,9 @@
 import { RuntimeError } from '@botpress/client'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import * as bp from '.botpress'
 import * as sdk from '@botpress/sdk'
+import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import * as formatter from './payloadFormatter'
+import { sendMessage } from './vonage'
+import * as bp from '.botpress'
 
 const integration = new bp.Integration({
   register: async () => {},
@@ -28,7 +30,6 @@ const integration = new bp.Integration({
       return {
         conversationId: conversation.id,
       }
-      // throw new Error('Function not implemented.')
     },
     async getOrCreateUser(props) {
       const vonageChannel = props.input.user.channel
@@ -47,7 +48,6 @@ const integration = new bp.Integration({
       return {
         userId: user.id,
       }
-      // throw new Error('Function not implemented.')
     },
   },
   channels: {
@@ -74,25 +74,25 @@ const integration = new bp.Integration({
           await sendMessage(props, payload)
         },
         location: async (props) => {
-          const payload = formatLocationPayload(props.payload)
+          const payload = formatter.formatLocationPayload(props.payload)
           await sendMessage(props, payload)
         },
         carousel: async (props) => {
-          const payloads = formatCarouselPayload(props.payload)
+          const payloads = formatter.formatCarouselPayload(props.payload)
           for (const payload of payloads) {
             await sendMessage(props, payload)
           }
         },
         card: async (props) => {
-          const payload = formatCardPayload(props.payload)
+          const payload = formatter.formatCardPayload(props.payload)
           await sendMessage(props, payload)
         },
         dropdown: async (props) => {
-          const payload = formatDropdownPayload(props.payload)
+          const payload = formatter.formatDropdownPayload(props.payload)
           await sendMessage(props, payload)
         },
         choice: async (props) => {
-          const payload = formatChoicePayload(props.payload)
+          const payload = formatter.formatChoicePayload(props.payload)
           await sendMessage(props, payload)
         },
         bloc: () => {
@@ -146,180 +146,3 @@ export default sentryHelpers.wrapIntegration(integration, {
   environment: bp.secrets.SENTRY_ENVIRONMENT,
   release: bp.secrets.SENTRY_RELEASE,
 })
-
-function getRequestMetadata(conversation: SendMessageProps['conversation']) {
-  const channel = conversation.tags?.channel
-  const channelId = conversation.tags?.channelId
-  const userId = conversation.tags?.userId
-
-  if (!channelId) {
-    throw new Error('Invalid channel id')
-  }
-
-  if (!userId) {
-    throw new Error('Invalid user id')
-  }
-
-  if (!channel) {
-    throw new Error('Invalid channel')
-  }
-
-  return { to: userId, from: channelId, channel }
-}
-
-type Dropdown = bp.channels.channel.dropdown.Dropdown
-type Choice = bp.channels.channel.choice.Choice
-type Carousel = bp.channels.channel.carousel.Carousel
-type Card = bp.channels.channel.card.Card
-type Location = bp.channels.channel.location.Location
-
-function formatLocationPayload(payload: Location) {
-  return {
-    message_type: 'custom',
-    custom: {
-      type: 'location',
-      location: {
-        latitude: payload.latitude,
-        longitude: payload.longitude,
-      },
-    },
-  }
-}
-
-function formatDropdownPayload(payload: Dropdown) {
-  return {
-    message_type: 'custom',
-    custom: {
-      type: 'interactive',
-      interactive: {
-        type: 'list',
-        body: {
-          text: payload.text,
-        },
-        action: {
-          button: 'Select an option',
-          sections: [
-            {
-              rows: payload.options.map((x, i) => ({ id: `slot-${i}::${x.value}`, title: x.label })),
-            },
-          ],
-        },
-      },
-    },
-  }
-}
-
-function formatChoicePayload(payload: Choice) {
-  if (payload.options.length < 3) {
-    return {
-      message_type: 'custom',
-      custom: {
-        type: 'interactive',
-        interactive: {
-          type: 'button',
-          body: {
-            text: payload.text,
-          },
-          action: {
-            buttons: payload.options.map((x, i) => ({
-              type: 'reply',
-              reply: { id: `slot-${i}::${x.value}`, title: x.label },
-            })),
-          },
-        },
-      },
-    }
-  }
-
-  if (payload.options.length <= 10) {
-    return {
-      message_type: 'custom',
-      custom: {
-        type: 'interactive',
-        interactive: {
-          type: 'list',
-          body: {
-            text: payload.text,
-          },
-          action: {
-            button: 'Select an option',
-            sections: [
-              {
-                rows: payload.options.map((x, i) => ({ id: `slot-${i}::${x.value}`, title: x.label })),
-              },
-            ],
-          },
-        },
-      },
-    }
-  }
-
-  return {
-    message_type: 'text',
-    text: `${payload.text}\n\n${payload.options.map(({ label }, idx) => `*(${idx + 1})* ${label}`).join('\n')}`,
-  }
-}
-
-function formatCarouselPayload(payload: Carousel) {
-  let count = 0
-  return payload.items.map((card) => {
-    const cardPayload = formatCardPayload(card, count)
-    count += card.actions.length
-    return cardPayload
-  })
-}
-
-type CardOption = CardSay | CardPostback | CardUrl
-
-type CardSay = { title: string; type: 'say'; value: string }
-type CardPostback = { title: string; type: 'postback'; value: string }
-type CardUrl = { title: string; type: 'url' }
-
-function formatCardPayload(payload: Card, count: number = 0) {
-  const options: CardOption[] = []
-
-  payload.actions.forEach((action) => {
-    if (action.action === 'say') {
-      options.push({ title: action.label, type: 'say', value: action.value })
-    } else if (action.action === 'url') {
-      options.push({ title: `${action.label} : ${action.value}`, type: 'url' })
-    } else if (action.action === 'postback') {
-      options.push({ title: action.label, type: 'postback', value: action.value })
-    }
-  })
-
-  const body = `*${payload.title}*\n\n${payload.subtitle ? `${payload.subtitle}\n\n` : ''}${options
-    .map(({ title }, idx) => `*(${idx + count + 1})* ${title}`)
-    .join('\n')}`
-
-  if (payload.imageUrl) {
-    return {
-      message_type: 'image',
-      image: {
-        url: payload.imageUrl,
-        caption: body,
-      },
-    }
-  }
-
-  return { message_type: 'text', text: body }
-}
-type SendMessageProps = Pick<bp.AnyMessageProps, 'ctx' | 'conversation' | 'ack'>
-async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
-  const { to, from, channel } = getRequestMetadata(conversation)
-  console.log(from)
-  const response = await axios.post(
-    'https://api.nexmo.com/v1/messages',
-    {
-      ...payload,
-      from,
-      to,
-      channel,
-    },
-    {
-      headers: { 'Content-Type': 'application/json' },
-      auth: { username: ctx.configuration.apiKey, password: ctx.configuration.apiSecret },
-    }
-  )
-  await ack({ tags: { id: response.data.message_uuid } })
-}
