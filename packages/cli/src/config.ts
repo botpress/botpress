@@ -15,6 +15,11 @@ const workDir = {
   default: consts.defaultWorkDir,
 } satisfies CommandOption
 
+const profile = {
+  type: 'string',
+  description: 'The profile you want to use',
+} satisfies CommandOption
+
 const noBuild = {
   type: 'boolean',
   description: 'Skip the build step',
@@ -198,6 +203,7 @@ const deploySchema = {
     description: 'Allow deprecated features in the project',
     default: false,
   },
+  profile,
 } as const satisfies CommandSchema
 
 const devSchema = {
@@ -358,8 +364,6 @@ const chatSchema = {
   },
 } satisfies CommandSchema
 
-const listProfileSchema = { ...globalSchema } satisfies CommandSchema
-
 // exports
 
 export const schemas = {
@@ -393,5 +397,4 @@ export const schemas = {
   dev: devSchema,
   lint: lintSchema,
   chat: chatSchema,
-  listProfiles: listProfileSchema,
 } as const
