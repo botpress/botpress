@@ -22,8 +22,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const projectDef = await this.readProjectDefinitionFromFS()
 
-    if (this.argv.profile) await this.readProfileFromFS(this.argv.profile)
-    throw new sdk.RuntimeError('Only wanted to get there')
+    if (this.argv.profile) {
+      const config = await this.readProfileFromFS(this.argv.profile)
+      this.argv.apiUrl = config.apiUrl
+      this.argv.workspaceId = config.workspaceId
+      this.argv.token = config.token
+    }
 
     if (projectDef.type === 'integration') {
       return this._deployIntegration(api, projectDef.definition)

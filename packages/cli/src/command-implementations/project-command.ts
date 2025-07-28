@@ -3,11 +3,12 @@ import type * as sdk from '@botpress/sdk'
 import type { YargsConfig } from '@bpinternal/yargs-extra'
 import chalk from 'chalk'
 import fs from 'fs'
+import ini from 'ini'
 import _ from 'lodash'
 import semver from 'semver'
 import * as apiUtils from '../api'
 import * as codegen from '../code-generation'
-import type * as config from '../config'
+import * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import { validateIntegrationDefinition, validateBotDefinition } from '../sdk'
@@ -87,19 +88,28 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     throw new errors.ProjectDefinitionNotFoundError(this.projectPaths.abs.workDir)
   }
 
-  protected async readProfileFromFS(profile: string): Promise<void> {
+  protected async readProfileFromFS(profile: string): Promise<typeof config.schemas.credentials> {
     const botpressHome = process.env.BP_BOTPRESS_HOME
-    const profilePath = `${botpressHome}/.profiles/${profile}`
+    if (!botpressHome) {
+      throw new errors.BotpressCLIError('BP_BOTPRESS_HOME environment variable is not set')
+    }
+    const profilePath = `${botpressHome}/.profiles`
     if (!fs.existsSync(profilePath)) {
       throw new errors.BotpressCLIError(`Profile file not found at "${profilePath}"`)
     }
-    const profileContent = await fs.promises.readFile(profilePath, 'utf-8')
-    try {
-      const profile = JSON.parse(profileContent)
-      return profile
-    } catch (err) {
-      throw new errors.BotpressCLIError(`Failed to parse profile file: ${(err as Error).message}`)
+    const iniContent = await fs.promises.readFile(profilePath, 'utf-8')
+    const profiles = ini.parse(iniContent)
+    const requiredKeys = Object.keys(config.schemas.credentials)
+    const profileData = profiles[profile]
+    if (!profileData) {
+      throw new errors.BotpressCLIError(`Profile "${profile}" not found in "${profilePath}"`)
     }
+    console.log(profileData)
+    const missingKeys = requiredKeys.filter((key) => !(key in profileData))
+    if (missingKeys.length > 0) {
+      throw new errors.BotpressCLIError(`Profile "${profile}" is missing required keys: ${missingKeys.join(', ')}`)
+    }
+    return profiles[profile]
   }
 
   private async _readIntegrationDefinitionFromFS(
