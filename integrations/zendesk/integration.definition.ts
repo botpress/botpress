@@ -7,7 +7,7 @@ import { actions, events, configuration, channels, states, user } from './src/de
 export default new sdk.IntegrationDefinition({
   name: 'zendesk',
   title: 'Zendesk',
-  version: '2.6.0',
+  version: '2.7.0',
   icon: 'icon.svg',
   description:
     'Optimize your support workflow. Trigger workflows from ticket updates as well as manage tickets, access conversations, and engage with customers.',
@@ -26,6 +26,13 @@ export default new sdk.IntegrationDefinition({
           .enum(['low', 'normal', 'high', 'urgent'])
           .title('Ticket Priority')
           .describe('Priority of the ticket. Leave empty for default priority.')
+          .optional(),
+        viaChannel: sdk.z
+          .string()
+          .title('Via Channel')
+          .describe(
+            'Via Channel to use (example: "whatsapp", "instagram_dm" ), only use values documented by Zendesk, check the "Info" tab at the Zendesk integration configuration page for more details. Leave empty or use an invalid channel type and you will get "API".'
+          )
           .optional(),
       }),
     },
