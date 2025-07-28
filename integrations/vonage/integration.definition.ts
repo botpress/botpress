@@ -5,18 +5,22 @@ import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 
 const startConversationProps = {
+  title: 'Start proactive conversation',
+  description: 'Start a proactive conversation given a user',
   input: {
     schema: z.object({
-      userId: z.string(),
-      channelId: z.string(),
-      channel: z.string(),
+      conversation: z.object({
+        userId: z.string(),
+        channelId: z.string(),
+        channel: z.string(),
+      }),
     }),
   },
   output: { schema: z.object({ conversationId: z.string() }) },
 }
 
 const createUserProps = {
-  input: { schema: z.object({ channel: z.string(), userId: z.string() }) },
+  input: { schema: z.object({ user: z.object({ channel: z.string(), userId: z.string() }) }) },
   output: { schema: z.object({ userId: z.string() }) },
 }
 
@@ -63,12 +67,10 @@ export default new IntegrationDefinition({
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
   entities: {
     proactiveConversation: {
-      title: 'Proactive Conversation',
-      description: 'Proactive conversation with an external service account',
-      schema: startConversationProps.input.schema,
+      schema: startConversationProps.input.schema.shape['conversation'],
     },
     proactiveUser: {
-      schema: createUserProps.input.schema,
+      schema: createUserProps.input.schema.shape['user'],
     },
   },
 })
@@ -76,6 +78,12 @@ export default new IntegrationDefinition({
     entities: {
       conversation: entities.proactiveConversation,
     },
-    actions: { getOrCreateConversation: { name: 'startConversation' } },
+    actions: {
+      getOrCreateConversation: {
+        name: 'startConversation',
+        title: startConversationProps.title,
+        description: startConversationProps.description,
+      },
+    },
   }))
   .extend(proactiveUser, ({ entities }) => ({ entities: { user: entities.proactiveUser } }))
