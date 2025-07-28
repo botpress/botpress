@@ -23,7 +23,7 @@ export { Chat, type MessageHandler } from './chat.js'
 
 import { type ExecutionProps } from './llmz.js'
 import { ExecutionResult } from './result.js'
-import { wrapContent } from './truncator.js'
+import { truncateWrappedContent, wrapContent } from './truncator.js'
 import { toValidFunctionName, toValidObjectName } from './utils.js'
 export { Transcript } from './transcript.js'
 export { ErrorExecutionResult, ExecutionResult, PartialExecutionResult, SuccessExecutionResult } from './result.js'
@@ -37,6 +37,7 @@ export const utils = {
   toValidObjectName,
   toValidFunctionName,
   wrapContent,
+  truncateWrappedContent,
 }
 
 /**

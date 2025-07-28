@@ -14,7 +14,7 @@
     "check:lint": "pnpm check:bplint && pnpm check:oxlint && pnpm check:eslint",
     "check:type": "turbo check:type",
     "fix:dep": "depsynky sync --ignore-dev",
-    "fix:sherif": "sherif -i zod -i axios -i query-string -i googleapis --fix",
+    "fix:sherif": "sherif -i zod -i axios -i query-string -i googleapis -i @linear/sdk --fix",
     "fix:format": "prettier --write .",
     "fix:oxlint": "oxlint -c .oxlintrc.json --fix --fix-suggestions",
     "fix:lint": "eslint --fix ./",
