@@ -233,7 +233,7 @@ const _postProcessNestedEffects = (
   return processedSegments
 }
 
-export const applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: number = 0) => {
+const applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: number = 0) => {
   const { start, end, effects, children } = segment
   const startIndex = start - offset
   let transformedText = text.substring(startIndex, end - offset)
@@ -266,11 +266,10 @@ export const applyMarkToTextSegment = (text: string, segment: MarkSegment, offse
 }
 
 export const applyMarksToText = (text: string, marks: TelegramMark[]) => {
-  const segments = marks.map(
-    (mark: TelegramMark): MarkSegment => ({
-      start: mark.offset,
-      // Blockquote can only affect the whole line
-      end: mark.type !== 'blockquote' ? mark.offset + mark.length : mark.offset + 1,
+  const segments = marks.flatMap((mark: TelegramMark): MarkSegment | MarkSegment[] => {
+    const createSegment = (start: number, end: number) => ({
+      start,
+      end,
       effects: [
         {
           type: mark.type,
@@ -279,7 +278,25 @@ export const applyMarksToText = (text: string, marks: TelegramMark[]) => {
         },
       ],
     })
-  )
+
+    const start = mark.offset
+    const end = mark.offset + mark.length
+    if (mark.type !== 'blockquote') {
+      return createSegment(start, end)
+    } else {
+      const textSegment = text.substring(start, end)
+      const blockquoteSegments: MarkSegment[] = []
+      let newlineIndex: number = 0
+
+      do {
+        const blockquoteStart = newlineIndex + start
+        blockquoteSegments.push(createSegment(blockquoteStart, blockquoteStart + 1))
+        newlineIndex = textSegment.indexOf('\n', newlineIndex) + 1
+      } while (newlineIndex !== 0)
+
+      return blockquoteSegments
+    }
+  })
 
   const plainTextSegment = { start: 0, end: text.length, effects: [] }
   const nonOverlappingSegments = _splitAnyOverlaps(segments.concat(plainTextSegment))

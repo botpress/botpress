@@ -460,6 +460,20 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
   },
   {
     input: {
+      text: 'Quote Line 1\nQuote Line 2\nQuote Line 3',
+      marks: [
+        {
+          offset: 0,
+          length: 38,
+          type: 'blockquote',
+        },
+      ],
+    },
+    expects: '> Quote Line 1\n> Quote Line 2\n> Quote Line 3',
+    description: 'Multiline blockquote produces a blockquote mark for each line',
+  },
+  {
+    input: {
       text: 'Hello Many Effects World',
       marks: [
         {
