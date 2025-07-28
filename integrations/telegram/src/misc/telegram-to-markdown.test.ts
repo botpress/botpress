@@ -439,22 +439,24 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
   },
   {
     input: {
-      text: 'Hello Spoiler',
+      text: 'Hello Quote World',
       marks: [
         {
           offset: 0,
-          length: 13,
+          length: 17,
           type: 'blockquote',
         },
         {
           offset: 6,
-          length: 7,
+          length: 5,
           type: 'spoiler',
         },
       ],
     },
-    expects: '> Hello ||Spoiler||',
-    description: 'Apply blockquote markdown, with spoiler contained within',
+    expects: '> Hello ||Quote|| World',
+    description:
+      // An incorrect outcome of this test case would be "> Hello ||> Quote||>  World"
+      "Ensure any effect nested within blockquote mark doesn't create multiple blockquote marks (It should only ever be at the start of a line)",
   },
   {
     input: {
