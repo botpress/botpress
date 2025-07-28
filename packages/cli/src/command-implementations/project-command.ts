@@ -88,30 +88,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     throw new errors.ProjectDefinitionNotFoundError(this.projectPaths.abs.workDir)
   }
 
-  protected async readProfileFromFS(profile: string): Promise<typeof config.schemas.credentials> {
-    const botpressHome = process.env.BP_BOTPRESS_HOME
-    if (!botpressHome) {
-      throw new errors.BotpressCLIError('BP_BOTPRESS_HOME environment variable is not set')
-    }
-    const profilePath = `${botpressHome}/.profiles`
-    if (!fs.existsSync(profilePath)) {
-      throw new errors.BotpressCLIError(`Profile file not found at "${profilePath}"`)
-    }
-    const iniContent = await fs.promises.readFile(profilePath, 'utf-8')
-    const profiles = ini.parse(iniContent)
-    const requiredKeys = Object.keys(config.schemas.credentials)
-    const profileData = profiles[profile]
-    if (!profileData) {
-      throw new errors.BotpressCLIError(`Profile "${profile}" not found in "${profilePath}"`)
-    }
-    console.log(profileData)
-    const missingKeys = requiredKeys.filter((key) => !(key in profileData))
-    if (missingKeys.length > 0) {
-      throw new errors.BotpressCLIError(`Profile "${profile}" is missing required keys: ${missingKeys.join(', ')}`)
-    }
-    return profiles[profile]
-  }
-
   private async _readIntegrationDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition'>
   ): Promise<({ definition: sdk.IntegrationDefinition } & LintIgnoredConfig) | undefined> {

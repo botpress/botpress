@@ -1,10 +1,12 @@
 import type { YargsConfig } from '@bpinternal/yargs-extra'
 import chalk from 'chalk'
+import * as fs from 'fs'
+import ini from 'ini'
 import latestVersion from 'latest-version'
 import _ from 'lodash'
 import semver from 'semver'
 import type { ApiClientFactory } from '../api/client'
-import type * as config from '../config'
+import * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import type { CommandArgv, CommandDefinition } from '../typings'
@@ -73,9 +75,18 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
   protected async getAuthenticatedClient(credentials: Partial<YargsConfig<typeof config.schemas.credentials>>) {
     const cache = this.globalCache
 
-    const token = credentials.token ?? (await cache.get('token'))
-    const workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
-    const apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
+    let token = credentials.token ?? (await cache.get('token'))
+    let workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
+    let apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
+
+    if (this.argv.profile) {
+      if (token || workspaceId || apiUrl) {
+        this.logger.warn(
+          'You are currently using credentials as well as a profile. Your profile has overwritten the variables set via command line'
+        )
+      }
+      ;({ token, workspaceId, apiUrl } = await this._readProfileFromFS(this.argv.profile))
+    }
 
     if (!(token && workspaceId && apiUrl)) {
       return null
@@ -85,7 +96,31 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
       this.logger.log(`Using custom url ${apiUrl}`, { prefix: '🔗' })
     }
 
-    return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
+    if (this.argv) return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
+  }
+
+  private async _readProfileFromFS(profile: string): Promise<{ token: string; workspaceId: string; apiUrl: string }> {
+    const botpressHome = process.env.BP_BOTPRESS_HOME
+    if (!botpressHome) {
+      throw new errors.BotpressCLIError('BP_BOTPRESS_HOME environment variable is not set')
+    }
+    const profilePath = `${botpressHome}/.profiles`
+    if (!fs.existsSync(profilePath)) {
+      throw new errors.BotpressCLIError(`Profile file not found at "${profilePath}"`)
+    }
+    const iniContent = await fs.promises.readFile(profilePath, 'utf-8')
+    const profiles = ini.parse(iniContent)
+    const requiredKeys = Object.keys(config.schemas.credentials)
+    const profileData = profiles[profile]
+    if (!profileData) {
+      throw new errors.BotpressCLIError(`Profile "${profile}" not found in "${profilePath}"`)
+    }
+    console.log(profileData)
+    const missingKeys = requiredKeys.filter((key) => !(key in profileData))
+    if (missingKeys.length > 0) {
+      throw new errors.BotpressCLIError(`Profile "${profile}" is missing required keys: ${missingKeys.join(', ')}`)
+    }
+    return profiles[profile]
   }
 
   protected async ensureLoginAndCreateClient(credentials: YargsConfig<typeof config.schemas.credentials>) {

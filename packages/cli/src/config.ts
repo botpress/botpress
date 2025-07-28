@@ -15,11 +15,6 @@ const workDir = {
   default: consts.defaultWorkDir,
 } satisfies CommandOption
 
-const profile = {
-  type: 'string',
-  description: 'The profile you want to use',
-} satisfies CommandOption
-
 const noBuild = {
   type: 'boolean',
   description: 'Skip the build step',
@@ -130,6 +125,10 @@ const globalSchema = {
     description: 'The path to the Botpress home directory',
     default: consts.defaultBotpressHome,
   },
+  profile: {
+    type: 'string',
+    description: 'The profile you want to use',
+  },
 } satisfies CommandSchema
 
 const projectSchema = {
@@ -203,7 +202,6 @@ const deploySchema = {
     description: 'Allow deprecated features in the project',
     default: false,
   },
-  profile,
 } as const satisfies CommandSchema
 
 const devSchema = {
