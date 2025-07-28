@@ -1,11 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { applyMarksToText, type TelegramMark } from './telegram-to-markdown'
-
-type TestCase<INPUT = unknown, EXPECTED = unknown> = {
-  input: INPUT
-  expects: EXPECTED
-  description: string
-}
+import { TestCase } from '../../tests/types'
 
 type TelegramToMarkdownTestCase = TestCase<
   {
