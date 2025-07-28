@@ -103,7 +103,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const createBody = {
       ...(await this.prepareCreateIntegrationBody(integrationDef)),
       ...(await this.prepareIntegrationDependencies(integrationDef, api)),
-      public: this._visibility,
+      visibility: this._visibility,
     }
 
     const startedMessage = `Deploying integration ${chalk.bold(name)} v${version}...`
