@@ -87,6 +87,21 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     throw new errors.ProjectDefinitionNotFoundError(this.projectPaths.abs.workDir)
   }
 
+  protected async readProfileFromFS(profile: string): Promise<void> {
+    const botpressHome = process.env.BP_BOTPRESS_HOME
+    const profilePath = `${botpressHome}/.profiles/${profile}`
+    if (!fs.existsSync(profilePath)) {
+      throw new errors.BotpressCLIError(`Profile file not found at "${profilePath}"`)
+    }
+    const profileContent = await fs.promises.readFile(profilePath, 'utf-8')
+    try {
+      const profile = JSON.parse(profileContent)
+      return profile
+    } catch (err) {
+      throw new errors.BotpressCLIError(`Failed to parse profile file: ${(err as Error).message}`)
+    }
+  }
+
   private async _readIntegrationDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition'>
   ): Promise<({ definition: sdk.IntegrationDefinition } & LintIgnoredConfig) | undefined> {
