@@ -26,7 +26,7 @@ const createUserProps = {
 
 export default new IntegrationDefinition({
   name: 'vonage',
-  version: '0.5.1',
+  version: '1.0.0',
   title: 'Vonage',
   description: 'Send and receive SMS messages.',
   icon: 'icon.svg',
