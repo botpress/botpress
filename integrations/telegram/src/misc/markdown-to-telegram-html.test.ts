@@ -105,8 +105,8 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
   },
   {
     input: 'This is line one.  \nThis is line two.',
-    expects: 'This is line one.\nThis is line two.',
-    description: 'Converts hardbreak into softbreak',
+    expects: 'This is line one.\n\nThis is line two.',
+    description: 'Converts hardbreak into multiple newlines',
   },
   {
     input: '_cut**off_**',

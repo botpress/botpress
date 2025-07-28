@@ -3,7 +3,7 @@ import MarkdownIt from 'markdown-it'
 const md = MarkdownIt({
   xhtmlOut: true,
   linkify: true,
-  breaks: true,
+  breaks: false,
   typographer: true,
 }).disable(['table', 'list'])
 
@@ -13,8 +13,6 @@ type ExtractedData = Partial<{
 
 md.renderer.rules.paragraph_open = () => '\n'
 md.renderer.rules.paragraph_close = () => '\n'
-md.renderer.rules.hardbreak = () => '\n'
-md.renderer.rules.softbreak = () => '\n'
 
 md.renderer.rules.image = (tokens, idx, _, env: ExtractedData) => {
   const token = tokens[idx]
