@@ -120,7 +120,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
 
     const zodParseResult = z.record(profileCredentialSchema).safeParse(parsedProfiles, {})
     if (!zodParseResult.success) {
-      throw errors.BotpressCLIError.wrap(zodParseResult.error, 'Error reading profiles: ')
+      throw errors.BotpressCLIError.wrap(zodParseResult.error, 'Error parsing profiles: ')
     }
 
     const profileData = parsedProfiles[profile]
