@@ -9,6 +9,7 @@ const allowDeprecated = false
 const isPublic = false
 const visibility = 'private' as const
 const minify = true
+const profile = undefined
 
 export default {
   minify,
@@ -22,4 +23,5 @@ export default {
   allowDeprecated,
   public: isPublic,
   visibility,
+  profile,
 } as const
