@@ -2065,6 +2065,9 @@ importers:
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
+      ini:
+        specifier: ^5.0.0
+        version: 5.0.0
       latest-version:
         specifier: 5.1.0
         version: 5.1.0
@@ -2096,6 +2099,9 @@ importers:
       '@types/bluebird':
         specifier: ^3.5.38
         version: 3.5.38
+      '@types/ini':
+        specifier: ^4.1.1
+        version: 4.1.1
       '@types/json-schema':
         specifier: ^7.0.12
         version: 7.0.12
@@ -8484,6 +8490,10 @@ packages:
       '@types/node': 22.16.4
     dev: true
 
+  /@types/ini@4.1.1:
+    resolution: {integrity: sha512-MIyNUZipBTbyUNnhvuXJTY7B6qNI78meck9Jbv3wk0OgNwRyOOVEKDutAkOs1snB/tx0FafyR6/SN4Ps0hZPeg==}
+    dev: true
+
   /@types/is-stream@1.1.0:
     resolution: {integrity: sha512-jkZatu4QVbR60mpIzjINmtS1ZF4a/FqdTUTBeQDVOQ2PYyidtwFKr0B5G6ERukKwliq+7mIXvxyppwzG5EgRYg==}
     dependencies:
@@ -12974,6 +12984,11 @@ packages:
 
   /ini@1.3.8:
     resolution: {integrity: sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==}
+    dev: false
+
+  /ini@5.0.0:
+    resolution: {integrity: sha512-+N0ngpO3e7cRUWOJAS7qw0IZIVc6XPrW4MlFBdD066F2L4k1L6ker3hLqSq7iXxU5tgS4WGkIUElWn5vogAEnw==}
+    engines: {node: ^18.17.0 || >=20.5.0}
     dev: false
 
   /intercom-client@4.0.0:
