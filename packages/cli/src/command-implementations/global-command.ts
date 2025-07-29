@@ -131,7 +131,8 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
       const unexpectedKeys = zodParseResult.error.errors
         .filter((err) => err.code === 'unrecognized_keys')
         .flatMap((err) => (Array.isArray(err.keys) ? [...err.path, ...err.keys].join('.') : []))
-      let errorMessage = ''
+      let errorMessage = 'Errors in profiles:\n'
+
       if (missingKeys.length) {
         errorMessage += `  Missing required keys: ${missingKeys.join(', ')}\n`
       }
