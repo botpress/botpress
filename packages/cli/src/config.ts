@@ -126,8 +126,9 @@ const globalSchema = {
     default: consts.defaultBotpressHome,
   },
   profile: {
+    // TODO
     type: 'string',
-    description: 'The CLI profile to use',
+    description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/.profiles json format file',
   },
 } satisfies CommandSchema
 

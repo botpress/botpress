@@ -110,7 +110,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
 
   private async _readProfileFromFS(botpressHome: string, profile: string): Promise<profileCredentials> {
     if (!botpressHome) {
-      throw new errors.BotpressCLIError('BP_BOTPRESS_HOME environment variable is not set')
+      throw new errors.BotpressCLIError('BP_BOTPRESS_HOME is not set')
     }
     const profilePath = utils.path.absoluteFrom(this.globalPaths.abs.botpressHomeDir, consts.profileFileName)
     if (!fs.existsSync(profilePath)) {
