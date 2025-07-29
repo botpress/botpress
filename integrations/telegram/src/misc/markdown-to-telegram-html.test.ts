@@ -135,6 +135,23 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
     },
     description: 'Markdown images get extracted since Telegram does not support images embedded into text messages',
   },
+  {
+    input:
+      '![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600 "Title Tooltip Text")',
+    expects: {
+      html: '',
+      extractedData: {
+        images: [
+          {
+            alt: 'Botpress Brand Logo',
+            src: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600',
+            title: 'Title Tooltip Text',
+          },
+        ],
+      },
+    },
+    description: 'Title attribute gets extracted from markdown image',
+  },
   // ==== Advanced Tests ====
   {
     // NOT SUPPORTED, no crash, just gets merged into a single layer blockquote

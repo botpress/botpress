@@ -7,8 +7,14 @@ const md = MarkdownIt({
   typographer: true,
 }).disable(['table', 'list'])
 
+type ImageData = {
+  src: string
+  alt: string
+  title?: string
+}
+
 type ExtractedData = Partial<{
-  images: { src: string; alt: string }[]
+  images: ImageData[]
 }>
 
 function ruleHandler(
@@ -36,10 +42,15 @@ md.renderer.rules.hr = () => '\n'
 md.renderer.rules.image = ruleHandler((token: MarkdownIt.Token, env: ExtractedData) => {
   const src = token?.attrGet('src')?.trim() ?? ''
   const alt = token?.content ?? ''
+  const title = token?.attrGet('title')?.trim() ?? ''
 
   if (src.length > 0) {
     if (!env.images) env.images = []
-    env.images.push({ src, alt })
+
+    const imageData: ImageData = { src, alt }
+    if (title.length > 0) imageData.title = title
+
+    env.images.push(imageData)
   }
 
   return ''
