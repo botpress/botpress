@@ -74,9 +74,9 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
   protected async getAuthenticatedClient(credentials: Partial<YargsConfig<typeof config.schemas.credentials>>) {
     const cache = this.globalCache
 
-    let token = credentials.token ?? (await cache.get('token'))
-    let workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
-    let apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
+    let token: string | undefined
+    let workspaceId: string | undefined
+    let apiUrl: string | undefined
 
     if (this.argv.profile) {
       if (credentials.token || credentials.workspaceId || credentials.apiUrl) {
@@ -85,6 +85,12 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
         )
       }
       ;({ token, workspaceId, apiUrl } = await this._readProfileFromFS(this.argv.botpressHome, this.argv.profile))
+    }
+
+    if (!(token && workspaceId && apiUrl)) {
+      token = credentials.token ?? (await cache.get('token'))
+      workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
+      apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
     }
 
     if (!(token && workspaceId && apiUrl)) {
@@ -105,7 +111,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     if (!botpressHome) {
       throw new errors.BotpressCLIError('BP_BOTPRESS_HOME environment variable is not set')
     }
-    const profilePath = `${botpressHome}/.profiles`
+    const profilePath = utils.path.absoluteFrom(this.globalPaths.abs.botpressHomeDir, consts.profileFileName)
     if (!fs.existsSync(profilePath)) {
       throw new errors.BotpressCLIError(`Profile file not found at "${profilePath}"`)
     }
