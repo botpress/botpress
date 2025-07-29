@@ -1,3 +1,4 @@
+import { z } from '@botpress/sdk'
 import type { YargsConfig } from '@bpinternal/yargs-extra'
 import chalk from 'chalk'
 import * as fs from 'fs'
@@ -11,7 +12,6 @@ import * as errors from '../errors'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { BaseCommand } from './base-command'
-import { z } from '@botpress/sdk'
 
 export type GlobalCommandDefinition = CommandDefinition<typeof config.schemas.global>
 export type GlobalCache = { apiUrl: string; token: string; workspaceId: string }
