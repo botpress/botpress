@@ -11,6 +11,7 @@ import * as errors from '../errors'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { BaseCommand } from './base-command'
+import { z } from '@botpress/sdk'
 
 export type GlobalCommandDefinition = CommandDefinition<typeof config.schemas.global>
 export type GlobalCache = { apiUrl: string; token: string; workspaceId: string }
@@ -18,6 +19,9 @@ export type GlobalCache = { apiUrl: string; token: string; workspaceId: string }
 export type ConfigurableGlobalPaths = { botpressHomeDir: string; cliRootDir: utils.path.AbsolutePath }
 export type ConstantGlobalPaths = typeof consts.fromHomeDir & typeof consts.fromCliRootDir
 export type AllGlobalPaths = ConfigurableGlobalPaths & ConstantGlobalPaths
+
+const profileCredentialSchema = z.object({ apiUrl: z.string(), workspaceId: z.string(), token: z.string() }).strict()
+type profileCredentials = z.infer<typeof profileCredentialSchema>
 
 class GlobalPaths extends utils.path.PathStore<keyof AllGlobalPaths> {
   public constructor(argv: CommandArgv<GlobalCommandDefinition>) {
@@ -104,10 +108,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
   }
 
-  private async _readProfileFromFS(
-    botpressHome: string,
-    profile: string
-  ): Promise<{ token: string; workspaceId: string; apiUrl: string }> {
+  private async _readProfileFromFS(botpressHome: string, profile: string): Promise<profileCredentials> {
     if (!botpressHome) {
       throw new errors.BotpressCLIError('BP_BOTPRESS_HOME environment variable is not set')
     }
@@ -115,19 +116,32 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     if (!fs.existsSync(profilePath)) {
       throw new errors.BotpressCLIError(`Profile file not found at "${profilePath}"`)
     }
-    const iniContent = await fs.promises.readFile(profilePath, 'utf-8')
-    const profiles = JSON.parse(iniContent)
+    const fileContent = await fs.promises.readFile(profilePath, 'utf-8')
+    const parsedProfiles = JSON.parse(fileContent)
 
-    const profileData = profiles[profile]
+    const zodParseResult = z.record(profileCredentialSchema).safeParse(parsedProfiles, {})
+    if (!zodParseResult.success) {
+      const missingKeys = zodParseResult.error.errors
+        .filter((err) => err.code === 'invalid_type' && err.expected !== 'undefined')
+        .map((err) => err.path.join('.'))
+      const unexpectedKeys = zodParseResult.error.errors
+        .filter((err) => err.code === 'unrecognized_keys')
+        .flatMap((err) => (Array.isArray(err.keys) ? [...err.path, ...err.keys].join('.') : []))
+      let errorMessage = `Error in profile file "${consts.profileFileName}":\n`
+      if (missingKeys.length) {
+        errorMessage += `  Missing required keys: ${missingKeys.join(', ')}\n`
+      }
+      if (unexpectedKeys.length) {
+        errorMessage += `  Unexpected keys: ${unexpectedKeys.join(', ')}\n`
+      }
+      throw new errors.BotpressCLIError(errorMessage.trim())
+    }
+
+    const profileData = parsedProfiles[profile]
     if (!profileData) {
       throw new errors.BotpressCLIError(`Profile "${profile}" not found in "${profilePath}"`)
     }
-    const requiredKeys = Object.keys(config.schemas.credentials)
-    const missingKeys = requiredKeys.filter((key) => !(key in profileData))
-    if (missingKeys.length > 0) {
-      throw new errors.BotpressCLIError(`Profile "${profile}" is missing required keys: ${missingKeys.join(', ')}`)
-    }
-    return profiles[profile]
+    return parsedProfiles[profile]
   }
 
   protected async ensureLoginAndCreateClient(credentials: YargsConfig<typeof config.schemas.credentials>) {
