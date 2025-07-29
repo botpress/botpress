@@ -127,7 +127,7 @@ const globalSchema = {
   },
   profile: {
     type: 'string',
-    description: 'The profile you want to use',
+    description: 'The CLI profile you to use',
   },
 } satisfies CommandSchema
 

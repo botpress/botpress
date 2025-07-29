@@ -82,7 +82,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     if (this.argv.profile) {
       if (credentials.token || credentials.workspaceId || credentials.apiUrl) {
         this.logger.warn(
-          'You are currently using credentials as well as a profile. Your profile has overwritten the variables set via command line'
+          'You are currently using credential command line arguments or environment variables as well as a profile. Your profile has overwritten the variables'
         )
       }
       ;({ token, workspaceId, apiUrl } = await this._readProfileFromFS(this.argv.botpressHome, this.argv.profile))
