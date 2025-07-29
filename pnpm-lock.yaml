@@ -2096,6 +2096,9 @@ importers:
       '@types/bluebird':
         specifier: ^3.5.38
         version: 3.5.38
+      '@types/ini':
+        specifier: ^4.1.1
+        version: 4.1.1
       '@types/json-schema':
         specifier: ^7.0.12
         version: 7.0.12
@@ -8482,6 +8485,10 @@ packages:
     resolution: {integrity: sha512-FusePG9Cp2GYN6OLow9xBCkjznFkAR7WCz0Fm+j1p/ER6C8V8P71DtjpSmwrZsS7zekCeqdTPHEk9N5OgPwcsg==}
     dependencies:
       '@types/node': 22.16.4
+    dev: true
+
+  /@types/ini@4.1.1:
+    resolution: {integrity: sha512-MIyNUZipBTbyUNnhvuXJTY7B6qNI78meck9Jbv3wk0OgNwRyOOVEKDutAkOs1snB/tx0FafyR6/SN4Ps0hZPeg==}
     dev: true
 
   /@types/is-stream@1.1.0:

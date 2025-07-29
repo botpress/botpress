@@ -125,6 +125,10 @@ const globalSchema = {
     description: 'The path to the Botpress home directory',
     default: consts.defaultBotpressHome,
   },
+  profile: {
+    type: 'string',
+    description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/.profiles json format file',
+  },
 } satisfies CommandSchema
 
 const projectSchema = {

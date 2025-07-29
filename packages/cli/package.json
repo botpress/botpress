@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "4.13.0",
+  "version": "4.14.0",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run bundle && pnpm run template:gen",
@@ -51,6 +51,7 @@
   "devDependencies": {
     "@bpinternal/log4bot": "^0.0.4",
     "@types/bluebird": "^3.5.38",
+    "@types/ini": "^4.1.1",
     "@types/json-schema": "^7.0.12",
     "@types/prompts": "^2.0.14",
     "@types/semver": "^7.3.11",
