@@ -68,15 +68,15 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
     description: 'Convert hyperlink markup to html link',
   },
   {
-    // NOT SUPPORTED, no crash, title attribute is just ignored
     input: '[Hyperlink](https://www.botpress.com/ "Tooltip Title")',
     expects: '<a href="https://www.botpress.com/" title="Tooltip Title">Hyperlink</a>',
+    // NOTE: Telegram does not support the title attribute, however, it just ignores it instead of causing a crash
     description: 'Markdown hyperlink title gets carried over to html link',
   },
   {
-    // NOT SUPPORTED, no crash, title attribute is just ignored
     input: '[Hyperlink][id]\n\n[id]: https://www.botpress.com/  "Tooltip Title"',
     expects: '<a href="https://www.botpress.com/" title="Tooltip Title">Hyperlink</a>',
+    // NOTE: Telegram does not support the title attribute, however, it just ignores it instead of causing a crash
     description: 'Convert hyperlink markup using footnote style syntax to html link',
   },
   {
@@ -161,10 +161,10 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
   },
   // ==== Advanced Tests ====
   {
-    // NOT SUPPORTED, no crash, just gets merged into a single layer blockquote
     input: '> Blockquote Layer 1\n> > Blockquote Layer 2\n> > > Blockquote Layer 3',
     expects:
       '<blockquote>\n\nBlockquote Layer 1\n<blockquote>\n\nBlockquote Layer 2\n<blockquote>\n\nBlockquote Layer 3\n</blockquote>\n</blockquote>\n</blockquote>',
+    // NOTE: Telegram does not support nested blockquotes, rather it just flattens it into one layer (No crash)
     description: 'Apply nested blockquotes to text',
   },
   {
