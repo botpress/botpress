@@ -1,7 +1,6 @@
 import type { YargsConfig } from '@bpinternal/yargs-extra'
 import chalk from 'chalk'
 import * as fs from 'fs'
-import ini from 'ini'
 import latestVersion from 'latest-version'
 import _ from 'lodash'
 import semver from 'semver'
@@ -111,7 +110,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
       throw new errors.BotpressCLIError(`Profile file not found at "${profilePath}"`)
     }
     const iniContent = await fs.promises.readFile(profilePath, 'utf-8')
-    const profiles = ini.parse(iniContent)
+    const profiles = JSON.parse(iniContent)
 
     const profileData = profiles[profile]
     if (!profileData) {

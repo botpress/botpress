@@ -2065,9 +2065,6 @@ importers:
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
-      ini:
-        specifier: ^5.0.0
-        version: 5.0.0
       latest-version:
         specifier: 5.1.0
         version: 5.1.0
@@ -12984,11 +12981,6 @@ packages:
 
   /ini@1.3.8:
     resolution: {integrity: sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==}
-    dev: false
-
-  /ini@5.0.0:
-    resolution: {integrity: sha512-+N0ngpO3e7cRUWOJAS7qw0IZIVc6XPrW4MlFBdD066F2L4k1L6ker3hLqSq7iXxU5tgS4WGkIUElWn5vogAEnw==}
-    engines: {node: ^18.17.0 || >=20.5.0}
     dev: false
 
   /intercom-client@4.0.0:
