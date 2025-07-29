@@ -13,6 +13,9 @@ type ExtractedData = Partial<{
 
 md.renderer.rules.paragraph_open = () => '\n'
 md.renderer.rules.paragraph_close = () => '\n'
+md.renderer.rules.heading_open = () => ''
+md.renderer.rules.heading_close = () => '\n'
+md.renderer.rules.hr = () => '\n'
 
 md.renderer.rules.image = (tokens, idx, _, env: ExtractedData) => {
   const token = tokens[idx]

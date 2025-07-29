@@ -53,6 +53,11 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
     description: 'Apply code block style to text - With language',
   },
   {
+    input: '\tconsole.log("Indented Code Block")',
+    expects: '<pre><code>console.log(&quot;Indented Code Block&quot;)\n</code></pre>',
+    description: 'Apply alternative code block style to text using indentation',
+  },
+  {
     input: '> Blockquote',
     expects: '<blockquote>\n\nBlockquote\n</blockquote>',
     description: 'Apply blockquote style to text',
@@ -60,17 +65,60 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
   {
     input: '[Hyperlink](https://www.botpress.com/)',
     expects: '<a href="https://www.botpress.com/">Hyperlink</a>',
-    description: 'Convert hyperlink markup to website link',
+    description: 'Convert hyperlink markup to html link',
   },
   {
+    // NOT SUPPORTED, no crash, title attribute is just ignored
+    input: '[Hyperlink](https://www.botpress.com/ "Tooltip Title")',
+    expects: '<a href="https://www.botpress.com/" title="Tooltip Title">Hyperlink</a>',
+    description: 'Markdown hyperlink title gets carried over to html link',
+  },
+  {
+    // NOT SUPPORTED, no crash, title attribute is just ignored
+    input: '[Hyperlink][id]\n\n[id]: https://www.botpress.com/  "Tooltip Title"',
+    expects: '<a href="https://www.botpress.com/" title="Tooltip Title">Hyperlink</a>',
+    description: 'Convert hyperlink markup using footnote style syntax to html link',
+  },
+  {
+    input: 'https://www.botpress.com/',
+    expects: '<a href="https://www.botpress.com/">https://www.botpress.com/</a>',
+    description: 'Implicit link gets auto-converted into html link',
+  },
+  {
+    // NOT SUPPORTED, no crash, just becomes plain text
     input: '[Phone Number](tel:5141234567)',
     expects: '<a href="tel:5141234567">Phone Number</a>',
     description: 'Convert phone number markup to phone number link',
   },
   {
+    // NOT SUPPORTED, no crash, just becomes plain text
+    input: '[Phone Number](tel:5141234567 "Tooltip Title")',
+    expects: '<a href="tel:5141234567" title="Tooltip Title">Phone Number</a>',
+    description: 'Markdown phone number link title attribute gets carried over to html phone number link',
+  },
+  {
+    // NOT SUPPORTED, no crash, just becomes plain text
+    input: '[Phone Number][id]\n\n[id]: tel:5141234567  "Tooltip Title"',
+    expects: '<a href="tel:5141234567" title="Tooltip Title">Phone Number</a>',
+    description: 'Convert phone number markup using footnote style syntax to phone number link',
+  },
+  {
+    // NOT SUPPORTED, no crash, just becomes plain text
     input: '[Botpress Email](mailto:test@botpress.com)',
     expects: '<a href="mailto:test@botpress.com">Botpress Email</a>',
     description: 'Convert email markup to email link',
+  },
+  {
+    // NOT SUPPORTED, no crash, just becomes plain text
+    input: '[Botpress Email](mailto:test@botpress.com "Tooltip Title")',
+    expects: '<a href="mailto:test@botpress.com" title="Tooltip Title">Botpress Email</a>',
+    description: 'Markdown email link title attribute gets carried over to html email link',
+  },
+  {
+    // NOT SUPPORTED, no crash, just becomes plain text
+    input: '[Botpress Email][id]\n\n[id]: mailto:test@botpress.com  "Tooltip Title"',
+    expects: '<a href="mailto:test@botpress.com" title="Tooltip Title">Botpress Email</a>',
+    description: 'Convert email markup using footnote style syntax to email link',
   },
   {
     input: '![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600)',
@@ -88,6 +136,49 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
     description: 'Markdown images get extracted since Telegram does not support images embedded into text messages',
   },
   // ==== Advanced Tests ====
+  {
+    // NOT SUPPORTED, no crash, just gets merged into a single layer blockquote
+    input: '> Blockquote Layer 1\n> > Blockquote Layer 2\n> > > Blockquote Layer 3',
+    expects:
+      '<blockquote>\n\nBlockquote Layer 1\n<blockquote>\n\nBlockquote Layer 2\n<blockquote>\n\nBlockquote Layer 3\n</blockquote>\n</blockquote>\n</blockquote>',
+    description: 'Apply nested blockquotes to text',
+  },
+  {
+    input: '# Header 1\n## Header 2\n### Header 3\n#### Header 4\n##### Header 5\n###### Header 6',
+    expects: 'Header 1\nHeader 2\nHeader 3\nHeader 4\nHeader 5\nHeader 6',
+    description: 'Remove header styles since Telegram does not support headers',
+  },
+  {
+    input: 'Header 2\n---\nHello World',
+    expects: 'Header 2\n\nHello World',
+    description: 'Remove alternate header style since Telegram does not support headers',
+  },
+  {
+    input: '(c) (C) (r) (R) (tm) (TM) (p) (P) +-',
+    expects: '© © ® ® ™ ™ (p) (P) ±',
+    description: 'Convert text into their typographic equivalents',
+  },
+  {
+    input: '!!!!!! ???? ,,',
+    expects: '!!! ??? ,',
+    description: 'Remove excess characters',
+  },
+  {
+    input: 'Word -- ---',
+    expects: 'Word – —',
+    description: 'Convert 2 dashes into an "en dash" & 3 dashes into an "em dash" (Must follow a word)',
+  },
+  {
+    input: 'Hello\n\n---\n\nBotpress\n***\nWorld\n___',
+    expects: 'Hello\n\n\nBotpress\n\n\nWorld',
+    // NOTE: 3 dashes variant requires an additional newline, otherwise it converts into a size 2 header
+    description: 'Remove horizontal rules (3 dashes, asterisks, or underscores) since Telegram does not support them',
+  },
+  {
+    input: '"Double quotes" and \'Single quotes\'',
+    expects: '“Double quotes” and ‘Single quotes’',
+    description: 'Convert double & singles quotes into fancy double & single quotes',
+  },
   {
     input: '**~~Bold-Strike~~**',
     expects: '<strong><s>Bold-Strike</s></strong>',
@@ -111,7 +202,7 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
   {
     input: '_cut**off_**',
     expects: '<em>cut**off</em>**',
-    description: 'Markdown that gets cutoff by another markdown does not convert to html',
+    description: 'Markdown that gets cutoff (bold in this case) by another markdown does not convert to html',
   },
   {
     input: '**Hello**\n**World**',
@@ -121,7 +212,12 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
   {
     input: '- Item 1\n- Item 2\n- Item 3',
     expects: '- Item 1\n- Item 2\n- Item 3',
-    description: 'Markdown lists do not convert to html since Telegram does not support them',
+    description: 'Markdown unordered lists do not convert to html since Telegram does not support them',
+  },
+  {
+    input: '1) Item 1\n2) Item 2\n3) Item 3',
+    expects: '1) Item 1\n2) Item 2\n3) Item 3',
+    description: 'Markdown ordered lists do not convert to html since Telegram does not support them',
   },
   {
     input: '| Item 1 | Item 2 | Item 3 |\n| - | - | - |\n| Value 1 | Value 2 | Value 3 |',
