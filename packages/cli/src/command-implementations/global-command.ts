@@ -88,7 +88,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
           'You are currently using credential command line arguments or environment variables as well as a profile. Your profile has overwritten the variables'
         )
       }
-      ;({ token, workspaceId, apiUrl } = await this._readProfileFromFS(this.argv.botpressHome, this.argv.profile))
+      ;({ token, workspaceId, apiUrl } = await this._readProfileFromFS(this.argv.profile))
     }
 
     if (!(token && workspaceId && apiUrl)) {
@@ -108,16 +108,20 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
   }
 
-  private async _readProfileFromFS(botpressHome: string, profile: string): Promise<profileCredentials> {
-    if (!botpressHome) {
-      throw new errors.BotpressCLIError('BP_BOTPRESS_HOME is not set')
-    }
+  private async _readProfileFromFS(profile: string): Promise<profileCredentials> {
     const profilePath = utils.path.absoluteFrom(this.globalPaths.abs.botpressHomeDir, consts.profileFileName)
     if (!fs.existsSync(profilePath)) {
       throw new errors.BotpressCLIError(`Profile file not found at "${profilePath}"`)
     }
     const fileContent = await fs.promises.readFile(profilePath, 'utf-8')
     const parsedProfiles = JSON.parse(fileContent)
+
+    const profileData = parsedProfiles[profile]
+    if (!profileData) {
+      throw new errors.BotpressCLIError(
+        `Profile "${profile}" not found in "${profilePath}". Found profiles '${Object.keys(parsedProfiles).join("', '")}'.`
+      )
+    }
 
     const zodParseResult = z.record(profileCredentialSchema).safeParse(parsedProfiles, {})
     if (!zodParseResult.success) {
@@ -127,7 +131,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
       const unexpectedKeys = zodParseResult.error.errors
         .filter((err) => err.code === 'unrecognized_keys')
         .flatMap((err) => (Array.isArray(err.keys) ? [...err.path, ...err.keys].join('.') : []))
-      let errorMessage = `Error in profile file "${consts.profileFileName}":\n`
+      let errorMessage = ''
       if (missingKeys.length) {
         errorMessage += `  Missing required keys: ${missingKeys.join(', ')}\n`
       }
@@ -137,10 +141,6 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
       throw new errors.BotpressCLIError(errorMessage.trim())
     }
 
-    const profileData = parsedProfiles[profile]
-    if (!profileData) {
-      throw new errors.BotpressCLIError(`Profile "${profile}" not found in "${profilePath}"`)
-    }
     return parsedProfiles[profile]
   }
 
