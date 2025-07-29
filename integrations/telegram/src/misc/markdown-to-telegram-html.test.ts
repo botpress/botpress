@@ -85,40 +85,47 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
     description: 'Implicit link gets auto-converted into html link',
   },
   {
-    // NOT SUPPORTED, no crash, just becomes plain text
     input: '[Phone Number](tel:5141234567)',
-    expects: '<a href="tel:5141234567">Phone Number</a>',
-    description: 'Convert phone number markup to phone number link',
+    expects: '5141234567',
+    description:
+      'Convert phone number markdown to plain text phone number (Telegram does not support "tel" links, but will convert phone numbers into links for us)',
   },
   {
-    // NOT SUPPORTED, no crash, just becomes plain text
     input: '[Phone Number](tel:5141234567 "Tooltip Title")',
-    expects: '<a href="tel:5141234567" title="Tooltip Title">Phone Number</a>',
-    description: 'Markdown phone number link title attribute gets carried over to html phone number link',
+    expects: '5141234567',
+    description:
+      'Convert phone number markdown with title attribute to plain text phone number (Telegram does not support "tel" links, but will convert phone numbers into links for us)',
   },
   {
-    // NOT SUPPORTED, no crash, just becomes plain text
     input: '[Phone Number][id]\n\n[id]: tel:5141234567  "Tooltip Title"',
-    expects: '<a href="tel:5141234567" title="Tooltip Title">Phone Number</a>',
-    description: 'Convert phone number markup using footnote style syntax to phone number link',
+    expects: '5141234567',
+    description:
+      'Convert phone number markdown using footnote style syntax to plain text phone number (Telegram does not support "tel" links, but will convert phone number into links for us)',
   },
   {
-    // NOT SUPPORTED, no crash, just becomes plain text
     input: '[Botpress Email](mailto:test@botpress.com)',
-    expects: '<a href="mailto:test@botpress.com">Botpress Email</a>',
-    description: 'Convert email markup to email link',
+    expects: 'test@botpress.com',
+    description:
+      'Convert email markdown to plain text email address (Telegram does not support "mailto" links, but will convert email addresses into links for us)',
   },
   {
-    // NOT SUPPORTED, no crash, just becomes plain text
     input: '[Botpress Email](mailto:test@botpress.com "Tooltip Title")',
-    expects: '<a href="mailto:test@botpress.com" title="Tooltip Title">Botpress Email</a>',
-    description: 'Markdown email link title attribute gets carried over to html email link',
+    expects: 'test@botpress.com',
+    description:
+      'Convert email markdown with title attribute to plain text email address (Telegram does not support "mailto" links, but will convert email addresses into links for us)',
   },
   {
-    // NOT SUPPORTED, no crash, just becomes plain text
     input: '[Botpress Email][id]\n\n[id]: mailto:test@botpress.com  "Tooltip Title"',
-    expects: '<a href="mailto:test@botpress.com" title="Tooltip Title">Botpress Email</a>',
-    description: 'Convert email markup using footnote style syntax to email link',
+    expects: 'test@botpress.com',
+    description:
+      'Convert email markdown using footnote style syntax to plain text email address (Telegram does not support "mailto" links, but will convert email addresses into links for us)',
+  },
+  {
+    input:
+      '[Botpress Email](mailto:test@botpress.com "Tooltip Title")[Hyperlink](https://www.botpress.com/ "Tooltip Title")',
+    expects: 'test@botpress.com<a href="https://www.botpress.com/" title="Tooltip Title">Hyperlink</a>',
+    description:
+      "Ensure that the mailto/tel replacer doesn't break normal hyperlinks located immediately after it (Checking for race-condition)",
   },
   {
     input: '![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600)',

@@ -33,11 +33,39 @@ function ruleHandler(
   }
 }
 
+const textReplacer = md.renderer.rules.text ?? ruleHandler((token) => md.utils.escapeHtml(token.content))
+
 md.renderer.rules.paragraph_open = () => '\n'
 md.renderer.rules.paragraph_close = () => '\n'
 md.renderer.rules.heading_open = () => ''
 md.renderer.rules.heading_close = () => '\n'
 md.renderer.rules.hr = () => '\n'
+md.renderer.rules.text = textReplacer
+
+md.renderer.rules.link_open = ruleHandler((token: MarkdownIt.Token) => {
+  const href = token.attrGet('href')?.trim() ?? ''
+
+  // Just sends the email or the phone number as is since Telegram will be the one to convert it
+  if (href.startsWith('mailto:') || href.startsWith('tel:')) {
+    md.renderer.rules.text = () => ''
+    return href.replace(/mailto:|tel:/, '')
+  }
+
+  const formattedAttributes = token.attrs?.reduce(
+    (formattedAttrs, [attrName, attrValue]) => `${formattedAttrs} ${attrName}="${attrValue}"`,
+    ''
+  )
+
+  return `<${token.tag}${formattedAttributes ?? ''}>`
+})
+
+md.renderer.rules.link_close = ruleHandler((token: MarkdownIt.Token) => {
+  if (md.renderer.rules.text !== textReplacer) {
+    md.renderer.rules.text = textReplacer
+    return ''
+  }
+  return `</${token.tag}>`
+})
 
 md.renderer.rules.image = ruleHandler((token: MarkdownIt.Token, env: ExtractedData) => {
   const src = token?.attrGet('src')?.trim() ?? ''
