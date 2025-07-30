@@ -192,8 +192,8 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     const dirName = utils.casing.to.kebabCase(name)
     const destination = pathlib.join(destDir, dirName)
 
-    const destinationIsEmptyOrCanBeOverwritten = await this._isDestinationCanBeUsed(destination)
-    if (!destinationIsEmptyOrCanBeOverwritten) {
+    const destinationCanBeUsed = await this._checkIfDestinationCanBeUsed(destination)
+    if (!destinationCanBeUsed) {
       throw new errors.AbortedOperationError()
     }
 
@@ -208,7 +208,7 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     await fs.promises.writeFile(pkgJsonPath, JSON.stringify(updatedJson, null, 2))
   }
 
-  private _isDestinationCanBeUsed = async (destination: string) => {
+  private _checkIfDestinationCanBeUsed = async (destination: string) => {
     if (fs.existsSync(destination)) {
       const override = await this.prompt.confirm(
         `Directory ${chalk.bold(destination)} already exists. Do you want to overwrite it?`
