@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify'
+import { JSDOM } from 'jsdom'
 import MarkdownIt from 'markdown-it'
 
 const md = MarkdownIt({
@@ -84,6 +86,11 @@ md.renderer.rules.image = ruleHandler((token: MarkdownIt.Token, env: ExtractedDa
   return ''
 })
 
+const sanitizeHTML = (html: string): string => {
+  const purify = DOMPurify(new JSDOM('').window)
+  return purify.sanitize(html)
+}
+
 export type MarkdownToTelegramHtmlResult = {
   html: string
   extractedData: ExtractedData
@@ -95,5 +102,6 @@ export function stdMarkdownToTelegramHtml(markdown: string): MarkdownToTelegramH
     .trim()
     // .replace(/\|\|([^|]([^\n\r]*[^|\n\r])?)\|\|/g, "<tg-spoiler>$1</tg-spoiler>") // Telegram Spoilers will be implemented in a later version
     .replace(/<br\s?\/?>/g, '\n')
-  return { html: telegramHtml, extractedData }
+
+  return { html: sanitizeHTML(telegramHtml), extractedData }
 }

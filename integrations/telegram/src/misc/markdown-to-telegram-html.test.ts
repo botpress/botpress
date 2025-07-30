@@ -44,17 +44,17 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
   },
   {
     input: '```\nconsole.log("Code Block")\n```',
-    expects: '<pre><code>console.log(&quot;Code Block&quot;)\n</code></pre>',
+    expects: '<pre><code>console.log("Code Block")\n</code></pre>',
     description: 'Apply code block style to text - Without language',
   },
   {
     input: '```typescript\nconsole.log("Code Block")\n```',
-    expects: '<pre><code class="language-typescript">console.log(&quot;Code Block&quot;)\n</code></pre>',
+    expects: '<pre><code class="language-typescript">console.log("Code Block")\n</code></pre>',
     description: 'Apply code block style to text - With language',
   },
   {
     input: '\tconsole.log("Indented Code Block")',
-    expects: '<pre><code>console.log(&quot;Indented Code Block&quot;)\n</code></pre>',
+    expects: '<pre><code>console.log("Indented Code Block")\n</code></pre>',
     description: 'Apply alternative code block style to text using indentation',
   },
   {
@@ -265,4 +265,19 @@ describe('Standard Markdown to Telegram HTML Conversion', () => {
       })
     }
   )
+
+  test('Ensure javascript injection via markdown link is not possible', () => {
+    const { html } = stdMarkdownToTelegramHtml("[click me](javascript:alert('XSS'))")
+    expect(html).toBe('[click me](javascript:alert(‘XSS’))')
+  })
+
+  test('Ensure javascript injection via html link is not possible', () => {
+    const { html } = stdMarkdownToTelegramHtml('<a href="javascript:alert(\'XSS\')">click me</a>')
+    expect(html).toBe('<a>click me</a>')
+  })
+
+  test('Ensure javascript injection via html image handler is not possible', () => {
+    const { html } = stdMarkdownToTelegramHtml('<img src="image.jpg" alt="alt text" onerror="alert(\'xss\')">')
+    expect(html).toBe('<img src="image.jpg" alt="alt text">')
+  })
 })
