@@ -55,7 +55,9 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployIntegration(api: apiUtils.ApiClient, integrationDef: sdk.IntegrationDefinition) {
-    const { integration: updatedIntegrationDef, workspaceId } = await this._manageWorkspaceHandle(api, integrationDef)
+    const res = await this._manageWorkspaceHandle(api, integrationDef)
+    if (!res) return
+    const { integration: updatedIntegrationDef, workspaceId } = res
     integrationDef = updatedIntegrationDef
     if (workspaceId) {
       api = api.switchWorkspace(workspaceId)
@@ -502,10 +504,13 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   private async _manageWorkspaceHandle(
     api: apiUtils.ApiClient,
     integration: sdk.IntegrationDefinition
-  ): Promise<{
-    integration: sdk.IntegrationDefinition
-    workspaceId?: string // Set if user opted to deploy on another available workspace
-  }> {
+  ): Promise<
+    | {
+        integration: sdk.IntegrationDefinition
+        workspaceId?: string // Set if user opted to deploy on another available workspace
+      }
+    | undefined
+  > {
     const { name: localName, workspaceHandle: localHandle } = this._parseIntegrationName(integration.name)
     if (!localHandle && api.isBotpressWorkspace) {
       this.logger.debug('Botpress workspace detected; workspace handle omitted')
@@ -551,7 +556,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         `Your current workspace handle is "${remoteHandle}". Do you want to use the name "${remoteHandle}/${localName}"?`
       )
       if (!confirmAddHandle) {
-        throw new errors.BotpressCLIError(workspaceHandleIsMandatoryMsg)
+        this.logger.log('Aborted')
+        return
       }
       const newName = `${remoteHandle}/${localName}`
       return { integration: new sdk.IntegrationDefinition({ ...integration, name: newName }) }
