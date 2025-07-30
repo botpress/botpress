@@ -29,6 +29,21 @@ export type TelegramMark = {
   language?: string
 }
 
+// Higher === Applied after other effects
+const markSortOffsets: Record<string, number> = {
+  bold: 0,
+  italic: 0,
+  strikethrough: 0,
+  spoiler: 0,
+  code: 1,
+  pre: 1,
+  blockquote: 2,
+  text_link: 0,
+  phone_number: 0,
+  email: 0,
+  underline: 0,
+}
+
 const applyWhitespaceSensitiveMark = (markHandler: MarkHandler) => {
   return (text: string, data: Record<string, unknown>): string => {
     let startWhitespace: string | undefined = undefined
@@ -51,7 +66,7 @@ const _handlers: Record<string, MarkHandler> = {
   spoiler: applyWhitespaceSensitiveMark((text: string) => `||${text}||`),
   code: applyWhitespaceSensitiveMark((text: string) => `\`${text}\``),
   pre: (text: string, data: Record<string, unknown>) => `\`\`\`${data?.language || ''}\n${text}\n\`\`\``,
-  blockquote: (text: string) => `> ${text}`,
+  blockquote: (text: string) => `> ${text.replace(/\n/g, '\n> ')}`,
   text_link: applyWhitespaceSensitiveMark(
     (text: string, data: Record<string, unknown>) => `[${text}](${data?.url || '#'})`
   ),
@@ -192,7 +207,7 @@ const _postProcessNestedEffects = (
       (mark: MarkEffect) => !_hasMarkType(sharedMarks, mark.type)
     )
 
-    let childSegments: MarkSegment[] = [...(segment.children ?? [])]
+    let childSegments: MarkSegment[] = [...(segment.children ?? [])].concat(otherSegment.children ?? [])
     if (segmentNonSharedMarks.length > 0) {
       childSegments = childSegments.concat({
         start: segment.start,
@@ -246,28 +261,34 @@ const applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: numb
     })
   }
 
-  for (const effect of effects) {
-    const { type, url, language } = effect
-
-    // @ts-ignore
-    const handler = _handlers[type] as Function | undefined
-    if (!handler) {
-      console.warn(`Unknown mark type: ${type}`)
-      continue
-    }
-
-    transformedText = handler(transformedText, {
-      url,
-      language,
+  effects
+    .sort((a, b) => {
+      return (markSortOffsets[a.type] ?? 0) - (markSortOffsets[b.type] ?? 0)
     })
-  }
+    .forEach((effect) => {
+      const { type, url, language } = effect
+
+      // @ts-ignore
+      const handler = _handlers[type] as Function | undefined
+      if (!handler) {
+        console.warn(`Unknown mark type: ${type}`)
+        return
+      }
+
+      transformedText = handler(transformedText, {
+        url,
+        language,
+      })
+    })
 
   return transformedText
 }
 
 export const applyMarksToText = (text: string, marks: TelegramMark[]) => {
-  const segments = marks.flatMap((mark: TelegramMark): MarkSegment | MarkSegment[] => {
-    const createSegment = (start: number, end: number) => ({
+  const segments = marks.map((mark: TelegramMark): MarkSegment => {
+    const start = mark.offset
+    const end = mark.offset + mark.length
+    return {
       start,
       end,
       effects: [
@@ -277,24 +298,6 @@ export const applyMarksToText = (text: string, marks: TelegramMark[]) => {
           language: mark.language,
         },
       ],
-    })
-
-    const start = mark.offset
-    const end = mark.offset + mark.length
-    if (mark.type !== 'blockquote') {
-      return createSegment(start, end)
-    } else {
-      const textSegment = text.substring(start, end)
-      const blockquoteSegments: MarkSegment[] = []
-      let newlineIndex: number = 0
-
-      do {
-        const blockquoteStart = newlineIndex + start
-        blockquoteSegments.push(createSegment(blockquoteStart, blockquoteStart + 1))
-        newlineIndex = textSegment.indexOf('\n', newlineIndex) + 1
-      } while (newlineIndex !== 0)
-
-      return blockquoteSegments
     }
   })
 

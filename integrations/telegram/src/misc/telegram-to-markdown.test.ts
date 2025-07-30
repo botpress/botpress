@@ -469,6 +469,59 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
   },
   {
     input: {
+      text: 'Quote Line 1\nQuote Line 2\nQuote Line 3',
+      marks: [
+        {
+          offset: 0,
+          length: 38,
+          type: 'blockquote',
+        },
+        {
+          offset: 13,
+          length: 12,
+          type: 'bold',
+        },
+      ],
+    },
+    expects: '> Quote Line 1\n> **Quote Line 2**\n> Quote Line 3',
+    description: 'Multiline blockquote produces a blockquote mark for each line, with intersecting effect',
+  },
+  {
+    input: {
+      text: 'Quote Line 1\n\n\n\nQuote Line 2',
+      marks: [
+        {
+          offset: 0,
+          length: 28,
+          type: 'blockquote',
+        },
+      ],
+    },
+    expects: '> Quote Line 1\n> \n> \n> \n> Quote Line 2',
+    description: 'Multiline blockquote produces a blockquote mark for each line, with empty lines',
+  },
+  {
+    input: {
+      text: 'Quote Line 1\n\n\n\nQuote Line 2',
+      marks: [
+        {
+          offset: 0,
+          length: 28,
+          type: 'blockquote',
+        },
+        {
+          offset: 0,
+          length: 28,
+          type: 'bold',
+        },
+      ],
+    },
+    expects: '> **Quote Line 1\n> \n> \n> \n> Quote Line 2**',
+    description:
+      'Multiline blockquote produces a blockquote mark for each line, with empty lines and intersecting effect',
+  },
+  {
+    input: {
       text: 'Hello Many Effects World',
       marks: [
         {
