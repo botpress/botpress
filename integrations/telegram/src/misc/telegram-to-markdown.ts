@@ -250,13 +250,12 @@ const _postProcessNestedEffects = (
 
 const _applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: number = 0) => {
   const unknownMarkWarnings: string[] = []
-  const { start, end, effects, children } = segment
+  const { start, end, effects, children: nonOverlappingChildren } = segment
   const startIndex = start - offset
   let transformedText = text.substring(startIndex, end - offset)
 
-  if (children) {
-    // Each child segment **should** be non-overlapping
-    children.sort(_byDescendingStartIndex).forEach((child) => {
+  if (nonOverlappingChildren) {
+    nonOverlappingChildren.sort(_byDescendingStartIndex).forEach((child) => {
       const { text: transformedSegment, warnings } = _applyMarkToTextSegment(transformedText, child, start)
       transformedText = spliceText(transformedText, child.start - start, child.end - start, transformedSegment)
       unknownMarkWarnings.push(...warnings)
