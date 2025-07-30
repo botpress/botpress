@@ -74,6 +74,9 @@ export default new IntegrationDefinition({
       title: 'Sandbox Configuration',
       description: 'Sandbox configuration, for testing purposes only',
       schema: commonConfigSchema,
+      identifier: {
+        linkTemplateScript: 'sandboxLinkTemplate.vrl',
+      },
     },
   },
   identifier: {
