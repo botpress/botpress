@@ -44,7 +44,7 @@ const markSortOffsets: Record<string, number> = {
   underline: 0,
 }
 
-const applyWhitespaceSensitiveMark = (markHandler: MarkHandler) => {
+const _applyWhitespaceSensitiveMark = (markHandler: MarkHandler) => {
   return (text: string, data: Record<string, unknown>): string => {
     let startWhitespace: string | undefined = undefined
     let endWhitespace: string | undefined = undefined
@@ -60,20 +60,20 @@ const applyWhitespaceSensitiveMark = (markHandler: MarkHandler) => {
 
 type MarkHandler = (text: string, data: Record<string, unknown>) => string
 const _handlers: Record<string, MarkHandler> = {
-  bold: applyWhitespaceSensitiveMark((text: string) => `**${text}**`),
-  italic: applyWhitespaceSensitiveMark((text: string) => `*${text}*`),
-  strikethrough: applyWhitespaceSensitiveMark((text: string) => `~~${text}~~`),
-  spoiler: applyWhitespaceSensitiveMark((text: string) => `||${text}||`),
-  code: applyWhitespaceSensitiveMark((text: string) => `\`${text}\``),
+  bold: _applyWhitespaceSensitiveMark((text: string) => `**${text}**`),
+  italic: _applyWhitespaceSensitiveMark((text: string) => `*${text}*`),
+  strikethrough: _applyWhitespaceSensitiveMark((text: string) => `~~${text}~~`),
+  spoiler: _applyWhitespaceSensitiveMark((text: string) => `||${text}||`),
+  code: _applyWhitespaceSensitiveMark((text: string) => `\`${text}\``),
   pre: (text: string, data: Record<string, unknown>) => `\`\`\`${data?.language || ''}\n${text}\n\`\`\``,
   blockquote: (text: string) => `> ${text.replace(/\n/g, '\n> ')}`,
-  text_link: applyWhitespaceSensitiveMark(
+  text_link: _applyWhitespaceSensitiveMark(
     (text: string, data: Record<string, unknown>) => `[${text}](${data?.url || '#'})`
   ),
-  phone_number: applyWhitespaceSensitiveMark((text: string) => {
+  phone_number: _applyWhitespaceSensitiveMark((text: string) => {
     return `[${text}](tel:${text.replace(/\D/g, '')})`
   }),
-  email: applyWhitespaceSensitiveMark((text: string) => {
+  email: _applyWhitespaceSensitiveMark((text: string) => {
     return `[${text}](mailto:${text})`
   }),
   // Underline does nothing because the commonmark spec doesn't support it.
@@ -84,7 +84,7 @@ const _isOverlapping = (a: Range, b: Range) => {
   return a.start < b.end && b.start < a.end
 }
 
-export const splitIfOverlapping = (rangeA: MarkSegment, rangeB: MarkSegment): MarkSegment[] => {
+const _splitIfOverlapping = (rangeA: MarkSegment, rangeB: MarkSegment): MarkSegment[] => {
   if (!_isOverlapping(rangeA, rangeB)) {
     return [rangeA]
   }
@@ -135,7 +135,7 @@ const _splitAnyOverlaps = (ranges: MarkSegment[]): MarkSegment[] => {
     (splitRanges: MarkSegment[], range: MarkSegment) => {
       let newSplitRanges = splitRanges
         .reduce((arr: MarkSegment[], otherRange: MarkSegment) => {
-          const newRanges = splitIfOverlapping(otherRange, range)
+          const newRanges = _splitIfOverlapping(otherRange, range)
           return arr.concat(newRanges)
         }, [])
         .filter((range: MarkSegment, index: number, arr: MarkSegment[]) => {
@@ -248,7 +248,7 @@ const _postProcessNestedEffects = (
   return processedSegments
 }
 
-const applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: number = 0) => {
+const _applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: number = 0) => {
   const { start, end, effects, children } = segment
   const startIndex = start - offset
   let transformedText = text.substring(startIndex, end - offset)
@@ -256,7 +256,7 @@ const applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: numb
   if (children) {
     // Each child segment **should** be non-overlapping
     children.sort(_byDescendingStartIndex).forEach((child) => {
-      const transformedSegment = applyMarkToTextSegment(transformedText, child, start)
+      const transformedSegment = _applyMarkToTextSegment(transformedText, child, start)
       transformedText = spliceText(transformedText, child.start - start, child.end - start, transformedSegment)
     })
   }
@@ -311,5 +311,5 @@ export const applyMarksToText = (text: string, marks: TelegramMark[] = []) => {
     }
   })
 
-  return processedSegments.map((markSegment) => applyMarkToTextSegment(text, markSegment)).join('')
+  return processedSegments.map((markSegment) => _applyMarkToTextSegment(text, markSegment)).join('')
 }
