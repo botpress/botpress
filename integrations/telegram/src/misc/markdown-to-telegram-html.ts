@@ -1,6 +1,14 @@
-import DOMPurify from 'dompurify'
-import { JSDOM } from 'jsdom'
 import MarkdownIt from 'markdown-it'
+import sanitizeHtml from 'sanitize-html'
+
+const sanitizerConfig: sanitizeHtml.IOptions = {
+  allowedTags: ['strong', 'b', 'em', 'i', 's', 'del', 'code', 'pre', 'blockquote', 'a', 'img'],
+  allowedAttributes: {
+    a: ['href', 'title'],
+    code: ['class'],
+    img: ['src', 'srcset', 'alt', 'title'],
+  },
+}
 
 const md = MarkdownIt({
   xhtmlOut: true,
@@ -86,11 +94,6 @@ md.renderer.rules.image = ruleHandler((token: MarkdownIt.Token, env: ExtractedDa
   return ''
 })
 
-const sanitizeHTML = (html: string): string => {
-  const purify = DOMPurify(new JSDOM('').window)
-  return purify.sanitize(html)
-}
-
 export type MarkdownToTelegramHtmlResult = {
   html: string
   extractedData: ExtractedData
@@ -103,5 +106,8 @@ export function stdMarkdownToTelegramHtml(markdown: string): MarkdownToTelegramH
     // .replace(/\|\|([^|]([^\n\r]*[^|\n\r])?)\|\|/g, "<tg-spoiler>$1</tg-spoiler>") // Telegram Spoilers will be implemented in a later version
     .replace(/<br\s?\/?>/g, '\n')
 
-  return { html: sanitizeHTML(telegramHtml), extractedData }
+  return {
+    html: sanitizeHtml(telegramHtml, sanitizerConfig),
+    extractedData,
+  }
 }

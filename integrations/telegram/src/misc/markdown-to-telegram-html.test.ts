@@ -273,11 +273,11 @@ describe('Standard Markdown to Telegram HTML Conversion', () => {
 
   test('Ensure javascript injection via html link is not possible', () => {
     const { html } = stdMarkdownToTelegramHtml('<a href="javascript:alert(\'XSS\')">click me</a>')
-    expect(html).toBe('<a>click me</a>')
+    expect(html).toBe('&lt;a href=“javascript:alert(‘XSS’)”&gt;click me&lt;/a&gt;')
   })
 
   test('Ensure javascript injection via html image handler is not possible', () => {
     const { html } = stdMarkdownToTelegramHtml('<img src="image.jpg" alt="alt text" onerror="alert(\'xss\')">')
-    expect(html).toBe('<img src="image.jpg" alt="alt text">')
+    expect(html).toBe('&lt;img src=“image.jpg” alt=“alt text” onerror=“alert(‘xss’)”&gt;')
   })
 })
