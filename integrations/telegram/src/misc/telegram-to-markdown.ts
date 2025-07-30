@@ -76,8 +76,6 @@ const _handlers: Record<string, MarkHandler> = {
   email: _applyWhitespaceSensitiveMark((text: string) => {
     return `[${text}](mailto:${text})`
   }),
-  // Underline does nothing because the commonmark spec doesn't support it.
-  underline: (text: string) => text,
 }
 
 const _isOverlapping = (a: Range, b: Range) => {

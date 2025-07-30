@@ -636,11 +636,9 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
 describe('Telegram to Markdown Conversion', () => {
   test.each(telegramToMarkdownTestCases)('$description', ({ input, expects }: TelegramToMarkdownTestCase) => {
     const { text, warnings = [] } = telegramTextMsgToStdMarkdown(input.text, input.marks)
+
     if (warnings.length > 0) {
-      const warningMsg = warnings[0]!
-      if (warningMsg.startsWith('Unknown mark type:')) {
-        throw new Error(warningMsg)
-      }
+      expect(warnings).toEqual(['Unknown mark type: underline'])
     }
 
     expect(text).toBe(expects)
