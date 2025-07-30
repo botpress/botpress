@@ -308,6 +308,7 @@ export const telegramTextMsgToStdMarkdown = (text: string, marks: TelegramMark[]
   const plainTextSegment = { start: 0, end: text.length, effects: [] }
   const nonOverlappingSegments = _splitAnyOverlaps(segments.concat(plainTextSegment))
   const processedSegments = _postProcessNestedEffects(nonOverlappingSegments, (sortedSegments) => {
+    // This should never be thrown at runtime. If it is, then it means there's a bug in the logic
     if (!_areSegmentsNonOverlappingContiguous(text, sortedSegments)) {
       throw new Error('Nested effects are not contiguous')
     }
