@@ -48,6 +48,9 @@ export default new IntegrationDefinition({
       title: 'Sandbox Configuration',
       description: 'Sandbox configuration, for testing purposes only',
       schema: z.object({}),
+      identifier: {
+        linkTemplateScript: 'sandboxLinkTemplate.vrl',
+      },
     },
   },
   states: {

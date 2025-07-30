@@ -128,6 +128,9 @@ export default new IntegrationDefinition({
       title: 'Sandbox',
       description: 'Sandbox configuration, for testing purposes only',
       schema: commonConfigSchema,
+      identifier: {
+        linkTemplateScript: 'sandboxLinkTemplate.vrl',
+      },
     },
   },
   configuration: {
