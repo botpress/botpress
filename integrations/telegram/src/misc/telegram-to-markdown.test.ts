@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { applyMarksToText, type TelegramMark } from './telegram-to-markdown'
+import { telegramTextMsgToStdMarkdown, type TelegramMark } from './telegram-to-markdown'
 import { TestCase } from '../../tests/types'
 
 type TelegramToMarkdownTestCase = TestCase<
@@ -647,7 +647,7 @@ describe('Telegram to Markdown Conversion', () => {
       consoleWarn(firstArg, ...args)
     }
 
-    expect(applyMarksToText(input.text, input.marks)).toBe(expects)
+    expect(telegramTextMsgToStdMarkdown(input.text, input.marks)).toBe(expects)
 
     console.warn = consoleWarn
   })
