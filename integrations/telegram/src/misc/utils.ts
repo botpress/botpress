@@ -4,6 +4,7 @@ import { ok } from 'assert'
 import _ from 'lodash'
 import { Context, Markup, Telegraf, Telegram } from 'telegraf'
 import { PhotoSize, Update, User, Sticker } from 'telegraf/typings/core/types/typegram'
+import { applyMarksToText } from './telegram-to-markdown'
 import { Card, AckFunction, Logger, MessageHandlerProps, BotpressMessage, TelegramMessage } from './types'
 import * as bp from '.botpress'
 
@@ -224,7 +225,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
   if ('text' in message) {
     return {
       type: 'text',
-      payload: { text: message.text },
+      payload: { text: applyMarksToText(message.text, message.entities) },
     }
   }
 

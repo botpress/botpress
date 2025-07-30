@@ -5,6 +5,7 @@ import { ok } from 'assert/strict'
 import { Markup, Telegraf } from 'telegraf'
 import type { User } from 'telegraf/typings/core/types/typegram'
 
+import { stdMarkdownToTelegramHtml } from './misc/markdown-to-telegram-html'
 import { TelegramMessage } from './misc/types'
 import {
   getUserPictureDataUri,
@@ -62,8 +63,10 @@ const integration = new bp.Integration({
           const client = new Telegraf(ctx.configuration.botToken)
           const chat = getChat(conversation)
           logger.forBot().debug(`Sending markdown message to Telegram chat ${chat}:`, text)
-          const message = await client.telegram.sendMessage(chat, text, {
-            parse_mode: 'MarkdownV2',
+          const { html } = stdMarkdownToTelegramHtml(text)
+          // TODO: Implement extracted data
+          const message = await client.telegram.sendMessage(chat, html, {
+            parse_mode: 'HTML',
           })
           await ackMessage(message, ack)
         },

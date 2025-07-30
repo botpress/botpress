@@ -284,7 +284,9 @@ const applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: numb
   return transformedText
 }
 
-export const applyMarksToText = (text: string, marks: TelegramMark[]) => {
+export const applyMarksToText = (text: string, marks: TelegramMark[] = []) => {
+  if (marks.length === 0) return text
+
   const segments = marks.map((mark: TelegramMark): MarkSegment => {
     const start = mark.offset
     const end = mark.offset + mark.length
