@@ -1,10 +1,12 @@
+import { z } from '@botpress/sdk'
 import type { YargsConfig } from '@bpinternal/yargs-extra'
 import chalk from 'chalk'
+import * as fs from 'fs'
 import latestVersion from 'latest-version'
 import _ from 'lodash'
 import semver from 'semver'
 import type { ApiClientFactory } from '../api/client'
-import type * as config from '../config'
+import * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import type { CommandArgv, CommandDefinition } from '../typings'
@@ -14,9 +16,16 @@ import { BaseCommand } from './base-command'
 export type GlobalCommandDefinition = CommandDefinition<typeof config.schemas.global>
 export type GlobalCache = { apiUrl: string; token: string; workspaceId: string }
 
-export type ConfigurableGlobalPaths = { botpressHomeDir: string; cliRootDir: utils.path.AbsolutePath }
+export type ConfigurableGlobalPaths = {
+  botpressHomeDir: string
+  cliRootDir: utils.path.AbsolutePath
+  profilesPath: string
+}
 export type ConstantGlobalPaths = typeof consts.fromHomeDir & typeof consts.fromCliRootDir
 export type AllGlobalPaths = ConfigurableGlobalPaths & ConstantGlobalPaths
+
+const profileCredentialSchema = z.object({ apiUrl: z.string(), workspaceId: z.string(), token: z.string() })
+type ProfileCredentials = z.infer<typeof profileCredentialSchema>
 
 class GlobalPaths extends utils.path.PathStore<keyof AllGlobalPaths> {
   public constructor(argv: CommandArgv<GlobalCommandDefinition>) {
@@ -24,6 +33,7 @@ class GlobalPaths extends utils.path.PathStore<keyof AllGlobalPaths> {
     super({
       cliRootDir: consts.cliRootDir,
       botpressHomeDir: absBotpressHome,
+      profilesPath: utils.path.absoluteFrom(absBotpressHome, consts.profileFileName),
       ..._.mapValues(consts.fromHomeDir, (p) => utils.path.absoluteFrom(absBotpressHome, p)),
       ..._.mapValues(consts.fromCliRootDir, (p) => utils.path.absoluteFrom(consts.cliRootDir, p)),
     })
@@ -73,9 +83,22 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
   protected async getAuthenticatedClient(credentials: Partial<YargsConfig<typeof config.schemas.credentials>>) {
     const cache = this.globalCache
 
-    const token = credentials.token ?? (await cache.get('token'))
-    const workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
-    const apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
+    let token: string | undefined
+    let workspaceId: string | undefined
+    let apiUrl: string | undefined
+
+    if (this.argv.profile) {
+      if (credentials.token || credentials.workspaceId || credentials.apiUrl) {
+        this.logger.warn(
+          'You are currently using credential command line arguments or environment variables as well as a profile. Your profile has overwritten the variables'
+        )
+      }
+      ;({ token, workspaceId, apiUrl } = await this._readProfileFromFS(this.argv.profile))
+    } else {
+      token = credentials.token ?? (await cache.get('token'))
+      workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
+      apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
+    }
 
     if (!(token && workspaceId && apiUrl)) {
       return null
@@ -88,6 +111,28 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
   }
 
+  private async _readProfileFromFS(profile: string): Promise<ProfileCredentials> {
+    if (!fs.existsSync(this.globalPaths.abs.profilesPath)) {
+      throw new errors.BotpressCLIError(`Profile file not found at "${this.globalPaths.abs.profilesPath}"`)
+    }
+    const fileContent = await fs.promises.readFile(this.globalPaths.abs.profilesPath, 'utf-8')
+    const parsedProfiles = JSON.parse(fileContent)
+
+    const zodParseResult = z.record(profileCredentialSchema).safeParse(parsedProfiles, {})
+    if (!zodParseResult.success) {
+      throw errors.BotpressCLIError.wrap(zodParseResult.error, 'Error parsing profiles: ')
+    }
+
+    const profileData = parsedProfiles[profile]
+    if (!profileData) {
+      throw new errors.BotpressCLIError(
+        `Profile "${profile}" not found in "${this.globalPaths.abs.profilesPath}". Found profiles '${Object.keys(parsedProfiles).join("', '")}'.`
+      )
+    }
+
+    return parsedProfiles[profile]
+  }
+
   protected async ensureLoginAndCreateClient(credentials: YargsConfig<typeof config.schemas.credentials>) {
     const client = await this.getAuthenticatedClient(credentials)
 
@@ -98,7 +143,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     return client
   }
 
-  private _notifyUpdateCli = async (): Promise<void> => {
+  private readonly _notifyUpdateCli = async (): Promise<void> => {
     try {
       this.logger.debug('Checking if cli is up to date')
 
