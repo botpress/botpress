@@ -249,6 +249,7 @@ const _postProcessNestedEffects = (
 }
 
 const _applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: number = 0) => {
+  const unknownMarkWarnings: string[] = []
   const { start, end, effects, children } = segment
   const startIndex = start - offset
   let transformedText = text.substring(startIndex, end - offset)
@@ -256,8 +257,9 @@ const _applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: num
   if (children) {
     // Each child segment **should** be non-overlapping
     children.sort(_byDescendingStartIndex).forEach((child) => {
-      const transformedSegment = _applyMarkToTextSegment(transformedText, child, start)
+      const { text: transformedSegment, warnings } = _applyMarkToTextSegment(transformedText, child, start)
       transformedText = spliceText(transformedText, child.start - start, child.end - start, transformedSegment)
+      unknownMarkWarnings.push(...warnings)
     })
   }
 
@@ -271,7 +273,7 @@ const _applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: num
       // @ts-ignore
       const handler = _handlers[type] as Function | undefined
       if (!handler) {
-        console.warn(`Unknown mark type: ${type}`)
+        unknownMarkWarnings.push(`Unknown mark type: ${type}`)
         return
       }
 
@@ -281,11 +283,11 @@ const _applyMarkToTextSegment = (text: string, segment: MarkSegment, offset: num
       })
     })
 
-  return transformedText
+  return { text: transformedText, warnings: unknownMarkWarnings }
 }
 
 export const telegramTextMsgToStdMarkdown = (text: string, marks: TelegramMark[] = []) => {
-  if (marks.length === 0) return text
+  if (marks.length === 0) return { text }
 
   const segments = marks.map((mark: TelegramMark): MarkSegment => {
     const start = mark.offset
@@ -311,5 +313,13 @@ export const telegramTextMsgToStdMarkdown = (text: string, marks: TelegramMark[]
     }
   })
 
-  return processedSegments.map((markSegment) => _applyMarkToTextSegment(text, markSegment)).join('')
+  let transformedText = ''
+  const transformWarnings: string[] = []
+  for (const markSegment of processedSegments) {
+    const { text: textSegment, warnings } = _applyMarkToTextSegment(text, markSegment)
+    transformWarnings.push(...warnings)
+    transformedText += textSegment
+  }
+
+  return { text: transformedText, warnings: transformWarnings }
 }

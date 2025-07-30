@@ -1,5 +1,5 @@
 import { axios } from '@botpress/client'
-import { Response, RuntimeError } from '@botpress/sdk'
+import { IntegrationLogger, Response, RuntimeError } from '@botpress/sdk'
 import { ok } from 'assert'
 import _ from 'lodash'
 import { Context, Markup, Telegraf, Telegram } from 'telegraf'
@@ -153,9 +153,11 @@ export const getUserPictureDataUri = async ({
 export const convertTelegramMessageToBotpressMessage = async ({
   message,
   telegram,
+  logger,
 }: {
   message: TelegramMessage
   telegram: Telegram
+  logger: IntegrationLogger
 }): Promise<BotpressMessage> => {
   if ('photo' in message) {
     const photo = _.maxBy(message.photo, (photo) => photo.height * photo.width)
@@ -223,9 +225,12 @@ export const convertTelegramMessageToBotpressMessage = async ({
   }
 
   if ('text' in message) {
+    const { text, warnings } = telegramTextMsgToStdMarkdown(message.text, message.entities)
+    warnings?.forEach((warningMsg) => logger.forBot().warn(warningMsg))
+
     return {
       type: 'text',
-      payload: { text: telegramTextMsgToStdMarkdown(message.text, message.entities) },
+      payload: { text },
     }
   }
 

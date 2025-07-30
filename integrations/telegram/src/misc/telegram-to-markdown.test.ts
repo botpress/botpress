@@ -635,20 +635,14 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
 
 describe('Telegram to Markdown Conversion', () => {
   test.each(telegramToMarkdownTestCases)('$description', ({ input, expects }: TelegramToMarkdownTestCase) => {
-    const consoleWarn = console.warn
-
-    console.warn = (firstArg: unknown, ...args: unknown[]) => {
-      if (typeof firstArg === 'string') {
-        if (firstArg.startsWith('Unknown mark type:')) {
-          throw new Error(firstArg)
-        }
+    const { text, warnings = [] } = telegramTextMsgToStdMarkdown(input.text, input.marks)
+    if (warnings.length > 0) {
+      const warningMsg = warnings[0]!
+      if (warningMsg.startsWith('Unknown mark type:')) {
+        throw new Error(warningMsg)
       }
-
-      consoleWarn(firstArg, ...args)
     }
 
-    expect(telegramTextMsgToStdMarkdown(input.text, input.marks)).toBe(expects)
-
-    console.warn = consoleWarn
+    expect(text).toBe(expects)
   })
 })

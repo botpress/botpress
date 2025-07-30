@@ -222,6 +222,7 @@ const integration = new bp.Integration({
     const bpMessage = await convertTelegramMessageToBotpressMessage({
       message,
       telegram: telegraf.telegram,
+      logger,
     })
 
     logger.forBot().debug(`Received message from user ${telegramUserId}: ${JSON.stringify(message, null, 2)}`)
