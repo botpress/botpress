@@ -15,6 +15,7 @@ class IntegrationFixtureCreator {
       name: this.name,
       version,
       public: true,
+      visibility: 'public',
       createdAt: new Date(this.t0++).toISOString(),
       updatedAt: new Date(this.t0++).toISOString(),
       description: 'description',

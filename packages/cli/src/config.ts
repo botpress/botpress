@@ -100,12 +100,6 @@ const dev = {
   default: false,
 } satisfies CommandOption
 
-const isPublic = {
-  type: 'boolean',
-  description: 'Weither or not to deploy the integration publicly',
-  default: false,
-} satisfies CommandOption
-
 // base schemas
 
 const globalSchema = {
@@ -130,6 +124,10 @@ const globalSchema = {
     type: 'string',
     description: 'The path to the Botpress home directory',
     default: consts.defaultBotpressHome,
+  },
+  profile: {
+    type: 'string',
+    description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/.profiles json format file',
   },
 } satisfies CommandSchema
 
@@ -186,13 +184,25 @@ const deploySchema = {
   createNewBot: { type: 'boolean', description: 'Create a new bot when deploying. Only used when deploying a bot' },
   sourceMap,
   minify,
-  public: isPublic,
+  visibility: {
+    type: 'string',
+    choices: ['public', 'private', 'unlisted'] as const,
+    description:
+      'The visibility of the project. By default, projects are always private. Unlisted visibility is only supported for integrations.',
+    default: 'private',
+  },
+  public: {
+    type: 'boolean',
+    description: 'DEPRECATED: Please use "--visibility public" instead.',
+    default: false,
+    deprecated: true,
+  } satisfies CommandOption,
   allowDeprecated: {
     type: 'boolean',
     description: 'Allow deprecated features in the project',
     default: false,
   },
-} satisfies CommandSchema
+} as const satisfies CommandSchema
 
 const devSchema = {
   ...projectSchema,

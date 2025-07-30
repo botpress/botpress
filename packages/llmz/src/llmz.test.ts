@@ -882,4 +882,35 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       expect(dogMentionned).toBe(true)
     }, 20_000)
   })
+
+  describe('events in transcript', () => {
+    it('can handle events in transcript', async () => {
+      let messages: string = ''
+
+      const chat = new Chat({
+        components: [DefaultComponents.Text],
+        transcript: [
+          {
+            role: 'event',
+            name: 'pageLoaded',
+            payload: { url: 'https://example.com/pricing', title: 'Pricing Page' },
+          } satisfies Transcript.EventMessage,
+        ],
+        handler: async (msg) => {
+          messages += JSON.stringify(msg)
+        },
+      })
+
+      const result = await llmz.executeContext({
+        instructions: 'You are a helpful assistant deployed on a business website. Greet the user in a contextual way.',
+        options: { loop: 1 },
+        chat,
+        client,
+      })
+
+      assertSuccess(result)
+      expect(result.iterations).toHaveLength(1)
+      expect(messages.toLowerCase()).toContain('pricing')
+    })
+  })
 })
