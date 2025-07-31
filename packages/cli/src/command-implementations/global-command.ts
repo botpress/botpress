@@ -94,6 +94,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
         )
       }
       ;({ token, workspaceId, apiUrl } = await this._readProfileFromFS(this.argv.profile))
+      this.logger.log(`Using profile "${this.argv.profile}"`, { prefix: '👤' })
     } else {
       token = credentials.token ?? (await cache.get('token'))
       workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
