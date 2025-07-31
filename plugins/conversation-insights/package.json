@@ -1,0 +1,15 @@
+{
+  "name": "@bp-templates/empty-plugin",
+  "pluginName": "nathaniel/conversation-insights",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/sdk": "4.15.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.4",
+    "typescript": "^5.6.3"
+  }
+}
