@@ -1,6 +1,5 @@
 {
-  "name": "@bp-templates/empty-plugin",
-  "pluginName": "nathaniel/conversation-insights",
+  "name": "@botpresshub/conversation-insights",
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp build"
