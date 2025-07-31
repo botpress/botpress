@@ -8,7 +8,7 @@ type TelegramToMarkdownTestCase = TestCase<
     marks: TelegramMark[]
   },
   string
->
+> & { expectsWarnings?: string[] }
 
 const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
   // ==== Testing each mark type ====
@@ -180,6 +180,7 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
       ],
     },
     expects: 'Underline',
+    expectsWarnings: ['Unknown mark type: underline'],
     description: 'Do not apply unsupported underline effect',
   },
   // ===== Effect Overlapping Tests =====
@@ -633,14 +634,19 @@ const telegramToMarkdownTestCases: TelegramToMarkdownTestCase[] = [
   },
 ]
 
+const _alphabetically = (a: string, b: string) => a.localeCompare(b)
+
 describe('Telegram to Markdown Conversion', () => {
-  test.each(telegramToMarkdownTestCases)('$description', ({ input, expects }: TelegramToMarkdownTestCase) => {
-    const { text, warnings = [] } = telegramTextMsgToStdMarkdown(input.text, input.marks)
+  test.each(telegramToMarkdownTestCases)(
+    '$description',
+    ({ input, expects, expectsWarnings }: TelegramToMarkdownTestCase) => {
+      const { text, warnings = [] } = telegramTextMsgToStdMarkdown(input.text, input.marks)
 
-    if (warnings.length > 0) {
-      expect(warnings).toEqual(['Unknown mark type: underline'])
+      if (expectsWarnings && expectsWarnings.length > 0) {
+        expect(warnings.sort(_alphabetically)).toEqual(expectsWarnings.sort(_alphabetically))
+      }
+
+      expect(text).toBe(expects)
     }
-
-    expect(text).toBe(expects)
-  })
+  )
 })
