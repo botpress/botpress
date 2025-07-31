@@ -187,7 +187,7 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
       return
     }
 
-    await fs.promises.cp(srcDir, destination, { recursive: true })
+    await fs.promises.cp(srcDir, destination, { recursive: true, filter: (src) => !src.includes('node_modules') })
 
     const pkgJsonPath = pathlib.join(destination, 'package.json')
     const strContent = await fs.promises.readFile(pkgJsonPath, 'utf-8')
