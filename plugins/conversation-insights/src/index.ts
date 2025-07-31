@@ -25,9 +25,16 @@ plugin.on.message('*', async (props) => {
 
   const participant_count = updatedParticipants.length.toString()
 
+  const stubTags = {
+    cost: '3189578',
+    topics: 'rats',
+    title: "I'm not crazy",
+    summary: 'The user wants to explain to me that he is not crazy, but rats make him crazy. He seems crazy.',
+  }
+
   await props.client.updateConversation({
     id: props.conversation.id,
-    tags: { message_count: message_count.toString(), participant_count },
+    tags: { message_count: message_count.toString(), participant_count, ...stubTags },
   })
 
   console.log({ message_count, participant_count })

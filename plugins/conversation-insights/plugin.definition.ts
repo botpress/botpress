@@ -2,7 +2,7 @@ import { PluginDefinition, z } from '@botpress/sdk'
 
 export default new PluginDefinition({
   name: 'nathaniel/conversation-insights',
-  version: '0.0.2',
+  version: '0.0.3',
   conversation: {
     tags: {
       title: { title: 'Title', description: 'The title of the conversation' },
@@ -15,6 +15,8 @@ export default new PluginDefinition({
         title: 'Participant count',
         description: 'The count of users having participated in the conversation. Includes the bot',
       },
+      cost: { title: 'Conversation cost', description: 'The total AI spend cost of the conversation' },
+      topics: { title: 'Topics', description: 'Topic tags for the conversation' },
     },
   },
   states: { participants: { schema: z.object({ ids: z.array(z.string()) }), type: 'conversation' } },
