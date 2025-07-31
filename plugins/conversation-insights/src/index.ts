@@ -9,19 +9,19 @@ plugin.on.message('*', async (props) => {
   let message_count = 0
   if (message_count_tag) message_count = parseInt(message_count_tag)
 
-  const participantsState = props.client.getState({
+  const participantsState = await props.client.getOrSetState({
     id: props.conversation.id,
     name: 'participants',
     type: 'conversation',
+    payload: { participants: [] },
   })
 
-  const participants = (await participantsState).state.payload
+  const participants = participantsState.state.payload
   const senderId = props.user.id
 
   let updatedParticipants = participants
   if (!participants.includes(senderId)) {
     updatedParticipants = [...participants, senderId]
-    //
     await props.client.setState({
       id: props.conversation.id,
       name: 'participants',
