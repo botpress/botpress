@@ -9,29 +9,35 @@ plugin.on.message('*', async (props) => {
   let message_count = 1
   if (message_count_tag) message_count += parseInt(message_count_tag)
 
-  const participantsState = await props.client.getOrSetState({
-    id: props.conversation.id,
-    name: 'participants',
-    type: 'conversation',
-    payload: { ids: [] },
+  const participantsState = await props.states.conversation.participants.getOrSet(props.conversation.id, {
+    ids: ['test'],
   })
 
-  let updatedParticipants = participantsState.state.payload.ids
+  let updatedParticipants = participantsState.ids
   const senderId = props.user.id
 
   if (!updatedParticipants.includes(senderId)) {
     updatedParticipants = [...updatedParticipants, senderId]
-    await props.client.setState({
-      id: props.conversation.id,
-      name: 'participants',
-      type: 'conversation',
-      payload: { ids: updatedParticipants },
+    await props.states.conversation.participants.set(props.conversation.id, {
+      ids: updatedParticipants,
     })
   }
 
-  props.client.updateConversation({
+  const participant_count = updatedParticipants.length.toString()
+
+  await props.client.updateConversation({
     id: props.conversation.id,
-    tags: { message_count: message_count.toString(), participant_count: updatedParticipants.length.toString() },
+    tags: { message_count: message_count.toString(), participant_count },
+  })
+
+  console.log({ message_count, participant_count })
+
+  await props.client.createMessage({
+    conversationId: props.conversation.id,
+    payload: { text: 'hiii' },
+    type: 'text',
+    tags: {},
+    userId: props.ctx.botId,
   })
 })
 
