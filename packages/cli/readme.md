@@ -17,3 +17,5 @@ bp login # login to Botpress Cloud
 bp bots ls # list all bots
 bp --help # list all commands
 ```
+
+<!-- testing CI -->
