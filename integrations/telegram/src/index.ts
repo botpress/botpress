@@ -6,7 +6,7 @@ import { Markup, Telegraf } from 'telegraf'
 import type { User } from 'telegraf/typings/core/types/typegram'
 
 import { stdMarkdownToTelegramHtml } from './misc/markdown-to-telegram-html'
-import { TelegramMessage } from './misc/types'
+import { BlocMessage, TelegramMessage } from './misc/types'
 import {
   getUserPictureDataUri,
   getUserNameFromTelegramUser,
@@ -144,8 +144,21 @@ const integration = new bp.Integration({
           const message = await client.telegram.sendMessage(chat, payload.text, Markup.keyboard(buttons).oneTime())
           await ackMessage(message, ack)
         },
-        bloc: () => {
-          throw new RuntimeError('Not implemented')
+        bloc: async ({ client, payload, ctx, conversation }) => {
+          for (const item of payload.items) {
+            const { type, payload }: BlocMessage<(typeof item)['type']> =
+              item.type !== 'markdown'
+                ? { type: item.type, payload: item.payload }
+                : { type: 'text', payload: { text: item.payload.markdown } }
+
+            await client.createMessage({
+              userId: ctx.botUserId,
+              conversationId: conversation.id,
+              type,
+              payload,
+              tags: {},
+            })
+          }
         },
       },
     },
