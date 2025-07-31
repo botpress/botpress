@@ -80,14 +80,22 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     const name = await this._getName('plugin', template.defaultProjectName)
     const { fullName, shortName } = this._getFullNameAndShortName({ workspaceHandle, name })
 
-    await this._copy({
-      srcDir: template.absolutePath,
-      destDir: workDir,
-      name: shortName,
-      pkgJson: {
-        pluginName: fullName,
-      },
-    })
+    try {
+      await this._copy({
+        srcDir: template.absolutePath,
+        destDir: workDir,
+        name: shortName,
+        pkgJson: {
+          pluginName: fullName,
+        },
+      })
+    } catch (error) {
+      if (error instanceof errors.AbortedOperationError) {
+        this.logger.log('Aborted')
+        return
+      }
+      throw error
+    }
     this.logger.success(`Plugin project initialized in ${chalk.bold(pathlib.join(workDir, shortName))}`)
   }
 
@@ -182,9 +190,9 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     const dirName = utils.casing.to.kebabCase(name)
     const destination = pathlib.join(destDir, dirName)
 
-    const exist = await this._checkIfDestinationExists(destination)
-    if (exist) {
-      return
+    const destinationCanBeUsed = await this._checkIfDestinationCanBeUsed(destination)
+    if (!destinationCanBeUsed) {
+      throw new errors.AbortedOperationError()
     }
 
     await fs.promises.cp(srcDir, destination, { recursive: true, filter: (src) => !src.includes('node_modules') })
@@ -198,17 +206,16 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     await fs.promises.writeFile(pkgJsonPath, JSON.stringify(updatedJson, null, 2))
   }
 
-  private _checkIfDestinationExists = async (destination: string) => {
+  private _checkIfDestinationCanBeUsed = async (destination: string) => {
     if (fs.existsSync(destination)) {
       const override = await this.prompt.confirm(
         `Directory ${chalk.bold(destination)} already exists. Do you want to overwrite it?`
       )
       if (!override) {
-        this.logger.log('Aborting')
-        return true
+        return false
       }
     }
-    return false
+    return true
   }
 }
 
