@@ -13,20 +13,20 @@ plugin.on.message('*', async (props) => {
     id: props.conversation.id,
     name: 'participants',
     type: 'conversation',
-    payload: { participants: [] },
+    payload: { ids: [] },
   })
 
-  const participants = participantsState.state.payload
+  let updatedParticipants = participantsState.state.payload.ids
   const senderId = props.user.id
+  console.log(updatedParticipants)
 
-  let updatedParticipants = participants
-  if (!participants.includes(senderId)) {
-    updatedParticipants = [...participants, senderId]
+  if (!updatedParticipants.includes(senderId)) {
+    updatedParticipants = [...updatedParticipants, senderId]
     await props.client.setState({
       id: props.conversation.id,
       name: 'participants',
       type: 'conversation',
-      payload: updatedParticipants,
+      payload: { ids: updatedParticipants },
     })
   }
 
@@ -34,7 +34,7 @@ plugin.on.message('*', async (props) => {
 
   props.client.updateConversation({
     id: props.conversation.id,
-    tags: { message_count: (message_count + 1).toString(), participant_count },
+    tags: { message_count: (message_count + 1).toString(), participant_count: participant_count.toString() },
   })
 })
 

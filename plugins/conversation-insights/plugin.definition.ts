@@ -17,5 +17,5 @@ export default new PluginDefinition({
       },
     },
   },
-  states: { participants: { schema: z.object({ list: z.array(z.string()) }), type: 'conversation' } },
+  states: { participants: { schema: z.object({ ids: z.array(z.string()) }), type: 'conversation' } },
 })
