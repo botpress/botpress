@@ -80,8 +80,6 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     const name = await this._getName('plugin', template.defaultProjectName)
     const { fullName, shortName } = this._getFullNameAndShortName({ workspaceHandle, name })
 
-    console.log(`creating plugin at ${workDir}`)
-
     try {
       await this._copy({
         srcDir: template.absolutePath,
