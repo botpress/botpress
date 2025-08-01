@@ -1,7 +1,9 @@
 import { PluginDefinition, z } from '@botpress/sdk'
 
+const UPDATE_CRON = '* * * * *' //every minute
+
 export default new PluginDefinition({
-  name: 'nathaniel/conversation-insights',
+  name: 'nathaniel-conversation-insights',
   version: '0.1.0',
   conversation: {
     tags: {
@@ -19,5 +21,12 @@ export default new PluginDefinition({
       topics: { title: 'Topics', description: 'Topic tags for the conversation' },
     },
   },
-  states: { participants: { schema: z.object({ ids: z.array(z.string()) }), type: 'conversation' } },
+  states: {
+    participants: { schema: z.object({ ids: z.array(z.string()) }), type: 'conversation' },
+    unreadMessages: { schema: z.object({ ids: z.array(z.string()) }), type: 'conversation' },
+  },
+  events: { updateTitleAndSummary: { schema: z.object({}) } },
+  recurringEvents: {
+    updateTitleAndSummaryRecurring: { type: 'updateTitleAndSummary', payload: {}, schedule: { cron: UPDATE_CRON } },
+  },
 })

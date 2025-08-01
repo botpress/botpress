@@ -14,13 +14,22 @@ const stubTags = {
 plugin.on.message('*', async (props) => {
   await _newMessage(props)
 
-  props.client.createMessage({
+  await props.client.createMessage({
     conversationId: props.conversation.id,
     payload: { text: 'string' },
     type: 'text',
     tags: {},
     userId: props.ctx.botId,
   })
+
+  const unreads = await props.states.conversation.unreadMessages.getOrSet(props.conversation.id, { ids: [] })
+  unreads.ids = unreads.ids ? unreads.ids : []
+  props.states.conversation.unreadMessages.set(props.conversation.id, { ids: [...unreads.ids, props.message.id] })
+})
+
+// plugin.on.afterOutgoingMessage('*', async (props) => {
+
+// })
 
 const _newMessage = async (props: {
   conversation: bp.MessageHandlerProps['conversation']
@@ -55,6 +64,28 @@ const _newMessage = async (props: {
     tags,
   })
   console.log('updated tags in conversation: ' + JSON.stringify(tags))
+}
+
+plugin.on.event('updateTitleAndSummary', async (props) => {
+  console.log('called update event')
+  const conversations = await props.client.listConversations({})
+
+  for (const conversation of conversations.conversations) {
+    const newMessageIds = (await props.states.conversation.unreadMessages.getOrSet(conversation.id, { ids: [] })).ids
+    const messages = props.client.listMessages({ conversationId: conversation.id })
+    const newMessages = (await messages).messages
+      .filter((message) => newMessageIds.includes(message.userId) && message.type === 'text')
+      .map((message) => message.payload.text)
+
+    await _updateTitleAndSummary({ client: props.client }, newMessages)
+    await props.states.conversation.unreadMessages.set(conversation.id, { ids: [] })
+  }
+})
+
+const _updateTitleAndSummary = async (props: { client: bp.MessageHandlerProps['client'] }, messages: string[]) => {
+  for (const message of messages) {
+    console.log(`updated the title and summary of message ${message}`)
+  }
 }
 
 export default plugin
