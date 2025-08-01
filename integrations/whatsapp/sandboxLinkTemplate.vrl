@@ -1,0 +1,10 @@
+env = to_string!(.env)
+shareableId = to_string!(.shareableId)
+
+phoneNumber = if env == "production" {
+  "15817019840"
+} else {
+  "15817021047"
+}
+
+"https://api.whatsapp.com/send?phone={{ phoneNumber }}&text={{ shareableId }}"
