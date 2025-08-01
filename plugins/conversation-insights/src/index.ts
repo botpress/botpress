@@ -4,7 +4,30 @@ const plugin = new bp.Plugin({
   actions: {},
 })
 
+const stubTags = {
+  cost: '345',
+  topics: 'rats',
+  title: "I'm not crazy",
+  summary: 'The user wants to explain to me that he is not crazy, but rats make him crazy. He seems crazy.',
+}
+
 plugin.on.message('*', async (props) => {
+  await _newMessage(props)
+
+  props.client.createMessage({
+    conversationId: props.conversation.id,
+    payload: { text: 'string' },
+    type: 'text',
+    tags: {},
+    userId: props.ctx.botId,
+  })
+
+const _newMessage = async (props: {
+  conversation: bp.MessageHandlerProps['conversation']
+  states: bp.MessageHandlerProps['states']
+  user: bp.MessageHandlerProps['user']
+  client: bp.MessageHandlerProps['client']
+}) => {
   const message_count_tag = props.conversation.tags.message_count
   let message_count = 1
   if (message_count_tag) message_count += parseInt(message_count_tag)
@@ -25,27 +48,13 @@ plugin.on.message('*', async (props) => {
 
   const participant_count = updatedParticipants.length.toString()
 
-  const stubTags = {
-    cost: '3189578',
-    topics: 'rats',
-    title: "I'm not crazy",
-    summary: 'The user wants to explain to me that he is not crazy, but rats make him crazy. He seems crazy.',
-  }
+  const tags = { message_count: message_count.toString(), participant_count, ...stubTags }
 
-  await props.client.updateConversation({
+  props.client.updateConversation({
     id: props.conversation.id,
-    tags: { message_count: message_count.toString(), participant_count, ...stubTags },
+    tags,
   })
-
-  console.log({ message_count, participant_count })
-
-  await props.client.createMessage({
-    conversationId: props.conversation.id,
-    payload: { text: 'hiii' },
-    type: 'text',
-    tags: {},
-    userId: props.ctx.botId,
-  })
-})
+  console.log('updated tags in conversation: ' + JSON.stringify(tags))
+}
 
 export default plugin

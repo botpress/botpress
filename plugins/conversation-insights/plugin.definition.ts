@@ -2,7 +2,7 @@ import { PluginDefinition, z } from '@botpress/sdk'
 
 export default new PluginDefinition({
   name: 'nathaniel/conversation-insights',
-  version: '0.0.3',
+  version: '0.1.0',
   conversation: {
     tags: {
       title: { title: 'Title', description: 'The title of the conversation' },
