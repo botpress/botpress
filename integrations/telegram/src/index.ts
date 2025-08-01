@@ -146,16 +146,16 @@ const integration = new bp.Integration({
         },
         bloc: async ({ client, payload, ctx, conversation }) => {
           for (const item of payload.items) {
-            const { type, payload }: BlocMessage<(typeof item)['type']> =
+            const { msgType, msgPayload }: BlocMessage<(typeof item)['type']> =
               item.type !== 'markdown'
-                ? { type: item.type, payload: item.payload }
-                : { type: 'text', payload: { text: item.payload.markdown } }
+                ? { msgType: item.type, msgPayload: item.payload }
+                : { msgType: 'text', msgPayload: { text: item.payload.markdown } }
 
             await client.createMessage({
               userId: ctx.botUserId,
               conversationId: conversation.id,
-              type,
-              payload,
+              type: msgType,
+              payload: msgPayload,
               tags: {},
             })
           }

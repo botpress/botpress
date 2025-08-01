@@ -25,8 +25,8 @@ export type Event = bp.ClientResponses['getEvent']['event']
 
 type _BlocMessageType<T extends MessageTypes | 'markdown'> = T extends Exclude<T, 'markdown'> ? T : 'text'
 export type BlocMessage<T extends MessageTypes | 'markdown'> = {
-  type: _BlocMessageType<T>
-  payload: bp.channels.channel.Messages[_BlocMessageType<T>]
+  msgType: _BlocMessageType<T>
+  msgPayload: bp.channels.channel.Messages[_BlocMessageType<T>]
 }
 
 export type EventDefinition = sdk.EventDefinition
