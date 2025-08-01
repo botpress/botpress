@@ -59,15 +59,33 @@ class FreshchatClient {
     })
   }
 
-  public async sendMessage(fromUserId: string | null, freshchatConversationId: string, message: string) {
+  public async sendMessage(
+    fromUserId: string | undefined,
+    freshchatConversationId: string,
+    messageParts: Array<
+      | { text: { content: string } }
+      | { image: { url: string } }
+      | { video: { url: string; content_type?: string } }
+      | {
+          file: {
+            url: string
+            name: string
+            file_size_in_bytes?: number
+            contentType?: string
+            file_extension?: string
+            fileSource?: 'FRESHCHAT' | 'FRESHBOTS'
+          }
+        }
+    >
+  ): Promise<string> {
     const response = await this._client.post<FreshchatMessage & { id: string }>(
       `/conversations/${freshchatConversationId}/messages`,
       {
-        message_parts: [{ text: { content: message } }],
+        message_parts: messageParts,
         message_type: 'normal',
-        user_id: fromUserId,
-        actor_type: fromUserId?.length ? 'user' : 'system',
-        actor_id: fromUserId,
+        ...(fromUserId?.length && { user_id: fromUserId }),
+        actor_type: fromUserId?.length ? 'user' : 'bot',
+        ...(fromUserId?.length && { actor_id: fromUserId }),
       }
     )
 
