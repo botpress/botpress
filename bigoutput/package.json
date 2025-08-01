@@ -1,0 +1,16 @@
+{
+  "name": "@bp-templates/empty-integration",
+  "integrationName": "bigoutput",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "1.21.0",
+    "@botpress/sdk": "4.15.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.4",
+    "typescript": "^5.6.3"
+  }
+}

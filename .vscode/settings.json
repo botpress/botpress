@@ -8,5 +8,8 @@
   "editor.tabSize": 2,
   "git.branchProtection": ["master"],
   "typescript.tsdk": "node_modules/typescript/lib",
-  "vitest.disableWorkspaceWarning": true
+  "vitest.disableWorkspaceWarning": true,
+  "debug.javascript.defaultRuntimeExecutable": {
+    "pwa-node": "/Users/nathanielgirard/.local/share/mise/shims/node"
+  }
 }
