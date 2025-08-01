@@ -1,0 +1,10 @@
+env = to_string!(.env)
+shareableId = to_string!(.shareableId)
+
+pageId = if env == "production" {
+  "647427158463603"
+} else {
+  "757871147405221"
+}
+
+"https://m.me/{{ pageId }}?text={{ shareableId }}"

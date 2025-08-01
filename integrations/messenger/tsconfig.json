@@ -4,8 +4,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "baseUrl": ".",
-    "outDir": "dist",
-    "types": ["preact"]
+    "outDir": "dist"
   },
   "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "integration.definition.ts"]
 }

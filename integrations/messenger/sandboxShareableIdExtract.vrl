@@ -1,0 +1,4 @@
+# https://developers.facebook.com/docs/messenger-platform/reference/webhook-events/messages#text-message
+body =  parse_json!(.body)
+message = body.entry[0].messaging[0].message
+message.text

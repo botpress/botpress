@@ -1,8 +1,8 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import proactiveConversation from 'bp_modules/proactive-conversation'
+import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
-
-export const INTEGRATION_NAME = 'messenger'
 
 const commonConfigSchema = z.object({
   downloadMedia: z
@@ -23,8 +23,8 @@ const commonConfigSchema = z.object({
 })
 
 export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
-  version: '3.1.0',
+  name: 'messenger',
+  version: '4.0.0',
   title: 'Messenger',
   description: 'Give your bot access to one of the world’s largest messaging platform.',
   icon: 'icon.svg',
@@ -37,32 +37,46 @@ export default new IntegrationDefinition({
     schema: commonConfigSchema,
   },
   configurations: {
-    manualApp: {
+    manual: {
       title: 'Manual Configuration',
-      description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
+      description: 'Configure by manually supplying the Meta app details',
       schema: z
         .object({
+          clientId: z.string().title('Client ID').min(1).describe('Meta app client id'),
+          clientSecret: z
+            .string()
+            .title('Client Secret')
+            .optional()
+            .describe('Meta App secret used for webhook signature check. Leave empty to disable signature check.'),
           verifyToken: z
             .string()
             .title('Verify Token')
             .min(1)
             .describe(
-              'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
+              'Token used for verification when subscribing to webhooks on the Meta app (enter a random string of your choice)'
             ),
           accessToken: z
             .string()
             .title('Access Token')
             .min(1)
             .describe('Access Token from a System Account that has permission to the Meta app'),
-          clientId: z.string().title('Client ID').min(1).describe('Meta app client id'),
-          clientSecret: z
-            .string()
-            .title('Client Secret')
-            .optional()
-            .describe('Meta app secret used for webhook signature check'),
           pageId: z.string().min(1).describe('Id from the Facebook page').title('Page ID'),
+          shouldGetUserProfile: z
+            .boolean()
+            .default(true)
+            .optional()
+            .describe('Whether to get the user profile infos from Messenger when creating a new user')
+            .title('Get User Profile'),
         })
         .merge(commonConfigSchema),
+    },
+    sandbox: {
+      title: 'Sandbox Configuration',
+      description: 'Sandbox configuration, for testing purposes only',
+      schema: commonConfigSchema,
+      identifier: {
+        linkTemplateScript: 'sandboxLinkTemplate.vrl',
+      },
     },
   },
   identifier: {
@@ -109,28 +123,76 @@ export default new IntegrationDefinition({
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: {
-      description: 'The client ID of your Meta app.',
+      description: 'The client ID of your Meta app',
     },
     CLIENT_SECRET: {
-      description: 'The client secret of your Meta app.',
+      description: 'The client secret of your Meta app',
+    },
+    OAUTH_CONFIG_ID: {
+      description: 'The OAuth configuration ID for the OAuth Meta app',
+    },
+    VERIFY_TOKEN: {
+      description: 'The verify token for the Meta Webhooks subscription',
     },
     ACCESS_TOKEN: {
       description: 'Access token for internal Meta App',
     },
-    VERIFY_TOKEN: {
-      description: 'The verify token for the Meta Webhooks subscription, optional since its only useful for oAuth.',
-      optional: true,
+    SHOULD_GET_USER_PROFILE: {
+      description: "Whether to get the user profile infos from Messenger when creating a new user ('true' or 'false')",
+    },
+    SANDBOX_CLIENT_ID: {
+      description: 'The client ID of the Sandbox Meta app',
+    },
+    SANDBOX_CLIENT_SECRET: {
+      description: 'The client secret of the Sandbox Meta app',
+    },
+    SANDBOX_VERIFY_TOKEN: {
+      description: 'The verify token for the Sandbox Meta App Webhooks subscription',
+    },
+    SANDBOX_ACCESS_TOKEN: {
+      description: 'Access token for the Sandbox Meta App',
+    },
+    SANDBOX_PAGE_ID: {
+      description: 'Page ID for the Sandbox Facebook page',
+    },
+    SANDBOX_SHOULD_GET_USER_PROFILE: {
+      description: "Whether to get the user profile infos from Messenger when creating a new user ('true' or 'false')",
     },
   },
   user: {
     tags: { id: { title: 'User ID', description: 'The Messenger ID of the user' } },
   },
-}).extend(typingIndicator, () => ({ entities: {} }))
-
-export const getOAuthConfigId = () => {
-  if (process.env.BP_WEBHOOK_URL?.includes('dev')) {
-    return 505750508672935
-  }
-
-  return 506253762185261
-}
+  entities: {
+    user: {
+      schema: z
+        .object({
+          id: z.string().title('User ID').describe('The Messenger ID of the user'),
+        })
+        .title('User')
+        .describe('The user object fields'),
+      title: 'User',
+      description: 'A Messenger user',
+    },
+    conversation: {
+      schema: z
+        .object({
+          id: z.string().title('User ID').describe('The Messenger ID of the user in the conversation'),
+        })
+        .title('Conversation')
+        .describe('The conversation object fields'),
+      title: 'Conversation',
+      description: 'A conversation with a Messenger user',
+    },
+  },
+})
+  .extend(typingIndicator, () => ({ entities: {} }))
+  .extend(proactiveUser, ({ entities }) => ({
+    entities: {
+      user: entities.user,
+    },
+  }))
+  .extend(proactiveConversation, ({ entities }) => ({
+    entities: {
+      conversation: entities.conversation,
+    },
+  }))

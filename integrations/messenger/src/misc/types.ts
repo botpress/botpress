@@ -1,3 +1,4 @@
+import { z } from '@botpress/sdk'
 import * as bp from '.botpress'
 
 export type Carousel = bp.channels.channel.carousel.Carousel
@@ -6,50 +7,77 @@ export type Choice = bp.channels.channel.choice.Choice
 export type Dropdown = bp.channels.channel.dropdown.Dropdown
 export type Location = bp.channels.channel.location.Location
 
-export type MessengerAttachment = MessengerPostbackAttachment | MessengerSayAttachment | MessengerUrlAttachment
+type Channels = bp.Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
-type MessengerPostbackAttachment = {
+export type SendMessageProps = Pick<
+  MessageHandlerProps,
+  'client' | 'ctx' | 'conversation' | 'ack' | 'logger' | 'type' | 'payload'
+>
+
+type MessengerOutMessagePostbackAttachment = {
   type: 'postback'
   title: string
   payload: string
 }
 
-type MessengerSayAttachment = {
+type MessengerOutMessageSayAttachment = {
   type: 'postback'
   title: string
   payload: string
 }
 
-type MessengerUrlAttachment = {
+type MessengerOutMessageUrlAttachment = {
   type: 'web_url'
   title: string
   url: string
 }
 
-export type MessengerPayload = {
-  object: string
-  entry: MessengerEntry[]
-}
+export type MessengerOutMessageAttachment =
+  | MessengerOutMessagePostbackAttachment
+  | MessengerOutMessageSayAttachment
+  | MessengerOutMessageUrlAttachment
 
-type MessengerEntry = {
-  id: string
-  time: number
-  messaging: MessengerMessage[]
-}
+const baseMessengerMessagingEntrySchema = z.object({
+  sender: z.object({ id: z.string() }),
+  recipient: z.object({ id: z.string() }),
+  timestamp: z.number(),
+})
 
-export type MessengerMessage = {
-  sender: { id: string }
-  recipient: { id: string }
-  timestamp: number
-  message?: {
-    mid: string
-    text: string
-    quick_reply?: { payload: string }
-    attachments?: { type: string; payload: { url: string } }[]
-  }
-  postback?: {
-    mid: string
-    payload: string
-    title: string
-  }
-}
+const messengerMessagingEntryMessageSchema = baseMessengerMessagingEntrySchema.extend({
+  message: z.object({
+    mid: z.string(),
+    text: z.string().optional(),
+    quick_reply: z.object({ payload: z.string() }).optional(),
+    attachments: z.array(z.object({ type: z.string(), payload: z.object({ url: z.string() }) })).optional(),
+  }),
+})
+export type MessengerMessagingEntryMessage = z.infer<typeof messengerMessagingEntryMessageSchema>
+
+const messengerMessagingEntryPostbackSchema = baseMessengerMessagingEntrySchema.extend({
+  postback: z.object({
+    mid: z.string(),
+    payload: z.string(),
+    title: z.string(),
+  }),
+})
+export type MessengerMessagingEntryPostback = z.infer<typeof messengerMessagingEntryPostbackSchema>
+
+const messengerMessagingEntrySchema = z.union([
+  messengerMessagingEntryMessageSchema,
+  messengerMessagingEntryPostbackSchema,
+])
+export type MessengerMessagingEntry = z.infer<typeof messengerMessagingEntrySchema>
+
+const messengerEntrySchema = z.object({
+  id: z.string(),
+  time: z.number(),
+  messaging: z.tuple([messengerMessagingEntrySchema]),
+})
+
+export const messengerPayloadSchema = z.object({
+  object: z.literal('page'),
+  entry: z.array(messengerEntrySchema),
+})
