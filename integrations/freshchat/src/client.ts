@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import axios, { type Axios, isAxiosError } from 'axios'
+import axios, { type Axios } from 'axios'
 import type {
   FreshchatMessage,
   FreshchatAgent,
@@ -8,10 +8,6 @@ import type {
   FreshchatUser,
 } from './definitions/schemas'
 import * as bp from '.botpress'
-
-import fs from 'fs'
-import FormData from 'form-data'
-import { v4 as uuidv4 } from 'uuid'
 
 // API docs: https://developers.freshchat.com/api/
 
