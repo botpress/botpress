@@ -1,0 +1,11 @@
+{
+  "name": "@botpresshub/conversation-insights",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/sdk": "workspace:*"
+  }
+}

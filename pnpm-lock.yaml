@@ -2577,6 +2577,12 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
 
+  plugins/conversation-insights:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+
   plugins/file-synchronizer:
     dependencies:
       '@botpress/client':
