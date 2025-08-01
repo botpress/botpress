@@ -164,8 +164,6 @@ export const handleBlocMessage = async ({
           conversation,
         })
         break
-      default:
-        throw new RuntimeError(`Unsupported message type: ${item.type}`)
     }
   }
 }
