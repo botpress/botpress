@@ -1,7 +1,7 @@
+import { Message } from '@botpress/common'
 import { MessageCreateFreshchatEvent } from '../definitions/freshchat-events'
 import { updateAgentUser } from '../util'
 import * as bp from '.botpress'
-import { Message } from '@botpress/common'
 
 export const executeMessageCreate = async ({
   freshchatEvent,

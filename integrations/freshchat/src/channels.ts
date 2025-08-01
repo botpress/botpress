@@ -1,8 +1,8 @@
 import * as bpCommon from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { getFreshchatClient } from './client'
-import * as bp from '.botpress'
 import { getMediaMetadata } from './util'
+import * as bp from '.botpress'
 
 const wrapChannel = bpCommon.createChannelWrapper<bp.IntegrationProps>()({
   toolFactories: {
