@@ -126,18 +126,46 @@ export const handleChoiceMessage = async ({
   await ackMessage(message, ack)
 }
 
-export const handleBlocMessage = async ({ client, payload, ctx, conversation }: MessageHandlerProps<'bloc'>) => {
+export const handleBlocMessage = async ({
+  client,
+  payload,
+  ctx,
+  conversation,
+  ...rest
+}: MessageHandlerProps<'bloc'>) => {
   if (payload.items.length > 20) {
     throw new RuntimeError('Telegram only allows 20 messages to be sent every 60 seconds')
   }
 
   for (const item of payload.items) {
-    await client.createMessage({
-      userId: ctx.botUserId,
-      conversationId: conversation.id,
-      type: item.type,
-      payload: item.payload,
-      tags: {},
-    })
+    switch (item.type) {
+      case 'text':
+        await handleTextMessage({ ...rest, type: item.type, client, payload: item.payload, ctx, conversation })
+        break
+      case 'image':
+        await handleImageMessage({ ...rest, type: item.type, client, payload: item.payload, ctx, conversation })
+        break
+      case 'audio':
+        await handleAudioMessage({ ...rest, type: item.type, client, payload: item.payload, ctx, conversation })
+        break
+      case 'video':
+        await handleVideoMessage({ ...rest, type: item.type, client, payload: item.payload, ctx, conversation })
+        break
+      case 'file':
+        await handleFileMessage({ ...rest, type: item.type, client, payload: item.payload, ctx, conversation })
+        break
+      case 'location':
+        await handleLocationMessage({
+          ...rest,
+          type: item.type,
+          client,
+          payload: item.payload,
+          ctx,
+          conversation,
+        })
+        break
+      default:
+        throw new RuntimeError(`Unsupported message type: ${item.type}`)
+    }
   }
 }
