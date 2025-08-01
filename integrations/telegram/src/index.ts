@@ -6,7 +6,7 @@ import { Markup, Telegraf } from 'telegraf'
 import type { User } from 'telegraf/typings/core/types/typegram'
 
 import { stdMarkdownToTelegramHtml } from './misc/markdown-to-telegram-html'
-import { BlocMessage, TelegramMessage } from './misc/types'
+import { TelegramMessage } from './misc/types'
 import {
   getUserPictureDataUri,
   getUserNameFromTelegramUser,
@@ -150,16 +150,11 @@ const integration = new bp.Integration({
           }
 
           for (const item of payload.items) {
-            const { msgType, msgPayload }: BlocMessage<(typeof item)['type']> =
-              item.type !== 'markdown'
-                ? { msgType: item.type, msgPayload: item.payload }
-                : { msgType: 'text', msgPayload: { text: item.payload.markdown } }
-
             await client.createMessage({
               userId: ctx.botUserId,
               conversationId: conversation.id,
-              type: msgType,
-              payload: msgPayload,
+              type: item.type,
+              payload: item.payload,
               tags: {},
             })
           }
