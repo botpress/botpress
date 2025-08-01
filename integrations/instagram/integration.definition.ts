@@ -10,7 +10,7 @@ const { file: _file, ...channelMessages } = messages.defaults
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '3.1.0',
+  version: '3.1.1',
   title: 'Instagram',
   description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
