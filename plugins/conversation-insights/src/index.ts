@@ -7,8 +7,8 @@ const plugin = new bp.Plugin({
 const stubTags = {
   cost: '345',
   topics: 'rats',
-  title: "I'm not crazy",
-  summary: 'The user wants to explain to me that he is not crazy, but rats make him crazy. He seems crazy.',
+  title: 'The conversation title!',
+  summary: 'This is normally where the conversation summary would be.',
 }
 
 plugin.on.message('*', async (props) => {
@@ -16,7 +16,7 @@ plugin.on.message('*', async (props) => {
 
   await props.client.createMessage({
     conversationId: props.conversation.id,
-    payload: { text: 'string' },
+    payload: { text: 'received your message' },
     type: 'text',
     tags: {},
     userId: props.ctx.botId,
@@ -36,10 +36,10 @@ const _newMessage = async (props: {
   states: bp.MessageHandlerProps['states']
   user: bp.MessageHandlerProps['user']
   client: bp.MessageHandlerProps['client']
+  logger: bp.MessageHandlerProps['logger']
 }) => {
-  const message_count_tag = props.conversation.tags.message_count
-  let message_count = 1
-  if (message_count_tag) message_count += parseInt(message_count_tag)
+  const message_count = props.conversation.tags.message_count ? parseInt(props.conversation.tags.message_count) + 1 : 1
+  props.logger.info(`message count tag: ${message_count}`)
 
   const participantsState = await props.states.conversation.participants.getOrSet(props.conversation.id, {
     ids: ['test'],
