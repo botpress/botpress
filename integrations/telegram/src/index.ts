@@ -145,6 +145,10 @@ const integration = new bp.Integration({
           await ackMessage(message, ack)
         },
         bloc: async ({ client, payload, ctx, conversation }) => {
+          if (payload.items.length > 20) {
+            throw new RuntimeError('Telegram only allows 20 messages to be sent every 60 seconds')
+          }
+
           for (const item of payload.items) {
             const { msgType, msgPayload }: BlocMessage<(typeof item)['type']> =
               item.type !== 'markdown'
