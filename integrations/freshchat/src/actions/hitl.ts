@@ -111,7 +111,9 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx
     await freshchatClient.setConversationAsResolved(freshchatConversationId)
   } catch (thrown: unknown) {
     const error: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    logger.forBot().error('Error resolving HITL conversation on Freshchat: ' + error.message, (error as AxiosError)?.response?.data)
+    logger
+      .forBot()
+      .error('Error resolving HITL conversation on Freshchat: ' + error.message, (error as AxiosError)?.response?.data)
   }
 
   return {}
