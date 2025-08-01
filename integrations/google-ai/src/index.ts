@@ -4,6 +4,8 @@ import { generateContent } from './actions/generate-content'
 import { ModelId } from './schemas'
 import * as bp from '.botpress'
 
+console.log('### HELLO WORLD ###')
+
 const googleAIClient = new GoogleGenAI({ apiKey: bp.secrets.GOOGLE_AI_API_KEY })
 
 const DEFAULT_LANGUAGE_MODEL_ID: ModelId = 'models/gemini-2.0-flash'
