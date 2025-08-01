@@ -1,7 +1,8 @@
 /* bplint-disable */
-import { z, IntegrationDefinition, messages } from '@botpress/sdk'
+import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import typingIndicator from './bp_modules/typing-indicator'
+import { telegramMessageChannels } from './definitions/channels'
 
 export default new IntegrationDefinition({
   name: 'telegram',
@@ -17,15 +18,7 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
-      messages: {
-        ...messages.defaults,
-        audio: {
-          ...messages.defaults.audio,
-          schema: messages.defaults.audio.schema.extend({
-            caption: z.string().optional().describe('The caption/transcription of the audio message'),
-          }),
-        },
-      },
+      messages: telegramMessageChannels,
       message: { tags: { id: {}, chatId: {} } },
       conversation: {
         tags: { id: {}, fromUserId: {}, fromUserUsername: {}, fromUserName: {}, chatId: {} },
