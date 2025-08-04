@@ -113,6 +113,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       await this._uninstall(installPath)
     }
 
+    if (ref.type === 'name') {
+      // Preserve the semver version expression in the generated code:
+      targetPackage.pkg.version = ref.version
+    }
+
     let files: codegen.File[]
     if (targetPackage.type === 'integration') {
       files = await codegen.generateIntegrationPackage(targetPackage.pkg)
