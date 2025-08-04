@@ -15,7 +15,7 @@ export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps)
     title: linearEvent.data.title,
     priority: linearEvent.data.priority,
     status: linearEvent.data.state.name,
-    description: linearEvent.data.description,
+    description: linearEvent.data.description ?? '',
     number: linearEvent.data.number,
     updatedAt: linearEvent.data.updatedAt,
     createdAt: linearEvent.data.createdAt,

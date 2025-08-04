@@ -51,6 +51,7 @@ If you prefer to manually configure the integration, you can provide a bot token
    - `team:read`: needed to obtain metadata on your team in order to operate on the right instance of your bot.
    - `users.profile:read`: needed to retrieve profile information for channel and DM members.
    - `users:read`: needed to obtain a list of all members of the workspace and to receive notifications when new members join the workspace.
+   - `users:read.email`: needed for the `Get User Profile` action.
 6. **IMPORTANT:** install your Slack app to your workspace. This is a crucial step to ensure that the bot can send and receive messages. To do this, scroll up to the "OAuth Tokens for Your Workspace" section and click "Install App to Workspace". Follow the on-screen instructions to authorize the app.
 7. Scroll up to the "Advanced token security via token rotation " section and click "Opt In" to enable token rotation. Confirm you wish to opt in.
 8. Copy the Refresh Token (starts with `xoxe-1-`) or legacy Bot Token (starts with `xoxb-`). You will need it to set up the integration on Botpress. You may need to refresh the page in the Slack API portal to see the token.

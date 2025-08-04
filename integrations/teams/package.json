@@ -4,13 +4,16 @@
   "private": true,
   "scripts": {
     "build": "bp add -y && bp build",
+    "deploy": "bp deploy",
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint"
   },
   "dependencies": {
+    "@azure/identity": "^4.10.2",
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "axios": "^1.5.1",
     "botbuilder": "^4.18.0",
     "jsonwebtoken": "^9.0.2",
