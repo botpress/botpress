@@ -7,7 +7,7 @@ import _ from 'lodash'
 import semver from 'semver'
 import * as apiUtils from '../api'
 import * as codegen from '../code-generation'
-import type * as config from '../config'
+import * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import { validateIntegrationDefinition, validateBotDefinition } from '../sdk'
@@ -366,6 +366,15 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return {
       integrations: _(integrations)
         .keyBy((i) => i.id)
+        .mapValues(
+          ({ enabled, configurationType, configuration, disabledChannels }) =>
+            ({
+              enabled,
+              configurationType,
+              configuration,
+              disabledChannels,
+            }) satisfies NonNullable<apiUtils.UpdateBotRequestBody['integrations']>[string]
+        )
         .value(),
       plugins: utils.records.mapValues(pluginsWithBackingIntegrations, (plugin) => ({
         ...plugin,

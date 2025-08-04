@@ -6,7 +6,7 @@ import { actions, configuration, channels, user, states } from './src/definition
 
 export default new IntegrationDefinition({
   name: 'teams',
-  version: '0.5.1',
+  version: '1.0.0',
   title: 'Microsoft Teams',
   description: 'Interact with users, deliver notifications, and perform actions within Microsoft Teams.',
   icon: 'icon.svg',

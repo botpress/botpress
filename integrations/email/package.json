@@ -1,0 +1,19 @@
+{
+  "name": "@botpresshub/email",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp build",
+    "test": "vitest"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "imap": "^0.8.17",
+    "nodemailer": "^6.7.2"
+  },
+  "devDependencies": {
+    "@types/imap": "^0.8.42",
+    "@types/nodemailer": "^6.4.4"
+  }
+}

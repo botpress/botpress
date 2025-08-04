@@ -14,8 +14,6 @@
     "svix": "^1.69.0"
   },
   "devDependencies": {
-    "@types/markdown-it": "^14.1.2",
-    "@types/node": "^18.19.67",
-    "typescript": "^5.6.3"
+    "@types/markdown-it": "^14.1.2"
   }
 }

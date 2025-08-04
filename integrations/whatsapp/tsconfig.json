@@ -7,5 +7,5 @@
     "outDir": "dist",
     "types": ["preact"]
   },
-  "include": [".botpress/**/*", "src/**/*", "integration.definition.ts"]
+  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "integration.definition.ts"]
 }
