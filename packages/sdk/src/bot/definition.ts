@@ -99,7 +99,7 @@ export type PluginConfigInstance<P extends PluginPackage = PluginPackage> = {
   }
 }
 
-export type IntegrationInstance = IntegrationPackage & IntegrationConfigInstance
+export type IntegrationInstance = IntegrationPackage & Partial<IntegrationConfigInstance>
 export type PluginInstance = PluginPackage & PluginConfigInstance
 
 export type BotDefinitionProps<
@@ -199,18 +199,18 @@ export class BotDefinition<
     }
   }
 
-  public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
+  public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config?: IntegrationConfigInstance<I>): this {
     const self = this as Writable<BotDefinition>
     if (!self.integrations) {
       self.integrations = {}
     }
 
     self.integrations[integrationPkg.name] = {
-      enabled: config.enabled,
       ...integrationPkg,
-      configurationType: config.configurationType,
-      configuration: config.configuration,
-      disabledChannels: config.disabledChannels,
+      enabled: config?.enabled,
+      configurationType: config?.configurationType,
+      configuration: config?.configuration,
+      disabledChannels: config?.disabledChannels,
     }
     return this
   }

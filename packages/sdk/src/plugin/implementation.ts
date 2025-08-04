@@ -492,7 +492,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     if (!alias) {
       return prop
     }
-    const prefix = `${alias}:`
+    const prefix = `${alias}#`
     return prop.startsWith(prefix) ? prop.slice(prefix.length) : prop
   }
 }

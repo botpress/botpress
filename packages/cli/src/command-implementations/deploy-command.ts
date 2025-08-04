@@ -41,8 +41,23 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     return new BuildCommand(this.api, this.prompt, this.logger, this.argv).run()
   }
 
+  private get _visibility(): 'public' | 'private' | 'unlisted' {
+    if (this.argv.public && this.argv.visibility === 'private') {
+      this.logger.warn('The --public flag is deprecated. Please use "--visibility public" instead.')
+      return 'public'
+    }
+
+    if (this.argv.public && this.argv.visibility !== 'private') {
+      this.logger.warn('The --public flag and --visibility option are both present. Ignoring the --public flag...')
+    }
+
+    return this.argv.visibility
+  }
+
   private async _deployIntegration(api: apiUtils.ApiClient, integrationDef: sdk.IntegrationDefinition) {
-    const { integration: updatedIntegrationDef, workspaceId } = await this._manageWorkspaceHandle(api, integrationDef)
+    const res = await this._manageWorkspaceHandle(api, integrationDef)
+    if (!res) return
+    const { integration: updatedIntegrationDef, workspaceId } = res
     integrationDef = updatedIntegrationDef
     if (workspaceId) {
       api = api.switchWorkspace(workspaceId)
@@ -65,7 +80,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       )
     }
 
-    if (integration && integration.public && !api.isBotpressWorkspace) {
+    if (integration && integration.visibility !== 'private' && !api.isBotpressWorkspace) {
       throw new errors.BotpressCLIError(
         `Integration ${name} v${version} is already deployed publicly and cannot be updated. Please bump the version.`
       )
@@ -90,7 +105,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const createBody = {
       ...(await this.prepareCreateIntegrationBody(integrationDef)),
       ...(await this.prepareIntegrationDependencies(integrationDef, api)),
-      public: this.argv.public,
+      visibility: this._visibility,
     }
 
     const startedMessage = `Deploying integration ${chalk.bold(name)} v${version}...`
@@ -161,6 +176,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployInterface(api: apiUtils.ApiClient, interfaceDeclaration: sdk.InterfaceDefinition) {
+    if (this._visibility === 'unlisted') {
+      throw new errors.BotpressCLIError(
+        'Unlisted visibility is not supported for interfaces. Please use "public" or "private".'
+      )
+    }
+
     if (interfaceDeclaration.icon && !interfaceDeclaration.icon.toLowerCase().endsWith('.svg')) {
       throw new errors.BotpressCLIError('Icon must be an SVG file')
     }
@@ -191,7 +212,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const createBody = {
       ...(await apiUtils.prepareCreateInterfaceBody(interfaceDeclaration)),
-      public: this.argv.public,
+      public: this._visibility === 'public',
       icon,
       readme,
     }
@@ -236,6 +257,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployPlugin(api: apiUtils.ApiClient, pluginDef: sdk.PluginDefinition) {
+    if (this._visibility === 'unlisted') {
+      throw new errors.BotpressCLIError(
+        'Unlisted visibility is not supported for plugins. Please use "public" or "private".'
+      )
+    }
+
     const codeCJS = await fs.promises.readFile(this.projectPaths.abs.outFileCJS, 'utf-8')
     const codeESM = await fs.promises.readFile(this.projectPaths.abs.outFileESM, 'utf-8')
 
@@ -273,7 +300,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const createBody = {
       ...(await apiUtils.prepareCreatePluginBody(pluginDef)),
       ...(await this.preparePluginDependencies(pluginDef, api)),
-      public: this.argv.public,
+      public: this._visibility === 'public',
       icon,
       readme,
       code: {
@@ -477,10 +504,13 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   private async _manageWorkspaceHandle(
     api: apiUtils.ApiClient,
     integration: sdk.IntegrationDefinition
-  ): Promise<{
-    integration: sdk.IntegrationDefinition
-    workspaceId?: string // Set if user opted to deploy on another available workspace
-  }> {
+  ): Promise<
+    | {
+        integration: sdk.IntegrationDefinition
+        workspaceId?: string // Set if user opted to deploy on another available workspace
+      }
+    | undefined
+  > {
     const { name: localName, workspaceHandle: localHandle } = this._parseIntegrationName(integration.name)
     if (!localHandle && api.isBotpressWorkspace) {
       this.logger.debug('Botpress workspace detected; workspace handle omitted')
@@ -526,7 +556,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         `Your current workspace handle is "${remoteHandle}". Do you want to use the name "${remoteHandle}/${localName}"?`
       )
       if (!confirmAddHandle) {
-        throw new errors.BotpressCLIError(workspaceHandleIsMandatoryMsg)
+        this.logger.log('Aborted')
+        return
       }
       const newName = `${remoteHandle}/${localName}`
       return { integration: new sdk.IntegrationDefinition({ ...integration, name: newName }) }
