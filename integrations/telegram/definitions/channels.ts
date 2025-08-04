@@ -1,5 +1,14 @@
 import { z, messages } from '@botpress/sdk'
 
+const _textMessageDefinition = {
+  ...messages.defaults.text,
+  schema: messages.defaults.text.schema.extend({
+    text: messages.defaults.text.schema.shape.text
+      .max(4096)
+      .describe('The text content of the Telegram message (Limit 4096 characters)'),
+  }),
+}
+
 const _audioMessageDefinition = {
   ...messages.defaults.audio,
   schema: messages.defaults.audio.schema.extend({
@@ -8,7 +17,7 @@ const _audioMessageDefinition = {
 }
 
 const _blocSchema = z.union([
-  z.object({ type: z.literal('text'), payload: messages.defaults.text.schema }),
+  z.object({ type: z.literal('text'), payload: _textMessageDefinition.schema }),
   z.object({ type: z.literal('image'), payload: messages.defaults.image.schema }),
   z.object({ type: z.literal('audio'), payload: _audioMessageDefinition.schema }),
   z.object({ type: z.literal('video'), payload: messages.defaults.video.schema }),
@@ -25,6 +34,7 @@ const _blocMessageDefinition = {
 
 export const telegramMessageChannels = {
   ...messages.defaults,
+  text: _textMessageDefinition,
   audio: _audioMessageDefinition,
   bloc: _blocMessageDefinition,
 }
