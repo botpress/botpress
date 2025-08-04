@@ -25,6 +25,7 @@ export class TablesPublisher {
   }
 
   public async deployTables({ botId, botDefinition }: { botId: string; botDefinition: sdk.BotDefinition }) {
+    return
     const api = this._api.switchBot(botId)
 
     this._logger.log('Synchronizing tables...')

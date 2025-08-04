@@ -63,26 +63,37 @@ const getServerProps = (
 
 const handleOperation = async (props: ServerProps) => {
   const { ctx } = props
+  let res: void | Response
   switch (ctx.operation) {
     case 'webhook_received':
-      return await onWebhook(props)
+      res = await onWebhook(props)
+      break
     case 'register':
-      return await onRegister(props)
+      res = await onRegister(props)
+      break
     case 'unregister':
-      return await onUnregister(props)
+      res = await onUnregister(props)
+      break
     case 'message_created':
-      return await onMessageCreated(props)
+      res = await onMessageCreated(props)
+      break
     case 'action_triggered':
-      return await onActionTriggered(props)
+      res = await onActionTriggered(props)
+      break
     case 'ping':
-      return await onPing(props)
+      res = await onPing(props)
+      break
     case 'create_user':
-      return await onCreateUser(props)
+      res = await onCreateUser(props)
+      break
     case 'create_conversation':
-      return await onCreateConversation(props)
+      res = await onCreateConversation(props)
+      break
     default:
       throw new InvalidPayloadError(`Unknown operation ${ctx.operation}`)
   }
+  // if (res.length > 2 ** 23) throw new RuntimeError('The integration output is ')
+  return res
 }
 
 export const integrationHandler =

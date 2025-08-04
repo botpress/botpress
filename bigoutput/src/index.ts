@@ -6,7 +6,7 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     big: async (props) => {
-      const res = 'a'.repeat(2 ** 20)
+      const res = 'a'.repeat(2 ** 25)
       return { out: res }
     },
   },

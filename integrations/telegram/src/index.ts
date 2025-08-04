@@ -19,7 +19,8 @@ import {
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
-  register: async ({ webhookUrl, ctx }) => {
+  register: async ({ webhookUrl, ctx, logger }) => {
+    logger.debug(`webhookUrl: ${webhookUrl}`)
     const telegraf = new Telegraf(ctx.configuration.botToken)
     await telegraf.telegram.setWebhook(webhookUrl)
   },
