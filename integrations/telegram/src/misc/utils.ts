@@ -108,7 +108,7 @@ const getMimeTypeFromExtension = (extension: string): string => {
 const getDataUriFromImgHref = async (imgHref: string): Promise<string> => {
   const fileExtension = imgHref.substring(imgHref.lastIndexOf('.') + 1)
 
-  const { data } = await axios.default.get(imgHref, { responseType: 'arraybuffer' })
+  const { data } = await axios.default.get(imgHref, { responseType: 'arraybuffer' }).catch(parseError)
 
   const base64File = Buffer.from(data, 'binary').toString('base64')
 
@@ -141,7 +141,7 @@ export const getUserPictureDataUri = async ({
 }): Promise<string | null> => {
   try {
     const telegraf = new Telegraf(botToken)
-    const res = await telegraf.telegram.getUserProfilePhotos(telegramUserId)
+    const res = await telegraf.telegram.getUserProfilePhotos(telegramUserId).catch(parseError)
     logger.forBot().debug('Fetched user profile pictures from Telegram')
 
     if (!res.photos[0]) {
@@ -151,7 +151,7 @@ export const getUserPictureDataUri = async ({
     const photoToUse = getBestPhotoSize(res.photos[0])
 
     if (photoToUse) {
-      const fileLink = await telegraf.telegram.getFileLink(photoToUse.file_id)
+      const fileLink = await telegraf.telegram.getFileLink(photoToUse.file_id).catch(parseError)
 
       return await getDataUriFromImgHref(fileLink.href)
     }
@@ -175,7 +175,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
     const photo = _.maxBy(message.photo, (photo) => photo.height * photo.width)
 
     ok(photo, 'No photo found in message')
-    const fileUrl = await telegram.getFileLink(photo.file_id)
+    const fileUrl = await telegram.getFileLink(photo.file_id).catch(parseError)
 
     return {
       type: 'image',
@@ -187,7 +187,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
 
   if ('sticker' in message) {
     const stickerMessage = message as TelegramMessage & { sticker: Sticker }
-    const fileUrl = await telegram.getFileLink(stickerMessage.sticker.file_id)
+    const fileUrl = await telegram.getFileLink(stickerMessage.sticker.file_id).catch(parseError)
     return {
       type: 'image',
       payload: {
@@ -197,7 +197,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
   }
 
   if ('audio' in message) {
-    const fileUrl = await telegram.getFileLink(message.audio.file_id)
+    const fileUrl = await telegram.getFileLink(message.audio.file_id).catch(parseError)
     return {
       type: 'audio',
       payload: {
@@ -207,7 +207,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
   }
 
   if ('voice' in message) {
-    const fileUrl = await telegram.getFileLink(message.voice.file_id)
+    const fileUrl = await telegram.getFileLink(message.voice.file_id).catch(parseError)
     return {
       type: 'audio',
       payload: {
@@ -217,7 +217,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
   }
 
   if ('video' in message) {
-    const fileUrl = await telegram.getFileLink(message.video.file_id)
+    const fileUrl = await telegram.getFileLink(message.video.file_id).catch(parseError)
     return {
       type: 'video',
       payload: {
@@ -227,7 +227,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
   }
 
   if ('document' in message) {
-    const fileUrl = await telegram.getFileLink(message.document.file_id)
+    const fileUrl = await telegram.getFileLink(message.document.file_id).catch(parseError)
     return {
       type: 'file',
       payload: {
