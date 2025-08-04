@@ -166,7 +166,7 @@ export const handleBlocMessage = async ({
         break
       default:
         // @ts-ignore
-        throw new RuntimeError(`Unsupported message type: ${item.type}`)
+        throw new RuntimeError(`Unsupported message type: ${item?.type ?? 'Unknown'}`)
     }
   }
 }
