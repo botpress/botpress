@@ -2,13 +2,21 @@ import { axios } from '@botpress/client'
 import { IntegrationLogger, Response, RuntimeError } from '@botpress/sdk'
 import { ok } from 'assert'
 import _ from 'lodash'
-import { Context, Markup, Telegraf, Telegram } from 'telegraf'
+import { Context, Markup, Telegraf, Telegram, TelegramError } from 'telegraf'
 import { PhotoSize, Update, User, Sticker } from 'telegraf/typings/core/types/typegram'
 import { telegramTextMsgToStdMarkdown } from './telegram-to-markdown'
 import { Card, AckFunction, Logger, MessageHandlerProps, BotpressMessage, TelegramMessage } from './types'
 import * as bp from '.botpress'
 
 export const USER_PICTURE_MAX_SIZE_BYTES = 25_000
+
+export function parseError(thrown: unknown): never {
+  if (thrown instanceof TelegramError) {
+    throw new RuntimeError(thrown.description, thrown)
+  }
+
+  throw thrown instanceof Error ? new RuntimeError(thrown.message, thrown) : new RuntimeError(String(thrown))
+}
 
 export async function ackMessage(message: TelegramMessage, ack: AckFunction) {
   await ack({ tags: { id: `${message.message_id}` } })
@@ -31,17 +39,21 @@ export async function sendCard(payload: Card, client: Telegraf<Context<Update>>,
       }
     })
   if (payload.imageUrl) {
-    const message = await client.telegram.sendPhoto(chat, payload.imageUrl, {
-      caption: text,
-      parse_mode: 'MarkdownV2',
-      ...Markup.inlineKeyboard(buttons),
-    })
+    const message = await client.telegram
+      .sendPhoto(chat, payload.imageUrl, {
+        caption: text,
+        parse_mode: 'MarkdownV2',
+        ...Markup.inlineKeyboard(buttons),
+      })
+      .catch(parseError)
     await ackMessage(message, ack)
   } else {
-    const message = await client.telegram.sendMessage(chat, text, {
-      parse_mode: 'MarkdownV2',
-      ...Markup.inlineKeyboard(buttons),
-    })
+    const message = await client.telegram
+      .sendMessage(chat, text, {
+        parse_mode: 'MarkdownV2',
+        ...Markup.inlineKeyboard(buttons),
+      })
+      .catch(parseError)
     await ackMessage(message, ack)
   }
 }
