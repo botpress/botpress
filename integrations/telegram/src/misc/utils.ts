@@ -35,7 +35,7 @@ export async function sendCard(payload: Card, client: Telegraf<Context<Update>>,
         case 'say':
           return Markup.button.callback(item.label, `say:${item.value}`)
         default:
-          throw new Error(`Unknown action type: ${item.action}`)
+          throw new RuntimeError(`Unknown action type: ${item.action}`)
       }
     })
   if (payload.imageUrl) {
