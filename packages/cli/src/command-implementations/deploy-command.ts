@@ -212,7 +212,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const createBody = {
       ...(await apiUtils.prepareCreateInterfaceBody(interfaceDeclaration)),
-      public: this.argv.public,
+      public: this._visibility === 'public',
       icon,
       readme,
     }
@@ -300,7 +300,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const createBody = {
       ...(await apiUtils.prepareCreatePluginBody(pluginDef)),
       ...(await this.preparePluginDependencies(pluginDef, api)),
-      public: this.argv.public,
+      public: this._visibility === 'public',
       icon,
       readme,
       code: {

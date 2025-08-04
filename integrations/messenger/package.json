@@ -5,7 +5,8 @@
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint"
+    "check:bplint": "bp lint",
+    "uploadSandboxScripts": "ts-node -T ../../scripts/upload-sandbox-scripts.ts --integrationPath='./'"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",
@@ -13,11 +14,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.6.2",
-    "marked": "^15.0.1",
-    "messaging-api-messenger": "^1.1.0",
-    "preact": "^10.26.6",
-    "preact-render-to-string": "^6.5.13",
-    "query-string": "^6.14.1"
+    "messaging-api-messenger": "^1.1.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
@@ -25,6 +22,8 @@
     "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
-    "typing-indicator": "../../interfaces/typing-indicator"
+    "typing-indicator": "../../interfaces/typing-indicator",
+    "proactive-user": "../../interfaces/proactive-user",
+    "proactive-conversation": "../../interfaces/proactive-conversation"
   }
 }
