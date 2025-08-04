@@ -23,7 +23,9 @@ export const handleImageMessage = async ({ payload, ctx, conversation, ack, logg
   const client = new Telegraf(ctx.configuration.botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending image message to Telegram chat ${chat}`, payload.imageUrl)
-  const message = await client.telegram.sendPhoto(chat, payload.imageUrl)
+  const message = await client.telegram.sendPhoto(chat, payload.imageUrl, {
+    caption: payload.caption,
+  })
   await ackMessage(message, ack)
 }
 
