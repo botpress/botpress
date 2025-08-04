@@ -90,7 +90,7 @@ const parseNamePackageRef = (ref: string): NamePackageRef | undefined => {
     return
   }
 
-  const cleanedVersion = version === LATEST_TAG ? version : semver.clean(version)
+  const cleanedVersion = version === LATEST_TAG ? version : semver.validRange(version)
   if (!cleanedVersion) {
     return
   }
