@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import { Markup, Telegraf } from 'telegraf'
 import { stdMarkdownToTelegramHtml } from './markdown-to-telegram-html'
-import { ackMessage, getChat, parseError, sendCard } from './utils'
+import { ackMessage, getChat, mapToRuntimeErrorAndThrow, sendCard } from './utils'
 import * as bp from '.botpress'
 
 export type MessageHandlerProps<T extends keyof bp.MessageProps['channel']> = bp.MessageProps['channel'][T]
@@ -17,7 +17,7 @@ export const handleTextMessage = async ({ payload, ctx, conversation, ack, logge
     .sendMessage(chat, html, {
       parse_mode: 'HTML',
     })
-    .catch(parseError)
+    .catch(mapToRuntimeErrorAndThrow)
   await ackMessage(message, ack)
 }
 
@@ -29,7 +29,7 @@ export const handleImageMessage = async ({ payload, ctx, conversation, ack, logg
     .sendPhoto(chat, payload.imageUrl, {
       caption: payload.caption,
     })
-    .catch(parseError)
+    .catch(mapToRuntimeErrorAndThrow)
   await ackMessage(message, ack)
 }
 
@@ -40,13 +40,13 @@ export const handleAudioMessage = async ({ payload, ctx, conversation, ack, logg
   try {
     const message = await client.telegram
       .sendVoice(chat, payload.audioUrl, { caption: payload.caption })
-      .catch(parseError)
+      .catch(mapToRuntimeErrorAndThrow)
     await ackMessage(message, ack)
   } catch {
     // If the audio file is too large to be voice, Telegram should send it as an audio file, but if for some reason it doesn't, we can send it as an audio file
     const message = await client.telegram
       .sendAudio(chat, payload.audioUrl, { caption: payload.caption })
-      .catch(parseError)
+      .catch(mapToRuntimeErrorAndThrow)
     await ackMessage(message, ack)
   }
 }
@@ -55,7 +55,7 @@ export const handleVideoMessage = async ({ payload, ctx, conversation, ack, logg
   const client = new Telegraf(ctx.configuration.botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending video message to Telegram chat ${chat}:`, payload.videoUrl)
-  const message = await client.telegram.sendVideo(chat, payload.videoUrl).catch(parseError)
+  const message = await client.telegram.sendVideo(chat, payload.videoUrl).catch(mapToRuntimeErrorAndThrow)
   await ackMessage(message, ack)
 }
 
@@ -63,7 +63,7 @@ export const handleFileMessage = async ({ payload, ctx, conversation, ack, logge
   const client = new Telegraf(ctx.configuration.botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending file message to Telegram chat ${chat}:`, payload.fileUrl)
-  const message = await client.telegram.sendDocument(chat, payload.fileUrl).catch(parseError)
+  const message = await client.telegram.sendDocument(chat, payload.fileUrl).catch(mapToRuntimeErrorAndThrow)
   await ackMessage(message, ack)
 }
 
@@ -80,7 +80,9 @@ export const handleLocationMessage = async ({
     latitude: payload.latitude,
     longitude: payload.longitude,
   })
-  const message = await client.telegram.sendLocation(chat, payload.latitude, payload.longitude).catch(parseError)
+  const message = await client.telegram
+    .sendLocation(chat, payload.latitude, payload.longitude)
+    .catch(mapToRuntimeErrorAndThrow)
   await ackMessage(message, ack)
 }
 
@@ -119,7 +121,7 @@ export const handleDropdownMessage = async ({
   logger.forBot().debug(`Sending dropdown message to Telegram chat ${chat}:`, payload)
   const message = await client.telegram
     .sendMessage(chat, payload.text, Markup.keyboard(buttons).oneTime())
-    .catch(parseError)
+    .catch(mapToRuntimeErrorAndThrow)
   await ackMessage(message, ack)
 }
 
@@ -136,7 +138,7 @@ export const handleChoiceMessage = async ({
   const buttons = payload.options.map((choice) => Markup.button.callback(choice.label, choice.value))
   const message = await client.telegram
     .sendMessage(chat, payload.text, Markup.keyboard(buttons).oneTime())
-    .catch(parseError)
+    .catch(mapToRuntimeErrorAndThrow)
   await ackMessage(message, ack)
 }
 

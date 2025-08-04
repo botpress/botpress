@@ -25,18 +25,18 @@ import {
   convertTelegramMessageToBotpressMessage,
   wrapHandler,
   getMessageId,
-  parseError,
+  mapToRuntimeErrorAndThrow,
 } from './misc/utils'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
     const telegraf = new Telegraf(ctx.configuration.botToken)
-    await telegraf.telegram.setWebhook(webhookUrl).catch(parseError)
+    await telegraf.telegram.setWebhook(webhookUrl).catch(mapToRuntimeErrorAndThrow)
   },
   unregister: async ({ ctx }) => {
     const telegraf = new Telegraf(ctx.configuration.botToken)
-    await telegraf.telegram.deleteWebhook({ drop_pending_updates: true }).catch(parseError)
+    await telegraf.telegram.deleteWebhook({ drop_pending_updates: true }).catch(mapToRuntimeErrorAndThrow)
   },
   actions: {
     startTypingIndicator: async ({ input, ctx, client }) => {
@@ -47,8 +47,10 @@ const integration = new bp.Integration({
       const chat = getChat(conversation)
       const messageId = getMessageId(message)
 
-      await telegraf.telegram.sendChatAction(chat, 'typing').catch(parseError)
-      await telegraf.telegram.setMessageReaction(chat, messageId, [{ type: 'emoji', emoji: '👀' }]).catch(parseError)
+      await telegraf.telegram.sendChatAction(chat, 'typing').catch(mapToRuntimeErrorAndThrow)
+      await telegraf.telegram
+        .setMessageReaction(chat, messageId, [{ type: 'emoji', emoji: '👀' }])
+        .catch(mapToRuntimeErrorAndThrow)
 
       return {}
     },
@@ -60,7 +62,7 @@ const integration = new bp.Integration({
       const chat = getChat(conversation)
       const messageId = getMessageId(message)
 
-      await telegraf.telegram.setMessageReaction(chat, messageId, []).catch(parseError)
+      await telegraf.telegram.setMessageReaction(chat, messageId, []).catch(mapToRuntimeErrorAndThrow)
 
       return {}
     },
