@@ -1,4 +1,6 @@
+import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import { Location, SendMessageProps } from './types'
+import * as bp from '.botpress'
 
 export function getGoogleMapLinkFromLocation(payload: Location) {
   return `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
@@ -70,4 +72,32 @@ export function getErrorFromUnknown(thrown: unknown): Error {
     return thrown
   }
   return new Error(String(thrown))
+}
+
+export const shouldGetUserProfile = (ctx: bp.Context) => {
+  if (ctx.configurationType === 'sandbox') {
+    return bp.secrets.SANDBOX_SHOULD_GET_USER_PROFILE === 'true'
+  }
+  if (ctx.configurationType === 'manual') {
+    return ctx.configuration.shouldGetUserProfile ?? true
+  }
+
+  return bp.secrets.SHOULD_GET_USER_PROFILE === 'true'
+}
+
+export const tryGetUserProfile = async (
+  messengerClient: MessengerClient,
+  ctx: bp.Context,
+  userId: string,
+  fields?: MessengerTypes.UserProfileField[]
+) => {
+  if (!shouldGetUserProfile(ctx)) {
+    return undefined
+  }
+
+  try {
+    return await messengerClient.getUserProfile(userId, { fields })
+  } catch {
+    return undefined
+  }
 }
