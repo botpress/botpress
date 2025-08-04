@@ -3,7 +3,9 @@ import { z, messages } from '@botpress/sdk'
 const _textMessageDefinition = {
   ...messages.defaults.text,
   schema: messages.defaults.text.schema.extend({
-    text: messages.defaults.text.schema.shape.text.max(4096),
+    text: messages.defaults.text.schema.shape.text
+      .max(4096)
+      .describe('The text content of the Telegram message (Limit 4096 characters)'),
   }),
 }
 
