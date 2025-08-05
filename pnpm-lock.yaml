@@ -1137,21 +1137,9 @@ importers:
       axios:
         specifier: ^1.6.2
         version: 1.6.2
-      marked:
-        specifier: ^15.0.1
-        version: 15.0.1
       messaging-api-messenger:
         specifier: ^1.1.0
         version: 1.1.0
-      preact:
-        specifier: ^10.26.6
-        version: 10.26.6
-      preact-render-to-string:
-        specifier: ^6.5.13
-        version: 6.5.13(preact@10.26.6)
-      query-string:
-        specifier: ^6.14.1
-        version: 6.14.1
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
@@ -8330,8 +8318,8 @@ packages:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
     dev: true
 
-  /@types/append-query@2.0.1:
-    resolution: {integrity: sha512-L/RxncHj5Wh8B0A5yGTYQbCu+YVbrbtuPaemp/yrQCy1du/qYqEnQBgZoipeSYhTSJoTqRJGLqmnbUOn5iu0cQ==}
+  /@types/append-query@2.0.3:
+    resolution: {integrity: sha512-nHEzqYqoLiSyq3EJFpyqnXY83LOTx0yOQ5TS3yo++oNw42EE4iBeSjTOjFEPtSU+Zrssjajgs+6XPG91uMIh9w==}
     dev: false
 
   /@types/argparse@1.0.38:
@@ -8721,8 +8709,8 @@ packages:
     resolution: {integrity: sha512-XOfUup9r3Y06nFAZh3WvO0rBU4OtlfPB/vgxpjg+NRdGU6CN6djdc6OEiH+PcqHCY6eFLo9Ista73uarf4gnBg==}
     dev: false
 
-  /@types/url-join@4.0.1:
-    resolution: {integrity: sha512-wDXw9LEEUHyV+7UWy7U315nrJGJ7p1BzaCxDpEoLr789Dk1WDVMMlf3iBfbG2F8NdWnYyFbtTxUn2ZNbm1Q4LQ==}
+  /@types/url-join@4.0.3:
+    resolution: {integrity: sha512-3l1qMm3wqO0iyC5gkADzT95UVW7C/XXcdvUcShOideKF0ddgVRErEQQJXBd2kvQm+aSgqhBGHGB38TgMeT57Ww==}
     dev: false
 
   /@types/uuid@9.0.1:
@@ -8732,8 +8720,8 @@ packages:
   /@types/verror@1.10.6:
     resolution: {integrity: sha512-NNm+gdePAX1VGvPcGZCDKQZKYSiAWigKhKaz5KF94hG6f2s8de9Ow5+7AbXoeKxL8gavZfk4UquSAygOF2duEQ==}
 
-  /@types/warning@3.0.0:
-    resolution: {integrity: sha512-t/Tvs5qR47OLOr+4E9ckN8AmP2Tf16gWq+/qA4iUGS/OOyHVO8wv2vjJuX8SNOUTJyWb+2t7wJm6cXILFnOROA==}
+  /@types/warning@3.0.3:
+    resolution: {integrity: sha512-D1XC7WK8K+zZEveUPY+cf4+kgauk8N4eHr/XIHXGlGYkHLud6hK9lYfZk1ry1TNh798cZUCgb6MqGEG8DkJt6Q==}
     dev: false
 
   /@types/web@0.0.115:
@@ -14730,7 +14718,7 @@ packages:
     dependencies:
       '@types/debug': 4.1.12
       '@types/lodash': 4.17.0
-      '@types/url-join': 4.0.1
+      '@types/url-join': 4.0.3
       axios: 0.21.4(debug@4.4.1)
       camel-case: 4.1.2
       debug: 4.4.1
@@ -14747,9 +14735,9 @@ packages:
     resolution: {integrity: sha512-WfODwHvkkC/oJMrqr7ukm2yTf4DqWg8BvnwmGOU53fRMvuCQNGWYSKQPk8k/s0Evl56J32iDidooGIL9fAGOjQ==}
     engines: {node: '>=10'}
     dependencies:
-      '@types/append-query': 2.0.1
+      '@types/append-query': 2.0.3
       '@types/lodash': 4.17.0
-      '@types/warning': 3.0.0
+      '@types/warning': 3.0.3
       append-query: 2.1.1
       axios: 0.21.4(debug@4.4.1)
       axios-error: 1.0.4

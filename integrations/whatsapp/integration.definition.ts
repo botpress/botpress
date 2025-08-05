@@ -85,7 +85,7 @@ const defaultBotPhoneNumberId = {
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.2.3',
+  version: '4.2.4',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -128,6 +128,9 @@ export default new IntegrationDefinition({
       title: 'Sandbox',
       description: 'Sandbox configuration, for testing purposes only',
       schema: commonConfigSchema,
+      identifier: {
+        linkTemplateScript: 'sandboxLinkTemplate.vrl',
+      },
     },
   },
   configuration: {
