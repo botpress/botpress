@@ -1,27 +1,21 @@
 import type commandDefinitions from '../command-definitions'
-import * as errors from '../errors'
-import { GlobalCache, GlobalCommand, ProfileCredentials } from './global-command'
-import * as config from '../config'
+import * as consts from '../consts'
 import * as utils from '../utils'
+import { GlobalCache, GlobalCommand, ProfileCredentials } from './global-command'
 
 export type ActiveProfileCommandDefinition = typeof commandDefinitions.profiles.subcommands.active
 export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefinition> {
   public async run(): Promise<void> {
-    const profiles = await this.readProfilesFromFS()
-    const cache = this.globalCache
-    const apiUrl = await cache.get('apiUrl')
-    const token = await cache.get('token')
-    const workspaceId = await cache.get('workspaceId')
+    let activeProfileName = await this.globalCache.get('activeProfile')
 
-    //if cache is not set
-    //if profile is found
-    for (const [profileName, profile] of Object.entries(profiles)) {
-      if (profile.apiUrl === apiUrl && profile.token === token && profile.workspaceId === workspaceId) {
-        this.logger.log(`The profile ${profileName} is currently used`)
-        return
-      }
+    if (!activeProfileName) {
+      this.logger.log(`No active profile set, defaulting to ${consts.defaultProfileName}`)
+      activeProfileName = consts.defaultProfileName
+      await this.globalCache.set('activeProfile', activeProfileName)
     }
-    this.logger.log('No matching profile is currently used')
+
+    const profile = await this.readProfileFromFS(activeProfileName)
+    this.logger.log(`Active profile (${activeProfileName}): ${JSON.stringify(profile)}`)
   }
 }
 
