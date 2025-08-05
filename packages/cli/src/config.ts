@@ -127,7 +127,8 @@ const globalSchema = {
   },
   profile: {
     type: 'string',
-    description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/profiles.json json format file',
+    description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/profiles.json',
+    alias: 'p',
   },
 } satisfies CommandSchema
 
@@ -366,12 +367,18 @@ const listProfilesSchema = {
   ...globalSchema,
 } satisfies CommandSchema
 
-const getProfileSchema = {
+const activeProfileSchema = {
   ...globalSchema,
 } satisfies CommandSchema
 
-const setProfileSchema = {
+const useProfileSchema = {
   ...globalSchema,
+  profileToUse: {
+    type: 'string',
+    description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/profiles.json',
+    positional: true,
+    idx: 0,
+  },
 } satisfies CommandSchema
 
 // exports
@@ -408,6 +415,6 @@ export const schemas = {
   lint: lintSchema,
   chat: chatSchema,
   listProfiles: listProfilesSchema,
-  getProfile: getProfileSchema,
-  setProfile: setProfileSchema,
+  activeProfile: activeProfileSchema,
+  useProfile: useProfileSchema,
 } as const

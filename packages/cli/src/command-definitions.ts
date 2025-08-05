@@ -52,14 +52,14 @@ export default {
     description: 'Commands for using CLI profiles',
     subcommands: {
       list: { description: 'List all available profiles', schema: config.schemas.listProfiles },
-      get: {
+      active: {
         description:
           "Get the name of the profile you are currently using (or None if your current config doesn't match profiles",
-        schema: config.schemas.getProfile,
+        schema: config.schemas.activeProfile,
       },
-      set: {
+      use: {
         description: 'Set the current profile via an interactive command prompt',
-        schema: config.schemas.setProfile,
+        schema: config.schemas.useProfile,
       },
     },
   },

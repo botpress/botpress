@@ -14,7 +14,7 @@ import * as utils from '../utils'
 import { BaseCommand } from './base-command'
 
 export type GlobalCommandDefinition = CommandDefinition<typeof config.schemas.global>
-export type GlobalCache = { apiUrl: string; token: string; workspaceId: string }
+export type GlobalCache = { apiUrl: string; token: string; workspaceId: string; activeProfile: string }
 
 export type ConfigurableGlobalPaths = {
   botpressHomeDir: string
@@ -25,7 +25,7 @@ export type ConstantGlobalPaths = typeof consts.fromHomeDir & typeof consts.from
 export type AllGlobalPaths = ConfigurableGlobalPaths & ConstantGlobalPaths
 
 const profileCredentialSchema = z.object({ apiUrl: z.string(), workspaceId: z.string(), token: z.string() })
-type ProfileCredentials = z.infer<typeof profileCredentialSchema>
+export type ProfileCredentials = z.infer<typeof profileCredentialSchema>
 
 class GlobalPaths extends utils.path.PathStore<keyof AllGlobalPaths> {
   public constructor(argv: CommandArgv<GlobalCommandDefinition>) {
@@ -93,7 +93,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
           'You are currently using credential command line arguments or environment variables as well as a profile. Your profile has overwritten the variables'
         )
       }
-      ;({ token, workspaceId, apiUrl } = await this._readProfileFromFS(this.argv.profile))
+      ;({ token, workspaceId, apiUrl } = await this.readProfileFromFS(this.argv.profile))
       this.logger.log(`Using profile "${this.argv.profile}"`, { prefix: '👤' })
     } else {
       token = credentials.token ?? (await cache.get('token'))
@@ -112,17 +112,8 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
   }
 
-  private async _readProfileFromFS(profile: string): Promise<ProfileCredentials> {
-    if (!fs.existsSync(this.globalPaths.abs.profilesPath)) {
-      throw new errors.BotpressCLIError(`Profile file not found at "${this.globalPaths.abs.profilesPath}"`)
-    }
-    const fileContent = await fs.promises.readFile(this.globalPaths.abs.profilesPath, 'utf-8')
-    const parsedProfiles = JSON.parse(fileContent)
-
-    const zodParseResult = z.record(profileCredentialSchema).safeParse(parsedProfiles, {})
-    if (!zodParseResult.success) {
-      throw errors.BotpressCLIError.wrap(zodParseResult.error, 'Error parsing profiles: ')
-    }
+  protected async readProfileFromFS(profile: string): Promise<ProfileCredentials> {
+    const parsedProfiles = await this.readProfilesFromFS()
 
     const profileData = parsedProfiles[profile]
     if (!profileData) {
@@ -131,7 +122,29 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
       )
     }
 
-    return parsedProfiles[profile]
+    return profileData
+  }
+
+  protected async readProfilesFromFS(): Promise<Record<string, ProfileCredentials>> {
+    if (!fs.existsSync(this.globalPaths.abs.profilesPath)) {
+      throw new errors.BotpressCLIError(`Profile file not found at "${this.globalPaths.abs.profilesPath}"`)
+    }
+    const fileContent = await fs.promises.readFile(this.globalPaths.abs.profilesPath, 'utf-8')
+    const parsedProfiles = JSON.parse(fileContent)
+
+    const zodParseResult = z.record(profileCredentialSchema).safeParse(parsedProfiles)
+    if (!zodParseResult.success) {
+      throw errors.BotpressCLIError.wrap(zodParseResult.error, 'Error parsing profiles: ')
+    }
+
+    return zodParseResult.data
+  }
+
+  protected async writeProfileToFS(profileName: string, profile: ProfileCredentials): Promise<void> {
+    const profiles = await this.readProfilesFromFS()
+    profiles[profileName] = profile
+
+    await fs.promises.writeFile(this.globalPaths.abs.profilesPath, JSON.stringify(profiles), 'utf-8')
   }
 
   protected async ensureLoginAndCreateClient(credentials: YargsConfig<typeof config.schemas.credentials>) {
