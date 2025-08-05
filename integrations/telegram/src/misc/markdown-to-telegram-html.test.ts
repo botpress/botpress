@@ -309,6 +309,21 @@ const extractedImagesTestCases: MarkdownToTelegramHtmlWithExtractedImagesTestCas
   },
   {
     input:
+      '![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600 "Title Tooltip Text")\n\n![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=300 "Title Tooltip Text")',
+    expects: [
+      {
+        type: 'image',
+        imageUrl: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600',
+      },
+      {
+        type: 'image',
+        imageUrl: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=300',
+      },
+    ],
+    description: 'Two images with whitespace in between removes whitespace',
+  },
+  {
+    input:
       'Text Before\n![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600 "Title Tooltip Text")',
     expects: [
       {

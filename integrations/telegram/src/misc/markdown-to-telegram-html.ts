@@ -188,7 +188,7 @@ export function markdownHtmlToTelegramPayloads(html: string, images: ImageData[]
   const htmlParts = _splitAtIndices(html, imageIndices)
 
   return htmlParts.reduce((payloads: MixedPayloads, htmlPart: string, index: number) => {
-    if (htmlPart.length > 0) {
+    if (htmlPart.trim().length > 0) {
       payloads.push({ type: 'text', text: htmlPart })
     }
     const image = images[index]
