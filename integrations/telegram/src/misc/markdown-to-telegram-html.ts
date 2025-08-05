@@ -1,5 +1,7 @@
 import MarkdownIt from 'markdown-it'
+import { nanoid } from 'nanoid'
 import sanitizeHtml from 'sanitize-html'
+import { spliceText } from './string-utils'
 
 const sanitizerConfig: sanitizeHtml.IOptions = {
   allowedTags: ['strong', 'b', 'em', 'i', 's', 'del', 'code', 'pre', 'blockquote', 'a', 'img'],
@@ -17,11 +19,23 @@ const md = MarkdownIt({
   typographer: true,
 }).disable(['table', 'list'])
 
-type ImageData = {
+type RawImageData = {
+  marker: string
   src: string
   alt: string
   title?: string
 }
+
+type ImageData = {
+  src: string
+  alt: string
+  title?: string
+  pos: number
+}
+
+type RawExtractedData = Partial<{
+  images: RawImageData[]
+}>
 
 type ExtractedData = Partial<{
   images: ImageData[]
@@ -30,13 +44,13 @@ type ExtractedData = Partial<{
 function ruleHandler(
   handler: (
     token: MarkdownIt.Token,
-    env: ExtractedData,
+    env: RawExtractedData,
     tokens: MarkdownIt.Token[],
     idx: number,
     options: MarkdownIt.Options
   ) => string
 ) {
-  return (tokens: MarkdownIt.Token[], idx: number, options: MarkdownIt.Options, env: ExtractedData) => {
+  return (tokens: MarkdownIt.Token[], idx: number, options: MarkdownIt.Options, env: RawExtractedData) => {
     const token = tokens[idx]
     if (!token) throw new Error('Token not found')
     return handler(token, env, tokens, idx, options)
@@ -77,7 +91,7 @@ md.renderer.rules.link_close = ruleHandler((token: MarkdownIt.Token) => {
   return `</${token.tag}>`
 })
 
-md.renderer.rules.image = ruleHandler((token: MarkdownIt.Token, env: ExtractedData) => {
+md.renderer.rules.image = ruleHandler((token: MarkdownIt.Token, env: RawExtractedData) => {
   const src = token?.attrGet('src')?.trim() ?? ''
   const alt = token?.content ?? ''
   const title = token?.attrGet('title')?.trim() ?? ''
@@ -85,29 +99,113 @@ md.renderer.rules.image = ruleHandler((token: MarkdownIt.Token, env: ExtractedDa
   if (src.length > 0) {
     if (!env.images) env.images = []
 
-    const imageData: ImageData = { src, alt }
+    const marker = `<img-marker id="${nanoid()}" />`
+    const imageData: RawImageData = { marker, src, alt }
     if (title.length > 0) imageData.title = title
 
     env.images.push(imageData)
+
+    return marker
   }
 
   return ''
 })
+
+const _extractImagePositions = (
+  html: string,
+  extractedImages: RawImageData[]
+): { html: string; images: ImageData[] } => {
+  if (extractedImages.length === 0) return { html, images: [] }
+
+  // These positions aren't the actual positions since
+  // the marker positions get offset by previous markers
+  const imageDataWithPos = extractedImages
+    .map((image): RawImageData & { pos: number } => {
+      const pos = html.indexOf(image.marker)
+      if (pos === -1) {
+        // This should never be thrown, if it does, it's a bug
+        throw new Error('Image marker not found')
+      }
+
+      return {
+        ...image,
+        pos,
+      }
+    })
+    .sort((a, b) => a.pos - b.pos)
+
+  return {
+    html,
+    images: imageDataWithPos.map(({ pos: offsetPos, marker, ...image }): ImageData => {
+      const pos = html.indexOf(marker)
+      html = spliceText(html, offsetPos, offsetPos + marker.length, '')
+
+      return {
+        ...image,
+        pos,
+      }
+    }),
+  }
+}
 
 export type MarkdownToTelegramHtmlResult = {
   html: string
   extractedData: ExtractedData
 }
 export function stdMarkdownToTelegramHtml(markdown: string): MarkdownToTelegramHtmlResult {
-  const extractedData: ExtractedData = {}
-  const telegramHtml = md
-    .render(markdown, extractedData)
+  const rawExtractedData: RawExtractedData = {}
+  let telegramHtml = md
+    .render(markdown, rawExtractedData)
     .trim()
     // .replace(/\|\|([^|]([^\n\r]*[^|\n\r])?)\|\|/g, "<tg-spoiler>$1</tg-spoiler>") // Telegram Spoilers will be implemented in a later version
     .replace(/<br\s?\/?>/g, '\n')
+
+  const extractedData: ExtractedData = {}
+  if (rawExtractedData.images) {
+    const { html, images } = _extractImagePositions(telegramHtml, rawExtractedData.images)
+    telegramHtml = html
+
+    if (images.length > 0) {
+      extractedData.images = images
+    }
+  }
 
   return {
     html: sanitizeHtml(telegramHtml, sanitizerConfig),
     extractedData,
   }
+}
+
+function _splitAtIndices(value: string, indices: number[]) {
+  const reversedSegments: string[] = []
+  let remainder = value
+
+  for (let i = indices.length - 1; i >= 0; i--) {
+    const splitPos = indices[i]
+    const segment = remainder.slice(splitPos)
+    remainder = remainder.slice(0, splitPos)
+    reversedSegments.push(segment)
+  }
+
+  reversedSegments.push(remainder)
+
+  return reversedSegments.reverse()
+}
+
+export type MixedPayloads = ({ type: 'text'; text: string } | { type: 'image'; imageUrl: string })[]
+export function markdownHtmlToTelegramPayloads(html: string, images: ImageData[]): MixedPayloads {
+  const imageIndices = images.map((image) => image.pos)
+  const htmlParts = _splitAtIndices(html, imageIndices)
+
+  return htmlParts.reduce((payloads: MixedPayloads, htmlPart: string, index: number) => {
+    if (htmlPart.length > 0) {
+      payloads.push({ type: 'text', text: htmlPart })
+    }
+    const image = images[index]
+    if (image) {
+      payloads.push({ type: 'image', imageUrl: image.src })
+    }
+
+    return payloads
+  }, [])
 }
