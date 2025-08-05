@@ -66,6 +66,25 @@ export class ApiClient {
     ].includes(this.workspaceId)
   }
 
+  public async safeListTables(req: client.ClientInputs['listTables']): Promise<
+    | {
+        success: true
+        tables: client.ClientOutputs['listTables']['tables']
+      }
+    | {
+        success: false
+        error: Error
+      }
+  > {
+    try {
+      const result = await this.client.listTables(req)
+      return { success: true, tables: result.tables }
+    } catch (thrown) {
+      const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+      return { success: false, error }
+    }
+  }
+
   public async getWorkspace(): Promise<client.ClientOutputs['getWorkspace']> {
     return this.client.getWorkspace({ id: this.workspaceId })
   }
