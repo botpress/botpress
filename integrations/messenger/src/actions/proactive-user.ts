@@ -17,7 +17,7 @@ const getOrCreateUser: bp.IntegrationProps['actions']['getOrCreateUser'] = async
   const profile = await tryGetUserProfile(messengerClient, ctx, userId)
   if (!profile) {
     throw new RuntimeError(
-      'Could not fetch user profile from Messenger, make sure your app was granted the necessary permissions or enable the "Get user profile" option.'
+      'Could not fetch user profile from Messenger, make sure you are using a configuration with the necessary permissions or enable the "Get user profile" option.'
     )
   }
 
