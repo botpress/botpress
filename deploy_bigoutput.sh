@@ -14,5 +14,5 @@ cd -
 cd bigoutputbot
 pnpm bp add --profile local -y telegram
 pnpm bp add --profile local -y bigoutput
-pnpm bp deploy --profile local -y --botId 303d323b-e79b-4835-8751-bf495d79e318
+pnpm bp deploy --profile local -y --botId 4759f451-2c6c-467c-9c58-f88340f43365
 cd -
