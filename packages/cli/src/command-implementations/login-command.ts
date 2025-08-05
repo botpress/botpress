@@ -3,10 +3,20 @@ import * as paging from '../api/paging'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { GlobalCommand } from './global-command'
+import * as consts from '../consts'
 
 export type LoginCommandDefinition = typeof commandDefinitions.login
 export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
   public async run(): Promise<void> {
+    let profileName = consts.defaultProfileName
+    if (this.argv.profile) {
+      const abort = await this.prompt.confirm(
+        `This command will write or overwrite the profile ${this.argv.profile}. Abort?`
+      )
+      if (abort) throw new errors.AbortedOperationError()
+      profileName = this.argv.profile
+    }
+
     const promptedToken = await this.globalCache.sync('token', this.argv.token, async (previousToken) => {
       const prompted = await this.prompt.text('Enter your Personal Access Token', {
         initial: previousToken,
@@ -54,6 +64,12 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
 
     await api.testLogin().catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, 'Login failed. Please check your credentials')
+    })
+
+    await this.writeProfileToFS(profileName, {
+      apiUrl: this.argv.apiUrl,
+      token: promptedToken,
+      workspaceId: promptedWorkspaceId,
     })
 
     this.logger.success('Logged In')
