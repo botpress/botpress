@@ -48,4 +48,19 @@ export default {
   dev: { description: 'Run your project in dev mode', schema: config.schemas.dev },
   lint: { description: 'EXPERIMENTAL: Lint an integration definition', schema: config.schemas.lint },
   chat: { description: 'EXPERIMENTAL: Chat with a bot directly from the CLI', schema: config.schemas.chat },
+  profiles: {
+    description: 'Commands for using CLI profiles',
+    subcommands: {
+      list: { description: 'List all available profiles', schema: config.schemas.listProfiles },
+      get: {
+        description:
+          "Get the name of the profile you are currently using (or None if your current config doesn't match profiles",
+        schema: config.schemas.getProfile,
+      },
+      set: {
+        description: 'Set the current profile via an interactive command prompt',
+        schema: config.schemas.setProfile,
+      },
+    },
+  },
 } satisfies DefinitionTree

@@ -362,6 +362,18 @@ const chatSchema = {
   },
 } satisfies CommandSchema
 
+const listProfilesSchema = {
+  ...globalSchema,
+} satisfies CommandSchema
+
+const getProfileSchema = {
+  ...globalSchema,
+} satisfies CommandSchema
+
+const setProfileSchema = {
+  ...globalSchema,
+} satisfies CommandSchema
+
 // exports
 
 export const schemas = {
@@ -395,4 +407,7 @@ export const schemas = {
   dev: devSchema,
   lint: lintSchema,
   chat: chatSchema,
+  listProfiles: listProfilesSchema,
+  getProfile: getProfileSchema,
+  setProfile: setProfileSchema,
 } as const
