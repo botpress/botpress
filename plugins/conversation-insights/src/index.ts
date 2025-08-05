@@ -27,10 +27,6 @@ plugin.on.message('*', async (props) => {
   props.states.conversation.unreadMessages.set(props.conversation.id, { ids: [...unreads.ids, props.message.id] })
 })
 
-// plugin.on.afterOutgoingMessage('*', async (props) => {
-
-// })
-
 const _newMessage = async (props: {
   conversation: bp.MessageHandlerProps['conversation']
   states: bp.MessageHandlerProps['states']
