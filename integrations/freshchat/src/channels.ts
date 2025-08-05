@@ -1,6 +1,7 @@
 import * as bpCommon from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { getFreshchatClient } from './client'
+import { getMediaMetadata } from './util'
 import * as bp from '.botpress'
 
 const wrapChannel = bpCommon.createChannelWrapper<bp.IntegrationProps>()({
@@ -11,13 +12,7 @@ const wrapChannel = bpCommon.createChannelWrapper<bp.IntegrationProps>()({
 
     async freshchatUserId({ client, payload, user: attachedUser }) {
       const user = payload.userId ? (await client.getUser({ id: payload.userId })).user : attachedUser
-      const freshchatUserId = user.tags.id
-
-      if (!freshchatUserId) {
-        throw new sdk.RuntimeError('Freshchat user id not found')
-      }
-
-      return freshchatUserId
+      return user.tags.id
     },
 
     async freshchatConversationId({ conversation }) {
@@ -38,11 +33,9 @@ export const channels = {
       text: wrapChannel(
         { channelName: 'hitl', messageType: 'text' },
         async ({ ack, payload, freshchatClient, freshchatUserId, freshchatConversationId }) => {
-          const freshchatMessageId = await freshchatClient.sendMessage(
-            freshchatUserId,
-            freshchatConversationId,
-            payload.text
-          )
+          const freshchatMessageId = await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, [
+            { text: { content: payload.text } },
+          ])
           await ack({
             tags: { id: freshchatMessageId },
           })
@@ -52,11 +45,9 @@ export const channels = {
       image: wrapChannel(
         { channelName: 'hitl', messageType: 'image' },
         async ({ ack, payload, freshchatClient, freshchatUserId, freshchatConversationId }) => {
-          const freshchatMessageId = await freshchatClient.sendMessage(
-            freshchatUserId,
-            freshchatConversationId,
-            payload.imageUrl
-          )
+          const freshchatMessageId = await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, [
+            { image: { url: payload.imageUrl } },
+          ])
           await ack({
             tags: { id: freshchatMessageId },
           })
@@ -66,11 +57,11 @@ export const channels = {
       audio: wrapChannel(
         { channelName: 'hitl', messageType: 'audio' },
         async ({ ack, payload, freshchatClient, freshchatUserId, freshchatConversationId }) => {
-          const freshchatMessageId = await freshchatClient.sendMessage(
-            freshchatUserId,
-            freshchatConversationId,
-            payload.audioUrl
-          )
+          const metadata = await getMediaMetadata(payload.audioUrl)
+          const freshchatMessageId = await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, [
+            { video: { url: payload.audioUrl, content_type: metadata.mimeType } },
+          ])
+
           await ack({
             tags: { id: freshchatMessageId },
           })
@@ -80,11 +71,10 @@ export const channels = {
       video: wrapChannel(
         { channelName: 'hitl', messageType: 'video' },
         async ({ ack, payload, freshchatClient, freshchatUserId, freshchatConversationId }) => {
-          const freshchatMessageId = await freshchatClient.sendMessage(
-            freshchatUserId,
-            freshchatConversationId,
-            payload.videoUrl
-          )
+          const metadata = await getMediaMetadata(payload.videoUrl)
+          const freshchatMessageId = await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, [
+            { video: { url: payload.videoUrl, content_type: metadata.mimeType } },
+          ])
           await ack({
             tags: { id: freshchatMessageId },
           })
@@ -94,11 +84,16 @@ export const channels = {
       file: wrapChannel(
         { channelName: 'hitl', messageType: 'file' },
         async ({ ack, payload, freshchatClient, freshchatUserId, freshchatConversationId }) => {
-          const freshchatMessageId = await freshchatClient.sendMessage(
-            freshchatUserId,
-            freshchatConversationId,
-            payload.fileUrl
-          )
+          const metadata = await getMediaMetadata(payload.fileUrl)
+          const freshchatMessageId = await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, [
+            {
+              file: {
+                url: payload.fileUrl,
+                name: payload.title || metadata.fileName || 'file',
+                contentType: metadata.mimeType,
+              },
+            },
+          ])
           await ack({
             tags: { id: freshchatMessageId },
           })
@@ -111,22 +106,43 @@ export const channels = {
           for (const item of payload.items) {
             switch (item.type) {
               case 'text':
-                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, item.payload.text)
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, [
+                  { text: { content: item.payload.text } },
+                ])
                 break
               case 'markdown':
-                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, item.payload.markdown)
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, [
+                  { text: { content: item.payload.markdown } },
+                ])
                 break
               case 'image':
-                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, item.payload.imageUrl)
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, [
+                  { image: { url: item.payload.imageUrl } },
+                ])
                 break
               case 'video':
-                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, item.payload.videoUrl)
+                const videoMetadata = await getMediaMetadata(item.payload.videoUrl)
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, [
+                  { video: { url: item.payload.videoUrl, content_type: videoMetadata.mimeType } },
+                ])
                 break
               case 'audio':
-                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, item.payload.audioUrl)
+                const audioMetadata = await getMediaMetadata(item.payload.audioUrl)
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, [
+                  { video: { url: item.payload.audioUrl, content_type: audioMetadata.mimeType } },
+                ])
                 break
               case 'file':
-                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, item.payload.fileUrl)
+                const fileMetadata = await getMediaMetadata(item.payload.fileUrl)
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, [
+                  {
+                    file: {
+                      url: item.payload.fileUrl,
+                      name: item.payload.title || fileMetadata.fileName || 'file',
+                      contentType: fileMetadata.mimeType,
+                    },
+                  },
+                ])
                 break
               case 'location':
                 const { title, address, latitude, longitude } = item.payload
@@ -140,7 +156,9 @@ export const channels = {
                 }
                 messageParts.push(`Latitude: ${latitude}`, `Longitude: ${longitude}`)
 
-                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, messageParts.join('\n'))
+                await freshchatClient.sendMessage(freshchatUserId, freshchatConversationId, [
+                  { text: { content: messageParts.join('\n') } },
+                ])
                 break
               default:
                 item satisfies never
