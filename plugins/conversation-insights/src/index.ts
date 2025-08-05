@@ -36,7 +36,6 @@ plugin.on.afterOutgoingMessage('*', async (props) => {
 })
 
 plugin.on.event('updateTitleAndSummary', async (props) => {
-  console.log('called update event')
   const conversations = await props.client.listConversations({})
 
   for (const conversation of conversations.conversations) {
@@ -62,7 +61,6 @@ const _newMessage = async (props: {
   logger: bp.MessageHandlerProps['logger']
 }) => {
   const message_count = props.conversation.tags.message_count ? parseInt(props.conversation.tags.message_count) + 1 : 1
-  props.logger.info(`message count tag: ${message_count}`)
 
   const participantsState = await props.states.conversation.participants.getOrSet(props.conversation.id, {
     ids: ['test'],
@@ -86,13 +84,12 @@ const _newMessage = async (props: {
     id: props.conversation.id,
     tags,
   })
-  console.log('updated tags in conversation: ' + JSON.stringify(tags))
+  // console.log('updated tags in conversation: ' + JSON.stringify(tags))
 }
 
 const _updateTitleAndSummary = async (_props: { client: bp.MessageHandlerProps['client'] }, messages: string[]) => {
-  for (const message of messages) {
-    console.log(`updated the title and summary of message ${message}`)
-  }
+  //TODO: call the cognitive service
+  console.log(`updated the title and summary with messages ${messages}`)
 }
 
 export default plugin
