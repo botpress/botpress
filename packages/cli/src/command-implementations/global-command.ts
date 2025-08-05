@@ -144,7 +144,11 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     const profiles = await this.readProfilesFromFS()
     profiles[profileName] = profile
 
-    await fs.promises.writeFile(this.globalPaths.abs.profilesPath, JSON.stringify(profiles), 'utf-8')
+    await fs.promises.writeFile(
+      this.globalPaths.abs.profilesPath,
+      JSON.stringify({ [consts.defaultProfileName]: profiles.defaultProfileName, ...profiles }, null, 2),
+      'utf-8'
+    )
   }
 
   protected async ensureLoginAndCreateClient(credentials: YargsConfig<typeof config.schemas.credentials>) {
