@@ -117,34 +117,24 @@ const _extractImagePositions = (
 ): { html: string; images: ImageData[] } => {
   if (extractedImages.length === 0) return { html, images: [] }
 
-  // These positions aren't the actual positions since
-  // the marker positions get offset by previous markers
-  const imageDataWithPos = extractedImages
-    .map((image): RawImageData & { pos: number } => {
-      const pos = html.indexOf(image.marker)
-      if (pos === -1) {
-        // This should never be thrown, if it does, it's a bug
-        throw new Error('Image marker not found')
-      }
+  const images = extractedImages.map(({ marker, ...image }): ImageData => {
+    const pos = html.indexOf(marker)
+    if (pos === -1) {
+      // This should never be thrown, if it does, it's a bug
+      throw new Error('Image marker not found')
+    }
 
-      return {
-        ...image,
-        pos,
-      }
-    })
-    .sort((a, b) => a.pos - b.pos)
+    html = spliceText(html, pos, pos + marker.length, '')
+
+    return {
+      ...image,
+      pos,
+    }
+  })
 
   return {
     html,
-    images: imageDataWithPos.map(({ pos: offsetPos, marker, ...image }): ImageData => {
-      const pos = html.indexOf(marker)
-      html = spliceText(html, offsetPos, offsetPos + marker.length, '')
-
-      return {
-        ...image,
-        pos,
-      }
-    }),
+    images,
   }
 }
 
