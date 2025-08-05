@@ -1,6 +1,9 @@
-import { z } from '@botpress/sdk'
+import { z, RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 import * as bp from '.botpress'
+
+const ERROR_SUBSCRIBE_TO_WEBHOOKS = 'Failed to subscribe to webhooks'
+const ERROR_UNSUBSCRIBE_FROM_WEBHOOKS = 'Failed to unsubscribe from webhooks'
 
 export class MetaClient {
   private _clientId: string
@@ -13,7 +16,7 @@ export class MetaClient {
     this._clientSecret = bp.secrets.CLIENT_SECRET
   }
 
-  public async getAccessToken(code: string, redirectUri: string) {
+  public async exchangeAuthorizationCodeForAccessToken(code: string, redirectUri: string) {
     const query = new URLSearchParams({
       client_id: this._clientId,
       client_secret: this._clientSecret,
@@ -79,15 +82,15 @@ export class MetaClient {
       .parse(res.data)
 
     if (!data.access_token) {
-      throw new Error('Unable to find the page token for the specified page')
+      throw new RuntimeError('Unable to find the page token for the specified page')
     }
 
     return data.access_token
   }
 
   public async subscribeToWebhooks(pageToken: string, pageId: string) {
-    try {
-      const { data } = await axios.post(
+    const { data: responseData } = await axios
+      .post(
         `${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`,
         {
           subscribed_fields: ['messages', 'messaging_postbacks'],
@@ -98,18 +101,44 @@ export class MetaClient {
           },
         }
       )
+      .catch((err) => {
+        this._logger.error(`Error subscribing to webhooks for Page ${pageId}: ${err}`)
+        throw new RuntimeError(ERROR_SUBSCRIBE_TO_WEBHOOKS)
+      })
 
-      if (!data.success) {
-        throw new Error('No Success')
-      }
-    } catch (e: any) {
-      this._logger
-        .forBot()
-        .error(
-          `(OAuth registration) Error subscribing to webhooks for Page ${pageId}: ${e.message} -> ${e.response?.data}`
-        )
-      throw new Error('Issue subscribing to Webhooks for Page, please try again.')
+    if (!responseData.success) {
+      throw new RuntimeError(ERROR_SUBSCRIBE_TO_WEBHOOKS)
     }
+  }
+
+  public async unsubscribeFromWebhooks(pageToken: string, pageId: string) {
+    const { data: responseData } = await axios
+      .delete(`${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`, {
+        headers: {
+          Authorization: 'Bearer ' + pageToken,
+        },
+      })
+      .catch((err) => {
+        this._logger.error(`Error unsubscribing from webhooks for Page ${pageId}: ${err}`)
+        throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
+      })
+
+    if (!responseData.success) {
+      throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
+    }
+  }
+
+  public async isSubscribedToWebhooks(pageToken: string, pageId: string) {
+    const { data: responseData } = await axios.get(
+      `${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`,
+      {
+        headers: {
+          Authorization: 'Bearer ' + pageToken,
+        },
+      }
+    )
+    const { data: applications } = z.array(z.object({ id: z.string() })).safeParse(responseData.data)
+    return applications?.some((app) => app.id === this._clientId) ?? false
   }
 
   public async getUserManagedPages(userToken: string) {
@@ -121,46 +150,19 @@ export class MetaClient {
     })
     let url = `${this._baseGraphApiUrl}/${this._version}/me/accounts?${query.toString()}`
 
-    try {
-      while (url) {
-        const response = await axios.get(url)
+    while (url) {
+      const response = await axios.get(url).catch((err) => {
+        this._logger.error(`Error fetching pages: ${err}`)
+        throw new RuntimeError('Error fetching pages')
+      })
 
-        // Add the pages to the allPages array
-        allPages = allPages.concat(response.data.data)
+      // Add the pages to the allPages array
+      allPages = allPages.concat(response.data.data)
 
-        // Check if there's a next page
-        url = response.data.paging && response.data.paging.next ? response.data.paging.next : null
-      }
-
-      return allPages
-    } catch (err: any) {
-      throw new Error('Error fetching pages:' + err.response ? err.response.data : err.message)
+      // Check if there's a next page
+      url = response.data.paging && response.data.paging.next ? response.data.paging.next : null
     }
-  }
-}
 
-export async function getCredentials(
-  client: bp.Client,
-  ctx: bp.Context
-): Promise<{ accessToken: string; clientSecret: string; clientId: string }> {
-  if (ctx.configurationType === 'manualApp') {
-    return {
-      accessToken: ctx.configuration.accessToken || '',
-      clientSecret: ctx.configuration.clientSecret || '',
-      clientId: ctx.configuration.clientId || '',
-    }
-  }
-
-  // Otherwise use the page token obtained from the OAuth flow and stored in the state
-  const { state } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
-
-  if (!state.payload.pageToken) {
-    throw new Error('There is no access token, please reauthorize')
-  }
-
-  return {
-    accessToken: state.payload.pageToken,
-    clientSecret: bp.secrets.CLIENT_SECRET,
-    clientId: bp.secrets.CLIENT_ID,
+    return allPages
   }
 }

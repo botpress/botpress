@@ -58,6 +58,9 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
             formSubmitUrl: getWizardStepUrl(nextStepId, this._handlerProps.ctx),
             pageTitle,
             helpText: htmlOrMarkdownPageContents,
+            extraHiddenParams: {
+              state: this._handlerProps.ctx.webhookId,
+            },
             options: choices.map((choice) => ({
               label: choice.label,
               value: choice.value,
@@ -67,7 +70,7 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
         redirectToExternalUrl: (url) => htmlDialogs.generateRedirection(new URL(url)),
         endWizard: (result) =>
           htmlDialogs.generateRedirection(
-            _getInterstitialUrl(result.success, result.success ? undefined : result.errorMessage)
+            getInterstitialUrl(result.success, result.success ? undefined : result.errorMessage)
           ),
       },
     })
@@ -80,7 +83,7 @@ export const getWizardStepUrl = (stepId: string, ctx?: { webhookId: string }): U
 export const isOAuthWizardUrl = (path: string): path is (typeof consts)['BASE_WIZARD_PATH'] =>
   path.startsWith(consts.BASE_WIZARD_PATH)
 
-const _getInterstitialUrl = (success: boolean, message?: string) =>
+export const getInterstitialUrl = (success: boolean, message?: string) =>
   new URL(
     process.env.BP_WEBHOOK_URL?.replace('webhook', 'app') +
       `/oauth/interstitial?success=${success}${message ? `&errorMessage=${message}` : ''}`
