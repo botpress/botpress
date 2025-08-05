@@ -78,7 +78,7 @@ plugin.on.event('updateTitleAndSummary', async (props) => {
   }
 })
 
-const _updateTitleAndSummary = async (props: { client: bp.MessageHandlerProps['client'] }, messages: string[]) => {
+const _updateTitleAndSummary = async (_props: { client: bp.MessageHandlerProps['client'] }, messages: string[]) => {
   for (const message of messages) {
     console.log(`updated the title and summary of message ${message}`)
   }
