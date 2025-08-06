@@ -1,9 +1,10 @@
 import * as client from '@botpress/client'
+import semver from 'semver'
 import yn from 'yn'
+import * as errors from '../errors'
 import type { Logger } from '../logger'
 import { formatPackageRef, ApiPackageRef, NamePackageRef } from '../package-ref'
 import * as utils from '../utils'
-import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
 import * as retry from './retry'
 
@@ -279,11 +280,14 @@ export class ApiClient {
   public listAllPages = paging.listAllPages
 
   public async findPreviousIntegrationVersion(ref: NamePackageRef): Promise<PublicOrPrivateIntegration | undefined> {
-    const previous = await findPreviousIntegrationVersion(this.client, ref)
-    if (!previous) {
-      return
+    const isValidSemverVersion = semver.valid(ref.version)
+
+    // Sanity check (this should never happen):
+    if (!isValidSemverVersion) {
+      throw new errors.BotpressCLIError(`Invalid version "${ref.version}" for integration "${ref.name}"`)
     }
-    return this.findPublicOrPrivateIntegration({ type: 'id', id: previous.id })
+
+    return this.findPublicOrPrivateIntegration({ ...ref, version: `<${ref.version}` })
   }
 
   public async findBotByName(name: string): Promise<BotSummary | undefined> {
