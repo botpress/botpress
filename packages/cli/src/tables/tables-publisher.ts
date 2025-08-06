@@ -30,8 +30,14 @@ export class TablesPublisher {
     this._logger.log('Synchronizing tables...')
 
     const tablesFromBotDef = Object.entries(botDefinition.tables ?? {})
-    const { tables: existingTables } = await api.client.listTables({})
+    const listTableResult = await api.safeListTables({})
 
+    if (!listTableResult.success) {
+      this._logger.warn('Tables API is not available, skipping table deployment.')
+      return
+    }
+
+    const { tables: existingTables } = listTableResult
     for (const [tableName, tableDef] of tablesFromBotDef) {
       const existingTable = existingTables.find((t) => t.name === tableName)
 
