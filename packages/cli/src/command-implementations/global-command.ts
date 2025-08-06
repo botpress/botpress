@@ -141,7 +141,12 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
   }
 
   protected async writeProfileToFS(profileName: string, profile: ProfileCredentials): Promise<void> {
-    const profiles = await this.readProfilesFromFS()
+    let profiles
+    if (fs.existsSync(this.globalPaths.abs.profilesPath)) {
+      profiles = await this.readProfilesFromFS()
+    } else {
+      profiles = {}
+    }
     profiles[profileName] = profile
 
     await fs.promises.writeFile(

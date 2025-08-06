@@ -1,4 +1,5 @@
 import * as client from '@botpress/client'
+import * as fs from 'fs'
 import * as paging from '../api/paging'
 import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
@@ -10,11 +11,13 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
   public async run(): Promise<void> {
     let profileName = consts.defaultProfileName
     if (this.argv.profile) {
-      const profiles = await this.readProfilesFromFS()
-      const profileExists = profiles[this.argv.profile] !== undefined
-      let overwrite = true
+      let profileExists: boolean = false
+      if (fs.existsSync(this.globalPaths.abs.profilesPath)) {
+        const profiles = await this.readProfilesFromFS()
+        profileExists = profiles[this.argv.profile] !== undefined
+      }
       if (profileExists) {
-        overwrite = await this.prompt.confirm(
+        const overwrite = await this.prompt.confirm(
           `This command will overwrite the existing profile '${this.argv.profile}'. Do you want to continue?`
         )
         if (!overwrite) throw new errors.AbortedOperationError()
@@ -37,6 +40,7 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
     })
 
     const promptedWorkspaceId = await this.globalCache.sync('workspaceId', this.argv.workspaceId, async (defaultId) => {
+      console.log(this.argv.apiUrl)
       const tmpClient = new client.Client({ apiUrl: this.argv.apiUrl, token: promptedToken }) // no workspaceId yet
       const userWorkspaces = await paging
         .listAllPages(tmpClient.listWorkspaces, (r) => r.workspaces)
