@@ -17,8 +17,8 @@ import {
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
 import { createUpstreamProviderFailedError } from './errors'
-import { GenerateContentInput, GenerateContentOutput, ToolCall, Message, ModelDetails } from './types'
 import { ReasoningEffort } from './schemas'
+import { GenerateContentInput, GenerateContentOutput, ToolCall, Message, ModelDetails } from './types'
 
 const OpenAIErrorSchema = z
   .object({
