@@ -1,24 +1,47 @@
 import { RuntimeError } from '@botpress/client'
 import { Markup, Telegraf } from 'telegraf'
-import { stdMarkdownToTelegramHtml } from './markdown-to-telegram-html'
+import { markdownHtmlToTelegramPayloads, stdMarkdownToTelegramHtml } from './markdown-to-telegram-html'
 import { ackMessage, getChat, mapToRuntimeErrorAndThrow, sendCard } from './utils'
 import * as bp from '.botpress'
 
 export type MessageHandlerProps<T extends keyof bp.MessageProps['channel']> = bp.MessageProps['channel'][T]
 
-export const handleTextMessage = async ({ payload, ctx, conversation, ack, logger }: MessageHandlerProps<'text'>) => {
-  const { text } = payload
-  const client = new Telegraf(ctx.configuration.botToken)
-  const chat = getChat(conversation)
-  logger.forBot().debug(`Sending markdown message to Telegram chat ${chat}:`, text)
-  const { html } = stdMarkdownToTelegramHtml(text)
-  // TODO: Implement extracted data
+const sendHtmlTextMessage = async (
+  client: Telegraf,
+  ack: MessageHandlerProps<'text'>['ack'],
+  chat: string,
+  html: string
+) => {
   const message = await client.telegram
     .sendMessage(chat, html, {
       parse_mode: 'HTML',
     })
     .catch(mapToRuntimeErrorAndThrow)
   await ackMessage(message, ack)
+}
+
+export const handleTextMessage = async (props: MessageHandlerProps<'text'>) => {
+  const { payload, ctx, conversation, ack, logger } = props
+  const { text } = payload
+  const client = new Telegraf(ctx.configuration.botToken)
+  const chat = getChat(conversation)
+  logger.forBot().debug(`Sending markdown message to Telegram chat ${chat}:`, text)
+  const { html, extractedData } = stdMarkdownToTelegramHtml(text)
+
+  if (!extractedData.images || extractedData.images.length === 0) {
+    await sendHtmlTextMessage(client, ack, chat, html)
+    return
+  }
+
+  const payloads = markdownHtmlToTelegramPayloads(html, extractedData.images)
+
+  for (const payload of payloads) {
+    if (payload.type === 'text') {
+      await sendHtmlTextMessage(client, ack, chat, payload.text)
+    } else {
+      await handleImageMessage({ ...props, payload: { imageUrl: payload.imageUrl }, type: 'image' })
+    }
+  }
 }
 
 export const handleImageMessage = async ({ payload, ctx, conversation, ack, logger }: MessageHandlerProps<'image'>) => {

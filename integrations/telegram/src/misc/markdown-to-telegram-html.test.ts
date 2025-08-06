@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'vitest'
-import { MarkdownToTelegramHtmlResult, stdMarkdownToTelegramHtml } from './markdown-to-telegram-html'
+import {
+  markdownHtmlToTelegramPayloads,
+  MarkdownToTelegramHtmlResult,
+  MixedPayloads,
+  stdMarkdownToTelegramHtml,
+} from './markdown-to-telegram-html'
 import { TestCase } from '../../tests/types'
 
 type MarkdownToTelegramHtmlTestCase = TestCase<string, string> | TestCase<string, MarkdownToTelegramHtmlResult>
@@ -136,6 +141,7 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
           {
             alt: 'Botpress Brand Logo',
             src: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600',
+            pos: 0,
           },
         ],
       },
@@ -153,6 +159,7 @@ const markdownToTelegramHtmlTestCases: MarkdownToTelegramHtmlTestCase[] = [
             alt: 'Botpress Brand Logo',
             src: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600',
             title: 'Title Tooltip Text',
+            pos: 0,
           },
         ],
       },
@@ -279,5 +286,123 @@ describe('Standard Markdown to Telegram HTML Conversion', () => {
   test('Ensure javascript injection via html image handler is not possible', () => {
     const { html } = stdMarkdownToTelegramHtml('<img src="image.jpg" alt="alt text" onerror="alert(\'xss\')">')
     expect(html).toBe('&lt;img src=“image.jpg” alt=“alt text” onerror=“alert(‘xss’)”&gt;')
+  })
+})
+
+type MarkdownToTelegramHtmlWithExtractedImagesTestCase = TestCase<string, MixedPayloads>
+
+const extractedImagesTestCases: MarkdownToTelegramHtmlWithExtractedImagesTestCase[] = [
+  {
+    input:
+      '![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600 "Title Tooltip Text")![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=300 "Title Tooltip Text")',
+    expects: [
+      {
+        type: 'image',
+        imageUrl: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600',
+      },
+      {
+        type: 'image',
+        imageUrl: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=300',
+      },
+    ],
+    description: 'Two images get extracted in the correct order',
+  },
+  {
+    input:
+      '![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600 "Title Tooltip Text")\n\n![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=300 "Title Tooltip Text")',
+    expects: [
+      {
+        type: 'image',
+        imageUrl: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600',
+      },
+      {
+        type: 'image',
+        imageUrl: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=300',
+      },
+    ],
+    description: 'Two images with whitespace in between removes whitespace',
+  },
+  {
+    input:
+      'Text Before\n![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600 "Title Tooltip Text")',
+    expects: [
+      {
+        type: 'text',
+        text: 'Text Before\n',
+      },
+      {
+        type: 'image',
+        imageUrl: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600',
+      },
+    ],
+    description: 'Text followed by an image',
+  },
+  {
+    input:
+      '![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600 "Title Tooltip Text")\nText in the middle\n![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=300 "Title Tooltip Text")',
+    expects: [
+      {
+        type: 'image',
+        imageUrl: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600',
+      },
+      {
+        type: 'text',
+        text: '\nText in the middle\n',
+      },
+      {
+        type: 'image',
+        imageUrl: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=300',
+      },
+    ],
+    description: 'Two images with text in the middle',
+  },
+  {
+    input:
+      '![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600 "Title Tooltip Text")\nText After',
+    expects: [
+      {
+        type: 'image',
+        imageUrl: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600',
+      },
+      {
+        type: 'text',
+        text: '\nText After',
+      },
+    ],
+    description: 'Image followed by text',
+  },
+  {
+    input:
+      'Text Before\n![Botpress Brand Logo](https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600 "Title Tooltip Text")\nText After',
+    expects: [
+      {
+        type: 'text',
+        text: 'Text Before\n',
+      },
+      {
+        type: 'image',
+        imageUrl: 'https://shop.botpress.com/cdn/shop/files/logo.png?v=1708026010&width=600',
+      },
+      {
+        type: 'text',
+        text: '\nText After',
+      },
+    ],
+    description: 'Image surrounded by text',
+  },
+]
+
+describe('Markdown to Telegram HTML Conversion with Extracted Images', () => {
+  test.each(extractedImagesTestCases)('$description', ({ input, expects }) => {
+    const { html, extractedData } = stdMarkdownToTelegramHtml(input)
+
+    // Every test case should have extracted images
+    if (!extractedData.images || extractedData.images.length === 0) {
+      throw new Error('The image extraction failed to extract images')
+    }
+
+    const payloads = markdownHtmlToTelegramPayloads(html, extractedData.images)
+
+    expect(payloads).toEqual(expects)
   })
 })
