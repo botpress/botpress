@@ -390,6 +390,33 @@ const extractedImagesTestCases: MarkdownToTelegramHtmlWithExtractedImagesTestCas
     ],
     description: 'Image surrounded by text',
   },
+  {
+    input:
+      "Hello **World**\nHello _World_\nHello `World`\nHello [World](https://example.com)\nHello ![World](https://en.wikipedia.org/wiki/Image#/media/File:Image_created_with_a_mobile_phone.png)\nHello ![World](https://en.wikipedia.org/wiki/Image#/media/File:TEIDE.JPG)\n```\nconsole.log('Hello, World!')\n```",
+    expects: [
+      {
+        type: 'text',
+        text: 'Hello <strong>World</strong>\nHello <em>World</em>\nHello <code>World</code>\nHello <a href="https://example.com">World</a>\nHello ',
+      },
+      {
+        type: 'image',
+        imageUrl: 'https://en.wikipedia.org/wiki/Image#/media/File:Image_created_with_a_mobile_phone.png',
+      },
+      {
+        type: 'text',
+        text: '\nHello ',
+      },
+      {
+        type: 'image',
+        imageUrl: 'https://en.wikipedia.org/wiki/Image#/media/File:TEIDE.JPG',
+      },
+      {
+        type: 'text',
+        text: "\n<pre><code>console.log('Hello, World!')\n</code></pre>",
+      },
+    ],
+    description: "Ensure that first image url doesn't override the second image url or vice versa",
+  },
 ]
 
 describe('Markdown to Telegram HTML Conversion with Extracted Images', () => {
