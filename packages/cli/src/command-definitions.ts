@@ -53,12 +53,11 @@ export default {
     subcommands: {
       list: { description: 'List all available profiles', schema: config.schemas.listProfiles, alias: 'ls' },
       active: {
-        description:
-          "Get the name of the profile you are currently using (or None if your current config doesn't match profiles",
+        description: 'Get the profile properties you are currently using',
         schema: config.schemas.activeProfile,
       },
       use: {
-        description: 'Set the current profile via an interactive command prompt',
+        description: 'Set the current profile',
         schema: config.schemas.useProfile,
       },
     },
