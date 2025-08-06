@@ -4,13 +4,13 @@ const UPDATE_CRON = '* * * * *' //every minute
 
 export default new PluginDefinition({
   name: 'nathaniel-conversation-insights',
-  version: '0.1.1',
+  version: '0.1.2',
   conversation: {
     tags: {
-      title: { title: 'Title', description: 'The title of the conversation. To update, [TODO: explain update logic]' },
+      title: { title: 'Title', description: 'The title of the conversation.' },
       summary: {
         title: 'Summary',
-        description: 'A summary of the current conversation. To update, [TODO: explain update logic] ',
+        description: 'A summary of the current conversation. ',
       },
       message_count: {
         title: 'Message count',
