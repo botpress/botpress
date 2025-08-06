@@ -1,90 +1,27 @@
+import { RuntimeError } from '@botpress/sdk'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
-import { getCredentials } from 'src/misc/client'
-import { Card, Carousel, Choice, Dropdown, Location, MessengerAttachment } from './types'
+import { Location, SendMessageProps } from './types'
 import * as bp from '.botpress'
 
-export async function getMessengerClient(client: bp.Client, ctx: bp.Context) {
-  const { accessToken, clientId, clientSecret } = await getCredentials(client, ctx)
-
-  return new MessengerClient({
-    accessToken,
-    appSecret: clientSecret,
-    appId: clientId,
-  })
-}
-
-export function formatGoogleMapLink(payload: Location) {
+export function getGoogleMapLinkFromLocation(payload: Location) {
   return `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
 }
 
-export function formatCardElement(payload: Card) {
-  const buttons: MessengerAttachment[] = []
+export function getRecipientId(conversation: SendMessageProps['conversation']): string {
+  const recipientId = conversation.tags.id
 
-  payload.actions.forEach((action) => {
-    switch (action.action) {
-      case 'postback':
-        buttons.push({
-          type: 'postback',
-          title: action.label,
-          payload: `postback:${action.value}`,
-        })
-        break
-      case 'say':
-        buttons.push({
-          type: 'postback',
-          title: action.label,
-          payload: `say:${action.value}`,
-        })
-        break
-      case 'url':
-        buttons.push({
-          type: 'web_url',
-          title: action.label,
-          url: action.value,
-        })
-        break
-      default:
-        break
-    }
-  })
-  return {
-    title: payload.title,
-    image_url: payload.imageUrl,
-    subtitle: payload.subtitle,
-    buttons,
+  if (!recipientId) {
+    throw new RuntimeError(`No recipient id found for conversation ${conversation.id}`)
   }
+
+  return recipientId
 }
 
-export function getCarouselMessage(payload: Carousel): MessengerTypes.AttachmentMessage {
-  return {
-    attachment: {
-      type: 'template',
-      payload: {
-        templateType: 'generic',
-        elements: payload.items.map(formatCardElement),
-      },
-    },
-  }
-}
-
-export function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.TextMessage {
-  if (!payload.options.length) {
-    return { text: payload.text }
-  }
-
-  if (payload.options.length > 13) {
-    return {
-      text: `${payload.text}\n\n${payload.options.map((o, idx) => `${idx + 1}. ${o.label}`).join('\n')}`,
-    }
-  }
-
-  return {
-    text: payload.text,
-    quickReplies: payload.options.map((option) => ({
-      contentType: 'text',
-      title: option.label,
-      payload: option.value,
-    })),
+export function safeJsonParse(x: any) {
+  try {
+    return { data: JSON.parse(x), success: true }
+  } catch {
+    return { data: x, success: false }
   }
 }
 
@@ -94,7 +31,7 @@ export async function getMediaMetadata(url: string): Promise<FileMetadata> {
   const response = await fetch(url, { method: 'HEAD' })
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch metadata for URL: ${url}`)
+    throw new RuntimeError(`Failed to fetch metadata for URL: ${url}`)
   }
 
   const mimeType = response.headers.get('content-type') ?? 'application/octet-stream'
@@ -103,7 +40,7 @@ export async function getMediaMetadata(url: string): Promise<FileMetadata> {
 
   const fileSize = contentLength ? Number(contentLength) : undefined
   if (fileSize !== undefined && isNaN(fileSize)) {
-    throw new Error(`Failed to parse file size from response: ${contentLength}`)
+    throw new RuntimeError(`Failed to parse file size from response: ${contentLength}`)
   }
 
   // Try to extract filename from content-disposition
@@ -129,4 +66,39 @@ export async function generateIdFromUrl(url: string): Promise<string> {
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
     .slice(0, 24)
+}
+
+export function getErrorFromUnknown(thrown: unknown): Error {
+  if (thrown instanceof Error) {
+    return thrown
+  }
+  return new Error(String(thrown))
+}
+
+export const shouldGetUserProfile = (ctx: bp.Context) => {
+  if (ctx.configurationType === 'sandbox') {
+    return bp.secrets.SANDBOX_SHOULD_GET_USER_PROFILE === 'true'
+  }
+  if (ctx.configurationType === 'manual') {
+    return ctx.configuration.shouldGetUserProfile ?? true
+  }
+
+  return bp.secrets.SHOULD_GET_USER_PROFILE === 'true'
+}
+
+export const tryGetUserProfile = async (
+  messengerClient: MessengerClient,
+  ctx: bp.Context,
+  userId: string,
+  fields?: MessengerTypes.UserProfileField[]
+) => {
+  if (!shouldGetUserProfile(ctx)) {
+    return undefined
+  }
+
+  try {
+    return await messengerClient.getUserProfile(userId, { fields })
+  } catch {
+    return undefined
+  }
 }
