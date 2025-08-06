@@ -84,7 +84,6 @@ const _newMessage = async (props: {
     id: props.conversation.id,
     tags,
   })
-  // console.log('updated tags in conversation: ' + JSON.stringify(tags))
 }
 
 const _updateTitleAndSummary = async (_props: { client: bp.MessageHandlerProps['client'] }, messages: string[]) => {
