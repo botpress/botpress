@@ -2,6 +2,7 @@ import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
 import * as utils from '../utils'
 import { GlobalCache, GlobalCommand, ProfileCredentials } from './global-command'
+import * as errors from '../errors'
 
 export type ActiveProfileCommandDefinition = typeof commandDefinitions.profiles.subcommands.active
 export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefinition> {
@@ -38,12 +39,27 @@ export type UseProfileCommandDefinition = typeof commandDefinitions.profiles.sub
 export class UseProfileCommand extends GlobalCommand<UseProfileCommandDefinition> {
   public async run(): Promise<void> {
     if (this.argv.profileToUse) {
-      //reading profile to make sure it exists
       const profile = await this.readProfileFromFS(this.argv.profileToUse)
       await this.globalCache.set('activeProfile', this.argv.profileToUse)
       await _updateGlobalCache({ globalCache: this.globalCache, profileName: this.argv.profileToUse, profile })
     } else {
-      //TODO: interactive prompt
+      const profiles = await this.readProfilesFromFS()
+      const choices = Object.entries(profiles).map(([profileName, profile]) => ({
+        title: profileName,
+        description: '',
+        value: profileName,
+      }))
+      const selectedProfile = await this.prompt.select('Select the profile you want to use.', { choices })
+
+      if (!selectedProfile) {
+        this.logger.log('No profile selected, aborting.')
+        return
+      }
+
+      const profile = profiles[selectedProfile]
+      if (!profile) throw new errors.BotpressCLIError('The selected profile could not be read')
+      await this.globalCache.set('activeProfile', selectedProfile)
+      await _updateGlobalCache({ globalCache: this.globalCache, profileName: selectedProfile, profile })
     }
   }
 }
