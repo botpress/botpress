@@ -1,7 +1,10 @@
+import { InvalidPayloadError } from '@botpress/client'
 import { llm, speechToText } from '@botpress/common'
 import OpenAI from 'openai'
+import { ChatCompletionReasoningEffort } from 'openai/resources'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
+import { validateGptOssReasoningEffort } from '@botpress/common/src/llm/openai'
 
 const fireworksAIClient = new OpenAI({
   baseURL: 'https://api.fireworks.ai/inference/v1',
@@ -14,6 +17,34 @@ const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'accounts/fireworks/models/ll
 //  https://fireworks.ai/models
 //  https://fireworks.ai/pricing
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
+  'accounts/fireworks/models/gpt-oss-20b': {
+    name: 'GPT-OSS 20B',
+    description:
+      'gpt-oss-20b is a compact, open-weight language model optimized for low-latency. It shares the same training foundation and capabilities as the GPT-OSS 120B model, with faster responses and lower cost.',
+    tags: ['general-purpose', 'reasoning', 'low-cost'],
+    input: {
+      costPer1MTokens: 0.07,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 0.3,
+      maxTokens: 16_000,
+    },
+  },
+  'accounts/fireworks/models/gpt-oss-120b': {
+    name: 'GPT-OSS 120B',
+    description:
+      'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
+    tags: ['general-purpose', 'reasoning'],
+    input: {
+      costPer1MTokens: 0.15,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 0.6,
+      maxTokens: 16_000,
+    },
+  },
   'accounts/fireworks/models/deepseek-r1-0528': {
     name: 'DeepSeek R1 0528',
     description:
@@ -263,6 +294,14 @@ export default new bp.Integration({
                   content: systemPrompt.content,
                 })
               }
+            } else if (
+              input.model?.id === 'accounts/fireworks/models/gpt-oss-20b' ||
+              input.model?.id === 'accounts/fireworks/models/gpt-oss-120b'
+            ) {
+              request.reasoning_effort = validateGptOssReasoningEffort(input, logger)
+
+              // Reasoning models don't allow setting temperature
+              delete request.temperature
             }
 
             return request

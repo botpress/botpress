@@ -7,6 +7,7 @@ import { ChatCompletionReasoningEffort, ImageGenerateParams, Images } from 'open
 import { SpeechCreateParams } from 'openai/resources/audio/speech'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
+import { validateOpenAIReasoningEffort } from '@botpress/common/src/llm/openai'
 
 const openAIClient = new OpenAI({
   apiKey: bp.secrets.OPENAI_API_KEY,
@@ -289,26 +290,12 @@ export default new bp.Integration({
           models: languageModels,
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
           overrideRequest: (request) => {
-            if (input.model?.id.startsWith('o1-') || input.model?.id.startsWith('o3-')) {
-              if (input.reasoningEffort === 'none') {
-                const acceptedValues = SupportedReasoningEfforts.map((x) => `"${x}"`)
-                  .map((x, i) => (i === SupportedReasoningEfforts.length - 1 ? `or ${x}` : x))
-                  .join(', ')
-                throw new InvalidPayloadError(
-                  `Using "none" to disabling reasoning is not supported with OpenAI reasoning models, please use ${acceptedValues} instead or switch to a non-reasoning model`
-                )
-              }
-
-              if (SupportedReasoningEfforts.includes(input.reasoningEffort as any)) {
-                request.reasoning_effort = input.reasoningEffort as ChatCompletionReasoningEffort
-              } else {
-                request.reasoning_effort = 'medium'
-                logger
-                  .forBot()
-                  .info(
-                    `Reasoning effort "${input.reasoningEffort}" is not supported by OpenAI, using "${request.reasoning_effort}" effort instead`
-                  )
-              }
+            if (
+              input.model?.id.startsWith('o1-') ||
+              input.model?.id.startsWith('o3-') ||
+              input.model?.id.startsWith('o4-')
+            ) {
+              request.reasoning_effort = validateOpenAIReasoningEffort(input, logger)
 
               // The o1 models don't allow setting temperature
               delete request.temperature
