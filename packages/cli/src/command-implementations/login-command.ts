@@ -10,10 +10,17 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
   public async run(): Promise<void> {
     let profileName = consts.defaultProfileName
     if (this.argv.profile) {
-      const overwrite = await this.prompt.confirm(
-        `This command will write or overwrite the profile '${this.argv.profile}'. Do you want to overwrite it?`
-      )
-      if (!overwrite) throw new errors.AbortedOperationError()
+      const profiles = await this.readProfilesFromFS()
+      const profileExists = profiles[this.argv.profile] !== undefined
+      let overwrite = true
+      if (profileExists) {
+        overwrite = await this.prompt.confirm(
+          `This command will overwrite the existing profile '${this.argv.profile}'. Do you want to continue?`
+        )
+        if (!overwrite) throw new errors.AbortedOperationError()
+      } else {
+        this.logger.log(`This command will create new profile '${this.argv.profile}'`, { prefix: 'ℹ︎' })
+      }
       profileName = this.argv.profile
     }
 

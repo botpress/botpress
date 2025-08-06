@@ -51,7 +51,7 @@ export default {
   profiles: {
     description: 'Commands for using CLI profiles',
     subcommands: {
-      list: { description: 'List all available profiles', schema: config.schemas.listProfiles },
+      list: { description: 'List all available profiles', schema: config.schemas.listProfiles, alias: 'ls' },
       active: {
         description:
           "Get the name of the profile you are currently using (or None if your current config doesn't match profiles",

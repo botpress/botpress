@@ -1,8 +1,9 @@
+import chalk from 'chalk'
 import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
+import * as errors from '../errors'
 import * as utils from '../utils'
 import { GlobalCache, GlobalCommand, ProfileCredentials } from './global-command'
-import * as errors from '../errors'
 
 export type ActiveProfileCommandDefinition = typeof commandDefinitions.profiles.subcommands.active
 export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefinition> {
@@ -16,7 +17,7 @@ export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefi
     }
 
     const profile = await this.readProfileFromFS(activeProfileName)
-    this.logger.log(`Active profile (${activeProfileName}): ${JSON.stringify(profile)}`)
+    this.logger.log(`Active profile: '${activeProfileName}':\n ${JSON.stringify(profile, null, 2)}`)
   }
 }
 
@@ -29,8 +30,11 @@ export class ListProfilesCommand extends GlobalCommand<ListProfilesCommandDefini
       return
     }
     this.logger.log('Available profiles:')
-    for (const [profileName, profile] of Object.entries(profiles)) {
-      this.logger.log(`- ${profileName}: ${JSON.stringify(profile)}`)
+    const activeProfileName = await this.globalCache.get('activeProfile')
+    for (const [profileName, _] of Object.entries(profiles)) {
+      const isActive = profileName === activeProfileName
+      const displayName = isActive ? chalk.bold(profileName) : profileName
+      this.logger.log(`- '${displayName}'${isActive ? ' (active)' : ''}`)
     }
   }
 }
