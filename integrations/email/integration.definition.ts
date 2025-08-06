@@ -11,7 +11,7 @@ const emailSchema = z.object({
 
 export default new IntegrationDefinition({
   name: 'email',
-  version: '0.0.1',
+  version: '0.0.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
