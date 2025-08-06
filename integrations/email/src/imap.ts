@@ -69,6 +69,8 @@ export const getMessages = async function (
       totalElements: box.messages.total,
     })
 
+    if (firstElementIndex === 0 || lastElementIndex === 0) return { messages: [] }
+
     const imapRange = `${firstElementIndex}:${lastElementIndex}`
     const f: Imap.ImapFetch = imap.seq.fetch(imapRange, {
       bodies: imapBodies,
