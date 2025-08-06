@@ -1,10 +1,8 @@
-import { InvalidPayloadError } from '@botpress/client'
 import { llm, speechToText } from '@botpress/common'
+import { validateGptOssReasoningEffort } from '@botpress/common/src/llm/openai'
 import OpenAI from 'openai'
-import { ChatCompletionReasoningEffort } from 'openai/resources'
 import { ModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
-import { validateGptOssReasoningEffort } from '@botpress/common/src/llm/openai'
 
 const groqClient = new OpenAI({
   baseURL: 'https://api.groq.com/openai/v1',

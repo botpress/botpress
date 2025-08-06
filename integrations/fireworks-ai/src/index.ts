@@ -1,10 +1,8 @@
-import { InvalidPayloadError } from '@botpress/client'
 import { llm, speechToText } from '@botpress/common'
+import { validateGptOssReasoningEffort } from '@botpress/common/src/llm/openai'
 import OpenAI from 'openai'
-import { ChatCompletionReasoningEffort } from 'openai/resources'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
-import { validateGptOssReasoningEffort } from '@botpress/common/src/llm/openai'
 
 const fireworksAIClient = new OpenAI({
   baseURL: 'https://api.fireworks.ai/inference/v1',

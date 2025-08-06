@@ -1,10 +1,8 @@
-import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
+import { validateGptOssReasoningEffort } from '@botpress/common/src/llm/openai'
 import OpenAI from 'openai'
-import { ChatCompletionReasoningEffort } from 'openai/resources'
 import { DEFAULT_MODEL_ID, ModelId } from './schemas'
 import * as bp from '.botpress'
-import { validateGptOssReasoningEffort } from '@botpress/common/src/llm/openai'
 
 const cerebrasClient = new OpenAI({
   baseURL: 'https://api.cerebras.ai/v1',

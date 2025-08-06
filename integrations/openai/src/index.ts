@@ -1,5 +1,6 @@
 import { InvalidPayloadError } from '@botpress/client'
 import { llm, speechToText, textToImage } from '@botpress/common'
+import { validateOpenAIReasoningEffort } from '@botpress/common/src/llm/openai'
 import crypto from 'crypto'
 import { TextToSpeechPricePer1MCharacters } from 'integration.definition'
 import OpenAI from 'openai'
@@ -7,7 +8,6 @@ import { ChatCompletionReasoningEffort, ImageGenerateParams, Images } from 'open
 import { SpeechCreateParams } from 'openai/resources/audio/speech'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
-import { validateOpenAIReasoningEffort } from '@botpress/common/src/llm/openai'
 
 const openAIClient = new OpenAI({
   apiKey: bp.secrets.OPENAI_API_KEY,
