@@ -1,9 +1,9 @@
 import * as client from '@botpress/client'
 import * as paging from '../api/paging'
 import type commandDefinitions from '../command-definitions'
+import * as consts from '../consts'
 import * as errors from '../errors'
 import { GlobalCommand } from './global-command'
-import * as consts from '../consts'
 
 export type LoginCommandDefinition = typeof commandDefinitions.login
 export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {

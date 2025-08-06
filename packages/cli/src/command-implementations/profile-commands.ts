@@ -48,7 +48,7 @@ export class UseProfileCommand extends GlobalCommand<UseProfileCommandDefinition
       await _updateGlobalCache({ globalCache: this.globalCache, profileName: this.argv.profileToUse, profile })
     } else {
       const profiles = await this.readProfilesFromFS()
-      const choices = Object.entries(profiles).map(([profileName, profile]) => ({
+      const choices = Object.entries(profiles).map(([profileName, _]) => ({
         title: profileName,
         description: '',
         value: profileName,

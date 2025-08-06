@@ -21,9 +21,9 @@ import { LintCommand } from './lint-command'
 import { LoginCommand } from './login-command'
 import { LogoutCommand } from './logout-command'
 import * as plugins from './plugin-commands'
+import * as profiles from './profile-commands'
 import { ReadCommand } from './read-command'
 import { ServeCommand } from './serve-command'
-import * as profiles from './profile-commands'
 
 type GlobalCtor<C extends GlobalCommandDefinition> = new (
   ...args: ConstructorParameters<typeof GlobalCommand<C>>
