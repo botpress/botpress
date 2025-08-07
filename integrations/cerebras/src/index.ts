@@ -16,7 +16,7 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
   'gpt-oss-120b': {
     name: 'GPT-OSS 120B (Preview)',
     description:
-      'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs. ',
+      'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
     tags: ['preview', 'general-purpose', 'reasoning'],
     input: {
       costPer1MTokens: 0.25,
