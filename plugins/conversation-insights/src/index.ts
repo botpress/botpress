@@ -57,7 +57,7 @@ const _newMessage = async (props: {
   const message_count = props.conversation.tags.message_count ? parseInt(props.conversation.tags.message_count) + 1 : 1
 
   const participantsState = await props.states.conversation.participants.getOrSet(props.conversation.id, {
-    ids: ['test'],
+    ids: [],
   })
 
   let updatedParticipants = participantsState.ids
