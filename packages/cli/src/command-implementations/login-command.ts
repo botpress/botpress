@@ -38,9 +38,10 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
 
       return prompted
     })
-
+    if (this.argv.apiUrl !== consts.defaultBotpressApiUrl) {
+      this.logger.log(`Using custom api url ${this.argv.apiUrl} to try fetching workspaces`, { prefix: '🔗' })
+    }
     const promptedWorkspaceId = await this.globalCache.sync('workspaceId', this.argv.workspaceId, async (defaultId) => {
-      console.log(this.argv.apiUrl)
       const tmpClient = new client.Client({ apiUrl: this.argv.apiUrl, token: promptedToken }) // no workspaceId yet
       const userWorkspaces = await paging
         .listAllPages(tmpClient.listWorkspaces, (r) => r.workspaces)
