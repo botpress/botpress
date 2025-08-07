@@ -8,8 +8,12 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (pro
 
   const { viaChannel, priority } = input.hitlSession || {}
 
-  const chatbotName = input.hitlSession?.chatbotName ?? 'Botpress'
-  const chatbotPhotoUrl = input.hitlSession?.chatbotPhotoUrl ?? 'https://app.botpress.dev/favicon/bp.svg'
+  const downstreamBotpressUser = await client.getUser({ id: ctx.botUserId })
+  const chatbotName = input.hitlSession?.chatbotName ?? downstreamBotpressUser.user.name ?? 'Botpress'
+  const chatbotPhotoUrl =
+    input.hitlSession?.chatbotPhotoUrl ??
+    downstreamBotpressUser.user.pictureUrl ??
+    'https://app.botpress.dev/favicon/bp.svg'
 
   const zendeskClient = getZendeskClient(ctx.configuration)
   const zendeskBotpressUser = await _retrieveAndUpdateZendeskBotpressUser(props, {
