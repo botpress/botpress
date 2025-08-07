@@ -332,8 +332,6 @@ export default new bp.Integration({
           models: languageModels,
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
           overrideRequest: (request) => {
-            input.debug = true
-
             const isGPT5 =
               input.model?.id === 'gpt-5-2025-08-07' ||
               input.model?.id === 'gpt-5-mini-2025-08-07' ||
