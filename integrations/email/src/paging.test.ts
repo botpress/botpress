@@ -2,11 +2,8 @@ import { expect, test } from 'vitest'
 import { pageToSpan, Span, getNextToken, NextTokenProps } from './paging'
 import * as sdk from '@botpress/sdk'
 
-test('pageToSpan with with zero messages returns 0', () => {
-  expect(pageToSpan({ page: 0, perPage: 50, totalElements: 0 })).toEqual({
-    firstElementIndex: 0,
-    lastElementIndex: 0,
-  } satisfies Span)
+test('pageToSpan with with zero messages throws', () => {
+  expect(() => pageToSpan({ page: 0, perPage: 50, totalElements: 0 })).toThrow(sdk.RuntimeError)
 })
 
 test('pageToSpan with single element returns single element', () => {
