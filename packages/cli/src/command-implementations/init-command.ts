@@ -194,6 +194,7 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     if (!destinationCanBeUsed) {
       throw new errors.AbortedOperationError()
     }
+    await fs.promises.rm(destination, { recursive: true, force: true })
 
     await fs.promises.cp(srcDir, destination, { recursive: true })
 
