@@ -63,13 +63,13 @@ export const getMessages = async function (
       imapBodies.push('TEXT')
     }
 
+    if (box.messages.total === 0) return { messages: [] }
+
     const { firstElementIndex, lastElementIndex } = paging.pageToSpan({
       page: range.page,
       perPage: range.perPage,
       totalElements: box.messages.total,
     })
-
-    if (firstElementIndex === 0 || lastElementIndex === 0) return { messages: [] }
 
     const imapRange = `${firstElementIndex}:${lastElementIndex}`
     const f: Imap.ImapFetch = imap.seq.fetch(imapRange, {
