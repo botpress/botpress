@@ -17,7 +17,8 @@ export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefi
     }
 
     const profile = await this.readProfileFromFS(activeProfileName)
-    this.logger.log(`Active profile: '${activeProfileName}':\n ${JSON.stringify(profile, null, 2)}`)
+    this.logger.log('Active profile:')
+    this.logger.json({ [activeProfileName]: profile })
   }
 }
 
@@ -29,13 +30,10 @@ export class ListProfilesCommand extends GlobalCommand<ListProfilesCommandDefini
       this.logger.log('No profiles found')
       return
     }
-    this.logger.log('Available profiles:')
     const activeProfileName = await this.globalCache.get('activeProfile')
-    for (const [profileName, _] of Object.entries(profiles)) {
-      const isActive = profileName === activeProfileName
-      const displayName = isActive ? chalk.bold(profileName) : profileName
-      this.logger.log(`- '${displayName}'${isActive ? ' (active)' : ''}`)
-    }
+    const profileNames = Object.keys(profiles)
+    this.logger.log(`Active profile: '${chalk.bold(activeProfileName)}'`)
+    this.logger.json(profileNames)
   }
 }
 
@@ -46,25 +44,25 @@ export class UseProfileCommand extends GlobalCommand<UseProfileCommandDefinition
       const profile = await this.readProfileFromFS(this.argv.profileToUse)
       await this.globalCache.set('activeProfile', this.argv.profileToUse)
       await _updateGlobalCache({ globalCache: this.globalCache, profileName: this.argv.profileToUse, profile })
-    } else {
-      const profiles = await this.readProfilesFromFS()
-      const choices = Object.entries(profiles).map(([profileName, _]) => ({
-        title: profileName,
-        description: '',
-        value: profileName,
-      }))
-      const selectedProfile = await this.prompt.select('Select the profile you want to use.', { choices })
-
-      if (!selectedProfile) {
-        this.logger.log('No profile selected, aborting.')
-        return
-      }
-
-      const profile = profiles[selectedProfile]
-      if (!profile) throw new errors.BotpressCLIError('The selected profile could not be read')
-      await this.globalCache.set('activeProfile', selectedProfile)
-      await _updateGlobalCache({ globalCache: this.globalCache, profileName: selectedProfile, profile })
+      return
     }
+    const profiles = await this.readProfilesFromFS()
+    const choices = Object.entries(profiles).map(([profileName, _]) => ({
+      title: profileName,
+      description: '',
+      value: profileName,
+    }))
+    const selectedProfile = await this.prompt.select('Select the profile you want to use.', { choices })
+
+    if (!selectedProfile) {
+      this.logger.log('No profile selected, aborting.')
+      return
+    }
+
+    const profile = profiles[selectedProfile]
+    if (!profile) throw new errors.BotpressCLIError('The selected profile could not be read')
+    await this.globalCache.set('activeProfile', selectedProfile)
+    await _updateGlobalCache({ globalCache: this.globalCache, profileName: selectedProfile, profile })
   }
 }
 
