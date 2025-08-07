@@ -413,6 +413,10 @@ export function validateGptOssReasoningEffort(
   input: { reasoningEffort?: ReasoningEffort; model?: { id: string } },
   logger: IntegrationLogger
 ): ChatCompletionReasoningEffort | undefined {
+  if (input.reasoningEffort === undefined) {
+    return undefined
+  }
+
   const GptOssSupportedReasoningEfforts: ChatCompletionReasoningEffort[] = ['low', 'medium', 'high']
 
   if (input.reasoningEffort === 'none') {
