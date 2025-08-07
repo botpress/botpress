@@ -11,42 +11,36 @@ const stubTags = {
   summary: 'This is normally where the conversation summary would be.',
 }
 
-plugin.on.message('*', async (props) => {
-  await _newMessage(props)
-
-  await props.client.createMessage({
-    conversationId: props.conversation.id,
-    payload: { text: 'received your message' },
-    type: 'text',
-    tags: {},
-    userId: props.ctx.botId,
+plugin.on.afterIncomingMessage('*', async (props) => {
+  await _newMessage({
+    ...props,
+    conversation: { id: props.data.conversationId, tags: props.data.tags },
+    userId: props.data.userId,
   })
 
-  const unreads = await props.states.conversation.unreadMessages.getOrSet(props.conversation.id, { ids: [] })
-  unreads.ids = unreads.ids ? unreads.ids : []
-  props.states.conversation.unreadMessages.set(props.conversation.id, { ids: [...unreads.ids, props.message.id] })
+  props.states.conversation.dirty.set(props.data.conversationId, { hasHadNewMessagesSinceRefresh: true })
+
+  return { data: props.data }
 })
 
 plugin.on.afterOutgoingMessage('*', async (props) => {
   const conversation = await props.client.getConversation({ id: props.data.message.conversationId })
-  const user = await props.client.getUser({ id: props.data.message.userId })
-  await _newMessage({ ...props, conversation: conversation.conversation, user: user.user })
+  await _newMessage({ ...props, conversation: conversation.conversation, userId: props.data.message.userId })
 
   return { data: { message: props.data.message } }
 })
 
 plugin.on.event('updateTitleAndSummary', async (props) => {
-  const conversations = await props.client.listConversations({})
+  const conversations = await props.client.listConversations({
+    tags: { dirty: 'true' },
+  })
 
   for (const conversation of conversations.conversations) {
-    const newMessageIds = (await props.states.conversation.unreadMessages.getOrSet(conversation.id, { ids: [] })).ids
     const messages = props.client.listMessages({ conversationId: conversation.id })
-    const newMessages = (await messages).messages
-      .filter((message) => newMessageIds.includes(message.userId) && message.type === 'text')
-      .map((message) => message.payload.text)
+    const newMessages = (await messages).messages.map((message) => message.payload.text)
 
     await _updateTitleAndSummary({ client: props.client }, newMessages)
-    await props.states.conversation.unreadMessages.set(conversation.id, { ids: [] })
+    await props.states.conversation.dirty.set(conversation.id, { hasHadNewMessagesSinceRefresh: false })
   }
 })
 
@@ -56,7 +50,7 @@ const _newMessage = async (props: {
     tags: bp.MessageHandlerProps['conversation']['tags']
   }
   states: bp.MessageHandlerProps['states']
-  user: bp.MessageHandlerProps['user']
+  userId: bp.MessageHandlerProps['user']['id']
   client: bp.MessageHandlerProps['client']
   logger: bp.MessageHandlerProps['logger']
 }) => {
@@ -67,7 +61,7 @@ const _newMessage = async (props: {
   })
 
   let updatedParticipants = participantsState.ids
-  const senderId = props.user.id
+  const senderId = props.userId
 
   if (!updatedParticipants.includes(senderId)) {
     updatedParticipants = [...updatedParticipants, senderId]

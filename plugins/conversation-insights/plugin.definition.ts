@@ -4,7 +4,7 @@ const UPDATE_CRON = '* * * * *' //every minute
 
 export default new PluginDefinition({
   name: 'nathaniel-conversation-insights',
-  version: '0.1.2',
+  version: '0.1.3',
   conversation: {
     tags: {
       title: { title: 'Title', description: 'The title of the conversation.' },
@@ -26,7 +26,14 @@ export default new PluginDefinition({
   },
   states: {
     participants: { schema: z.object({ ids: z.array(z.string()) }), type: 'conversation' },
-    unreadMessages: { schema: z.object({ ids: z.array(z.string()) }), type: 'conversation' },
+    dirty: {
+      schema: z.object({
+        hasHadNewMessagesSinceRefresh: z
+          .boolean()
+          .describe('Signifies whether the conversation has had a new message since last refresh'),
+      }),
+      type: 'conversation',
+    },
   },
   events: { updateTitleAndSummary: { schema: z.object({}) } },
   recurringEvents: {
