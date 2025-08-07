@@ -195,7 +195,7 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
       throw new errors.AbortedOperationError()
     }
 
-    await fs.promises.cp(srcDir, destination, { recursive: true, filter: (src) => !src.includes('node_modules') })
+    await fs.promises.cp(srcDir, destination, { recursive: true })
 
     const pkgJsonPath = pathlib.join(destination, 'package.json')
     const strContent = await fs.promises.readFile(pkgJsonPath, 'utf-8')

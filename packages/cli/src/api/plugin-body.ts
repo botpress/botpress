@@ -69,6 +69,17 @@ export const prepareUpdatePluginBody = (
 
   const attributes = utils.records.setNullOnMissingValues(localPlugin.attributes, remotePlugin.attributes)
 
+  const dependencies: types.UpdatePluginRequestBody['dependencies'] = {
+    integrations: utils.records.setNullOnMissingValues(
+      localPlugin.dependencies?.integrations,
+      remotePlugin.dependencies?.integrations
+    ),
+    interfaces: utils.records.setNullOnMissingValues(
+      localPlugin.dependencies?.interfaces,
+      remotePlugin.dependencies?.interfaces
+    ),
+  }
+
   return {
     ...localPlugin,
     actions,
@@ -76,5 +87,6 @@ export const prepareUpdatePluginBody = (
     states,
     user: localPlugin.user, // TODO: allow deleting user tags with null
     attributes,
+    dependencies,
   }
 }
