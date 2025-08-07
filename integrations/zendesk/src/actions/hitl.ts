@@ -6,8 +6,6 @@ import * as bp from '.botpress'
 export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (props) => {
   const { ctx, input, client } = props
 
-  const { viaChannel, priority } = input.hitlSession || {}
-
   const downstreamBotpressUser = await client.getUser({ id: ctx.botUserId })
   const chatbotName = input.hitlSession?.chatbotName ?? downstreamBotpressUser.user.name ?? 'Botpress'
   const chatbotPhotoUrl =
@@ -29,10 +27,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (pro
       id: zendeskBotpressUser,
     },
     {
-      priority,
-      via: {
-        channel: viaChannel,
-      },
+      priority: input.hitlSession?.priority,
     }
   )
 
