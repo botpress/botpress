@@ -4,21 +4,12 @@ const plugin = new bp.Plugin({
   actions: {},
 })
 
-const stubTags = {
-  cost: '345',
-  topics: 'rats',
-  title: 'The conversation title!',
-  summary: 'This is normally where the conversation summary would be.',
-}
-
 plugin.on.afterIncomingMessage('*', async (props) => {
   await _newMessage({
     ...props,
-    conversation: { id: props.data.conversationId, tags: props.data.tags },
+    conversation: { id: props.data.conversationId, tags: { ...props.data.tags, isDirty: 'true' } },
     userId: props.data.userId,
   })
-
-  props.states.conversation.dirty.set(props.data.conversationId, { hasHadNewMessagesSinceRefresh: true })
 
   return { data: props.data }
 })
@@ -32,15 +23,14 @@ plugin.on.afterOutgoingMessage('*', async (props) => {
 
 plugin.on.event('updateTitleAndSummary', async (props) => {
   const conversations = await props.client.listConversations({
-    tags: { dirty: 'true' },
+    tags: { isDirty: 'true' },
   })
 
   for (const conversation of conversations.conversations) {
     const messages = props.client.listMessages({ conversationId: conversation.id })
     const newMessages = (await messages).messages.map((message) => message.payload.text)
 
-    await _updateTitleAndSummary({ client: props.client }, newMessages)
-    await props.states.conversation.dirty.set(conversation.id, { hasHadNewMessagesSinceRefresh: false })
+    await _updateTitleAndSummary({ client: props.client, conversationId: conversation.id }, newMessages)
   }
 })
 
@@ -54,6 +44,7 @@ const _newMessage = async (props: {
   client: bp.MessageHandlerProps['client']
   logger: bp.MessageHandlerProps['logger']
 }) => {
+  props.logger.info('started logging')
   const message_count = props.conversation.tags.message_count ? parseInt(props.conversation.tags.message_count) + 1 : 1
 
   const participantsState = await props.states.conversation.participants.getOrSet(props.conversation.id, {
@@ -72,7 +63,7 @@ const _newMessage = async (props: {
 
   const participant_count = updatedParticipants.length.toString()
 
-  const tags = { message_count: message_count.toString(), participant_count, ...stubTags }
+  const tags = { ...props.conversation.tags, message_count: message_count.toString(), participant_count }
 
   props.client.updateConversation({
     id: props.conversation.id,
@@ -80,7 +71,10 @@ const _newMessage = async (props: {
   })
 }
 
-const _updateTitleAndSummary = async (_props: { client: bp.MessageHandlerProps['client'] }, messages: string[]) => {
+const _updateTitleAndSummary = async (
+  props: { client: bp.MessageHandlerProps['client']; conversationId: string },
+  messages: string[]
+) => {
   //TODO: use a workflow that calls the cognitive service
   console.log(`updated the title and summary with messages ${messages}`)
 }

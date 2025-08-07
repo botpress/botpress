@@ -20,7 +20,7 @@ export default new PluginDefinition({
         title: 'Participant count',
         description: 'The count of users having participated in the conversation, including the bot. Type: int',
       },
-      dirty: {
+      isDirty: {
         title: 'Dirty',
         description: 'Signifies whether the conversation has had a new message since last refresh',
       },
