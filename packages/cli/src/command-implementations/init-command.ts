@@ -21,21 +21,29 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     const projectType = await this._promptProjectType()
     const workDir = utils.path.absoluteFrom(utils.path.cwd(), this.argv.workDir)
 
-    if (projectType === 'bot') {
-      await this._initBot({ workDir })
-      return
-    }
+    try {
+      if (projectType === 'bot') {
+        await this._initBot({ workDir })
+        return
+      }
 
-    if (projectType === 'integration') {
-      const workspaceHandle = await this._promptWorkspaceHandle()
-      await this._initIntegration({ workDir, workspaceHandle })
-      return
-    }
+      if (projectType === 'integration') {
+        const workspaceHandle = await this._promptWorkspaceHandle()
+        await this._initIntegration({ workDir, workspaceHandle })
+        return
+      }
 
-    if (projectType === 'plugin') {
-      const workspaceHandle = await this._promptWorkspaceHandle()
-      await this._initPlugin({ workDir, workspaceHandle })
-      return
+      if (projectType === 'plugin') {
+        const workspaceHandle = await this._promptWorkspaceHandle()
+        await this._initPlugin({ workDir, workspaceHandle })
+        return
+      }
+    } catch (error) {
+      if (error instanceof errors.AbortedOperationError) {
+        this.logger.log(error.message)
+        return
+      }
+      throw error
     }
 
     type _assertion = utils.types.AssertNever<typeof projectType>
@@ -80,22 +88,14 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     const name = await this._getName('plugin', template.defaultProjectName)
     const { fullName, shortName } = this._getFullNameAndShortName({ workspaceHandle, name })
 
-    try {
-      await this._copy({
-        srcDir: template.absolutePath,
-        destDir: workDir,
-        name: shortName,
-        pkgJson: {
-          pluginName: fullName,
-        },
-      })
-    } catch (error) {
-      if (error instanceof errors.AbortedOperationError) {
-        this.logger.log('Aborted')
-        return
-      }
-      throw error
-    }
+    await this._copy({
+      srcDir: template.absolutePath,
+      destDir: workDir,
+      name: shortName,
+      pkgJson: {
+        pluginName: fullName,
+      },
+    })
     this.logger.success(`Plugin project initialized in ${chalk.bold(pathlib.join(workDir, shortName))}`)
   }
 
