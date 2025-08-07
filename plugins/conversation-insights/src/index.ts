@@ -81,7 +81,7 @@ const _newMessage = async (props: {
 }
 
 const _updateTitleAndSummary = async (_props: { client: bp.MessageHandlerProps['client'] }, messages: string[]) => {
-  //TODO: call the cognitive service
+  //TODO: use a workflow that calls the cognitive service
   console.log(`updated the title and summary with messages ${messages}`)
 }
 
