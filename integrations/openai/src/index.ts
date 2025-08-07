@@ -3,8 +3,9 @@ import { llm, speechToText, textToImage } from '@botpress/common'
 import crypto from 'crypto'
 import { TextToSpeechPricePer1MCharacters } from 'integration.definition'
 import OpenAI from 'openai'
-import { ChatCompletionReasoningEffort, ImageGenerateParams, Images } from 'openai/resources'
+import { ImageGenerateParams, Images } from 'openai/resources'
 import { SpeechCreateParams } from 'openai/resources/audio/speech'
+import { ChatCompletionReasoningEffort } from 'openai/resources/chat/completions'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
 
@@ -20,8 +21,50 @@ const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 //  https://openai.com/api/pricing/
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
+  'gpt-5-2025-08-07': {
+    name: 'GPT-5',
+    description:
+      "GPT-5 is OpenAI's latest and most advanced AI model. It is a reasoning model that chooses the best way to respond based on task complexity and user intent. GPT-5 delivers expert-level performance across coding, math, writing, health, and visual perception, with improved accuracy, speed, and reduced hallucinations. It excels in complex tasks, long-context understanding, multimodal inputs (text and images), and safe, nuanced responses.",
+    tags: ['recommended', 'reasoning', 'general-purpose'],
+    input: {
+      costPer1MTokens: 1.25,
+      maxTokens: 400_000,
+    },
+    output: {
+      costPer1MTokens: 10,
+      maxTokens: 128_000,
+    },
+  },
+  'gpt-5-mini-2025-08-07': {
+    name: 'GPT-5 Mini',
+    description:
+      'GPT-5 Mini is a lightweight and cost-effective version of GPT-5, optimized for applications where speed and efficiency matter more than full advanced capabilities. It is designed for cost-sensitive use cases such as chatbots, content generation, and high-volume usage, striking a balance between performance and affordability, making it suitable for simpler tasks that do not require deep multi-step reasoning or the full reasoning power of GPT-5',
+    tags: ['recommended', 'reasoning', 'general-purpose'],
+    input: {
+      costPer1MTokens: 0.25,
+      maxTokens: 400_000,
+    },
+    output: {
+      costPer1MTokens: 2,
+      maxTokens: 128_000,
+    },
+  },
+  'gpt-5-nano-2025-08-07': {
+    name: 'GPT-5 Nano',
+    description:
+      'GPT-5 Nano is an ultra-lightweight version of GPT-5 optimized for speed and very low latency, making it ideal for use cases like simple chatbots, basic content generation, summarization, and classification tasks.',
+    tags: ['low-cost', 'reasoning', 'general-purpose'],
+    input: {
+      costPer1MTokens: 0.05,
+      maxTokens: 400_000,
+    },
+    output: {
+      costPer1MTokens: 0.4,
+      maxTokens: 128_000,
+    },
+  },
   'o4-mini-2025-04-16': {
-    name: 'GPT o4-mini',
+    name: 'o4-mini',
     description:
       "o4-mini is OpenAI's latest small o-series model. It's optimized for fast, effective reasoning with exceptionally efficient performance in coding and visual tasks.",
     tags: ['reasoning', 'vision'],
@@ -35,7 +78,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     },
   },
   'o3-2025-04-16': {
-    name: 'GPT o3',
+    name: 'o3',
     description:
       'o3 is a well-rounded and powerful model across domains. It sets a new standard for math, science, coding, and visual reasoning tasks. It also excels at technical writing and instruction-following. Use it to think through multi-step problems that involve analysis across text, code, and images.',
     tags: ['reasoning', 'vision'],
@@ -49,7 +92,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     },
   },
   'gpt-4.1-2025-04-14': {
-    name: 'GPT 4.1',
+    name: 'GPT-4.1',
     description:
       'GPT 4.1 is our flagship model for complex tasks. It is well suited for problem solving across domains. The knowledge cutoff is June 2024.',
     tags: ['recommended', 'vision', 'general-purpose'],
@@ -63,7 +106,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     },
   },
   'gpt-4.1-mini-2025-04-14': {
-    name: 'GPT 4.1 Mini',
+    name: 'GPT-4.1 Mini',
     description:
       'GPT 4.1 mini provides a balance between intelligence, speed, and cost that makes it an attractive model for many use cases. The knowledge cutoff is June 2024.',
     tags: ['recommended', 'vision', 'general-purpose'],
@@ -77,7 +120,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     },
   },
   'gpt-4.1-nano-2025-04-14': {
-    name: 'GPT 4.1 Nano',
+    name: 'GPT-4.1 Nano',
     description: 'GPT-4.1 nano is the fastest, most cost-effective GPT 4.1 model. The knowledge cutoff is June 2024.',
     tags: ['low-cost', 'vision', 'general-purpose'],
     input: {
@@ -90,7 +133,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     },
   },
   'o3-mini-2025-01-31': {
-    name: 'GPT o3-mini',
+    name: 'o3-mini',
     description:
       'o3-mini is the most recent small reasoning model from OpenAI, providing high intelligence at the same cost and latency targets of o1-mini. o3-mini also supports key developer features, like Structured Outputs, function calling, Batch API, and more. Like other models in the o-series, it is designed to excel at science, math, and coding tasks. The knowledge cutoff for o3-mini models is October, 2023.',
     tags: ['reasoning', 'general-purpose'],
@@ -104,7 +147,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     },
   },
   'o1-2024-12-17': {
-    name: 'GPT o1',
+    name: 'o1',
     description:
       'The o1 model is designed to solve hard problems across domains. The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.',
     tags: ['reasoning', 'vision', 'general-purpose'],
@@ -118,7 +161,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     },
   },
   'o1-mini-2024-09-12': {
-    name: 'GPT o1-mini',
+    name: 'o1-mini',
     description:
       'The o1-mini model is a fast and affordable reasoning model for specialized tasks. The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.',
     tags: ['reasoning', 'vision', 'general-purpose'],
@@ -273,7 +316,7 @@ const SECONDS_IN_A_DAY = 24 * 60 * 60
 
 const provider = 'OpenAI'
 
-const SupportedReasoningEfforts = ['low', 'medium', 'high'] as ChatCompletionReasoningEffort[]
+const SupportedReasoningEfforts = ['minimal', 'low', 'medium', 'high'] as ChatCompletionReasoningEffort[]
 
 export default new bp.Integration({
   register: async () => {},
@@ -289,17 +332,28 @@ export default new bp.Integration({
           models: languageModels,
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
           overrideRequest: (request) => {
-            if (input.model?.id.startsWith('o1-') || input.model?.id.startsWith('o3-')) {
-              if (input.reasoningEffort === 'none') {
+            const isGPT5 =
+              input.model?.id === 'gpt-5-2025-08-07' ||
+              input.model?.id === 'gpt-5-mini-2025-08-07' ||
+              input.model?.id === 'gpt-5-nano-2025-08-07'
+
+            const isOReasoningModel =
+              input.model?.id.startsWith('o1-') ||
+              input.model?.id.startsWith('o3-') ||
+              input.model?.id.startsWith('o4-')
+
+            if (isGPT5 || isOReasoningModel) {
+              if (input.reasoningEffort === undefined && isGPT5) {
+                // GPT-5 is a hybrid model but it doesn't support optional reasoning, so if reasoning effort isn't specified we assume the user wants to use the least amount of reasoning possible (to reduce cost/latency).
+                request.reasoning_effort = 'minimal'
+              } else if (input.reasoningEffort === 'none') {
                 const acceptedValues = SupportedReasoningEfforts.map((x) => `"${x}"`)
                   .map((x, i) => (i === SupportedReasoningEfforts.length - 1 ? `or ${x}` : x))
                   .join(', ')
                 throw new InvalidPayloadError(
                   `Using "none" to disabling reasoning is not supported with OpenAI reasoning models, please use ${acceptedValues} instead or switch to a non-reasoning model`
                 )
-              }
-
-              if (SupportedReasoningEfforts.includes(input.reasoningEffort as any)) {
+              } else if (SupportedReasoningEfforts.includes(input.reasoningEffort as any)) {
                 request.reasoning_effort = input.reasoningEffort as ChatCompletionReasoningEffort
               } else {
                 request.reasoning_effort = 'medium'
@@ -310,7 +364,12 @@ export default new bp.Integration({
                   )
               }
 
-              // The o1 models don't allow setting temperature
+              if (isGPT5) {
+                // GPT-5 doesn't support stop sequences
+                request.stop = undefined
+              }
+
+              // Reasoning models don't allow setting temperature
               delete request.temperature
             }
             return request
@@ -353,7 +412,7 @@ export default new bp.Integration({
         response_format: 'url',
       })
 
-      const temporaryImageUrl = result.data[0]?.url
+      const temporaryImageUrl = result.data?.[0]?.url
       if (!temporaryImageUrl) {
         throw new Error('No image was returned by OpenAI')
       }
