@@ -3,7 +3,7 @@ import { PluginDefinition, z } from '@botpress/sdk'
 const UPDATE_CRON = '* * * * *' //every minute
 
 export default new PluginDefinition({
-  name: 'nathaniel-conversation-insights',
+  name: 'conversation-insights',
   version: '0.1.3',
   conversation: {
     tags: {
@@ -20,20 +20,14 @@ export default new PluginDefinition({
         title: 'Participant count',
         description: 'The count of users having participated in the conversation, including the bot. Type: int',
       },
-      cost: { title: 'Conversation cost', description: 'The total AI spend cost of the conversation. Type: float' },
-      topics: { title: 'Topics', description: 'Topic tags for the conversation' },
+      dirty: {
+        title: 'Dirty',
+        description: 'Signifies whether the conversation has had a new message since last refresh',
+      },
     },
   },
   states: {
     participants: { schema: z.object({ ids: z.array(z.string()) }), type: 'conversation' },
-    dirty: {
-      schema: z.object({
-        hasHadNewMessagesSinceRefresh: z
-          .boolean()
-          .describe('Signifies whether the conversation has had a new message since last refresh'),
-      }),
-      type: 'conversation',
-    },
   },
   events: { updateTitleAndSummary: { schema: z.object({}) } },
   recurringEvents: {
