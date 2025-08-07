@@ -21,6 +21,7 @@ import { LintCommand } from './lint-command'
 import { LoginCommand } from './login-command'
 import { LogoutCommand } from './logout-command'
 import * as plugins from './plugin-commands'
+import * as profiles from './profile-commands'
 import { ReadCommand } from './read-command'
 import { ServeCommand } from './serve-command'
 
@@ -79,4 +80,11 @@ export default {
   dev: getHandler(DevCommand),
   lint: getHandler(LintCommand),
   chat: getHandler(ChatCommand),
+  profiles: {
+    subcommands: {
+      list: getHandler(profiles.ListProfilesCommand),
+      active: getHandler(profiles.ActiveProfileCommand),
+      use: getHandler(profiles.UseProfileCommand),
+    },
+  },
 } satisfies ImplementationTree<typeof commandDefinitions>
