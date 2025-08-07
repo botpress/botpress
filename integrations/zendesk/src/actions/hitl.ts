@@ -1,27 +1,28 @@
 import { buildConversationTranscript } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
-import { getZendeskClient } from '../client'
+import { getZendeskClient, type ZendeskClient } from '../client'
 import * as bp from '.botpress'
 
 export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (props) => {
   const { ctx, input, client } = props
-  const zendeskClient = getZendeskClient(ctx.configuration)
-
-  const { user } = await client.getUser({
-    id: input.userId,
-  })
-  const zendeskAuthorId = user.tags.id
-  if (!zendeskAuthorId) {
-    throw new sdk.RuntimeError(`User ${user.id} not linked in Zendesk`)
-  }
 
   const { viaChannel, priority } = input.hitlSession || {}
 
+  const chatbotName = input.hitlSession?.chatbotName ?? 'Botpress'
+  const chatbotPhotoUrl = input.hitlSession?.chatbotPhotoUrl ?? 'https://app.botpress.dev/favicon/bp.svg'
+
+  const zendeskClient = getZendeskClient(ctx.configuration)
+  const zendeskBotpressUser = await _retrieveAndUpdateZendeskBotpressUser(props, {
+    zendeskClient,
+    chatbotName,
+    chatbotPhotoUrl,
+  })
+
   const ticket = await zendeskClient.createTicket(
     input.title ?? 'Untitled Ticket',
-    await _buildTicketBody(props),
+    await _buildTicketBody(props, { chatbotName }),
     {
-      id: zendeskAuthorId,
+      id: zendeskBotpressUser,
     },
     {
       priority,
@@ -48,9 +49,34 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (pro
   }
 }
 
-const _buildTicketBody = async ({ input, client, ctx }: bp.ActionProps['startHitl']) => {
-  const description = input.description?.trim() || 'Someone opened a ticket using your Botpress chatbot.'
+const _retrieveAndUpdateZendeskBotpressUser = async (
+  { client, ctx }: bp.ActionProps['startHitl'],
+  {
+    zendeskClient,
+    chatbotName,
+    chatbotPhotoUrl,
+  }: { zendeskClient: ZendeskClient; chatbotName: string; chatbotPhotoUrl: string }
+) => {
+  await client.updateUser({
+    id: ctx.botUserId,
+    pictureUrl: chatbotPhotoUrl,
+    name: chatbotName,
+  })
 
+  const zendeskUser = await zendeskClient.createOrUpdateUser({
+    external_id: ctx.botUserId,
+    name: chatbotName,
+    remote_photo_url: chatbotPhotoUrl,
+  })
+
+  return String(zendeskUser.id)
+}
+
+const _buildTicketBody = async (
+  { input, client, ctx }: bp.ActionProps['startHitl'],
+  { chatbotName }: { chatbotName: string }
+) => {
+  const description = input.description?.trim() || `Someone opened a ticket using your ${chatbotName} chatbot.`
   const messageHistory = await buildConversationTranscript({ client, ctx, messages: input.messageHistory })
 
   return description + (messageHistory.length ? `\n\n---\n\n${messageHistory}` : '')
