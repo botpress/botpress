@@ -175,7 +175,7 @@ export class Chat {
     process.stdout.write('\x1B[2J\x1B[0;0H')
   }
 
-  private _messageToText = (message: chat.Message): string => {
+  private _messageToText = (message: Pick<chat.Message, 'payload'>): string => {
     const prefix = MESSAGE_ICONS[message.payload.type]
     switch (message.payload.type) {
       case 'audio':
@@ -207,7 +207,13 @@ export class Chat {
       case 'markdown':
         return prefix + message.payload.markdown
       case 'bloc':
-        return prefix + message.payload.items
+        return (
+          prefix +
+          '\n' +
+          message.payload.items
+            .map((item) => this._messageToText({ payload: _convertBlocItemToMessagePayload(item) }))
+            .join('\n')
+        )
       default:
         type _assertion = utils.types.AssertNever<typeof message.payload>
         return '<unknown>'
@@ -223,5 +229,50 @@ export class Chat {
       createdAt: new Date().toISOString(),
       payload: { type: 'text', text },
     }
+  }
+}
+
+type BlocPayloadItem = Extract<chat.Message['payload'], { type: 'bloc' }>['items'][number]
+const _convertBlocItemToMessagePayload = (blocItem: BlocPayloadItem): chat.Message['payload'] => {
+  switch (blocItem.type) {
+    case 'text':
+      return {
+        type: blocItem.type,
+        text: blocItem.payload.text,
+      }
+    case 'audio':
+      return {
+        type: blocItem.type,
+        audioUrl: blocItem.payload.audioUrl,
+      }
+    case 'video':
+      return {
+        type: blocItem.type,
+        videoUrl: blocItem.payload.videoUrl,
+      }
+    case 'image':
+      return {
+        type: blocItem.type,
+        imageUrl: blocItem.payload.imageUrl,
+      }
+    case 'location':
+      return {
+        type: blocItem.type,
+        title: blocItem.payload.title,
+        latitude: blocItem.payload.latitude,
+        longitude: blocItem.payload.longitude,
+        address: blocItem.payload.address,
+      }
+    case 'file':
+      return {
+        type: blocItem.type,
+        title: blocItem.payload.title,
+        fileUrl: blocItem.payload.fileUrl,
+      }
+    case 'markdown':
+      return {
+        type: blocItem.type,
+        markdown: blocItem.payload.markdown,
+      }
   }
 }
