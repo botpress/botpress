@@ -1,4 +1,3 @@
-import definition from '../plugin.definition'
 import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
@@ -59,7 +58,7 @@ const _onNewMessage = async (
 
   const participant_count = await props.client
     .listParticipants({ id: props.conversation.id })
-    .then((participants) => participants.participants.length)
+    .then(({ participants }) => participants.length)
 
   const tags = {
     message_count: message_count.toString(),
@@ -67,7 +66,7 @@ const _onNewMessage = async (
     isDirty: isDirty ? 'true' : 'false',
   }
 
-  props.client.updateConversation({
+  await props.client.updateConversation({
     id: props.conversation.id,
     tags,
   })
@@ -77,7 +76,7 @@ const _updateTitleAndSummary = async (
   props: { client: bp.MessageHandlerProps['client']; conversationId: string },
   _messages: string[]
 ) => {
-  //TODO: use a workflow that calls the cognitive service
+  //TODO
   await props.client.updateConversation({
     id: props.conversationId,
     tags: {
