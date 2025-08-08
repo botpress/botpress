@@ -11,11 +11,11 @@ import {
   ChatCompletionCreateParamsNonStreaming,
   ChatCompletionMessageParam,
   ChatCompletionMessageToolCall,
-  ChatCompletionReasoningEffort,
   ChatCompletionToolChoiceOption,
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
+import { ChatCompletionReasoningEffort } from 'openai/resources/chat/completions'
 import { createUpstreamProviderFailedError } from './errors'
 import { ReasoningEffort } from './schemas'
 import { GenerateContentInput, GenerateContentOutput, ToolCall, Message, ModelDetails } from './types'
