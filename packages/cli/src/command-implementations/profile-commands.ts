@@ -40,10 +40,13 @@ export class ListProfilesCommand extends GlobalCommand<ListProfilesCommandDefini
 export type UseProfileCommandDefinition = typeof commandDefinitions.profiles.subcommands.use
 export class UseProfileCommand extends GlobalCommand<UseProfileCommandDefinition> {
   public async run(): Promise<void> {
+    const logSuccess = (profileName: string) => this.logger.success(`Now using profile "${profileName}"`)
+
     if (this.argv.profileToUse) {
       const profile = await this.readProfileFromFS(this.argv.profileToUse)
       await this.globalCache.set('activeProfile', this.argv.profileToUse)
       await _updateGlobalCache({ globalCache: this.globalCache, profileName: this.argv.profileToUse, profile })
+      logSuccess(this.argv.profileToUse)
       return
     }
     const profiles = await this.readProfilesFromFS()
@@ -63,6 +66,7 @@ export class UseProfileCommand extends GlobalCommand<UseProfileCommandDefinition
     if (!profile) throw new errors.BotpressCLIError('The selected profile could not be read')
     await this.globalCache.set('activeProfile', selectedProfile)
     await _updateGlobalCache({ globalCache: this.globalCache, profileName: selectedProfile, profile })
+    logSuccess(selectedProfile)
   }
 }
 
