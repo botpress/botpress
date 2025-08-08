@@ -121,7 +121,7 @@ export default new bp.Integration({
               // GPT-OSS models don't work well with a stop sequence, so we have to remove it from the request.
               delete request.stop
 
-              // GOT-OSS models don't allow setting temperature
+              // Reasoning models don't support temperature
               delete request.temperature
             }
 
