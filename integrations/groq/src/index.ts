@@ -17,7 +17,7 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
     name: 'GPT-OSS 20B (Preview)',
     description:
       'gpt-oss-20b is a compact, open-weight language model optimized for low-latency. It shares the same training foundation and capabilities as the GPT-OSS 120B model, with faster responses and lower cost.',
-    tags: ['preview', 'general-purpose', 'reasoning'],
+    tags: ['preview', 'general-purpose', 'reasoning', 'low-cost'],
     input: {
       costPer1MTokens: 0.1,
       maxTokens: 131_000,
@@ -31,7 +31,7 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
     name: 'GPT-OSS 120B (Preview)',
     description:
       'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
-    tags: ['preview', 'general-purpose', 'reasoning', 'low-cost'],
+    tags: ['preview', 'general-purpose', 'reasoning'],
 
     input: {
       costPer1MTokens: 0.15,
