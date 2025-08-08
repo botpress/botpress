@@ -17,6 +17,8 @@ export const languageModelId = z
     'accounts/fireworks/models/mixtral-8x7b-instruct',
     'accounts/fireworks/models/mythomax-l2-13b',
     'accounts/fireworks/models/gemma2-9b-it',
+    'accounts/fireworks/models/gpt-oss-20b',
+    'accounts/fireworks/models/gpt-oss-120b',
   ])
   .describe('Model to use for content generation')
   .placeholder('accounts/fireworks/models/llama-v3p1-70b-instruct')
