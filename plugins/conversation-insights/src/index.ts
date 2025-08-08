@@ -1,3 +1,4 @@
+import definition from '../plugin.definition'
 import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
@@ -5,9 +6,21 @@ const plugin = new bp.Plugin({
 })
 
 plugin.on.afterIncomingMessage('*', async (props) => {
+  const conversationTags = await props.client.getConversation({ id: props.data.conversationId })
+
+  // removing tags from plugins
+  const allTagKeys = Object.keys(definition.conversation?.tags ?? {})
+  const tags = allTagKeys.reduce(
+    (acc, key) => {
+      if (conversationTags.conversation.tags[key]) acc[key] = conversationTags.conversation.tags[key]
+      return acc
+    },
+    {} as Record<string, string>
+  )
+
   await _newMessage({
     ...props,
-    conversation: { id: props.data.conversationId, tags: { ...props.data.tags, isDirty: 'true' } },
+    conversation: { id: props.data.conversationId, tags: { ...tags, isDirty: 'true' } },
     userId: props.data.userId,
   })
 
@@ -44,26 +57,15 @@ const _newMessage = async (props: {
   client: bp.MessageHandlerProps['client']
   logger: bp.MessageHandlerProps['logger']
 }) => {
-  props.logger.info('started logging')
   const message_count = props.conversation.tags.message_count ? parseInt(props.conversation.tags.message_count) + 1 : 1
 
-  const participantsState = await props.states.conversation.participants.getOrSet(props.conversation.id, {
-    ids: [],
-  })
+  const participant_count = (await props.client.listParticipants({ id: props.conversation.id })).participants.length
 
-  let updatedParticipants = participantsState.ids
-  const senderId = props.userId
-
-  if (!updatedParticipants.includes(senderId)) {
-    updatedParticipants = [...updatedParticipants, senderId]
-    await props.states.conversation.participants.set(props.conversation.id, {
-      ids: updatedParticipants,
-    })
+  const tags = {
+    ...props.conversation.tags,
+    message_count: message_count.toString(),
+    participant_count: participant_count.toString(),
   }
-
-  const participant_count = updatedParticipants.length.toString()
-
-  const tags = { ...props.conversation.tags, message_count: message_count.toString(), participant_count }
 
   props.client.updateConversation({
     id: props.conversation.id,
@@ -73,10 +75,17 @@ const _newMessage = async (props: {
 
 const _updateTitleAndSummary = async (
   props: { client: bp.MessageHandlerProps['client']; conversationId: string },
-  messages: string[]
+  _messages: string[]
 ) => {
   //TODO: use a workflow that calls the cognitive service
-  console.log(`updated the title and summary with messages ${messages}`)
+  props.client.updateConversation({
+    id: props.conversationId,
+    tags: {
+      title: 'The conversation title!',
+      summary: 'This is normally where the conversation summary would be.',
+      isDirty: 'false',
+    },
+  })
 }
 
 export default plugin

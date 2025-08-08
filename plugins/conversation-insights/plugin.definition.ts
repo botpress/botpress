@@ -1,6 +1,6 @@
 import { PluginDefinition, z } from '@botpress/sdk'
 
-const UPDATE_CRON = '* * * * *' //every minute
+const UPDATE_CRON = '@every-minute' //every minute
 
 export default new PluginDefinition({
   name: 'conversation-insights',
@@ -25,9 +25,6 @@ export default new PluginDefinition({
         description: 'Signifies whether the conversation has had a new message since last refresh',
       },
     },
-  },
-  states: {
-    participants: { schema: z.object({ ids: z.array(z.string()) }), type: 'conversation' },
   },
   events: { updateTitleAndSummary: { schema: z.object({}) } },
   recurringEvents: {
