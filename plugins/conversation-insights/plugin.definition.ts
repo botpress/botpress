@@ -27,7 +27,4 @@ export default new PluginDefinition({
     },
   },
   events: { updateTitleAndSummary: { schema: z.object({}) } },
-  recurringEvents: {
-    updateTitleAndSummaryRecurring: { type: 'updateTitleAndSummary', payload: {}, schedule: { cron: UPDATE_CRON } },
-  },
 })
