@@ -274,5 +274,12 @@ const _convertBlocItemToMessagePayload = (blocItem: BlocPayloadItem): chat.Messa
         type: blocItem.type,
         markdown: blocItem.payload.markdown,
       }
+    default:
+      return {
+        // @ts-ignore
+        ...blocItem.payload,
+        // @ts-ignore
+        type: blocItem.type,
+      }
   }
 }
