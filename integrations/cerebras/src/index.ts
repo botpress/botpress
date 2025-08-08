@@ -1,4 +1,5 @@
 import { llm } from '@botpress/common'
+import { validateGptOssReasoningEffort } from '@botpress/common/src/llm/openai'
 import OpenAI from 'openai'
 import { DEFAULT_MODEL_ID, ModelId } from './schemas'
 import * as bp from '.botpress'
@@ -9,7 +10,23 @@ const cerebrasClient = new OpenAI({
 })
 
 const languageModels: Record<ModelId, llm.ModelDetails> = {
-  // Reference: https://inference-docs.cerebras.ai/introduction
+  // Reference:
+  // https://inference-docs.cerebras.ai/models/overview
+  // https://www.cerebras.ai/pricing
+  'gpt-oss-120b': {
+    name: 'GPT-OSS 120B (Preview)',
+    description:
+      'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
+    tags: ['preview', 'general-purpose', 'reasoning'],
+    input: {
+      costPer1MTokens: 0.25,
+      maxTokens: 131_000,
+    },
+    output: {
+      costPer1MTokens: 0.69,
+      maxTokens: 16_000,
+    },
+  },
   'qwen-3-32b': {
     name: 'Qwen3 32B',
     description:
@@ -17,7 +34,7 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
     tags: ['general-purpose', 'reasoning'],
     input: {
       costPer1MTokens: 0.4,
-      maxTokens: 16_000,
+      maxTokens: 128_000,
     },
     output: {
       costPer1MTokens: 0.8,
@@ -31,7 +48,7 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
     tags: ['general-purpose'],
     input: {
       costPer1MTokens: 0.65,
-      maxTokens: 16_000,
+      maxTokens: 32_000,
     },
     output: {
       costPer1MTokens: 0.85,
@@ -45,7 +62,7 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
     tags: ['low-cost', 'general-purpose'],
     input: {
       costPer1MTokens: 0.1,
-      maxTokens: 16_000,
+      maxTokens: 32_000,
     },
     output: {
       costPer1MTokens: 0.1,
@@ -59,7 +76,7 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
       'Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8B and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks.',
     input: {
       costPer1MTokens: 0.85,
-      maxTokens: 16_000,
+      maxTokens: 128_000,
     },
     output: {
       costPer1MTokens: 1.2,
@@ -96,6 +113,16 @@ export default new bp.Integration({
                   break
                 }
               }
+            }
+
+            if (input.model?.id === 'gpt-oss-120b') {
+              request.reasoning_effort = validateGptOssReasoningEffort(input, logger)
+
+              // GPT-OSS models don't work well with a stop sequence, so we have to remove it from the request.
+              delete request.stop
+
+              // Reasoning models don't support temperature
+              delete request.temperature
             }
 
             return request
