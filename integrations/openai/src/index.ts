@@ -1,5 +1,6 @@
 import { InvalidPayloadError } from '@botpress/client'
 import { llm, speechToText, textToImage } from '@botpress/common'
+import { validateOpenAIReasoningEffort } from '@botpress/common/src/llm/openai'
 import crypto from 'crypto'
 import { TextToSpeechPricePer1MCharacters } from 'integration.definition'
 import OpenAI from 'openai'
@@ -346,27 +347,13 @@ export default new bp.Integration({
               if (input.reasoningEffort === undefined && isGPT5) {
                 // GPT-5 is a hybrid model but it doesn't support optional reasoning, so if reasoning effort isn't specified we assume the user wants to use the least amount of reasoning possible (to reduce cost/latency).
                 request.reasoning_effort = 'minimal'
-              } else if (input.reasoningEffort === 'none') {
-                const acceptedValues = SupportedReasoningEfforts.map((x) => `"${x}"`)
-                  .map((x, i) => (i === SupportedReasoningEfforts.length - 1 ? `or ${x}` : x))
-                  .join(', ')
-                throw new InvalidPayloadError(
-                  `Using "none" to disabling reasoning is not supported with OpenAI reasoning models, please use ${acceptedValues} instead or switch to a non-reasoning model`
-                )
-              } else if (SupportedReasoningEfforts.includes(input.reasoningEffort as any)) {
-                request.reasoning_effort = input.reasoningEffort as ChatCompletionReasoningEffort
               } else {
-                request.reasoning_effort = 'medium'
-                logger
-                  .forBot()
-                  .info(
-                    `Reasoning effort "${input.reasoningEffort}" is not supported by OpenAI, using "${request.reasoning_effort}" effort instead`
-                  )
+                request.reasoning_effort = validateOpenAIReasoningEffort(input, logger)
               }
 
               if (isGPT5) {
                 // GPT-5 doesn't support stop sequences
-                request.stop = undefined
+                delete request.stop
               }
 
               // Reasoning models don't allow setting temperature
