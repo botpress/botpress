@@ -445,6 +445,6 @@ export function validateOpenAIReasoningEffort(
   input: { reasoningEffort?: ReasoningEffort; model?: { id: string } },
   logger: IntegrationLogger
 ): ChatCompletionReasoningEffort | undefined {
-  // Reasoning efforts supported by commercial OpenAI o- family models are the same as the GPT-OSS models at the moment, so we reuse the same validation logic.
+  // Reasoning efforts supported by commercial OpenAI models are the same as the GPT-OSS models at the moment, so we reuse the same validation logic.
   return validateGptOssReasoningEffort(input, logger)
 }

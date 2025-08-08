@@ -353,7 +353,7 @@ export default new bp.Integration({
 
               if (isGPT5) {
                 // GPT-5 doesn't support stop sequences
-                request.stop = undefined
+                delete request.stop
               }
 
               // Reasoning models don't allow setting temperature

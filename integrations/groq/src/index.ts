@@ -214,7 +214,10 @@ export default new bp.Integration({
           if (input.model?.id === 'openai/gpt-oss-20b' || input.model?.id === 'openai/gpt-oss-120b') {
             request.reasoning_effort = validateGptOssReasoningEffort(input, logger)
 
-            // Reasoning models don't allow setting temperature
+            // GPT-OSS models don't work well with a stop sequence, so we have to remove it from the request.
+            delete request.stop
+
+            // GOT-OSS models don't allow setting temperature
             delete request.temperature
           }
 
