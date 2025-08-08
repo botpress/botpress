@@ -11,7 +11,13 @@ type CheckApiCanSendAndReceiveMessagesProps = {
   client: chat.AuthenticatedClient
   conversationId: string
 }
-const checkApiCanSendAndReceiveMessages = async (props: CheckApiCanSendAndReceiveMessagesProps): Promise<void> => {
+
+type CreateMessagePayload = chat.AuthenticatedClientRequests['createMessage']['payload']
+
+const checkApiCanSendAndReceiveMessagesWithPayload = async (
+  props: CheckApiCanSendAndReceiveMessagesProps,
+  payload: CreateMessagePayload
+): Promise<void> => {
   const { client, conversationId } = props
 
   const listener = await client.listenConversation({
@@ -30,10 +36,7 @@ const checkApiCanSendAndReceiveMessages = async (props: CheckApiCanSendAndReceiv
 
   const createMessageRequest: chat.AuthenticatedClientRequests['createMessage'] = {
     conversationId: conversationId,
-    payload: {
-      type: 'text',
-      text: 'hello world',
-    },
+    payload,
   }
 
   const createMessagePromise = client.createMessage(createMessageRequest).then((res) => res.message)
@@ -52,6 +55,12 @@ const checkApiCanSendAndReceiveMessages = async (props: CheckApiCanSendAndReceiv
   expect(messages[0]).toEqual(messageSent)
   expect(messages[1]).toEqual(messageReceived)
 }
+
+const checkApiCanSendAndReceiveMessages = async (props: CheckApiCanSendAndReceiveMessagesProps): Promise<void> =>
+  await checkApiCanSendAndReceiveMessagesWithPayload(props, {
+    type: 'text',
+    text: 'hello world',
+  })
 
 test('api allows sending and receiving messages using botpress IDs', async () => {
   const client = await chat.Client.connect({ apiUrl })
@@ -185,4 +194,36 @@ test('api allows sending and receiving messages with metadata', async () => {
 
   const [fetchedSelfMessage] = fetchedSelfMessages
   expect(fetchedSelfMessage!.metadata).toEqual(metadata)
+})
+
+const checkApiCanSendAndReceiveBlocMessages = async (props: CheckApiCanSendAndReceiveMessagesProps): Promise<void> =>
+  await checkApiCanSendAndReceiveMessagesWithPayload(props, {
+    type: 'bloc',
+    items: [
+      {
+        type: 'text',
+        payload: {
+          text: 'hello world',
+        },
+      },
+      {
+        type: 'image',
+        payload: {
+          imageUrl: 'https://fastly.picsum.photos/id/329/200/300.jpg?hmac=_yLyj0EqdpQ-cX84OlMxz3YzOjjd7liq6b25ldkVSpA',
+        },
+      },
+    ],
+  })
+
+test('api allows sending and receiving bloc messages', async () => {
+  const client = await chat.Client.connect({ apiUrl })
+
+  const {
+    conversation: { id: conversationId },
+  } = await client.createConversation({})
+
+  await checkApiCanSendAndReceiveBlocMessages({
+    client,
+    conversationId,
+  })
 })

@@ -35,6 +35,7 @@ const MESSAGE_ICONS: Record<chat.Message['payload']['type'], string> = {
   text: '',
   video: '🎥',
   markdown: '',
+  bloc: '🧱',
 }
 
 const EXIT_KEYWORDS = ['exit', '.exit']
@@ -205,6 +206,8 @@ export class Chat {
         return prefix + message.payload.videoUrl
       case 'markdown':
         return prefix + message.payload.markdown
+      case 'bloc':
+        return prefix + message.payload.items
       default:
         type _assertion = utils.types.AssertNever<typeof message.payload>
         return '<unknown>'
