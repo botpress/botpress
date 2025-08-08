@@ -18,7 +18,7 @@ plugin.on.afterIncomingMessage('*', async (props) => {
     {} as Record<string, string>
   )
 
-  await _newMessage({
+  await _onNewMessage({
     ...props,
     conversation: { id: props.data.conversationId, tags: { ...tags, isDirty: 'true' } },
     userId: props.data.userId,
@@ -29,7 +29,7 @@ plugin.on.afterIncomingMessage('*', async (props) => {
 
 plugin.on.afterOutgoingMessage('*', async (props) => {
   const conversation = await props.client.getConversation({ id: props.data.message.conversationId })
-  await _newMessage({ ...props, conversation: conversation.conversation, userId: props.data.message.userId })
+  await _onNewMessage({ ...props, conversation: conversation.conversation, userId: props.data.message.userId })
 
   return { data: { message: props.data.message } }
 })
@@ -47,7 +47,7 @@ plugin.on.event('updateTitleAndSummary', async (props) => {
   }
 })
 
-const _newMessage = async (props: {
+const _onNewMessage = async (props: {
   conversation: {
     id: bp.MessageHandlerProps['conversation']['id']
     tags: bp.MessageHandlerProps['conversation']['tags']
