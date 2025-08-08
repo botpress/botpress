@@ -1,0 +1,21 @@
+{
+  "name": "@botpresshub/record-synchronizer",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "picomatch": "^4.0.2"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpresshub/hitl": "workspace:*",
+    "@types/picomatch": "^3.0.2"
+  },
+  "bpDependencies": {
+    "records-readonly": "../../interfaces/records-readonly"
+  }
+}
