@@ -62,6 +62,20 @@ const carouselMessageSchema = z.object({
   items: z.array(cardMessageSchema),
 })
 
+const _blocSchema = z.union([
+  z.object({ type: z.literal('text'), payload: textMessageSchema }),
+  z.object({ type: z.literal('markdown'), payload: markdownMessageSchema }),
+  z.object({ type: z.literal('image'), payload: imageMessageSchema }),
+  z.object({ type: z.literal('audio'), payload: audioMessageSchema }),
+  z.object({ type: z.literal('video'), payload: videoMessageSchema }),
+  z.object({ type: z.literal('file'), payload: fileMessageSchema }),
+  z.object({ type: z.literal('location'), payload: locationMessageSchema }),
+])
+
+const blocMessageSchema = z.object({
+  items: z.array(_blocSchema),
+})
+
 const messages = {
   text: { schema: textMessageSchema },
   image: { schema: imageMessageSchema },
@@ -73,6 +87,7 @@ const messages = {
   card: { schema: cardMessageSchema },
   dropdown: { schema: choiceMessageSchema },
   choice: { schema: choiceMessageSchema },
+  bloc: { schema: blocMessageSchema },
   markdown: { schema: markdownMessageSchema },
 }
 
@@ -88,6 +103,7 @@ export const messagePayloadSchema = z.union([
   messages.text.schema.extend({ type: z.literal('text') }),
   messages.video.schema.extend({ type: z.literal('video') }),
   messages.markdown.schema.extend({ type: z.literal('markdown') }),
+  messages.bloc.schema.extend({ type: z.literal('bloc') }),
 ])
 
 export const messageSchema = schema(
