@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import * as workflow from './workflow'
+import * as cognitive from './cognitive'
 import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
@@ -74,17 +74,17 @@ const createWorkflowForConversation = async (props: WorkflowCreationProps) => {
 
 plugin.on.workflowStart('updateWithWorkflow', async (props) => {
   if (!props.conversation) throw new sdk.RuntimeError('The conversation id cannot be null')
-  await _updateTitleAndSummary({
-    ...props,
-    conversationId: props.conversation.id,
-    messages: props.workflow.input.messages,
-  })
-
   console.log('workflow started')
+  // await _updateTitleAndSummary({
+  //   ...props,
+  //   conversationId: props.conversation.id,
+  //   messages: props.workflow.input.messages,
+  // })
 })
 
 plugin.on.workflowContinue('updateWithWorkflow', async (props) => {
   if (!props.conversation) throw new sdk.RuntimeError('The conversation id cannot be null')
+  console.log('continuing workflow')
   await _updateTitleAndSummary({
     ...props,
     conversationId: props.conversation.id,
@@ -104,12 +104,17 @@ type UpdateTitleAndSummaryProps = CommonProps & {
   messages: string[]
 }
 const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
+  const updatedTitleAndSummary = await cognitive.getUpdate({
+    client: props.client,
+    botId: props.ctx.botId,
+    messages: props.messages,
+  })
   await props.client.updateConversation({
     id: props.conversationId,
     tags: {
       // TODO: use the cognitive client / service to generate a title and summary
-      title: 'The conversation title!',
-      summary: 'This is normally where the conversation summary would be.',
+      title: updatedTitleAndSummary.title,
+      summary: updatedTitleAndSummary.summary,
       isDirty: 'false',
     },
   })
