@@ -13,6 +13,9 @@ type CommonProps =
 plugin.on.afterIncomingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
   await _onNewMessage({ ...props, conversation, isDirty: true })
+
+  await _updateWorkflow(props)
+
   return undefined
 })
 
@@ -20,16 +23,6 @@ plugin.on.afterOutgoingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.message.conversationId })
   await _onNewMessage({ ...props, conversation, isDirty: false })
   return undefined
-})
-
-plugin.on.event('updateTitleAndSummary', async (props) => {
-  const conversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
-
-  for (const conversation of conversations.conversations) {
-    const messages = await props.client.listMessages({ conversationId: conversation.id })
-    const newMessages = messages.messages.map((message) => message.payload.text)
-    await _updateTitleAndSummary({ ...props, conversationId: conversation.id, messages: newMessages })
-  }
 })
 
 type OnNewMessageProps = CommonProps & {
@@ -60,6 +53,12 @@ type UpdateTitleAndSummaryProps = CommonProps & {
   messages: string[]
 }
 const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
+  await props.client.createWorkflow({
+    input: {},
+    name: 'updateWithWorkflow',
+    status: 'pending',
+    conversationId: props.conversationId,
+  })
   await props.client.updateConversation({
     id: props.conversationId,
     tags: {
@@ -70,5 +69,33 @@ const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
     },
   })
 }
+
+// #region workflows
+
+const _updateWorkflow = async (props: CommonProps) => {
+  const conversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
+
+  for (const conversation of conversations.conversations) {
+    const messages = await props.client.listMessages({ conversationId: conversation.id })
+    const newMessages = messages.messages.map((message) => message.payload.text)
+    await _updateTitleAndSummary({ ...props, conversationId: conversation.id, messages: newMessages })
+  }
+}
+
+plugin.on.workflowStart('updateWithWorkflow', async (props) => {
+  console.log('workflow started')
+})
+
+plugin.on.workflowContinue('updateWithWorkflow', async (props) => {
+  console.log('workflow continued')
+  props.workflow.setCompleted()
+  console.log('completed')
+})
+
+plugin.on.workflowTimeout('updateWithWorkflow', async (props) => {
+  console.log('workflow timed out')
+})
+
+// endregion
 
 export default plugin
