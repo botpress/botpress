@@ -1,3 +1,5 @@
+import * as sdk from '@botpress/sdk'
+import * as workflow from './workflow'
 import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
@@ -14,7 +16,7 @@ plugin.on.afterIncomingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
   await _onNewMessage({ ...props, conversation, isDirty: true })
 
-  await _updateWorkflow(props)
+  await createWorkflowForConversation({ ...props, conversationId: props.data.conversationId })
 
   return undefined
 })
@@ -48,17 +50,60 @@ const _onNewMessage = async (props: OnNewMessageProps) => {
   })
 }
 
+// #region workflows
+
+const createWorkflowForAllConversations = async (props: CommonProps) => {
+  const conversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
+
+  for (const conversation of conversations.conversations) {
+    await createWorkflowForConversation({ ...props, conversationId: conversation.id })
+  }
+}
+
+type WorkflowCreationProps = CommonProps & { conversationId: string }
+const createWorkflowForConversation = async (props: WorkflowCreationProps) => {
+  const messages = await props.client.listMessages({ conversationId: props.conversationId })
+  const newMessages: string[] = messages.messages.map((message) => message.payload.text)
+  await props.client.createWorkflow({
+    input: { messages: newMessages },
+    name: 'updateWithWorkflow',
+    status: 'pending',
+    conversationId: props.conversationId,
+  })
+}
+
+plugin.on.workflowStart('updateWithWorkflow', async (props) => {
+  if (!props.conversation) throw new sdk.RuntimeError('The conversation id cannot be null')
+  await _updateTitleAndSummary({
+    ...props,
+    conversationId: props.conversation.id,
+    messages: props.workflow.input.messages,
+  })
+
+  console.log('workflow started')
+})
+
+plugin.on.workflowContinue('updateWithWorkflow', async (props) => {
+  if (!props.conversation) throw new sdk.RuntimeError('The conversation id cannot be null')
+  await _updateTitleAndSummary({
+    ...props,
+    conversationId: props.conversation.id,
+    messages: props.workflow.input.messages,
+  })
+
+  props.workflow.setCompleted()
+  console.log('completed')
+})
+
+plugin.on.workflowTimeout('updateWithWorkflow', async (props) => {
+  console.log('workflow timed out')
+})
+
 type UpdateTitleAndSummaryProps = CommonProps & {
   conversationId: string
   messages: string[]
 }
 const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
-  await props.client.createWorkflow({
-    input: {},
-    name: 'updateWithWorkflow',
-    status: 'pending',
-    conversationId: props.conversationId,
-  })
   await props.client.updateConversation({
     id: props.conversationId,
     tags: {
@@ -69,33 +114,6 @@ const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
     },
   })
 }
-
-// #region workflows
-
-const _updateWorkflow = async (props: CommonProps) => {
-  const conversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
-
-  for (const conversation of conversations.conversations) {
-    const messages = await props.client.listMessages({ conversationId: conversation.id })
-    const newMessages = messages.messages.map((message) => message.payload.text)
-    await _updateTitleAndSummary({ ...props, conversationId: conversation.id, messages: newMessages })
-  }
-}
-
-plugin.on.workflowStart('updateWithWorkflow', async (props) => {
-  console.log('workflow started')
-})
-
-plugin.on.workflowContinue('updateWithWorkflow', async (props) => {
-  console.log('workflow continued')
-  props.workflow.setCompleted()
-  console.log('completed')
-})
-
-plugin.on.workflowTimeout('updateWithWorkflow', async (props) => {
-  console.log('workflow timed out')
-})
-
 // endregion
 
 export default plugin

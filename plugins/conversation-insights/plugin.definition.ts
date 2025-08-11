@@ -26,5 +26,10 @@ export default new PluginDefinition({
   },
   // TODO: replace this event with a workflow
   events: { updateTitleAndSummary: { schema: z.object({}) } },
-  workflows: { updateWithWorkflow: { input: { schema: z.object({}) }, output: { schema: z.object({}) } } },
+  workflows: {
+    updateWithWorkflow: {
+      input: { schema: z.object({ messages: z.array(z.string()) }) },
+      output: { schema: z.object({}) },
+    },
+  },
 })
