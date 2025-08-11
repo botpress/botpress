@@ -1,7 +1,5 @@
 import { PluginDefinition, z } from '@botpress/sdk'
 
-const UPDATE_CRON = '@every-minute' //every minute
-
 export default new PluginDefinition({
   name: 'conversation-insights',
   version: '0.1.3',
@@ -26,8 +24,6 @@ export default new PluginDefinition({
       },
     },
   },
+  // TODO: replace this event with a workflow
   events: { updateTitleAndSummary: { schema: z.object({}) } },
-  recurringEvents: {
-    updateTitleAndSummaryRecurring: { type: 'updateTitleAndSummary', payload: {}, schedule: { cron: UPDATE_CRON } },
-  },
 })

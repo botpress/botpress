@@ -18,7 +18,6 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
     await getMessages({ page: 0, perPage: 1 }, props)
   } catch (thrown: unknown) {
     const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-    console.log(err.message)
     throw new sdk.RuntimeError(
       `An error occured when registering the integration: ${err.message} Verify your configuration.`
     )
