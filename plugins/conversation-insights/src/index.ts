@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
-import * as titleGenerator from './titleAndSummaryGenerator'
 import * as bp from '.botpress'
+import * as prompter from './question-prompt'
 
 const plugin = new bp.Plugin({
   actions: {},
@@ -107,25 +107,26 @@ type UpdateTitleAndSummaryProps = CommonProps & {
 }
 const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   props.client._inner.config.headers['x-workspace-id'] = '11111111-1111-1111-aaaa-111111111111'
-  const updatedTitleAndSummary = await titleGenerator.getUpdate({
-    client: props.client._inner,
-    botId: props.ctx.botId,
-    messages: props.messages,
-  })
+  // const updatedTitleAndSummary = await titleGenerator.getUpdate({
+  //   client: props.client._inner,
+  //   botId: props.ctx.botId,
+  //   messages: props.messages,
+  // })
 
-  const formatMessages: { content: string; role: 'user' | 'assistant' }[] = props.messages.map((message) => ({
-    content: message,
-    role: 'user',
-  }))
-
-  const content = props.actions.llm.generateContent({ messages: formatMessages, model: props.configuration.model })
+  const content = await props.actions.llm.generateContent(
+    prompter.prompt({
+      messages: props.messages,
+      model: props.configuration.model,
+    })
+  )
+  console.log(content)
 
   await props.client.updateConversation({
     id: props.conversationId,
     tags: {
       // TODO: use the cognitive client / service to generate a title and summary
-      title: updatedTitleAndSummary.title,
-      summary: updatedTitleAndSummary.summary,
+      // title: updatedTitleAndSummary.title,
+      // summary: updatedTitleAndSummary.summary,
       isDirty: 'false',
     },
   })
