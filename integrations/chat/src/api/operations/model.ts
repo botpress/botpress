@@ -1,3 +1,4 @@
+import { messageToSignal } from '../../utils'
 import * as types from '../types'
 
 export type ChatConversation = types.OperationOutputs['getConversation']['body']['conversation']
@@ -23,14 +24,15 @@ export const mapUser = (user: types.User): ChatUser => {
 
 export type ChatMessage = types.OperationOutputs['createMessage']['body']['message']
 export const mapMessage = (message: types.Message): ChatMessage => {
-  const { type } = message
-  const { metadata, ...payload } = message.payload
+  const { metadata } = message.payload
+  const signalPayload: ChatMessage['payload'] = messageToSignal(message)
+
   return {
     id: message.id,
     createdAt: message.createdAt,
     conversationId: message.conversationId,
     userId: message.userId,
-    payload: { type, ...payload } as ChatMessage['payload'],
+    payload: signalPayload,
     metadata,
   }
 }

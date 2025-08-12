@@ -5,14 +5,9 @@ import * as debug from './debug'
 import { makeHandler } from './handler'
 import { MemorySpace, ChatIdStore, InMemoryChatIdStore, DynamoDbChatIdStore } from './id-store'
 import { Options, options } from './options'
-import {
-  CompositeSignalEmiter,
-  PushpinEmitter,
-  SignalEmitter,
-  WebhookEmitter,
-  MessageCreatedSignal,
-} from './signal-emitter'
+import { CompositeSignalEmiter, PushpinEmitter, SignalEmitter, WebhookEmitter } from './signal-emitter'
 import { MessageArgs, ActionArgs } from './types'
+import { messageToSignal } from './utils'
 import * as bp from '.botpress'
 
 const memSpace = new MemorySpace()
@@ -54,39 +49,6 @@ const makeEmitter = (options: Options): SignalEmitter => {
 
   const webhookEmitter = new WebhookEmitter(webhookUrl, webhookSecret)
   return new CompositeSignalEmiter([pushpinEmitter, webhookEmitter])
-}
-
-type MessageCreatedPayload = MessageCreatedSignal['data']['payload']
-type GetMessageCreatedPayloadByType<T extends MessageCreatedPayload['type']> = Extract<
-  MessageCreatedPayload,
-  { type: T }
->
-
-type BlocMessageArgsPayload = Extract<MessageArgs, { type: 'bloc' }>['payload']
-const messageToSignal = (args: MessageArgs): MessageCreatedPayload => {
-  const { type } = args
-  const { metadata: _, ...payload } = args.payload
-
-  if (type !== 'bloc') {
-    return {
-      type,
-      ...payload,
-    } as Exclude<MessageCreatedPayload, { type: 'bloc' }>
-  } else {
-    const items = (payload as BlocMessageArgsPayload).items.map(
-      (item) =>
-        ({
-          type: item.type,
-          ...item.payload,
-        }) as GetMessageCreatedPayloadByType<'bloc'>['items'][number]
-    )
-
-    return {
-      type,
-      ...payload,
-      items,
-    } satisfies GetMessageCreatedPayloadByType<'bloc'>
-  }
 }
 
 const mapMessageSignalFid = async (idStores: ChatIdStores, args: MessageArgs): Promise<MessageArgs> => {
