@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import * as cognitive from './cognitive'
+import * as titleGenerator from './titleAndSummaryGenerator'
 import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
@@ -15,6 +15,7 @@ type CommonProps =
 plugin.on.afterIncomingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
   await _onNewMessage({ ...props, conversation, isDirty: true })
+  console.log('received message in plugin')
 
   await createWorkflowForConversation({ ...props, conversationId: props.data.conversationId })
 
@@ -97,6 +98,7 @@ plugin.on.workflowContinue('updateWithWorkflow', async (props) => {
 
 plugin.on.workflowTimeout('updateWithWorkflow', async (props) => {
   console.log('workflow timed out')
+  props.workflow.setFailed({ failureReason: 'Unknown reason' })
 })
 
 type UpdateTitleAndSummaryProps = CommonProps & {
@@ -104,11 +106,20 @@ type UpdateTitleAndSummaryProps = CommonProps & {
   messages: string[]
 }
 const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
-  const updatedTitleAndSummary = await cognitive.getUpdate({
-    client: props.client,
+  props.client._inner.config.headers['x-workspace-id'] = '11111111-1111-1111-aaaa-111111111111'
+  const updatedTitleAndSummary = await titleGenerator.getUpdate({
+    client: props.client._inner,
     botId: props.ctx.botId,
     messages: props.messages,
   })
+
+  const formatMessages: { content: string; role: 'user' | 'assistant' }[] = props.messages.map((message) => ({
+    content: message,
+    role: 'user',
+  }))
+
+  const content = props.actions.llm.generateContent({ messages: formatMessages, model: props.configuration.model })
+
   await props.client.updateConversation({
     id: props.conversationId,
     tags: {
@@ -120,5 +131,9 @@ const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   })
 }
 // endregion
+
+plugin.on.event('updateTitleAndSummary', async (props) => {
+  console.log('recurring event was called on the plugin')
+})
 
 export default plugin
