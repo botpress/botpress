@@ -12,22 +12,8 @@ const carousel = { schema: sdk.messages.defaults.carousel.schema.extend({ metada
 const card = { schema: sdk.messages.defaults.card.schema.extend({ metadata }) }
 const dropdown = { schema: sdk.messages.defaults.dropdown.schema.extend({ metadata }) }
 const choice = { schema: sdk.messages.defaults.choice.schema.extend({ metadata }) }
+const bloc = { schema: sdk.messages.defaults.bloc.schema.extend({ metadata }) }
 const markdown = { schema: sdk.messages.markdown.schema.extend({ metadata }) }
-
-const blocSchema = z.union([
-  z.object({ type: z.literal('text'), payload: text.schema }),
-  z.object({ type: z.literal('markdown'), payload: markdown.schema }),
-  z.object({ type: z.literal('image'), payload: image.schema }),
-  z.object({ type: z.literal('audio'), payload: audio.schema }),
-  z.object({ type: z.literal('video'), payload: video.schema }),
-  z.object({ type: z.literal('file'), payload: file.schema }),
-  z.object({ type: z.literal('location'), payload: location.schema }),
-])
-
-const blocsSchema = z.object({
-  items: z.array(blocSchema),
-  metadata,
-})
 
 export const messages = {
   text,
@@ -40,6 +26,6 @@ export const messages = {
   card,
   dropdown,
   choice,
-  bloc: { schema: blocsSchema },
+  bloc,
   markdown,
 } satisfies sdk.ChannelDefinition['messages']
