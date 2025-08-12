@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
-import * as bp from '.botpress'
+import * as gen from './generate-content'
 import * as prompter from './question-prompt'
+import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
   actions: {},
@@ -104,29 +105,28 @@ plugin.on.workflowTimeout('updateWithWorkflow', async (props) => {
 type UpdateTitleAndSummaryProps = CommonProps & {
   conversationId: string
   messages: string[]
+  workflow: bp.WorkflowHandlerProps['updateWithWorkflow']['workflow']
 }
 const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   props.client._inner.config.headers['x-workspace-id'] = '11111111-1111-1111-aaaa-111111111111'
-  // const updatedTitleAndSummary = await titleGenerator.getUpdate({
-  //   client: props.client._inner,
-  //   botId: props.ctx.botId,
-  //   messages: props.messages,
-  // })
 
-  const content = await props.actions.llm.generateContent(
+  const llmOutput = await props.actions.llm.generateContent(
     prompter.prompt({
       messages: props.messages,
       model: props.configuration.model,
     })
   )
-  console.log(content)
+  const { success, json } = gen.parseLLMOutput(llmOutput)
+
+  console.log(json)
+
+  if (!success) props.workflow.setFailed({ failureReason: 'Could not parse LLM title and summary output' })
 
   await props.client.updateConversation({
     id: props.conversationId,
     tags: {
-      // TODO: use the cognitive client / service to generate a title and summary
-      // title: updatedTitleAndSummary.title,
-      // summary: updatedTitleAndSummary.summary,
+      title: json.title,
+      summary: json.summary,
       isDirty: 'false',
     },
   })

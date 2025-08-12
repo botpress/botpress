@@ -1,6 +1,7 @@
 import JSON5 from 'json5'
 import { jsonrepair } from 'jsonrepair'
 import * as bp from '.botpress'
+import { OutputFormat } from './question-prompt'
 
 export type LLMInput = bp.interfaces.llm.actions.generateContent.input.Input
 export type LLMOutput = bp.interfaces.llm.actions.generateContent.output.Output
@@ -10,7 +11,7 @@ export type LLMChoice = LLMOutput['choices'][number]
 
 type PredictResponse = {
   success: boolean
-  json: object
+  json: OutputFormat
 }
 
 const tryParseJson = (str: string) => {
