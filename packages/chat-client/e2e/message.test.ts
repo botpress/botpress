@@ -208,15 +208,11 @@ const checkApiCanSendBlocMessagesToBot = async (
     items: [
       {
         type: 'text',
-        payload: {
-          text: 'hello world',
-        },
+        text: 'hello world',
       },
       {
         type: 'image',
-        payload: {
-          imageUrl: 'https://fastly.picsum.photos/id/329/200/300.jpg?hmac=_yLyj0EqdpQ-cX84OlMxz3YzOjjd7liq6b25ldkVSpA',
-        },
+        imageUrl: 'https://fastly.picsum.photos/id/329/200/300.jpg?hmac=_yLyj0EqdpQ-cX84OlMxz3YzOjjd7liq6b25ldkVSpA',
       },
     ],
   })
@@ -246,15 +242,15 @@ const checkCanReceiveBlocMessagesFromBot = async (props: CheckApiCanSendAndRecei
     items: [
       {
         type: 'text',
-        payload: { text: 'Hello, world!' },
+        text: 'Hello, world!',
       },
       {
         type: 'image',
-        payload: { imageUrl: STEAK },
+        imageUrl: STEAK,
       },
       {
         type: 'audio',
-        payload: { audioUrl: LIZST },
+        audioUrl: LIZST,
       },
     ],
   }

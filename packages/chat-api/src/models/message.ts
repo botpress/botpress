@@ -63,13 +63,13 @@ const carouselMessageSchema = z.object({
 })
 
 const _blocSchema = z.union([
-  z.object({ type: z.literal('text'), payload: textMessageSchema }),
-  z.object({ type: z.literal('markdown'), payload: markdownMessageSchema }),
-  z.object({ type: z.literal('image'), payload: imageMessageSchema }),
-  z.object({ type: z.literal('audio'), payload: audioMessageSchema }),
-  z.object({ type: z.literal('video'), payload: videoMessageSchema }),
-  z.object({ type: z.literal('file'), payload: fileMessageSchema }),
-  z.object({ type: z.literal('location'), payload: locationMessageSchema }),
+  textMessageSchema.extend({ type: z.literal('text') }),
+  markdownMessageSchema.extend({ type: z.literal('markdown') }),
+  imageMessageSchema.extend({ type: z.literal('image') }),
+  audioMessageSchema.extend({ type: z.literal('audio') }),
+  videoMessageSchema.extend({ type: z.literal('video') }),
+  fileMessageSchema.extend({ type: z.literal('file') }),
+  locationMessageSchema.extend({ type: z.literal('location') }),
 ])
 
 const blocMessageSchema = z.object({
