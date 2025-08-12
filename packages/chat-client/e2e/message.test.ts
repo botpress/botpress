@@ -247,7 +247,7 @@ test('api allows sending bloc messages', async () => {
   )
 })
 
-test.only('api allows receiving bloc messages from bot', async () => {
+test('api allows receiving bloc messages from bot', async () => {
   const client = await chat.Client.connect({ apiUrl })
 
   const {
