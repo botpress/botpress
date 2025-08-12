@@ -53,10 +53,10 @@ export class IntegrationSpecificClient<TIntegration extends common.BaseIntegrati
     this._client.createMessage(x)) as types.CreateMessage<TIntegration>
   public getOrCreateMessage: types.GetOrCreateMessage<TIntegration> = ((x) =>
     this._client.getOrCreateMessage(x)) as types.GetOrCreateMessage<TIntegration>
-  public getMessage: types.GetMessage<TIntegration> = ((x) =>
-    this._client.getMessage(x)) as types.GetMessage<TIntegration>
-  public updateMessage: types.UpdateMessage<TIntegration> = ((x) =>
-    this._client.updateMessage(x)) as types.UpdateMessage<TIntegration>
+  public getMessage: types.GetMessage<TIntegration> = ((x: any) =>
+    this._client.getMessage(x)) as unknown as types.GetMessage<TIntegration>
+  public updateMessage: types.UpdateMessage<TIntegration> = ((x: any) =>
+    this._client.updateMessage(x)) as unknown as types.UpdateMessage<TIntegration>
   public listMessages: types.ListMessages<TIntegration> = ((x) =>
     this._client.listMessages(x)) as types.ListMessages<TIntegration>
   public deleteMessage: types.DeleteMessage<TIntegration> = ((x) =>
