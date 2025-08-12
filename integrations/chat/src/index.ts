@@ -56,13 +56,37 @@ const makeEmitter = (options: Options): SignalEmitter => {
   return new CompositeSignalEmiter([pushpinEmitter, webhookEmitter])
 }
 
-const messageToSignal = (args: MessageArgs): MessageCreatedSignal['data']['payload'] => {
+type MessageCreatedPayload = MessageCreatedSignal['data']['payload']
+type GetMessageCreatedPayloadByType<T extends MessageCreatedPayload['type']> = Extract<
+  MessageCreatedPayload,
+  { type: T }
+>
+
+type BlocMessageArgsPayload = Extract<MessageArgs, { type: 'bloc' }>['payload']
+const messageToSignal = (args: MessageArgs): MessageCreatedPayload => {
   const { type } = args
   const { metadata: _, ...payload } = args.payload
-  return {
-    type,
-    ...payload,
-  } as MessageCreatedSignal['data']['payload']
+
+  if (type !== 'bloc') {
+    return {
+      type,
+      ...payload,
+    } as Exclude<MessageCreatedPayload, { type: 'bloc' }>
+  } else {
+    const items = (payload as BlocMessageArgsPayload).items.map(
+      (item) =>
+        ({
+          type: item.type,
+          ...item.payload,
+        }) as GetMessageCreatedPayloadByType<'bloc'>['items'][number]
+    )
+
+    return {
+      type,
+      ...payload,
+      items,
+    } satisfies GetMessageCreatedPayloadByType<'bloc'>
+  }
 }
 
 const mapMessageSignalFid = async (idStores: ChatIdStores, args: MessageArgs): Promise<MessageArgs> => {
