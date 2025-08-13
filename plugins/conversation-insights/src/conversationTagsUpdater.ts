@@ -15,7 +15,6 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
     context: { previousTitle: props.conversation.tags.title, previousSummary: props.conversation.tags.summary },
   })
   let llmOutput = await props.actions.llm.generateContent(prompt)
-  console.log(props.messages)
   let parsed = gen.parseLLMOutput(llmOutput)
 
   let attemptCount = 0

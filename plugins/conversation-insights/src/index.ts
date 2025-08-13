@@ -15,7 +15,7 @@ export type CommonProps =
 
 plugin.on.afterIncomingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
-  const { message_count } = await _onNewMessage({ ...props, conversation, isDirty: true })
+  const { message_count } = await _onNewMessage({ ...props, conversation })
 
   if (updateScheduler.isTimeToUpdate(message_count)) {
     await createUpdateWorkflowForConversation({ ...props, conversationId: props.data.conversationId })
@@ -26,13 +26,12 @@ plugin.on.afterIncomingMessage('*', async (props) => {
 
 plugin.on.afterOutgoingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.message.conversationId })
-  await _onNewMessage({ ...props, conversation, isDirty: false })
+  await _onNewMessage({ ...props, conversation })
   return undefined
 })
 
 type OnNewMessageProps = CommonProps & {
   conversation: bp.ClientOutputs['getConversation']['conversation']
-  isDirty: boolean
 }
 const _onNewMessage = async (
   props: OnNewMessageProps
@@ -46,7 +45,6 @@ const _onNewMessage = async (
   const tags = {
     message_count: message_count.toString(),
     participant_count: participant_count.toString(),
-    isDirty: props.isDirty ? 'true' : 'false',
   }
 
   await props.client.updateConversation({
