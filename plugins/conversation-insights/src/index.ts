@@ -77,11 +77,6 @@ const createWorkflowForConversation = async (props: WorkflowCreationProps) => {
 plugin.on.workflowStart('updateWithWorkflow', async (props) => {
   if (!props.conversation) throw new sdk.RuntimeError('The conversation id cannot be null')
   console.log('workflow started')
-  // await _updateTitleAndSummary({
-  //   ...props,
-  //   conversationId: props.conversation.id,
-  //   messages: props.workflow.input.messages,
-  // })
 })
 
 plugin.on.workflowContinue('updateWithWorkflow', async (props) => {
@@ -89,7 +84,7 @@ plugin.on.workflowContinue('updateWithWorkflow', async (props) => {
   console.log('continuing workflow')
   await _updateTitleAndSummary({
     ...props,
-    conversationId: props.conversation.id,
+    conversation: props.conversation,
     messages: props.workflow.input.messages,
   })
 
@@ -103,19 +98,20 @@ plugin.on.workflowTimeout('updateWithWorkflow', async (props) => {
 })
 
 type UpdateTitleAndSummaryProps = CommonProps & {
-  conversationId: string
+  conversation: bp.MessageHandlerProps['conversation']
   messages: string[]
   workflow: bp.WorkflowHandlerProps['updateWithWorkflow']['workflow']
 }
 const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   props.client._inner.config.headers['x-workspace-id'] = '11111111-1111-1111-aaaa-111111111111'
 
-  const llmOutput = await props.actions.llm.generateContent(
-    summarizer.prompt({
-      messages: props.messages,
-      model: props.configuration.model,
-    })
-  )
+  const prompt = summarizer.createPrompt({
+    messages: props.messages,
+    model: props.configuration.model,
+    context: { previousTitle: props.conversation.tags.title, previousSummary: props.conversation.tags.summary },
+  })
+  console.log(prompt)
+  const llmOutput = await props.actions.llm.generateContent(prompt)
   const { success, json } = gen.parseLLMOutput(llmOutput)
 
   console.log('received llm output', json)
@@ -128,7 +124,7 @@ const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   }
 
   await props.client.updateConversation({
-    id: props.conversationId,
+    id: props.conversation.id,
     tags: {
       title: json.title,
       summary: json.summary,
