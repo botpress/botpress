@@ -105,35 +105,29 @@ const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   let llmOutput = await props.actions.llm.generateContent(prompt)
   let parsed = gen.parseLLMOutput(llmOutput)
 
-  let attempt = 0
+  let attemptCount = 0
   const maxRetries = 3
 
-  while (!parsed.success && attempt < maxRetries) {
-    props.logger.debug(`Attempt ${attempt + 1}: The LLM output did not respect the schema.`, parsed.json)
-    attempt++
-    const retryPrompt = summarizer.createPrompt({
-      messages: props.messages,
-      model: props.configuration.model,
-      context: { previousTitle: props.conversation.tags.title, previousSummary: props.conversation.tags.summary },
-    })
-    llmOutput = await props.actions.llm.generateContent(retryPrompt)
+  while (!parsed.success && attemptCount < maxRetries) {
+    props.logger.debug(`Attempt ${attemptCount + 1}: The LLM output did not respect the schema.`, parsed.json)
+    llmOutput = await props.actions.llm.generateContent(prompt)
     parsed = gen.parseLLMOutput(llmOutput)
+    attemptCount++
   }
 
   if (!parsed.success) {
-    props.logger.debug('The LLM output did not respect the schema after retries.', parsed.json)
-    props.workflow.setFailed({ failureReason: 'Could not parse LLM title and summary output after retries' })
+    props.logger.debug(`The LLM output did not respect the schema after ${attemptCount} retries.`, parsed.json)
+    props.workflow.setFailed({
+      failureReason: `Could not parse LLM title and summary output after ${attemptCount} retries`,
+    })
     return
   }
-
-  const json = parsed.json
-  props.logger.debug('received llm output', llmOutput.choices)
 
   await props.client.updateConversation({
     id: props.conversation.id,
     tags: {
-      title: json.title,
-      summary: json.summary,
+      title: parsed.json.title,
+      summary: parsed.json.summary,
       isDirty: 'false',
     },
   })
