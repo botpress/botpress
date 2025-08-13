@@ -1,7 +1,7 @@
 import JSON5 from 'json5'
 import { jsonrepair } from 'jsonrepair'
+import { OutputFormat } from './summary-prompt'
 import * as bp from '.botpress'
-import { OutputFormat } from './question-prompt'
 
 export type LLMInput = bp.interfaces.llm.actions.generateContent.input.Input
 export type LLMOutput = bp.interfaces.llm.actions.generateContent.output.Output

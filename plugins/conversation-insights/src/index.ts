@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import * as gen from './generate-content'
-import * as prompter from './question-prompt'
+import * as summarizer from './summary-prompt'
 import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
@@ -111,16 +111,21 @@ const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   props.client._inner.config.headers['x-workspace-id'] = '11111111-1111-1111-aaaa-111111111111'
 
   const llmOutput = await props.actions.llm.generateContent(
-    prompter.prompt({
+    summarizer.prompt({
       messages: props.messages,
       model: props.configuration.model,
     })
   )
   const { success, json } = gen.parseLLMOutput(llmOutput)
 
-  console.log(json)
+  console.log('received llm output', json)
 
-  if (!success) props.workflow.setFailed({ failureReason: 'Could not parse LLM title and summary output' })
+  //TODO add retries
+
+  if (!success) {
+    props.logger.debug('The LLM output did not respect the schema.', json)
+    props.workflow.setFailed({ failureReason: 'Could not parse LLM title and summary output' })
+  }
 
   await props.client.updateConversation({
     id: props.conversationId,
