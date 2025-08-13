@@ -251,5 +251,5 @@ test('api allows receiving bloc messages from bot', async () => {
   )
 
   expect(responsePayload.type).toEqual('bloc')
-  expect(responsePayload.items.length).toEqual(2)
+  expect(responsePayload.items.length).toEqual(3)
 })
