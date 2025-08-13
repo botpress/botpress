@@ -9,6 +9,5 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*"
-  },
-  "devDependencies": {}
+  }
 }
