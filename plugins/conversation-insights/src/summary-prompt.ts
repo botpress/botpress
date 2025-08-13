@@ -56,7 +56,7 @@ Instructions:
 - Make the title short and descriptive (few words).
 - Keep the summary concise (one or two sentences).
 - Do not include extra commentary, formatting, or explanation outside the JSON output.
-- Keep in mind that the messages at the beginning of the list are the most recent
+- Keep in mind that the messages at the beginning of the list are the most recent. The summary should reflect the recent messages more than the previous ones
 
 Example:
 

@@ -53,32 +53,22 @@ const _onNewMessage = async (props: OnNewMessageProps) => {
 
 // #region workflows
 
-const createWorkflowForAllConversations = async (props: CommonProps) => {
-  const conversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
-
-  for (const conversation of conversations.conversations) {
-    await createWorkflowForConversation({ ...props, conversationId: conversation.id })
-  }
-}
-
 type WorkflowCreationProps = CommonProps & { conversationId: string }
 const createWorkflowForConversation = async (props: WorkflowCreationProps) => {
   const messages = await props.client.listMessages({ conversationId: props.conversationId })
   const newMessages: string[] = messages.messages.map((message) => message.payload.text)
-  await props.client.createWorkflow({
+  props.workflows.updateSummary.startNewInstance({
     input: { messages: newMessages },
-    name: 'updateWithWorkflow',
-    status: 'pending',
     conversationId: props.conversationId,
   })
 }
 
-plugin.on.workflowStart('updateWithWorkflow', async (props) => {
+plugin.on.workflowStart('updateSummary', async (props) => {
   if (!props.conversation) throw new sdk.RuntimeError('The conversation id cannot be null')
   props.logger.info(`The workflow '${props.workflow.id}' has been started`)
 })
 
-plugin.on.workflowContinue('updateWithWorkflow', async (props) => {
+plugin.on.workflowContinue('updateSummary', async (props) => {
   if (!props.conversation) throw new sdk.RuntimeError('The conversation id cannot be null')
   await _updateTitleAndSummary({
     ...props,
@@ -90,7 +80,7 @@ plugin.on.workflowContinue('updateWithWorkflow', async (props) => {
   props.logger.info(`The workflow '${props.workflow.id}' has been completed`)
 })
 
-plugin.on.workflowTimeout('updateWithWorkflow', async (props) => {
+plugin.on.workflowTimeout('updateSummary', async (props) => {
   console.log('workflow timed out')
   props.workflow.setFailed({ failureReason: 'Unknown reason' })
 })
@@ -98,7 +88,7 @@ plugin.on.workflowTimeout('updateWithWorkflow', async (props) => {
 type UpdateTitleAndSummaryProps = CommonProps & {
   conversation: bp.MessageHandlerProps['conversation']
   messages: string[]
-  workflow: bp.WorkflowHandlerProps['updateWithWorkflow']['workflow']
+  workflow: bp.WorkflowHandlerProps['updateSummary']['workflow']
 }
 const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   const prompt = summarizer.createPrompt({
@@ -143,9 +133,5 @@ const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   })
 }
 // endregion
-
-plugin.on.event('updateTitleAndSummary', async (props) => {
-  console.log('recurring event was called on the plugin')
-})
 
 export default plugin

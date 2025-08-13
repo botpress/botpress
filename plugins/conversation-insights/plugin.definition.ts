@@ -3,12 +3,9 @@ import llm from './bp_modules/llm'
 
 export default new PluginDefinition({
   name: 'conversation-insights',
-  version: '0.1.3',
+  version: '0.2.1',
   configuration: {
-    schema: ({ entities }) =>
-      z.object({
-        model: entities.llm.modelRef,
-      }),
+    schema: z.object({ model: z.object({ id: z.string() }) }),
   },
   conversation: {
     tags: {
@@ -31,13 +28,8 @@ export default new PluginDefinition({
       },
     },
   },
-  // TODO: replace this event with a workflow
-  events: { updateTitleAndSummary: { schema: z.object({}) } },
-  recurringEvents: {
-    updateTitleAndSummaryRecurring: { payload: {}, schedule: { cron: '* * * * *' }, type: 'updateTitleAndSummary' },
-  },
   workflows: {
-    updateWithWorkflow: {
+    updateSummary: {
       input: { schema: z.object({ messages: z.array(z.string()) }) },
       output: { schema: z.object({}) },
     },
