@@ -51,14 +51,14 @@ export const prepareUpdateBotBody = (
   remoteBot: client.Bot
 ): types.UpdateBotRequestBody => ({
   ...localBot,
-  states: _setNullOnMissingValuesAndOmitPluginDefs(localBot.states, remoteBot.states),
-  recurringEvents: _setNullOnMissingValuesAndOmitPluginDefs(localBot.recurringEvents, remoteBot.recurringEvents),
+  states: utils.records.setNullOnMissingValues(localBot.states, remoteBot.states),
+  recurringEvents: utils.records.setNullOnMissingValues(localBot.recurringEvents, remoteBot.recurringEvents),
   events: utils.attributes.prepareAttributeUpdateBody({
-    localItems: _setNullOnMissingValuesAndOmitPluginDefs(localBot.events, remoteBot.events),
+    localItems: utils.records.setNullOnMissingValues(localBot.events, remoteBot.events),
     remoteItems: remoteBot.events,
   }),
   actions: utils.attributes.prepareAttributeUpdateBody({
-    localItems: _setNullOnMissingValuesAndOmitPluginDefs(localBot.actions, remoteBot.actions),
+    localItems: utils.records.setNullOnMissingValues(localBot.actions, remoteBot.actions),
     remoteItems: remoteBot.actions,
   }),
   user: {
@@ -85,19 +85,10 @@ export const prepareUpdateBotBody = (
       localBot.immutableTags.message
     ),
   },
-  integrations: _setNullOnMissingValuesAndOmitPluginDefs(localBot.integrations, remoteBot.integrations),
-  plugins: _setNullOnMissingValuesAndOmitPluginDefs(localBot.plugins, remoteBot.plugins),
+  integrations: utils.records.setNullOnMissingValues(localBot.integrations, remoteBot.integrations),
+  plugins: utils.records.setNullOnMissingValues(localBot.plugins, remoteBot.plugins),
   tags: localBot.tags, // TODO: allow removing bot tags (aka attributes) by setting to null
 })
-
-export const _setNullOnMissingValuesAndOmitPluginDefs: typeof utils.records.setNullOnMissingValues = (
-  record,
-  oldRecord = {}
-) =>
-  utils.records.setNullOnMissingValues(
-    record,
-    Object.fromEntries(Object.entries(oldRecord).filter(([key]) => !key.includes('#')))
-  )
 
 export const _setNullOnMissingValuesAndOmitImmutableTags = <A, B>(
   record: Record<string, A> = {},
