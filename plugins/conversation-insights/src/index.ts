@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import * as gen from './generate-content'
 import * as summarizer from './summary-prompt'
+import * as updateScheduler from './summaryUpdateScheduler'
 import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
@@ -15,9 +16,11 @@ type CommonProps =
 
 plugin.on.afterIncomingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
-  await _onNewMessage({ ...props, conversation, isDirty: true })
+  const { message_count } = await _onNewMessage({ ...props, conversation, isDirty: true })
 
-  await createWorkflowForConversation({ ...props, conversationId: props.data.conversationId })
+  if (updateScheduler.isTimeToUpdate(message_count)) {
+    await createUpdateWorkflowForConversation({ ...props, conversationId: props.data.conversationId })
+  }
 
   return undefined
 })
@@ -32,7 +35,9 @@ type OnNewMessageProps = CommonProps & {
   conversation: bp.ClientOutputs['getConversation']['conversation']
   isDirty: boolean
 }
-const _onNewMessage = async (props: OnNewMessageProps) => {
+const _onNewMessage = async (
+  props: OnNewMessageProps
+): Promise<{ message_count: number; participant_count: number }> => {
   const message_count = props.conversation.tags.message_count ? parseInt(props.conversation.tags.message_count) + 1 : 1
 
   const participant_count = await props.client
@@ -49,12 +54,13 @@ const _onNewMessage = async (props: OnNewMessageProps) => {
     id: props.conversation.id,
     tags,
   })
+  return { message_count, participant_count }
 }
 
 // #region workflows
 
 type WorkflowCreationProps = CommonProps & { conversationId: string }
-const createWorkflowForConversation = async (props: WorkflowCreationProps) => {
+const createUpdateWorkflowForConversation = async (props: WorkflowCreationProps) => {
   const messages = await props.client.listMessages({ conversationId: props.conversationId })
   const newMessages: string[] = messages.messages.map((message) => message.payload.text)
   props.workflows.updateSummary.startNewInstance({
