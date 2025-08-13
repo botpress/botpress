@@ -7,9 +7,8 @@
   "private": true,
   "dependencies": {
     "@botpress/sdk": "workspace:*",
-    "eslint": "^9.17.0",
-    "json5": "^2.2.3",
-    "jsonrepair": "^3.10.0"
+    "json5": "workspace:*",
+    "jsonrepair": "workspace:*"
   },
   "devDependencies": {
     "@botpresshub/llm": "workspace:*"
