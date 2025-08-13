@@ -16,7 +16,6 @@ type CommonProps =
 plugin.on.afterIncomingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
   await _onNewMessage({ ...props, conversation, isDirty: true })
-  console.log('received message in plugin')
 
   await createWorkflowForConversation({ ...props, conversationId: props.data.conversationId })
 
@@ -76,12 +75,11 @@ const createWorkflowForConversation = async (props: WorkflowCreationProps) => {
 
 plugin.on.workflowStart('updateWithWorkflow', async (props) => {
   if (!props.conversation) throw new sdk.RuntimeError('The conversation id cannot be null')
-  console.log('workflow started')
+  props.logger.info(`The workflow '${props.workflow.id}' has been started`)
 })
 
 plugin.on.workflowContinue('updateWithWorkflow', async (props) => {
   if (!props.conversation) throw new sdk.RuntimeError('The conversation id cannot be null')
-  console.log('continuing workflow')
   await _updateTitleAndSummary({
     ...props,
     conversation: props.conversation,
@@ -89,7 +87,7 @@ plugin.on.workflowContinue('updateWithWorkflow', async (props) => {
   })
 
   props.workflow.setCompleted()
-  console.log('completed')
+  props.logger.info(`The workflow '${props.workflow.id}' has been completed`)
 })
 
 plugin.on.workflowTimeout('updateWithWorkflow', async (props) => {
@@ -103,25 +101,37 @@ type UpdateTitleAndSummaryProps = CommonProps & {
   workflow: bp.WorkflowHandlerProps['updateWithWorkflow']['workflow']
 }
 const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
-  props.client._inner.config.headers['x-workspace-id'] = '11111111-1111-1111-aaaa-111111111111'
-
   const prompt = summarizer.createPrompt({
     messages: props.messages,
     model: props.configuration.model,
     context: { previousTitle: props.conversation.tags.title, previousSummary: props.conversation.tags.summary },
   })
-  console.log(prompt)
-  const llmOutput = await props.actions.llm.generateContent(prompt)
-  const { success, json } = gen.parseLLMOutput(llmOutput)
+  let llmOutput = await props.actions.llm.generateContent(prompt)
+  let parsed = gen.parseLLMOutput(llmOutput)
 
-  console.log('received llm output', json)
+  let attempt = 0
+  const maxRetries = 3
 
-  //TODO add retries
-
-  if (!success) {
-    props.logger.debug('The LLM output did not respect the schema.', json)
-    props.workflow.setFailed({ failureReason: 'Could not parse LLM title and summary output' })
+  while (!parsed.success && attempt < maxRetries) {
+    props.logger.debug(`Attempt ${attempt + 1}: The LLM output did not respect the schema.`, parsed.json)
+    attempt++
+    const retryPrompt = summarizer.createPrompt({
+      messages: props.messages,
+      model: props.configuration.model,
+      context: { previousTitle: props.conversation.tags.title, previousSummary: props.conversation.tags.summary },
+    })
+    llmOutput = await props.actions.llm.generateContent(retryPrompt)
+    parsed = gen.parseLLMOutput(llmOutput)
   }
+
+  if (!parsed.success) {
+    props.logger.debug('The LLM output did not respect the schema after retries.', parsed.json)
+    props.workflow.setFailed({ failureReason: 'Could not parse LLM title and summary output after retries' })
+    return
+  }
+
+  const json = parsed.json
+  props.logger.debug('received llm output', llmOutput.choices)
 
   await props.client.updateConversation({
     id: props.conversation.id,

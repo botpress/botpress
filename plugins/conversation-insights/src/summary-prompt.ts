@@ -56,6 +56,7 @@ Instructions:
 - Make the title short and descriptive (few words).
 - Keep the summary concise (one or two sentences).
 - Do not include extra commentary, formatting, or explanation outside the JSON output.
+- Keep in mind that the messages at the beginning of the list are the most recent
 
 Example:
 
@@ -66,10 +67,10 @@ Input:
   "previousTitle": "Used cars",
   "previousSummary": "The user is talking abous a used Toyota Matrix",
   "messages": [
-    "I am looking to buy a used car, what would you recommend?",
-    "What should I look out for when buying a secondhand Toyota Matrix?",
+    "What mileage should I expect from a car that was made two years ago?",
     "What price should I expect from a car manufactured in 2011?",
-    "What mileage should I expect from a car that was made two years ago?"
+    "What should I look out for when buying a secondhand Toyota Matrix?",
+    "I am looking to buy a used car, what would you recommend?",
   ]
 }
 \`\`\`
@@ -86,11 +87,3 @@ Output:
   messages: [formatMessages(args.messages, args.context)],
   model: args.model,
 })
-
-console.log(
-  createPrompt({
-    messages: [],
-    model: { id: 'gpt-4.1-nano-2025-04-14' },
-    context: { previousSummary: '', previousTitle: '' },
-  }).systemPrompt
-)
