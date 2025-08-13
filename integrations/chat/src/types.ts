@@ -1,4 +1,3 @@
-import * as genSignals from './gen/signals'
 import * as bp from '.botpress'
 
 export type ValueOf<T> = T[keyof T]
@@ -49,6 +48,3 @@ export type ActionInputs = {
   [K in keyof bp.Integration['actions']]: Parameters<bp.Integration['actions'][K]>[0]
 }
 export type ActionArgs = Simplify<ValueOf<ActionInputs>>
-
-export type Signals = genSignals.Types
-export type Signal = ValueOf<Signals>

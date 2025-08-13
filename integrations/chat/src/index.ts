@@ -96,7 +96,7 @@ const emitMessage = async (args: MessageArgs) => {
   args = await mapMessageSignalFid(idStores, args)
   debug.debugSignal(args)
 
-  const { payload } = mapBotpressMessageToChat(args)
+  const { metadata, payload } = mapBotpressMessageToChat(args)
   await signalEmitter.emit(channel, {
     type: 'message_created',
     data: {
@@ -105,7 +105,7 @@ const emitMessage = async (args: MessageArgs) => {
       userId: args.user.id,
       createdAt: args.message.createdAt,
       payload,
-      metadata: args.payload.metadata,
+      metadata,
       isBot: true,
     },
   })

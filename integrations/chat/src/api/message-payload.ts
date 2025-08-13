@@ -4,6 +4,7 @@ import * as bp from '.botpress'
 
 export type ChatMessage = {
   payload: chat.Message['payload']
+  metadata: chat.Message['metadata']
 }
 
 export type BotpressMessage = types.ValueOf<{
@@ -14,11 +15,13 @@ export type BotpressMessage = types.ValueOf<{
 }>
 
 export const mapBotpressMessageToChat = (message: BotpressMessage): ChatMessage => {
+  const { metadata, ...messagePayload } = message.payload
   if (message.type !== 'bloc') {
     return {
+      metadata,
       payload: {
         type: message.type,
-        ...message.payload,
+        ...messagePayload,
       },
     } as ChatMessage
   }
@@ -29,9 +32,10 @@ export const mapBotpressMessageToChat = (message: BotpressMessage): ChatMessage 
   }))
 
   return {
+    metadata,
     payload: {
       type: 'bloc',
-      ...message.payload,
+      ...messagePayload,
       items,
     },
   } as ChatMessage

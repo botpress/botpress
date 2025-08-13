@@ -24,12 +24,7 @@ export const mapUser = (user: types.User): ChatUser => {
 
 export type ChatMessage = types.OperationOutputs['createMessage']['body']['message']
 export const mapMessage = (message: types.Message): ChatMessage => {
-  const { metadata, ...messagePayload } = message.payload
-  const { payload } = msgPayload.mapBotpressMessageToChat({
-    type: message.type,
-    payload: messagePayload,
-  } as msgPayload.BotpressMessage)
-
+  const { metadata, payload } = msgPayload.mapBotpressMessageToChat(message as msgPayload.BotpressMessage)
   return {
     id: message.id,
     createdAt: message.createdAt,
