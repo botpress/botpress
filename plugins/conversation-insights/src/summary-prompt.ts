@@ -60,7 +60,7 @@ Instructions:
 - Make the title short and descriptive (few words).
 - Keep the summary concise (one or two sentences).
 - Do not include extra commentary, formatting, or explanation outside the JSON output.
-- The messages are in order, to the most recent ones are at the end of the list
+- The messages are in order, which means the most recent ones are at the end of the list.
 
 Example:
 
