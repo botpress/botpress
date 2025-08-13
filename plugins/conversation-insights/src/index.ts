@@ -1,15 +1,14 @@
 import * as sdk from '@botpress/sdk'
-import * as gen from './generate-content'
-import * as summarizer from './summary-prompt'
 import * as updateScheduler from './summaryUpdateScheduler'
 import * as bp from '.botpress'
+import * as summaryUpdater from './conversationTagsUpdater'
 
 const plugin = new bp.Plugin({
   actions: {},
 })
 
 // TODO: generate a type for CommonProps in the CLI / SDK
-type CommonProps =
+export type CommonProps =
   | bp.HookHandlerProps['after_incoming_message']
   | bp.HookHandlerProps['after_outgoing_message']
   | bp.EventHandlerProps
@@ -76,7 +75,7 @@ plugin.on.workflowStart('updateSummary', async (props) => {
 
 plugin.on.workflowContinue('updateSummary', async (props) => {
   if (!props.conversation) throw new sdk.RuntimeError('The conversation id cannot be null')
-  await _updateTitleAndSummary({
+  await summaryUpdater.updateTitleAndSummary({
     ...props,
     conversation: props.conversation,
     messages: props.workflow.input.messages,
@@ -91,47 +90,6 @@ plugin.on.workflowTimeout('updateSummary', async (props) => {
   props.workflow.setFailed({ failureReason: 'Unknown reason' })
 })
 
-type UpdateTitleAndSummaryProps = CommonProps & {
-  conversation: bp.MessageHandlerProps['conversation']
-  messages: string[]
-  workflow: bp.WorkflowHandlerProps['updateSummary']['workflow']
-}
-const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
-  const prompt = summarizer.createPrompt({
-    messages: props.messages,
-    model: props.configuration.model,
-    context: { previousTitle: props.conversation.tags.title, previousSummary: props.conversation.tags.summary },
-  })
-  let llmOutput = await props.actions.llm.generateContent(prompt)
-  let parsed = gen.parseLLMOutput(llmOutput)
-
-  let attemptCount = 0
-  const maxRetries = 3
-
-  while (!parsed.success && attemptCount < maxRetries) {
-    props.logger.debug(`Attempt ${attemptCount + 1}: The LLM output did not respect the schema.`, parsed.json)
-    llmOutput = await props.actions.llm.generateContent(prompt)
-    parsed = gen.parseLLMOutput(llmOutput)
-    attemptCount++
-  }
-
-  if (!parsed.success) {
-    props.logger.debug(`The LLM output did not respect the schema after ${attemptCount} retries.`, parsed.json)
-    props.workflow.setFailed({
-      failureReason: `Could not parse LLM title and summary output after ${attemptCount} retries`,
-    })
-    return
-  }
-
-  await props.client.updateConversation({
-    id: props.conversation.id,
-    tags: {
-      title: parsed.json.title,
-      summary: parsed.json.summary,
-      isDirty: 'false',
-    },
-  })
-}
 // endregion
 
 export default plugin
