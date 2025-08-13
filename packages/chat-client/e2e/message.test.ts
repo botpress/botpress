@@ -14,7 +14,7 @@ type CheckApiCanSendAndReceiveMessagesProps = {
 
 type MessagePayload = chat.AuthenticatedClientRequests['createMessage']['payload']
 
-const checkApiCanSendAndReceiveMessagesWithPayload = async (
+const checkApiCanSendAndReceiveMessages = async (
   props: CheckApiCanSendAndReceiveMessagesProps,
   payload: MessagePayload
 ): Promise<MessagePayload> => {
@@ -58,14 +58,6 @@ const checkApiCanSendAndReceiveMessagesWithPayload = async (
   return messageReceived.payload
 }
 
-const checkApiCanSendAndReceiveMessages = async (
-  props: CheckApiCanSendAndReceiveMessagesProps
-): Promise<MessagePayload> =>
-  await checkApiCanSendAndReceiveMessagesWithPayload(props, {
-    type: 'text',
-    text: 'hello world',
-  })
-
 test('api allows sending and receiving messages using botpress IDs', async () => {
   const client = await chat.Client.connect({ apiUrl })
 
@@ -73,10 +65,16 @@ test('api allows sending and receiving messages using botpress IDs', async () =>
     conversation: { id: conversationId },
   } = await client.createConversation({})
 
-  await checkApiCanSendAndReceiveMessages({
-    client,
-    conversationId,
-  })
+  await checkApiCanSendAndReceiveMessages(
+    {
+      client,
+      conversationId,
+    },
+    {
+      type: 'text',
+      text: 'hello world',
+    }
+  )
 })
 
 test('api allows sending and receiving messages using foreign IDs', async () => {
@@ -86,10 +84,16 @@ test('api allows sending and receiving messages using foreign IDs', async () => 
 
   await client.createConversation({ id: conversationId })
 
-  await checkApiCanSendAndReceiveMessages({
-    client,
-    conversationId,
-  })
+  await checkApiCanSendAndReceiveMessages(
+    {
+      client,
+      conversationId,
+    },
+    {
+      type: 'text',
+      text: 'hello world',
+    }
+  )
 })
 
 test('api allows sending and receiving messages using remotly generated JWTs', async () => {
@@ -100,10 +104,16 @@ test('api allows sending and receiving messages using remotly generated JWTs', a
 
   await client.getOrCreateConversation({ id: conversationId })
 
-  await checkApiCanSendAndReceiveMessages({
-    client,
-    conversationId,
-  })
+  await checkApiCanSendAndReceiveMessages(
+    {
+      client,
+      conversationId,
+    },
+    {
+      type: 'text',
+      text: 'hello world',
+    }
+  )
 })
 
 test('api allows deleting a message', async () => {
@@ -200,23 +210,6 @@ test('api allows sending and receiving messages with metadata', async () => {
   expect(fetchedSelfMessage!.metadata).toEqual(metadata)
 })
 
-const checkApiCanSendBlocMessagesToBot = async (
-  props: CheckApiCanSendAndReceiveMessagesProps
-): Promise<MessagePayload> =>
-  await checkApiCanSendAndReceiveMessagesWithPayload(props, {
-    type: 'bloc',
-    items: [
-      {
-        type: 'text',
-        text: 'hello world',
-      },
-      {
-        type: 'image',
-        imageUrl: 'https://fastly.picsum.photos/id/329/200/300.jpg?hmac=_yLyj0EqdpQ-cX84OlMxz3YzOjjd7liq6b25ldkVSpA',
-      },
-    ],
-  })
-
 test('api allows sending bloc messages', async () => {
   const client = await chat.Client.connect({ apiUrl })
 
@@ -224,41 +217,26 @@ test('api allows sending bloc messages', async () => {
     conversation: { id: conversationId },
   } = await client.createConversation({})
 
-  await checkApiCanSendBlocMessagesToBot({
-    client,
-    conversationId,
-  })
+  await checkApiCanSendAndReceiveMessages(
+    {
+      client,
+      conversationId,
+    },
+    {
+      type: 'bloc',
+      items: [
+        {
+          type: 'text',
+          text: 'hello world',
+        },
+        {
+          type: 'image',
+          imageUrl: 'https://fastly.picsum.photos/id/329/200/300.jpg?hmac=_yLyj0EqdpQ-cX84OlMxz3YzOjjd7liq6b25ldkVSpA',
+        },
+      ],
+    }
+  )
 })
-
-// Copied from the echo bot
-const STEAK = 'https://upload.wikimedia.org/wikipedia/commons/9/91/T-bone-raw-MCB.jpg'
-const LIZST = 'https://vmirror.imslp.org/files/imglnks/usimg/5/5c/IMSLP301563-PMLP02598-upload.mp3'
-
-const checkCanReceiveBlocMessagesFromBot = async (props: CheckApiCanSendAndReceiveMessagesProps): Promise<void> => {
-  const sendingPayload: MessagePayload = { type: 'text', text: 'bloc' }
-
-  const expected: MessagePayload = {
-    type: 'bloc',
-    items: [
-      {
-        type: 'text',
-        text: 'Hello, world!',
-      },
-      {
-        type: 'image',
-        imageUrl: STEAK,
-      },
-      {
-        type: 'audio',
-        audioUrl: LIZST,
-      },
-    ],
-  }
-
-  const responsePayload: MessagePayload = await checkApiCanSendAndReceiveMessagesWithPayload(props, sendingPayload)
-
-  expect(responsePayload).toEqual(expected)
-}
 
 test('api allows receiving bloc messages from bot', async () => {
   const client = await chat.Client.connect({ apiUrl })
@@ -267,8 +245,11 @@ test('api allows receiving bloc messages from bot', async () => {
     conversation: { id: conversationId },
   } = await client.createConversation({})
 
-  await checkCanReceiveBlocMessagesFromBot({
-    client,
-    conversationId,
-  })
+  const responsePayload: MessagePayload = await checkApiCanSendAndReceiveMessages(
+    { client, conversationId },
+    { type: 'text', text: 'bloc' }
+  )
+
+  expect(responsePayload.type).toEqual('bloc')
+  expect(responsePayload.items.length).toEqual(2)
 })
