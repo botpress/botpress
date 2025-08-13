@@ -1,4 +1,4 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import { IntegrationDefinition, z } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'calendly',
@@ -7,4 +7,14 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Schedule meetings and manage events using the Calendly scheduling platform.',
+  configuration: {
+    schema: z.object({
+      accessToken: z
+        .string()
+        .secret()
+        .min(1)
+        .describe('Your Calendly Personal Access Token')
+        .title('Personal Access Token'),
+    }),
+  },
 })
