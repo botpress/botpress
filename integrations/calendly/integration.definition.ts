@@ -1,4 +1,5 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
+import { scheduleEventInputSchema, scheduleEventOutputSchema } from 'definitions/actions'
 
 export default new IntegrationDefinition({
   name: 'calendly',
@@ -16,5 +17,13 @@ export default new IntegrationDefinition({
         .describe('Your Calendly Personal Access Token')
         .title('Personal Access Token'),
     }),
+  },
+  actions: {
+    scheduleEvent: {
+      title: 'Schedule Calendly Event',
+      description: 'Schedules a new event in Calendly',
+      input: { schema: scheduleEventInputSchema },
+      output: { schema: scheduleEventOutputSchema },
+    },
   },
 })
