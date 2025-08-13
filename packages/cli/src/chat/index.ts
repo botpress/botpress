@@ -207,7 +207,10 @@ export class Chat {
       case 'markdown':
         return prefix + message.payload.markdown
       case 'bloc':
-        return prefix + '\n' + message.payload.items.map((item) => this._messageToText({ payload: item })).join('\n')
+        return [
+          prefix,
+          ...message.payload.items.map((item) => this._messageToText({ payload: item })).map((l) => `\t${l}`),
+        ].join('\n')
       default:
         type _assertion = utils.types.AssertNever<typeof message.payload>
         return '<unknown>'
