@@ -51,7 +51,6 @@ export const prepareUpdateBotBody = (
   remoteBot: client.Bot
 ): types.UpdateBotRequestBody => ({
   ...localBot,
-  shouldMergePlugins: true,
   states: _setNullOnMissingValuesAndOmitPluginDefs(localBot.states, remoteBot.states),
   recurringEvents: _setNullOnMissingValuesAndOmitPluginDefs(localBot.recurringEvents, remoteBot.recurringEvents),
   events: utils.attributes.prepareAttributeUpdateBody({
