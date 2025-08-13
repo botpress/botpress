@@ -42,13 +42,13 @@ export const mapBotpressMessageToChat = (message: BotpressMessage): ChatMessage 
 }
 
 export const mapChatMessageToBotpress = (message: ChatMessage): BotpressMessage => {
-  const { payload } = message
+  const { payload, metadata } = message
 
   if (payload.type !== 'bloc') {
     const { type, ...payloadData } = payload
     return {
       type,
-      payload: payloadData,
+      payload: { metadata, ...payloadData },
     } as BotpressMessage
   }
 
@@ -56,6 +56,7 @@ export const mapChatMessageToBotpress = (message: ChatMessage): BotpressMessage 
     type: payload.type,
     payload: {
       ...payload,
+      metadata,
       items: payload.items.map(({ type, ...payload }) => ({
         type,
         payload,

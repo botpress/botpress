@@ -16,16 +16,13 @@ export const createMessage: types.AuthenticatedOperations['createMessage'] = asy
     throw new errors.ForbiddenError("You are not a participant in this message's conversation")
   }
 
-  const botpressMsg = msgPayload.mapChatMessageToBotpress({ payload })
+  const { type, payload: mappedPayload } = msgPayload.mapChatMessageToBotpress({ payload, metadata })
   const { message } = await props.client.createMessage({
-    type: botpressMsg.type,
+    type,
     conversationId,
     tags: {},
     userId,
-    payload: {
-      ...botpressMsg.payload,
-      metadata,
-    },
+    payload: mappedPayload,
   })
 
   const res = await fidHandler.mapResponse({
