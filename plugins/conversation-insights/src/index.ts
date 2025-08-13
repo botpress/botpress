@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
+import * as summaryUpdater from './conversationTagsUpdater'
 import * as updateScheduler from './summaryUpdateScheduler'
 import * as bp from '.botpress'
-import * as summaryUpdater from './conversationTagsUpdater'
 
 const plugin = new bp.Plugin({
   actions: {},
