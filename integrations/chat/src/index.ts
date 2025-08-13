@@ -1,4 +1,5 @@
 import * as dynamodb from '@aws-sdk/client-dynamodb'
+import { mapBotpressMessageToChat } from './api/message-payload'
 import { makeApiUtils } from './api-utils'
 import { AuthKeyHandler } from './auth-key'
 import * as debug from './debug'
@@ -7,7 +8,6 @@ import { MemorySpace, ChatIdStore, InMemoryChatIdStore, DynamoDbChatIdStore } fr
 import { Options, options } from './options'
 import { CompositeSignalEmiter, PushpinEmitter, SignalEmitter, WebhookEmitter } from './signal-emitter'
 import { MessageArgs, ActionArgs } from './types'
-import { messageToSignal } from './utils'
 import * as bp from '.botpress'
 
 const memSpace = new MemorySpace()
@@ -96,6 +96,7 @@ const emitMessage = async (args: MessageArgs) => {
   args = await mapMessageSignalFid(idStores, args)
   debug.debugSignal(args)
 
+  const { metadata, payload } = mapBotpressMessageToChat(args)
   await signalEmitter.emit(channel, {
     type: 'message_created',
     data: {
@@ -103,8 +104,8 @@ const emitMessage = async (args: MessageArgs) => {
       conversationId: args.conversation.id,
       userId: args.user.id,
       createdAt: args.message.createdAt,
-      payload: messageToSignal(args),
-      metadata: args.payload.metadata,
+      payload,
+      metadata,
       isBot: true,
     },
   })

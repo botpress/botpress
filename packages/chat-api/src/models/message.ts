@@ -4,31 +4,38 @@ import z from 'zod'
 const NonEmptyString = z.string().min(1)
 
 const textMessageSchema = z.object({
+  type: z.literal('text'),
   text: NonEmptyString,
 })
 
 const markdownMessageSchema = z.object({
+  type: z.literal('markdown'),
   markdown: NonEmptyString,
 })
 
 const imageMessageSchema = z.object({
+  type: z.literal('image'),
   imageUrl: NonEmptyString,
 })
 
 const audioMessageSchema = z.object({
+  type: z.literal('audio'),
   audioUrl: NonEmptyString,
 })
 
 const videoMessageSchema = z.object({
+  type: z.literal('video'),
   videoUrl: NonEmptyString,
 })
 
 const fileMessageSchema = z.object({
+  type: z.literal('file'),
   fileUrl: NonEmptyString,
   title: NonEmptyString.optional(),
 })
 
 const locationMessageSchema = z.object({
+  type: z.literal('location'),
   latitude: z.number(),
   longitude: z.number(),
   address: z.string().optional(),
@@ -36,6 +43,7 @@ const locationMessageSchema = z.object({
 })
 
 const cardMessageSchema = z.object({
+  type: z.literal('card'),
   title: NonEmptyString,
   subtitle: NonEmptyString.optional(),
   imageUrl: NonEmptyString.optional(),
@@ -48,7 +56,7 @@ const cardMessageSchema = z.object({
   ),
 })
 
-const choiceMessageSchema = z.object({
+const _optionMessageSchema = z.object({
   text: NonEmptyString,
   options: z.array(
     z.object({
@@ -58,53 +66,48 @@ const choiceMessageSchema = z.object({
   ),
 })
 
+const choiceMessageSchema = _optionMessageSchema.extend({
+  type: z.literal('choice'),
+})
+
+const dropdownMessageSchema = _optionMessageSchema.extend({
+  type: z.literal('dropdown'),
+})
+
 const carouselMessageSchema = z.object({
+  type: z.literal('carousel'),
   items: z.array(cardMessageSchema),
 })
 
-const _blocSchema = z.union([
-  textMessageSchema.extend({ type: z.literal('text') }),
-  markdownMessageSchema.extend({ type: z.literal('markdown') }),
-  imageMessageSchema.extend({ type: z.literal('image') }),
-  audioMessageSchema.extend({ type: z.literal('audio') }),
-  videoMessageSchema.extend({ type: z.literal('video') }),
-  fileMessageSchema.extend({ type: z.literal('file') }),
-  locationMessageSchema.extend({ type: z.literal('location') }),
-])
-
 const blocMessageSchema = z.object({
-  items: z.array(_blocSchema),
+  type: z.literal('bloc'),
+  items: z.array(
+    z.union([
+      textMessageSchema,
+      markdownMessageSchema,
+      imageMessageSchema,
+      audioMessageSchema,
+      videoMessageSchema,
+      fileMessageSchema,
+      locationMessageSchema,
+    ])
+  ),
 })
 
-const messages = {
-  text: { schema: textMessageSchema },
-  image: { schema: imageMessageSchema },
-  audio: { schema: audioMessageSchema },
-  video: { schema: videoMessageSchema },
-  file: { schema: fileMessageSchema },
-  location: { schema: locationMessageSchema },
-  carousel: { schema: carouselMessageSchema },
-  card: { schema: cardMessageSchema },
-  dropdown: { schema: choiceMessageSchema },
-  choice: { schema: choiceMessageSchema },
-  bloc: { schema: blocMessageSchema },
-  markdown: { schema: markdownMessageSchema },
-}
-
 export const messagePayloadSchema = z.union([
-  messages.audio.schema.extend({ type: z.literal('audio') }),
-  messages.card.schema.extend({ type: z.literal('card') }),
-  messages.carousel.schema.extend({ type: z.literal('carousel') }),
-  messages.choice.schema.extend({ type: z.literal('choice') }),
-  messages.dropdown.schema.extend({ type: z.literal('dropdown') }),
-  messages.file.schema.extend({ type: z.literal('file') }),
-  messages.image.schema.extend({ type: z.literal('image') }),
-  messages.location.schema.extend({ type: z.literal('location') }),
-  messages.text.schema.extend({ type: z.literal('text') }),
-  messages.video.schema.extend({ type: z.literal('video') }),
-  messages.markdown.schema.extend({ type: z.literal('markdown') }),
-  messages.bloc.schema.extend({ type: z.literal('bloc') }),
-])
+  audioMessageSchema,
+  cardMessageSchema,
+  carouselMessageSchema,
+  choiceMessageSchema,
+  dropdownMessageSchema,
+  fileMessageSchema,
+  imageMessageSchema,
+  locationMessageSchema,
+  textMessageSchema,
+  videoMessageSchema,
+  markdownMessageSchema,
+  blocMessageSchema,
+]) satisfies z.ZodSchema<{ type: string }> // ensures that the type field can be used to discriminate
 
 export const messageSchema = schema(
   z.object({

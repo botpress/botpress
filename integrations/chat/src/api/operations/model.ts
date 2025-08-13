@@ -1,4 +1,4 @@
-import { messageToSignal } from '../../utils'
+import * as msgPayload from '../message-payload'
 import * as types from '../types'
 
 export type ChatConversation = types.OperationOutputs['getConversation']['body']['conversation']
@@ -24,15 +24,13 @@ export const mapUser = (user: types.User): ChatUser => {
 
 export type ChatMessage = types.OperationOutputs['createMessage']['body']['message']
 export const mapMessage = (message: types.Message): ChatMessage => {
-  const { metadata } = message.payload
-  const signalPayload: ChatMessage['payload'] = messageToSignal(message)
-
+  const { metadata, payload } = msgPayload.mapBotpressMessageToChat(message as msgPayload.BotpressMessage)
   return {
     id: message.id,
     createdAt: message.createdAt,
     conversationId: message.conversationId,
     userId: message.userId,
-    payload: signalPayload,
+    payload,
     metadata,
   }
 }

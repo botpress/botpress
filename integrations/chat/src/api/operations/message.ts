@@ -1,6 +1,5 @@
-import * as bp from '../../../.botpress'
 import * as errors from '../../gen/errors'
-import { CreateMessageBody } from '../../gen/requests/createMessage.t'
+import * as msgPayload from '../message-payload'
 import * as types from '../types'
 import * as fid from './fid'
 import * as model from './model'
@@ -17,16 +16,13 @@ export const createMessage: types.AuthenticatedOperations['createMessage'] = asy
     throw new errors.ForbiddenError("You are not a participant in this message's conversation")
   }
 
-  const formattedPayload = _formatMessagePayload(payload)
+  const { type, payload: mappedPayload } = msgPayload.mapChatMessageToBotpress({ payload, metadata })
   const { message } = await props.client.createMessage({
-    type: formattedPayload.type,
+    type,
     conversationId,
     tags: {},
     userId,
-    payload: {
-      ...formattedPayload.payload,
-      metadata,
-    },
+    payload: mappedPayload,
   })
 
   const res = await fidHandler.mapResponse({
@@ -41,32 +37,6 @@ export const createMessage: types.AuthenticatedOperations['createMessage'] = asy
   })
 
   return res
-}
-
-type Messages = bp.TIntegration['channels']['channel']['messages']
-type MessageData<T extends keyof Messages = keyof Messages> = {
-  type: T
-  payload: Messages[T]
-}
-
-const _formatMessagePayload = <T extends CreateMessageBody['payload']['type'] = CreateMessageBody['payload']['type']>(
-  payload: CreateMessageBody['payload'][T]
-): MessageData<T> => {
-  if (payload.type !== 'bloc') {
-    const { type, ...payloadData } = payload
-    return {
-      type,
-      payload: payloadData,
-    } as MessageData<T>
-  } else {
-    return {
-      type: payload.type,
-      payload: {
-        ...payload,
-        items: payload.items.map(_formatMessagePayload),
-      },
-    } as MessageData<T>
-  }
 }
 
 export const getMessage: types.AuthenticatedOperations['getMessage'] = async (props, foreignReq) => {
