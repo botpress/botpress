@@ -465,6 +465,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
 
+  integrations/calendly:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+
   integrations/cerebras:
     dependencies:
       '@botpress/client':
