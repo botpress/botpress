@@ -85,7 +85,7 @@ plugin.on.workflowContinue('updateSummary', async (props) => {
 })
 
 plugin.on.workflowTimeout('updateSummary', async (props) => {
-  console.log('workflow timed out')
+  props.logger.error('workflow timed out')
   props.workflow.setFailed({ failureReason: 'Unknown reason' })
 })
 
