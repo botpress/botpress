@@ -5,20 +5,26 @@ import * as errors from '../errors'
 import * as utils from '../utils'
 import { GlobalCache, GlobalCommand, ProfileCredentials } from './global-command'
 
+type ProfileEntry = ProfileCredentials & {
+  name: string
+}
+
 export type ActiveProfileCommandDefinition = typeof commandDefinitions.profiles.subcommands.active
 export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefinition> {
   public async run(): Promise<void> {
     let activeProfileName = await this.globalCache.get('activeProfile')
 
     if (!activeProfileName) {
-      this.logger.log(`No active profile set, defaulting to ${consts.defaultProfileName}`)
+      this.logger.debug(`No active profile set, defaulting to ${consts.defaultProfileName}`)
       activeProfileName = consts.defaultProfileName
       await this.globalCache.set('activeProfile', activeProfileName)
     }
 
     const profile = await this.readProfileFromFS(activeProfileName)
+    const profileEntry: ProfileEntry = { name: activeProfileName, ...profile }
+
     this.logger.log('Active profile:')
-    this.logger.json({ [activeProfileName]: profile })
+    this.logger.json(profileEntry)
   }
 }
 
@@ -26,14 +32,14 @@ export type ListProfilesCommandDefinition = typeof commandDefinitions.profiles.s
 export class ListProfilesCommand extends GlobalCommand<ListProfilesCommandDefinition> {
   public async run(): Promise<void> {
     const profiles = await this.readProfilesFromFS()
-    if (Object.keys(profiles).length === 0) {
+    const profileEntries: ProfileEntry[] = Object.entries(profiles).map(([name, profile]) => ({ name, ...profile }))
+    if (!profileEntries.length) {
       this.logger.log('No profiles found')
       return
     }
     const activeProfileName = await this.globalCache.get('activeProfile')
-    const profileNames = Object.keys(profiles)
     this.logger.log(`Active profile: '${chalk.bold(activeProfileName)}'`)
-    this.logger.json(profileNames)
+    this.logger.json(profileEntries)
   }
 }
 
