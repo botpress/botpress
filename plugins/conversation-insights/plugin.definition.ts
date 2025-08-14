@@ -5,7 +5,7 @@ export default new PluginDefinition({
   name: 'conversation-insights',
   version: '0.2.1',
   configuration: {
-    schema: z.object({ model: z.object({ id: z.string() }) }),
+    schema: z.object({ modelId: z.string() }),
   },
   conversation: {
     tags: {
@@ -24,10 +24,9 @@ export default new PluginDefinition({
       },
     },
   },
-  workflows: {
+  events: {
     updateSummary: {
-      input: { schema: z.object({ messages: z.array(z.string()) }) },
-      output: { schema: z.object({}) },
+      schema: z.object({}),
     },
   },
   interfaces: {

@@ -1,25 +1,21 @@
 import * as sdk from '@botpress/sdk'
 import * as summaryUpdater from './summaryUpdater'
 import * as updateScheduler from './summaryUpdateScheduler'
+import * as types from './types'
 import * as bp from '.botpress'
+
+type CommonProps = types.CommonProps
 
 const plugin = new bp.Plugin({
   actions: {},
 })
 
-// TODO: generate a type for CommonProps in the CLI / SDK
-export type CommonProps =
-  | bp.HookHandlerProps['after_incoming_message']
-  | bp.HookHandlerProps['after_outgoing_message']
-  | bp.EventHandlerProps
-
-// #region message handlers
 plugin.on.afterIncomingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
   const { message_count } = await _onNewMessage({ ...props, conversation })
 
   if (updateScheduler.isTimeToUpdate(message_count)) {
-    await createUpdateWorkflowForConversation({ ...props, conversationId: props.data.conversationId })
+    props.client.createEvent({ payload: {}, type: 'updateSummary', conversationId: props.data.conversationId })
   }
 
   return undefined
@@ -54,41 +50,20 @@ const _onNewMessage = async (
   })
   return { message_count, participant_count }
 }
-// #endregion
 
-// #region workflows
-type WorkflowCreationProps = CommonProps & { conversationId: string }
-const createUpdateWorkflowForConversation = async (props: WorkflowCreationProps) => {
-  const messages = await props.client.listMessages({ conversationId: props.conversationId })
+plugin.on.event('updateSummary', async (props) => {
+  const messages = await props.client.listMessages({ conversationId: props.event.conversationId })
   const newMessages: string[] = messages.messages.map((message) => message.payload.text)
-  props.workflows.updateSummary.startNewInstance({
-    input: { messages: newMessages },
-    conversationId: props.conversationId,
-  })
-}
+  if (!props.event.conversationId) {
+    throw new sdk.RuntimeError(`The conversationId cannot be null when calling the event '${props.event.type}'`)
+  }
+  const conversation = await props.client.getConversation({ id: props.event.conversationId })
 
-plugin.on.workflowStart('updateSummary', async (props) => {
-  if (!props.conversation) throw new sdk.RuntimeError('The conversation id cannot be null')
-  props.logger.info(`The workflow '${props.workflow.id}' has been started`)
-})
-
-plugin.on.workflowContinue('updateSummary', async (props) => {
-  if (!props.conversation) throw new sdk.RuntimeError('The conversation id cannot be null')
   await summaryUpdater.updateTitleAndSummary({
     ...props,
-    conversation: props.conversation,
-    messages: props.workflow.input.messages,
+    conversation: conversation.conversation,
+    messages: newMessages,
   })
-
-  props.workflow.setCompleted()
-  props.logger.info(`The workflow '${props.workflow.id}' has been completed`)
 })
-
-plugin.on.workflowTimeout('updateSummary', async (props) => {
-  props.logger.error('workflow timed out')
-  props.workflow.setFailed({ failureReason: 'Unknown reason' })
-})
-
-// #endregion
 
 export default plugin
