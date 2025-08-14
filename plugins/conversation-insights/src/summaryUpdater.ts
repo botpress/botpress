@@ -1,7 +1,9 @@
-import { CommonProps } from 'src'
 import * as gen from './generate-content'
 import * as summarizer from './summary-prompt'
+import * as types from './types'
 import * as bp from '.botpress'
+
+type CommonProps = types.CommonProps
 
 type UpdateTitleAndSummaryProps = CommonProps & {
   conversation: bp.MessageHandlerProps['conversation']

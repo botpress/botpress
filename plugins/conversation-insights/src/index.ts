@@ -1,17 +1,14 @@
 import * as sdk from '@botpress/sdk'
 import * as summaryUpdater from './summaryUpdater'
 import * as updateScheduler from './summaryUpdateScheduler'
+import * as types from './types'
 import * as bp from '.botpress'
+
+type CommonProps = types.CommonProps
 
 const plugin = new bp.Plugin({
   actions: {},
 })
-
-// TODO: generate a type for CommonProps in the CLI / SDK
-export type CommonProps =
-  | bp.HookHandlerProps['after_incoming_message']
-  | bp.HookHandlerProps['after_outgoing_message']
-  | bp.EventHandlerProps
 
 // #region message handlers
 plugin.on.afterIncomingMessage('*', async (props) => {
