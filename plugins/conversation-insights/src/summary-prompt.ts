@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { LLMInput } from './generate-content'
+import { LLMInput } from './parse-content'
 
 export type OutputFormat = z.infer<typeof OutputFormat>
 export const OutputFormat = z.object({
