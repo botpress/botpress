@@ -40,7 +40,6 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
     tags: {
       title: parsed.json.title,
       summary: parsed.json.summary,
-      isDirty: 'false',
     },
   })
 }

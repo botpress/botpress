@@ -13,6 +13,7 @@ export type CommonProps =
   | bp.HookHandlerProps['after_outgoing_message']
   | bp.EventHandlerProps
 
+// #region message handlers
 plugin.on.afterIncomingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
   const { message_count } = await _onNewMessage({ ...props, conversation })
@@ -53,9 +54,9 @@ const _onNewMessage = async (
   })
   return { message_count, participant_count }
 }
+// #endregion
 
 // #region workflows
-
 type WorkflowCreationProps = CommonProps & { conversationId: string }
 const createUpdateWorkflowForConversation = async (props: WorkflowCreationProps) => {
   const messages = await props.client.listMessages({ conversationId: props.conversationId })
@@ -88,6 +89,6 @@ plugin.on.workflowTimeout('updateSummary', async (props) => {
   props.workflow.setFailed({ failureReason: 'Unknown reason' })
 })
 
-// endregion
+// #endregion
 
 export default plugin
