@@ -121,7 +121,7 @@ const integration = new bp.Integration({
 
             // Download media if configuration is enabled, otherwise use original URL
             let finalMediaUrl = mediaUrl
-            if ((ctx.configuration as any).downloadMedia) {
+            if (ctx.configuration.downloadMedia) {
               finalMediaUrl = await _downloadTwilioMedia(mediaUrl, client, ctx)
             }
 
