@@ -2590,11 +2590,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       json5:
-        specifier: 2.2.3
+        specifier: ^2.2.3
         version: 2.2.3
       jsonrepair:
-        specifier: 3.13.0
-        version: 3.13.0
+        specifier: ^3.10.0
+        version: 3.10.0
     devDependencies:
       '@botpresshub/llm':
         specifier: workspace:*
@@ -14090,11 +14090,6 @@ packages:
 
   /jsonrepair@3.10.0:
     resolution: {integrity: sha512-0Ex64Exiw0rPUEcSbhPN0ae4/5D0DZLIob9yagAF1OG5iU0mP+/t7q4gcxtQdn6i7FuQy2J/w1XbOdu/uhGV0w==}
-    hasBin: true
-    dev: false
-
-  /jsonrepair@3.13.0:
-    resolution: {integrity: sha512-5YRzlAQ7tuzV1nAJu3LvDlrKtBFIALHN2+a+I1MGJCt3ldRDBF/bZuvIPzae8Epot6KBXd0awRZZcuoeAsZ/mw==}
     hasBin: true
     dev: false
 
