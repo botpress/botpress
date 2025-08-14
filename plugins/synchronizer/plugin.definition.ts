@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import semver from 'semver'
 import deletable from './bp_modules/deletable'
 import listable from './bp_modules/listable'
 
@@ -68,7 +69,7 @@ export default new sdk.PluginDefinition({
     },
   },
   interfaces: {
-    listable,
-    deletable,
+    listable: { ...listable, version: `^${semver.major(listable.version)}.0.0` },
+    deletable: { ...deletable, version: `^${semver.major(deletable.version)}.0.0` },
   },
 })
