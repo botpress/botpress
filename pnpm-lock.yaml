@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 patchedDependencies:
   source-map-js@1.2.1:
     hash: h25dep36e76b3zca3v6s2554fi
@@ -1545,6 +1541,9 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
+      axios:
+        specifier: ^1.6.0
+        version: 1.8.4
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
@@ -2237,7 +2236,7 @@ importers:
         version: 4.17.21
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
+        version: 8.0.2(@microsoft/api-extractor@7.49.0)(ts-node@10.9.2)(typescript@5.8.3)
 
   packages/cognitive:
     dependencies:
@@ -2280,7 +2279,7 @@ importers:
         version: 11.1.6
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
+        version: 8.0.2(@microsoft/api-extractor@7.49.0)(ts-node@10.9.2)(typescript@5.8.3)
 
   packages/common:
     dependencies:
@@ -2453,7 +2452,7 @@ importers:
         version: 0.3.0(esbuild@0.16.17)
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
+        version: 8.0.2(@microsoft/api-extractor@7.49.0)(ts-node@10.9.2)(typescript@5.8.3)
 
   packages/sdk-addons:
     dependencies:
@@ -2505,7 +2504,7 @@ importers:
         version: 9.3.5
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
+        version: 8.0.2(@microsoft/api-extractor@7.49.0)(ts-node@10.9.2)(typescript@5.8.3)
 
   packages/zai:
     dependencies:
@@ -2563,7 +2562,7 @@ importers:
         version: 11.1.6
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
+        version: 8.0.2(@microsoft/api-extractor@7.49.0)(ts-node@10.9.2)(typescript@5.8.3)
 
   plugins/analytics:
     dependencies:
@@ -8369,7 +8368,7 @@ packages:
     resolution: {integrity: sha512-9JgOaunvQdsQ/qW2OPmE5+hCeUB52lQSolecrFrthct55QekhmXEwT203s20RL+UHtCQc15y3VXpby9E7Kkh/g==}
     deprecated: This is a stub types definition. axios provides its own type definitions, so you do not need this installed.
     dependencies:
-      axios: 1.10.0
+      axios: 1.9.0
     transitivePeerDependencies:
       - debug
     dev: true
@@ -9565,6 +9564,7 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
+    dev: false
 
   /axios@1.2.5:
     resolution: {integrity: sha512-9pU/8mmjSSOb4CXVsvGIevN+MlO/t9OWtKadTaLuN85Gge3HGorUckgp8A/2FH4V4hJ7JuQ3LIeI7KAV9ITZrQ==}
@@ -17705,45 +17705,6 @@ packages:
       - ts-node
     dev: true
 
-  /tsup@8.0.2(ts-node@10.9.2)(typescript@5.6.3):
-    resolution: {integrity: sha512-NY8xtQXdH7hDUAZwcQdY/Vzlw9johQsaqf7iwZ6g1DOUlFYQ5/AtVAjTvihhEyeRlGo4dLRVHtrRaL35M1daqQ==}
-    engines: {node: '>=18'}
-    hasBin: true
-    peerDependencies:
-      '@microsoft/api-extractor': ^7.36.0
-      '@swc/core': ^1
-      postcss: ^8.4.12
-      typescript: '>=4.5.0'
-    peerDependenciesMeta:
-      '@microsoft/api-extractor':
-        optional: true
-      '@swc/core':
-        optional: true
-      postcss:
-        optional: true
-      typescript:
-        optional: true
-    dependencies:
-      bundle-require: 4.0.2(esbuild@0.19.12)
-      cac: 6.7.14
-      chokidar: 3.5.3
-      debug: 4.4.0
-      esbuild: 0.19.12
-      execa: 5.1.1
-      globby: 11.1.0
-      joycon: 3.1.1
-      postcss-load-config: 4.0.2(ts-node@10.9.2)
-      resolve-from: 5.0.0
-      rollup: 4.24.2
-      source-map: 0.8.0-beta.0
-      sucrase: 3.35.0
-      tree-kill: 1.2.2
-      typescript: 5.6.3
-    transitivePeerDependencies:
-      - supports-color
-      - ts-node
-    dev: true
-
   /tsx@4.19.2:
     resolution: {integrity: sha512-pOUl6Vo2LUq/bSa8S5q7b91cgNSjctn9ugq/+Mvow99qW6x/UZYwzxy/3NmqoT66eHYfCVvFvACC58UBPFf28g==}
     engines: {node: '>=18.0.0'}
@@ -18858,3 +18819,7 @@ packages:
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
