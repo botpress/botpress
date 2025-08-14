@@ -1,42 +1,38 @@
+import * as sdk from '@botpress/sdk'
+import * as summaryUpdater from './summaryUpdater'
+import * as updateScheduler from './summaryUpdateScheduler'
+import * as types from './types'
 import * as bp from '.botpress'
+
+type CommonProps = types.CommonProps
 
 const plugin = new bp.Plugin({
   actions: {},
 })
 
-// TODO: generate a type for CommonProps in the CLI / SDK
-type CommonProps =
-  | bp.HookHandlerProps['after_incoming_message']
-  | bp.HookHandlerProps['after_outgoing_message']
-  | bp.EventHandlerProps
-
 plugin.on.afterIncomingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
-  await _onNewMessage({ ...props, conversation, isDirty: true })
+  const { message_count } = await _onNewMessage({ ...props, conversation })
+
+  if (updateScheduler.isTimeToUpdate(message_count)) {
+    props.client.createEvent({ payload: {}, type: 'updateSummary', conversationId: props.data.conversationId })
+  }
+
   return undefined
 })
 
 plugin.on.afterOutgoingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.message.conversationId })
-  await _onNewMessage({ ...props, conversation, isDirty: false })
+  await _onNewMessage({ ...props, conversation })
   return undefined
-})
-
-plugin.on.event('updateTitleAndSummary', async (props) => {
-  const conversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
-
-  for (const conversation of conversations.conversations) {
-    const messages = await props.client.listMessages({ conversationId: conversation.id })
-    const newMessages = messages.messages.map((message) => message.payload.text)
-    await _updateTitleAndSummary({ ...props, conversationId: conversation.id, messages: newMessages })
-  }
 })
 
 type OnNewMessageProps = CommonProps & {
   conversation: bp.ClientOutputs['getConversation']['conversation']
-  isDirty: boolean
 }
-const _onNewMessage = async (props: OnNewMessageProps) => {
+const _onNewMessage = async (
+  props: OnNewMessageProps
+): Promise<{ message_count: number; participant_count: number }> => {
   const message_count = props.conversation.tags.message_count ? parseInt(props.conversation.tags.message_count) + 1 : 1
 
   const participant_count = await props.client
@@ -46,29 +42,28 @@ const _onNewMessage = async (props: OnNewMessageProps) => {
   const tags = {
     message_count: message_count.toString(),
     participant_count: participant_count.toString(),
-    isDirty: props.isDirty ? 'true' : 'false',
   }
 
   await props.client.updateConversation({
     id: props.conversation.id,
     tags,
   })
+  return { message_count, participant_count }
 }
 
-type UpdateTitleAndSummaryProps = CommonProps & {
-  conversationId: string
-  messages: string[]
-}
-const _updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
-  await props.client.updateConversation({
-    id: props.conversationId,
-    tags: {
-      // TODO: use the cognitive client / service to generate a title and summary
-      title: 'The conversation title!',
-      summary: 'This is normally where the conversation summary would be.',
-      isDirty: 'false',
-    },
+plugin.on.event('updateSummary', async (props) => {
+  const messages = await props.client.listMessages({ conversationId: props.event.conversationId })
+  const newMessages: string[] = messages.messages.map((message) => message.payload.text)
+  if (!props.event.conversationId) {
+    throw new sdk.RuntimeError(`The conversationId cannot be null when calling the event '${props.event.type}'`)
+  }
+  const conversation = await props.client.getConversation({ id: props.event.conversationId })
+
+  await summaryUpdater.updateTitleAndSummary({
+    ...props,
+    conversation: conversation.conversation,
+    messages: newMessages,
   })
-}
+})
 
 export default plugin
