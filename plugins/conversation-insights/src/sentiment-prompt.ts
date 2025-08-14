@@ -2,7 +2,6 @@ import { z } from '@botpress/sdk'
 import { LLMInput } from './parse-content'
 import { Sentiment } from './sentiments'
 import * as bp from '.botpress'
-import * as sdk from '@botpress/sdk'
 
 export type OutputFormat = z.infer<typeof OutputFormat>
 export const OutputFormat = z.object({
