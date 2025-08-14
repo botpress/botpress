@@ -10,7 +10,6 @@ const plugin = new bp.Plugin({
   actions: {},
 })
 
-// #region message handlers
 plugin.on.afterIncomingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
   const { message_count } = await _onNewMessage({ ...props, conversation })
@@ -51,9 +50,7 @@ const _onNewMessage = async (
   })
   return { message_count, participant_count }
 }
-// #endregion
 
-// #region events
 plugin.on.event('updateSummary', async (props) => {
   const messages = await props.client.listMessages({ conversationId: props.event.conversationId })
   const newMessages: string[] = messages.messages.map((message) => message.payload.text)
@@ -68,7 +65,5 @@ plugin.on.event('updateSummary', async (props) => {
     messages: newMessages,
   })
 })
-
-// #endregion
 
 export default plugin
