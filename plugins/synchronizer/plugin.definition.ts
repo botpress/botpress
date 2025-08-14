@@ -7,7 +7,7 @@ const itemSchema = listable.definition.entities.item.schema
 
 export default new sdk.PluginDefinition({
   name: 'synchronizer',
-  version: '0.0.1',
+  version: '1.0.0',
   configuration: {
     schema: sdk.z.object({
       tableName: sdk.z.string().title('Table Name').describe('The name of the table to store items'),
