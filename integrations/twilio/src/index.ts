@@ -114,36 +114,34 @@ const integration = new bp.Integration({
       for (let i = 0; i < numMedia; i++) {
         const mediaUrl = data[`MediaUrl${i}` as keyof typeof data]
 
-        if (mediaUrl && typeof mediaUrl === 'string') {
-          try {
-            // Get media metadata first
-            const metadata = await getTwilioMediaMetadata(mediaUrl, ctx)
-
-            // Download media if configuration is enabled, otherwise use original URL
-            let finalMediaUrl = mediaUrl
-            if (ctx.configuration.downloadMedia) {
-              finalMediaUrl = await _downloadTwilioMedia(mediaUrl, client, ctx)
-            }
-
-            // Determine message type based on MIME type and create payload
-            const { messageType, payload } = getMessageTypeAndPayload(
-              finalMediaUrl,
-              metadata.mimeType,
-              metadata.fileName
-            )
-
-            await client.createMessage({
-              tags: { id: `${messageSid}_media_${i}` },
-              type: messageType as any, // Type assertion needed for dynamic message types
-              userId: user.id,
-              conversationId: conversation.id,
-              payload,
-            })
-          } catch (error) {
-            logger.forBot().error(`Failed to create message for media ${i + 1}:`, error)
-          }
-        } else {
+        // Guard condition: skip invalid media URLs
+        if (!mediaUrl || typeof mediaUrl !== 'string') {
           logger.forBot().error(`Missing or invalid media URL for media ${i + 1}`)
+          continue
+        }
+
+        try {
+          // Get media metadata first
+          const metadata = await getTwilioMediaMetadata(mediaUrl, ctx)
+
+          // Download media if configuration is enabled, otherwise use original URL
+          let finalMediaUrl = mediaUrl
+          if (ctx.configuration.downloadMedia) {
+            finalMediaUrl = await _downloadTwilioMedia(mediaUrl, client, ctx)
+          }
+
+          // Determine message type based on MIME type and create payload
+          const { messageType, payload } = getMessageTypeAndPayload(finalMediaUrl, metadata.mimeType, metadata.fileName)
+
+          await client.createMessage({
+            tags: { id: `${messageSid}_media_${i}` },
+            type: messageType as any, // Type assertion needed for dynamic message types
+            userId: user.id,
+            conversationId: conversation.id,
+            payload,
+          })
+        } catch (error) {
+          logger.forBot().error(`Failed to create message for media ${i + 1}:`, error)
         }
       }
     }
