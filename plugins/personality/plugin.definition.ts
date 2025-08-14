@@ -1,9 +1,10 @@
 import * as sdk from '@botpress/sdk'
+import semver from 'semver'
 import llm from './bp_modules/llm'
 
 export default new sdk.PluginDefinition({
   name: 'personality',
-  version: '0.0.1',
+  version: '1.0.0',
   configuration: {
     schema: sdk.z.object({
       model: sdk.z.string().describe('Model to use to handle bot personality'),
@@ -16,6 +17,6 @@ export default new sdk.PluginDefinition({
     }),
   },
   interfaces: {
-    llm,
+    llm: { ...llm, version: `^${semver.major(llm.version)}.0.0` },
   },
 })
