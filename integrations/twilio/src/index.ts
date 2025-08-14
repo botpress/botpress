@@ -135,7 +135,7 @@ const integration = new bp.Integration({
 
           await client.createMessage({
             tags: { id: `${messageSid}_media_${i}` },
-            type: messageType as any, // Type assertion needed for dynamic message types
+            type: messageType,
             userId: user.id,
             conversationId: conversation.id,
             payload,
@@ -363,7 +363,7 @@ function getMessageTypeAndPayload(
   mediaUrl: string,
   contentType: string | null | undefined,
   fileName?: string
-): { messageType: string; payload: any } {
+): { messageType: 'image' | 'audio' | 'video' | 'file'; payload: any } {
   const mimeType = contentType?.toLowerCase() || ''
 
   if (mimeType.startsWith('image/')) {
