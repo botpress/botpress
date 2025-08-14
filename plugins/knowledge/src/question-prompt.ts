@@ -91,7 +91,7 @@ Questions should be extracted with the following JSON format:
     "line": 'L34',
     "raw_question": "how old is he",
     "resolved_question": "how old is he (Justin Timberlake)?",
-    "search_query": "Justin Timberlake" age",
+    "search_query": "\"Justin Timberlake\" age",
   }
 ]
 
