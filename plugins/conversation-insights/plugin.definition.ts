@@ -1,8 +1,12 @@
 import { PluginDefinition, z } from '@botpress/sdk'
+import llm from './bp_modules/llm'
 
 export default new PluginDefinition({
   name: 'conversation-insights',
-  version: '0.1.3',
+  version: '0.2.1',
+  configuration: {
+    schema: z.object({ modelId: z.string() }),
+  },
   conversation: {
     tags: {
       title: { title: 'Title', description: 'The title of the conversation.' },
@@ -18,12 +22,14 @@ export default new PluginDefinition({
         title: 'Participant count',
         description: 'The count of users having participated in the conversation, including the bot. Type: int',
       },
-      isDirty: {
-        title: 'Dirty',
-        description: 'Signifies whether the conversation has had a new message since last refresh',
-      },
     },
   },
-  // TODO: replace this event with a workflow
-  events: { updateTitleAndSummary: { schema: z.object({}) } },
+  events: {
+    updateSummary: {
+      schema: z.object({}),
+    },
+  },
+  interfaces: {
+    llm,
+  },
 })

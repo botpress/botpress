@@ -2589,6 +2589,16 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      json5:
+        specifier: ^2.2.3
+        version: 2.2.3
+      jsonrepair:
+        specifier: ^3.10.0
+        version: 3.10.0
+    devDependencies:
+      '@botpresshub/llm':
+        specifier: workspace:*
+        version: link:../../interfaces/llm
 
   plugins/file-synchronizer:
     dependencies:
