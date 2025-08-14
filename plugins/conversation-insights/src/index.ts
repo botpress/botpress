@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import * as summaryUpdater from './conversationTagsUpdater'
+import * as summaryUpdater from './summaryUpdater'
 import * as updateScheduler from './summaryUpdateScheduler'
 import * as bp from '.botpress'
 
