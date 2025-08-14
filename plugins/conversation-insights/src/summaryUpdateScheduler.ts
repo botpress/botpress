@@ -1,4 +1,4 @@
-const INITIAL_UPDATE_COUNT = 3 //will update for the first INITIAL_UPDATE_COUNT messages
+const INITIAL_UPDATE_COUNT = 3 //will update every message for the first INITIAL_UPDATE_COUNT messages
 const UPDATE_INTERVAL = 5 //after that, will update every UPDATE_INTERVAL messages
 
 export const isTimeToUpdate = (message_count: number): boolean => {
