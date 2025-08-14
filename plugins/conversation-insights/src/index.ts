@@ -52,8 +52,10 @@ const _onNewMessage = async (
 }
 
 plugin.on.event('updateSummary', async (props) => {
-  const messages = await props.client.listMessages({ conversationId: props.event.conversationId })
-  const newMessages: string[] = messages.messages.map((message) => message.payload.text)
+  const firstMessagePage = props.client
+    .listMessages({ conversationId: props.event.conversationId })
+    .then((res) => res.messages.map((message) => message.payload.text))
+
   if (!props.event.conversationId) {
     throw new sdk.RuntimeError(`The conversationId cannot be null when calling the event '${props.event.type}'`)
   }
@@ -62,7 +64,7 @@ plugin.on.event('updateSummary', async (props) => {
   await summaryUpdater.updateTitleAndSummary({
     ...props,
     conversation: conversation.conversation,
-    messages: newMessages,
+    messages: await firstMessagePage,
   })
 })
 
