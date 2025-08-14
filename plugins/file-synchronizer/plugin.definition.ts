@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import semver from 'semver'
 import filesReadonly from './bp_modules/files-readonly'
 
 const FILE_FILTER_PROPS = sdk.z.object({
@@ -197,6 +198,6 @@ export default new sdk.PluginDefinition({
     },
   },
   interfaces: {
-    'files-readonly': filesReadonly,
+    'files-readonly': { ...filesReadonly, version: `^${semver.major(filesReadonly.version)}.0.0` },
   },
 })

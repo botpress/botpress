@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import semver from 'semver'
 import llm from './bp_modules/llm'
 
 export default new sdk.PluginDefinition({
@@ -6,6 +7,6 @@ export default new sdk.PluginDefinition({
   version: '0.0.1',
   configuration: { schema: sdk.z.object({}) },
   interfaces: {
-    llm,
+    llm: { ...llm, version: `^${semver.major(llm.version)}.0.0` },
   },
 })

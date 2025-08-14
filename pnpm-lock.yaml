@@ -2611,6 +2611,12 @@ importers:
       '@types/picomatch':
         specifier: ^3.0.2
         version: 3.0.2
+      '@types/semver':
+        specifier: ^7.3.11
+        version: 7.5.0
+      semver:
+        specifier: ^7.3.8
+        version: 7.5.1
 
   plugins/hitl:
     dependencies:
@@ -2633,6 +2639,12 @@ importers:
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
+      '@types/semver':
+        specifier: ^7.3.11
+        version: 7.5.0
+      semver:
+        specifier: ^7.3.8
+        version: 7.5.1
 
   plugins/knowledge:
     dependencies:
@@ -2661,6 +2673,12 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
+      '@types/semver':
+        specifier: ^7.3.11
+        version: 7.5.0
+      semver:
+        specifier: ^7.3.8
+        version: 7.5.1
 
   plugins/logger:
     dependencies:
@@ -2711,6 +2729,12 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
+      '@types/semver':
+        specifier: ^7.3.11
+        version: 7.5.0
+      semver:
+        specifier: ^7.3.8
+        version: 7.5.1
 
   plugins/synchronizer:
     dependencies:
@@ -2745,6 +2769,12 @@ importers:
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
+      '@types/semver':
+        specifier: ^7.3.11
+        version: 7.5.0
+      semver:
+        specifier: ^7.3.8
+        version: 7.5.1
 
 packages:
 
