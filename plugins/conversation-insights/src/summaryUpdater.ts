@@ -8,7 +8,6 @@ type CommonProps = types.CommonProps
 type UpdateTitleAndSummaryProps = CommonProps & {
   conversation: bp.MessageHandlerProps['conversation']
   messages: string[]
-  workflow: bp.WorkflowHandlerProps['updateSummary']['workflow']
 }
 export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   const prompt = summarizer.createPrompt({
@@ -32,9 +31,6 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
 
   if (!parsed.success) {
     props.logger.debug(`The LLM output did not respect the schema after ${attemptCount} retries.`, parsed.json)
-    props.workflow.setFailed({
-      failureReason: `Could not parse LLM title and summary output after ${attemptCount} retries`,
-    })
     return
   }
 

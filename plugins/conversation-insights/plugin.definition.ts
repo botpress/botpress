@@ -24,10 +24,9 @@ export default new PluginDefinition({
       },
     },
   },
-  workflows: {
+  events: {
     updateSummary: {
-      input: { schema: z.object({ messages: z.array(z.string()) }) },
-      output: { schema: z.object({}) },
+      schema: z.object({}),
     },
   },
   interfaces: {
