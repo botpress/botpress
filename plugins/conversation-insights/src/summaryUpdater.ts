@@ -14,11 +14,12 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
     model: props.configuration.model,
     context: { previousTitle: props.conversation.tags.title, previousSummary: props.conversation.tags.summary },
   })
-  let llmOutput = await props.actions.llm.generateContent(prompt)
-  let parsed = gen.parseLLMOutput(llmOutput)
 
   let attemptCount = 0
   const maxRetries = 3
+
+  let llmOutput = await props.actions.llm.generateContent(prompt)
+  let parsed = gen.parseLLMOutput(llmOutput)
 
   while (!parsed.success && attemptCount < maxRetries) {
     props.logger.debug(`Attempt ${attemptCount + 1}: The LLM output did not respect the schema.`, parsed.json)
