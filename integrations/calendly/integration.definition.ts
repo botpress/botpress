@@ -26,4 +26,16 @@ export default new IntegrationDefinition({
       output: { schema: scheduleEventOutputSchema },
     },
   },
+  events: {
+    eventScheduled: {
+      title: 'Event Scheduled',
+      description: 'An event that triggers when an invitee fills out and submits a scheduling form',
+      schema: z.object({}), // TODO: Map this schema
+    },
+    eventCanceled: {
+      title: 'Event Canceled',
+      description: 'An event that triggers when an invitee cancels a scheduled event',
+      schema: z.object({}), // TODO: Map this schema
+    },
+  },
 })
