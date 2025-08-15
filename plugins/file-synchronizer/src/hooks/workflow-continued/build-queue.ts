@@ -20,6 +20,18 @@ export const handleEvent: bp.WorkflowHandlers['buildQueue'] = async (props) => {
     return
   }
 
+  const { syncQueue: finalSyncQueue } = await SyncQueue.jobFileManager.getSyncQueue(props, workflowState.jobFileId)
+
+  if (finalSyncQueue.length === 0) {
+    props.logger.info(
+      'Enumeration matched no files. Nothing to sync. Please check your include and exclude rules. ' +
+        `There could also be an issue with your configuration in the "${props.interfaces['files-readonly'].name}" integration. ` +
+        'For example, your access token might be missing some permissions or the integration might not be set up correctly.'
+    )
+    await props.workflow.setCompleted()
+    return
+  }
+
   props.logger.info('Enumeration completed. Starting sync job...')
   await props.workflow.setCompleted()
   await props.workflows.processQueue.startNewInstance({
