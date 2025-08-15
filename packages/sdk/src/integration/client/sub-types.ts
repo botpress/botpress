@@ -5,7 +5,10 @@ export type EnumerateMessages<TIntegration extends common.BaseIntegration> = uti
   utils.ValueOf<{
     [TChannelName in keyof TIntegration['channels']]: {
       [TMessageName in keyof TIntegration['channels'][TChannelName]['messages']]: {
-        tags: TIntegration['channels'][TChannelName]['message']['tags']
+        type: TMessageName
+        tags: {
+          [Tag in keyof TIntegration['channels'][TChannelName]['message']['tags']]?: string
+        }
         payload: TIntegration['channels'][TChannelName]['messages'][TMessageName]
       }
     }
@@ -23,6 +26,7 @@ export type GetMessageByName<
 > = utils.Cast<
   EnumerateMessages<TIntegration>[TMessageName],
   {
+    type: string
     tags: Record<string, any>
     payload: any
   }

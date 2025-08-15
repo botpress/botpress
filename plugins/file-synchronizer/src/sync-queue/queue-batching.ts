@@ -4,12 +4,13 @@ import type * as types from '../types'
 type SimpleFile = Pick<types.SyncQueueItem, 'sizeInBytes'>
 
 export const findBatchEndCursor = ({
-  startCursor,
+  startCursor: unsafeStartCursor,
   files,
 }: {
   startCursor: number
   files: SimpleFile[]
 }): { endCursor: number } => {
+  const startCursor = Math.min(Math.max(unsafeStartCursor, 0), files.length - 1)
   let currentBatchSize = 0
   let endCursor = files.length
 
