@@ -1,4 +1,4 @@
-import { type Isolate } from 'isolated-vm'
+import IsolatedVM, { type Isolate } from 'isolated-vm'
 import { isFunction, mapValues, maxBy } from 'lodash-es'
 import { SourceMapConsumer } from 'source-map-js'
 
@@ -12,10 +12,11 @@ import { Trace, Traces, VMExecutionResult } from './types.js'
 const IS_NODE = typeof process !== 'undefined' && process.versions != null && process.versions.node != null
 const IS_CI = typeof process !== 'undefined' && !!process?.env?.CI
 const VM_DRIVER = (typeof process !== 'undefined' && process?.env?.VM_DRIVER) ?? (IS_CI ? 'node' : 'isolated-vm')
-export const USE_ISOLATED_VM = IS_NODE && VM_DRIVER === 'isolated-vm'
-const LINE_OFFSET = USE_ISOLATED_VM ? 3 : 1
 
+export const CAN_USE_ISOLATED_VM = IS_NODE && VM_DRIVER === 'isolated-vm'
 const MAX_VM_EXECUTION_TIME = 60_000
+
+type Driver = 'isolated-vm' | 'node'
 
 const requireEsm = async (id: string) => {
   // @ts-ignore
@@ -156,7 +157,21 @@ export async function runAsyncFunction(
     }
   }
 
-  if (!USE_ISOLATED_VM) {
+  let DRIVER: Driver = CAN_USE_ISOLATED_VM ? 'isolated-vm' : 'node'
+  let isolatedVm: typeof IsolatedVM | undefined
+
+  if (DRIVER === 'isolated-vm') {
+    try {
+      isolatedVm = await getIsolatedVm()
+    } catch {
+      console.warn(
+        "LLMZ: 'isolated-vm' is not available, falling back to node driver. LLMZ requires 'isolated-vm' packager to run in a sandboxed environment. The code generted by the LLM will run in the NodeJS environment, which is not sandboxed and may have access to the file system, network, and other resources that could lead to security issues."
+      )
+      DRIVER = 'node'
+    }
+  }
+
+  if (DRIVER === 'node') {
     const AsyncFunction: (...args: unknown[]) => (...args: unknown[]) => AsyncGenerator<JsxComponent> =
       async function* () {}.constructor as any
 
@@ -207,11 +222,14 @@ export async function runAsyncFunction(
           return_value: res,
         } satisfies VMExecutionResult
       })
-      .catch((err) => handleError(err, code, consumer, traces, variables, lines_executed, currentToolCall))
+      .catch((err) => handleError(err, code, consumer, traces, variables, lines_executed, currentToolCall, DRIVER))
       .catch((err) => handleCatch(err, traces, variables, lines_executed))
   }
 
-  const isolatedVm = await getIsolatedVm()
+  if (!isolatedVm) {
+    throw new Error('isolated-vm is not available')
+  }
+
   const isolate: Isolate = new isolatedVm.Isolate({ memoryLimit: 128 })
   const isolatedContext = await isolate.createContext()
   const jail = isolatedContext.global
@@ -219,7 +237,7 @@ export async function runAsyncFunction(
   const referenceProperties = new Set<string>()
 
   const abort = () => {
-    if (USE_ISOLATED_VM) {
+    if (DRIVER === 'isolated-vm') {
       isolate.dispose()
       isolatedContext.release()
     }
@@ -508,7 +526,7 @@ do {
         } satisfies VMExecutionResult
       },
       (err) => {
-        return handleError(err, code, consumer, traces, variables, lines_executed, currentToolCall)
+        return handleError(err, code, consumer, traces, variables, lines_executed, currentToolCall, DRIVER)
       }
     )
     .catch((err) => {
@@ -545,17 +563,19 @@ const handleError = (
   /**
    * The current tool call that the error is associated with
    */
-  currentToolCall?: SnapshotSignal['toolCall'] | undefined
+  currentToolCall?: SnapshotSignal['toolCall'] | undefined,
+  driver: Driver = 'isolated-vm'
 ) => {
   err = Signals.maybeDeserializeError(err)
   const lines = code.split('\n')
   const stackTrace = err.stack || ''
+  const LINE_OFFSET = driver === 'isolated-vm' ? 3 : 1
 
   let regex = /\(<isolated-vm>:(\d+):(\d+)/g
   // at __fn__ (<isolated-vm>:13:269)
   //           ~~~~~~~~~~~~~~~~~~~~~~
 
-  if (!USE_ISOLATED_VM) {
+  if (driver === 'node') {
     regex = /<anonymous>:(\d+):(\d+)/g
     // <anonymous>:13:269)
     // ~~~~~~~~~~~~~~~~~~
@@ -590,8 +610,8 @@ const handleError = (
   }
 
   for (let i = 0; i < lines.length; i++) {
-    const VM_OFFSET = USE_ISOLATED_VM ? 2 : 2
-    const DISPLAY_OFFSET = USE_ISOLATED_VM ? 2 : 0
+    const VM_OFFSET = driver === 'isolated-vm' ? 2 : 2
+    const DISPLAY_OFFSET = driver === 'isolated-vm' ? 2 : 0
     const line = lines[i]
     const correctedStackLineIndex = i + LINE_OFFSET + VM_OFFSET // 1 for the array index starting at 0, then 2 is the number of lines added by the sandbox
     const match = matches.find((x) => x.line + VM_OFFSET === correctedStackLineIndex)
