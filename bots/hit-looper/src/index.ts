@@ -63,6 +63,7 @@ bot.on.message('*', async (props) => {
         userId: upstreamUser.id,
       },
     })
+
     return
   }
 
@@ -73,6 +74,7 @@ bot.on.message('*', async (props) => {
         conversationId: upstreamConversation.id,
       },
     })
+
     return
   }
 

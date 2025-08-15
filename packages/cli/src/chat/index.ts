@@ -35,6 +35,7 @@ const MESSAGE_ICONS: Record<chat.Message['payload']['type'], string> = {
   text: '',
   video: '🎥',
   markdown: '',
+  bloc: '🧱',
 }
 
 const EXIT_KEYWORDS = ['exit', '.exit']
@@ -174,7 +175,7 @@ export class Chat {
     process.stdout.write('\x1B[2J\x1B[0;0H')
   }
 
-  private _messageToText = (message: chat.Message): string => {
+  private _messageToText = (message: Pick<chat.Message, 'payload'>): string => {
     const prefix = MESSAGE_ICONS[message.payload.type]
     switch (message.payload.type) {
       case 'audio':
@@ -205,6 +206,11 @@ export class Chat {
         return prefix + message.payload.videoUrl
       case 'markdown':
         return prefix + message.payload.markdown
+      case 'bloc':
+        return [
+          prefix,
+          ...message.payload.items.map((item) => this._messageToText({ payload: item })).map((l) => `\t${l}`),
+        ].join('\n')
       default:
         type _assertion = utils.types.AssertNever<typeof message.payload>
         return '<unknown>'
