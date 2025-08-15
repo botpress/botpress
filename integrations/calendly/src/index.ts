@@ -1,9 +1,10 @@
 import * as bp from '.botpress'
 import actions from './actions'
+import { register, unregister } from './setup'
 
 export default new bp.Integration({
-  register: async () => {},
-  unregister: async () => {},
+  register,
+  unregister,
   actions,
   channels: {},
   handler: async () => {},

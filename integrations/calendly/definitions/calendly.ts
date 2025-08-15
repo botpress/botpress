@@ -33,3 +33,34 @@ export const getCurrentUserResponseSchema = z.object({
   }),
 })
 export type GetCurrentUserResponse = z.infer<typeof getCurrentUserResponseSchema>
+
+export const webhookDetailsSchema = z.object({
+  callback_url: z.string(),
+  created_at: z.coerce.date(),
+  creator: z.string(),
+  events: z.array(z.string()),
+  group: z.null(),
+  organization: calendlyUri,
+  retry_started_at: z.null(),
+  scope: z.string(),
+  state: z.string(),
+  updated_at: z.coerce.date(),
+  uri: calendlyUri,
+  user: calendlyUri.nullable(),
+})
+export type WebhookDetails = z.infer<typeof webhookDetailsSchema>
+
+export const paginationSchema = z.object({
+  count: z.number(),
+  next_page: z.null(),
+  next_page_token: z.null(),
+  previous_page: z.null(),
+  previous_page_token: z.null(),
+})
+export type Pagination = z.infer<typeof paginationSchema>
+
+export const getWebhooksListSchema = z.object({
+  collection: z.array(webhookDetailsSchema),
+  pagination: paginationSchema,
+})
+export type GetWebhooksList = z.infer<typeof getWebhooksListSchema>
