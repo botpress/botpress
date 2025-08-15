@@ -52,7 +52,11 @@ export const enumerateAllFilesRecursive = async ({
       const globMatchResult = globMatcher.matchItem({ configuration, item: folderItem, itemPath })
 
       if (globMatchResult.shouldBeIgnored) {
-        logger.debug('Ignoring item', { itemPath, reason: globMatchResult.reason })
+        logger.debug(
+          'Ignoring item',
+          { itemPath, reason: globMatchResult.reason },
+          JSON.stringify({ item: folderItem, configuration })
+        )
         continue
       }
 

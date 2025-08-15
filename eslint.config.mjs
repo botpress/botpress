@@ -6,6 +6,9 @@ import tsParser from "@typescript-eslint/parser";
 import tseslint from 'typescript-eslint';
 import stylistic from '@stylistic/eslint-plugin'
 import oxlint from 'eslint-plugin-oxlint';
+import path from "path"
+
+const oxlintFile = path.join(import.meta.dirname, '.oxlintrc.json');
 
 const ignores = [
     ".git/",
@@ -77,7 +80,9 @@ export default [{
             avoidEscape: true,
         }],
 
-        "@typescript-eslint/no-floating-promises": "error",
+        "@typescript-eslint/no-floating-promises": ["error", {
+            checkThenables: true
+        }],
         "@typescript-eslint/no-misused-promises": "error",
         "@stylistic/semi": ["error", "never"],
         "@stylistic/type-annotation-spacing": "error",
@@ -112,7 +117,7 @@ export default [{
         "@typescript-eslint/explicit-member-accessibility": "warn",
 
         // Disable every rule already covered by oxlint:
-        ...oxlint.buildFromOxlintConfigFile('./.oxlintrc.json')
+        ...oxlint.buildFromOxlintConfigFile(oxlintFile)
             .map(config => config.rules)
             .reduce((acc, rules) => ({ ...acc, ...rules }), {}),
     },

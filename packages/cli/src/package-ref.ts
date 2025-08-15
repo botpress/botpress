@@ -30,7 +30,7 @@ export type LocalPackageRef = {
 export type ApiPackageRef = UUIDPackageRef | NamePackageRef
 export type PackageRef = ApiPackageRef | LocalPackageRef
 
-const LATEST_TAG = 'latest'
+export const LATEST_TAG = 'latest'
 
 export const formatPackageRef = (ref: PackageRef): string => {
   if (ref.type === 'path') {
@@ -90,7 +90,7 @@ const parseNamePackageRef = (ref: string): NamePackageRef | undefined => {
     return
   }
 
-  const cleanedVersion = version === LATEST_TAG ? version : semver.clean(version)
+  const cleanedVersion = version === LATEST_TAG ? version : semver.validRange(version)
   if (!cleanedVersion) {
     return
   }

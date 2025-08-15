@@ -19,8 +19,8 @@ describe('parsePackageRef', () => {
   test('parse with invalid version should return undefined', () => {
     // arrange
     const ref0 = `${name}@lol`
-    const ref1 = `${name}@1`
-    const ref2 = `${name}@1.0`
+    const ref1 = `${name}@>>1`
+    const ref2 = `${name}@1.0.b`
     // act
     const result0 = parsePackageRef(ref0)
     const result1 = parsePackageRef(ref1)
