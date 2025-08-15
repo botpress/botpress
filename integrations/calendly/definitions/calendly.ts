@@ -1,8 +1,5 @@
 import { z } from '@botpress/sdk'
-import { nonBlankString } from './common'
-
-const calendlyUri = nonBlankString.url().brand('CalendlyUri')
-export type CalendlyUri = z.infer<typeof calendlyUri>
+import { calendlyUri, nonBlankString } from './common'
 
 export const paginationSchema = z.object({
   count: z.number(),
