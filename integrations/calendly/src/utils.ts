@@ -1,4 +1,4 @@
-import { type z } from '@botpress/sdk'
+import type { z } from '@botpress/sdk'
 import axios, { type AxiosInstance } from 'axios'
 
 const BASE_URL = 'https://api.calendly.com' as const
