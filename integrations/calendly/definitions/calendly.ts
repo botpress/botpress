@@ -59,12 +59,14 @@ export const paginationSchema = z.object({
 })
 export type Pagination = z.infer<typeof paginationSchema>
 
+/** @see https://developer.calendly.com/api-docs/faac832d7c57d-list-webhook-subscriptions */
 export const getWebhooksListRespSchema = z.object({
   collection: z.array(webhookDetailsSchema),
   pagination: paginationSchema,
 })
 export type GetWebhooksListResp = z.infer<typeof getWebhooksListRespSchema>
 
+/** @see https://developer.calendly.com/api-docs/c1ddc06ce1f1b-create-webhook-subscription */
 export const createWebhookRespSchema = z.object({
   resource: webhookDetailsSchema,
 })
