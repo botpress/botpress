@@ -59,8 +59,13 @@ export const paginationSchema = z.object({
 })
 export type Pagination = z.infer<typeof paginationSchema>
 
-export const getWebhooksListSchema = z.object({
+export const getWebhooksListRespSchema = z.object({
   collection: z.array(webhookDetailsSchema),
   pagination: paginationSchema,
 })
-export type GetWebhooksList = z.infer<typeof getWebhooksListSchema>
+export type GetWebhooksListResp = z.infer<typeof getWebhooksListRespSchema>
+
+export const createWebhookRespSchema = z.object({
+  resource: webhookDetailsSchema,
+})
+export type CreateWebhookResp = z.infer<typeof createWebhookRespSchema>

@@ -1,6 +1,6 @@
 import * as bp from '.botpress'
 import * as CalendlyDefs from 'definitions/calendly'
-import { getCurrentUser, getWebhooksList, removeWebhook } from './calendly-api'
+import { createWebhook, getCurrentUser, getWebhooksList, removeWebhook } from './calendly-api'
 import { CalendlyClient, createCalendlyClient } from './utils'
 
 const performUnregistration = async (
@@ -50,16 +50,16 @@ export const register: bp.Integration['register'] = async ({ ctx, webhookUrl }) 
 
   const { current_organization: organizationUri, uri: userUri } = userResp.resource
 
-  await httpClient.post<object>(`/webhook_subscriptions`, {
-    url: webhookUrl,
+  createWebhook(httpClient, {
+    webhookUrl,
     events: ['invitee.created', 'invitee.canceled', 'invitee_no_show.created', 'invitee_no_show.deleted'],
     organization: organizationUri,
     user: userUri,
     scope: 'user',
   })
 
-  await httpClient.post<object>(`/webhook_subscriptions`, {
-    url: webhookUrl,
+  createWebhook(httpClient, {
+    webhookUrl,
     events: ['routing_form_submission.created'],
     organization: organizationUri,
     scope: 'organization',

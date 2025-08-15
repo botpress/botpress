@@ -12,26 +12,65 @@ export const getCurrentUser = async (axiosClient: CalendlyClient): Promise<Calen
 type WebhooksListParams =
   | {
       scope: 'organization'
-      organization: string
+      organization: CalendlyDefs.CalendlyUri
     }
   | {
       scope: 'user'
-      organization: string
-      user: string
+      organization: CalendlyDefs.CalendlyUri
+      user: CalendlyDefs.CalendlyUri
     }
 
 export async function getWebhooksList(
   axiosClient: CalendlyClient,
   params: WebhooksListParams
-): Promise<CalendlyDefs.GetWebhooksList> {
+): Promise<CalendlyDefs.GetWebhooksListResp> {
   const searchParams = new URLSearchParams({ ...params, count: '100' })
   const resp = await axiosClient.get<object>(`/webhook_subscriptions?${searchParams}`)
-  return CalendlyDefs.getWebhooksListSchema.parse(resp.data)
+  return CalendlyDefs.getWebhooksListRespSchema.parse(resp.data)
 }
 
 const _extractWebhookUuid = (webhookUri: CalendlyDefs.CalendlyUri) => {
   const match = webhookUri.match(/\/webhook_subscriptions\/(.+)$/)
   return match ? match[1] : null
+}
+
+type WebhookScopes = 'organization' | 'user'
+type WebhookEvents<Scope extends WebhookScopes = WebhookScopes> =
+  | 'invitee.created'
+  | 'invitee.canceled'
+  | 'invitee_no_show.created'
+  | 'invitee_no_show.deleted'
+  | (Scope extends 'organization' ? 'routing_form_submission.created' : never)
+
+type RegisterWebhookParams =
+  | {
+      scope: 'organization'
+      organization: CalendlyDefs.CalendlyUri
+      events: WebhookEvents<'organization'>[]
+      user?: undefined
+      webhookUrl: string
+    }
+  | {
+      scope: 'user'
+      organization: CalendlyDefs.CalendlyUri
+      user: CalendlyDefs.CalendlyUri
+      events: WebhookEvents<'user'>[]
+      webhookUrl: string
+    }
+
+export const createWebhook = async (
+  httpClient: CalendlyClient,
+  params: RegisterWebhookParams
+): Promise<CalendlyDefs.CreateWebhookResp> => {
+  const { webhookUrl, events, organization, scope, user } = params
+  const resp = await httpClient.post<object>(`/webhook_subscriptions`, {
+    url: webhookUrl,
+    events,
+    organization,
+    user,
+    scope,
+  })
+  return CalendlyDefs.createWebhookRespSchema.parse(resp.data)
 }
 
 export const removeWebhook = async (
