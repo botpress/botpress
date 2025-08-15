@@ -9,6 +9,15 @@ export const getCurrentUser = async (axiosClient: CalendlyClient): Promise<Calen
   return CalendlyDefs.getCurrentUserRespSchema.parse(resp.data)
 }
 
+export async function getEventTypesList(
+  axiosClient: CalendlyClient,
+  userUri: CalendlyDefs.CalendlyUri
+): Promise<CalendlyDefs.GetEventTypesListResp> {
+  const searchParams = new URLSearchParams({ user: userUri })
+  const resp = await axiosClient.get<object>(`/event_types?${searchParams}`)
+  return CalendlyDefs.getEventTypesListRespSchema.parse(resp.data)
+}
+
 type WebhooksListParams =
   | {
       scope: 'organization'
@@ -80,4 +89,16 @@ export const removeWebhook = async (
   const webhookUuid = _extractWebhookUuid(webhookUri)
   const resp = await axiosClient.delete<object>(`/webhook_subscriptions/${webhookUuid}`)
   return resp.status === NO_CONTENT
+}
+
+export const createSingleUseSchedulingLink = async (
+  axiosClient: CalendlyClient,
+  eventType: CalendlyDefs.EventType
+): Promise<CalendlyDefs.CreateSchedulingLinkResp> => {
+  const resp = await axiosClient.post<object>('/scheduling_links', {
+    max_event_count: 1,
+    owner: eventType.uri,
+    owner_type: 'EventType',
+  })
+  return CalendlyDefs.createSchedulingLinkRespSchema.parse(resp.data)
 }

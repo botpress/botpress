@@ -21,7 +21,7 @@ export default new IntegrationDefinition({
   actions: {
     scheduleEvent: {
       title: 'Schedule Calendly Event',
-      description: 'Schedules a new event in Calendly',
+      description: 'Generates a link for scheduling an event in Calendly',
       input: { schema: scheduleEventInputSchema },
       output: { schema: scheduleEventOutputSchema },
     },
