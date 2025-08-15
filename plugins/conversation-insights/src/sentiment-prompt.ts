@@ -3,10 +3,9 @@ import { LLMInput } from './parse-content'
 import { Sentiment } from './sentiments'
 import * as bp from '.botpress'
 
-export type OutputFormat = z.infer<typeof OutputFormat>
-export const OutputFormat = z.object({
-  title: z.string().describe('A fitting title for the conversation'),
-  summary: z.string().describe('A short summary of the conversation'),
+export type SentimentAnalysisOutput = z.infer<typeof SentimentAnalysisOutput>
+export const SentimentAnalysisOutput = z.object({
+  sentiment: z.string().describe('The sentiment that best describes the conversation'),
 })
 
 export type InputFormat = z.infer<typeof InputFormat>
@@ -120,6 +119,3 @@ Output:
 console.log(
   createPrompt({ context: { previousSentiment: 'neutral' }, messages: [], model: { id: '' }, botId: 'string' })
 )
-
-//TODO
-// add botId and tag bot messages as assistant
