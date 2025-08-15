@@ -52,6 +52,8 @@ const _getEnumerateAllFilesRecursiveProps = (
 ): SyncQueue.directoryTraversalWithBatching.EnumerateAllFilesRecursiveProps => ({
   ...props,
 
+  configuration: props.workflow.input,
+
   currentEnumerationState: workflowState.enumerationState,
   integration: { listItemsInFolder: props.actions['files-readonly'].listItemsInFolder },
 
