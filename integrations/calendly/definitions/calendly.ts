@@ -41,7 +41,7 @@ export const webhookDetailsSchema = z.object({
   events: z.array(z.string()),
   group: z.null(),
   organization: calendlyUri,
-  retry_started_at: z.null(),
+  retry_started_at: z.union([z.coerce.date(), z.null()]),
   scope: z.string(),
   state: z.string(),
   updated_at: z.coerce.date(),
