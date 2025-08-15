@@ -2,10 +2,18 @@
   "name": "@botpresshub/conversation-insights",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build": "bp build"
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {
-    "@botpress/sdk": "workspace:*"
+    "@botpress/sdk": "workspace:*",
+    "json5": "^2.2.3",
+    "jsonrepair": "^3.10.0"
+  },
+  "devDependencies": {
+    "@botpresshub/llm": "workspace:*"
+  },
+  "bpDependencies": {
+    "llm": "../../interfaces/llm"
   }
 }

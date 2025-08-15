@@ -32,7 +32,7 @@ export async function generateContent(
       input.reasoningEffort = 'medium'
     }
 
-    // TODO: Uncomment this when we have removed the "reasoning" model IDs from the model list.
+    // TODO: Uncomment this when we have removed the fake "reasoning" model IDs from the model list.
     // logger
     //   .forBot()
     //   .warn(
