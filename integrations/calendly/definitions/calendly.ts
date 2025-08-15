@@ -5,7 +5,7 @@ const calendlyUri = nonBlankString.url().brand('CalendlyUri')
 export type CalendlyUri = z.infer<typeof calendlyUri>
 
 /** @see https://developer.calendly.com/api-docs/005832c83aeae-get-current-user */
-export const getCurrentUserResponseSchema = z.object({
+export const getCurrentUserRespSchema = z.object({
   resource: z.object({
     avatar_url: nonBlankString.url().nullable(),
     created_at: z.coerce.date(),
@@ -32,7 +32,7 @@ export const getCurrentUserResponseSchema = z.object({
     uri: calendlyUri,
   }),
 })
-export type GetCurrentUserResponse = z.infer<typeof getCurrentUserResponseSchema>
+export type GetCurrentUserResp = z.infer<typeof getCurrentUserRespSchema>
 
 export const webhookDetailsSchema = z.object({
   callback_url: z.string(),

@@ -4,9 +4,9 @@ import type { CalendlyClient } from './utils'
 // ------ Status Codes ------
 const NO_CONTENT = 204 as const
 
-export const getCurrentUser = async (axiosClient: CalendlyClient): Promise<CalendlyDefs.GetCurrentUserResponse> => {
-  const resp = await axiosClient.get<object>(`/users/me`)
-  return CalendlyDefs.getCurrentUserResponseSchema.parse(resp.data)
+export const getCurrentUser = async (axiosClient: CalendlyClient): Promise<CalendlyDefs.GetCurrentUserResp> => {
+  const resp = await axiosClient.get<object>('/users/me')
+  return CalendlyDefs.getCurrentUserRespSchema.parse(resp.data)
 }
 
 type WebhooksListParams =
@@ -63,7 +63,7 @@ export const createWebhook = async (
   params: RegisterWebhookParams
 ): Promise<CalendlyDefs.CreateWebhookResp> => {
   const { webhookUrl, events, organization, scope, user } = params
-  const resp = await httpClient.post<object>(`/webhook_subscriptions`, {
+  const resp = await httpClient.post<object>('/webhook_subscriptions', {
     url: webhookUrl,
     events,
     organization,

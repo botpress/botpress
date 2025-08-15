@@ -1,11 +1,11 @@
-import type * as bp from '.botpress'
 import type * as CalendlyDefs from 'definitions/calendly'
 import { createWebhook, getCurrentUser, getWebhooksList, removeWebhook } from './calendly-api'
 import { type CalendlyClient, createCalendlyClient } from './utils'
+import type * as bp from '.botpress'
 
 const performUnregistration = async (
   httpClient: CalendlyClient,
-  userResp: CalendlyDefs.GetCurrentUserResponse,
+  userResp: CalendlyDefs.GetCurrentUserResp,
   webhookUrl: string
 ) => {
   const { current_organization: organizationUri, uri: userUri } = userResp.resource
