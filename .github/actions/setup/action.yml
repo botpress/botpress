@@ -11,7 +11,7 @@ runs:
   steps:
     - uses: pnpm/action-setup@v4
       with:
-        version: 8.6.2
+        version: 9.15.9
 
     - uses: actions/setup-node@v3
       with:
