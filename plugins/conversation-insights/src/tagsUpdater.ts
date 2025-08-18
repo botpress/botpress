@@ -1,6 +1,6 @@
-import * as gen from './parse-content'
-import * as sentiment from './sentiment-prompt'
-import * as summarizer from './summary-prompt'
+import * as gen from './prompt/parse-content'
+import * as sentiment from './prompt/sentiment-prompt'
+import * as summarizer from './prompt/summary-prompt'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -18,7 +18,7 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
     context: { previousTitle: props.conversation.tags.title, previousSummary: props.conversation.tags.summary },
   })
 
-  const parsedSummary = await generateContentWithRetries<summarizer.OutputFormat>({
+  const parsedSummary = await _generateContentWithRetries<summarizer.OutputFormat>({
     actions: props.actions,
     logger: props.logger,
     prompt: summaryPrompt,
@@ -31,7 +31,7 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
     model: { id: props.configuration.modelId },
   })
 
-  const parsedSentiment = await generateContentWithRetries<sentiment.SentimentAnalysisOutput>({
+  const parsedSentiment = await _generateContentWithRetries<sentiment.SentimentAnalysisOutput>({
     actions: props.actions,
     logger: props.logger,
     prompt: sentimentPrompt,
@@ -52,7 +52,7 @@ type ParsePromptProps = {
   logger: UpdateTitleAndSummaryProps['logger']
   prompt: gen.LLMInput
 }
-const generateContentWithRetries = async <T>(props: ParsePromptProps): Promise<gen.PredictResponse<T>> => {
+const _generateContentWithRetries = async <T>(props: ParsePromptProps): Promise<gen.PredictResponse<T>> => {
   let attemptCount = 0
   const maxRetries = 3
 
