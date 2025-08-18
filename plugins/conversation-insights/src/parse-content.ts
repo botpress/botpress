@@ -1,8 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import JSON5 from 'json5'
 import { jsonrepair } from 'jsonrepair'
-import { OutputFormat } from './summary-prompt'
-import { SentimentAnalysisOutput } from './sentiment-prompt'
 import * as bp from '.botpress'
 
 export type LLMInput = bp.interfaces.llm.actions.generateContent.input.Input

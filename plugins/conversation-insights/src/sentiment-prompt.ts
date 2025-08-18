@@ -115,7 +115,3 @@ Output:
   messages: formatMessages(args.messages, args.context, args.botId),
   model: args.model,
 })
-
-console.log(
-  createPrompt({ context: { previousSentiment: 'neutral' }, messages: [], model: { id: '' }, botId: 'string' })
-)
