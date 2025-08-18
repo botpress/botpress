@@ -52,7 +52,7 @@ const _onNewMessage = async (
 }
 
 plugin.on.event('updateSummary', async (props) => {
-  const firstMessagePage = props.client
+  const firstMessagePage = await props.client
     .listMessages({ conversationId: props.event.conversationId })
     .then((res) => res.messages)
 
@@ -64,7 +64,7 @@ plugin.on.event('updateSummary', async (props) => {
   await summaryUpdater.updateTitleAndSummary({
     ...props,
     conversation: conversation.conversation,
-    messages: await firstMessagePage,
+    messages: firstMessagePage,
   })
 })
 
