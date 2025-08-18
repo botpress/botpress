@@ -22,7 +22,7 @@ const tryParseJson = (str: string) => {
   }
 }
 
-export const parseLLMOutput = <T>(output: LLMOutput): { success: boolean; json: T } => {
+export const parseLLMOutput = <T>(output: LLMOutput): PredictResponse<T> => {
   const mappedChoices: LLMChoice['content'][] = output.choices.map((choice) => choice.content)
   if (!mappedChoices[0]) throw new sdk.RuntimeError('Could not parse LLM output')
   const firstChoice = mappedChoices[0]
