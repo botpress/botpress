@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { calendlyUri, nonBlankString } from './common'
+import { calendlyUri, nonBlankString } from '../definitions/common'
 
 export const paginationSchema = z.object({
   count: z.number(),

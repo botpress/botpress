@@ -1,18 +1,18 @@
-import type * as CalendlyDefs from 'definitions/calendly'
 import { createWebhook, getCurrentUser, getWebhooksList, removeWebhook } from './calendly-api'
+import type * as CalendlyTypes from './calendly-schemas'
 import { type CalendlyClient, createCalendlyClient } from './utils'
 import type * as bp from '.botpress'
 
 const performUnregistration = async (
   httpClient: CalendlyClient,
-  userResp: CalendlyDefs.GetCurrentUserResp,
+  userResp: CalendlyTypes.GetCurrentUserResp,
   webhookUrl: string
 ) => {
   const { current_organization: organizationUri, uri: userUri } = userResp.resource
 
   // This will break if for some reason the
   // calendly account has over 100 webhooks
-  const webhooksToDelete: CalendlyDefs.WebhookDetails[] = (
+  const webhooksToDelete: CalendlyTypes.WebhookDetails[] = (
     await Promise.all([
       getWebhooksList(httpClient, {
         scope: 'organization',
