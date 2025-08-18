@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
-import { nonBlankString } from './common'
-import { calendlyLocationSchema } from './event-locations'
+import { nonBlankString } from '../common'
+import { calendlyLocationSchema } from './locations'
 
 export const questionsAndAnswerSchema = z.object({
   question: nonBlankString,
