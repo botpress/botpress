@@ -2,16 +2,15 @@ import { z } from '@botpress/sdk'
 import { nonBlankString } from '../common'
 import { calendlyLocationSchema } from './locations'
 
-export const questionsAndAnswerSchema = z.object({
+const questionsAndAnswerSchema = z.object({
   question: nonBlankString,
   // The 'answer' may be blank
   // if the question is optional
   answer: z.string(),
   position: z.number(),
 })
-export type QuestionsAndAnswer = z.infer<typeof questionsAndAnswerSchema>
 
-export const trackingSchema = z.object({
+const trackingSchema = z.object({
   utm_campaign: z.string().nullable(),
   utm_source: z.string().nullable(),
   utm_medium: z.string().nullable(),
@@ -19,17 +18,15 @@ export const trackingSchema = z.object({
   utm_term: z.string().nullable(),
   salesforce_uuid: z.string().nullable(),
 })
-export type Tracking = z.infer<typeof trackingSchema>
 
-export const cancellationSchema = z.object({
+const cancellationSchema = z.object({
   canceled_by: nonBlankString,
   reason: nonBlankString.nullable(),
   canceler_type: nonBlankString,
   created_at: z.coerce.date(),
 })
-export type Cancellation = z.infer<typeof cancellationSchema>
 
-export const paymentSchema = z.object({
+const paymentSchema = z.object({
   external_id: nonBlankString,
   provider: nonBlankString,
   amount: z.number().min(0),
@@ -37,30 +34,26 @@ export const paymentSchema = z.object({
   terms: nonBlankString.nullable(),
   successful: z.boolean(),
 })
-export type Payment = z.infer<typeof paymentSchema>
 
-export const eventMembershipSchema = z.object({
+const eventMembershipSchema = z.object({
   user: nonBlankString.url(),
   user_email: nonBlankString.email(),
   user_name: nonBlankString,
 })
-export type EventMembership = z.infer<typeof eventMembershipSchema>
 
-export const inviteesCounterSchema = z.object({
+const inviteesCounterSchema = z.object({
   total: z.number(),
   active: z.number(),
   limit: z.number(),
 })
-export type InviteesCounter = z.infer<typeof inviteesCounterSchema>
 
-export const eventGuestSchema = z.object({
+const eventGuestSchema = z.object({
   email: nonBlankString.email(),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
 })
-export type EventGuest = z.infer<typeof eventGuestSchema>
 
-export const scheduledEventSchema = z.object({
+const scheduledEventSchema = z.object({
   uri: nonBlankString.url(),
   name: nonBlankString.nullable(),
   meeting_notes_plain: nonBlankString.nullable().optional(),
@@ -77,9 +70,8 @@ export const scheduledEventSchema = z.object({
   event_guests: z.array(eventGuestSchema),
   cancellation: cancellationSchema.optional(),
 })
-export type ScheduledEvent = z.infer<typeof scheduledEventSchema>
 
-export const inviteeEventPayloadSchema = z.object({
+const inviteeEventPayloadSchema = z.object({
   uri: nonBlankString.url(),
   email: nonBlankString.email(),
   first_name: nonBlankString.nullable(),
@@ -117,7 +109,6 @@ export const inviteeEventPayloadSchema = z.object({
   invitee_scheduled_by: nonBlankString.nullable(),
   scheduled_event: scheduledEventSchema,
 })
-export type InviteeEventPayload = z.infer<typeof inviteeEventPayloadSchema>
 
 export const inviteeEventSchema = z.object({
   event: z.union([
