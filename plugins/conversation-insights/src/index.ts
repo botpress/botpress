@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
-import * as summaryUpdater from './summaryUpdater'
 import * as updateScheduler from './summaryUpdateScheduler'
+import * as summaryUpdater from './tagsUpdater'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -15,7 +15,7 @@ plugin.on.afterIncomingMessage('*', async (props) => {
   const { message_count } = await _onNewMessage({ ...props, conversation })
 
   if (updateScheduler.isTimeToUpdate(message_count)) {
-    props.client.createEvent({ payload: {}, type: 'updateSummary', conversationId: props.data.conversationId })
+    await props.events.updateSummary.withConversationId(props.data.conversationId).emit({})
   }
 
   return undefined
@@ -52,8 +52,10 @@ const _onNewMessage = async (
 }
 
 plugin.on.event('updateSummary', async (props) => {
-  const messages = await props.client.listMessages({ conversationId: props.event.conversationId })
-  const newMessages: string[] = messages.messages.map((message) => message.payload.text)
+  const firstMessagePage = await props.client
+    .listMessages({ conversationId: props.event.conversationId })
+    .then((res) => res.messages)
+
   if (!props.event.conversationId) {
     throw new sdk.RuntimeError(`The conversationId cannot be null when calling the event '${props.event.type}'`)
   }
@@ -62,7 +64,7 @@ plugin.on.event('updateSummary', async (props) => {
   await summaryUpdater.updateTitleAndSummary({
     ...props,
     conversation: conversation.conversation,
-    messages: newMessages,
+    messages: firstMessagePage,
   })
 })
 
