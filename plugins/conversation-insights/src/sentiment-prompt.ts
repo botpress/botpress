@@ -2,19 +2,13 @@ import { z } from '@botpress/sdk'
 import { LLMInput } from './parse-content'
 import * as prompt from './prompt'
 import { Sentiment } from './sentiments'
-import * as bp from '.botpress'
 
 export type SentimentAnalysisOutput = z.infer<typeof SentimentAnalysisOutput>
 export const SentimentAnalysisOutput = z.object({
   sentiment: z.string().describe('The sentiment that best describes the conversation'),
 })
 
-export type PromptArgs = {
-  messages: bp.MessageHandlerProps['message'][]
-  model: { id: string }
-  context: { previousSentiment?: string }
-  botId: string
-}
+export type PromptArgs = Omit<prompt.PromptArgs, 'systemPrompt'>
 export const createPrompt = (args: PromptArgs): LLMInput =>
   prompt.createPrompt({
     ...args,
@@ -52,7 +46,7 @@ Input:
 \`\`\`json
 {
   "messages": [
-    "Context: {previousSentiment: negative}",
+    "Context: {'previousSentiment': 'negative'}",
     "User: I hate your service. I want to unsubscribe right now!",
     "Bot: I understand your frustation, but there is nothing we can do",
     "User: I want a refund.",

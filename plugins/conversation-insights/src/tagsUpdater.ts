@@ -12,7 +12,8 @@ type UpdateTitleAndSummaryProps = CommonProps & {
 }
 export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   const summaryPrompt = summarizer.createPrompt({
-    messages: props.messages.map((message) => message.payload.text),
+    messages: props.messages,
+    botId: props.ctx.botId,
     model: { id: props.configuration.modelId },
     context: { previousTitle: props.conversation.tags.title, previousSummary: props.conversation.tags.summary },
   })

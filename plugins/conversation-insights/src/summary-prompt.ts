@@ -1,5 +1,6 @@
 import { z } from '@botpress/sdk'
 import { LLMInput } from './parse-content'
+import * as prompt from './prompt'
 
 export type OutputFormat = z.infer<typeof OutputFormat>
 export const OutputFormat = z.object({
@@ -7,36 +8,11 @@ export const OutputFormat = z.object({
   summary: z.string().describe('A short summary of the conversation'),
 })
 
-export type InputFormat = z.infer<typeof InputFormat>
-export const InputFormat = z.array(z.string())
-
-const formatMessages = (
-  messages: string[],
-  context: PromptArgs['context']
-): { role: 'user' | 'assistant'; content: string } => {
-  return {
-    role: 'user',
-    content: JSON.stringify(
-      {
-        previousTitle: context.previousTitle,
-        previousSummary: context.previousSummary,
-        messages: messages.reverse(),
-      },
-      null,
-      2
-    ),
-  }
-}
-
-export type PromptArgs = {
-  messages: string[]
-  model: { id: string }
-  context: { previousSummary?: string; previousTitle?: string }
-}
-export const createPrompt = (args: PromptArgs): LLMInput => ({
-  responseFormat: 'json_object',
-  temperature: 0,
-  systemPrompt: `
+export type PromptArgs = Omit<prompt.PromptArgs, 'systemPrompt'>
+export const createPrompt = (args: PromptArgs): LLMInput =>
+  prompt.createPrompt({
+    ...args,
+    systemPrompt: `
 You are a conversation summarizer.
 You will be given:
 - A previous title and summary
@@ -68,13 +44,12 @@ Input:
 
 \`\`\`json
 {
-  "previousTitle": "Used cars",
-  "previousSummary": "The user is talking abous a used Toyota Matrix",
   "messages": [
-    "What mileage should I expect from a car that was made two years ago?",
-    "What price should I expect from a car manufactured in 2011?",
-    "What should I look out for when buying a secondhand Toyota Matrix?",
-    "I am looking to buy a used car, what would you recommend?",
+    "Context: {'previousTitle': 'Used cars', 'previousSummary': 'The user is talking abous a used Toyota Matrix'}",
+    "User: What mileage should I expect from a car that was made two years ago?",
+    "User: What price should I expect from a car manufactured in 2011?",
+    "User: What should I look out for when buying a secondhand Toyota Matrix?",
+    "User: I am looking to buy a used car, what would you recommend?",
   ]
 }
 \`\`\`
@@ -87,7 +62,5 @@ Output:
   "summary": "The user is seeking advice on purchasing a used car."
 }
 \`\`\`
-`.trim(),
-  messages: [formatMessages(args.messages, args.context)],
-  model: args.model,
-})
+`,
+  })

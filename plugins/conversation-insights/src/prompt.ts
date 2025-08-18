@@ -1,6 +1,5 @@
 import { z } from '@botpress/sdk'
 import { LLMInput } from './parse-content'
-import { Sentiment } from './sentiments'
 import * as bp from '.botpress'
 
 export type SentimentAnalysisOutput = z.infer<typeof SentimentAnalysisOutput>
@@ -36,7 +35,7 @@ export type PromptArgs = {
   systemPrompt: string
   messages: bp.MessageHandlerProps['message'][]
   model: { id: string }
-  context: { previousSentiment?: string }
+  context: object
   botId: string
 }
 export const createPrompt = (args: PromptArgs): LLMInput => ({
