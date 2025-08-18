@@ -1,12 +1,15 @@
 import { z } from '@botpress/sdk'
 import { LLMInput } from './parse-content'
 import * as prompt from './prompt'
-import { Sentiment } from './sentiments'
 
 export type SentimentAnalysisOutput = z.infer<typeof SentimentAnalysisOutput>
 export const SentimentAnalysisOutput = z.object({
-  sentiment: z.string().describe('The sentiment that best describes the conversation'),
+  sentiment: z
+    .enum(['very_negative', 'negative', 'neutral', 'positive', 'very_positive'])
+    .describe('The sentiment that best describes the conversation'),
 })
+
+export const SENTIMENT_OPTIONS = SentimentAnalysisOutput.shape.sentiment.options.map((opt) => ` "${opt}" `).join('|')
 
 export type PromptArgs = Omit<prompt.PromptArgs, 'systemPrompt'>
 export const createPrompt = (args: PromptArgs): LLMInput =>
@@ -24,7 +27,7 @@ Return your response only in valid JSON using the following type:
 
 \`\`\`json
 {
-  "sentiment": ${JSON.stringify(Object.keys(Sentiment))},   // The latest sentiment of the conversation
+  "sentiment": ${SENTIMENT_OPTIONS},   // The latest sentiment of the conversation
 }
 \`\`\`
 
@@ -37,7 +40,7 @@ Instructions:
 - The messages are in order, which means the most recent ones are at the end of the list.
 - Keep in mind that your own messages are included in the messages, but have the 'assistant' role
 
-The available sentiments are: ${JSON.stringify(Object.keys(Sentiment))}
+The available sentiments are: ${SENTIMENT_OPTIONS}
 
 Examples:
 
