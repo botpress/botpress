@@ -1,6 +1,6 @@
 import * as gen from './parse-content'
-import * as summarizer from './summary-prompt'
 import * as sentiment from './sentiment-prompt'
+import * as summarizer from './summary-prompt'
 import * as types from './types'
 import * as bp from '.botpress'
 

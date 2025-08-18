@@ -1,5 +1,6 @@
 import { z } from '@botpress/sdk'
 import { LLMInput } from './parse-content'
+import * as prompt from './prompt'
 import { Sentiment } from './sentiments'
 import * as bp from '.botpress'
 
@@ -8,40 +9,16 @@ export const SentimentAnalysisOutput = z.object({
   sentiment: z.string().describe('The sentiment that best describes the conversation'),
 })
 
-export type InputFormat = z.infer<typeof InputFormat>
-export const InputFormat = z.array(z.string())
-
-const formatMessages = (
-  messages: PromptArgs['messages'],
-  context: PromptArgs['context'],
-  botId: string
-): LLMInput['messages'] => {
-  const contextMessage: LLMInput['messages'][0] = {
-    role: 'assistant',
-    content: `Previous Sentiment: ${context.previousSentiment ?? ''}`,
-  }
-
-  const messagesWithUser: LLMInput['messages'] = []
-  for (const message of messages) {
-    if (message.type !== 'text') continue // only text is supported to analyse messages
-    messagesWithUser.push({
-      role: message.userId === botId ? 'assistant' : 'user',
-      content: message.payload.text,
-    })
-  }
-  return [contextMessage, ...messagesWithUser.reverse()]
-}
-
 export type PromptArgs = {
   messages: bp.MessageHandlerProps['message'][]
   model: { id: string }
   context: { previousSentiment?: string }
   botId: string
 }
-export const createPrompt = (args: PromptArgs): LLMInput => ({
-  responseFormat: 'json_object',
-  temperature: 0,
-  systemPrompt: `
+export const createPrompt = (args: PromptArgs): LLMInput =>
+  prompt.createPrompt({
+    ...args,
+    systemPrompt: `
 You are a conversation analyser.
 You will be given:
 - A previous sentiment
@@ -75,7 +52,7 @@ Input:
 \`\`\`json
 {
   "messages": [
-    "previousSentiment: negative",
+    "Context: {previousSentiment: negative}",
     "User: I hate your service. I want to unsubscribe right now!",
     "Bot: I understand your frustation, but there is nothing we can do",
     "User: I want a refund.",
@@ -111,7 +88,5 @@ Output:
   "sentiment": "very_positive"
 }
 \`\`\`
-`.trim(),
-  messages: formatMessages(args.messages, args.context, args.botId),
-  model: args.model,
-})
+`,
+  })
