@@ -3,7 +3,7 @@ import llm from './bp_modules/llm'
 
 export default new PluginDefinition({
   name: 'conversation-insights',
-  version: '0.2.1',
+  version: '0.2.2',
   configuration: {
     schema: z.object({ modelId: z.string() }),
   },
