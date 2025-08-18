@@ -1,4 +1,3 @@
-import type { CalendlyUri } from 'definitions/common'
 import * as CalendlyTypes from './calendly-schemas'
 import type { CalendlyClient } from './utils'
 
@@ -12,7 +11,7 @@ export const getCurrentUser = async (axiosClient: CalendlyClient): Promise<Calen
 
 export async function getEventTypesList(
   axiosClient: CalendlyClient,
-  userUri: CalendlyUri
+  userUri: CalendlyTypes.CalendlyUri
 ): Promise<CalendlyTypes.GetEventTypesListResp> {
   const searchParams = new URLSearchParams({ user: userUri })
   const resp = await axiosClient.get<object>(`/event_types?${searchParams}`)
@@ -22,12 +21,12 @@ export async function getEventTypesList(
 type WebhooksListParams =
   | {
       scope: 'organization'
-      organization: CalendlyUri
+      organization: CalendlyTypes.CalendlyUri
     }
   | {
       scope: 'user'
-      organization: CalendlyUri
-      user: CalendlyUri
+      organization: CalendlyTypes.CalendlyUri
+      user: CalendlyTypes.CalendlyUri
     }
 
 export async function getWebhooksList(
@@ -39,7 +38,7 @@ export async function getWebhooksList(
   return CalendlyTypes.getWebhooksListRespSchema.parse(resp.data)
 }
 
-const _extractWebhookUuid = (webhookUri: CalendlyUri) => {
+const _extractWebhookUuid = (webhookUri: CalendlyTypes.CalendlyUri) => {
   const match = webhookUri.match(/\/webhook_subscriptions\/(.+)$/)
   return match ? match[1] : null
 }
@@ -55,15 +54,15 @@ type WebhookEvents<Scope extends WebhookScopes = WebhookScopes> =
 type RegisterWebhookParams =
   | {
       scope: 'organization'
-      organization: CalendlyUri
+      organization: CalendlyTypes.CalendlyUri
       events: WebhookEvents<'organization'>[]
       user?: undefined
       webhookUrl: string
     }
   | {
       scope: 'user'
-      organization: CalendlyUri
-      user: CalendlyUri
+      organization: CalendlyTypes.CalendlyUri
+      user: CalendlyTypes.CalendlyUri
       events: WebhookEvents<'user'>[]
       webhookUrl: string
     }
@@ -83,7 +82,10 @@ export const createWebhook = async (
   return CalendlyTypes.createWebhookRespSchema.parse(resp.data)
 }
 
-export const removeWebhook = async (axiosClient: CalendlyClient, webhookUri: CalendlyUri): Promise<boolean> => {
+export const removeWebhook = async (
+  axiosClient: CalendlyClient,
+  webhookUri: CalendlyTypes.CalendlyUri
+): Promise<boolean> => {
   const webhookUuid = _extractWebhookUuid(webhookUri)
   const resp = await axiosClient.delete<object>(`/webhook_subscriptions/${webhookUuid}`)
   return resp.status === NO_CONTENT

@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { calendlyUri, nonBlankString } from './common'
+import { nonBlankString } from './common'
 import { calendlyLocationSchema } from './event-locations'
 
 export const questionsAndAnswerSchema = z.object({
@@ -40,7 +40,7 @@ export const paymentSchema = z.object({
 export type Payment = z.infer<typeof paymentSchema>
 
 export const eventMembershipSchema = z.object({
-  user: calendlyUri,
+  user: nonBlankString.url(),
   user_email: nonBlankString.email(),
   user_name: nonBlankString,
 })
@@ -61,14 +61,14 @@ export const eventGuestSchema = z.object({
 export type EventGuest = z.infer<typeof eventGuestSchema>
 
 export const scheduledEventSchema = z.object({
-  uri: calendlyUri,
+  uri: nonBlankString.url(),
   name: nonBlankString.nullable(),
   meeting_notes_plain: nonBlankString.nullable().optional(),
   meeting_notes_html: nonBlankString.nullable().optional(),
   status: nonBlankString,
   start_time: z.coerce.date(),
   end_time: z.coerce.date(),
-  event_type: calendlyUri,
+  event_type: nonBlankString.url(),
   location: calendlyLocationSchema,
   invitees_counter: inviteesCounterSchema,
   created_at: z.coerce.date(),
@@ -80,7 +80,7 @@ export const scheduledEventSchema = z.object({
 export type ScheduledEvent = z.infer<typeof scheduledEventSchema>
 
 export const inviteeEventPayloadSchema = z.object({
-  uri: calendlyUri,
+  uri: nonBlankString.url(),
   email: nonBlankString.email(),
   first_name: nonBlankString.nullable(),
   last_name: nonBlankString.nullable(),
@@ -88,17 +88,17 @@ export const inviteeEventPayloadSchema = z.object({
   status: nonBlankString,
   questions_and_answers: z.array(questionsAndAnswerSchema),
   timezone: nonBlankString.nullable(),
-  event: calendlyUri,
+  event: nonBlankString.url(),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
   tracking: trackingSchema,
   text_reminder_number: nonBlankString.nullable(),
   rescheduled: z.boolean(),
-  old_invitee: calendlyUri.nullable(),
-  new_invitee: calendlyUri.nullable(),
-  cancel_url: calendlyUri,
-  reschedule_url: calendlyUri,
-  routing_form_submission: calendlyUri.nullable(),
+  old_invitee: nonBlankString.url().nullable(),
+  new_invitee: nonBlankString.url().nullable(),
+  cancel_url: nonBlankString.url(),
+  reschedule_url: nonBlankString.url(),
+  routing_form_submission: nonBlankString.url().nullable(),
   cancellation: cancellationSchema.optional(),
   payment: paymentSchema.nullable(),
   no_show: z
@@ -127,7 +127,7 @@ export const inviteeEventSchema = z.object({
     z.literal('invitee_no_show.deleted'),
   ]),
   created_at: z.coerce.date(),
-  created_by: calendlyUri,
+  created_by: nonBlankString.url(),
   payload: inviteeEventPayloadSchema,
 })
 export type InviteeEvent = z.infer<typeof inviteeEventSchema>
