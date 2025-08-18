@@ -39,37 +39,37 @@ importers:
         version: 0.1.1
       '@stylistic/eslint-plugin':
         specifier: ^2.12.1
-        version: 2.12.1(eslint@9.17.0)(typescript@5.6.3)
+        version: 2.12.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.19.1
-        version: 8.19.1(@typescript-eslint/parser@8.19.1)(eslint@9.17.0)(typescript@5.6.3)
+        version: 8.19.1(@typescript-eslint/parser@8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3))(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
       '@typescript-eslint/parser':
         specifier: ^8.19.1
-        version: 8.19.1(eslint@9.17.0)(typescript@5.6.3)
+        version: 8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
       axios:
         specifier: 1.9.0
         version: 1.9.0
       eslint:
         specifier: ^9.17.0
-        version: 9.17.0
+        version: 9.17.0(jiti@2.4.2)
       eslint-config-prettier:
         specifier: ^8.5.0
-        version: 8.8.0(eslint@9.17.0)
+        version: 8.8.0(eslint@9.17.0(jiti@2.4.2))
       eslint-plugin-import:
         specifier: ^2.31.0
-        version: 2.31.0(@typescript-eslint/parser@8.19.1)(eslint@9.17.0)
+        version: 2.31.0(@typescript-eslint/parser@8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3))(eslint@9.17.0(jiti@2.4.2))
       eslint-plugin-jsdoc:
         specifier: ^50.6.1
-        version: 50.6.1(eslint@9.17.0)
+        version: 50.6.1(eslint@9.17.0(jiti@2.4.2))
       eslint-plugin-oxlint:
         specifier: ^0.15.5
         version: 0.15.5
       eslint-plugin-prettier:
         specifier: ^5.2.1
-        version: 5.2.1(eslint-config-prettier@8.8.0)(eslint@9.17.0)(prettier@3.4.2)
+        version: 5.2.1(eslint-config-prettier@8.8.0(eslint@9.17.0(jiti@2.4.2)))(eslint@9.17.0(jiti@2.4.2))(prettier@3.4.2)
       globals:
         specifier: ^15.14.0
         version: 15.14.0
@@ -102,7 +102,7 @@ importers:
         version: 5.6.3
       typescript-eslint:
         specifier: ^8.19.1
-        version: 8.19.1(eslint@9.17.0)(typescript@5.6.3)
+        version: 8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
       vitest:
         specifier: ^2.1.4
         version: 2.1.4(@types/node@22.16.4)
@@ -478,7 +478,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^5.12.1
-        version: 5.12.1(zod@3.22.4)
+        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -681,7 +681,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^5.12.1
-        version: 5.12.1(zod@3.22.4)
+        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -777,7 +777,7 @@ importers:
         version: link:../../packages/sdk-addons
       '@react-email/components':
         specifier: 0.0.25
-        version: 0.0.25(react-dom@18.3.1)(react@18.3.1)
+        version: 0.0.25(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       gmail-api-parse-message:
         specifier: ^2.1.2
         version: 2.1.2
@@ -928,7 +928,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^5.12.1
-        version: 5.12.1(zod@3.22.4)
+        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1209,7 +1209,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^5.12.1
-        version: 5.12.1(zod@3.22.4)
+        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1256,7 +1256,7 @@ importers:
         version: 14.1.0
       resend:
         specifier: ^4.6.0
-        version: 4.6.0(react-dom@18.3.1)(react@18.3.1)
+        version: 4.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       svix:
         specifier: ^1.69.0
         version: 1.69.0
@@ -1712,10 +1712,10 @@ importers:
         version: 9.0.1
       jest:
         specifier: ^29.5.0
-        version: 29.5.0(@types/node@22.16.4)(ts-node@10.9.2)
+        version: 29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))
       ts-jest:
         specifier: ^29.1.0
-        version: 29.1.0(@babel/core@7.28.0)(jest@29.5.0)(typescript@5.8.3)
+        version: 29.1.0(@babel/core@7.26.9)(@jest/types@29.5.0)(babel-jest@29.5.0(@babel/core@7.26.9))(jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3)))(typescript@5.8.3)
 
   integrations/zendesk:
     dependencies:
@@ -2019,10 +2019,10 @@ importers:
         specifier: 0.5.1
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.15.2
+        specifier: 4.15.3
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2134,10 +2134,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.15.2
+        specifier: 4.15.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2150,10 +2150,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.15.2
+        specifier: 4.15.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2166,7 +2166,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.15.2
+        specifier: 4.15.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2179,10 +2179,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.15.2
+        specifier: 4.15.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2195,10 +2195,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.15.2
+        specifier: 4.15.3
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2237,7 +2237,7 @@ importers:
         version: 4.17.21
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
+        version: 8.0.2(@microsoft/api-extractor@7.49.0(@types/node@22.16.4))(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))(typescript@5.8.3)
 
   packages/cognitive:
     dependencies:
@@ -2280,7 +2280,7 @@ importers:
         version: 11.1.6
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
+        version: 8.0.2(@microsoft/api-extractor@7.49.0(@types/node@22.16.4))(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))(typescript@5.8.3)
 
   packages/common:
     dependencies:
@@ -2298,7 +2298,7 @@ importers:
         version: 15.0.1
       openai:
         specifier: ^5.12.1
-        version: 5.12.1(zod@3.22.4)
+        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
       preact:
         specifier: ^10.26.6
         version: 10.26.6
@@ -2333,10 +2333,10 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.1
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.1.31
+        specifier: 0.1.32
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2425,7 +2425,7 @@ importers:
         version: 10.9.2(@types/node@22.16.4)(typescript@5.8.3)
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(@microsoft/api-extractor@7.49.0)(ts-node@10.9.2)(typescript@5.8.3)
+        version: 8.0.2(@microsoft/api-extractor@7.49.0(@types/node@22.16.4))(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))(typescript@5.8.3)
       tsx:
         specifier: ^4.19.2
         version: 4.19.2
@@ -2436,7 +2436,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.1
         version: link:../client
       '@bpinternal/zui':
         specifier: ^1.0.1
@@ -2453,7 +2453,7 @@ importers:
         version: 0.3.0(esbuild@0.16.17)
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
+        version: 8.0.2(@microsoft/api-extractor@7.49.0(@types/node@22.16.4))(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))(typescript@5.8.3)
 
   packages/sdk-addons:
     dependencies:
@@ -2467,7 +2467,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.1
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2505,12 +2505,12 @@ importers:
         version: 9.3.5
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
+        version: 8.0.2(@microsoft/api-extractor@7.49.0(@types/node@22.16.4))(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))(typescript@5.8.3)
 
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.31
+        specifier: 0.1.32
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -2563,7 +2563,7 @@ importers:
         version: 11.1.6
       tsup:
         specifier: ^8.0.2
-        version: 8.0.2(ts-node@10.9.2)(typescript@5.6.3)
+        version: 8.0.2(@microsoft/api-extractor@7.49.0(@types/node@22.16.4))(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))(typescript@5.8.3)
 
   plugins/analytics:
     dependencies:
@@ -4892,6 +4892,7 @@ packages:
 
   '@sinonjs/fake-timers@10.2.0':
     resolution: {integrity: sha512-OPwQlEdg40HAj5KNF8WW6q2KG4Z+cBCZb3m4ninfTZKaBmbIJodviQsDBoYMPHkOyJJMHnOJo5j2+LKDOhOACg==}
+    deprecated: Use version 10.1.0. Version 10.2.0 has potential breaking issues
 
   '@size-limit/file@11.1.6':
     resolution: {integrity: sha512-ojzzJMrTfcSECRnaTjGy0wNIolTCRdyqZTSWG9sG5XEoXG6PNgHXDDS6gf6YNxnqb+rWfCfVe93u6aKi3wEocQ==}
@@ -5698,6 +5699,7 @@ packages:
   '@xmldom/xmldom@0.7.11':
     resolution: {integrity: sha512-UDi3g6Jss/W5FnSzO9jCtQwEpfymt0M+sPPlmLhDH6h2TJ8j4ESE/LpmNPBij15J5NKkk4/cg/qoVMdWI3vnlQ==}
     engines: {node: '>=10.0.0'}
+    deprecated: this version is no longer supported, please update to at least 0.8.*
 
   abbrev@2.0.0:
     resolution: {integrity: sha512-6/mh1E2u2YgEsCHdY0Yx5oW+61gZU+1vXaoiHHrpKeuRNNgFvS+/jrwHiQhB5apAf5oB7UB7E19ol2R2LKH8hQ==}
@@ -5736,6 +5738,7 @@ packages:
   adal-node@0.2.3:
     resolution: {integrity: sha512-gMKr8RuYEYvsj7jyfCv/4BfKToQThz20SP71N3AtFn3ia3yAR8Qt2T3aVQhuJzunWs2b38ZsQV0qsZPdwZr7VQ==}
     engines: {node: '>= 0.6.15'}
+    deprecated: This package is no longer supported. Please migrate to @azure/msal-node.
 
   agent-base@6.0.2:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
@@ -7516,6 +7519,7 @@ packages:
   google-p12-pem@4.0.1:
     resolution: {integrity: sha512-WPkN4yGtz05WZ5EhtlxNDWPhC4JIic6G8ePitwUWy4l+XPVYec+a0j0Ts47PDtW59y3RwAhUd9/h9ZZ63px6RQ==}
     engines: {node: '>=12.0.0'}
+    deprecated: Package is no longer maintained
     hasBin: true
 
   googleapis-common@6.0.4:
@@ -8871,6 +8875,7 @@ packages:
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
 
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
@@ -9380,6 +9385,10 @@ packages:
 
   q@2.0.3:
     resolution: {integrity: sha512-gv6vLGcmAOg96/fgo3d9tvA4dJNZL3fMyBqVRrGxQ+Q/o4k9QzbJ3NQF9cOO/71wRodoXhaPgphvMFU68qVAJQ==}
+    deprecated: |-
+      You or someone you depend on is using Q, the JavaScript Promise library that gave JavaScript developers strong feelings about promises. They can almost certainly migrate to the native JavaScript promise now. Thank you literally everyone for joining me in this bet against the odds. Be excellent to each other.
+
+      (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
   qs@6.11.0:
     resolution: {integrity: sha512-MvjoMCJwEarSbUYk5O+nmoSzSutSsTwF85zcHPQ9OrlFoZOYIjaqBAJIqIXjptyD5vThxGq52Xu/MaJzRkIk4Q==}
@@ -9833,6 +9842,7 @@ packages:
   source-map@0.8.0-beta.0:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
+    deprecated: The work that was done in this beta branch won't be included in future versions
 
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
@@ -10004,12 +10014,12 @@ packages:
   superagent@3.8.1:
     resolution: {integrity: sha512-VMBFLYgFuRdfeNQSMLbxGSLfmXL/xc+OO+BZp41Za/NRDBet/BNbkRJrYzCUu0u4GU0i/ml2dtT8b9qgkw9z6Q==}
     engines: {node: '>= 4.0'}
-    deprecated: Please upgrade to v7.0.2+ of superagent.  We have fixed numerous issues with streams, form-data, attach(), filesystem errors not bubbling up (ENOENT on attach()), and all tests are now passing.  See the releases tab for more information at <https://github.com/visionmedia/superagent/releases>.
+    deprecated: Please upgrade to superagent v10.2.2+, see release notes at https://github.com/forwardemail/superagent/releases/tag/v10.2.2 - maintenance is supported by Forward Email @ https://forwardemail.net
 
   superagent@5.3.1:
     resolution: {integrity: sha512-wjJ/MoTid2/RuGCOFtlacyGNxN9QLMgcpYLDQlWFIhhdJ93kNscFonGvrpAHSCVjRVj++DGCglocF7Aej1KHvQ==}
     engines: {node: '>= 7.0.0'}
-    deprecated: Please upgrade to v7.0.2+ of superagent.  We have fixed numerous issues with streams, form-data, attach(), filesystem errors not bubbling up (ENOENT on attach()), and all tests are now passing.  See the releases tab for more information at <https://github.com/visionmedia/superagent/releases>.
+    deprecated: Please upgrade to superagent v10.2.2+, see release notes at https://github.com/forwardemail/superagent/releases/tag/v10.2.2 - maintenance is supported by Forward Email @ https://forwardemail.net
 
   superagent@7.1.6:
     resolution: {integrity: sha512-gZkVCQR1gy/oUXr+kxJMLDjla434KmSOKbx5iGD30Ql+AkJQ/YlPKECJy2nhqOsHLjGHzoDTXNSjhnvWhzKk7g==}
@@ -11013,7 +11023,7 @@ snapshots:
       '@aws-sdk/client-sso-oidc': 3.709.0(@aws-sdk/client-sts@3.709.0)
       '@aws-sdk/client-sts': 3.709.0
       '@aws-sdk/core': 3.709.0
-      '@aws-sdk/credential-provider-node': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0)(@aws-sdk/client-sts@3.709.0)
+      '@aws-sdk/credential-provider-node': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0(@aws-sdk/client-sts@3.709.0))(@aws-sdk/client-sts@3.709.0)
       '@aws-sdk/middleware-endpoint-discovery': 3.709.0
       '@aws-sdk/middleware-host-header': 3.709.0
       '@aws-sdk/middleware-logger': 3.709.0
@@ -11106,7 +11116,7 @@ snapshots:
       '@aws-crypto/sha256-js': 5.2.0
       '@aws-sdk/client-sts': 3.709.0
       '@aws-sdk/core': 3.709.0
-      '@aws-sdk/credential-provider-node': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0)(@aws-sdk/client-sts@3.709.0)
+      '@aws-sdk/credential-provider-node': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0(@aws-sdk/client-sts@3.709.0))(@aws-sdk/client-sts@3.709.0)
       '@aws-sdk/middleware-host-header': 3.709.0
       '@aws-sdk/middleware-logger': 3.709.0
       '@aws-sdk/middleware-recursion-detection': 3.709.0
@@ -11281,7 +11291,7 @@ snapshots:
       '@aws-crypto/sha256-js': 5.2.0
       '@aws-sdk/client-sso-oidc': 3.709.0(@aws-sdk/client-sts@3.709.0)
       '@aws-sdk/core': 3.709.0
-      '@aws-sdk/credential-provider-node': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0)(@aws-sdk/client-sts@3.709.0)
+      '@aws-sdk/credential-provider-node': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0(@aws-sdk/client-sts@3.709.0))(@aws-sdk/client-sts@3.709.0)
       '@aws-sdk/middleware-host-header': 3.709.0
       '@aws-sdk/middleware-logger': 3.709.0
       '@aws-sdk/middleware-recursion-detection': 3.709.0
@@ -11401,14 +11411,14 @@ snapshots:
       - '@aws-sdk/credential-provider-node'
       - aws-crt
 
-  '@aws-sdk/credential-provider-ini@3.709.0(@aws-sdk/client-sso-oidc@3.709.0)(@aws-sdk/client-sts@3.709.0)':
+  '@aws-sdk/credential-provider-ini@3.709.0(@aws-sdk/client-sso-oidc@3.709.0(@aws-sdk/client-sts@3.709.0))(@aws-sdk/client-sts@3.709.0)':
     dependencies:
       '@aws-sdk/client-sts': 3.709.0
       '@aws-sdk/core': 3.709.0
       '@aws-sdk/credential-provider-env': 3.709.0
       '@aws-sdk/credential-provider-http': 3.709.0
       '@aws-sdk/credential-provider-process': 3.709.0
-      '@aws-sdk/credential-provider-sso': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0)
+      '@aws-sdk/credential-provider-sso': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0(@aws-sdk/client-sts@3.709.0))
       '@aws-sdk/credential-provider-web-identity': 3.709.0(@aws-sdk/client-sts@3.709.0)
       '@aws-sdk/types': 3.709.0
       '@smithy/credential-provider-imds': 3.2.8
@@ -11437,13 +11447,13 @@ snapshots:
     transitivePeerDependencies:
       - aws-crt
 
-  '@aws-sdk/credential-provider-node@3.709.0(@aws-sdk/client-sso-oidc@3.709.0)(@aws-sdk/client-sts@3.709.0)':
+  '@aws-sdk/credential-provider-node@3.709.0(@aws-sdk/client-sso-oidc@3.709.0(@aws-sdk/client-sts@3.709.0))(@aws-sdk/client-sts@3.709.0)':
     dependencies:
       '@aws-sdk/credential-provider-env': 3.709.0
       '@aws-sdk/credential-provider-http': 3.709.0
-      '@aws-sdk/credential-provider-ini': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0)(@aws-sdk/client-sts@3.709.0)
+      '@aws-sdk/credential-provider-ini': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0(@aws-sdk/client-sts@3.709.0))(@aws-sdk/client-sts@3.709.0)
       '@aws-sdk/credential-provider-process': 3.709.0
-      '@aws-sdk/credential-provider-sso': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0)
+      '@aws-sdk/credential-provider-sso': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0(@aws-sdk/client-sts@3.709.0))
       '@aws-sdk/credential-provider-web-identity': 3.709.0(@aws-sdk/client-sts@3.709.0)
       '@aws-sdk/types': 3.709.0
       '@smithy/credential-provider-imds': 3.2.8
@@ -11486,11 +11496,11 @@ snapshots:
       - '@aws-sdk/credential-provider-node'
       - aws-crt
 
-  '@aws-sdk/credential-provider-sso@3.709.0(@aws-sdk/client-sso-oidc@3.709.0)':
+  '@aws-sdk/credential-provider-sso@3.709.0(@aws-sdk/client-sso-oidc@3.709.0(@aws-sdk/client-sts@3.709.0))':
     dependencies:
       '@aws-sdk/client-sso': 3.709.0
       '@aws-sdk/core': 3.709.0
-      '@aws-sdk/token-providers': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0)
+      '@aws-sdk/token-providers': 3.709.0(@aws-sdk/client-sso-oidc@3.709.0(@aws-sdk/client-sts@3.709.0))
       '@aws-sdk/types': 3.709.0
       '@smithy/property-provider': 3.1.11
       '@smithy/shared-ini-file-loader': 3.1.12
@@ -11636,7 +11646,7 @@ snapshots:
       - '@aws-sdk/credential-provider-node'
       - aws-crt
 
-  '@aws-sdk/token-providers@3.709.0(@aws-sdk/client-sso-oidc@3.709.0)':
+  '@aws-sdk/token-providers@3.709.0(@aws-sdk/client-sso-oidc@3.709.0(@aws-sdk/client-sts@3.709.0))':
     dependencies:
       '@aws-sdk/client-sso-oidc': 3.709.0(@aws-sdk/client-sts@3.709.0)
       '@aws-sdk/types': 3.709.0
@@ -12733,9 +12743,9 @@ snapshots:
   '@esbuild/win32-x64@0.23.1':
     optional: true
 
-  '@eslint-community/eslint-utils@4.4.0(eslint@9.17.0)':
+  '@eslint-community/eslint-utils@4.4.0(eslint@9.17.0(jiti@2.4.2))':
     dependencies:
-      eslint: 9.17.0
+      eslint: 9.17.0(jiti@2.4.2)
       eslint-visitor-keys: 3.4.3
 
   '@eslint-community/regexpp@4.12.1': {}
@@ -12837,7 +12847,7 @@ snapshots:
       jest-util: 29.5.0
       slash: 3.0.0
 
-  '@jest/core@29.5.0(ts-node@10.9.2)':
+  '@jest/core@29.5.0(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))':
     dependencies:
       '@jest/console': 29.5.0
       '@jest/reporters': 29.5.0
@@ -12851,7 +12861,7 @@ snapshots:
       exit: 0.1.2
       graceful-fs: 4.2.11
       jest-changed-files: 29.5.0
-      jest-config: 29.5.0(@types/node@22.16.4)(ts-node@10.9.2)
+      jest-config: 29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))
       jest-haste-map: 29.5.0
       jest-message-util: 29.5.0
       jest-regex-util: 29.4.3
@@ -13100,9 +13110,10 @@ snapshots:
 
   '@microsoft/microsoft-graph-client@3.0.7(@azure/identity@4.10.2)':
     dependencies:
-      '@azure/identity': 4.10.2
       '@babel/runtime': 7.24.7
       tslib: 2.6.2
+    optionalDependencies:
+      '@azure/identity': 4.10.2
 
   '@microsoft/tsdoc-config@0.17.1':
     dependencies:
@@ -13372,7 +13383,7 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  '@react-email/components@0.0.25(react-dom@18.3.1)(react@18.3.1)':
+  '@react-email/components@0.0.25(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@react-email/body': 0.0.10(react@18.3.1)
       '@react-email/button': 0.0.17(react@18.3.1)
@@ -13389,7 +13400,7 @@ snapshots:
       '@react-email/link': 0.0.10(react@18.3.1)
       '@react-email/markdown': 0.0.12(react@18.3.1)
       '@react-email/preview': 0.0.11(react@18.3.1)
-      '@react-email/render': 1.0.1(react-dom@18.3.1)(react@18.3.1)
+      '@react-email/render': 1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@react-email/row': 0.0.10(react@18.3.1)
       '@react-email/section': 0.0.14(react@18.3.1)
       '@react-email/tailwind': 0.1.0(react@18.3.1)
@@ -13439,7 +13450,7 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  '@react-email/render@1.0.1(react-dom@18.3.1)(react@18.3.1)':
+  '@react-email/render@1.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       html-to-text: 9.0.5
       js-beautify: 1.15.1
@@ -13447,7 +13458,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-promise-suspense: 0.3.4
 
-  '@react-email/render@1.1.2(react-dom@18.3.1)(react@18.3.1)':
+  '@react-email/render@1.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       html-to-text: 9.0.5
       prettier: 3.5.3
@@ -13587,7 +13598,6 @@ snapshots:
 
   '@rushstack/node-core-library@5.10.1(@types/node@22.16.4)':
     dependencies:
-      '@types/node': 22.16.4
       ajv: 8.13.0
       ajv-draft-04: 1.0.0(ajv@8.13.0)
       ajv-formats: 3.0.1(ajv@8.13.0)
@@ -13596,6 +13606,8 @@ snapshots:
       jju: 1.4.0
       resolve: 1.22.8
       semver: 7.5.4
+    optionalDependencies:
+      '@types/node': 22.16.4
 
   '@rushstack/rig-package@0.5.3':
     dependencies:
@@ -13605,8 +13617,9 @@ snapshots:
   '@rushstack/terminal@0.14.4(@types/node@22.16.4)':
     dependencies:
       '@rushstack/node-core-library': 5.10.1(@types/node@22.16.4)
-      '@types/node': 22.16.4
       supports-color: 8.1.1
+    optionalDependencies:
+      '@types/node': 22.16.4
 
   '@rushstack/ts-command-line@4.23.2(@types/node@22.16.4)':
     dependencies:
@@ -14440,10 +14453,10 @@ snapshots:
       '@stoplight/yaml-ast-parser': 0.0.50
       tslib: 2.6.2
 
-  '@stylistic/eslint-plugin@2.12.1(eslint@9.17.0)(typescript@5.6.3)':
+  '@stylistic/eslint-plugin@2.12.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)':
     dependencies:
-      '@typescript-eslint/utils': 8.19.1(eslint@9.17.0)(typescript@5.6.3)
-      eslint: 9.17.0
+      '@typescript-eslint/utils': 8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
+      eslint: 9.17.0(jiti@2.4.2)
       eslint-visitor-keys: 4.2.0
       espree: 10.3.0
       estraverse: 5.3.0
@@ -14746,15 +14759,15 @@ snapshots:
     dependencies:
       '@types/yargs-parser': 21.0.0
 
-  '@typescript-eslint/eslint-plugin@8.19.1(@typescript-eslint/parser@8.19.1)(eslint@9.17.0)(typescript@5.6.3)':
+  '@typescript-eslint/eslint-plugin@8.19.1(@typescript-eslint/parser@8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3))(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.1
-      '@typescript-eslint/parser': 8.19.1(eslint@9.17.0)(typescript@5.6.3)
+      '@typescript-eslint/parser': 8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
       '@typescript-eslint/scope-manager': 8.19.1
-      '@typescript-eslint/type-utils': 8.19.1(eslint@9.17.0)(typescript@5.6.3)
-      '@typescript-eslint/utils': 8.19.1(eslint@9.17.0)(typescript@5.6.3)
+      '@typescript-eslint/type-utils': 8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
+      '@typescript-eslint/utils': 8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
       '@typescript-eslint/visitor-keys': 8.19.1
-      eslint: 9.17.0
+      eslint: 9.17.0(jiti@2.4.2)
       graphemer: 1.4.0
       ignore: 5.3.2
       natural-compare: 1.4.0
@@ -14763,14 +14776,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/parser@8.19.1(eslint@9.17.0)(typescript@5.6.3)':
+  '@typescript-eslint/parser@8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.19.1
       '@typescript-eslint/types': 8.19.1
       '@typescript-eslint/typescript-estree': 8.19.1(typescript@5.6.3)
       '@typescript-eslint/visitor-keys': 8.19.1
       debug: 4.4.0
-      eslint: 9.17.0
+      eslint: 9.17.0(jiti@2.4.2)
       typescript: 5.6.3
     transitivePeerDependencies:
       - supports-color
@@ -14780,12 +14793,12 @@ snapshots:
       '@typescript-eslint/types': 8.19.1
       '@typescript-eslint/visitor-keys': 8.19.1
 
-  '@typescript-eslint/type-utils@8.19.1(eslint@9.17.0)(typescript@5.6.3)':
+  '@typescript-eslint/type-utils@8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)':
     dependencies:
       '@typescript-eslint/typescript-estree': 8.19.1(typescript@5.6.3)
-      '@typescript-eslint/utils': 8.19.1(eslint@9.17.0)(typescript@5.6.3)
+      '@typescript-eslint/utils': 8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
       debug: 4.4.0
-      eslint: 9.17.0
+      eslint: 9.17.0(jiti@2.4.2)
       ts-api-utils: 2.0.0(typescript@5.6.3)
       typescript: 5.6.3
     transitivePeerDependencies:
@@ -14807,13 +14820,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/utils@8.19.1(eslint@9.17.0)(typescript@5.6.3)':
+  '@typescript-eslint/utils@8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)':
     dependencies:
-      '@eslint-community/eslint-utils': 4.4.0(eslint@9.17.0)
+      '@eslint-community/eslint-utils': 4.4.0(eslint@9.17.0(jiti@2.4.2))
       '@typescript-eslint/scope-manager': 8.19.1
       '@typescript-eslint/types': 8.19.1
       '@typescript-eslint/typescript-estree': 8.19.1(typescript@5.6.3)
-      eslint: 9.17.0
+      eslint: 9.17.0(jiti@2.4.2)
       typescript: 5.6.3
     transitivePeerDependencies:
       - supports-color
@@ -14847,18 +14860,20 @@ snapshots:
       chai: 5.1.2
       tinyrainbow: 1.2.0
 
-  '@vitest/mocker@2.1.4(vite@5.4.10)':
+  '@vitest/mocker@2.1.4(vite@5.4.10(@types/node@22.16.4))':
     dependencies:
       '@vitest/spy': 2.1.4
       estree-walker: 3.0.3
       magic-string: 0.30.12
+    optionalDependencies:
       vite: 5.4.10(@types/node@22.16.4)
 
-  '@vitest/mocker@2.1.8(vite@5.4.10)':
+  '@vitest/mocker@2.1.8(vite@5.4.10(@types/node@22.16.4))':
     dependencies:
       '@vitest/spy': 2.1.8
       estree-walker: 3.0.3
       magic-string: 0.30.12
+    optionalDependencies:
       vite: 5.4.10(@types/node@22.16.4)
 
   '@vitest/pretty-format@2.1.4':
@@ -14977,11 +14992,11 @@ snapshots:
       - encoding
 
   ajv-draft-04@1.0.0(ajv@8.13.0):
-    dependencies:
+    optionalDependencies:
       ajv: 8.13.0
 
   ajv-draft-04@1.0.0(ajv@8.17.1):
-    dependencies:
+    optionalDependencies:
       ajv: 8.17.1
 
   ajv-errors@3.0.0(ajv@8.17.1):
@@ -14989,11 +15004,11 @@ snapshots:
       ajv: 8.17.1
 
   ajv-formats@2.1.1(ajv@8.17.1):
-    dependencies:
+    optionalDependencies:
       ajv: 8.17.1
 
   ajv-formats@3.0.1(ajv@8.13.0):
-    dependencies:
+    optionalDependencies:
       ajv: 8.13.0
 
   ajv@6.12.6:
@@ -16514,9 +16529,9 @@ snapshots:
 
   escape-string-regexp@5.0.0: {}
 
-  eslint-config-prettier@8.8.0(eslint@9.17.0):
+  eslint-config-prettier@8.8.0(eslint@9.17.0(jiti@2.4.2)):
     dependencies:
-      eslint: 9.17.0
+      eslint: 9.17.0(jiti@2.4.2)
 
   eslint-import-resolver-node@0.3.9:
     dependencies:
@@ -16526,28 +16541,28 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.19.1)(eslint-import-resolver-node@0.3.9)(eslint@9.17.0):
+  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint@9.17.0(jiti@2.4.2)):
     dependencies:
-      '@typescript-eslint/parser': 8.19.1(eslint@9.17.0)(typescript@5.6.3)
       debug: 3.2.7
-      eslint: 9.17.0
+    optionalDependencies:
+      '@typescript-eslint/parser': 8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
+      eslint: 9.17.0(jiti@2.4.2)
       eslint-import-resolver-node: 0.3.9
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.19.1)(eslint@9.17.0):
+  eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3))(eslint@9.17.0(jiti@2.4.2)):
     dependencies:
       '@rtsao/scc': 1.1.0
-      '@typescript-eslint/parser': 8.19.1(eslint@9.17.0)(typescript@5.6.3)
       array-includes: 3.1.8
       array.prototype.findlastindex: 1.2.5
       array.prototype.flat: 1.3.3
       array.prototype.flatmap: 1.3.3
       debug: 3.2.7
       doctrine: 2.1.0
-      eslint: 9.17.0
+      eslint: 9.17.0(jiti@2.4.2)
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.19.1)(eslint-import-resolver-node@0.3.9)(eslint@9.17.0)
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint@9.17.0(jiti@2.4.2))
       hasown: 2.0.2
       is-core-module: 2.15.1
       is-glob: 4.0.3
@@ -16558,19 +16573,21 @@ snapshots:
       semver: 6.3.1
       string.prototype.trimend: 1.0.8
       tsconfig-paths: 3.15.0
+    optionalDependencies:
+      '@typescript-eslint/parser': 8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
     transitivePeerDependencies:
       - eslint-import-resolver-typescript
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-jsdoc@50.6.1(eslint@9.17.0):
+  eslint-plugin-jsdoc@50.6.1(eslint@9.17.0(jiti@2.4.2)):
     dependencies:
       '@es-joy/jsdoccomment': 0.49.0
       are-docs-informative: 0.0.2
       comment-parser: 1.4.1
       debug: 4.4.0
       escape-string-regexp: 4.0.0
-      eslint: 9.17.0
+      eslint: 9.17.0(jiti@2.4.2)
       espree: 10.3.0
       esquery: 1.6.0
       parse-imports: 2.2.1
@@ -16584,13 +16601,14 @@ snapshots:
     dependencies:
       jsonc-parser: 3.3.1
 
-  eslint-plugin-prettier@5.2.1(eslint-config-prettier@8.8.0)(eslint@9.17.0)(prettier@3.4.2):
+  eslint-plugin-prettier@5.2.1(eslint-config-prettier@8.8.0(eslint@9.17.0(jiti@2.4.2)))(eslint@9.17.0(jiti@2.4.2))(prettier@3.4.2):
     dependencies:
-      eslint: 9.17.0
-      eslint-config-prettier: 8.8.0(eslint@9.17.0)
+      eslint: 9.17.0(jiti@2.4.2)
       prettier: 3.4.2
       prettier-linter-helpers: 1.0.0
       synckit: 0.9.2
+    optionalDependencies:
+      eslint-config-prettier: 8.8.0(eslint@9.17.0(jiti@2.4.2))
 
   eslint-scope@8.2.0:
     dependencies:
@@ -16601,9 +16619,9 @@ snapshots:
 
   eslint-visitor-keys@4.2.0: {}
 
-  eslint@9.17.0:
+  eslint@9.17.0(jiti@2.4.2):
     dependencies:
-      '@eslint-community/eslint-utils': 4.4.0(eslint@9.17.0)
+      '@eslint-community/eslint-utils': 4.4.0(eslint@9.17.0(jiti@2.4.2))
       '@eslint-community/regexpp': 4.12.1
       '@eslint/config-array': 0.19.1
       '@eslint/core': 0.9.1
@@ -16637,6 +16655,8 @@ snapshots:
       minimatch: 3.1.2
       natural-compare: 1.4.0
       optionator: 0.9.4
+    optionalDependencies:
+      jiti: 2.4.2
     transitivePeerDependencies:
       - supports-color
 
@@ -16824,7 +16844,7 @@ snapshots:
       pend: 1.2.0
 
   fdir@6.4.3(picomatch@4.0.2):
-    dependencies:
+    optionalDependencies:
       picomatch: 4.0.2
 
   fecha@4.2.3: {}
@@ -16902,7 +16922,7 @@ snapshots:
   follow-redirects@1.15.5: {}
 
   follow-redirects@1.15.6(debug@4.4.1):
-    dependencies:
+    optionalDependencies:
       debug: 4.4.1
 
   for-each@0.3.3:
@@ -17838,16 +17858,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  jest-cli@29.5.0(@types/node@22.16.4)(ts-node@10.9.2):
+  jest-cli@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3)):
     dependencies:
-      '@jest/core': 29.5.0(ts-node@10.9.2)
+      '@jest/core': 29.5.0(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))
       '@jest/test-result': 29.5.0
       '@jest/types': 29.5.0
       chalk: 4.1.2
       exit: 0.1.2
       graceful-fs: 4.2.11
       import-local: 3.1.0
-      jest-config: 29.5.0(@types/node@22.16.4)(ts-node@10.9.2)
+      jest-config: 29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))
       jest-util: 29.5.0
       jest-validate: 29.5.0
       prompts: 2.4.2
@@ -17857,12 +17877,11 @@ snapshots:
       - supports-color
       - ts-node
 
-  jest-config@29.5.0(@types/node@22.16.4)(ts-node@10.9.2):
+  jest-config@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3)):
     dependencies:
       '@babel/core': 7.26.9
       '@jest/test-sequencer': 29.5.0
       '@jest/types': 29.5.0
-      '@types/node': 22.16.4
       babel-jest: 29.5.0(@babel/core@7.26.9)
       chalk: 4.1.2
       ci-info: 3.8.0
@@ -17882,7 +17901,9 @@ snapshots:
       pretty-format: 29.5.0
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: 10.9.2(@types/node@22.16.4)(typescript@5.6.3)
+    optionalDependencies:
+      '@types/node': 22.16.4
+      ts-node: 10.9.2(@types/node@22.16.4)(typescript@5.8.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -17963,7 +17984,7 @@ snapshots:
       jest-util: 29.5.0
 
   jest-pnp-resolver@1.2.3(jest-resolve@29.5.0):
-    dependencies:
+    optionalDependencies:
       jest-resolve: 29.5.0
 
   jest-regex-util@29.4.3: {}
@@ -18104,12 +18125,12 @@ snapshots:
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
-  jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2):
+  jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3)):
     dependencies:
-      '@jest/core': 29.5.0(ts-node@10.9.2)
+      '@jest/core': 29.5.0(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))
       '@jest/types': 29.5.0
       import-local: 3.1.0
-      jest-cli: 29.5.0(@types/node@22.16.4)(ts-node@10.9.2)
+      jest-cli: 29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
@@ -19156,9 +19177,10 @@ snapshots:
       is-docker: 2.2.1
       is-wsl: 2.2.0
 
-  openai@5.12.1(zod@3.22.4):
-    dependencies:
-      zod: 3.22.4
+  openai@5.12.1(ws@8.18.2)(zod@3.24.2):
+    optionalDependencies:
+      ws: 8.18.2
+      zod: 3.24.2
 
   openapi-types@12.1.3: {}
 
@@ -19379,11 +19401,13 @@ snapshots:
 
   possible-typed-array-names@1.0.0: {}
 
-  postcss-load-config@4.0.2(ts-node@10.9.2):
+  postcss-load-config@4.0.2(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3)):
     dependencies:
       lilconfig: 3.1.3
-      ts-node: 10.9.2(@types/node@22.16.4)(typescript@5.6.3)
       yaml: 2.7.0
+    optionalDependencies:
+      postcss: 8.4.47
+      ts-node: 10.9.2(@types/node@22.16.4)(typescript@5.8.3)
 
   postcss@8.4.47:
     dependencies:
@@ -19696,9 +19720,9 @@ snapshots:
 
   requires-port@1.0.0: {}
 
-  resend@4.6.0(react-dom@18.3.1)(react@18.3.1):
+  resend@4.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@react-email/render': 1.1.2(react-dom@18.3.1)(react@18.3.1)
+      '@react-email/render': 1.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
@@ -20461,12 +20485,11 @@ snapshots:
     dependencies:
       tslib: 1.14.1
 
-  ts-jest@29.1.0(@babel/core@7.28.0)(jest@29.5.0)(typescript@5.8.3):
+  ts-jest@29.1.0(@babel/core@7.26.9)(@jest/types@29.5.0)(babel-jest@29.5.0(@babel/core@7.26.9))(jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3)))(typescript@5.8.3):
     dependencies:
-      '@babel/core': 7.28.0
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 29.5.0(@types/node@22.16.4)(ts-node@10.9.2)
+      jest: 29.5.0(@types/node@22.16.4)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))
       jest-util: 29.5.0
       json5: 2.2.3
       lodash.memoize: 4.1.2
@@ -20474,6 +20497,10 @@ snapshots:
       semver: 7.6.3
       typescript: 5.8.3
       yargs-parser: 21.1.1
+    optionalDependencies:
+      '@babel/core': 7.26.9
+      '@jest/types': 29.5.0
+      babel-jest: 29.5.0(@babel/core@7.26.9)
 
   ts-node@10.9.2(@types/node@22.16.4)(typescript@5.6.3):
     dependencies:
@@ -20532,45 +20559,26 @@ snapshots:
 
   tslib@2.6.2: {}
 
-  tsup@8.0.2(@microsoft/api-extractor@7.49.0)(ts-node@10.9.2)(typescript@5.8.3):
+  tsup@8.0.2(@microsoft/api-extractor@7.49.0(@types/node@22.16.4))(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))(typescript@5.8.3):
     dependencies:
+      bundle-require: 4.0.2(esbuild@0.19.12)
+      cac: 6.7.14
+      chokidar: 3.5.3
+      debug: 4.4.0
+      esbuild: 0.19.12
+      execa: 5.1.1
+      globby: 11.1.0
+      joycon: 3.1.1
+      postcss-load-config: 4.0.2(postcss@8.4.47)(ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3))
+      resolve-from: 5.0.0
+      rollup: 4.24.2
+      source-map: 0.8.0-beta.0
+      sucrase: 3.35.0
+      tree-kill: 1.2.2
+    optionalDependencies:
       '@microsoft/api-extractor': 7.49.0(@types/node@22.16.4)
-      bundle-require: 4.0.2(esbuild@0.19.12)
-      cac: 6.7.14
-      chokidar: 3.5.3
-      debug: 4.4.0
-      esbuild: 0.19.12
-      execa: 5.1.1
-      globby: 11.1.0
-      joycon: 3.1.1
-      postcss-load-config: 4.0.2(ts-node@10.9.2)
-      resolve-from: 5.0.0
-      rollup: 4.24.2
-      source-map: 0.8.0-beta.0
-      sucrase: 3.35.0
-      tree-kill: 1.2.2
+      postcss: 8.4.47
       typescript: 5.8.3
-    transitivePeerDependencies:
-      - supports-color
-      - ts-node
-
-  tsup@8.0.2(ts-node@10.9.2)(typescript@5.6.3):
-    dependencies:
-      bundle-require: 4.0.2(esbuild@0.19.12)
-      cac: 6.7.14
-      chokidar: 3.5.3
-      debug: 4.4.0
-      esbuild: 0.19.12
-      execa: 5.1.1
-      globby: 11.1.0
-      joycon: 3.1.1
-      postcss-load-config: 4.0.2(ts-node@10.9.2)
-      resolve-from: 5.0.0
-      rollup: 4.24.2
-      source-map: 0.8.0-beta.0
-      sucrase: 3.35.0
-      tree-kill: 1.2.2
-      typescript: 5.6.3
     transitivePeerDependencies:
       - supports-color
       - ts-node
@@ -20722,12 +20730,12 @@ snapshots:
       possible-typed-array-names: 1.0.0
       reflect.getprototypeof: 1.0.10
 
-  typescript-eslint@8.19.1(eslint@9.17.0)(typescript@5.6.3):
+  typescript-eslint@8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 8.19.1(@typescript-eslint/parser@8.19.1)(eslint@9.17.0)(typescript@5.6.3)
-      '@typescript-eslint/parser': 8.19.1(eslint@9.17.0)(typescript@5.6.3)
-      '@typescript-eslint/utils': 8.19.1(eslint@9.17.0)(typescript@5.6.3)
-      eslint: 9.17.0
+      '@typescript-eslint/eslint-plugin': 8.19.1(@typescript-eslint/parser@8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3))(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
+      '@typescript-eslint/parser': 8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
+      '@typescript-eslint/utils': 8.19.1(eslint@9.17.0(jiti@2.4.2))(typescript@5.6.3)
+      eslint: 9.17.0(jiti@2.4.2)
       typescript: 5.6.3
     transitivePeerDependencies:
       - supports-color
@@ -20940,18 +20948,17 @@ snapshots:
 
   vite@5.4.10(@types/node@22.16.4):
     dependencies:
-      '@types/node': 22.16.4
       esbuild: 0.21.5
       postcss: 8.4.47
       rollup: 4.24.2
     optionalDependencies:
+      '@types/node': 22.16.4
       fsevents: 2.3.3
 
   vitest@2.1.4(@types/node@22.16.4):
     dependencies:
-      '@types/node': 22.16.4
       '@vitest/expect': 2.1.4
-      '@vitest/mocker': 2.1.4(vite@5.4.10)
+      '@vitest/mocker': 2.1.4(vite@5.4.10(@types/node@22.16.4))
       '@vitest/pretty-format': 2.1.4
       '@vitest/runner': 2.1.4
       '@vitest/snapshot': 2.1.4
@@ -20970,6 +20977,8 @@ snapshots:
       vite: 5.4.10(@types/node@22.16.4)
       vite-node: 2.1.4(@types/node@22.16.4)
       why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/node': 22.16.4
     transitivePeerDependencies:
       - less
       - lightningcss
@@ -20983,9 +20992,8 @@ snapshots:
 
   vitest@2.1.8(@types/node@22.16.4):
     dependencies:
-      '@types/node': 22.16.4
       '@vitest/expect': 2.1.8
-      '@vitest/mocker': 2.1.8(vite@5.4.10)
+      '@vitest/mocker': 2.1.8(vite@5.4.10(@types/node@22.16.4))
       '@vitest/pretty-format': 2.1.9
       '@vitest/runner': 2.1.8
       '@vitest/snapshot': 2.1.8
@@ -21004,6 +21012,8 @@ snapshots:
       vite: 5.4.10(@types/node@22.16.4)
       vite-node: 2.1.8(@types/node@22.16.4)
       why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/node': 22.16.4
     transitivePeerDependencies:
       - less
       - lightningcss
