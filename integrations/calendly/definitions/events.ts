@@ -63,8 +63,8 @@ export type EventGuest = z.infer<typeof eventGuestSchema>
 export const scheduledEventSchema = z.object({
   uri: calendlyUri,
   name: nonBlankString.nullable(),
-  meeting_notes_plain: nonBlankString.nullable(),
-  meeting_notes_html: nonBlankString.nullable(),
+  meeting_notes_plain: nonBlankString.nullable().optional(),
+  meeting_notes_html: nonBlankString.nullable().optional(),
   status: nonBlankString,
   start_time: z.coerce.date(),
   end_time: z.coerce.date(),
@@ -75,7 +75,7 @@ export const scheduledEventSchema = z.object({
   updated_at: z.coerce.date(),
   event_memberships: z.array(eventMembershipSchema),
   event_guests: z.array(eventGuestSchema),
-  cancellation: cancellationSchema,
+  cancellation: cancellationSchema.optional(),
 })
 export type ScheduledEvent = z.infer<typeof scheduledEventSchema>
 
@@ -99,7 +99,7 @@ export const inviteeEventPayloadSchema = z.object({
   cancel_url: calendlyUri,
   reschedule_url: calendlyUri,
   routing_form_submission: calendlyUri.nullable(),
-  cancellation: cancellationSchema,
+  cancellation: cancellationSchema.optional(),
   payment: paymentSchema.nullable(),
   no_show: z
     .object({
@@ -141,4 +141,5 @@ export const inviteeEventOutputSchema = z.object({
   organizerEmail: nonBlankString.email(),
   inviteeName: nonBlankString,
   inviteeEmail: nonBlankString.email(),
+  conversationId: z.string().nullable(),
 })
