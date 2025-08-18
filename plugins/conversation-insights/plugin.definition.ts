@@ -22,6 +22,10 @@ export default new PluginDefinition({
         title: 'Participant count',
         description: 'The count of users having participated in the conversation, including the bot. Type: int',
       },
+      sentiment: {
+        title: 'Sentiment',
+        description: 'The sentiment that best describes the conversation. Type: enum Sentiments',
+      },
     },
   },
   events: {

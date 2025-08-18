@@ -15,7 +15,7 @@ plugin.on.afterIncomingMessage('*', async (props) => {
   const { message_count } = await _onNewMessage({ ...props, conversation })
 
   if (updateScheduler.isTimeToUpdate(message_count)) {
-    props.client.createEvent({ payload: {}, type: 'updateSummary', conversationId: props.data.conversationId })
+    await props.events.updateSummary.withConversationId(props.data.conversationId).emit({})
   }
 
   return undefined
@@ -54,7 +54,7 @@ const _onNewMessage = async (
 plugin.on.event('updateSummary', async (props) => {
   const firstMessagePage = props.client
     .listMessages({ conversationId: props.event.conversationId })
-    .then((res) => res.messages.map((message) => message.payload.text))
+    .then((res) => res.messages)
 
   if (!props.event.conversationId) {
     throw new sdk.RuntimeError(`The conversationId cannot be null when calling the event '${props.event.type}'`)
