@@ -10,8 +10,7 @@ const performUnregistration = async (
 ) => {
   const { current_organization: organizationUri, uri: userUri } = userResp.resource
 
-  // This will break if for some reason the
-  // calendly account has over 100 webhooks
+  // This will break if for some reason the calendly account has over 100 webhooks
   const webhooksToDelete: CalendlyTypes.WebhookDetails[] = (
     await Promise.all([
       getWebhooksList(httpClient, {
@@ -46,8 +45,7 @@ export const register: bp.Integration['register'] = async ({ ctx, webhookUrl }) 
   try {
     await performUnregistration(httpClient, userResp, webhookUrl)
   } catch {
-    // Do nothing since if it's the first
-    // time there's nothing to unregister
+    // Do nothing since if it's the first time there's nothing to unregister
   }
 
   const { current_organization: organizationUri, uri: userUri } = userResp.resource
