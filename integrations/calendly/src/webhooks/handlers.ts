@@ -13,6 +13,12 @@ export const handleInviteeEvent = async (
   const httpClient = createCalendlyClient(ctx.configuration.accessToken)
   const currentUser = await getCurrentUser(httpClient)
 
+  let conversationId: string | null = null
+  const { utm_content, utm_medium } = event.payload.tracking
+  if (utm_medium === 'conversation' && utm_content?.startsWith('id=')) {
+    conversationId = utm_content.replace(/id=/, '')
+  }
+
   return await client.createEvent({
     type: eventType,
     payload: {
@@ -24,6 +30,7 @@ export const handleInviteeEvent = async (
       organizerEmail: currentUser.resource.email,
       inviteeName: event.payload.name,
       inviteeEmail: event.payload.email,
+      conversationId,
     },
   })
 }
