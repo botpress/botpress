@@ -1,9 +1,11 @@
 import { z } from '@botpress/sdk'
 import { calendlyUri, nonBlankString } from './common'
+import { calendlyLocationSchema } from './event-locations'
 
 export const questionsAndAnswerSchema = z.object({
-  // This may be blank if the question is optional
   question: nonBlankString,
+  // The 'answer' may be blank
+  // if the question is optional
   answer: z.string(),
   position: z.number(),
 })
@@ -58,14 +60,6 @@ export const eventGuestSchema = z.object({
 })
 export type EventGuest = z.infer<typeof eventGuestSchema>
 
-// This will be implemented later
-// export const locationSchema = z.object({
-//   join_url: z.string(),
-//   status: z.string(),
-//   type: z.string(),
-// })
-// export type Location = z.infer<typeof locationSchema>
-
 export const scheduledEventSchema = z.object({
   uri: calendlyUri,
   name: nonBlankString.nullable(),
@@ -75,7 +69,7 @@ export const scheduledEventSchema = z.object({
   start_time: z.coerce.date(),
   end_time: z.coerce.date(),
   event_type: calendlyUri,
-  // location: locationSchema, // This has many variants, I'll map it in a later commit
+  location: calendlyLocationSchema,
   invitees_counter: inviteesCounterSchema,
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
@@ -125,10 +119,26 @@ export const inviteeEventPayloadSchema = z.object({
 })
 export type InviteeEventPayload = z.infer<typeof inviteeEventPayloadSchema>
 
-export const InviteeEventSchema = z.object({
-  event: nonBlankString,
+export const inviteeEventSchema = z.object({
+  event: z.union([
+    z.literal('invitee.created'),
+    z.literal('invitee.canceled'),
+    z.literal('invitee_no_show.created'),
+    z.literal('invitee_no_show.deleted'),
+  ]),
   created_at: z.coerce.date(),
-  created_by: nonBlankString.url(),
+  created_by: calendlyUri,
   payload: inviteeEventPayloadSchema,
 })
-export type InviteeCanceledEventElement = z.infer<typeof InviteeEventSchema>
+export type InviteeEvent = z.infer<typeof inviteeEventSchema>
+
+export const inviteeEventOutputSchema = z.object({
+  eventName: nonBlankString,
+  startTime: z.date(),
+  endTime: z.date(),
+  locationType: nonBlankString,
+  organizerName: nonBlankString,
+  organizerEmail: nonBlankString.email(),
+  inviteeName: nonBlankString,
+  inviteeEmail: nonBlankString.email(),
+})

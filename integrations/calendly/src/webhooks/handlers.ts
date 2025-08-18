@@ -1,0 +1,29 @@
+import { InviteeEvent } from 'definitions/events'
+import { getCurrentUser } from '../calendly-api'
+import { createCalendlyClient } from '../utils'
+import * as bp from '.botpress'
+
+export const handleInviteeEvent = async (
+  { client, ctx }: bp.HandlerProps,
+  eventType: keyof bp.events.Events,
+  event: InviteeEvent
+) => {
+  const { start_time, end_time, location, name: eventName } = event.payload.scheduled_event
+
+  const httpClient = createCalendlyClient(ctx.configuration.accessToken)
+  const currentUser = await getCurrentUser(httpClient)
+
+  return await client.createEvent({
+    type: eventType,
+    payload: {
+      eventName: eventName ?? `Meeting between ${currentUser.resource.name} and ${event.payload.name}`,
+      startTime: start_time,
+      endTime: end_time,
+      locationType: location.type,
+      organizerName: currentUser.resource.name,
+      organizerEmail: currentUser.resource.email,
+      inviteeName: event.payload.name,
+      inviteeEmail: event.payload.email,
+    },
+  })
+}

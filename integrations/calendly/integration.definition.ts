@@ -1,5 +1,6 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import { scheduleEventInputSchema, scheduleEventOutputSchema } from 'definitions/actions'
+import { inviteeEventOutputSchema } from 'definitions/events'
 
 export default new IntegrationDefinition({
   name: 'calendly',
@@ -30,12 +31,22 @@ export default new IntegrationDefinition({
     eventScheduled: {
       title: 'Event Scheduled',
       description: 'An event that triggers when an invitee fills out and submits a scheduling form',
-      schema: z.object({}), // TODO: Map this schema
+      schema: inviteeEventOutputSchema,
     },
     eventCanceled: {
       title: 'Event Canceled',
       description: 'An event that triggers when an invitee cancels a scheduled event',
-      schema: z.object({}), // TODO: Map this schema
+      schema: inviteeEventOutputSchema,
+    },
+    eventNoShowCreated: {
+      title: 'Event No Show Created',
+      description: 'An event that triggers when an invitee is marked as a no-show',
+      schema: inviteeEventOutputSchema,
+    },
+    eventNoShowDeleted: {
+      title: 'Event No Show Deleted',
+      description: 'An event that triggers when an invitee is unmarked as a no-show',
+      schema: inviteeEventOutputSchema,
     },
   },
 })
