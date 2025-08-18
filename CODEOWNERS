@@ -32,6 +32,7 @@
 /integrations/airtable @JustinBordage @botpress/engineering
 /integrations/asana @JustinBordage @botpress/engineering
 /integrations/bigcommerce-sync @Nathaniel-Girard @botpress/engineering
+/integrations/calendly @JustinBordage @botpress/engineering
 /integrations/chat @franklevasseur @botpress/engineering
 /integrations/clickup @JustinBordage @botpress/engineering
 /integrations/confluence @Nathaniel-Girard @botpress/engineering
