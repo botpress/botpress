@@ -198,6 +198,9 @@ export default new sdk.PluginDefinition({
     },
   },
   interfaces: {
-    'files-readonly': { ...filesReadonly, version: `^${semver.major(filesReadonly.version)}.0.0` },
+    'files-readonly': {
+      ...filesReadonly,
+      version: `>=${semver.major(filesReadonly.version)}.0.0 <${semver.major(filesReadonly.version) + 1}.0.0`,
+    },
   },
 })
