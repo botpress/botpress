@@ -23,8 +23,8 @@ export const handleInviteeEvent = async (
     type: eventType,
     payload: {
       eventName: eventName ?? `Meeting between ${currentUser.resource.name} and ${event.payload.name}`,
-      startTime: start_time,
-      endTime: end_time,
+      startTime: start_time.toISOString(),
+      endTime: end_time.toISOString(),
       locationType: location.type,
       organizerName: currentUser.resource.name,
       organizerEmail: currentUser.resource.email,
