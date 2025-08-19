@@ -1,41 +1,33 @@
 import { z } from '@botpress/sdk'
-import { nonBlankString } from 'definitions/common'
 
-export const calendlyUri = nonBlankString.url().brand('CalendlyUri')
+export const calendlyUri = z.string().url().brand('CalendlyUri')
 export type CalendlyUri = z.infer<typeof calendlyUri>
 
 export const paginationSchema = z.object({
   count: z.number(),
-  next_page: nonBlankString.url().nullable(),
-  next_page_token: nonBlankString.nullable(),
-  previous_page: nonBlankString.url().nullable(),
-  previous_page_token: nonBlankString.nullable(),
+  next_page: z.string().url().nullable(),
+  next_page_token: z.string().nullable(),
+  previous_page: z.string().url().nullable(),
+  previous_page_token: z.string().nullable(),
 })
 export type Pagination = z.infer<typeof paginationSchema>
 
 /** @see https://developer.calendly.com/api-docs/005832c83aeae-get-current-user */
 export const getCurrentUserRespSchema = z.object({
   resource: z.object({
-    avatar_url: nonBlankString.url().nullable(),
+    avatar_url: z.string().url().nullable(),
     created_at: z.coerce.date(),
     current_organization: calendlyUri,
-    email: nonBlankString.email(),
-    locale: z.union([
-      z.literal('en'),
-      z.literal('fr'),
-      z.literal('es'),
-      z.literal('de'),
-      z.literal('pt'),
-      z.literal('ps'),
-    ]),
+    email: z.string().email(),
+    locale: z.string(),
     /** Human Readable format */
-    name: nonBlankString,
-    resource_type: nonBlankString,
-    scheduling_url: nonBlankString.url(),
-    slug: nonBlankString,
-    time_notation: z.union([z.literal('12h'), z.literal('24h')]),
+    name: z.string(),
+    resource_type: z.string(),
+    scheduling_url: z.string().url(),
+    slug: z.string(),
+    time_notation: z.string(),
     /** e.g. 'America/New_York' */
-    timezone: nonBlankString,
+    timezone: z.string(),
     updated_at: z.coerce.date(),
     /** The user's calendly URI */
     uri: calendlyUri,
@@ -44,57 +36,57 @@ export const getCurrentUserRespSchema = z.object({
 export type GetCurrentUserResp = z.infer<typeof getCurrentUserRespSchema>
 
 export const eventQuestionSchema = z.object({
-  name: nonBlankString,
-  type: nonBlankString,
+  name: z.string(),
+  type: z.string(),
   position: z.number(),
   enabled: z.boolean(),
   required: z.boolean(),
-  answer_choices: z.array(nonBlankString),
+  answer_choices: z.array(z.string()),
   include_other: z.boolean(),
 })
 export type EventQuestion = z.infer<typeof eventQuestionSchema>
 
 export const eventTypeSchema = z.object({
-  uri: nonBlankString.url(),
-  name: nonBlankString.nullable(),
+  uri: z.string().url(),
+  name: z.string().nullable(),
   active: z.boolean(),
-  slug: nonBlankString.nullable(),
-  scheduling_url: nonBlankString.url(),
+  slug: z.string().nullable(),
+  scheduling_url: z.string().url(),
   duration: z.number(),
   duration_options: z.array(z.number()).nullable(),
-  kind: nonBlankString,
-  pooling_type: nonBlankString.nullable(),
-  type: nonBlankString,
-  color: nonBlankString,
+  kind: z.string(),
+  pooling_type: z.string().nullable(),
+  type: z.string(),
+  color: z.string(),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
-  internal_note: nonBlankString.nullable(),
-  description_plain: nonBlankString.nullable(),
-  description_html: nonBlankString.nullable(),
+  internal_note: z.string().nullable(),
+  description_plain: z.string().nullable(),
+  description_html: z.string().nullable(),
   profile: z
     .object({
-      type: nonBlankString,
-      name: nonBlankString,
-      owner: nonBlankString.url(),
+      type: z.string(),
+      name: z.string(),
+      owner: z.string().url(),
     })
     .nullable(),
   secret: z.boolean(),
-  booking_method: nonBlankString,
+  booking_method: z.string(),
   custom_questions: z.array(eventQuestionSchema),
   deleted_at: z.coerce.date().nullable(),
   admin_managed: z.boolean(),
   locations: z
     .array(
       z.object({
-        kind: nonBlankString,
-        location: nonBlankString.optional(),
-        additional_info: nonBlankString.optional(),
-        phone_number: nonBlankString.optional(),
+        kind: z.string(),
+        location: z.string().optional(),
+        additional_info: z.string().optional(),
+        phone_number: z.string().optional(),
       })
     )
     .nullable(),
   position: z.number(),
-  locale: nonBlankString,
+  locale: z.string(),
 })
 export type EventType = z.infer<typeof eventTypeSchema>
 
@@ -108,9 +100,9 @@ export type GetEventTypesListResp = z.infer<typeof getEventTypesListRespSchema>
 /** @see https://developer.calendly.com/api-docs/4b8195084e287-create-single-use-scheduling-link */
 export const createSchedulingLinkRespSchema = z.object({
   resource: z.object({
-    booking_url: nonBlankString.url(),
+    booking_url: z.string().url(),
     owner: calendlyUri,
-    owner_type: nonBlankString,
+    owner_type: z.string(),
   }),
 })
 export type CreateSchedulingLinkResp = z.infer<typeof createSchedulingLinkRespSchema>
