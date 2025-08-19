@@ -1,4 +1,4 @@
-# Resend Integration
+# Calendly Integration
 
 ## Overview
 
