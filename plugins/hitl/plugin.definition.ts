@@ -209,7 +209,7 @@ export default new sdk.PluginDefinition({
     },
   },
   interfaces: {
-    hitl: { ...hitl, version: `^${semver.major(hitl.version)}.0.0` },
+    hitl: { ...hitl, version: `>=${semver.major(hitl.version)}.0.0 <${semver.major(hitl.version) + 1}.0.0` },
   },
   events: {
     humanAgentAssignedTimeout: {

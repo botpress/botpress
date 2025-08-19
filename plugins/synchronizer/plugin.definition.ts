@@ -69,7 +69,13 @@ export default new sdk.PluginDefinition({
     },
   },
   interfaces: {
-    listable: { ...listable, version: `^${semver.major(listable.version)}.0.0` },
-    deletable: { ...deletable, version: `^${semver.major(deletable.version)}.0.0` },
+    listable: {
+      ...listable,
+      version: `>=${semver.major(listable.version)}.0.0 <${semver.major(listable.version) + 1}.0.0`,
+    },
+    deletable: {
+      ...deletable,
+      version: `>=${semver.major(deletable.version)}.0.0 <${semver.major(deletable.version) + 1}.0.0`,
+    },
   },
 })

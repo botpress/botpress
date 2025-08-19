@@ -7,6 +7,6 @@ export default new sdk.PluginDefinition({
   version: '1.0.0',
   configuration: { schema: sdk.z.object({}) },
   interfaces: {
-    llm: { ...llm, version: `^${semver.major(llm.version)}.0.0` },
+    llm: { ...llm, version: `>=${semver.major(llm.version)}.0.0 <${semver.major(llm.version) + 1}.0.0` },
   },
 })
