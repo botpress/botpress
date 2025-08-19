@@ -1,9 +1,9 @@
 import * as sdk from '@botpress/sdk'
+import { isBrowser } from 'browser-or-node'
 import * as updateScheduler from './summaryUpdateScheduler'
 import * as summaryUpdater from './tagsUpdater'
 import * as types from './types'
 import * as bp from '.botpress'
-import { isBrowser } from 'browser-or-node'
 
 type CommonProps = types.CommonProps
 
