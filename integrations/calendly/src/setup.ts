@@ -12,20 +12,12 @@ const performUnregistration = async (
 
   // This will break if for some reason the calendly account has over 100 webhooks
   const webhooksToDelete: CalendlyTypes.WebhookDetails[] = (
-    await Promise.all([
-      getWebhooksList(httpClient, {
-        scope: 'organization',
-        organization: organizationUri,
-      }),
-      getWebhooksList(httpClient, {
-        scope: 'user',
-        organization: organizationUri,
-        user: userUri,
-      }),
-    ])
-  )
-    .flatMap((resp) => resp.collection)
-    .filter((webhook) => webhook.callback_url === webhookUrl)
+    await getWebhooksList(httpClient, {
+      scope: 'user',
+      organization: organizationUri,
+      user: userUri,
+    })
+  ).collection.filter((webhook) => webhook.callback_url === webhookUrl)
 
   for (const webhook of webhooksToDelete) {
     await removeWebhook(httpClient, webhook.uri)
@@ -50,19 +42,11 @@ export const register: bp.Integration['register'] = async ({ ctx, webhookUrl }) 
 
   const { current_organization: organizationUri, uri: userUri } = userResp.resource
 
-  await Promise.all([
-    createWebhook(httpClient, {
-      webhookUrl,
-      events: ['invitee.created', 'invitee.canceled', 'invitee_no_show.created', 'invitee_no_show.deleted'],
-      organization: organizationUri,
-      user: userUri,
-      scope: 'user',
-    }),
-    createWebhook(httpClient, {
-      webhookUrl,
-      events: ['routing_form_submission.created'],
-      organization: organizationUri,
-      scope: 'organization',
-    }),
-  ])
+  await createWebhook(httpClient, {
+    webhookUrl,
+    events: ['invitee.created', 'invitee.canceled', 'invitee_no_show.created', 'invitee_no_show.deleted'],
+    organization: organizationUri,
+    user: userUri,
+    scope: 'user',
+  })
 }
