@@ -1,23 +1,23 @@
 import { RuntimeError } from '@botpress/sdk'
-import { createSingleUseSchedulingLink, getCurrentUser, getEventTypesList } from '../calendly-api'
-import { createCalendlyClient, parseError } from '../utils'
+import { CalendlyClient } from '../calendly-api'
+import { parseError } from '../utils'
 import type * as bp from '.botpress'
 
 export const scheduleEvent: bp.IntegrationProps['actions']['scheduleEvent'] = async (props) => {
   const { ctx, input } = props
 
   try {
-    const httpClient = createCalendlyClient(ctx.configuration.accessToken)
+    const calendlyClient = new CalendlyClient(ctx.configuration.accessToken)
 
-    const currentUser = await getCurrentUser(httpClient)
-    const eventTypes = await getEventTypesList(httpClient, currentUser.resource.uri)
+    const currentUser = await calendlyClient.getCurrentUser()
+    const eventTypes = await calendlyClient.getEventTypesList(currentUser.resource.uri)
     const eventType = eventTypes.collection.find((eventType) => eventType.scheduling_url === input.eventTypeUrl)
 
     if (!eventType) {
       throw new RuntimeError('Event type not found')
     }
 
-    const resp = (await createSingleUseSchedulingLink(httpClient, eventType)).resource
+    const resp = (await calendlyClient.createSingleUseSchedulingLink(eventType)).resource
 
     const searchParams = new URLSearchParams({
       utm_source: 'chatbot',

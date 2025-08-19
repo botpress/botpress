@@ -1,0 +1,118 @@
+import axios, { AxiosInstance } from 'axios'
+import {
+  type CalendlyUri,
+  type CreateSchedulingLinkResp,
+  createSchedulingLinkRespSchema,
+  type CreateWebhookResp,
+  createWebhookRespSchema,
+  type EventType,
+  type GetCurrentUserResp,
+  getCurrentUserRespSchema,
+  type GetEventTypesListResp,
+  getEventTypesListRespSchema,
+  type GetWebhooksListResp,
+  getWebhooksListRespSchema,
+} from './schemas'
+
+const BASE_URL = 'https://api.calendly.com' as const
+
+// ------ Status Codes ------
+const NO_CONTENT = 204 as const
+
+export class CalendlyClient {
+  private _axiosClient: AxiosInstance
+
+  public constructor(accessToken: string) {
+    this._axiosClient = axios.create({
+      baseURL: BASE_URL,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+  }
+
+  public async getCurrentUser(): Promise<GetCurrentUserResp> {
+    const resp = await this._axiosClient.get<object>('/users/me')
+    return getCurrentUserRespSchema.parse(resp.data)
+  }
+
+  public async getEventTypesList(userUri: CalendlyUri): Promise<GetEventTypesListResp> {
+    const searchParams = new URLSearchParams({ user: userUri })
+    const resp = await this._axiosClient.get<object>(`/event_types?${searchParams}`)
+    return getEventTypesListRespSchema.parse(resp.data)
+  }
+
+  public async getWebhooksList(params: WebhooksListParams): Promise<GetWebhooksListResp> {
+    const searchParams = new URLSearchParams({ ...params, count: '100' })
+    const resp = await this._axiosClient.get<object>(`/webhook_subscriptions?${searchParams}`)
+    return getWebhooksListRespSchema.parse(resp.data)
+  }
+
+  public async createWebhook(params: RegisterWebhookParams): Promise<CreateWebhookResp> {
+    const { webhookUrl, events, organization, scope, user } = params
+    const resp = await this._axiosClient.post<object>('/webhook_subscriptions', {
+      url: webhookUrl,
+      events,
+      organization,
+      user,
+      scope,
+    })
+    return createWebhookRespSchema.parse(resp.data)
+  }
+
+  public async removeWebhook(webhookUri: CalendlyUri): Promise<boolean> {
+    const webhookUuid = _extractWebhookUuid(webhookUri)
+    const resp = await this._axiosClient.delete<object>(`/webhook_subscriptions/${webhookUuid}`)
+    return resp.status === NO_CONTENT
+  }
+
+  public async createSingleUseSchedulingLink(eventType: EventType): Promise<CreateSchedulingLinkResp> {
+    const resp = await this._axiosClient.post<object>('/scheduling_links', {
+      max_event_count: 1,
+      owner: eventType.uri,
+      owner_type: 'EventType',
+    })
+    return createSchedulingLinkRespSchema.parse(resp.data)
+  }
+}
+
+const _extractWebhookUuid = (webhookUri: CalendlyUri) => {
+  const match = webhookUri.match(/\/webhook_subscriptions\/(.+)$/)
+  return match ? match[1] : null
+}
+
+type WebhooksListParams =
+  | {
+      scope: 'organization'
+      organization: CalendlyUri
+    }
+  | {
+      scope: 'user'
+      organization: CalendlyUri
+      user: CalendlyUri
+    }
+
+type WebhookScopes = 'organization' | 'user'
+type WebhookEvents<Scope extends WebhookScopes = WebhookScopes> =
+  | 'invitee.created'
+  | 'invitee.canceled'
+  | 'invitee_no_show.created'
+  | 'invitee_no_show.deleted'
+  | (Scope extends 'organization' ? 'routing_form_submission.created' : never)
+
+type RegisterWebhookParams =
+  | {
+      scope: 'organization'
+      organization: CalendlyUri
+      events: WebhookEvents<'organization'>[]
+      user?: undefined
+      webhookUrl: string
+    }
+  | {
+      scope: 'user'
+      organization: CalendlyUri
+      user: CalendlyUri
+      events: WebhookEvents<'user'>[]
+      webhookUrl: string
+    }

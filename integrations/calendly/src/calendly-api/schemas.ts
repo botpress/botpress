@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { nonBlankString } from '../definitions/common'
+import { nonBlankString } from 'definitions/common'
 
 export const calendlyUri = nonBlankString.url().brand('CalendlyUri')
 export type CalendlyUri = z.infer<typeof calendlyUri>

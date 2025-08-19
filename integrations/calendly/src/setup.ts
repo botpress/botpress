@@ -1,18 +1,17 @@
-import { createWebhook, getCurrentUser, getWebhooksList, removeWebhook } from './calendly-api'
-import type * as CalendlyTypes from './calendly-schemas'
-import { type CalendlyClient, createCalendlyClient } from './utils'
+import { CalendlyClient } from './calendly-api'
+import type { GetCurrentUserResp, WebhookDetails } from './calendly-api/schemas'
 import type * as bp from '.botpress'
 
 const performUnregistration = async (
-  httpClient: CalendlyClient,
-  userResp: CalendlyTypes.GetCurrentUserResp,
+  calendlyClient: CalendlyClient,
+  userResp: GetCurrentUserResp,
   webhookUrl: string
 ) => {
   const { current_organization: organizationUri, uri: userUri } = userResp.resource
 
   // This will break if for some reason the calendly account has over 100 webhooks
-  const webhooksToDelete: CalendlyTypes.WebhookDetails[] = (
-    await getWebhooksList(httpClient, {
+  const webhooksToDelete: WebhookDetails[] = (
+    await calendlyClient.getWebhooksList({
       scope: 'user',
       organization: organizationUri,
       user: userUri,
@@ -20,29 +19,29 @@ const performUnregistration = async (
   ).collection.filter((webhook) => webhook.callback_url === webhookUrl)
 
   for (const webhook of webhooksToDelete) {
-    await removeWebhook(httpClient, webhook.uri)
+    await calendlyClient.removeWebhook(webhook.uri)
   }
 }
 
 export const unregister: bp.Integration['unregister'] = async ({ ctx, webhookUrl }) => {
-  const httpClient = createCalendlyClient(ctx.configuration.accessToken)
-  const currentUser = await getCurrentUser(httpClient)
-  await performUnregistration(httpClient, currentUser, webhookUrl)
+  const calendlyClient = new CalendlyClient(ctx.configuration.accessToken)
+  const currentUser = await calendlyClient.getCurrentUser()
+  await performUnregistration(calendlyClient, currentUser, webhookUrl)
 }
 
 export const register: bp.Integration['register'] = async ({ ctx, webhookUrl }) => {
-  const httpClient = createCalendlyClient(ctx.configuration.accessToken)
-  const userResp = await getCurrentUser(httpClient)
+  const calendlyClient = new CalendlyClient(ctx.configuration.accessToken)
+  const userResp = await calendlyClient.getCurrentUser()
 
   try {
-    await performUnregistration(httpClient, userResp, webhookUrl)
+    await performUnregistration(calendlyClient, userResp, webhookUrl)
   } catch {
     // Do nothing since if it's the first time there's nothing to unregister
   }
 
   const { current_organization: organizationUri, uri: userUri } = userResp.resource
 
-  await createWebhook(httpClient, {
+  await calendlyClient.createWebhook({
     webhookUrl,
     events: ['invitee.created', 'invitee.canceled', 'invitee_no_show.created', 'invitee_no_show.deleted'],
     organization: organizationUri,

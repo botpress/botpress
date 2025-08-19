@@ -1,19 +1,6 @@
-import { RuntimeError, z, ZodError } from '@botpress/sdk'
-import axios, { type AxiosInstance } from 'axios'
+import { RuntimeError, ZodError } from '@botpress/sdk'
+import axios from 'axios'
 import { Result } from './types'
-
-const BASE_URL = 'https://api.calendly.com' as const
-
-export type CalendlyClient = AxiosInstance & z.BRAND<'CalendlyApiClient'>
-export function createCalendlyClient(authToken: string, baseURL: string = BASE_URL): CalendlyClient {
-  return axios.create({
-    baseURL,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${authToken}`,
-    },
-  }) as CalendlyClient
-}
 
 const _isZodError = (error: any): error is ZodError => {
   return error && typeof error === 'object' && error instanceof ZodError && 'errors' in error
