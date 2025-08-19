@@ -15,7 +15,8 @@ export const parseWebhookData = (props: bp.HandlerProps): Result<InviteeEvent> =
 
   const parseResult = inviteeEventSchema.safeParse(result.data)
   if (!parseResult.success) {
-    return { success: false, error: new Error('Invalid Webhook payload structure', parseResult.error) }
+    props.logger.error('Webhook handler received unexpected payload', parseResult.error)
+    return { success: false, error: new Error('Invalid webhook payload structure', parseResult.error) }
   }
 
   return {

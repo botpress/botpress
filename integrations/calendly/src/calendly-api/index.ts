@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/sdk'
 import axios, { AxiosInstance } from 'axios'
 import {
   type CalendlyUri,
@@ -34,19 +35,32 @@ export class CalendlyClient {
 
   public async getCurrentUser(): Promise<GetCurrentUserResp> {
     const resp = await this._axiosClient.get<object>('/users/me')
-    return getCurrentUserRespSchema.parse(resp.data)
+    try {
+      return getCurrentUserRespSchema.parse(resp.data)
+    } catch {
+      throw new RuntimeError('Failed to get current user due to unexpected api response')
+    }
   }
 
   public async getEventTypesList(userUri: CalendlyUri): Promise<GetEventTypesListResp> {
     const searchParams = new URLSearchParams({ user: userUri })
     const resp = await this._axiosClient.get<object>(`/event_types?${searchParams}`)
-    return getEventTypesListRespSchema.parse(resp.data)
+    try {
+      return getEventTypesListRespSchema.parse(resp.data)
+    } catch {
+      throw new RuntimeError('Failed to get event types list due to unexpected api response')
+    }
   }
 
   public async getWebhooksList(params: WebhooksListParams): Promise<GetWebhooksListResp> {
     const searchParams = new URLSearchParams({ ...params, count: '100' })
     const resp = await this._axiosClient.get<object>(`/webhook_subscriptions?${searchParams}`)
-    return getWebhooksListRespSchema.parse(resp.data)
+
+    try {
+      return getWebhooksListRespSchema.parse(resp.data)
+    } catch {
+      throw new RuntimeError('Failed to get webhooks list due to unexpected api response')
+    }
   }
 
   public async createWebhook(params: RegisterWebhookParams): Promise<CreateWebhookResp> {
@@ -58,7 +72,12 @@ export class CalendlyClient {
       user,
       scope,
     })
-    return createWebhookRespSchema.parse(resp.data)
+
+    try {
+      return createWebhookRespSchema.parse(resp.data)
+    } catch {
+      throw new RuntimeError('Failed to create webhook due to unexpected api response')
+    }
   }
 
   public async removeWebhook(webhookUri: CalendlyUri): Promise<boolean> {
@@ -73,7 +92,12 @@ export class CalendlyClient {
       owner: eventType.uri,
       owner_type: 'EventType',
     })
-    return createSchedulingLinkRespSchema.parse(resp.data)
+
+    try {
+      return createSchedulingLinkRespSchema.parse(resp.data)
+    } catch {
+      throw new RuntimeError('Failed to create scheduling link due to unexpected api response')
+    }
   }
 }
 
