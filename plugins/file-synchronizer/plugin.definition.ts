@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import semver from 'semver'
 import filesReadonly from './bp_modules/files-readonly'
 
 const FILE_FILTER_PROPS = sdk.z.object({
@@ -59,7 +60,7 @@ const FILE_FILTER_PROPS = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'file-synchronizer',
-  version: '0.7.7',
+  version: '1.0.0',
   title: 'File Synchronizer',
   description: 'Synchronize files from external services to Botpress',
   icon: 'icon.svg',
@@ -197,6 +198,6 @@ export default new sdk.PluginDefinition({
     },
   },
   interfaces: {
-    'files-readonly': filesReadonly,
+    'files-readonly': { ...filesReadonly, version: `^${semver.major(filesReadonly.version)}.0.0` },
   },
 })
