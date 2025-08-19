@@ -3,7 +3,8 @@ import { nonBlankString } from './common'
 
 export const scheduleEventInputSchema = z.object({
   conversationId: nonBlankString
-    .describe('The ID of the conversation (e.g. `{{ event.conversationId }}`)')
+    .describe('The ID of the conversation')
+    .placeholder('{{ event.conversationId }}')
     .title('Conversation ID'),
   eventTypeUrl: nonBlankString.describe('The URL of the event type').title('Event Type URL'),
 })
