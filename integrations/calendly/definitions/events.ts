@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { nonBlankString } from '../common'
+import { nonBlankString } from './common'
 
 export const inviteeEventOutputSchema = z.object({
   eventName: nonBlankString.describe('The name of the scheduled event').title('Scheduled Event Name'),
