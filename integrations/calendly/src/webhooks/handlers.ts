@@ -8,7 +8,7 @@ export const handleInviteeEvent = async (
   eventType: keyof bp.events.Events,
   event: InviteeEvent
 ) => {
-  const { start_time, end_time, location, name: eventName } = event.payload.scheduled_event
+  const { start_time, end_time, location, name: eventName, uri: scheduledEventUri } = event.payload.scheduled_event
 
   const httpClient = createCalendlyClient(ctx.configuration.accessToken)
   const currentUser = await getCurrentUser(httpClient)
@@ -22,6 +22,7 @@ export const handleInviteeEvent = async (
   return await client.createEvent({
     type: eventType,
     payload: {
+      scheduledEventUri,
       eventName: eventName ?? `Meeting between ${currentUser.resource.name} and ${event.payload.name}`,
       startTime: start_time.toISOString(),
       endTime: end_time.toISOString(),

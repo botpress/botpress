@@ -2,6 +2,7 @@ import { z } from '@botpress/sdk'
 import { nonBlankString } from './common'
 
 export const inviteeEventOutputSchema = z.object({
+  scheduledEventUri: z.string().url().describe('The URI of the scheduled event').title('Scheduled Event URI'),
   eventName: nonBlankString.describe('The name of the scheduled event').title('Scheduled Event Name'),
   startTime: z.string().datetime().describe('The start time of the scheduled event').title('Start Time'),
   endTime: z.string().datetime().describe('The end time of the scheduled event').title('End Time'),
