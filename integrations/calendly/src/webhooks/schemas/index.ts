@@ -1,0 +1,124 @@
+import { z } from '@botpress/sdk'
+import { nonBlankString } from 'definitions/common'
+import { calendlyLocationSchema } from './locations'
+
+const questionsAndAnswerSchema = z.object({
+  question: nonBlankString,
+  // The 'answer' may be blank
+  // if the question is optional
+  answer: z.string(),
+  position: z.number(),
+})
+
+const trackingSchema = z.object({
+  utm_campaign: z.string().nullable(),
+  utm_source: z.string().nullable(),
+  utm_medium: z.string().nullable(),
+  utm_content: z.string().nullable(),
+  utm_term: z.string().nullable(),
+  salesforce_uuid: z.string().nullable(),
+})
+
+const cancellationSchema = z.object({
+  canceled_by: nonBlankString,
+  reason: nonBlankString.nullable(),
+  canceler_type: nonBlankString,
+  created_at: z.coerce.date(),
+})
+
+const paymentSchema = z.object({
+  external_id: nonBlankString,
+  provider: nonBlankString,
+  amount: z.number().min(0),
+  currency: nonBlankString,
+  terms: nonBlankString.nullable(),
+  successful: z.boolean(),
+})
+
+const eventMembershipSchema = z.object({
+  user: nonBlankString.url(),
+  user_email: nonBlankString.email(),
+  user_name: nonBlankString,
+})
+
+const inviteesCounterSchema = z.object({
+  total: z.number(),
+  active: z.number(),
+  limit: z.number(),
+})
+
+const eventGuestSchema = z.object({
+  email: nonBlankString.email(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+})
+
+const scheduledEventSchema = z.object({
+  uri: nonBlankString.url(),
+  name: nonBlankString.nullable(),
+  meeting_notes_plain: nonBlankString.nullable().optional(),
+  meeting_notes_html: nonBlankString.nullable().optional(),
+  status: nonBlankString,
+  start_time: z.coerce.date(),
+  end_time: z.coerce.date(),
+  event_type: nonBlankString.url(),
+  location: calendlyLocationSchema,
+  invitees_counter: inviteesCounterSchema,
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+  event_memberships: z.array(eventMembershipSchema),
+  event_guests: z.array(eventGuestSchema),
+  cancellation: cancellationSchema.optional(),
+})
+
+const inviteeEventPayloadSchema = z.object({
+  uri: nonBlankString.url(),
+  email: nonBlankString.email(),
+  first_name: nonBlankString.nullable(),
+  last_name: nonBlankString.nullable(),
+  name: nonBlankString,
+  status: nonBlankString,
+  questions_and_answers: z.array(questionsAndAnswerSchema),
+  timezone: nonBlankString.nullable(),
+  event: nonBlankString.url(),
+  created_at: z.coerce.date(),
+  updated_at: z.coerce.date(),
+  tracking: trackingSchema,
+  text_reminder_number: nonBlankString.nullable(),
+  rescheduled: z.boolean(),
+  old_invitee: nonBlankString.url().nullable(),
+  new_invitee: nonBlankString.url().nullable(),
+  cancel_url: nonBlankString.url(),
+  reschedule_url: nonBlankString.url(),
+  routing_form_submission: nonBlankString.url().nullable(),
+  cancellation: cancellationSchema.optional(),
+  payment: paymentSchema.nullable(),
+  no_show: z
+    .object({
+      uri: nonBlankString.url(),
+      created_at: z.coerce.date(),
+    })
+    .nullable(),
+  reconfirmation: z
+    .object({
+      created_at: z.coerce.date(),
+      confirmed_at: z.coerce.date().nullable(),
+    })
+    .nullable(),
+  scheduling_method: nonBlankString.nullable(),
+  invitee_scheduled_by: nonBlankString.nullable(),
+  scheduled_event: scheduledEventSchema,
+})
+
+export const inviteeEventSchema = z.object({
+  event: z.union([
+    z.literal('invitee.created'),
+    z.literal('invitee.canceled'),
+    z.literal('invitee_no_show.created'),
+    z.literal('invitee_no_show.deleted'),
+  ]),
+  created_at: z.coerce.date(),
+  created_by: nonBlankString.url(),
+  payload: inviteeEventPayloadSchema,
+})
+export type InviteeEvent = z.infer<typeof inviteeEventSchema>

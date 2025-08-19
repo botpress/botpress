@@ -1,6 +1,6 @@
-import { InviteeEvent, inviteeEventSchema } from 'definitions/events'
 import { Result } from 'src/types'
 import { safeParseJson } from '../utils'
+import { InviteeEvent, inviteeEventSchema } from './schemas'
 import * as bp from '.botpress'
 
 export const parseWebhookData = (props: bp.HandlerProps): Result<InviteeEvent> => {

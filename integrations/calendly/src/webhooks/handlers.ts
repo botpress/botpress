@@ -1,6 +1,6 @@
-import { InviteeEvent } from 'definitions/events'
 import { getCurrentUser } from '../calendly-api'
 import { createCalendlyClient } from '../utils'
+import { InviteeEvent } from './schemas'
 import * as bp from '.botpress'
 
 export const handleInviteeEvent = async (
