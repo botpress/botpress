@@ -8,47 +8,47 @@ export default new bp.Integration({
     // create webHook with discussionId as secret api key cal_live_4cc22129887f21ed43b46a962f15b49d
   },
   unregister: async () => {
-      //remove webhook
+    //remove webhook
   },
   channels: {},
   actions: {
-     generateLink: async (props) => {
-         const {client, input } = props;
-         props.logger.debug('calcom::generateLink', input.conversationId);
+    generateLink: async (props) => {
+      const { client, input } = props
+      props.logger.debug('calcom::generateLink', input.conversationId)
 
-         client.updateConversation({
-             id: input.conversationId,
-             tags: {
+      client.updateConversation({
+        id: input.conversationId,
+        tags: {},
+      })
 
-             }
-         });
-
-         return {
-             message: 'test'
-         };
-     }
+      return {
+        message: 'test',
+      }
+    },
   },
   handler: async (props: bp.HandlerProps) => {
-      const { client, req: {body} } = props;
+    const {
+      client,
+      req: { body },
+    } = props
 
-      props.logger.debug('calcom::handler');
-      let response: any;
-      try {
-          if(body) {
-              response = JSON.parse(body);
-              props.logger.debug(response);
-          }
-
-      } catch(e) {
-          props.logger.debug(e);
+    props.logger.forBot().debug('calcom::handler', body)
+    let response: any
+    try {
+      if (body) {
+        response = JSON.parse(body)
+        props.logger.forBot().debug(response)
       }
+    } catch (e) {
+      props.logger.debug(e)
+    }
 
-      await client.createEvent({
-          type: 'eventScheduled',
-          payload: {
-              event: response?.event,
-              conversationId: response?.conversationid
-          }
-      });
+    await client.createEvent({
+      type: 'eventScheduled',
+      payload: {
+          event: response?.event,
+          conversationId: response?.conversationId,
+      },
+    })
   },
 })

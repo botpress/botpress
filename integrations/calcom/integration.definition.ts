@@ -4,7 +4,7 @@ import { eventScheduledSchema } from './definitions/events';
 
 export default new IntegrationDefinition({
   name: integrationName,
-  version: '0.1.16',
+  version: '0.1.20',
   readme: 'hub.md',
   icon: 'icon.svg',
   user: {

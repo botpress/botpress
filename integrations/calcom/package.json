@@ -1,5 +1,5 @@
 {
-  "name": "@bp-templates/webhook-message",
+  "name": "@botpress/calcom",
   "integrationName": "paul/calcom",
   "scripts": {
     "check:type": "tsc --noEmit"

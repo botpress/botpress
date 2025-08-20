@@ -1,6 +1,6 @@
-import {z } from '@botpress/sdk';
+import { z } from '@botpress/sdk'
 
 export const eventScheduledSchema = z.object({
-    event: z.string(),
-    conversationId: z.string()
-});
+  event: z.string(),
+  conversationId: z.string(),
+})
