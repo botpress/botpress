@@ -1,4 +1,3 @@
-import { DEFAULT_HITL_STOPPED_MESSAGE } from '../../../plugin.definition'
 import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
 import * as consts from '../consts'
@@ -29,12 +28,12 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
   })
 
   await Promise.allSettled([
-    upstreamCm.respond({
-      type: 'text',
-      text: sessionConfig.onHitlStoppedMessage?.length
-        ? sessionConfig.onHitlStoppedMessage
-        : DEFAULT_HITL_STOPPED_MESSAGE,
-    }),
+    sessionConfig.onHitlStoppedMessage?.trim()?.length
+      ? upstreamCm.respond({
+          type: 'text',
+          text: sessionConfig.onHitlStoppedMessage,
+        })
+      : Promise.resolve(),
     downstreamCm.setHitlInactive(conv.HITL_END_REASON.AGENT_CLOSED_TICKET),
     upstreamCm.setHitlInactive(conv.HITL_END_REASON.AGENT_CLOSED_TICKET),
   ])

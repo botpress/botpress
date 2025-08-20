@@ -2,7 +2,6 @@ import * as client from '@botpress/client'
 import {
   DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
   DEFAULT_USER_HITL_CANCELLED_MESSAGE,
-  DEFAULT_USER_HITL_CLOSE_COMMAND,
   DEFAULT_USER_HITL_COMMAND_MESSAGE,
 } from 'plugin.definition'
 import { tryLinkWebchatUser } from 'src/webchat'
@@ -56,7 +55,7 @@ const _handleDownstreamMessage = async (
     props.logger.with(props.data).error('Downstream conversation received a non-text message')
     await downstreamCm.respond({
       type: 'text',
-      text: sessionConfig.onIncompatibleMsgTypeMessage?.length
+      text: sessionConfig.onIncompatibleMsgTypeMessage?.trim()?.length
         ? sessionConfig.onIncompatibleMsgTypeMessage
         : DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
     })
@@ -166,9 +165,11 @@ const _isHitlCloseCommand = (
   props: bp.HookHandlerProps['before_incoming_message'],
   sessionConfig: bp.configuration.Configuration
 ) => {
-  const closeCommand = sessionConfig.userHitlCloseCommand?.length
-    ? sessionConfig.userHitlCloseCommand
-    : DEFAULT_USER_HITL_CLOSE_COMMAND
+  const closeCommand = sessionConfig.userHitlCloseCommand
+
+  if (!closeCommand?.trim()?.length) {
+    return false
+  }
 
   const inputText: string | undefined = props.data.payload.text
   return inputText && inputText.trim().toLowerCase() === closeCommand.trim().toLowerCase()
@@ -188,7 +189,7 @@ const _handleHitlCloseCommand = async (
 ) => {
   await downstreamCm.respond({
     type: 'text',
-    text: sessionConfig.onUserHitlCancelledMessage?.length
+    text: sessionConfig.onUserHitlCancelledMessage?.trim()?.length
       ? sessionConfig.onUserHitlCancelledMessage
       : DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   })
@@ -210,7 +211,7 @@ const _handleHitlCloseCommand = async (
 
   await upstreamCm.respond({
     type: 'text',
-    text: sessionConfig.onUserHitlCloseMessage?.length
+    text: sessionConfig.onUserHitlCloseMessage?.trim()?.length
       ? sessionConfig.onUserHitlCloseMessage
       : DEFAULT_USER_HITL_COMMAND_MESSAGE,
   })

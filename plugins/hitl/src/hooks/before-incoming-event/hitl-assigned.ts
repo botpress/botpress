@@ -1,4 +1,3 @@
-import { DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE } from '../../../plugin.definition'
 import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
 import { tryLinkWebchatUser } from '../../webchat'
@@ -30,15 +29,15 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
   })
 
   const { user: humanAgentUser } = await props.client.getUser({ id: humanAgentUserId })
-  const humanAgentName = humanAgentUser?.name?.length ? humanAgentUser.name : 'A Human Agent'
+  const humanAgentName = humanAgentUser?.name?.trim()?.length ? humanAgentUser.name : 'A Human Agent'
 
   await Promise.all([
-    upstreamCm.respond({
-      type: 'text',
-      text: sessionConfig.onHumanAgentAssignedMessage?.length
-        ? sessionConfig.onHumanAgentAssignedMessage
-        : DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE,
-    }),
+    sessionConfig.onHumanAgentAssignedMessage?.trim()?.length
+      ? upstreamCm.respond({
+          type: 'text',
+          text: sessionConfig.onHumanAgentAssignedMessage,
+        })
+      : Promise.resolve(),
     downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     tryLinkWebchatUser(props, { downstreamUserId: humanAgentUserId, upstreamConversationId, forceLink: true }),
