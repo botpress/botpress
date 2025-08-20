@@ -1,0 +1,11 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+env = to_string!(.env)
+
+clientId = "6lLO4BHP-JhRwMbsh-PR_TRCsypDxX8X2C9aNapZDWs"
+
+if env == "production" {
+  clientId = "TODO"
+}
+
+"https://auth.calendly.com/oauth/authorize?client_id={{ clientId }}&response_type=code&state={{ webhookId }}&redirect_uri={{ webhookUrl }}/oauth"
