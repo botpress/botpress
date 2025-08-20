@@ -465,6 +465,25 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
 
+  integrations/calcom:
+    dependencies:
+      '@botpress/client':
+        specifier: 1.22.0
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: 4.15.2
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.6.8
+        version: 1.8.4
+    devDependencies:
+      '@types/node':
+        specifier: ^22.16.4
+        version: 22.16.4
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+
   integrations/cerebras:
     dependencies:
       '@botpress/client':
@@ -4832,8 +4851,8 @@ packages:
     peerDependencies:
       type-fest: ^4.12.0
     dependencies:
-      axios: 1.10.0
-      axios-case-converter: 1.1.1(axios@1.10.0)
+      axios: 1.9.0
+      axios-case-converter: 1.1.1(axios@1.9.0)
       axios-retry: 3.9.1
       runtypes: 6.7.0
       ts-custom-error: 3.3.1
@@ -8369,7 +8388,7 @@ packages:
     resolution: {integrity: sha512-9JgOaunvQdsQ/qW2OPmE5+hCeUB52lQSolecrFrthct55QekhmXEwT203s20RL+UHtCQc15y3VXpby9E7Kkh/g==}
     deprecated: This is a stub types definition. axios provides its own type definitions, so you do not need this installed.
     dependencies:
-      axios: 1.10.0
+      axios: 1.9.0
     transitivePeerDependencies:
       - debug
     dev: true
@@ -9469,12 +9488,12 @@ packages:
     resolution: {integrity: sha512-NmWvPnx0F1SfrQbYwOi7OeaNGokp9XhzNioJ/CSBs8Qa4vxug81mhJEAVZwxXuBmYB5KDRfMq/F3RR0BIU7sWg==}
     dev: false
 
-  /axios-case-converter@1.1.1(axios@1.10.0):
+  /axios-case-converter@1.1.1(axios@1.9.0):
     resolution: {integrity: sha512-v13pB7cYryh/7f4TKxN/gniD2hwqPQcjip29Hk3J9iwsnA37Rht2Hkn5VyrxynxlKdMNSIfGk6I9D6G28oTRyQ==}
     peerDependencies:
       axios: '>=1.0.0 <2.0.0'
     dependencies:
-      axios: 1.10.0
+      axios: 1.9.0
       camel-case: 4.1.2
       header-case: 2.0.4
       snake-case: 3.0.4
@@ -9556,15 +9575,6 @@ packages:
     transitivePeerDependencies:
       - debug
     dev: false
-
-  /axios@1.10.0:
-    resolution: {integrity: sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==}
-    dependencies:
-      follow-redirects: 1.15.6(debug@4.4.1)
-      form-data: 4.0.2
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
 
   /axios@1.2.5:
     resolution: {integrity: sha512-9pU/8mmjSSOb4CXVsvGIevN+MlO/t9OWtKadTaLuN85Gge3HGorUckgp8A/2FH4V4hJ7JuQ3LIeI7KAV9ITZrQ==}
@@ -17483,7 +17493,7 @@ packages:
   /trello.js@1.2.7:
     resolution: {integrity: sha512-fFk5pQ8UvnTkGgLfSHKDpmejIx460yiSjG99hjvnj4XLdGsrmSNTKTTiD8or+2uAQ6+mJgq8q4Ztj34r7z0qFQ==}
     dependencies:
-      axios: 1.10.0
+      axios: 1.9.0
       form-data: 4.0.0
       tslib: 2.6.2
     transitivePeerDependencies:

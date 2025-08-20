@@ -1,0 +1,17 @@
+{
+  "name": "@bp-templates/webhook-message",
+  "integrationName": "paul/calcom",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "1.22.0",
+    "@botpress/sdk": "4.15.2",
+    "axios": "^1.6.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.4",
+    "typescript": "^5.6.3"
+  }
+}
