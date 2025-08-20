@@ -18,7 +18,7 @@ plugin.on.afterIncomingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
   const { message_count } = await _onNewMessage({ ...props, conversation })
 
-  if (updateScheduler.isTimeToUpdate(message_count)) {
+  if (props.configuration.aiEnabled && updateScheduler.isTimeToUpdate(message_count)) {
     await props.events.updateSummary.withConversationId(props.data.conversationId).emit({})
   }
 
