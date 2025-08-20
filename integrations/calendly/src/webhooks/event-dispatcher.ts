@@ -1,4 +1,4 @@
-import * as inviteeHandlers from './handlers'
+import * as inviteeHandlers from './event-handlers'
 import { InviteeEvent } from './schemas'
 import * as bp from '.botpress'
 
