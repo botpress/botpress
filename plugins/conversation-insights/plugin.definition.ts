@@ -32,7 +32,7 @@ export default new PluginDefinition({
     },
   },
   events: {
-    updateSummary: {
+    updateAiInsight: {
       schema: z.object({}),
     },
   },

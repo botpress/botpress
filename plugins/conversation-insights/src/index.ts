@@ -19,7 +19,7 @@ plugin.on.afterIncomingMessage('*', async (props) => {
   const { message_count } = await _onNewMessage({ ...props, conversation })
 
   if (props.configuration.aiEnabled && updateScheduler.isTimeToUpdate(message_count)) {
-    await props.events.updateSummary.withConversationId(props.data.conversationId).emit({})
+    await props.events.updateAiInsight.withConversationId(props.data.conversationId).emit({})
   }
 
   return undefined
@@ -58,7 +58,7 @@ const _onNewMessage = async (
   return { message_count, participant_count }
 }
 
-plugin.on.event('updateSummary', async (props) => {
+plugin.on.event('updateAiInsight', async (props) => {
   if (isBrowser) {
     props.logger.error('This event is not supported by the browser')
     return
