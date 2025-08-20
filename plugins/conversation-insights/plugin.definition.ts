@@ -3,7 +3,7 @@ import llm from './bp_modules/llm'
 
 export default new PluginDefinition({
   name: 'conversation-insights',
-  version: '0.2.1',
+  version: '0.2.2',
   configuration: {
     schema: z.object({ modelId: z.string() }),
   },
@@ -21,6 +21,10 @@ export default new PluginDefinition({
       participant_count: {
         title: 'Participant count',
         description: 'The count of users having participated in the conversation, including the bot. Type: int',
+      },
+      sentiment: {
+        title: 'Sentiment',
+        description: 'The sentiment that best describes the conversation. Type: enum Sentiments',
       },
     },
   },

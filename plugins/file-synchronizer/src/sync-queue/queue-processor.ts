@@ -24,8 +24,20 @@ export type ProcessQueueProps = {
 }
 
 export const processQueue = async (props: ProcessQueueProps) => {
+  // Short-circuit if the sync queue is empty:
+  if (!props.syncQueue?.length) {
+    props.logger.info('Sync queue is empty. Nothing to process.')
+    return { finished: 'all' } as const
+  }
+
   const syncQueue = structuredClone(props.syncQueue) as types.SyncQueue
   const startCursor = syncQueue.findIndex((file) => file.status === 'pending') ?? syncQueue.length - 1
+
+  if (startCursor < 0) {
+    props.logger.info('No files left to process in the sync queue.')
+    return { finished: 'all' } as const
+  }
+
   const { endCursor } = findBatchEndCursor({ startCursor, files: syncQueue })
   const filesInBatch = syncQueue.slice(startCursor, endCursor)
 

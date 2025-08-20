@@ -17,7 +17,8 @@
     "fix:sherif": "sherif -i zod -i axios -i query-string -i googleapis -i @linear/sdk -i openai --fix",
     "fix:format": "prettier --write .",
     "fix:oxlint": "oxlint -c .oxlintrc.json --fix --fix-suggestions",
-    "fix:lint": "eslint --fix ./",
+    "fix:eslint": "eslint --fix ./",
+    "fix:lint": "pnpm fix:oxlint && pnpm fix:eslint",
     "check": "pnpm check:sherif && pnpm check:dep && pnpm check:format && pnpm check:lint && pnpm check:type",
     "fix": "pnpm fix:sherif && pnpm fix:dep && pnpm fix:oxlint && pnpm fix:format && pnpm fix:lint"
   },

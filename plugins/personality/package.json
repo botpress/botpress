@@ -16,7 +16,9 @@
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpresshub/llm": "workspace:*",
-    "@bpinternal/genenv": "0.0.1"
+    "@bpinternal/genenv": "0.0.1",
+    "@types/semver": "^7.3.11",
+    "semver": "^7.3.8"
   },
   "bpDependencies": {
     "llm": "../../interfaces/llm"
