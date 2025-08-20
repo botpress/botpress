@@ -13,13 +13,16 @@ export default new bp.Integration({
   channels: {},
   actions: {
     generateLink: async (props) => {
-      const { client, input } = props
+      const { client, input, ctx } = props
       props.logger.debug('calcom::generateLink', input.conversationId)
 
-      client.updateConversation({
-        id: input.conversationId,
-        tags: {},
-      })
+      const axiosConfig = {
+        headers: {
+          Authorization: `Bearer ${ctx.configuration.calcomApiKey}`,
+        },
+      }
+
+      //TODO HEREEEE
 
       return {
         message: 'test',
@@ -46,8 +49,8 @@ export default new bp.Integration({
     await client.createEvent({
       type: 'eventScheduled',
       payload: {
-          event: response?.event,
-          conversationId: response?.conversationId,
+        event: response?.event,
+        conversationId: response?.conversationId,
       },
     })
   },
