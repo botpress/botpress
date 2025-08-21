@@ -2,7 +2,7 @@ import { PluginDefinition, z } from '@botpress/sdk'
 import llm from './bp_modules/llm'
 
 export default new PluginDefinition({
-  name: 'nathaniel-conversation-insights',
+  name: 'conversation-insights',
   version: '0.3.0',
   configuration: {
     schema: z.object({
