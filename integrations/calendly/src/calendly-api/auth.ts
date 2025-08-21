@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
-import axios, { AxiosInstance } from 'axios'
-import { Result } from '../types'
-import { type GetOAuthAccessTokenResp, getOAuthAccessTokenRespSchema } from './schemas'
+import axios, { type AxiosInstance } from 'axios'
+import type { CommonHandlerProps, Result } from '../types'
+import { type CalendlyUri, type GetOAuthAccessTokenResp, getOAuthAccessTokenRespSchema, uuidSchema } from './schemas'
 import * as bp from '.botpress'
 
 const AUTH_BASE_URL = 'https://auth.calendly.com' as const
@@ -72,3 +72,55 @@ type GetAccessTokenParams =
       grant_type: 'refresh_token'
       refresh_token: string
     }
+
+const _extractUserUuid = (userUri: CalendlyUri): string => {
+  const match = userUri.match(/\/users\/(.+)$/)
+
+  if (!match) {
+    throw new Error('Failed to extract user UUID from URI')
+  }
+
+  const parsed = uuidSchema.safeParse(match[1])
+  if (!parsed.success) {
+    throw new Error('Failed to extract user UUID from URI')
+  }
+
+  return parsed.data
+}
+
+export const applyOAuthState = async ({ client, ctx }: CommonHandlerProps, resp: Result<GetOAuthAccessTokenResp>) => {
+  if (!resp.success) throw resp.error
+
+  const { state } = await client.setState({
+    type: 'integration',
+    name: 'configuration',
+    id: ctx.integrationId,
+    payload: {
+      oauth: {
+        accessToken: resp.data.accessToken,
+        refreshToken: resp.data.refreshToken,
+        expiresAt: resp.data.expiresAt.getTime(),
+      },
+    },
+  })
+
+  if (!state.payload.oauth) {
+    throw new Error('Failed to store OAuth state')
+  }
+
+  return { oauth: state.payload.oauth, userUri: resp.data.userUri }
+}
+
+export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps): Promise<void> => {
+  const oAuthCode = new URLSearchParams(props.req.query).get('code')
+  if (oAuthCode === null) throw new Error('Missing OAuth code')
+
+  const authClient = new CalendlyAuthClient()
+  const resp = await authClient.getAccessTokenWithCode(oAuthCode)
+  const { userUri } = await applyOAuthState(props, resp)
+
+  const userId = _extractUserUuid(userUri)
+  await props.client.configureIntegration({
+    identifier: userId,
+  })
+}

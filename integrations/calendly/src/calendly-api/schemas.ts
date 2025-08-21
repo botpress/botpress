@@ -3,6 +3,8 @@ import { z } from '@botpress/sdk'
 export const calendlyUri = z.string().url().brand('CalendlyUri')
 export type CalendlyUri = z.infer<typeof calendlyUri>
 
+export const uuidSchema = z.string().uuid()
+
 export const paginationSchema = z
   .object({
     count: z.number(),

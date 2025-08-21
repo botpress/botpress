@@ -1,5 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
-import axios, { AxiosInstance } from 'axios'
+import axios, { type AxiosInstance } from 'axios'
+import type { CommonHandlerProps, Supplier } from '../types'
+import { applyOAuthState, CalendlyAuthClient } from './auth'
 import {
   type CalendlyUri,
   type CreateSchedulingLinkResp,
@@ -14,7 +16,7 @@ import {
   type GetWebhooksListResp,
   getWebhooksListRespSchema,
 } from './schemas'
-import { RegisterWebhookParams, WebhooksListParams } from './types'
+import type { RegisterWebhookParams, WebhooksListParams } from './types'
 
 const API_BASE_URL = 'https://api.calendly.com' as const
 
@@ -24,13 +26,18 @@ const NO_CONTENT = 204 as const
 export class CalendlyClient {
   private _axiosClient: AxiosInstance
 
-  public constructor(accessToken: string) {
+  private constructor(getAccessToken: Supplier<Promise<string> | string>) {
     this._axiosClient = axios.create({
       baseURL: API_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
       },
+    })
+
+    this._axiosClient.interceptors.request.use(async (config) => {
+      const token = await getAccessToken()
+      config.headers.Authorization = `Bearer ${token}`
+      return config
     })
   }
 
@@ -98,6 +105,42 @@ export class CalendlyClient {
       return createSchedulingLinkRespSchema.parse(resp.data)
     } catch {
       throw new RuntimeError('Failed to create scheduling link due to unexpected api response')
+    }
+  }
+
+  public static async create(props: CommonHandlerProps): Promise<CalendlyClient> {
+    const { ctx, client } = props
+    if (ctx.configurationType === 'manual') {
+      const { accessToken } = ctx.configuration
+      return new CalendlyClient(() => accessToken)
+    } else if (ctx.configurationType === null) {
+      return new CalendlyClient(async () => {
+        const { state } = await client.getOrSetState({
+          type: 'integration',
+          name: 'configuration',
+          id: ctx.integrationId,
+          payload: {
+            oauth: null,
+          },
+        })
+        let oauthState = state.payload.oauth
+
+        if (!oauthState) {
+          throw new RuntimeError('OAuth state is missing')
+        }
+
+        const { expiresAt, refreshToken } = oauthState
+        if (expiresAt <= Date.now()) {
+          const authClient = new CalendlyAuthClient()
+          const resp = await authClient.getAccessTokenWithRefreshToken(refreshToken)
+          oauthState = (await applyOAuthState(props, resp)).oauth
+        }
+
+        return oauthState.accessToken
+      })
+    } else {
+      // @ts-ignore
+      throw new Error(`Unsupported configuration type: ${ctx.configurationType}`)
     }
   }
 }

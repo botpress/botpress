@@ -23,18 +23,18 @@ const performUnregistration = async (
   }
 }
 
-export const unregister: bp.Integration['unregister'] = async ({ ctx, webhookUrl }) => {
-  const calendlyClient = new CalendlyClient(ctx.configuration.accessToken)
+export const unregister: bp.Integration['unregister'] = async (props) => {
+  const calendlyClient = await CalendlyClient.create(props)
   const currentUser = await calendlyClient.getCurrentUser()
-  await performUnregistration(calendlyClient, currentUser, webhookUrl)
+  await performUnregistration(calendlyClient, currentUser, props.webhookUrl)
 }
 
-export const register: bp.Integration['register'] = async ({ ctx, webhookUrl }) => {
-  const calendlyClient = new CalendlyClient(ctx.configuration.accessToken)
+export const register: bp.Integration['register'] = async (props) => {
+  const calendlyClient = await CalendlyClient.create(props)
   const userResp = await calendlyClient.getCurrentUser()
 
   try {
-    await performUnregistration(calendlyClient, userResp, webhookUrl)
+    await performUnregistration(calendlyClient, userResp, props.webhookUrl)
   } catch {
     // Do nothing since if it's the first time there's nothing to unregister
   }
@@ -42,7 +42,7 @@ export const register: bp.Integration['register'] = async ({ ctx, webhookUrl }) 
   const { current_organization: organizationUri, uri: userUri } = userResp.resource
 
   await calendlyClient.createWebhook({
-    webhookUrl,
+    webhookUrl: props.webhookUrl,
     events: ['invitee.created', 'invitee.canceled', 'invitee_no_show.created', 'invitee_no_show.deleted'],
     organization: organizationUri,
     user: userUri,

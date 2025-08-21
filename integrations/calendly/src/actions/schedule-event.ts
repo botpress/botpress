@@ -4,14 +4,14 @@ import { parseError } from '../utils'
 import type * as bp from '.botpress'
 
 export const scheduleEvent: bp.IntegrationProps['actions']['scheduleEvent'] = async (props) => {
-  const { ctx, input } = props
+  const { eventTypeUrl, conversationId } = props.input
 
   try {
-    const calendlyClient = new CalendlyClient(ctx.configuration.accessToken)
+    const calendlyClient = await CalendlyClient.create(props)
 
     const currentUser = await calendlyClient.getCurrentUser()
     const eventTypes = await calendlyClient.getEventTypesList(currentUser.resource.uri)
-    const eventType = eventTypes.collection.find((eventType) => eventType.scheduling_url === input.eventTypeUrl)
+    const eventType = eventTypes.collection.find((eventType) => eventType.scheduling_url === eventTypeUrl)
 
     if (!eventType) {
       throw new RuntimeError('Event type not found')
@@ -22,7 +22,7 @@ export const scheduleEvent: bp.IntegrationProps['actions']['scheduleEvent'] = as
     const searchParams = new URLSearchParams({
       utm_source: 'chatbot',
       utm_medium: 'conversation',
-      utm_content: `id=${input.conversationId}`,
+      utm_content: `id=${conversationId}`,
     })
 
     return {

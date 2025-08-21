@@ -1,15 +1,15 @@
 import { CalendlyClient } from '../calendly-api'
-import { InviteeEvent } from './schemas'
-import * as bp from '.botpress'
+import type { InviteeEvent } from './schemas'
+import type * as bp from '.botpress'
 
 export const handleInviteeEvent = async (
-  { client, ctx }: bp.HandlerProps,
+  props: bp.HandlerProps,
   eventType: keyof bp.events.Events,
   event: InviteeEvent
 ) => {
   const { start_time, end_time, location, name: eventName, uri: scheduledEventUri } = event.payload.scheduled_event
 
-  const calendlyClient = new CalendlyClient(ctx.configuration.accessToken)
+  const calendlyClient = await CalendlyClient.create(props)
   const currentUser = await calendlyClient.getCurrentUser()
 
   let conversationId: string | null = null
@@ -18,7 +18,7 @@ export const handleInviteeEvent = async (
     conversationId = utm_content.replace(/id=/, '')
   }
 
-  return await client.createEvent({
+  return await props.client.createEvent({
     type: eventType,
     payload: {
       scheduledEventUri,

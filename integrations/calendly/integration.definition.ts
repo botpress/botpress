@@ -70,4 +70,24 @@ export default new IntegrationDefinition({
       description: "The signing key used to validate Calendly's OAuth webhook request payloads",
     },
   },
+  states: {
+    configuration: {
+      type: 'integration',
+      schema: z.object({
+        oauth: z
+          .object({
+            refreshToken: z.string().describe('The refresh token for the integration').title('Refresh Token'),
+            accessToken: z.string().describe('The access token for the integration').title('Access Token'),
+            expiresAt: z
+              .number()
+              .min(0)
+              .describe('The expiry time of the access token represented as a Unix timestamp (milliseconds)')
+              .title('Expires At'),
+          })
+          .describe('The parameters used for accessing the Calendly API and refreshing the access token')
+          .title('OAuth Parameters')
+          .nullable(),
+      }),
+    },
+  },
 })
