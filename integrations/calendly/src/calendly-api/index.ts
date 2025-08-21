@@ -126,7 +126,7 @@ export class CalendlyClient {
         let oauthState = state.payload.oauth
 
         if (!oauthState) {
-          throw new RuntimeError('OAuth state is missing')
+          throw new RuntimeError('User authentication has not been completed')
         }
 
         const { expiresAt, refreshToken } = oauthState
