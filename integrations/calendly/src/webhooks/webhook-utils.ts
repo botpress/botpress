@@ -1,7 +1,7 @@
-import { Result } from 'src/types'
+import type { Result } from '../types'
 import { safeParseJson } from '../utils'
-import { InviteeEvent, inviteeEventSchema } from './schemas'
-import * as bp from '.botpress'
+import { type InviteeEvent, inviteeEventSchema } from './schemas'
+import type * as bp from '.botpress'
 
 export const parseWebhookData = (props: bp.HandlerProps): Result<InviteeEvent> => {
   if (!props.req.body?.trim()) {
