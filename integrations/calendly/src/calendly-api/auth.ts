@@ -36,14 +36,15 @@ export class CalendlyAuthClient {
       }
     }
 
-    try {
-      return { success: true, data: getOAuthAccessTokenRespSchema.parse(resp.data) }
-    } catch {
+    const result = getOAuthAccessTokenRespSchema.safeParse(resp.data)
+    if (!result.success) {
       return {
         success: false,
         error: new RuntimeError(`Failed to retrieve access token w/${params.grant_type} | Schema Parse Failure`),
       }
     }
+
+    return { success: true, data: getOAuthAccessTokenRespSchema.parse(resp.data) }
   }
 
   public async getAccessTokenWithCode(code: string): Promise<Result<GetOAuthAccessTokenResp>> {
