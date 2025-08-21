@@ -161,26 +161,14 @@ export const createWebhookRespSchema = z
   .passthrough()
 export type CreateWebhookResp = z.infer<typeof createWebhookRespSchema>
 
-export const getOAuthAccessTokenRespSchema = z
-  .object({
-    access_token: z.string().min(1),
-    token_type: z.string().min(1),
-    expires_in: z.number().min(0),
-    refresh_token: z.string().min(1),
-    scope: z.string().min(1),
-    created_at: z.number().min(0),
-    owner: calendlyUri,
-    organization: calendlyUri,
-  })
-  .transform((data) => {
-    return {
-      accessToken: data.access_token,
-      tokenType: data.token_type,
-      refreshToken: data.refresh_token,
-      expiresAt: new Date((data.created_at + data.expires_in) * 1000),
-      userUri: data.owner,
-      organizationUri: data.organization,
-    }
-  })
-
+export const getOAuthAccessTokenRespSchema = z.object({
+  access_token: z.string().min(1),
+  token_type: z.string().min(1),
+  expires_in: z.number().min(0),
+  refresh_token: z.string().min(1),
+  scope: z.string().min(1),
+  created_at: z.number().min(0),
+  owner: calendlyUri,
+  organization: calendlyUri,
+})
 export type GetOAuthAccessTokenResp = z.infer<typeof getOAuthAccessTokenRespSchema>
