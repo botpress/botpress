@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios, { type AxiosInstance } from 'axios'
-import type { CommonHandlerProps, Supplier } from '../types'
+import type { CommonHandlerProps, ContextOfType, Supplier } from '../types'
 import { applyOAuthState, CalendlyAuthClient } from './auth'
 import {
   type CalendlyUri,
@@ -108,41 +108,49 @@ export class CalendlyClient {
     }
   }
 
-  public static async create(props: CommonHandlerProps): Promise<CalendlyClient> {
-    const { ctx, client } = props
-    if (ctx.configurationType === 'manual') {
-      const { accessToken } = ctx.configuration
-      return new CalendlyClient(() => accessToken)
-    } else if (ctx.configurationType === null) {
-      return new CalendlyClient(async () => {
-        const { state } = await client.getOrSetState({
-          type: 'integration',
-          name: 'configuration',
-          id: ctx.integrationId,
-          payload: {
-            oauth: null,
-          },
-        })
-        let oauthState = state.payload.oauth
+  private static async _createFromManualConfig(ctx: ContextOfType<'manual'>) {
+    const { accessToken } = ctx.configuration
+    return new CalendlyClient(() => accessToken)
+  }
 
-        if (!oauthState) {
-          throw new RuntimeError('User authentication has not been completed')
-        }
-
-        const { expiresAt, refreshToken } = oauthState
-        if (expiresAt <= Date.now()) {
-          const authClient = new CalendlyAuthClient()
-          const resp = await authClient.getAccessTokenWithRefreshToken(refreshToken)
-          if (!resp.success) throw resp.error
-
-          oauthState = (await applyOAuthState(props, resp.data)).oauth
-        }
-
-        return oauthState.accessToken
+  private static async _createFromOAuthConfig(props: CommonHandlerProps) {
+    return new CalendlyClient(async () => {
+      const { state } = await props.client.getOrSetState({
+        type: 'integration',
+        name: 'configuration',
+        id: props.ctx.integrationId,
+        payload: {
+          oauth: null,
+        },
       })
-    } else {
-      // @ts-ignore
-      throw new Error(`Unsupported configuration type: ${ctx.configurationType}`)
+      let oauthState = state.payload.oauth
+
+      if (!oauthState) {
+        throw new RuntimeError('User authentication has not been completed')
+      }
+
+      const { expiresAt, refreshToken } = oauthState
+      if (expiresAt <= Date.now()) {
+        const authClient = new CalendlyAuthClient()
+        const resp = await authClient.getAccessTokenWithRefreshToken(refreshToken)
+        if (!resp.success) throw resp.error
+
+        oauthState = (await applyOAuthState(props, resp.data)).oauth
+      }
+
+      return oauthState.accessToken
+    })
+  }
+
+  public static async create(props: CommonHandlerProps): Promise<CalendlyClient> {
+    switch (props.ctx.configurationType) {
+      case 'manual':
+        return this._createFromManualConfig(props.ctx)
+      case null:
+        return this._createFromOAuthConfig(props)
+      default:
+        // @ts-ignore
+        throw new Error(`Unsupported configuration type: ${props.ctx.configurationType}`)
     }
   }
 }

@@ -9,3 +9,6 @@ export type CommonHandlerProps = {
   client: bp.Client
   logger: bp.Logger
 }
+
+type ConfigurationTypes = bp.Context['configurationType']
+export type ContextOfType<T extends ConfigurationTypes> = Extract<bp.Context, { configurationType: T }>
