@@ -44,7 +44,7 @@ export class CalendlyAuthClient {
       }
     }
 
-    return { success: true, data: getOAuthAccessTokenRespSchema.parse(resp.data) }
+    return { success: true, data: result.data }
   }
 
   public async getAccessTokenWithCode(code: string): Promise<Result<GetOAuthAccessTokenResp>> {
