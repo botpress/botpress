@@ -2,8 +2,8 @@ import { PluginDefinition, z } from '@botpress/sdk'
 import llm from './bp_modules/llm'
 
 export default new PluginDefinition({
-  name: 'conversation-insights',
-  version: '0.2.3',
+  name: 'nathaniel-conversation-insights',
+  version: '0.3.0',
   configuration: {
     schema: z.object({
       modelId: z.string().describe('The AI model id (ex: gpt-4.1-nano-2025-04-14)'),
