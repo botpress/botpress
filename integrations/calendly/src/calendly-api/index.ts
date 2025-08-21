@@ -133,7 +133,9 @@ export class CalendlyClient {
         if (expiresAt <= Date.now()) {
           const authClient = new CalendlyAuthClient()
           const resp = await authClient.getAccessTokenWithRefreshToken(refreshToken)
-          oauthState = (await applyOAuthState(props, resp)).oauth
+          if (!resp.success) throw resp.error
+
+          oauthState = (await applyOAuthState(props, resp.data)).oauth
         }
 
         return oauthState.accessToken

@@ -88,18 +88,16 @@ const _extractUserUuid = (userUri: CalendlyUri): string => {
   return parsed.data
 }
 
-export const applyOAuthState = async ({ client, ctx }: CommonHandlerProps, resp: Result<GetOAuthAccessTokenResp>) => {
-  if (!resp.success) throw resp.error
-
+export const applyOAuthState = async ({ client, ctx }: CommonHandlerProps, resp: GetOAuthAccessTokenResp) => {
   const { state } = await client.setState({
     type: 'integration',
     name: 'configuration',
     id: ctx.integrationId,
     payload: {
       oauth: {
-        accessToken: resp.data.accessToken,
-        refreshToken: resp.data.refreshToken,
-        expiresAt: resp.data.expiresAt.getTime(),
+        accessToken: resp.accessToken,
+        refreshToken: resp.refreshToken,
+        expiresAt: resp.expiresAt.getTime(),
       },
     },
   })
@@ -108,7 +106,7 @@ export const applyOAuthState = async ({ client, ctx }: CommonHandlerProps, resp:
     throw new Error('Failed to store OAuth state')
   }
 
-  return { oauth: state.payload.oauth, userUri: resp.data.userUri }
+  return { oauth: state.payload.oauth, userUri: resp.userUri }
 }
 
 export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps): Promise<void> => {
@@ -117,7 +115,9 @@ export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps): P
 
   const authClient = new CalendlyAuthClient()
   const resp = await authClient.getAccessTokenWithCode(oAuthCode)
-  const { userUri } = await applyOAuthState(props, resp)
+  if (!resp.success) throw resp.error
+
+  const { userUri } = await applyOAuthState(props, resp.data)
 
   const userId = _extractUserUuid(userUri)
   await props.client.configureIntegration({
