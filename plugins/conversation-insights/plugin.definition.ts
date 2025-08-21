@@ -3,9 +3,12 @@ import llm from './bp_modules/llm'
 
 export default new PluginDefinition({
   name: 'conversation-insights',
-  version: '0.2.2',
+  version: '0.3.0',
   configuration: {
-    schema: z.object({ modelId: z.string() }),
+    schema: z.object({
+      modelId: z.string().describe('The AI model id (ex: gpt-4.1-nano-2025-04-14)'),
+      aiEnabled: z.boolean().default(true).describe('Set to true to enable title, summary and sentiment ai generation'),
+    }),
   },
   conversation: {
     tags: {
@@ -29,7 +32,7 @@ export default new PluginDefinition({
     },
   },
   events: {
-    updateSummary: {
+    updateAiInsight: {
       schema: z.object({}),
     },
   },
