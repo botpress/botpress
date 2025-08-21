@@ -14,6 +14,7 @@ import {
   type GetWebhooksListResp,
   getWebhooksListRespSchema,
 } from './schemas'
+import { RegisterWebhookParams, WebhooksListParams } from './types'
 
 const BASE_URL = 'https://api.calendly.com' as const
 
@@ -105,38 +106,3 @@ const _extractWebhookUuid = (webhookUri: CalendlyUri) => {
   const match = webhookUri.match(/\/webhook_subscriptions\/(.+)$/)
   return match ? match[1] : null
 }
-
-type WebhooksListParams =
-  | {
-      scope: 'organization'
-      organization: CalendlyUri
-    }
-  | {
-      scope: 'user'
-      organization: CalendlyUri
-      user: CalendlyUri
-    }
-
-type WebhookScopes = 'organization' | 'user'
-type WebhookEvents<Scope extends WebhookScopes = WebhookScopes> =
-  | 'invitee.created'
-  | 'invitee.canceled'
-  | 'invitee_no_show.created'
-  | 'invitee_no_show.deleted'
-  | (Scope extends 'organization' ? 'routing_form_submission.created' : never)
-
-type RegisterWebhookParams =
-  | {
-      scope: 'organization'
-      organization: CalendlyUri
-      events: WebhookEvents<'organization'>[]
-      user?: undefined
-      webhookUrl: string
-    }
-  | {
-      scope: 'user'
-      organization: CalendlyUri
-      user: CalendlyUri
-      events: WebhookEvents<'user'>[]
-      webhookUrl: string
-    }
