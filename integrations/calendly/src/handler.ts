@@ -7,7 +7,10 @@ const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'
 
 export const handler = async (props: bp.HandlerProps) => {
   if (_isOauthRequest(props)) {
-    await exchangeAuthCodeForRefreshToken(props)
+    const oAuthCode = new URLSearchParams(props.req.query).get('code')
+    if (oAuthCode === null) throw new Error('Missing authentication code')
+
+    await exchangeAuthCodeForRefreshToken(props, oAuthCode)
     return
   }
 

@@ -111,10 +111,7 @@ export const applyOAuthState = async ({ client, ctx }: CommonHandlerProps, resp:
   return { oauth: state.payload.oauth, userUri }
 }
 
-export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps): Promise<void> => {
-  const oAuthCode = new URLSearchParams(props.req.query).get('code')
-  if (oAuthCode === null) throw new Error('Missing OAuth code')
-
+export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps, oAuthCode: string): Promise<void> => {
   const authClient = new CalendlyAuthClient()
   const resp = await authClient.getAccessTokenWithCode(oAuthCode)
   if (!resp.success) throw resp.error
