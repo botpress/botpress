@@ -59,4 +59,15 @@ export default new IntegrationDefinition({
       schema: inviteeEventOutputSchema,
     },
   },
+  secrets: {
+    OAUTH_CLIENT_ID: {
+      description: "The unique identifier that's used to initiate the OAuth flow",
+    },
+    OAUTH_CLIENT_SECRET: {
+      description: "A secret that's used to establish and refresh the OAuth authentication",
+    },
+    OAUTH_WEBHOOK_SIGNING_KEY: {
+      description: "The signing key used to validate Calendly's OAuth webhook request payloads",
+    },
+  },
 })

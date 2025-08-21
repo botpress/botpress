@@ -16,7 +16,7 @@ import {
 } from './schemas'
 import { RegisterWebhookParams, WebhooksListParams } from './types'
 
-const BASE_URL = 'https://api.calendly.com' as const
+const API_BASE_URL = 'https://api.calendly.com' as const
 
 // ------ Status Codes ------
 const NO_CONTENT = 204 as const
@@ -26,7 +26,7 @@ export class CalendlyClient {
 
   public constructor(accessToken: string) {
     this._axiosClient = axios.create({
-      baseURL: BASE_URL,
+      baseURL: API_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
