@@ -4,7 +4,7 @@ import { eventScheduledSchema } from './definitions/events'
 
 export default new IntegrationDefinition({
   name: integrationName,
-  version: '0.1.21',
+  version: '0.2.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -47,7 +47,7 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          message: z.string(),
+          url: z.string(),
         }),
       },
     },

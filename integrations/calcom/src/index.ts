@@ -1,6 +1,9 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
 import * as bp from '.botpress'
+import { CalcomApi } from './calcom.api'
+
+import { generateLink } from './actions/generateLink'
 
 export default new bp.Integration({
   register: async () => {
@@ -12,22 +15,7 @@ export default new bp.Integration({
   },
   channels: {},
   actions: {
-    generateLink: async (props) => {
-      const { client, input, ctx } = props
-      props.logger.debug('calcom::generateLink', input.conversationId)
-
-      const axiosConfig = {
-        headers: {
-          Authorization: `Bearer ${ctx.configuration.calcomApiKey}`,
-        },
-      }
-
-      //TODO HEREEEE
-
-      return {
-        message: 'test',
-      }
-    },
+    generateLink,
   },
   handler: async (props: bp.HandlerProps) => {
     const {
