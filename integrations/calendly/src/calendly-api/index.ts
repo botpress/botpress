@@ -114,32 +114,7 @@ export class CalendlyClient {
   }
 
   private static async _createFromOAuthConfig(props: CommonHandlerProps) {
-    return new CalendlyClient(async () => {
-      const { state } = await props.client.getOrSetState({
-        type: 'integration',
-        name: 'configuration',
-        id: props.ctx.integrationId,
-        payload: {
-          oauth: null,
-        },
-      })
-      let oauthState = state.payload.oauth
-
-      if (!oauthState) {
-        throw new RuntimeError('User authentication has not been completed')
-      }
-
-      const { expiresAt, refreshToken } = oauthState
-      if (expiresAt <= Date.now()) {
-        const authClient = new CalendlyAuthClient()
-        const resp = await authClient.getAccessTokenWithRefreshToken(refreshToken)
-        if (!resp.success) throw resp.error
-
-        oauthState = (await applyOAuthState(props, resp.data)).oauth
-      }
-
-      return oauthState.accessToken
-    })
+    return new CalendlyClient(_useGetOAuthAccessToken(props))
   }
 
   public static async create(props: CommonHandlerProps): Promise<CalendlyClient> {
@@ -158,4 +133,33 @@ export class CalendlyClient {
 const _extractWebhookUuid = (webhookUri: CalendlyUri) => {
   const match = webhookUri.match(/\/webhook_subscriptions\/(.+)$/)
   return match ? match[1] : null
+}
+
+const _useGetOAuthAccessToken = (props: CommonHandlerProps) => {
+  return async () => {
+    const { state } = await props.client.getOrSetState({
+      type: 'integration',
+      name: 'configuration',
+      id: props.ctx.integrationId,
+      payload: {
+        oauth: null,
+      },
+    })
+    let oauthState = state.payload.oauth
+
+    if (!oauthState) {
+      throw new RuntimeError('User authentication has not been completed')
+    }
+
+    const { expiresAt, refreshToken } = oauthState
+    if (expiresAt <= Date.now()) {
+      const authClient = new CalendlyAuthClient()
+      const resp = await authClient.getAccessTokenWithRefreshToken(refreshToken)
+      if (!resp.success) throw resp.error
+
+      oauthState = (await applyOAuthState(props, resp.data)).oauth
+    }
+
+    return oauthState.accessToken
+  }
 }
