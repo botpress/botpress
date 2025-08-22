@@ -10,7 +10,6 @@ const _parseTrackingParameter = (trackingParameter: string | null): string[] => 
   if (trackingParameter === null) return []
 
   const parseResult = safeParseJson(trackingParameter)
-
   if (!parseResult.success) {
     return [trackingParameter]
   }
