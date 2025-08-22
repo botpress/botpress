@@ -8,7 +8,6 @@ export const scheduleEvent: bp.IntegrationProps['actions']['scheduleEvent'] = as
 
   try {
     const calendlyClient = await CalendlyClient.create(props)
-
     const currentUser = await calendlyClient.getCurrentUser()
     const eventTypes = await calendlyClient.getEventTypesList(currentUser.resource.uri)
     const eventType = eventTypes.collection.find((eventType) => eventType.scheduling_url === eventTypeUrl)
