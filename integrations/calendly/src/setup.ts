@@ -1,6 +1,8 @@
 import { CalendlyClient } from './calendly-api'
 import type { GetCurrentUserResp, WebhookDetails } from './calendly-api/schemas'
-import type * as bp from '.botpress'
+import { Supplier } from './types'
+import { generateSigningKey } from './webhooks/signing-key'
+import * as bp from '.botpress'
 
 const performUnregistration = async (
   calendlyClient: CalendlyClient,
@@ -47,5 +49,37 @@ export const register: bp.Integration['register'] = async (props) => {
     organization: organizationUri,
     user: userUri,
     scope: 'user',
+    signingKey: await _getWebhookSigningKey(props.client, props.ctx),
   })
 }
+
+const _getWebhookSigningKey = async (client: bp.Client, ctx: bp.Context): Promise<string> => {
+  switch (ctx.configurationType) {
+    case 'manual':
+      return await _getManualPatSigningKey(client, ctx)
+    case null:
+      return _getOAuthSigningKey(client, ctx)
+    default:
+      // @ts-ignore
+      throw new Error(`Unsupported configuration type: ${props.ctx.configurationType}`)
+  }
+}
+
+const _getSigningKey = async (client: bp.Client, ctx: bp.Context, fallbackValue: Supplier<string>) => {
+  const { state } = await client.getOrSetState({
+    type: 'integration',
+    name: 'webhooks',
+    id: ctx.integrationId,
+    payload: {
+      signingKey: fallbackValue(),
+    },
+  })
+
+  return state.payload.signingKey
+}
+
+const _getOAuthSigningKey = async (client: bp.Client, ctx: bp.Context) =>
+  _getSigningKey(client, ctx, () => bp.secrets.OAUTH_WEBHOOK_SIGNING_KEY)
+
+const _getManualPatSigningKey = async (client: bp.Client, ctx: bp.Context) =>
+  _getSigningKey(client, ctx, generateSigningKey)

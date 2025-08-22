@@ -26,6 +26,7 @@ export type RegisterWebhookParams =
       events: WebhookEvents<'organization'>[]
       user?: undefined
       webhookUrl: string
+      signingKey?: string
     }
   | {
       scope: 'user'
@@ -33,4 +34,5 @@ export type RegisterWebhookParams =
       user: CalendlyUri
       events: WebhookEvents<'user'>[]
       webhookUrl: string
+      signingKey?: string
     }

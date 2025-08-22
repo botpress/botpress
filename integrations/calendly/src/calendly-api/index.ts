@@ -72,13 +72,14 @@ export class CalendlyClient {
   }
 
   public async createWebhook(params: RegisterWebhookParams): Promise<CreateWebhookResp> {
-    const { webhookUrl, events, organization, scope, user } = params
+    const { webhookUrl, events, organization, scope, user, signingKey } = params
     const resp = await this._axiosClient.post<object>('/webhook_subscriptions', {
       url: webhookUrl,
       events,
       organization,
       user,
       scope,
+      signing_key: signingKey,
     })
 
     try {
