@@ -1,6 +1,6 @@
 import { exchangeAuthCodeForRefreshToken } from './calendly-api/auth'
 import { dispatchIntegrationEvent } from './webhooks/event-dispatcher'
-import { parseWebhookEvent } from './webhooks/webhook-utils'
+import { parseWebhookEvent, verifyWebhookSignature } from './webhooks/webhook-utils'
 import * as bp from '.botpress'
 
 const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'
@@ -20,5 +20,11 @@ export const handler = async (props: bp.HandlerProps) => {
     return
   }
 
-  await dispatchIntegrationEvent(props, result.data)
+  const signatureResult = await verifyWebhookSignature(props, result.data)
+  if (!signatureResult.success) {
+    props.logger.forBot().error(signatureResult.error.message, signatureResult.error)
+    return
+  }
+
+  await dispatchIntegrationEvent(props, result.data.payload)
 }
