@@ -37,11 +37,19 @@ export const handleInviteeEvent = async (
   const { tracking } = event.payload
   const utmContentValues = _parseTrackingParameter(tracking.utm_content)
 
+  if (utmContentValues.length === 0) {
+    props.logger.forBot().warn('The event did not have an associated utm_content value with a conversation id')
+  }
+
   const conversationIdPattern = /conversationId=([\w]+)/
   const conversationId =
     utmContentValues
       .find((contentValue) => conversationIdPattern.test(contentValue))
       ?.match(conversationIdPattern)?.[1] ?? null
+
+  if (!conversationId) {
+    props.logger.forBot().warn('Could not extract the conversation id from the utm_content parameter')
+  }
 
   return await props.client.createEvent({
     type: eventType,
