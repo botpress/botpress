@@ -6,17 +6,12 @@ import { CalcomApi } from './calcom.api'
 import { generateLink } from './actions/generateLink'
 
 export default new bp.Integration({
-  register: async () => {
-    // store discussion id in state
-    // create webHook with discussionId as secret api key cal_live_4cc22129887f21ed43b46a962f15b49d
-  },
-  unregister: async () => {
-    //remove webhook
-  },
-  channels: {},
+  register: async () => {},
+  unregister: async () => {},
   actions: {
     generateLink,
   },
+  channels: {},
   handler: async (props: bp.HandlerProps) => {
     const {
       client,
@@ -24,21 +19,41 @@ export default new bp.Integration({
     } = props
 
     props.logger.forBot().debug('calcom::handler', body)
-    let response: any
+    let conversationId
     try {
       if (body) {
-        response = JSON.parse(body)
-        props.logger.forBot().debug(response)
+        const response = JSON.parse(body)
+
+        props.logger
+          .forBot()
+          .info('calcom::handler with convos', response.payload?.attendees[0], await client.listConversations({}))
+
+        for (const attendee of response.payload?.attendees || []) {
+          props.logger.forBot().debug('calcom::handler attendee', attendee)
+          const conversations = await client.listConversations({ tags: { email: attendee.email } })
+
+          props.logger
+            .forBot()
+            .debug('calcom::handler conversations', conversations, await client.listConversations({}))
+
+          if (conversations.conversations.length > 0) {
+            conversationId = conversations.conversations[0]?.id
+            break
+          }
+        }
       }
     } catch (e) {
-      props.logger.debug(e)
+      props.logger.error(e)
     }
+
+    props.logger.forBot().debug('calcom::handler conversationId', conversationId)
 
     await client.createEvent({
       type: 'eventScheduled',
+      //conversationId: conversationId || undefined,
       payload: {
-        event: response?.event,
-        conversationId: response?.conversationId,
+        event: 'aa',
+        conversationId: conversationId || '',
       },
     })
   },

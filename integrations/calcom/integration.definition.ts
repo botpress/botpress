@@ -4,7 +4,7 @@ import { eventScheduledSchema } from './definitions/events'
 
 export default new IntegrationDefinition({
   name: integrationName,
-  version: '0.2.0',
+  version: '0.2.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -21,14 +21,6 @@ export default new IntegrationDefinition({
       id: { title: 'User ID', description: 'The ID of the user' },
     },
   },
-  states: {
-    webhook: {
-      type: 'conversation',
-      schema: z.object({
-        conversationId: z.string(),
-      }),
-    },
-  },
   events: {
     eventScheduled: {
       title: 'Event Scheduled',
@@ -43,6 +35,7 @@ export default new IntegrationDefinition({
       input: {
         schema: z.object({
           conversationId: z.string(),
+          email: z.string().email('Invalid email address'),
         }),
       },
       output: {

@@ -9,10 +9,17 @@ export async function generateLink(
   const { client, input, ctx } = props
 
   const calcom = new CalcomApi(ctx.configuration.calcomApiKey, props.logger.forBot())
-  const url = await calcom.generateLink()
+  const url = await calcom.generateLink(input.email)
 
-  //register webhook
-  props.logger.forBot().debug('calcom::generateLink - webhook', url, ctx.webhookId)
+  props.logger.forBot().info('calcom::generateLink',  url, input.conversationId)
+
+  // Tag the conversation with the email to track the booking
+  await client.updateConversation({
+    id: input.conversationId,
+    tags: {
+      email: input.email,
+    },
+  })
 
   return {
     url,

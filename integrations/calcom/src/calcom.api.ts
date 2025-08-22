@@ -17,7 +17,7 @@ export class CalcomApi {
     axios.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`
   }
 
-  async generateLink(): Promise<string> {
+  async generateLink(email: string): Promise<string> {
     const slug = (await this.getEventType())?.slug
 
     // date time string in 24hours
@@ -26,13 +26,15 @@ export class CalcomApi {
     const expirationTime = now.toISOString()
 
     const resp = await axios
-      .post(`${this.baseUrl}/event-types/${TEMP_EVENT_TYPE_ID}/private-links`, { expiresAt: expirationTime })
+      .post(`${this.baseUrl}/event-types/${TEMP_EVENT_TYPE_ID}/private-links`, {
+        expiresAt: expirationTime,
+      })
       .catch((err) => {
         this.logger.error('calcom::generateLink error', err.response?.data || err.message)
         throw new Error('Failed to generate link. Please check the logs for more details.')
       })
 
-    return `${resp.data?.data?.bookingUrl}/${slug}?email=paul.chevilley@test.com`
+    return `${resp.data?.data?.bookingUrl}/${slug}?email=${email}`
   }
 
   async getEventType() {
@@ -40,6 +42,7 @@ export class CalcomApi {
     if (resp?.data) {
       return resp.data.data?.eventType
     }
+
     return null
   }
 }
