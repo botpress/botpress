@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { CommonHandlerProps, Supplier } from '../types'
+import { CommonHandlerProps } from '../types'
 import * as bp from '.botpress'
 
 const SIGNING_KEY_BYTES = 32
@@ -22,13 +22,13 @@ export function _generateSigningKey(): string {
   return raw.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
-const _getSigningKey = async (client: bp.Client, ctx: bp.Context, fallbackValue: Supplier<string>) => {
+const _getSigningKey = async (client: bp.Client, ctx: bp.Context, fallbackValue: string) => {
   const { state } = await client.getOrSetState({
     type: 'integration',
     name: 'webhooks',
     id: ctx.integrationId,
     payload: {
-      signingKey: fallbackValue(),
+      signingKey: fallbackValue,
     },
   })
 
@@ -36,7 +36,7 @@ const _getSigningKey = async (client: bp.Client, ctx: bp.Context, fallbackValue:
 }
 
 const _getOAuthSigningKey = async (client: bp.Client, ctx: bp.Context) =>
-  _getSigningKey(client, ctx, () => bp.secrets.OAUTH_WEBHOOK_SIGNING_KEY)
+  _getSigningKey(client, ctx, bp.secrets.OAUTH_WEBHOOK_SIGNING_KEY)
 
 const _getManualPatSigningKey = async (client: bp.Client, ctx: bp.Context) =>
-  _getSigningKey(client, ctx, _generateSigningKey)
+  _getSigningKey(client, ctx, _generateSigningKey())
