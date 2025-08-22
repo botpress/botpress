@@ -1,6 +1,28 @@
+import { z } from '@botpress/sdk'
+import { safeParseJson } from 'src/utils'
 import { CalendlyClient } from '../calendly-api'
 import type { InviteeEvent } from './schemas'
 import type * as bp from '.botpress'
+
+const trackingParameterSchema = z.union([z.string(), z.array(z.string())])
+
+const _parseTrackingParameter = (trackingParameter: string | null): string[] => {
+  if (trackingParameter === null) return []
+
+  const parseResult = safeParseJson(trackingParameter)
+
+  if (!parseResult.success) {
+    return [trackingParameter]
+  }
+
+  const zodResult = trackingParameterSchema.safeParse(parseResult.data)
+  if (!zodResult.success) {
+    return [String(parseResult.data)]
+  }
+
+  const { data } = zodResult
+  return Array.isArray(data) ? data : [data]
+}
 
 export const handleInviteeEvent = async (
   props: bp.HandlerProps,
@@ -12,11 +34,14 @@ export const handleInviteeEvent = async (
   const calendlyClient = await CalendlyClient.create(props)
   const currentUser = await calendlyClient.getCurrentUser()
 
-  let conversationId: string | null = null
-  const { utm_content, utm_medium } = event.payload.tracking
-  if (utm_medium === 'conversation' && utm_content?.startsWith('id=')) {
-    conversationId = utm_content.replace(/id=/, '')
-  }
+  const { tracking } = event.payload
+  const utmContentValues = _parseTrackingParameter(tracking.utm_content)
+
+  const conversationIdPattern = /conversationId=([\w]+)/
+  const conversationId =
+    utmContentValues
+      .find((contentValue) => conversationIdPattern.test(contentValue))
+      ?.match(conversationIdPattern)?.[1] ?? null
 
   return await props.client.createEvent({
     type: eventType,
