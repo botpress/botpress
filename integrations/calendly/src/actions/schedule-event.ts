@@ -20,9 +20,7 @@ export const scheduleEvent: bp.IntegrationProps['actions']['scheduleEvent'] = as
     const resp = (await calendlyClient.createSingleUseSchedulingLink(eventType)).resource
 
     const searchParams = new URLSearchParams({
-      utm_source: 'chatbot',
-      utm_medium: 'conversation',
-      utm_content: `id=${conversationId}`,
+      utm_content: `conversationId=${conversationId}`,
     })
 
     return {
