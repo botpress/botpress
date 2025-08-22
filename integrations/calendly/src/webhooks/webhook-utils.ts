@@ -3,7 +3,7 @@ import { safeParseJson } from '../utils'
 import { type InviteeEvent, inviteeEventSchema } from './schemas'
 import type * as bp from '.botpress'
 
-export const parseWebhookData = (props: bp.HandlerProps): Result<InviteeEvent> => {
+export const parseWebhookEvent = (props: bp.HandlerProps): Result<InviteeEvent> => {
   if (!props.req.body?.trim()) {
     return { success: false, error: new Error('Received empty webhook payload') }
   }
