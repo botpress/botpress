@@ -27,7 +27,6 @@ type BigCommerceProduct = {
   total_sold?: number
 }
 
-// Configuration for sync
 type SyncConfig = {
   storeHash: string
   accessToken: string
@@ -36,11 +35,9 @@ type SyncConfig = {
   productsPerPage?: number
 }
 
-// Constants
 const DEFAULT_BATCH_SIZE = 50
 const DEFAULT_PRODUCTS_PER_PAGE = 250
 
-// Transform BigCommerce product to table row
 function transformProductToTableRow(
   product: BigCommerceProduct,
   categoryById: Record<number, string>,
@@ -77,7 +74,6 @@ function transformProductToTableRow(
   }
 }
 
-// Save products to table
 async function saveProductsToTable(
   client: Client,
   tableName: string,
@@ -110,7 +106,6 @@ async function saveProductsToTable(
   }
 }
 
-// Load categories and brands
 async function loadCategoriesAndBrands(bigCommerceClient: BigCommerceClient) {
   const categoryById: Record<number, string> = {}
   const brandById: Record<number, string> = {}
@@ -131,13 +126,11 @@ async function loadCategoriesAndBrands(bigCommerceClient: BigCommerceClient) {
     }
   } catch (error) {
     console.error('Error loading categories/brands:', error)
-    // Continue without categories/brands if they fail to load
   }
 
   return { categoryById, brandById }
 }
 
-// Unified function to process pages (used by both main sync and background processing)
 async function processPages({
   bigCommerceClient,
   botpressClient,
@@ -176,7 +169,6 @@ async function processPages({
     try {
       logger.forBot().info(`Processing page ${page}/${totalPages} (${progress}% complete)...`)
 
-      // Fetch products for this page
       const pageResult = await bigCommerceClient.getProducts({ page, limit: productsPerPage })
 
       if (!pageResult.data || pageResult.data.length === 0) {
@@ -192,7 +184,6 @@ async function processPages({
 
       logger.forBot().info(`Completed page ${page}: ${pageResult.data.length} products`)
 
-      // Small delay to be respectful to the API
       await new Promise((resolve) => setTimeout(resolve, 50))
     } catch (error) {
       const errorMessage = `Error processing page ${page}: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -216,7 +207,6 @@ async function processPages({
   return { processedItems, lastProcessedPage, errors }
 }
 
-// Helper function to initialize clients
 function initializeClients(ctx: { storeHash: string; accessToken: string }, client: bp.Client) {
   const bigCommerceClient = getBigCommerceClient(ctx)
   const getVanillaClient = (client: bp.Client): Client => client._inner
@@ -225,7 +215,6 @@ function initializeClients(ctx: { storeHash: string; accessToken: string }, clie
   return { bigCommerceClient, botpressVanillaClient }
 }
 
-// Function to handle background processing of remaining pages
 export async function executeBackgroundSync({
   ctx,
   input,
@@ -246,8 +235,6 @@ export async function executeBackgroundSync({
   client: bp.Client
 }) {
   const { startPage, totalPages, tableName, batchSize, productsPerPage, categoryById, brandById } = input
-
-  // Initialize clients using helper function
   const { bigCommerceClient, botpressVanillaClient } = initializeClients(ctx.configuration, client)
 
   logger.forBot().info('Starting background processing...')
@@ -272,16 +259,14 @@ export async function executeBackgroundSync({
     totalPages,
     errors: result.errors,
     finalProgress: Math.round(((result.lastProcessedPage - startPage + 1) / (totalPages - startPage + 1)) * 100),
-    totalElapsed: Math.round((Date.now() - Date.now()) / 1000), // This will be calculated in processPages
+    totalElapsed: Math.round((Date.now() - Date.now()) / 1000),
   }
 }
 
-// Main sync function - handles first page synchronously, then continues with background processing
 const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (props) => {
   const { client, logger } = props
   const ctx = props.ctx.configuration
 
-  // Initialize clients using helper function
   const { bigCommerceClient, botpressVanillaClient } = initializeClients(ctx, client)
 
   const config: SyncConfig = {
@@ -295,13 +280,11 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
   try {
     logger.forBot().info('Starting BigCommerce product sync')
 
-    // Ensure table exists
     await botpressVanillaClient.getOrCreateTable({
       table: config.tableName,
       schema: PRODUCT_TABLE_SCHEMA,
     })
 
-    // Clear existing products table
     try {
       logger.forBot().info('Clearing existing products table...')
       await botpressVanillaClient.deleteTable({
@@ -326,7 +309,6 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
     // Step 2: Get first page synchronously
     logger.forBot().info('Fetching first page synchronously...')
 
-    // Get total pages first
     const firstPageResponse = await bigCommerceClient.getProducts({ page: 1, limit: config.productsPerPage! })
     const totalPages: number = firstPageResponse.meta?.pagination?.total_pages ?? 1
     const firstPageCount = firstPageResponse.data?.length ?? 0
@@ -352,7 +334,7 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
       categoryById,
       brandById,
       startPage: 1,
-      totalPages: 1, // Only process first page
+      totalPages: 1,
       batchSize: DEFAULT_BATCH_SIZE,
       productsPerPage: DEFAULT_PRODUCTS_PER_PAGE,
       logger,
@@ -364,26 +346,24 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
     if (totalPages > 1) {
       logger.forBot().info('First page processed. Sending webhook to trigger background processing...')
 
-      // Send webhook to trigger background processing
       const webhookUrl = `https://webhook.botpress.cloud/${props.ctx.webhookId}`
 
       const payload = {
         event: 'background-sync-triggered',
         data: {
           startPage: 2,
-          totalPages: totalPages, // Ensure it's a number
+          totalPages,
           tableName: config.tableName,
           batchSize: DEFAULT_BATCH_SIZE,
           productsPerPage: DEFAULT_PRODUCTS_PER_PAGE,
           storeHash: config.storeHash,
           accessToken: config.accessToken,
-          categoryById, // Include categories data
-          brandById, // Include brands data
+          categoryById,
+          brandById,
         },
       }
 
       try {
-        // Send webhook asynchronously (don't await to avoid blocking)
         fetch(webhookUrl, {
           method: 'POST',
           headers: {
@@ -396,12 +376,11 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
 
         logger.forBot().info('Background processing webhook sent successfully')
 
-        // Return immediately after sending webhook
         return {
           success: true,
           firstPageProcessed: firstPageCount,
           totalPages,
-          productsCount: firstPageCount, // Only first page products for now
+          productsCount: firstPageCount,
           backgroundProcessing: true,
           lastProcessedPage: 1,
           backgroundErrors: [],
@@ -423,7 +402,6 @@ const syncProducts: bp.IntegrationProps['actions']['syncProducts'] = async (prop
         }
       }
     } else {
-      // Only one page, we're done
       return {
         success: true,
         firstPageProcessed: firstPageCount,

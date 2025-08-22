@@ -1,8 +1,8 @@
 import { Client } from '@botpress/client'
 import actions from './actions'
+import { executeBackgroundSync } from './actions/sync-products'
 import { getBigCommerceClient, BigCommerceClient } from './client'
 import { PRODUCT_TABLE_SCHEMA, PRODUCTS_TABLE_NAME as PRODUCT_TABLE } from './schemas/products'
-import { executeBackgroundSync } from './actions/sync-products'
 import * as bp from '.botpress'
 
 // this client is necessary for table operations
@@ -359,7 +359,6 @@ export default new bp.Integration({
       const isBCWebhook = isBigCommerceWebhook(req.headers)
       const webhookData = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
 
-      // Check if this is an internal webhook for background processing
       if (webhookData?.event === 'background-sync-triggered') {
         logger.forBot().info('Processing internal background sync webhook')
 
@@ -413,7 +412,6 @@ export default new bp.Integration({
         }
       }
 
-      // Handle BigCommerce webhooks (existing logic)
       if (!isBCWebhook) {
         logger.forBot().warn('Rejecting request - not a BigCommerce webhook')
         return {
