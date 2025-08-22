@@ -8,6 +8,7 @@
     "@botpress/client": "workspace:^",
     "@botpress/sdk": "workspace:^",
     "@bpinternal/workflow": "workspace:^",
+    "cryptojs": "^2.5.3",
     "glob": "^9.3.4"
   },
   "devDependencies": {

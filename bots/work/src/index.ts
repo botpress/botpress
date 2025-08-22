@@ -25,8 +25,6 @@ const handleWorkflowUpdate = async (props: any) => {
   const data = JSON.parse(body)
   const event = data.event
 
-  console.log(`handleWorkflowUpdate ${event.payload.workflow.id} - ${event.payload.workflow.name}`)
-
   if (event.payload.workflow.name === 'basic') {
     await basicFlow.run({ client, event, input: event.payload.workflow.input })
   }

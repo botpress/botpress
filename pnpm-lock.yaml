@@ -375,6 +375,9 @@ importers:
       '@bpinternal/workflow':
         specifier: workspace:^
         version: link:../../packages/workflow
+      cryptojs:
+        specifier: ^2.5.3
+        version: 2.5.3
       glob:
         specifier: ^9.3.4
         version: 9.3.5
@@ -10377,6 +10380,10 @@ packages:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  /cryptojs@2.5.3:
+    resolution: {integrity: sha512-+rdPl1UCxE8s3R94NNn+zMKOiI4MJ7dyh3X0c5uBL3btDr4zQ6acd7f9mY7Wb5MrccZEi2Rrha3OEtLcc5XXog==}
+    dev: false
 
   /css-select@5.1.0:
     resolution: {integrity: sha512-nwoRF1rvRRnnCqqY7updORDsuqKzqYJ28+oSMaJMMgOauh3fvwHqMS7EZpIPqK8GL+g9mKxF1vP/ZjSeNjEVHg==}

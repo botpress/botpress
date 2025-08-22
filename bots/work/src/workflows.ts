@@ -2,32 +2,30 @@ import { readFile } from 'node:fs/promises'
 import { z } from '@botpress/sdk'
 import { workflow } from '@bpinternal/workflow'
 import { glob } from 'glob'
+import crypto from 'crypto'
 
 export const processFile = workflow({
   name: 'processFile',
   input: z.object({
+    i: z.number(),
     file: z.string(),
   }),
   output: z.object({
-    fileId: z.string(),
-    fileUrl: z.string(),
+    fileHash: z.string(),
   }),
-  run: async ({ step, input, ctx }) => {
-    const file = await step(`Process file ${input.file}`, async () => {
+  run: async ({ step, input, client, ctx }) => {
+    // Delay random between 0 and 1 second
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000))
+
+    const fileHash = await step(`Process file ${input.file}`, async () => {
       const content = await readFile(input.file)
 
-      const { file } = await ctx.client.uploadFile({
-        key: `folder/${input.file}`,
-        content,
-        contentType: 'application/pdf',
-        publicContentImmediatelyAccessible: true,
-        accessPolicies: ['public_content'],
-      })
+      const hash = crypto.createHash('sha256').update(content).digest('hex')
 
-      return file
+      return hash
     })
 
-    return { fileId: file.id, fileUrl: file.url }
+    return { fileHash }
   },
 })
 
@@ -36,37 +34,29 @@ export const basicFlow = workflow({
   input: z.object({}),
   output: z.object({}),
   run: async ({ step, ctx, wait }) => {
-    setTimeout(() => ctx.abort(), 2000)
+    // console.log(`Execution count: ${ctx.state.executionCount}`)
+    // setTimeout(() => ctx.abort(), 500)
 
     const files = await step('List files', async () => glob('files/**/*.pdf'))
 
-    const workflowIds = []
+    const workflows = await step.map('Process files', files, async (file, { i }) => {
+      // wait for 1 second
+      // await new Promise((resolve) => setTimeout(resolve, 200))
 
-    for (const file of files) {
-      const w = await step(
-        `Process ${file}`,
-        () =>
-          processFile.start({
-            client: ctx.client,
-            parentWorkflowId: ctx.workflow.id,
-            input: {
-              file,
-            },
-          }),
-        {
-          maxAttempts: 3,
-        }
-      )
+      const w = await processFile.start({
+        client: ctx.client,
+        parentWorkflowId: ctx.workflow.id,
+        input: {
+          i,
+          file,
+        },
+      })
 
-      workflowIds.push(w.id)
-    }
-
-    await wait.allChildren({
-      failOnChildFailure: true,
+      return w
     })
 
-    for (const workflowId of workflowIds) {
-      await wait.forWorkflow(`Wait for workflow to complete ${workflowId}`, { workflowId })
+    for (const workflow of workflows) {
+      await wait.forWorkflow(`Wait for workflow to complete ${workflow.id}`, { workflowId: workflow.id })
     }
 
     console.log('Workflows completed')

@@ -4,6 +4,8 @@ import type { BotSpecificClient } from '@botpress/sdk/src/bot'
 
 export type Client = BotSpecificClient<any>
 
+type StepContext = { output: unknown; attempts: number; i?: number; steps?: Record<string, StepContext> }
+
 export type WorkflowContext = {
   workflow: WorkflowType
   client: Client
@@ -11,7 +13,7 @@ export type WorkflowContext = {
   aborted: boolean
   state: {
     executionCount: number
-    steps: Record<string, { output: unknown; attempts: number }>
+    steps: Record<string, StepContext>
   }
 }
 
@@ -27,11 +29,19 @@ export const getContext = () => {
   return ctx
 }
 
-export const saveState = async ({ client, state, workflowId }: { state: any; workflowId: string; client: Client }) => {
+export const saveContext = async ({
+  client,
+  context,
+  workflowId,
+}: {
+  context: any
+  workflowId: string
+  client: Client
+}) => {
   await client.setState({
     type: 'workflow',
-    name: 'state',
-    payload: state,
+    name: 'context',
+    payload: context,
     id: workflowId,
   })
 }

@@ -1,20 +1,30 @@
 import { getContext } from './context'
+import { FailedError } from './error'
 import { step } from './step'
 
 export const wait = {
-  forWorkflow: async (name: string, { workflowId }: { workflowId: string }) => {
+  forWorkflow: async (
+    name: string,
+    { workflowId, failOnChildFailure = false }: { workflowId: string; failOnChildFailure?: boolean }
+  ) => {
     await step(name, async () => {
       const context = getContext()
 
       const { workflow } = await context.client.getWorkflow({ id: workflowId })
 
+      const status = workflow.status
+
+      if (failOnChildFailure && (status === 'failed' || status === 'cancelled' || status === 'timedout')) {
+        throw new FailedError(`Workflow "${workflow.name}" (${workflowId}) failed`)
+      }
+
       if (
         workflow.status === 'completed' ||
-        workflow.status === 'failed' ||
         workflow.status === 'cancelled' ||
-        workflow.status === 'timedout'
+        workflow.status === 'timedout' ||
+        workflow.status === 'failed'
       ) {
-        return workflow
+        return
       }
 
       context.abort()

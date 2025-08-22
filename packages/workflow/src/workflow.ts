@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 import type { WorkflowUpdateEvent } from '@botpress/sdk/src/bot'
-import { type Client, saveState, storage, type WorkflowContext } from './context'
+import { type Client, saveContext, storage, type WorkflowContext } from './context'
 import { AbortError, FailedError } from './error'
 import { type Step, step } from './step'
 import { type Wait, wait } from './wait'
@@ -10,12 +10,14 @@ type WorkflowParams<I, O> = {
   input: z.ZodType<I>
   output: z.ZodType<O>
   run: ({
+    client,
     event,
     input,
     ctx,
     step,
     wait,
   }: {
+    client: Client
     event?: WorkflowUpdateEvent
     input: I
     ctx: WorkflowContext
@@ -38,7 +40,7 @@ export const workflow = <I, O>({ run, name }: WorkflowParams<I, O>) => {
     },
     run: async ({ event, input, client }: { event?: WorkflowUpdateEvent; input: I; client: Client }) => {
       const workflow =
-        event && event.payload.workflow.name === name
+        event && event.payload.workflow.name === name && event.type === 'workflow_update'
           ? event.payload.workflow
           : await getOrCreateWorkflow({ client, name, event, input })
 
@@ -53,12 +55,12 @@ export const workflow = <I, O>({ run, name }: WorkflowParams<I, O>) => {
           executionCount: 0,
           steps: {},
         },
-        name: 'state',
+        name: 'context',
       })
 
       state.state.payload.executionCount++
 
-      await saveState({ client, state: state.state.payload as any, workflowId: workflow.id })
+      await saveContext({ client, context: state.state.payload as any, workflowId: workflow.id })
 
       const ctx = {
         workflow,
