@@ -7,7 +7,7 @@ export class CalcomApi {
   private baseUrl = 'https://api.cal.com/v2'
 
   constructor(
-    private readonly apiKey: string,
+    readonly apiKey: string,
     private logger: IntegrationLogger
   ) {
     if (!apiKey || !apiKey.startsWith('cal_')) {
@@ -44,5 +44,47 @@ export class CalcomApi {
     }
 
     return null
+  }
+
+  async getAllEventTypes() {
+    const resp = await axios
+      .get(`${this.baseUrl}/event-types`, {
+        params: {
+          username: 'paul-chevilley',
+        },
+        headers: {
+          'cal-api-version': '2024-06-14',
+        },
+      })
+      .catch((err) => {
+        this.logger.error('calcom::getAllEventTypes error', err.response?.data || err.message)
+        throw new Error('Failed to fetch event types. Please check the logs for more details.')
+      })
+
+    this.logger.info('calcom::getAllEventTypes', resp.data)
+
+    return resp?.data?.data || []
+  }
+
+  async getAvailableTimeSlots(eventTypeId: number, startDate: Date, endDate: Date) {
+    const resp = await axios
+      .get(`${this.baseUrl}/slots`, {
+        params: {
+          eventTypeId,
+          start: startDate.toISOString(),
+          end: endDate.toISOString()
+        },
+        headers: {
+          'cal-api-version': '2024-09-04',
+        },
+      })
+      .catch((err) => {
+        this.logger.error('calcom::getAvailableTimeSlots error', err.response?.data || err.message)
+        throw new Error('Failed to fetch available time slots. Please check the logs for more details.')
+      })
+
+    this.logger.info('calcom::getAvailableTimeSlots', resp.data)
+
+    return resp?.data?.data || []
   }
 }

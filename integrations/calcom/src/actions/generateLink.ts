@@ -14,12 +14,12 @@ export async function generateLink(
   props.logger.forBot().info('calcom::generateLink',  url, input.conversationId)
 
   // Tag the conversation with the email to track the booking
-  await client.updateConversation({
-    id: input.conversationId,
-    tags: {
-      email: input.email,
-    },
-  })
+ // await client.updateConversation({
+ //   id: input.conversationId,
+ //   tags: {
+ //     email: input.email,
+ //   },
+ // })
 
   return {
     url,

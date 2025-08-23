@@ -1,15 +1,18 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
 import * as bp from '.botpress'
-import { CalcomApi } from './calcom.api'
 
 import { generateLink } from './actions/generateLink'
+import { getEventTypes } from './actions/getEventTypes'
+import { getAvailableTimeSlots } from './actions/getAvailableTimeSlots'
 
 export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
     generateLink,
+    getEventTypes,
+    getAvailableTimeSlots,
   },
   channels: {},
   handler: async (props: bp.HandlerProps) => {
