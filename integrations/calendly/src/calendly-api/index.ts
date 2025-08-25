@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios, { type AxiosInstance } from 'axios'
-import type { CommonHandlerProps, ContextOfType, Supplier } from '../types'
+import type { CommonHandlerProps, Supplier } from '../types'
 import { applyOAuthState, CalendlyAuthClient } from './auth'
 import {
   type CalendlyUri,
@@ -16,7 +16,7 @@ import {
   type GetWebhooksListResp,
   getWebhooksListRespSchema,
 } from './schemas'
-import type { RegisterWebhookParams, WebhooksListParams } from './types'
+import type { ContextOfType, RegisterWebhookParams, WebhooksListParams } from './types'
 
 const API_BASE_URL = 'https://api.calendly.com' as const
 
