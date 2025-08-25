@@ -17,6 +17,15 @@ export const executeMessageReceived = async ({
   ctx: bp.Context
   logger: bp.Logger
 }) => {
+  const isSystemNotification = zendeskTrigger.currentUser.id === '-1'
+
+  if (isSystemNotification) {
+    logger.forBot().debug('Ignoring system notification message from Zendesk', {
+      zendeskTrigger,
+    })
+    return
+  }
+
   const conversation = await retrieveHitlConversation({
     zendeskTrigger,
     client,
