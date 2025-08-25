@@ -1,4 +1,5 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
+import { sendReminderInputSchema, sendReminderOutputSchema } from 'definitions/actions'
 
 export default new IntegrationDefinition({
   name: 'docusign',
@@ -13,10 +14,10 @@ export default new IntegrationDefinition({
       title: 'Send Reminder',
       description: 'Sends a reminder to for the recipient of a document to sign it',
       input: {
-        schema: z.object({}),
+        schema: sendReminderInputSchema,
       },
       output: {
-        schema: z.object({}),
+        schema: sendReminderOutputSchema,
       },
     },
   },
