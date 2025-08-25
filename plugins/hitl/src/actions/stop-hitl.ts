@@ -30,7 +30,7 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
 
   await downstreamCm.respond({
     type: 'text',
-    text: sessionConfig.onUserHitlCancelledMessage?.length
+    text: sessionConfig.onUserHitlCancelledMessage?.trim()?.length
       ? sessionConfig.onUserHitlCancelledMessage
       : DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   })
