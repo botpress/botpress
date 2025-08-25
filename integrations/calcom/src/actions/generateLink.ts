@@ -11,15 +11,15 @@ export async function generateLink(
   const calcom = new CalcomApi(ctx.configuration.calcomApiKey, props.logger.forBot())
   const url = await calcom.generateLink(input.email)
 
-  props.logger.forBot().info('calcom::generateLink',  url, input.conversationId)
+  //  props.logger.forBot().info('calcom::generateLink',  url, input.conversationId)
 
   // Tag the conversation with the email to track the booking
- // await client.updateConversation({
- //   id: input.conversationId,
- //   tags: {
- //     email: input.email,
- //   },
- // })
+  // await client.updateConversation({
+  //   id: input.conversationId,
+  //   tags: {
+  //     email: input.email,
+  //   },
+  // })
 
   return {
     url,

@@ -11,8 +11,8 @@ export async function getEventTypes(props: ActionHandlerProps<TIntegration, 'get
 
   return {
     eventTypes: eventTypes
-      .filter((et: any) => !et.hidden)
-      .map((et: any) => ({
+      .filter((et) => !et.hidden)
+      .map((et) => ({
         id: et.id,
         lengthInMinutes: et.lengthInMinutes,
         title: et.title,

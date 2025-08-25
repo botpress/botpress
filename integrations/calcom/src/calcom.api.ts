@@ -48,7 +48,7 @@ export class CalcomApi {
     return `${resp.data?.data?.bookingUrl}/${slug}?email=${email}`
   }
 
-  async getEventType() {
+  async getEventType() : Promise<CalcomEventType | null> {
     const resp = await axios.get(`${this.baseUrl}/event-types/${TEMP_EVENT_TYPE_ID}`)
     if (resp?.data) {
       return resp.data.data?.eventType
@@ -57,7 +57,7 @@ export class CalcomApi {
     return null
   }
 
-  async getAllEventTypes(username?: string) {
+  async getAllEventTypes(username?: string): Promise<CalcomEventType[]> {
     const resp = await axios
       .get(`${this.baseUrl}/event-types`, {
         params: {
