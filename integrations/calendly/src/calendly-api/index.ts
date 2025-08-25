@@ -118,15 +118,17 @@ export class CalendlyClient {
   }
 
   public static async create(props: CommonHandlerProps): Promise<CalendlyClient> {
-    switch (props.ctx.configurationType) {
+    const { ctx } = props
+    switch (ctx.configurationType) {
       case 'manual':
-        return this._createFromManualConfig(props.ctx)
+        return this._createFromManualConfig(ctx)
       case null:
         return this._createFromOAuthConfig(props)
       default:
-        // @ts-ignore
-        throw new Error(`Unsupported configuration type: ${props.ctx.configurationType}`)
+        ctx satisfies never
     }
+
+    throw new RuntimeError(`Unsupported configuration type: ${props.ctx.configurationType}`)
   }
 }
 
