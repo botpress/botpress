@@ -1,5 +1,7 @@
 # Zai - AI Operations Made Simple
 
+this is a test
+
 Zai is a powerful LLM utility library that provides a clean, type-safe API for common AI operations. Built on Zod schemas and the Botpress API, it makes AI operations simple, intuitive, and production-ready.
 
 ## ✨ Key Features
