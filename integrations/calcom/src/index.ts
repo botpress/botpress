@@ -5,6 +5,7 @@ import * as bp from '.botpress'
 import { generateLink } from './actions/generateLink'
 import { getEventTypes } from './actions/getEventTypes'
 import { getAvailableTimeSlots } from './actions/getAvailableTimeSlots'
+import { bookEvent } from './actions/bookEvent'
 
 export default new bp.Integration({
   register: async () => {},
@@ -13,6 +14,7 @@ export default new bp.Integration({
     generateLink,
     getEventTypes,
     getAvailableTimeSlots,
+    bookEvent
   },
   channels: {},
   handler: async (props: bp.HandlerProps) => {

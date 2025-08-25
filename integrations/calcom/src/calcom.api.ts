@@ -72,7 +72,7 @@ export class CalcomApi {
         params: {
           eventTypeId,
           start: startDate.toISOString(),
-          end: endDate.toISOString()
+          end: endDate.toISOString(),
         },
         headers: {
           'cal-api-version': '2024-09-04',
@@ -86,5 +86,34 @@ export class CalcomApi {
     this.logger.info('calcom::getAvailableTimeSlots', resp.data)
 
     return resp?.data?.data || []
+  }
+
+  async bookEvent(eventTypeId: number, startTime: string, email: string, name: string) {
+    const resp = await axios
+      .post(
+        `${this.baseUrl}/bookings`,
+        {
+          eventTypeId,
+          start: startTime,
+          attendee: {
+            email,
+            name,
+            timeZone: 'America/New_York',
+          },
+        },
+        {
+          headers: {
+            'cal-api-version': '2024-08-13',
+          },
+        }
+      )
+      .catch((err) => {
+        this.logger.error('calcom::bookEvent error', JSON.stringify(err))
+        throw new Error('Failed to book event. Please check the logs for more details.')
+      })
+
+    this.logger.info('calcom::bookEvent', resp.data)
+
+    return resp?.data?.status === 'success'
   }
 }

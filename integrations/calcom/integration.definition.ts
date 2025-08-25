@@ -82,5 +82,22 @@ export default new IntegrationDefinition({
         }),
       },
     },
+    bookEvent: {
+      title: 'Book an Event',
+      description: 'Books an event for a user',
+      input: {
+        schema: z.object({
+          eventTypeId: z.number().min(1, 'Event Type ID is required'),
+          start: z.string().min(1, 'Start time is required').describe('Start time in ISO 8601 format'),
+          email: z.string().email('Invalid email address'),
+          name: z.string().min(1, 'Name is required'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          success: z.boolean(),
+        }),
+      },
+    },
   },
 })
