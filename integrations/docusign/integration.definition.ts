@@ -12,7 +12,7 @@ export default new IntegrationDefinition({
   actions: {
     sendReminder: {
       title: 'Send Reminder',
-      description: 'Sends a reminder to for the recipient of a document to sign it',
+      description: 'Sends a reminder for the recipient of a document to sign it',
       input: {
         schema: sendReminderInputSchema,
       },
