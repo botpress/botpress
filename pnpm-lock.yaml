@@ -465,6 +465,18 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
 
+  integrations/calendly:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.11.0
+        version: 1.11.0
+
   integrations/cerebras:
     dependencies:
       '@botpress/client':
@@ -1545,6 +1557,9 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
+      axios:
+        specifier: ^1.6.0
+        version: 1.8.4
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
@@ -2019,10 +2034,10 @@ importers:
         specifier: 0.5.1
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.2
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.15.2
+        specifier: 4.15.3
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2134,10 +2149,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.15.2
+        specifier: 4.15.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2150,10 +2165,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.15.2
+        specifier: 4.15.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2166,7 +2181,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.15.2
+        specifier: 4.15.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2179,10 +2194,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.15.2
+        specifier: 4.15.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2195,10 +2210,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.15.2
+        specifier: 4.15.3
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2333,10 +2348,10 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.2
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.1.31
+        specifier: 0.1.32
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2436,7 +2451,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.2
         version: link:../client
       '@bpinternal/zui':
         specifier: ^1.0.1
@@ -2467,7 +2482,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
+        specifier: 1.22.2
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2510,7 +2525,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.31
+        specifier: 0.1.32
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -2589,6 +2604,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      browser-or-node:
+        specifier: ^2.1.1
+        version: 2.1.1
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -2621,6 +2639,12 @@ importers:
       '@types/picomatch':
         specifier: ^3.0.2
         version: 3.0.2
+      '@types/semver':
+        specifier: ^7.3.11
+        version: 7.5.0
+      semver:
+        specifier: ^7.3.8
+        version: 7.5.1
 
   plugins/hitl:
     dependencies:
@@ -2643,6 +2667,12 @@ importers:
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
+      '@types/semver':
+        specifier: ^7.3.11
+        version: 7.5.0
+      semver:
+        specifier: ^7.3.8
+        version: 7.5.1
 
   plugins/knowledge:
     dependencies:
@@ -2671,6 +2701,12 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
+      '@types/semver':
+        specifier: ^7.3.11
+        version: 7.5.0
+      semver:
+        specifier: ^7.3.8
+        version: 7.5.1
 
   plugins/logger:
     dependencies:
@@ -2721,6 +2757,12 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
+      '@types/semver':
+        specifier: ^7.3.11
+        version: 7.5.0
+      semver:
+        specifier: ^7.3.8
+        version: 7.5.1
 
   plugins/synchronizer:
     dependencies:
@@ -2755,6 +2797,12 @@ importers:
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
+      '@types/semver':
+        specifier: ^7.3.11
+        version: 7.5.0
+      semver:
+        specifier: ^7.3.8
+        version: 7.5.1
 
 packages:
 
@@ -4832,8 +4880,8 @@ packages:
     peerDependencies:
       type-fest: ^4.12.0
     dependencies:
-      axios: 1.10.0
-      axios-case-converter: 1.1.1(axios@1.10.0)
+      axios: 1.11.0
+      axios-case-converter: 1.1.1(axios@1.11.0)
       axios-retry: 3.9.1
       runtypes: 6.7.0
       ts-custom-error: 3.3.1
@@ -6088,7 +6136,7 @@ packages:
     dependencies:
       '@types/node': 22.16.4
     optionalDependencies:
-      axios: 1.9.0
+      axios: 1.11.0
     transitivePeerDependencies:
       - debug
     dev: false
@@ -7132,7 +7180,7 @@ packages:
     engines: {node: '>=12.*'}
     dependencies:
       '@sendgrid/helpers': 8.0.0
-      axios: 1.9.0
+      axios: 1.11.0
     transitivePeerDependencies:
       - debug
     dev: false
@@ -8369,7 +8417,7 @@ packages:
     resolution: {integrity: sha512-9JgOaunvQdsQ/qW2OPmE5+hCeUB52lQSolecrFrthct55QekhmXEwT203s20RL+UHtCQc15y3VXpby9E7Kkh/g==}
     deprecated: This is a stub types definition. axios provides its own type definitions, so you do not need this installed.
     dependencies:
-      axios: 1.10.0
+      axios: 1.11.0
     transitivePeerDependencies:
       - debug
     dev: true
@@ -8624,7 +8672,7 @@ packages:
     resolution: {integrity: sha512-8nneRWKCg3rMtF69nLQJnOYUcbafYeFSjqkw3jCRLsqkWFlHaoQrr5mXmofFGOx3DKn7UfmBMyov8ySvLRVldA==}
     dependencies:
       '@types/node': 22.16.4
-      form-data: 4.0.2
+      form-data: 4.0.4
     dev: false
 
   /@types/node@10.17.60:
@@ -9469,12 +9517,12 @@ packages:
     resolution: {integrity: sha512-NmWvPnx0F1SfrQbYwOi7OeaNGokp9XhzNioJ/CSBs8Qa4vxug81mhJEAVZwxXuBmYB5KDRfMq/F3RR0BIU7sWg==}
     dev: false
 
-  /axios-case-converter@1.1.1(axios@1.10.0):
+  /axios-case-converter@1.1.1(axios@1.11.0):
     resolution: {integrity: sha512-v13pB7cYryh/7f4TKxN/gniD2hwqPQcjip29Hk3J9iwsnA37Rht2Hkn5VyrxynxlKdMNSIfGk6I9D6G28oTRyQ==}
     peerDependencies:
       axios: '>=1.0.0 <2.0.0'
     dependencies:
-      axios: 1.10.0
+      axios: 1.11.0
       camel-case: 4.1.2
       header-case: 2.0.4
       snake-case: 3.0.4
@@ -9557,11 +9605,11 @@ packages:
       - debug
     dev: false
 
-  /axios@1.10.0:
-    resolution: {integrity: sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==}
+  /axios@1.11.0:
+    resolution: {integrity: sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==}
     dependencies:
       follow-redirects: 1.15.6(debug@4.4.1)
-      form-data: 4.0.2
+      form-data: 4.0.4
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -9712,6 +9760,7 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
+    dev: true
 
   /babel-jest@29.5.0(@babel/core@7.26.9):
     resolution: {integrity: sha512-mA4eCDh5mSo2EcA9xQjVTpmbbNk32Zb3Q3QFQsNhaK56Q+yoXowzFodLux30HRgyOho5rsQ6B0P9QpMkvvnJ0Q==}
@@ -12130,6 +12179,16 @@ packages:
       asynckit: 0.4.0
       combined-stream: 1.0.8
       es-set-tostringtag: 2.1.0
+      mime-types: 2.1.35
+
+  /form-data@4.0.4:
+    resolution: {integrity: sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==}
+    engines: {node: '>= 6'}
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      es-set-tostringtag: 2.1.0
+      hasown: 2.0.2
       mime-types: 2.1.35
 
   /formdata-polyfill@4.0.10:
@@ -16602,7 +16661,6 @@ packages:
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
-    dev: false
 
   /semver@7.5.4:
     resolution: {integrity: sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==}
@@ -17244,7 +17302,7 @@ packages:
       cookiejar: 2.1.4
       debug: 4.4.1
       fast-safe-stringify: 2.1.1
-      form-data: 4.0.2
+      form-data: 4.0.4
       formidable: 2.1.2
       methods: 1.1.2
       mime: 2.6.0
@@ -17483,7 +17541,7 @@ packages:
   /trello.js@1.2.7:
     resolution: {integrity: sha512-fFk5pQ8UvnTkGgLfSHKDpmejIx460yiSjG99hjvnj4XLdGsrmSNTKTTiD8or+2uAQ6+mJgq8q4Ztj34r7z0qFQ==}
     dependencies:
-      axios: 1.10.0
+      axios: 1.11.0
       form-data: 4.0.0
       tslib: 2.6.2
     transitivePeerDependencies:

@@ -117,7 +117,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     if (ref.type === 'name' && ref.version === pkgRef.LATEST_TAG) {
       // If the semver version expression is 'latest', we assume the project
       // is compatible with all versions of the latest major:
-      targetPackage.pkg.version = `^${semver.major(targetPackage.pkg.version)}.0.0`
+      const major = semver.major(targetPackage.pkg.version)
+      targetPackage.pkg.version = `>=${major}.0.0 <${major + 1}.0.0`
 
       this.logger.log(
         `Dependency "${packageName}" will be installed with version "${targetPackage.pkg.version}". ` +
