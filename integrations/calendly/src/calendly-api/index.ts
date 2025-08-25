@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios, { type AxiosInstance } from 'axios'
-import type { CommonHandlerProps, ContextOfType, Supplier } from '../types'
+import type { CommonHandlerProps } from '../types'
 import { applyOAuthState, CalendlyAuthClient } from './auth'
 import {
   type CalendlyUri,
@@ -16,7 +16,7 @@ import {
   type GetWebhooksListResp,
   getWebhooksListRespSchema,
 } from './schemas'
-import type { RegisterWebhookParams, WebhooksListParams } from './types'
+import type { ContextOfType, RegisterWebhookParams, WebhooksListParams } from './types'
 
 const API_BASE_URL = 'https://api.calendly.com' as const
 
@@ -26,7 +26,7 @@ const NO_CONTENT = 204 as const
 export class CalendlyClient {
   private _axiosClient: AxiosInstance
 
-  private constructor(getAccessToken: Supplier<Promise<string> | string>) {
+  private constructor(accessToken: string) {
     this._axiosClient = axios.create({
       baseURL: API_BASE_URL,
       headers: {
@@ -35,8 +35,7 @@ export class CalendlyClient {
     })
 
     this._axiosClient.interceptors.request.use(async (config) => {
-      const token = await getAccessToken()
-      config.headers.Authorization = `Bearer ${token}`
+      config.headers.Authorization = `Bearer ${accessToken}`
       return config
     })
   }
@@ -110,24 +109,26 @@ export class CalendlyClient {
   }
 
   private static async _createFromManualConfig(ctx: ContextOfType<'manual'>) {
-    const { accessToken } = ctx.configuration
-    return new CalendlyClient(() => accessToken)
+    return new CalendlyClient(ctx.configuration.accessToken)
   }
 
   private static async _createFromOAuthConfig(props: CommonHandlerProps) {
-    return new CalendlyClient(_useGetOAuthAccessToken(props))
+    const accessToken = await _getOAuthAccessToken(props)
+    return new CalendlyClient(accessToken)
   }
 
   public static async create(props: CommonHandlerProps): Promise<CalendlyClient> {
-    switch (props.ctx.configurationType) {
+    const { ctx } = props
+    switch (ctx.configurationType) {
       case 'manual':
-        return this._createFromManualConfig(props.ctx)
+        return this._createFromManualConfig(ctx)
       case null:
         return this._createFromOAuthConfig(props)
       default:
-        // @ts-ignore
-        throw new Error(`Unsupported configuration type: ${props.ctx.configurationType}`)
+        ctx satisfies never
     }
+
+    throw new RuntimeError(`Unsupported configuration type: ${props.ctx.configurationType}`)
   }
 }
 
@@ -136,31 +137,30 @@ const _extractWebhookUuid = (webhookUri: CalendlyUri) => {
   return match ? match[1] : null
 }
 
-const _useGetOAuthAccessToken = (props: CommonHandlerProps) => {
-  return async () => {
-    const { state } = await props.client.getOrSetState({
-      type: 'integration',
-      name: 'configuration',
-      id: props.ctx.integrationId,
-      payload: {
-        oauth: null,
-      },
-    })
-    let oauthState = state.payload.oauth
+const FIVE_MINUTES_IN_MS = 300000 as const
+const _getOAuthAccessToken = async (props: CommonHandlerProps) => {
+  const { state } = await props.client.getOrSetState({
+    type: 'integration',
+    name: 'configuration',
+    id: props.ctx.integrationId,
+    payload: {
+      oauth: null,
+    },
+  })
+  let oauthState = state.payload.oauth
 
-    if (!oauthState) {
-      throw new RuntimeError('User authentication has not been completed')
-    }
-
-    const { expiresAt, refreshToken } = oauthState
-    if (expiresAt <= Date.now()) {
-      const authClient = new CalendlyAuthClient()
-      const resp = await authClient.getAccessTokenWithRefreshToken(refreshToken)
-      if (!resp.success) throw resp.error
-
-      oauthState = (await applyOAuthState(props, resp.data)).oauth
-    }
-
-    return oauthState.accessToken
+  if (!oauthState) {
+    throw new RuntimeError('User authentication has not been completed')
   }
+
+  const { expiresAt, refreshToken } = oauthState
+  if (expiresAt - FIVE_MINUTES_IN_MS <= Date.now()) {
+    const authClient = new CalendlyAuthClient()
+    const resp = await authClient.getAccessTokenWithRefreshToken(refreshToken)
+    if (!resp.success) throw resp.error
+
+    oauthState = (await applyOAuthState(props, resp.data)).oauth
+  }
+
+  return oauthState.accessToken
 }

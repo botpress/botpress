@@ -1,4 +1,5 @@
 import type { CalendlyUri } from './schemas'
+import type * as bp from '.botpress'
 
 export type WebhooksListParams =
   | {
@@ -36,3 +37,5 @@ export type RegisterWebhookParams =
       webhookUrl: string
       signingKey?: string
     }
+
+export type ContextOfType<T extends bp.Context['configurationType']> = Extract<bp.Context, { configurationType: T }>

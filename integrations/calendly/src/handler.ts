@@ -14,17 +14,17 @@ export const handler = async (props: bp.HandlerProps) => {
     return
   }
 
+  const signatureResult = await verifyWebhookSignature(props)
+  if (!signatureResult.success) {
+    props.logger.forBot().error(signatureResult.error.message, signatureResult.error)
+    return
+  }
+
   const result = parseWebhookEvent(props)
   if (!result.success) {
     props.logger.forBot().error(result.error.message, result.error)
     return
   }
 
-  const signatureResult = await verifyWebhookSignature(props, result.data)
-  if (!signatureResult.success) {
-    props.logger.forBot().error(signatureResult.error.message, signatureResult.error)
-    return
-  }
-
-  await dispatchIntegrationEvent(props, result.data.payload)
+  await dispatchIntegrationEvent(props, result.data)
 }
