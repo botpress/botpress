@@ -1,16 +1,13 @@
 import * as bp from '.botpress'
 import { getMyEmail } from './get-my-email'
-<<<<<<< HEAD
 import { sendEmail } from './send-email'
-import { checkNewEmails } from './check-new-emails'
+import { checkInbox } from './check-inbox'
+import { getEmail } from './get-email'
+
 
 export const actions = {
   getMyEmail,
   sendEmail,
-  checkNewEmails,
-=======
-
-export const actions = {
-  getMyEmail,
->>>>>>> 664ccdf2 (have getmyemail action)
+  checkInbox,
+  getEmail
 } as const satisfies bp.IntegrationProps['actions']

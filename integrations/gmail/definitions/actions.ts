@@ -14,7 +14,6 @@ export const actions = {
       }),
     },
   },
-<<<<<<< HEAD
   sendEmail: {
     title: 'Send Email',
     description: 'Send an email to a specified email address',
@@ -101,6 +100,4 @@ export const actions = {
       }),
     },
   },
-=======
->>>>>>> 664ccdf2 (have getmyemail action)
 } as const satisfies sdk.IntegrationDefinitionProps['actions']

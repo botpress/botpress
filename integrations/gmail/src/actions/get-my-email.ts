@@ -2,7 +2,7 @@ import { wrapAction } from '../action-wrapper'
 
 export const getMyEmail = wrapAction(
   { actionName: 'getMyEmail', errorMessage: 'Failed to get email' },
-  async ({ googleClient }, input) => {
+  async ({ googleClient }, _) => {
     const email = await googleClient.getMyEmail()
     console.info(`got the email: ${email}`)
     if (!email) {

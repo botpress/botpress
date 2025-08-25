@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import { google } from 'googleapis'
 import * as bp from '.botpress'
+import { IntegrationConfig } from 'src/config/integration-config'
 
 type GoogleOAuth2Client = InstanceType<(typeof google.auth)['OAuth2']>
 
@@ -19,7 +20,7 @@ export const exchangeAuthCodeAndSaveRefreshToken = async ({
   client: bp.Client
   authorizationCode: string
 }) => {
-  const oauth2Client = _getPlainOAuth2Client()
+  const oauth2Client = _getPlainOAuth2Client({ ctx })
 
   const { tokens } = await oauth2Client.getToken({
     code: authorizationCode,
@@ -35,6 +36,7 @@ export const exchangeAuthCodeAndSaveRefreshToken = async ({
     name: 'oAuthConfig',
     payload: { refreshToken: tokens.refresh_token },
   })
+  return tokens.refresh_token
 }
 
 export const getAuthenticatedOAuth2Client = async ({
@@ -52,7 +54,7 @@ export const getAuthenticatedOAuth2Client = async ({
     })
   }
 
-  const oauth2Client = _getPlainOAuth2Client()
+  const oauth2Client = _getPlainOAuth2Client({ ctx })
 
   const { state } = await client.getState({
     id: ctx.integrationId,
@@ -64,5 +66,7 @@ export const getAuthenticatedOAuth2Client = async ({
   return oauth2Client
 }
 
-const _getPlainOAuth2Client = (): GoogleOAuth2Client =>
-  new google.auth.OAuth2(bp.secrets.CLIENT_ID, bp.secrets.CLIENT_SECRET, GLOBAL_OAUTH_ENDPOINT)
+const _getPlainOAuth2Client = ({ ctx }: { ctx: bp.Context }): GoogleOAuth2Client => {
+  const { clientId, clientSecret, endpoint } = IntegrationConfig.getOAuthConfig({ ctx })
+  return new google.auth.OAuth2(clientId, clientSecret, endpoint)
+}

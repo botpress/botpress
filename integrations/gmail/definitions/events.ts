@@ -9,7 +9,6 @@ export const ping = {
     })
 }
 
-<<<<<<< HEAD
 export const emailReceived = {
     title: "Email Received",
     description: "Triggered when a new email is received",
@@ -35,8 +34,4 @@ export const emailReceived = {
 export const events = {
     ping,
     emailReceived
-=======
-export const events = {
-    ping
->>>>>>> e15b53e4 (ping event)
 } as const satisfies sdk.IntegrationDefinitionProps['events']

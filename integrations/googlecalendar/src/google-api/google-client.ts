@@ -4,6 +4,7 @@ import { RequestMapping, ResponseMapping } from './mapping'
 import { exchangeAuthCodeAndSaveRefreshToken, getAuthenticatedOAuth2Client } from './oauth-client'
 import { CreateEventRequest, GoogleCalendarClient, GoogleOAuth2Client, Event, UpdateEventRequest } from './types'
 import * as bp from '.botpress'
+import { RuntimeError } from '@botpress/client'
 
 export class GoogleClient {
   private readonly _calendarClient: GoogleCalendarClient
@@ -22,6 +23,23 @@ export class GoogleClient {
       oauthClient: oauth2Client,
       calendarId: ctx.configuration.calendarId,
     })
+  }
+
+  public static async createFromAuthorizationCode({
+    client,
+    ctx,
+    authorizationCode,
+  }: {
+    client: bp.Client
+    ctx: bp.Context
+    authorizationCode: string
+  }) {
+    try {
+      await exchangeAuthCodeAndSaveRefreshToken({ ctx, client, authorizationCode })
+      return this.create({ client, ctx })
+    } catch (err) {
+      throw new RuntimeError(`Error while creating client from Authorization code: ${err}`)
+    }
   }
 
   public static async authenticateWithAuthorizationCode({

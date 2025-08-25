@@ -33,6 +33,21 @@ export const configurations = {
         .title('Service account email')
         .email()
         .describe('The client email from the Google service account. You can get it from the downloaded JSON file.'),
+      oauthClientId: z
+        .string()
+        .min(1)
+        .endsWith('.apps.googleusercontent.com')
+        .title('OAuth Client ID')
+        .describe('Can be found in GCC under API & Services > Credentials'),
+      oauthClientSecret: z
+        .string()
+        .min(1)
+        .title('OAuth Client Secret')
+        .describe('Can be found in GCC under API & Services > Credentials'),
+      oauthAuthorizationCode: z
+        .string()
+        .title('OAuth Authorization Code')
+        .describe('Authorization code generated from Authorizing credentials'),
     }),
   },
 } as const satisfies sdk.IntegrationDefinitionProps['configurations']
