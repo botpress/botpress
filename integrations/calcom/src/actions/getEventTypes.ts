@@ -4,12 +4,10 @@ import { ActionHandlerProps } from '@botpress/sdk/dist/integration'
 import { CalcomApi } from 'src/calcom.api'
 
 export async function getEventTypes(props: ActionHandlerProps<TIntegration, 'getEventTypes', Input>) {
-  const { ctx, logger } = props
+  const { ctx, logger, input } = props
 
   const calcom = new CalcomApi(ctx.configuration.calcomApiKey, logger.forBot())
-  const eventTypes = await calcom.getAllEventTypes()
-
-  logger.forBot().info('calcom::getEventTypes UPDATE', eventTypes)
+  const eventTypes = await calcom.getAllEventTypes(input.username)
 
   return {
     eventTypes: eventTypes

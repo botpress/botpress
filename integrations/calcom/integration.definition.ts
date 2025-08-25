@@ -33,7 +33,9 @@ export default new IntegrationDefinition({
       title: 'Get Event Types',
       description: 'Fetches all event types from Cal.com',
       input: {
-        schema: z.object({}),
+        schema: z.object({
+          username: z.string().required().describe('Your Cal.com username'),
+        }),
       },
       output: {
         schema: z.object({

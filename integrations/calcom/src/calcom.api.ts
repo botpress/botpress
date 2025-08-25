@@ -46,11 +46,11 @@ export class CalcomApi {
     return null
   }
 
-  async getAllEventTypes() {
+  async getAllEventTypes(username?: string) {
     const resp = await axios
       .get(`${this.baseUrl}/event-types`, {
         params: {
-          username: 'paul-chevilley',
+          username,
         },
         headers: {
           'cal-api-version': '2024-06-14',
