@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
-import * as summaryUpdater from './summaryUpdater'
+import { isBrowser } from 'browser-or-node'
 import * as updateScheduler from './summaryUpdateScheduler'
+import * as summaryUpdater from './tagsUpdater'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -11,17 +12,23 @@ const plugin = new bp.Plugin({
 })
 
 plugin.on.afterIncomingMessage('*', async (props) => {
+  if (isBrowser) {
+    return
+  }
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
   const { message_count } = await _onNewMessage({ ...props, conversation })
 
-  if (updateScheduler.isTimeToUpdate(message_count)) {
-    props.client.createEvent({ payload: {}, type: 'updateSummary', conversationId: props.data.conversationId })
+  if (props.configuration.aiEnabled && updateScheduler.isTimeToUpdate(message_count)) {
+    await props.events.updateAiInsight.withConversationId(props.data.conversationId).emit({})
   }
 
   return undefined
 })
 
 plugin.on.afterOutgoingMessage('*', async (props) => {
+  if (isBrowser) {
+    return
+  }
   const { conversation } = await props.client.getConversation({ id: props.data.message.conversationId })
   await _onNewMessage({ ...props, conversation })
   return undefined
@@ -51,9 +58,15 @@ const _onNewMessage = async (
   return { message_count, participant_count }
 }
 
-plugin.on.event('updateSummary', async (props) => {
-  const messages = await props.client.listMessages({ conversationId: props.event.conversationId })
-  const newMessages: string[] = messages.messages.map((message) => message.payload.text)
+plugin.on.event('updateAiInsight', async (props) => {
+  if (isBrowser) {
+    props.logger.error('This event is not supported by the browser')
+    return
+  }
+  const firstMessagePage = await props.client
+    .listMessages({ conversationId: props.event.conversationId })
+    .then((res) => res.messages)
+
   if (!props.event.conversationId) {
     throw new sdk.RuntimeError(`The conversationId cannot be null when calling the event '${props.event.type}'`)
   }
@@ -62,7 +75,7 @@ plugin.on.event('updateSummary', async (props) => {
   await summaryUpdater.updateTitleAndSummary({
     ...props,
     conversation: conversation.conversation,
-    messages: newMessages,
+    messages: firstMessagePage,
   })
 })
 
