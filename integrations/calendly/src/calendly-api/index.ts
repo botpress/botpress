@@ -136,6 +136,7 @@ const _extractWebhookUuid = (webhookUri: CalendlyUri) => {
   return match ? match[1] : null
 }
 
+const FIVE_MINUTES_IN_MS = 300000 as const
 const _getOAuthAccessToken = async (props: CommonHandlerProps) => {
   const { state } = await props.client.getOrSetState({
     type: 'integration',
@@ -162,5 +163,3 @@ const _getOAuthAccessToken = async (props: CommonHandlerProps) => {
 
   return oauthState.accessToken
 }
-
-const FIVE_MINUTES_IN_MS = 300000 as const
