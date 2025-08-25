@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import type { Result } from '../types'
 import { safeParseJson } from '../utils'
-import { InviteeEvent, inviteeEventSchema } from './schemas'
+import { type InviteeEvent, inviteeEventSchema } from './schemas'
 import { getWebhookSigningKey } from './signing-key'
 import type * as bp from '.botpress'
 
