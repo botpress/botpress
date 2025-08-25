@@ -61,8 +61,6 @@ export class CalcomApi {
         throw new Error('Failed to fetch event types. Please check the logs for more details.')
       })
 
-    this.logger.info('calcom::getAllEventTypes', resp.data)
-
     return resp?.data?.data || []
   }
 
@@ -83,12 +81,10 @@ export class CalcomApi {
         throw new Error('Failed to fetch available time slots. Please check the logs for more details.')
       })
 
-    this.logger.info('calcom::getAvailableTimeSlots', resp.data)
-
     return resp?.data?.data || []
   }
 
-  async bookEvent(eventTypeId: number, startTime: string, email: string, name: string) {
+  async bookEvent(eventTypeId: number, startTime: string, email: string, name: string, timeZone: string) {
     const resp = await axios
       .post(
         `${this.baseUrl}/bookings`,
@@ -98,7 +94,7 @@ export class CalcomApi {
           attendee: {
             email,
             name,
-            timeZone: 'America/New_York',
+            timeZone,
           },
         },
         {
@@ -111,8 +107,6 @@ export class CalcomApi {
         this.logger.error('calcom::bookEvent error', JSON.stringify(err))
         throw new Error('Failed to book event. Please check the logs for more details.')
       })
-
-    this.logger.info('calcom::bookEvent', resp.data)
 
     return resp?.data?.status === 'success'
   }

@@ -91,6 +91,10 @@ export default new IntegrationDefinition({
           start: z.string().min(1, 'Start time is required').describe('Start time in ISO 8601 format'),
           email: z.string().email('Invalid email address'),
           name: z.string().min(1, 'Name is required'),
+          timeZone: z
+            .string()
+            .min(1, 'Time zone is required')
+            .describe('Time zone in IANA format, e.g., America/New_York'),
         }),
       },
       output: {

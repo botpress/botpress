@@ -55,9 +55,8 @@ export default new bp.Integration({
 
     await client.createEvent({
       type: 'eventScheduled',
-      //conversationId: conversationId || undefined,
       payload: {
-        event: 'aa',
+        event: 'scheduled',
         conversationId: conversationId || '',
       },
     })
