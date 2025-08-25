@@ -1,6 +1,6 @@
 import { RuntimeError, ZodError } from '@botpress/sdk'
 import axios from 'axios'
-import { Result } from './types'
+import type { Result } from './types'
 
 const _isZodError = (error: any): error is ZodError => {
   return error && typeof error === 'object' && error instanceof ZodError && 'errors' in error

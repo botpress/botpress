@@ -1,6 +1,6 @@
-import * as inviteeHandlers from './handlers'
-import { InviteeEvent } from './schemas'
-import * as bp from '.botpress'
+import * as inviteeHandlers from './event-handlers'
+import type { InviteeEvent } from './schemas'
+import type * as bp from '.botpress'
 
 export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEvent: InviteeEvent) => {
   switch (webhookEvent.event) {

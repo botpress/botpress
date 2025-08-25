@@ -1,5 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
-import axios, { AxiosInstance } from 'axios'
+import axios, { type AxiosInstance } from 'axios'
+import type { CommonHandlerProps } from '../types'
+import { applyOAuthState, CalendlyAuthClient } from './auth'
 import {
   type CalendlyUri,
   type CreateSchedulingLinkResp,
@@ -14,8 +16,9 @@ import {
   type GetWebhooksListResp,
   getWebhooksListRespSchema,
 } from './schemas'
+import type { ContextOfType, RegisterWebhookParams, WebhooksListParams } from './types'
 
-const BASE_URL = 'https://api.calendly.com' as const
+const API_BASE_URL = 'https://api.calendly.com' as const
 
 // ------ Status Codes ------
 const NO_CONTENT = 204 as const
@@ -23,13 +26,17 @@ const NO_CONTENT = 204 as const
 export class CalendlyClient {
   private _axiosClient: AxiosInstance
 
-  public constructor(accessToken: string) {
+  private constructor(accessToken: string) {
     this._axiosClient = axios.create({
-      baseURL: BASE_URL,
+      baseURL: API_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
       },
+    })
+
+    this._axiosClient.interceptors.request.use(async (config) => {
+      config.headers.Authorization = `Bearer ${accessToken}`
+      return config
     })
   }
 
@@ -99,6 +106,29 @@ export class CalendlyClient {
       throw new RuntimeError('Failed to create scheduling link due to unexpected api response')
     }
   }
+
+  private static async _createFromManualConfig(ctx: ContextOfType<'manual'>) {
+    return new CalendlyClient(ctx.configuration.accessToken)
+  }
+
+  private static async _createFromOAuthConfig(props: CommonHandlerProps) {
+    const accessToken = await _getOAuthAccessToken(props)
+    return new CalendlyClient(accessToken)
+  }
+
+  public static async create(props: CommonHandlerProps): Promise<CalendlyClient> {
+    const { ctx } = props
+    switch (ctx.configurationType) {
+      case 'manual':
+        return this._createFromManualConfig(ctx)
+      case null:
+        return this._createFromOAuthConfig(props)
+      default:
+        ctx satisfies never
+    }
+
+    throw new RuntimeError(`Unsupported configuration type: ${props.ctx.configurationType}`)
+  }
 }
 
 const _extractWebhookUuid = (webhookUri: CalendlyUri) => {
@@ -106,37 +136,30 @@ const _extractWebhookUuid = (webhookUri: CalendlyUri) => {
   return match ? match[1] : null
 }
 
-type WebhooksListParams =
-  | {
-      scope: 'organization'
-      organization: CalendlyUri
-    }
-  | {
-      scope: 'user'
-      organization: CalendlyUri
-      user: CalendlyUri
-    }
+const FIVE_MINUTES_IN_MS = 300000 as const
+const _getOAuthAccessToken = async (props: CommonHandlerProps) => {
+  const { state } = await props.client.getOrSetState({
+    type: 'integration',
+    name: 'configuration',
+    id: props.ctx.integrationId,
+    payload: {
+      oauth: null,
+    },
+  })
+  let oauthState = state.payload.oauth
 
-type WebhookScopes = 'organization' | 'user'
-type WebhookEvents<Scope extends WebhookScopes = WebhookScopes> =
-  | 'invitee.created'
-  | 'invitee.canceled'
-  | 'invitee_no_show.created'
-  | 'invitee_no_show.deleted'
-  | (Scope extends 'organization' ? 'routing_form_submission.created' : never)
+  if (!oauthState) {
+    throw new RuntimeError('User authentication has not been completed')
+  }
 
-type RegisterWebhookParams =
-  | {
-      scope: 'organization'
-      organization: CalendlyUri
-      events: WebhookEvents<'organization'>[]
-      user?: undefined
-      webhookUrl: string
-    }
-  | {
-      scope: 'user'
-      organization: CalendlyUri
-      user: CalendlyUri
-      events: WebhookEvents<'user'>[]
-      webhookUrl: string
-    }
+  const { expiresAt, refreshToken } = oauthState
+  if (expiresAt - FIVE_MINUTES_IN_MS <= Date.now()) {
+    const authClient = new CalendlyAuthClient()
+    const resp = await authClient.getAccessTokenWithRefreshToken(refreshToken)
+    if (!resp.success) throw resp.error
+
+    oauthState = (await applyOAuthState(props, resp.data)).oauth
+  }
+
+  return oauthState.accessToken
+}

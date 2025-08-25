@@ -3,6 +3,8 @@ import { z } from '@botpress/sdk'
 export const calendlyUri = z.string().url().brand('CalendlyUri')
 export type CalendlyUri = z.infer<typeof calendlyUri>
 
+export const uuidSchema = z.string().uuid()
+
 export const paginationSchema = z
   .object({
     count: z.number(),
@@ -158,3 +160,15 @@ export const createWebhookRespSchema = z
   })
   .passthrough()
 export type CreateWebhookResp = z.infer<typeof createWebhookRespSchema>
+
+export const getOAuthAccessTokenRespSchema = z.object({
+  access_token: z.string().min(1),
+  token_type: z.string().min(1),
+  expires_in: z.number().min(0),
+  refresh_token: z.string().min(1),
+  scope: z.string().min(1),
+  created_at: z.number().min(0),
+  owner: calendlyUri,
+  organization: calendlyUri,
+})
+export type GetOAuthAccessTokenResp = z.infer<typeof getOAuthAccessTokenRespSchema>

@@ -10,14 +10,24 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   description: 'Schedule meetings and manage events using the Calendly scheduling platform.',
   configuration: {
-    schema: z.object({
-      accessToken: z
-        .string()
-        .secret()
-        .min(1)
-        .describe('Your Calendly Personal Access Token')
-        .title('Personal Access Token'),
-    }),
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+    },
+    schema: z.object({}),
+  },
+  configurations: {
+    manual: {
+      title: 'Manual Configuration',
+      description: 'Configure by manually supplying a Calendly Personal Access Token',
+      schema: z.object({
+        accessToken: z
+          .string()
+          .secret()
+          .min(1)
+          .describe('Your Calendly Personal Access Token')
+          .title('Personal Access Token'),
+      }),
+    },
   },
   actions: {
     scheduleEvent: {
@@ -47,6 +57,37 @@ export default new IntegrationDefinition({
       title: 'Event No Show Deleted',
       description: 'An event that triggers when an invitee is unmarked as a no-show',
       schema: inviteeEventOutputSchema,
+    },
+  },
+  secrets: {
+    OAUTH_CLIENT_ID: {
+      description: "The unique identifier that's used to initiate the OAuth flow",
+    },
+    OAUTH_CLIENT_SECRET: {
+      description: "A secret that's used to establish and refresh the OAuth authentication",
+    },
+    OAUTH_WEBHOOK_SIGNING_KEY: {
+      description: "The signing key used to validate Calendly's OAuth webhook request payloads",
+    },
+  },
+  states: {
+    configuration: {
+      type: 'integration',
+      schema: z.object({
+        oauth: z
+          .object({
+            refreshToken: z.string().describe('The refresh token for the integration').title('Refresh Token'),
+            accessToken: z.string().describe('The access token for the integration').title('Access Token'),
+            expiresAt: z
+              .number()
+              .min(0)
+              .describe('The expiry time of the access token represented as a Unix timestamp (milliseconds)')
+              .title('Expires At'),
+          })
+          .describe('The parameters used for accessing the Calendly API and refreshing the access token')
+          .title('OAuth Parameters')
+          .nullable(),
+      }),
     },
   },
 })
