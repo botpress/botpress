@@ -10,21 +10,13 @@ const MS_PER_MINUTE = 60 * MS_PER_SECOND
 const WEBHOOK_SIGNATURE_TOLERANCE_MS = 3 * MS_PER_MINUTE
 const WEBHOOK_SIGNATURE_HEADER = 'calendly-webhook-signature' as const
 
-export type ParseWebhookEventData = {
-  payload: InviteeEvent
-  body: string
-  timestamp: number
-  signature: string
-}
-
-export const parseWebhookEvent = (props: bp.HandlerProps): Result<ParseWebhookEventData> => {
-  // The rawBody variable MUST NOT be trimmed of whitespace!
-  const rawBody = props.req.body
-  if (!rawBody?.trim()) {
+export const parseWebhookEvent = (props: bp.HandlerProps): Result<InviteeEvent> => {
+  const { body } = props.req
+  if (!body?.trim()) {
     return { success: false, error: new Error('Received empty webhook payload') }
   }
 
-  const parseResult = safeParseJson(rawBody)
+  const parseResult = safeParseJson(body)
   if (!parseResult.success) {
     return { success: false, error: new Error('Unable to parse Calendly Webhook Payload', parseResult.error) }
   }
@@ -35,30 +27,24 @@ export const parseWebhookEvent = (props: bp.HandlerProps): Result<ParseWebhookEv
     return { success: false, error: new Error('Invalid webhook payload structure', zodResult.error) }
   }
 
+  return {
+    success: true,
+    data: zodResult.data,
+  }
+}
+
+export const verifyWebhookSignature = async (
+  props: bp.HandlerProps
+): Promise<{ success: true } | { success: false; error: Error }> => {
   const headerResult = _parseSignatureHeader(props.req.headers)
   if (!headerResult.success) {
     return headerResult
   }
   const { timestamp, signature } = headerResult.data
 
-  return {
-    success: true,
-    data: {
-      payload: zodResult.data,
-      body: rawBody,
-      timestamp,
-      signature,
-    },
-  }
-}
-
-export const verifyWebhookSignature = async (
-  props: bp.HandlerProps,
-  { body, timestamp, signature }: ParseWebhookEventData
-): Promise<{ success: true } | { success: false; error: Error }> => {
   const signingKey = await getWebhookSigningKey(props)
 
-  const payload = `${timestamp}.${body}`
+  const payload = `${timestamp}.${props.req.body}`
   const expected = crypto.createHmac('sha256', signingKey).update(payload, 'utf8').digest('hex')
 
   if (expected !== signature) {
