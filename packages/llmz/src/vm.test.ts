@@ -1,7 +1,7 @@
 import { assert, describe, expect, it, vi } from 'vitest'
 
 import { CodeExecutionError, InvalidCodeError, VMSignal } from './errors.js'
-import { runAsyncFunction, USE_ISOLATED_VM } from './vm.js'
+import { runAsyncFunction, CAN_USE_ISOLATED_VM } from './vm.js'
 import { Trace, Traces } from './types.js'
 
 describe('llmz/vm', () => {
@@ -989,7 +989,7 @@ return {
       expect(result.return_value).toBe(105)
     })
 
-    it.skipIf(!USE_ISOLATED_VM)('aborting execution', async () => {
+    it.skipIf(!CAN_USE_ISOLATED_VM)('aborting execution', async () => {
       const code = `
       await longFn()
       notCalled()
