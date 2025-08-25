@@ -4,7 +4,7 @@ import { sendReminderInputSchema, sendReminderOutputSchema } from 'definitions/a
 export default new IntegrationDefinition({
   name: 'docusign',
   title: 'Docusign',
-  version: '0.0.1',
+  version: '2.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   description:
