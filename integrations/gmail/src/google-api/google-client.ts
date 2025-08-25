@@ -19,9 +19,9 @@ export class GoogleClient {
     ctx: bp.Context
     refreshToken?: string
   }) {
-    const token = refreshToken ?? (await this._getRefreshTokenFromStates({ client, ctx }))
+    const token = refreshToken ?? (await GoogleClient._getRefreshTokenFromStates({ client, ctx }))
 
-    const oauth2Client = this._getOAuthClient({ ctx })
+    const oauth2Client = GoogleClient._getOAuthClient({ ctx })
     oauth2Client.setCredentials({ refresh_token: token })
 
     const gmailClient = google.gmail({ version: 'v1', auth: oauth2Client })
@@ -75,6 +75,17 @@ export class GoogleClient {
     const message = await this._gmail.users.messages.get({ id: messageId, userId: 'me' })
 
     return message.data
+  }
+
+  public async listMessages(query?: string, maxResults?: number, pageToken?: string) {
+    const messages = await this._gmail.users.messages.list({
+      userId: 'me',
+      q: query,
+      maxResults,
+      pageToken,
+    })
+
+    return messages.data
   }
 
   public async sendRawEmail(raw: string, threadId?: string) {
