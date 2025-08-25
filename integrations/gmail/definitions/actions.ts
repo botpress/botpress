@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import { checkInbox } from 'src/actions/check-inbox'
 
 export const actions = {
   getMyEmail: {
