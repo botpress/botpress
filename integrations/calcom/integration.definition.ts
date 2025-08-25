@@ -1,10 +1,20 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { integrationName } from './package.json'
 import { eventScheduledSchema } from './definitions/events'
+import {
+  bookEventInputSchema,
+  bookEventOutputSchema,
+  generateLinkInputSchema,
+  generateLinkOutputSchema,
+  getAvailableTimeSlotsInputSchema,
+  getAvailableTimeSlotsOutputSchema,
+  getEventTypesInputSchema,
+  getEventTypesOutputSchema,
+} from './definitions/actions'
 
 export default new IntegrationDefinition({
   name: integrationName,
-  version: '0.2.2',
+  version: '0.3.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -32,78 +42,27 @@ export default new IntegrationDefinition({
     getEventTypes: {
       title: 'Get Event Types',
       description: 'Fetches all event types from Cal.com',
-      input: {
-        schema: z.object({
-          username: z.string().required().describe('Your Cal.com username'),
-        }),
-      },
-      output: {
-        schema: z.object({
-          eventTypes: z.array(
-            z.object({
-              id: z.number(),
-              lengthInMinutes: z.number(),
-              title: z.string(),
-              slug: z.string(),
-              description: z.string(),
-              lengthInMinutesOptions: z.array(z.number()),
-            })
-          ),
-        }),
-      },
+      input: { schema: getEventTypesInputSchema },
+      output: { schema: getEventTypesOutputSchema },
     },
     getAvailableTimeSlots: {
       title: 'Get Available Time Slots',
       description:
         'Fetches available time slots for a specific event type within a date range ( default to next 7 days if not provided )',
-      input: {
-        schema: z.object({
-          eventTypeId: z.number().min(1, 'Event Type ID is required'),
-          startDate: z.string().optional().describe('Start date in YYYY-MM-DD format'),
-          endDate: z.string().optional().describe('End date in YYYY-MM-DD format'),
-        }),
-      },
-      output: {
-        schema: z.object({
-          slots: z.record(z.string(), z.array(z.record(z.string(), z.string()))),
-        }),
-      },
+      input: { schema: getAvailableTimeSlotsInputSchema },
+      output: { schema: getAvailableTimeSlotsOutputSchema },
     },
     generateLink: {
       title: 'Generate a link',
       description: 'Generates a link to a calendar',
-      input: {
-        schema: z.object({
-          conversationId: z.string(),
-          email: z.string().email('Invalid email address'),
-        }),
-      },
-      output: {
-        schema: z.object({
-          url: z.string(),
-        }),
-      },
+      input: { schema: generateLinkInputSchema },
+      output: { schema: generateLinkOutputSchema },
     },
     bookEvent: {
       title: 'Book an Event',
       description: 'Books an event for a user',
-      input: {
-        schema: z.object({
-          eventTypeId: z.number().min(1, 'Event Type ID is required'),
-          start: z.string().min(1, 'Start time is required').describe('Start time in ISO 8601 format'),
-          email: z.string().email('Invalid email address'),
-          name: z.string().min(1, 'Name is required'),
-          timeZone: z
-            .string()
-            .min(1, 'Time zone is required')
-            .describe('Time zone in IANA format, e.g., America/New_York'),
-        }),
-      },
-      output: {
-        schema: z.object({
-          success: z.boolean(),
-        }),
-      },
+      input: { schema: bookEventInputSchema },
+      output: { schema: bookEventOutputSchema },
     },
   },
 })

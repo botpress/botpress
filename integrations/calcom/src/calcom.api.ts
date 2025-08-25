@@ -3,6 +3,17 @@ import axios from 'axios'
 
 const TEMP_EVENT_TYPE_ID = 3096892 // Replace with your actual event type ID
 
+export type CalcomEventType = {
+  id: number
+  lengthInMinutes: number
+  title: string
+  slug: string
+  description: string
+  locations: { type: string; address: string; public: boolean }[]
+  hidden: boolean
+  lengthInMinutesOptions?: number[]
+}
+
 export class CalcomApi {
   private baseUrl = 'https://api.cal.com/v2'
 
