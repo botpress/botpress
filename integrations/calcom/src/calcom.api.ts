@@ -45,7 +45,7 @@ export class CalcomApi {
     return `${resp.data?.data?.bookingUrl}/${slug}?email=${email}`
   }
 
-  public async getEventType(eventTypeId: number) : Promise<CalcomEventType | null> {
+  public async getEventType(eventTypeId: number): Promise<CalcomEventType | null> {
     const resp = await this._axios.get(`/event-types/${eventTypeId}`)
     if (resp?.data) {
       const parsedResult = calcomEventTypeShema.safeParse(resp.data.data?.eventType)
@@ -54,7 +54,7 @@ export class CalcomApi {
         throw new Error('Failed to parse event type. Please check the logs for more details.')
       }
 
-        return parsedResult.data
+      return parsedResult.data
     }
 
     return null
