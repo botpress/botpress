@@ -1,16 +1,8 @@
-import { IntegrationLogger } from '@botpress/sdk'
+import { z, IntegrationLogger } from '@botpress/sdk'
 import axios, { type AxiosInstance } from 'axios'
+import { calcomEventTypeShema } from 'definitions/calcom'
 
-export type CalcomEventType = {
-  id: number
-  lengthInMinutes: number
-  title: string
-  slug: string
-  description: string
-  locations: { type: string; address: string; public: boolean }[]
-  hidden: boolean
-  lengthInMinutesOptions?: number[]
-}
+export type CalcomEventType = z.infer<typeof calcomEventTypeShema>
 
 const CALCOM_API_BASE_URL = 'https://api.cal.com/v2'
 
@@ -53,10 +45,16 @@ export class CalcomApi {
     return `${resp.data?.data?.bookingUrl}/${slug}?email=${email}`
   }
 
-  public async getEventType(eventTypeId: number): Promise<CalcomEventType | null> {
+  public async getEventType(eventTypeId: number) : Promise<CalcomEventType | null> {
     const resp = await this._axios.get(`/event-types/${eventTypeId}`)
     if (resp?.data) {
-      return resp.data.data?.eventType
+      const parsedResult = calcomEventTypeShema.safeParse(resp.data.data?.eventType)
+      if (!parsedResult.success) {
+        this._logger.error('calcom::getEventType parsing error', parsedResult.error)
+        throw new Error('Failed to parse event type. Please check the logs for more details.')
+      }
+
+        return parsedResult.data
     }
 
     return null
@@ -77,7 +75,13 @@ export class CalcomApi {
         throw new Error('Failed to fetch event types. Please check the logs for more details.')
       })
 
-    return resp?.data?.data.filter((et: CalcomEventType) => !et.hidden) || []
+    const parseResult = z.array(calcomEventTypeShema).safeParse(resp?.data?.data || [])
+    if (!parseResult.success) {
+      this._logger.error('calcom::getAllEventTypes parsing error', parseResult.error)
+      throw new Error('Failed to parse event types. Please check the logs for more details.')
+    }
+
+    return parseResult.data
   }
 
   public async getAvailableTimeSlots(eventTypeId: number, startDate: Date, endDate: Date) {
