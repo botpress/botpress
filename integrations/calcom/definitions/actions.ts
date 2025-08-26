@@ -44,6 +44,11 @@ export const generateLinkInputSchema = z.object({
     .email('Invalid email address')
     .describe('The email of the user to send the link to')
     .title('User Email'),
+  eventTypeId: z
+    .number()
+    .min(1, 'Event Type ID is required')
+    .describe('The ID of the event type')
+    .title('Event Type ID'),
 })
 
 export const generateLinkOutputSchema = z.object({

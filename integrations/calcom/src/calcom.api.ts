@@ -1,8 +1,6 @@
 import { IntegrationLogger } from '@botpress/sdk'
 import axios from 'axios'
 
-const TEMP_EVENT_TYPE_ID = 3096892 // Replace with your actual event type ID
-
 export type CalcomEventType = {
   id: number
   lengthInMinutes: number
@@ -28,8 +26,8 @@ export class CalcomApi {
     axios.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`
   }
 
-  async generateLink(email: string): Promise<string> {
-    const slug = (await this.getEventType())?.slug
+  async generateLink(email: string, eventTypeId: number): Promise<string> {
+    const slug = (await this.getEventType(eventTypeId))?.slug
 
     // date time string in 24hours
     const now = new Date()
@@ -37,7 +35,7 @@ export class CalcomApi {
     const expirationTime = now.toISOString()
 
     const resp = await axios
-      .post(`${this.baseUrl}/event-types/${TEMP_EVENT_TYPE_ID}/private-links`, {
+      .post(`${this.baseUrl}/event-types/${eventTypeId}/private-links`, {
         expiresAt: expirationTime,
       })
       .catch((err) => {
@@ -48,8 +46,8 @@ export class CalcomApi {
     return `${resp.data?.data?.bookingUrl}/${slug}?email=${email}`
   }
 
-  async getEventType() : Promise<CalcomEventType | null> {
-    const resp = await axios.get(`${this.baseUrl}/event-types/${TEMP_EVENT_TYPE_ID}`)
+  async getEventType(eventTypeId: number): Promise<CalcomEventType | null> {
+    const resp = await axios.get(`${this.baseUrl}/event-types/${eventTypeId}`)
     if (resp?.data) {
       return resp.data.data?.eventType
     }
