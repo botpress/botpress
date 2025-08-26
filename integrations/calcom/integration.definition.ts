@@ -17,6 +17,7 @@ export default new IntegrationDefinition({
   version: '0.3.0',
   readme: 'hub.md',
   icon: 'icon.svg',
+  description: 'Schedule meetings and manage events using the Cal.com scheduling platform.',
   configuration: {
     schema: z.object({
       calcomApiKey: z
