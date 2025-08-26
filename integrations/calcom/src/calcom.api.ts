@@ -15,11 +15,11 @@ export type CalcomEventType = {
 const CALCOM_API_BASE_URL = 'https://api.cal.com/v2'
 
 export class CalcomApi {
-  private axios
+  private _axios
 
-  constructor(
+  private constructor(
     readonly apiKey: string,
-    private logger: IntegrationLogger
+    private _logger: IntegrationLogger
   ) {
     if (!apiKey || !apiKey.startsWith('cal_')) {
       throw new Error('Invalid API Key format. It should start with "cal_".')
@@ -27,7 +27,7 @@ export class CalcomApi {
 
     axios.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`
 
-    this.axios = axios.create({
+    this._axios = axios.create({
       baseURL: CALCOM_API_BASE_URL,
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -35,7 +35,7 @@ export class CalcomApi {
     })
   }
 
-  async generateLink(email: string, eventTypeId: number): Promise<string> {
+  public async generateLink(email: string, eventTypeId: number): Promise<string> {
     const slug = (await this.getEventType(eventTypeId))?.slug
 
     // date time string in 24hours
@@ -43,20 +43,20 @@ export class CalcomApi {
     now.setHours(now.getHours() + 24)
     const expirationTime = now.toISOString()
 
-    const resp = await this.axios
+    const resp = await this._axios
       .post(`/event-types/${eventTypeId}/private-links`, {
         expiresAt: expirationTime,
       })
       .catch((err) => {
-        this.logger.error('calcom::generateLink error', err.response?.data || err.message)
+        this._logger.error('calcom::generateLink error', err.response?.data || err.message)
         throw new Error('Failed to generate link. Please check the logs for more details.')
       })
 
     return `${resp.data?.data?.bookingUrl}/${slug}?email=${email}`
   }
 
-  async getEventType(eventTypeId: number): Promise<CalcomEventType | null> {
-    const resp = await this.axios.get(`/event-types/${eventTypeId}`)
+  public async getEventType(eventTypeId: number): Promise<CalcomEventType | null> {
+    const resp = await this._axios.get(`/event-types/${eventTypeId}`)
     if (resp?.data) {
       return resp.data.data?.eventType
     }
@@ -64,9 +64,9 @@ export class CalcomApi {
     return null
   }
 
-  async getAllEventTypes(username?: string): Promise<CalcomEventType[]> {
-    const resp = await this.axios
-      .get(`/event-types`, {
+  public async getAllEventTypes(username?: string): Promise<CalcomEventType[]> {
+    const resp = await this._axios
+      .get('/event-types', {
         params: {
           username,
         },
@@ -75,16 +75,16 @@ export class CalcomApi {
         },
       })
       .catch((err) => {
-        this.logger.error('calcom::getAllEventTypes error', err.response?.data || err.message)
+        this._logger.error('calcom::getAllEventTypes error', err.response?.data || err.message)
         throw new Error('Failed to fetch event types. Please check the logs for more details.')
       })
 
     return resp?.data?.data || []
   }
 
-  async getAvailableTimeSlots(eventTypeId: number, startDate: Date, endDate: Date) {
-    const resp = await this.axios
-      .get(`/slots`, {
+  public async getAvailableTimeSlots(eventTypeId: number, startDate: Date, endDate: Date) {
+    const resp = await this._axios
+      .get('/slots', {
         params: {
           eventTypeId,
           start: startDate.toISOString(),
@@ -95,17 +95,17 @@ export class CalcomApi {
         },
       })
       .catch((err) => {
-        this.logger.error('calcom::getAvailableTimeSlots error', err.response?.data || err.message)
+        this._logger.error('calcom::getAvailableTimeSlots error', err.response?.data || err.message)
         throw new Error('Failed to fetch available time slots. Please check the logs for more details.')
       })
 
     return resp?.data?.data || []
   }
 
-  async bookEvent(eventTypeId: number, startTime: string, email: string, name: string, timeZone: string) {
-    const resp = await this.axios
+  public async bookEvent(eventTypeId: number, startTime: string, email: string, name: string, timeZone: string) {
+    const resp = await this._axios
       .post(
-        `/bookings`,
+        '/bookings',
         {
           eventTypeId,
           start: startTime,
@@ -122,7 +122,7 @@ export class CalcomApi {
         }
       )
       .catch((err) => {
-        this.logger.error('calcom::bookEvent error', JSON.stringify(err))
+        this._logger.error('calcom::bookEvent error', JSON.stringify(err))
         throw new Error('Failed to book event. Please check the logs for more details.')
       })
 
