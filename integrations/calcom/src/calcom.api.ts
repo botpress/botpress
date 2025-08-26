@@ -1,5 +1,5 @@
 import { IntegrationLogger } from '@botpress/sdk'
-import axios from 'axios'
+import axios, { type AxiosInstance } from 'axios'
 
 export type CalcomEventType = {
   id: number
@@ -15,10 +15,10 @@ export type CalcomEventType = {
 const CALCOM_API_BASE_URL = 'https://api.cal.com/v2'
 
 export class CalcomApi {
-  private _axios
+  private _axios: AxiosInstance
 
   private constructor(
-    readonly apiKey: string,
+    apiKey: string,
     private _logger: IntegrationLogger
   ) {
     if (!apiKey || !apiKey.startsWith('cal_')) {
