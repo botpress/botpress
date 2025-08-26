@@ -89,5 +89,15 @@ export default new IntegrationDefinition({
           .nullable(),
       }),
     },
+    webhooks: {
+      type: 'integration',
+      schema: z.object({
+        signingKey: z
+          .string()
+          .secret()
+          .describe('The signing key used for webhook event signatures')
+          .title('Webhook Signing Key'),
+      }),
+    },
   },
 })

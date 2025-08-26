@@ -1,6 +1,7 @@
 import { CalendlyClient } from './calendly-api'
 import type { GetCurrentUserResp, WebhookDetails } from './calendly-api/schemas'
-import type * as bp from '.botpress'
+import { getWebhookSigningKey } from './webhooks/signing-key'
+import * as bp from '.botpress'
 
 const performUnregistration = async (
   calendlyClient: CalendlyClient,
@@ -34,6 +35,8 @@ export const register: bp.Integration['register'] = async (props) => {
   const userResp = await calendlyClient.getCurrentUser()
 
   try {
+    // Simply checking if webhook subscriptions exists then skipping following logic won't work here.
+    // This is because such an approach may lead to a de-synchronization of the webhook signing key.
     await performUnregistration(calendlyClient, userResp, props.webhookUrl)
   } catch {
     // Do nothing since if it's the first time there's nothing to unregister
@@ -47,5 +50,6 @@ export const register: bp.Integration['register'] = async (props) => {
     organization: organizationUri,
     user: userUri,
     scope: 'user',
+    signingKey: await getWebhookSigningKey(props),
   })
 }
