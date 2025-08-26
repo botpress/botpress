@@ -14,7 +14,7 @@ import { eventScheduledSchema } from './definitions/events'
 export default new IntegrationDefinition({
   name: 'calcom',
   title: 'Cal.com',
-  version: '0.3.0',
+  version: '0.4.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Schedule meetings and manage events using the Cal.com scheduling platform.',

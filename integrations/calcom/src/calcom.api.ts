@@ -12,8 +12,10 @@ export type CalcomEventType = {
   lengthInMinutesOptions?: number[]
 }
 
+const CALCOM_API_BASE_URL = 'https://api.cal.com/v2'
+
 export class CalcomApi {
-  private baseUrl = 'https://api.cal.com/v2'
+  private axios
 
   constructor(
     readonly apiKey: string,
@@ -24,6 +26,13 @@ export class CalcomApi {
     }
 
     axios.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`
+
+    this.axios = axios.create({
+      baseURL: CALCOM_API_BASE_URL,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    })
   }
 
   async generateLink(email: string, eventTypeId: number): Promise<string> {
@@ -34,8 +43,8 @@ export class CalcomApi {
     now.setHours(now.getHours() + 24)
     const expirationTime = now.toISOString()
 
-    const resp = await axios
-      .post(`${this.baseUrl}/event-types/${eventTypeId}/private-links`, {
+    const resp = await this.axios
+      .post(`/event-types/${eventTypeId}/private-links`, {
         expiresAt: expirationTime,
       })
       .catch((err) => {
@@ -47,7 +56,7 @@ export class CalcomApi {
   }
 
   async getEventType(eventTypeId: number): Promise<CalcomEventType | null> {
-    const resp = await axios.get(`${this.baseUrl}/event-types/${eventTypeId}`)
+    const resp = await this.axios.get(`/event-types/${eventTypeId}`)
     if (resp?.data) {
       return resp.data.data?.eventType
     }
@@ -56,8 +65,8 @@ export class CalcomApi {
   }
 
   async getAllEventTypes(username?: string): Promise<CalcomEventType[]> {
-    const resp = await axios
-      .get(`${this.baseUrl}/event-types`, {
+    const resp = await this.axios
+      .get(`/event-types`, {
         params: {
           username,
         },
@@ -74,8 +83,8 @@ export class CalcomApi {
   }
 
   async getAvailableTimeSlots(eventTypeId: number, startDate: Date, endDate: Date) {
-    const resp = await axios
-      .get(`${this.baseUrl}/slots`, {
+    const resp = await this.axios
+      .get(`/slots`, {
         params: {
           eventTypeId,
           start: startDate.toISOString(),
@@ -94,9 +103,9 @@ export class CalcomApi {
   }
 
   async bookEvent(eventTypeId: number, startTime: string, email: string, name: string, timeZone: string) {
-    const resp = await axios
+    const resp = await this.axios
       .post(
-        `${this.baseUrl}/bookings`,
+        `/bookings`,
         {
           eventTypeId,
           start: startTime,
