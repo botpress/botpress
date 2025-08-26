@@ -468,14 +468,14 @@ importers:
   integrations/calcom:
     dependencies:
       '@botpress/client':
-        specifier: 1.22.0
-        version: 1.22.0
+        specifier: workspace:*
+        version: link:../../packages/client
       '@botpress/sdk':
-        specifier: 4.15.2
-        version: 4.15.2(@bpinternal/zui@1.0.1)
+        specifier: workspace:*
+        version: link:../../packages/sdk
       axios:
-        specifier: ^1.6.8
-        version: 1.8.4
+        specifier: ^1.11.0
+        version: 1.11.0
     devDependencies:
       '@types/node':
         specifier: ^22.16.4
@@ -4038,6 +4038,7 @@ packages:
   /@babel/cli@7.22.5(@babel/core@7.28.0):
     resolution: {integrity: sha512-N5d7MjzwsQ2wppwjhrsicVDhJSqF9labEP/swYiHhio4Ca2XjEehpgPmerjnLQl7BPE59BLud0PTWGYwqFl/cQ==}
     engines: {node: '>=6.9.0'}
+    hasBin: true
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
@@ -4661,47 +4662,6 @@ packages:
       - openapi-types
       - supports-color
     dev: true
-
-  /@botpress/client@1.20.0:
-    resolution: {integrity: sha512-21tDe0mKbrYW1AgPM4nfAEfpML5tZiI1FGHpOjwcFEDZiNgU+YAPdZsAvwXv57bkNxzhI9oISq9qgCZ6YBFR4A==}
-    engines: {node: '>=18.0.0'}
-    dependencies:
-      axios: 1.11.0
-      axios-retry: 4.5.0(axios@1.11.0)
-      browser-or-node: 2.1.1
-      qs: 6.13.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /@botpress/client@1.22.0:
-    resolution: {integrity: sha512-bZX2H3dcaWGOVFz/QDEcJYmJl+PMoYhCKRmv/tPmuk9Wn5kiVQ8CEwXi0LV9fqwP3eQV0+Ux0Oi5SRx2Y+dYhQ==}
-    engines: {node: '>=18.0.0'}
-    dependencies:
-      axios: 1.11.0
-      axios-retry: 4.5.0(axios@1.11.0)
-      browser-or-node: 2.1.1
-      qs: 6.13.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /@botpress/sdk@4.15.2(@bpinternal/zui@1.0.1):
-    resolution: {integrity: sha512-5L0agRjS3KdDowH1WEr9xAdWRLHaJgMqATto3BKgZmqEumVHFtIrCxqigJXWJGX1/C7v+IxURTjhhzt4pwmkwg==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      '@bpinternal/zui': ^1.0.1
-      esbuild: ^0.16.12
-    peerDependenciesMeta:
-      esbuild:
-        optional: true
-    dependencies:
-      '@botpress/client': 1.20.0
-      '@bpinternal/zui': 1.0.1
-      browser-or-node: 2.1.1
-    transitivePeerDependencies:
-      - debug
-    dev: false
 
   /@bpinternal/const@0.1.0:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -9589,15 +9549,6 @@ packages:
       is-retry-allowed: 2.2.0
     dev: false
 
-  /axios-retry@4.5.0(axios@1.11.0):
-    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
-    peerDependencies:
-      axios: 0.x || 1.x
-    dependencies:
-      axios: 1.11.0
-      is-retry-allowed: 2.2.0
-    dev: false
-
   /axios-retry@4.5.0(axios@1.4.0):
     resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
     peerDependencies:
@@ -11532,6 +11483,7 @@ packages:
 
   /eslint-config-prettier@8.8.0(eslint@9.17.0):
     resolution: {integrity: sha512-wLbQiFre3tdGgpDv67NQKnJuTlcUVYHas3k+DZCc2U2BadthoEY4B7hLPvAxaqdyOGCzuLfii2fqGph10va7oA==}
+    hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
     dependencies:
@@ -11684,6 +11636,7 @@ packages:
   /eslint@9.17.0:
     resolution: {integrity: sha512-evtlNcpJg+cZLcnVKwsai8fExnqjGPicK7gnUtlNuzu+Fv9bI0aLpND5T44VLQtoMEnI57LoXO9XAkIXwohKrA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    hasBin: true
     peerDependencies:
       jiti: '*'
     peerDependenciesMeta:
@@ -13595,6 +13548,7 @@ packages:
   /jest-cli@29.5.0(@types/node@22.16.4)(ts-node@10.9.2):
     resolution: {integrity: sha512-L1KcP1l4HtfwdxXNFCL5bmUbLQiKrakMUriBEcc1Vfz6gx31ORKdreuWvmQVBit+1ss9NNR3yxjwfwzZNdQXJw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+    hasBin: true
     peerDependencies:
       node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
     peerDependenciesMeta:
@@ -13948,6 +13902,7 @@ packages:
   /jest@29.5.0(@types/node@22.16.4)(ts-node@10.9.2):
     resolution: {integrity: sha512-juMg3he2uru1QoXX078zTa7pO85QyB9xajZc6bU+d9yEGwrKX6+vGmJQ3UdVZsvTEUARIdObzH68QItim6OSSQ==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+    hasBin: true
     peerDependencies:
       node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
     peerDependenciesMeta:
@@ -15524,6 +15479,7 @@ packages:
 
   /openai@5.12.1(zod@3.22.4):
     resolution: {integrity: sha512-26s536j4Fi7P3iUma1S9H33WRrw0Qu8pJ2nYJHffrlKHPU0JK4d0r3NcMgqEcAeTdNLGYNyoFsqN4g4YE9vutg==}
+    hasBin: true
     peerDependencies:
       ws: ^8.18.0
       zod: ^3.23.8
@@ -17567,6 +17523,7 @@ packages:
   /ts-jest@29.1.0(@babel/core@7.28.0)(jest@29.5.0)(typescript@5.8.3):
     resolution: {integrity: sha512-ZhNr7Z4PcYa+JjMl62ir+zPiNJfXJN6E8hSLnaUKhOgqcn8vb3e537cpkd0FuAfRK3sR1LSqM1MOhliXNgOFPA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+    hasBin: true
     peerDependencies:
       '@babel/core': '>=7.0.0-beta.0 <8'
       '@jest/types': ^29.0.0
@@ -17599,6 +17556,7 @@ packages:
 
   /ts-node@10.9.2(@types/node@22.16.4)(typescript@5.6.3):
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
+    hasBin: true
     peerDependencies:
       '@swc/core': '>=1.2.50'
       '@swc/wasm': '>=1.2.50'
@@ -17629,6 +17587,7 @@ packages:
 
   /ts-node@10.9.2(@types/node@22.16.4)(typescript@5.8.3):
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
+    hasBin: true
     peerDependencies:
       '@swc/core': '>=1.2.50'
       '@swc/wasm': '>=1.2.50'
@@ -17693,6 +17652,7 @@ packages:
   /tsup@8.0.2(@microsoft/api-extractor@7.49.0)(ts-node@10.9.2)(typescript@5.8.3):
     resolution: {integrity: sha512-NY8xtQXdH7hDUAZwcQdY/Vzlw9johQsaqf7iwZ6g1DOUlFYQ5/AtVAjTvihhEyeRlGo4dLRVHtrRaL35M1daqQ==}
     engines: {node: '>=18'}
+    hasBin: true
     peerDependencies:
       '@microsoft/api-extractor': ^7.36.0
       '@swc/core': ^1
@@ -17732,6 +17692,7 @@ packages:
   /tsup@8.0.2(ts-node@10.9.2)(typescript@5.6.3):
     resolution: {integrity: sha512-NY8xtQXdH7hDUAZwcQdY/Vzlw9johQsaqf7iwZ6g1DOUlFYQ5/AtVAjTvihhEyeRlGo4dLRVHtrRaL35M1daqQ==}
     engines: {node: '>=18'}
+    hasBin: true
     peerDependencies:
       '@microsoft/api-extractor': ^7.36.0
       '@swc/core': ^1
@@ -18157,6 +18118,7 @@ packages:
 
   /update-browserslist-db@1.1.2(browserslist@4.24.4):
     resolution: {integrity: sha512-PPypAm5qvlD7XMZC3BujecnaOxwhrtoFR+Dqkk5Aa/6DssiH0ibKoketaj9w8LP7Bont1rYeoV5plxD7RTEPRg==}
+    hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'
     dependencies:
@@ -18339,6 +18301,7 @@ packages:
   /vite@5.4.10(@types/node@22.16.4):
     resolution: {integrity: sha512-1hvaPshuPUtxeQ0hsVH3Mud0ZanOLwVTneA1EgbAM5LhaZEqyPWGRQ7BtaMvUrTDeEaC8pxtj6a6jku3x4z6SQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
     peerDependencies:
       '@types/node': ^18.0.0 || >=20.0.0
       less: '*'
@@ -18376,6 +18339,7 @@ packages:
   /vitest@2.1.4(@types/node@22.16.4):
     resolution: {integrity: sha512-eDjxbVAJw1UJJCHr5xr/xM86Zx+YxIEXGAR+bmnEID7z9qWfoxpHw0zdobz+TQAFOLT+nEXz3+gx6nUJ7RgmlQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
       '@types/node': ^18.0.0 || >=20.0.0
@@ -18433,6 +18397,7 @@ packages:
   /vitest@2.1.8(@types/node@22.16.4):
     resolution: {integrity: sha512-1vBKTZskHw/aosXqQUlVWWlGUxSJR8YtiyZDJAFeW2kPAeX6S3Sool0mjspO+kXLuxVWlEDDowBAeqeAQefqLQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
       '@types/node': ^18.0.0 || >=20.0.0
