@@ -1,5 +1,4 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { integrationName } from './package.json'
 import { eventScheduledSchema } from './definitions/events'
 import {
   bookEventInputSchema,
@@ -13,7 +12,8 @@ import {
 } from './definitions/actions'
 
 export default new IntegrationDefinition({
-  name: integrationName,
+  name: 'calcom',
+  title: 'Cal.com',
   version: '0.3.0',
   readme: 'hub.md',
   icon: 'icon.svg',
