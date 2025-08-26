@@ -24,13 +24,30 @@ export const getEventTypesOutputSchema = z.object({
 })
 
 export const getAvailableTimeSlotsInputSchema = z.object({
-  eventTypeId: z.number().min(1, 'Event Type ID is required'),
-  startDate: z.string().optional().describe('Start date in YYYY-MM-DD format'),
-  endDate: z.string().optional().describe('End date in YYYY-MM-DD format'),
+  eventTypeId: z
+    .number()
+    .min(1, 'Event Type ID is required')
+    .describe('The ID of the event type')
+    .title('Event Type ID'),
+  startDate: z
+    .string()
+    .optional()
+    .describe('Start date in YYYY-MM-DD format')
+    .describe('Start date in YYYY-MM-DD format')
+    .title('Start Date'),
+  endDate: z
+    .string()
+    .optional()
+    .describe('End date in YYYY-MM-DD format')
+    .describe('End date in YYYY-MM-DD format')
+    .title('End Date'),
 })
 
 export const getAvailableTimeSlotsOutputSchema = z.object({
-  slots: z.record(z.string(), z.array(z.record(z.string(), z.string()))),
+  slots: z
+    .record(z.string(), z.array(z.record(z.string(), z.string())))
+    .describe('Available time slots grouped by date')
+    .title('Available Time Slots'),
 })
 
 export const generateLinkInputSchema = z.object({
@@ -56,11 +73,28 @@ export const generateLinkOutputSchema = z.object({
 })
 
 export const bookEventInputSchema = z.object({
-  eventTypeId: z.number().min(1, 'Event Type ID is required'),
-  start: z.string().min(1, 'Start time is required').describe('Start time in ISO 8601 format'),
-  email: z.string().email('Invalid email address'),
-  name: z.string().min(1, 'Name is required'),
-  timeZone: z.string().min(1, 'Time zone is required').describe('Time zone in IANA format, e.g., America/New_York'),
+  eventTypeId: z
+    .number()
+    .min(1, 'Event Type ID is required')
+    .describe('The ID of the event type')
+    .title('Event Type ID'),
+  start: z
+    .string()
+    .min(1, 'Start time is required')
+    .describe('Start time in ISO 8601 format')
+    .describe('Start time in ISO 8601 format')
+    .title('Start Time'),
+  email: z
+    .string()
+    .email('Invalid email address')
+    .describe('The email of the user booking the event')
+    .title('User Email'),
+  name: z.string().min(1, 'Name is required').describe('The name of the user booking the event').title('User Name'),
+  timeZone: z
+    .string()
+    .min(1, 'Time zone is required')
+    .describe('Time zone in IANA format, e.g., America/New_York')
+    .title('Time Zone'),
   conversationId: z
     .string()
     .optional()

@@ -1,9 +1,8 @@
-import * as bp from '.botpress'
-
-import { generateLink } from './actions/generateLink'
-import { getEventTypes } from './actions/getEventTypes'
-import { getAvailableTimeSlots } from './actions/getAvailableTimeSlots'
 import { bookEvent } from './actions/bookEvent'
+import { generateLink } from './actions/generateLink'
+import { getAvailableTimeSlots } from './actions/getAvailableTimeSlots'
+import { getEventTypes } from './actions/getEventTypes'
+import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async () => {},

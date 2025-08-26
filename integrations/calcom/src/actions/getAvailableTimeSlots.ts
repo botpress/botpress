@@ -1,7 +1,7 @@
-import { TIntegration } from '.botpress'
-import { Input } from '.botpress/implementation/typings/actions/getAvailableTimeSlots/input'
 import { ActionHandlerProps } from '@botpress/sdk/dist/integration'
 import { CalcomApi } from 'src/calcom.api'
+import { TIntegration } from '.botpress'
+import { Input } from '.botpress/implementation/typings/actions/getAvailableTimeSlots/input'
 
 export async function getAvailableTimeSlots(props: ActionHandlerProps<TIntegration, 'getAvailableTimeSlots', Input>) {
   const { ctx, logger, input } = props

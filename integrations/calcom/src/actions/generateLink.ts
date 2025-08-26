@@ -1,7 +1,7 @@
-import { TIntegration } from '.botpress'
-import { Input } from '.botpress/implementation/typings/actions/generateLink/input'
 import { ActionHandlerProps } from '@botpress/sdk/dist/integration'
 import { CalcomApi } from 'src/calcom.api'
+import { TIntegration } from '.botpress'
+import { Input } from '.botpress/implementation/typings/actions/generateLink/input'
 
 export async function generateLink(
   props: ActionHandlerProps<TIntegration, 'generateLink', Input>

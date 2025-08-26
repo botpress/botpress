@@ -1,5 +1,4 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { eventScheduledSchema } from './definitions/events'
 import {
   bookEventInputSchema,
   bookEventOutputSchema,
@@ -10,6 +9,7 @@ import {
   getEventTypesInputSchema,
   getEventTypesOutputSchema,
 } from './definitions/actions'
+import { eventScheduledSchema } from './definitions/events'
 
 export default new IntegrationDefinition({
   name: 'calcom',
@@ -24,7 +24,8 @@ export default new IntegrationDefinition({
         .string()
         .min(1, 'API Key is required')
         .startsWith('cal_', 'Invalid API Key format')
-        .describe('Your Cal.com API Key. You can find it in your Cal.com account settings.'),
+        .describe('Your Cal.com API Key. You can find it in your Cal.com account settings.')
+        .title('Cal.com API Key'),
     }),
   },
   user: {

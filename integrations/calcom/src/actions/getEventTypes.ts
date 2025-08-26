@@ -1,7 +1,7 @@
-import { TIntegration } from '.botpress'
-import { Input } from '.botpress/implementation/typings/actions/getEventTypes/input'
 import { ActionHandlerProps } from '@botpress/sdk/dist/integration'
 import { CalcomApi } from 'src/calcom.api'
+import { TIntegration } from '.botpress'
+import { Input } from '.botpress/implementation/typings/actions/getEventTypes/input'
 
 export async function getEventTypes(props: ActionHandlerProps<TIntegration, 'getEventTypes', Input>) {
   const { ctx, logger, input } = props
