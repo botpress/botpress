@@ -24,11 +24,7 @@ export const getEventTypesOutputSchema = z.object({
 })
 
 export const getAvailableTimeSlotsInputSchema = z.object({
-  eventTypeId: z
-    .number()
-    .min(1, 'Event Type ID is required')
-    .describe('The ID of the event type')
-    .title('Event Type ID'),
+  eventTypeId: z.number().describe('The ID of the event type').title('Event Type ID'),
   startDate: z
     .string()
     .optional()
@@ -61,11 +57,7 @@ export const generateLinkInputSchema = z.object({
     .email('Invalid email address')
     .describe('The email of the user to send the link to')
     .title('User Email'),
-  eventTypeId: z
-    .number()
-    .min(1, 'Event Type ID is required')
-    .describe('The ID of the event type')
-    .title('Event Type ID'),
+  eventTypeId: z.number().describe('The ID of the event type').title('Event Type ID'),
 })
 
 export const generateLinkOutputSchema = z.object({
@@ -73,14 +65,9 @@ export const generateLinkOutputSchema = z.object({
 })
 
 export const bookEventInputSchema = z.object({
-  eventTypeId: z
-    .number()
-    .min(1, 'Event Type ID is required')
-    .describe('The ID of the event type')
-    .title('Event Type ID'),
+  eventTypeId: z.number().describe('The ID of the event type').title('Event Type ID'),
   start: z
     .string()
-    .min(1, 'Start time is required')
     .describe('Start time in ISO 8601 format')
     .describe('Start time in ISO 8601 format')
     .title('Start Time'),
@@ -89,12 +76,8 @@ export const bookEventInputSchema = z.object({
     .email('Invalid email address')
     .describe('The email of the user booking the event')
     .title('User Email'),
-  name: z.string().min(1, 'Name is required').describe('The name of the user booking the event').title('User Name'),
-  timeZone: z
-    .string()
-    .min(1, 'Time zone is required')
-    .describe('Time zone in IANA format, e.g., America/New_York')
-    .title('Time Zone'),
+  name: z.string().describe('The name of the user booking the event').title('User Name'),
+  timeZone: z.string().describe('Time zone in IANA format, e.g., America/New_York').title('Time Zone'),
   conversationId: z
     .string()
     .optional()

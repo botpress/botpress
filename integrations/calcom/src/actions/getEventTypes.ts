@@ -10,15 +10,13 @@ export async function getEventTypes(props: ActionHandlerProps<TIntegration, 'get
   const eventTypes = await calcom.getAllEventTypes(input.username)
 
   return {
-    eventTypes: eventTypes
-      .filter((et: CalcomEventType) => !et.hidden)
-      .map((et: CalcomEventType) => ({
-        id: et.id,
-        lengthInMinutes: et.lengthInMinutes,
-        title: et.title,
-        slug: et.slug,
-        description: et.description,
-        lengthInMinutesOptions: et.lengthInMinutesOptions ?? [],
-      })),
+    eventTypes: eventTypes.map((et: CalcomEventType) => ({
+      id: et.id,
+      lengthInMinutes: et.lengthInMinutes,
+      title: et.title,
+      slug: et.slug,
+      description: et.description,
+      lengthInMinutesOptions: et.lengthInMinutesOptions ?? [],
+    })),
   }
 }

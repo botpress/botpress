@@ -25,8 +25,6 @@ export class CalcomApi {
       throw new Error('Invalid API Key format. It should start with "cal_".')
     }
 
-    axios.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`
-
     this._axios = axios.create({
       baseURL: CALCOM_API_BASE_URL,
       headers: {
@@ -79,7 +77,7 @@ export class CalcomApi {
         throw new Error('Failed to fetch event types. Please check the logs for more details.')
       })
 
-    return resp?.data?.data || []
+    return resp?.data?.data.filter((et: CalcomEventType) => !et.hidden) || []
   }
 
   public async getAvailableTimeSlots(eventTypeId: number, startDate: Date, endDate: Date) {

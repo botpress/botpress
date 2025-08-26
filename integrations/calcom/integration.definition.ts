@@ -9,7 +9,6 @@ import {
   getEventTypesInputSchema,
   getEventTypesOutputSchema,
 } from './definitions/actions'
-import { eventScheduledSchema } from './definitions/events'
 
 export default new IntegrationDefinition({
   name: 'calcom',
@@ -22,7 +21,6 @@ export default new IntegrationDefinition({
     schema: z.object({
       calcomApiKey: z
         .string()
-        .min(1, 'API Key is required')
         .startsWith('cal_', 'Invalid API Key format')
         .describe('Your Cal.com API Key. You can find it in your Cal.com account settings.')
         .title('Cal.com API Key'),
@@ -33,13 +31,7 @@ export default new IntegrationDefinition({
       id: { title: 'User ID', description: 'The ID of the user' },
     },
   },
-  events: {
-    eventScheduled: {
-      title: 'Event Scheduled',
-      description: 'An event that triggers when an invitee fills out and submits a scheduling form',
-      schema: eventScheduledSchema,
-    },
-  },
+  events: {},
   actions: {
     getEventTypes: {
       title: 'Get Event Types',
