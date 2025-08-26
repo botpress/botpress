@@ -1,5 +1,5 @@
 import { ActionHandlerProps } from '@botpress/sdk/dist/integration'
-import { CalcomApi } from 'src/calcom.api'
+import { CalcomApi, CalcomEventType } from 'src/calcom.api'
 import { TIntegration } from '.botpress'
 import { Input } from '.botpress/implementation/typings/actions/getEventTypes/input'
 
@@ -11,8 +11,8 @@ export async function getEventTypes(props: ActionHandlerProps<TIntegration, 'get
 
   return {
     eventTypes: eventTypes
-      .filter((et) => !et.hidden)
-      .map((et) => ({
+      .filter((et: CalcomEventType) => !et.hidden)
+      .map((et: CalcomEventType) => ({
         id: et.id,
         lengthInMinutes: et.lengthInMinutes,
         title: et.title,
