@@ -17,7 +17,7 @@ const CALCOM_API_BASE_URL = 'https://api.cal.com/v2'
 export class CalcomApi {
   private _axios: AxiosInstance
 
-  private constructor(
+  public constructor(
     apiKey: string,
     private _logger: IntegrationLogger
   ) {
