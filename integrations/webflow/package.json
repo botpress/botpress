@@ -1,0 +1,16 @@
+{
+  "name": "@bp-templates/hello-world",
+  "integrationName": "webflow/webflow",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "1.22.2",
+    "@botpress/sdk": "4.15.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.4",
+    "typescript": "^5.6.3"
+  }
+}
