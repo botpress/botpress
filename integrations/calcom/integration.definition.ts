@@ -21,7 +21,6 @@ export default new IntegrationDefinition({
     schema: z.object({
       calcomApiKey: z
         .string()
-        .startsWith('cal_', 'Invalid API Key format')
         .describe('Your Cal.com API Key. You can find it in your Cal.com account settings.')
         .title('Cal.com API Key'),
     }),
