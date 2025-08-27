@@ -22,7 +22,7 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
   }
 
   const { accessToken, defaultBotPhoneNumberId, verifyToken } = props.ctx.configuration
-  
+
   // clientSecret is optional and not required for validation
   if (accessToken && defaultBotPhoneNumberId && verifyToken) {
     // let's check the credentials
