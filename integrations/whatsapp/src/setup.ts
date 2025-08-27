@@ -21,9 +21,10 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
     return // nothing more to do if we're not using manual configuration
   }
 
-  const { accessToken, clientSecret, defaultBotPhoneNumberId, verifyToken } = props.ctx.configuration
-
-  if (accessToken && clientSecret && defaultBotPhoneNumberId && verifyToken) {
+  const { accessToken, defaultBotPhoneNumberId, verifyToken } = props.ctx.configuration
+  
+  // clientSecret is optional and not required for validation
+  if (accessToken && defaultBotPhoneNumberId && verifyToken) {
     // let's check the credentials
     const isValidConfiguration = await _checkManualConfiguration(accessToken)
     if (!isValidConfiguration) {
