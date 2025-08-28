@@ -1,5 +1,6 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { collectionsActionsDefinitions } from 'src/collections/definition'
+import { collectionsItemsActionsDefinitions } from 'src/collectionsItems/definition'
 
 export default new IntegrationDefinition({
   name: 'webflow-cms',
@@ -19,34 +20,10 @@ export default new IntegrationDefinition({
     getCollectionDetails: collectionsActionsDefinitions.getCollectionDetails,
     createCollection: collectionsActionsDefinitions.createCollection,
     deleteCollection: collectionsActionsDefinitions.deleteCollection,
-    listItems: {
-      title: 'List Items',
-      input: {
-        schema: z.object({
-          collectionId: z.string().min(1, 'Collection ID is required').describe('The ID of the Webflow collection'),
-          limit: z.number().min(1).max(100).optional().describe('Number of items to retrieve (max 100)'),
-          offset: z.number().min(0).optional().describe('Number of items to skip'),
-        }),
-      },
-      output: {
-        schema: z.object({
-          items: z.array(z.any()).describe('Array of items from the collection'),
-        }),
-      },
-    },
-    getItem: {
-      title: 'Get Item',
-      input: {
-        schema: z.object({
-          collectionId: z.string().min(1, 'Collection ID is required').describe(' The ID of the Webflow collection'),
-          itemId: z.string().min(1, 'Item ID is required').describe('The ID of the item to retrieve'),
-        }),
-      },
-      output: {
-        schema: z.object({
-          item: z.any().describe('The retrieved item from the collection'),
-        }),
-      },
-    },
+    listItems: collectionsItemsActionsDefinitions.listItems,
+    getItem: collectionsItemsActionsDefinitions.getItem,
+    createItem: collectionsItemsActionsDefinitions.createItem,
+    updateItems: collectionsItemsActionsDefinitions.updateItems,
+    deleteItems: collectionsItemsActionsDefinitions.deleteItems,
   },
 })

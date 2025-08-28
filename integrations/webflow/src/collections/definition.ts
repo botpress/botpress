@@ -11,6 +11,7 @@ export const collectionsActionsDefinitions = {
     },
     output: {
       schema: z.object({
+        // add collections schema
         collections: z.array(z.any()).describe('Array of collections'),
       }),
     },
@@ -25,6 +26,7 @@ export const collectionsActionsDefinitions = {
     },
     output: {
       schema: z.object({
+        // add collections details schema
         collectionDetails: z.any().describe('Details of the collection'),
       }),
     },
@@ -49,6 +51,7 @@ export const collectionsActionsDefinitions = {
     },
     output: {
       schema: z.object({
+        // add collections details schema
         collectionDetails: z.any().describe('Details of the new collection'),
       }),
     },
