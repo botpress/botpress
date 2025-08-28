@@ -8,6 +8,13 @@ export const collectionsItemsActionsDefinitions = {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
+        pagination: z
+          .object({
+            limit: z.number().default(100).optional().describe('The number of items to return'),
+            offset: z.number().default(0).optional().describe('The number of items to skip'),
+          })
+          .optional()
+          .describe('Pagination parameters'),
       }),
     },
     output: {
@@ -15,9 +22,9 @@ export const collectionsItemsActionsDefinitions = {
         // add Item array schema
         items: z.array(itemSchemaOutput).describe('Array of items'),
         pagination: z.object({
-          limit: z.number().min(1).describe('The limit specified in the request'),
-          offset: z.number().min(0).describe('The offset specified for the pagination'),
-          total: z.number().min(0).describe('Total number of items in the collection'),
+          limit: z.number().min(1).optional().describe('The limit specified in the request'),
+          offset: z.number().min(0).optional().describe('The offset specified for the pagination'),
+          total: z.number().min(0).optional().describe('Total number of items in the collection'),
         }),
       }),
     },

@@ -1,10 +1,10 @@
-import { z } from '@botpress/sdk'
+import { optional, z } from '@botpress/sdk'
 
 export const itemSchemaOutput = z.object({
-  id: z.string().min(1, 'Item ID is required').describe('Unique identifier for the Item'),
-  lastPublished: z.date().optional().describe('The date the item was last published'),
-  lastUpdated: z.date().optional().describe('The date the item was last updated'),
-  createdOn: z.date().optional().describe('The date the item was created'),
+  id: z.string().optional().describe('Unique identifier for the Item'),
+  lastPublished: z.string().optional().describe('The date the item was last published'),
+  lastUpdated: z.string().optional().describe('The date the item was last updated'),
+  createdOn: z.string().optional().describe('The date the item was created'),
   fieldData: z
     .object({
       name: z.string().min(1, 'Field name is required').describe('Name of the Item'),
@@ -15,9 +15,9 @@ export const itemSchemaOutput = z.object({
         ),
     })
     .describe('The field data of your Webflow item'),
-  cmsLocaleId: z.string().min(1, 'CMS Locale ID is required').describe('Identifier for the locale of the CMS item'),
-  isArchived: z.boolean().describe('Boolean determining if the Item is set to archived'),
-  isDraft: z.boolean().describe('Boolean determining if the Item is set to draft'),
+  cmsLocaleId: z.string().optional().describe('Identifier for the locale of the CMS item'),
+  isArchived: z.boolean().optional().describe('Boolean determining if the Item is set to archived'),
+  isDraft: z.boolean().optional().describe('Boolean determining if the Item is set to draft'),
 })
 
 export const itemSchemaInput = z.object({
