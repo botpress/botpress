@@ -1,4 +1,4 @@
-import { Webflow, WebflowClient } from 'webflow-api'
+import { WebflowClient } from 'webflow-api'
 import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 import { CollectionsCreateRequest, FieldCreate } from 'webflow-api/api'
