@@ -9,58 +9,53 @@ export async function listCollections(
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
   const client = new WebflowClient({ accessToken: apiToken })
 
-  const siteId = props.ctx.configuration.siteID
-  const result = await client.collections.list(siteId)
+  const result = await client.collections.list(props.ctx.configuration.siteID)
 
   if (result.collections == undefined) throw new sdk.RuntimeError('No collections found')
   return { collections: result.collections! }
 }
 
 export async function getCollectionDetails(
-  params: bp.ActionProps['getCollectionDetails']
+  props: bp.ActionProps['getCollectionDetails']
 ): Promise<bp.actions.getCollectionDetails.output.Output> {
-  const apiToken = params.input.apiTokenOverwrite ? params.input.apiTokenOverwrite : params.ctx.configuration.apiToken
+  const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
   const client = new WebflowClient({ accessToken: apiToken })
 
-  const collectionID = params.input.collectionID
-  const result = await client.collections.get(collectionID)
+  const result = await client.collections.get(props.input.collectionID)
 
   if (result == undefined) throw new sdk.RuntimeError('Collection not found')
   return { collectionDetails: result! }
 }
 
 export async function createCollection(
-  params: bp.ActionProps['createCollection']
+  props: bp.ActionProps['createCollection']
 ): Promise<bp.actions.createCollection.output.Output> {
-  const apiToken = params.input.apiTokenOverwrite ? params.input.apiTokenOverwrite : params.ctx.configuration.apiToken
+  const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
   const client = new WebflowClient({ accessToken: apiToken })
 
-  const siteId = params.ctx.configuration.siteID
   // TODO add check for valid field types
 
   const collectionData: CollectionsCreateRequest = {
-    displayName: params.input.displayName,
-    singularName: params.input.singularName,
-    slug: params.input.slug ? params.input.slug : '',
-    fields: params.input.fields as FieldCreate[],
+    displayName: props.input.displayName,
+    singularName: props.input.singularName,
+    slug: props.input.slug ? props.input.slug : '',
+    fields: props.input.fields as FieldCreate[],
   }
-  params.logger.forBot().info(`Creating collection with data: ${JSON.stringify(collectionData)}`)
 
-  const result = await client.collections.create(siteId, collectionData)
+  const result = await client.collections.create(props.ctx.configuration.siteID, collectionData)
 
   if (result == undefined) throw new sdk.RuntimeError('Failed to create collection')
   return { collectionDetails: result! }
 }
 
 export async function deleteCollection(
-  params: bp.ActionProps['deleteCollection']
+  props: bp.ActionProps['deleteCollection']
 ): Promise<bp.actions.deleteCollection.output.Output> {
   try {
-    const apiToken = params.input.apiTokenOverwrite ? params.input.apiTokenOverwrite : params.ctx.configuration.apiToken
+    const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
     const client = new WebflowClient({ accessToken: apiToken })
 
-    const collectionID = params.input.collectionID
-    await client.collections.delete(collectionID)
+    await client.collections.delete(props.input.collectionID)
 
     return { success: true }
   } catch (e) {

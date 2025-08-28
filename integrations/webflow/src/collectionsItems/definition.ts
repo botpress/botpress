@@ -67,7 +67,10 @@ export const collectionsItemsActionsDefinitions = {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
-        items: z.array(itemSchemaInput).describe('Array of items to update'),
+        itemsID: z
+          .array(z.string().min(1, 'Item ID is required').describe('The ID of your Webflow item'))
+          .describe('Array of item IDs to update'),
+        items: z.object({ items: z.array(itemSchemaInput).describe('Array of items to update') }),
       }),
     },
     output: {
@@ -82,7 +85,11 @@ export const collectionsItemsActionsDefinitions = {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
-        itemIDs: z.array(z.string().min(1, 'Item ID is required')).describe('Array of item IDs to delete'),
+        itemIDs: z.object({
+          items: z.array(
+            z.object({ id: z.string().min(1, 'Item ID is required').describe('Unique identifier for the Item') })
+          ),
+        }),
       }),
     },
     output: {
