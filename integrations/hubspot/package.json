@@ -3,6 +3,7 @@
   "description": "Hubspot integration for Botpress",
   "private": true,
   "scripts": {
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint"
   },
