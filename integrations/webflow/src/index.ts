@@ -1,31 +1,40 @@
 import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
+import { WebflowClient } from 'webflow-api'
+import { CollectionItem } from 'webflow-api/api';
+import { createCollection, deleteCollection, getCollectionDetails, listCollections } from './collections/actions';
+
+
 
 export default new bp.Integration({
-  register: async () => {
-    /**
-     * This is called when an integration configuration is saved.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-    throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
-  },
-  unregister: async () => {
-    /**
-     * This is called when a bot removes the integration.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-    throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
-  },
+  register: async () => {},
+  unregister: async () => {},
   actions: {
-    helloWorld: async (props) => {
-      /**
-       * This is called when a bot calls the action `helloWorld`.
-       */
-      props.logger.forBot().info('Hello World!') // this log will be visible by the bots that use this integration
+    listCollections: listCollections,
+    getCollectionDetails: getCollectionDetails,
+    createCollection: createCollection,
+    deleteCollection: deleteCollection,
+    listItems: async function (props: bp.ActionProps["listItems"]): Promise<bp.actions.listItems.output.Output> {
+      // TODO add check for collectionID, add limits and add offset
+      const apiToken = props.ctx.configuration.apiToken;
+      const client = new WebflowClient({ accessToken: apiToken });
 
-      let { name } = props.input
-      name = name || 'World'
-      return { message: `Hello "${name}"! Nice to meet you ;)` }
+      const collectionId = props.input.collectionId;
+      const result = await client.collections.items.listItems(collectionId);
+
+      if (result.items == undefined) throw new sdk.RuntimeError('No items found in the collection');
+      return { items: result.items! };
+    },
+
+    getItem: async function (props: bp.ActionProps["getItem"]): Promise<bp.actions.getItem.output.Output> {
+      const apiToken = props.ctx.configuration.apiToken;
+      const client = new WebflowClient({ accessToken: apiToken });
+
+      const collectionId = props.input.collectionId;
+      const result: CollectionItem = await client.collections.items.getItem(collectionId, props.input.itemId);
+
+      if (result == undefined) throw new sdk.RuntimeError('Item not found');
+      return { item: result }
     },
   },
   channels: {},

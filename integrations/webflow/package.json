@@ -1,5 +1,4 @@
 {
-  "name": "@bp-templates/hello-world",
   "integrationName": "webflow/webflow",
   "scripts": {
     "check:type": "tsc --noEmit"
@@ -7,7 +6,8 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "1.22.2",
-    "@botpress/sdk": "4.15.3"
+    "@botpress/sdk": "workspace:*",
+    "webflow-api": "^3.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.16.4",
