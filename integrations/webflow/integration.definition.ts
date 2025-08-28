@@ -12,7 +12,7 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z.object({
       apiToken: z.string().min(1, 'API Token is required').describe('Your Webflow API Token'),
-      siteId: z.string().min(1, 'Site ID is required').describe('The ID of your Webflow site'),
+      siteID: z.string().min(1, 'Site ID is required').describe('The ID of your Webflow site'),
     }),
   },
   actions: {
@@ -20,6 +20,7 @@ export default new IntegrationDefinition({
     getCollectionDetails: collectionsActionsDefinitions.getCollectionDetails,
     createCollection: collectionsActionsDefinitions.createCollection,
     deleteCollection: collectionsActionsDefinitions.deleteCollection,
+
     listItems: collectionsItemsActionsDefinitions.listItems,
     getItem: collectionsItemsActionsDefinitions.getItem,
     createItem: collectionsItemsActionsDefinitions.createItem,

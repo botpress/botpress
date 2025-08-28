@@ -9,7 +9,7 @@ export async function listCollections(
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
   const client = new WebflowClient({ accessToken: apiToken })
 
-  const siteId = props.ctx.configuration.siteId
+  const siteId = props.ctx.configuration.siteID
   const result = await client.collections.list(siteId)
 
   if (result.collections == undefined) throw new sdk.RuntimeError('No collections found')
@@ -35,7 +35,7 @@ export async function createCollection(
   const apiToken = params.input.apiTokenOverwrite ? params.input.apiTokenOverwrite : params.ctx.configuration.apiToken
   const client = new WebflowClient({ accessToken: apiToken })
 
-  const siteId = params.ctx.configuration.siteId
+  const siteId = params.ctx.configuration.siteID
   // TODO add check for valid field types
 
   const collectionData: CollectionsCreateRequest = {
