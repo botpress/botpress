@@ -1,0 +1,19 @@
+{
+  "name": "@botpresshub/hubspot",
+  "description": "Hubspot integration for Botpress",
+  "private": true,
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@botpress/sdk-addons": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.4",
+    "typescript": "^5.6.3",
+    "@botpress/cli": "workspace:*"
+  }
+}
