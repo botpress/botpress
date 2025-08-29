@@ -41,6 +41,7 @@ export default new PluginDefinition({
       schema: z.object({}),
     },
   },
+  workflows: { updateAllConversations: { input: { schema: z.object({}) }, output: { schema: z.object({}) } } },
   interfaces: {
     llm,
   },

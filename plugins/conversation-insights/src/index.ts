@@ -80,4 +80,32 @@ plugin.on.event('updateAiInsight', async (props) => {
   })
 })
 
+plugin.on.workflowStart('updateAllConversations', async (props) => {
+  // TODO
+  console.log('workflow started')
+  return undefined
+})
+
+plugin.on.workflowContinue('updateAllConversations', async (props) => {
+  // TODO
+  console.log('workflow continues')
+  const dirtyConversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
+
+  const promises = []
+  for (const conversation of dirtyConversations.conversations) {
+    const firstMessagePage = await props.client
+      .listMessages({ conversationId: props.event.conversationId })
+      .then((res) => res.messages)
+    promises.push(summaryUpdater.updateTitleAndSummary({ ...props, conversation, messages: firstMessagePage }))
+  }
+
+  await Promise.all(promises)
+
+  return undefined
+})
+
+plugin.on.workflowTimeout('updateAllConversations', async (props) => {
+  props.logger.error('Workflow timed out')
+})
+
 export default plugin
