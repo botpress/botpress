@@ -7,6 +7,15 @@ export default new IntegrationDefinition({
   version: '0.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
+  configurations: {
+    manual: {
+      title: 'Manual Configuration',
+      description: 'Manual configuration, use your own Hubspot app',
+      schema: z.object({
+        accessToken: z.string().min(1).title('Access Token').describe('Your Hubspot Access Token'),
+      }),
+    },
+  },
   events: {
     contactCreated: {
       title: 'Contact Created',
