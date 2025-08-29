@@ -49,6 +49,7 @@ const _onNewMessage = async (
   const tags = {
     message_count: message_count.toString(),
     participant_count: participant_count.toString(),
+    isDirty: 'true',
   }
 
   await props.client.updateConversation({
