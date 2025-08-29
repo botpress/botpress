@@ -7,6 +7,9 @@ export default new IntegrationDefinition({
   version: '0.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
+  configuration: {
+    schema: z.object({}),
+  },
   configurations: {
     manual: {
       title: 'Manual Configuration',
