@@ -7,6 +7,7 @@ export default new IntegrationDefinition({
   version: '0.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
+  // TODO: Implement OAuth
   configuration: {
     schema: z.object({}),
   },
