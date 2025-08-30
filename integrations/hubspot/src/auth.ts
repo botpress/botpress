@@ -56,30 +56,30 @@ const _getOrRefreshOAuthAccessToken = async ({ client, ctx }: { client: bp.Clien
     },
   } = await client.getState({ type: 'integration', name: 'oauthCredentials', id: ctx.integrationId })
   const nowSeconds = Date.now() / 1000
-  if (nowSeconds >= expiresAtSeconds - FIVE_MINUTES_IN_SECONDS) {
-    const hsClient = new HubspotClient({})
-    const refreshResponse = await hsClient.oauth.tokensApi.create(
-      'refresh_token',
-      undefined,
-      REDIRECT_URI,
-      bp.secrets.CLIENT_ID,
-      bp.secrets.CLIENT_SECRET,
-      refreshToken
-    )
-    const newCredentials = {
-      accessToken: refreshResponse.accessToken,
-      refreshToken: refreshResponse.refreshToken,
-      expiresAtSeconds: _getExpiresAtFromExpiresIn(refreshResponse.expiresIn),
-    }
-    await setOAuthCredentials({
-      client,
-      ctx,
-      credentials: newCredentials,
-    })
-    return newCredentials.accessToken
+  if (nowSeconds <= expiresAtSeconds - FIVE_MINUTES_IN_SECONDS) {
+    return accessToken
   }
 
-  return accessToken
+  const hsClient = new HubspotClient({})
+  const refreshResponse = await hsClient.oauth.tokensApi.create(
+    'refresh_token',
+    undefined,
+    REDIRECT_URI,
+    bp.secrets.CLIENT_ID,
+    bp.secrets.CLIENT_SECRET,
+    refreshToken
+  )
+  const newCredentials = {
+    accessToken: refreshResponse.accessToken,
+    refreshToken: refreshResponse.refreshToken,
+    expiresAtSeconds: _getExpiresAtFromExpiresIn(refreshResponse.expiresIn),
+  }
+  await setOAuthCredentials({
+    client,
+    ctx,
+    credentials: newCredentials,
+  })
+  return newCredentials.accessToken
 }
 
 const _getAccessToken = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
