@@ -311,7 +311,11 @@ export class HubspotClient {
     const canonicalName = _getCanonicalName(nameOrLabel)
 
     const matchingStage = Object.entries(stages).find(
-      ([id, { label }]) => _getCanonicalName(id) === canonicalName || _getCanonicalName(label) === canonicalName
+      ([id, { label }]) =>
+        _getCanonicalName(id) === canonicalName ||
+        _getCanonicalName(label) === canonicalName ||
+        // Stages show up as "Label (Pipeline Name)" in the UI, so we strip the pipeline name part:
+        _getCanonicalName(label) === canonicalName.split('(')[0]?.trim()
     )
 
     if (!matchingStage) {
