@@ -101,3 +101,13 @@ export const getAuthenticatedHubspotClient = async ({ client, ctx }: { client: b
   const accessToken = await _getAccessToken({ client, ctx })
   return new HubspotClient({ accessToken })
 }
+
+export const getClientSecret = (ctx: bp.Context) => {
+  let clientSecret: string | undefined
+  if (ctx.configurationType === 'manual') {
+    clientSecret = ctx.configuration.clientSecret
+  } else {
+    clientSecret = bp.secrets.CLIENT_SECRET
+  }
+  return clientSecret?.length ? clientSecret : undefined
+}

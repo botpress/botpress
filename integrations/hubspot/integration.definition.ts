@@ -19,7 +19,13 @@ export default new IntegrationDefinition({
       title: 'Manual Configuration',
       description: 'Manual configuration, use your own Hubspot app',
       schema: z.object({
-        accessToken: z.string().min(1).title('Access Token').describe('Your Hubspot Access Token'),
+        accessToken: z.string().min(1).secret().title('Access Token').describe('Your Hubspot Access Token'),
+        clientSecret: z
+          .string()
+          .secret()
+          .optional()
+          .title('Client Secret')
+          .describe('Hubspot Client Secret used for webhook signature check'),
       }),
     },
   },
