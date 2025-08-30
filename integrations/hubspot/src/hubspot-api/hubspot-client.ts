@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
-import { Client as _HubspotClient } from '@hubspot/api-client'
+import { Client as OfficialHubspotClient } from '@hubspot/api-client'
+import { FilterOperatorEnum as ContactFilterOperator } from '@hubspot/api-client/lib/codegen/crm/contacts'
 import * as bp from '.botpress'
 
 type TicketPropertiesCache = bp.states.States['ticketPropertyCache']['payload']['properties']
@@ -8,9 +9,10 @@ type TicketPipelinesCache = bp.states.States['ticketPipelineCache']['payload']['
 type TicketPipeline = TicketPipelinesCache[string]
 
 export class HubspotClient {
-  private readonly _hsClient: _HubspotClient
+  private readonly _hsClient: OfficialHubspotClient
   private readonly _client: bp.Client
   private readonly _ctx: bp.Context
+  private readonly _accessToken: string
   private _ticketProperties: TicketPropertiesCache | undefined
   private _ticketPropertiesAlreadyRefreshed: boolean = false
   private _ticketPipelines: TicketPipelinesCache | undefined
@@ -19,7 +21,66 @@ export class HubspotClient {
   public constructor({ accessToken, client, ctx }: { accessToken: string; client: bp.Client; ctx: bp.Context }) {
     this._client = client
     this._ctx = ctx
-    this._hsClient = new _HubspotClient({ accessToken })
+    this._accessToken = accessToken
+    this._hsClient = new OfficialHubspotClient({ accessToken })
+  }
+
+  public async getHubId() {
+    const { hubId } = await this._hsClient.oauth.accessTokensApi.get(this._accessToken)
+    return hubId.toString()
+  }
+
+  public async searchContact({
+    email,
+    phone,
+    propertiesToReturn,
+  }: {
+    email?: string
+    phone?: string
+    propertiesToReturn: string[]
+  }) {
+    type SearchRequest = Parameters<OfficialHubspotClient['crm']['contacts']['searchApi']['doSearch']>[0]
+    type Filter = NonNullable<SearchRequest['filterGroups']>[number]['filters'][number]
+
+    const filters: Filter[] = []
+    if (phone) {
+      filters.push({
+        propertyName: 'phone',
+        operator: ContactFilterOperator.Eq,
+        value: phone.trim(),
+      })
+    }
+    if (email) {
+      filters.push({
+        propertyName: 'email',
+        operator: ContactFilterOperator.Eq,
+        value: email.trim(),
+      })
+    }
+    if (!filters.length) {
+      throw new sdk.RuntimeError('No filters provided')
+    }
+
+    const contacts = await this._hsClient.crm.contacts.searchApi.doSearch({
+      filterGroups: [
+        {
+          filters,
+        },
+      ],
+      properties: [
+        // Builtin properties normally returned by API
+        'createdate',
+        'email',
+        'firstname',
+        'lastmodifieddate',
+        'lastname',
+        'phone',
+        ...(propertiesToReturn ?? []),
+      ],
+    })
+    const hsContact = contacts.results[0]
+
+    return hsContact
   }
 
   public async createTicket({
@@ -54,66 +115,79 @@ export class HubspotClient {
     const resolvedProperties: Record<string, any> = {}
 
     for (const [nameOrLabel, value] of Object.entries(additionalProperties)) {
-      const property = await this._getTicketProperty({ nameOrLabel })
-
-      // Type coercion based on property type:
-      switch (property.type) {
-        case 'bool':
-          if (['true', '1', 'yes'].includes(value.trim().toLowerCase())) {
-            resolvedProperties[property.name] = true
-          } else if (['false', '0', 'no'].includes(value.trim().toLowerCase())) {
-            resolvedProperties[property.name] = false
-          } else {
-            throw new sdk.RuntimeError(`Unable to coerce value "${value}" to boolean for property "${nameOrLabel}"`)
-          }
-          break
-        case 'number':
-          const asNumber = Number(value)
-          if (isNaN(asNumber)) {
-            throw new sdk.RuntimeError(`Unable to coerce value "${value}" to number for property "${nameOrLabel}"`)
-          }
-          resolvedProperties[property.name] = asNumber
-          break
-        case 'date':
-        case 'datetime':
-          const asDate = new Date(value)
-          if (isNaN(asDate.getTime())) {
-            throw new sdk.RuntimeError(`Unable to coerce value "${value}" to date for property "${nameOrLabel}"`)
-          }
-          resolvedProperties[property.name] = asDate.toISOString()
-          break
-        case 'enumeration':
-        case 'string':
-        case 'object_coordinates':
-        case 'json':
-          resolvedProperties[property.name] = value
-          break
-        default:
-          property.type satisfies never
-          throw new sdk.RuntimeError(
-            `Property "${nameOrLabel}" has unsupported type "${property.type}". Supported types are: bool, number, date, datetime, enumeration, string, object_coordinates, json`
-          )
-      }
+      const { propertyName, coercedValue } = await this._resolveAndCoerceTicketProperty({ nameOrLabel, value })
+      resolvedProperties[propertyName] = coercedValue
     }
 
-    // TODO: resolve ticket owner by email or id
+    const ticketOwner = ticketOwnerEmailOrId
+      ? ticketOwnerEmailOrId.includes('@')
+        ? await this._retrieveOwnerByEmail({ email: ticketOwnerEmailOrId })
+        : { id: ticketOwnerEmailOrId }
+      : undefined
 
     const newTicket = await this._hsClient.crm.tickets.basicApi.create({
       properties: {
         subject,
-        ...(category ? { hs_ticket_category: category } : {}),
+        ...(category ? { hs_ticket_category: category.toUpperCase().replace(' ', '_') } : {}),
         ...(description ? { content: description } : {}),
         hs_pipeline: pipeline.id,
         hs_pipeline_stage: pipelineStage.id,
-        ...(priority ? { hs_ticket_priority: priority } : {}),
-        ...(source ? { source_type: source } : {}),
+        ...(priority ? { hs_ticket_priority: priority.toUpperCase() } : {}),
+        ...(source ? { source_type: source === 'Zoom' ? 'Zoom' : source.toUpperCase() } : {}),
         ...(linearTicketUrl ? { linear_ticket: linearTicketUrl } : {}),
-        // TODO: ticket owner
+        ...(ticketOwner ? { hubspot_owner_id: ticketOwner?.id } : {}),
         ...resolvedProperties,
       },
     })
 
     return { ticketId: newTicket.id }
+  }
+
+  private async _resolveAndCoerceTicketProperty({
+    nameOrLabel,
+    value,
+  }: {
+    nameOrLabel: string
+    value: string
+  }): Promise<{
+    propertyName: string
+    coercedValue: boolean | number | string
+  }> {
+    const property = await this._getTicketProperty({ nameOrLabel })
+
+    switch (property.type) {
+      case 'bool':
+        if (['true', '1', 'yes'].includes(value.trim().toLowerCase())) {
+          return { propertyName: property.name, coercedValue: true }
+        } else if (['false', '0', 'no'].includes(value.trim().toLowerCase())) {
+          return { propertyName: property.name, coercedValue: false }
+        } else {
+          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to boolean for property "${nameOrLabel}"`)
+        }
+      case 'number':
+        const asNumber = Number(value)
+        if (isNaN(asNumber)) {
+          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to number for property "${nameOrLabel}"`)
+        }
+        return { propertyName: property.name, coercedValue: asNumber }
+      case 'date':
+      case 'datetime':
+        const asDate = new Date(value)
+        if (isNaN(asDate.getTime())) {
+          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to date for property "${nameOrLabel}"`)
+        }
+        return { propertyName: property.name, coercedValue: asDate.toISOString() }
+      case 'enumeration':
+      case 'string':
+      case 'object_coordinates':
+      case 'json':
+        return { propertyName: property.name, coercedValue: value }
+      default:
+        property.type satisfies never
+        throw new sdk.RuntimeError(
+          `Property "${nameOrLabel}" has unsupported type "${property.type}". Supported types are: bool, number, date, datetime, enumeration, string, object_coordinates, json`
+        )
+    }
   }
 
   private async _getTicketProperty({ nameOrLabel }: { nameOrLabel: string }) {
@@ -302,6 +376,18 @@ export class HubspotClient {
     })
 
     this._ticketPipelinesAlreadyRefreshed = true
+  }
+
+  private async _retrieveOwnerByEmail({ email }: { email: string }) {
+    const canonicalEmail = _getCanonicalName(email)
+    const owners = await this._hsClient.crm.owners.ownersApi.getPage(email, undefined, 1, false)
+    const matchingOwner = owners.results.find((owner) => _getCanonicalName(owner.email ?? '') === canonicalEmail)
+
+    if (!matchingOwner) {
+      throw new sdk.RuntimeError(`Unable to find owner with email "${email}"`)
+    }
+
+    return matchingOwner
   }
 }
 

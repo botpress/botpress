@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
-import { exchangeCodeForOAuthCredentials, getAuthenticatedHubspotClient, setOAuthCredentials } from '../../auth'
+import { exchangeCodeForOAuthCredentials, setOAuthCredentials } from '../../auth'
+import { HubspotClient } from '../../hubspot-api'
 import * as bp from '.botpress'
 
 export const oauthCallbackHandler = async (props: bp.HandlerProps) => {
@@ -17,10 +18,10 @@ export const oauthCallbackHandler = async (props: bp.HandlerProps) => {
     credentials,
   })
 
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
-  const { hubId } = await hsClient.oauth.accessTokensApi.get(credentials.accessToken)
+  const hsClient = new HubspotClient({ accessToken: credentials.accessToken, client, ctx })
+  const hubId = await hsClient.getHubId()
 
   await client.configureIntegration({
-    identifier: hubId.toString(),
+    identifier: hubId,
   })
 }

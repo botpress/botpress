@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import { Client as HubspotClient } from '@hubspot/api-client'
+import { Client as OfficialHubspotClient } from '@hubspot/api-client'
 import * as bp from '.botpress'
 
 const FIVE_MINUTES_IN_SECONDS = 300
@@ -17,7 +17,7 @@ const _getExpiresAtFromExpiresIn = (expiresIn: number) => {
 }
 
 export const exchangeCodeForOAuthCredentials = async ({ code }: { code: string }) => {
-  const hsClient = new HubspotClient({})
+  const hsClient = new OfficialHubspotClient({})
   const { refreshToken, accessToken, expiresIn } = await hsClient.oauth.tokensApi.create(
     'authorization_code',
     code,
@@ -60,7 +60,7 @@ const _getOrRefreshOAuthAccessToken = async ({ client, ctx }: { client: bp.Clien
     return accessToken
   }
 
-  const hsClient = new HubspotClient({})
+  const hsClient = new OfficialHubspotClient({})
   const refreshResponse = await hsClient.oauth.tokensApi.create(
     'refresh_token',
     undefined,
@@ -82,7 +82,7 @@ const _getOrRefreshOAuthAccessToken = async ({ client, ctx }: { client: bp.Clien
   return newCredentials.accessToken
 }
 
-const _getAccessToken = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
+export const getAccessToken = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
   let accessToken: string | undefined
   if (ctx.configurationType === 'manual') {
     accessToken = ctx.configuration.accessToken
@@ -95,11 +95,6 @@ const _getAccessToken = async ({ client, ctx }: { client: bp.Client; ctx: bp.Con
   }
 
   return accessToken
-}
-
-export const getAuthenticatedHubspotClient = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
-  const accessToken = await _getAccessToken({ client, ctx })
-  return new HubspotClient({ accessToken })
 }
 
 export const getClientSecret = (ctx: bp.Context) => {
