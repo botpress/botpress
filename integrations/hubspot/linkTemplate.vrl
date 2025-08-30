@@ -1,0 +1,12 @@
+env = to_string!(.env)
+clientId = if env == "production" {
+  "a45b9420-3cf8-4ecf-8f01-9ccfa6dfe888" # TODO: Change to production client id
+} else {
+  "a45b9420-3cf8-4ecf-8f01-9ccfa6dfe888" # TODO: Change to staging client id
+}
+
+webhookUrl = to_string!(.webhookUrl)
+redirectUri = "{{ webhookUrl }}/oauth"
+webhookId = to_string!(.webhookId)
+
+"https://app.hubspot.com/oauth/authorize?client_id={{ clientId }}&redirect_uri={{ redirectUri }}&state={{ webhookId }}&scope=oauth%20crm.objects.contacts.write%20crm.objects.contacts.read"

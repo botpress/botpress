@@ -2,15 +2,20 @@ import { RuntimeError } from '@botpress/sdk'
 import { Client as HubspotClient } from '@hubspot/api-client'
 // FIXME: We shouldn't have to import this type but we get type errors when using literals directly
 import { FilterOperatorEnum } from '@hubspot/api-client/lib/codegen/crm/contacts'
-import { getAccessToken } from '../auth'
+import { getAuthenticatedHubspotClient } from '../auth'
 import * as bp from '.botpress'
 
 type SearchRequest = Parameters<HubspotClient['crm']['contacts']['searchApi']['doSearch']>[0]
 type Filter = NonNullable<SearchRequest['filterGroups']>[number]['filters'][number]
 
-export const searchContact: bp.IntegrationProps['actions']['searchContact'] = async ({ ctx, input, logger }) => {
-  const accessToken = await getAccessToken({ ctx })
-  const hsClient = new HubspotClient({ accessToken })
+export const searchContact: bp.IntegrationProps['actions']['searchContact'] = async ({
+  client,
+  ctx,
+  input,
+  logger,
+}) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+
   const filters: Filter[] = []
   if (input.phone) {
     filters.push({

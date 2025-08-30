@@ -1,5 +1,6 @@
 import actions from './actions'
 import { register, unregister } from './setup'
+import { handler } from './webhook'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
@@ -7,5 +8,5 @@ export default new bp.Integration({
   unregister,
   actions,
   channels: {},
-  handler: async () => {},
+  handler,
 })

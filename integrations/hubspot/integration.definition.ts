@@ -7,9 +7,12 @@ export default new IntegrationDefinition({
   version: '0.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
-  // TODO: Implement OAuth
   configuration: {
     schema: z.object({}),
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+      required: true,
+    },
   },
   configurations: {
     manual: {
@@ -59,6 +62,27 @@ export default new IntegrationDefinition({
       title: 'Contact Updated',
       description: 'A contact has been updated in Hubspot.',
       schema: z.object({}),
+    },
+  },
+  states: {
+    oauthCredentials: {
+      type: 'integration',
+      schema: z.object({
+        accessToken: z.string().title('Access Token').describe('The access token for the Hubspot integration'),
+        refreshToken: z.string().title('Refresh Token').describe('The refresh token for the Hubspot integration'),
+        expiresAtSeconds: z
+          .number()
+          .title('Expires At')
+          .describe('The timestamp in seconds when the access token expires'),
+      }),
+    },
+  },
+  secrets: {
+    CLIENT_ID: {
+      description: 'The client ID of the Hubspot app',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret of the Hubspot app',
     },
   },
 })
