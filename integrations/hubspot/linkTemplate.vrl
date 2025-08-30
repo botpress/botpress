@@ -16,6 +16,7 @@ scopes = [
   "tickets", # to retrieve ticket properties
   #"tickets.sensitive", # to retrieve sensitive ticket properties
   #"tickets.highly_sensitive", # to retrieve highly sensitive ticket properties
+  "crm.objects.owners.read", # to retrieve and assign owners to tickets
 ]
 scopesStr = encode_percent(join!(scopes, " "))
 
