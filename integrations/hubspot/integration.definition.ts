@@ -60,6 +60,59 @@ export default new IntegrationDefinition({
         }),
       },
     },
+    createTicket: {
+      title: 'Create Ticket',
+      description: 'Create a ticket in Hubspot',
+      input: {
+        schema: z.object({
+          subject: z.string().title('Ticket name').describe('Short summary of ticket'),
+          category: z
+            .enum(['Product Issue', 'Billing Issue', 'Feature Request', 'General Inquiry'])
+            .optional()
+            .title('Category')
+            .describe('Main reason customer reached out for help'),
+          description: z.string().optional().title('Ticket description').describe('Description of the ticket'),
+          pipeline: z
+            .string()
+            .title('Pipeline')
+            .describe('The pipeline that contains this ticket. Can be a name or internal ID'),
+          pipelineStage: z
+            .string()
+            .title('Ticket status')
+            .describe('The pipeline stage that contains this ticket. Can be a name or internal ID'),
+          priority: z
+            .enum(['Low', 'Medium', 'High', 'Urgent'])
+            .optional()
+            .title('Priority')
+            .describe('The level of attention needed on the ticket'),
+          ticketOwner: z
+            .string()
+            .optional()
+            .title('Ticket owner')
+            .describe('User the ticket is assigned to. Can be an email address or user ID'),
+          linearTicketUrl: z.string().optional().title('Linear Ticket URL').describe('Link to the linear ticket'),
+          source: z
+            .enum(['Zoom', 'Email', 'Phone', 'Chat', 'Form'])
+            .optional()
+            .title('Source')
+            .describe('The original source of the ticket'),
+          additionalProperties: z
+            .array(
+              z.object({
+                name: z.string().title('Property Name').describe('The name of the property'),
+                value: z.string().title('Property Value').describe('The value of the property'),
+              })
+            )
+            .title('Additional Properties')
+            .describe('Additional ticket properties'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          ticketId: z.string().title('Ticket ID').describe('The ID of the created ticket'),
+        }),
+      },
+    },
   },
   events: {
     contactCreated: {
@@ -83,6 +136,48 @@ export default new IntegrationDefinition({
           .number()
           .title('Expires At')
           .describe('The timestamp in seconds when the access token expires'),
+      }),
+    },
+    ticketPropertyCache: {
+      type: 'integration',
+      schema: z.object({
+        properties: z
+          .record(
+            z.object({
+              label: z.string().title('Label').describe('The label of the property'),
+              type: z
+                .enum(['bool', 'enumeration', 'date', 'datetime', 'string', 'number', 'object_coordinates', 'json'])
+                .title('Type')
+                .describe('The type of the property'),
+              hubspotDefined: z
+                .boolean()
+                .title('Hubspot Defined')
+                .describe('Whether the property is defined by Hubspot'),
+            })
+          )
+          .title('Properties')
+          .describe('A mapping or property names (string) to properties'),
+      }),
+    },
+    ticketPipelineCache: {
+      type: 'integration',
+      schema: z.object({
+        pipelines: z
+          .record(
+            z.object({
+              label: z.string().title('Label').describe('The label of the pipeline'),
+              stages: z
+                .record(
+                  z.object({
+                    label: z.string().title('Label').describe('The label of the pipeline stage'),
+                  })
+                )
+                .title('Stages')
+                .describe('A mapping of pipeline stage ids (string) to pipeline stages'),
+            })
+          )
+          .title('Pipelines')
+          .describe('A mapping of pipeline ids (string) to pipelines'),
       }),
     },
   },
