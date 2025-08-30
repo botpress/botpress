@@ -14,6 +14,9 @@ export default new IntegrationDefinition({
       required: true,
     },
   },
+  identifier: {
+    extractScript: 'extract.vrl',
+  },
   configurations: {
     manual: {
       title: 'Manual Configuration',
