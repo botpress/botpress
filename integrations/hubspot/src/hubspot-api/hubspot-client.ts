@@ -9,6 +9,8 @@ import { FilterOperatorEnum as LeadFilterOperator } from '@hubspot/api-client/li
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import * as bp from '.botpress'
 
+type ContactPropertiesCache = bp.states.States['contactPropertyCache']['payload']['properties']
+type ContactProperty = ContactPropertiesCache[string]
 type TicketPropertiesCache = bp.states.States['ticketPropertyCache']['payload']['properties']
 type TicketProperty = TicketPropertiesCache[string]
 type TicketPipelinesCache = bp.states.States['ticketPipelineCache']['payload']['pipelines']
@@ -22,6 +24,8 @@ export class HubspotClient {
 
   private _ticketProperties: TicketPropertiesCache | undefined
   private _ticketPropertiesAlreadyRefreshed: boolean = false
+  private _contactProperties: ContactPropertiesCache | undefined
+  private _contactPropertiesAlreadyRefreshed: boolean = false
   private _ticketPipelines: TicketPipelinesCache | undefined
   private _ticketPipelinesAlreadyRefreshed: boolean = false
 
@@ -77,6 +81,7 @@ export class HubspotClient {
         },
       ],
       properties: [
+        // TODO: Return properties based on cache
         // Builtin properties normally returned by API
         'createdate',
         'email',
@@ -163,10 +168,10 @@ export class HubspotClient {
     if (!email && !phone) {
       throw new sdk.RuntimeError('Email or phone is required')
     }
-
+    const resolvedProperties = await this._resolveAndCoerceContactProperties({ properties: additionalProperties })
     const newContact = await this._hsClient.crm.contacts.basicApi.create({
       properties: {
-        ...additionalProperties,
+        ...resolvedProperties,
         ...(email ? { email } : {}),
         ...(phone ? { phone } : {}),
       },
@@ -212,6 +217,152 @@ export class HubspotClient {
 
   public async deleteContact({ contactId }: { contactId: string }) {
     await this._hsClient.crm.contacts.basicApi.archive(contactId)
+  }
+
+  // TODO: Deduplicate methods below that are common with tickets
+  private async _resolveAndCoerceContactProperties({
+    properties,
+  }: {
+    properties: Record<string, string>
+  }): Promise<Record<string, any>> {
+    const resolvedProperties: Record<string, any> = {}
+    for (const [nameOrLabel, value] of Object.entries(properties)) {
+      const { propertyName, coercedValue } = await this._resolveAndCoerceContactProperty({ nameOrLabel, value })
+      resolvedProperties[propertyName] = coercedValue
+    }
+    return resolvedProperties
+  }
+
+  private async _resolveAndCoerceContactProperty({
+    nameOrLabel,
+    value,
+  }: {
+    nameOrLabel: string
+    value: string
+  }): Promise<{
+    propertyName: string
+    coercedValue: boolean | number | string
+  }> {
+    const property = await this._getContactProperty({ nameOrLabel })
+    switch (property.type) {
+      case 'bool':
+        if (['true', '1', 'yes'].includes(value.trim().toLowerCase())) {
+          return { propertyName: property.name, coercedValue: true }
+        } else if (['false', '0', 'no'].includes(value.trim().toLowerCase())) {
+          return { propertyName: property.name, coercedValue: false }
+        } else {
+          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to boolean for property "${nameOrLabel}"`)
+        }
+      case 'number':
+        const asNumber = Number(value)
+        if (isNaN(asNumber)) {
+          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to number for property "${nameOrLabel}"`)
+        }
+        return { propertyName: property.name, coercedValue: asNumber }
+      case 'date':
+      case 'datetime':
+        const asDate = new Date(value)
+        if (isNaN(asDate.getTime())) {
+          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to date for property "${nameOrLabel}"`)
+        }
+        return { propertyName: property.name, coercedValue: asDate.toISOString() }
+      case 'enumeration':
+        if (property.options && !property.options.includes(value)) {
+          const refreshedProperty = await this._getContactProperty({ nameOrLabel, forceRefresh: true })
+          // Check if options have been updated since last refresh
+          if (refreshedProperty.options && !refreshedProperty.options.includes(value)) {
+            throw new sdk.RuntimeError(
+              `Unable to coerce value "${value}" to enumeration for property "${nameOrLabel}, valid options are ${refreshedProperty.options.join(', ')}"`
+            )
+          }
+        }
+        return { propertyName: property.name, coercedValue: value }
+      case 'string':
+      case 'object_coordinates':
+      case 'json':
+      case 'phone_number':
+        return { propertyName: property.name, coercedValue: value }
+      default:
+        property.type satisfies never
+        throw new sdk.RuntimeError(
+          `Property "${nameOrLabel}" has unsupported type "${property.type}". Supported types are: bool, number, date, datetime, enumeration, string, object_coordinates, json`
+        )
+    }
+  }
+
+  private async _getContactProperty({ nameOrLabel, forceRefresh }: { nameOrLabel: string; forceRefresh?: boolean }) {
+    const canonicalName = _getCanonicalName(nameOrLabel)
+    const knownContactProperties = await this._getContactPropertiesCache()
+    let matchingProperty = knownContactProperties[nameOrLabel]
+      ? ([nameOrLabel, knownContactProperties[nameOrLabel]] as const)
+      : undefined
+    matchingProperty ??= Object.entries(knownContactProperties).find(
+      ([name, { label }]) => _getCanonicalName(name) === canonicalName || _getCanonicalName(label) === canonicalName
+    )
+    if (!matchingProperty || forceRefresh) {
+      // Refresh, then do a second pass:
+      await this._refreshContactPropertiesFromApi({ forceRefresh })
+      matchingProperty = this._contactProperties![nameOrLabel]
+        ? ([nameOrLabel, this._contactProperties![nameOrLabel]] as const)
+        : undefined
+      matchingProperty ??= Object.entries(this._contactProperties!).find(
+        ([name, { label }]) => _getCanonicalName(name) === canonicalName || _getCanonicalName(label) === canonicalName
+      )
+
+      if (!matchingProperty) {
+        // At this point, we give up:
+        throw new sdk.RuntimeError(`Unable to find contact property with name "${nameOrLabel}"`)
+      }
+    }
+    return {
+      name: matchingProperty[0],
+      type: matchingProperty[1].type,
+      options: matchingProperty[1].options,
+    }
+  }
+
+  private async _getContactPropertiesCache(): Promise<ContactPropertiesCache> {
+    if (!this._contactProperties) {
+      try {
+        const { state } = await this._client.getState({
+          type: 'integration',
+          id: this._ctx.integrationId,
+          name: 'contactPropertyCache',
+        })
+        this._contactProperties = state.payload.properties
+      } catch {
+        await this._refreshContactPropertiesFromApi()
+      }
+    }
+    return this._contactProperties as ContactPropertiesCache
+  }
+
+  private async _refreshContactPropertiesFromApi({ forceRefresh }: { forceRefresh?: boolean } = {}): Promise<void> {
+    if (this._contactPropertiesAlreadyRefreshed && !forceRefresh) {
+      // Prevent refreshing several times in a single lambda invocation
+      return
+    }
+    const properties = await this._hsClient.crm.properties.coreApi.getAll('contact', false)
+    this._contactProperties = Object.fromEntries(
+      properties.results.map((prop) => {
+        const propFields: ContactProperty = {
+          label: prop.label,
+          type: prop.type as ContactPropertiesCache[string]['type'],
+          hubspotDefined: prop.hubspotDefined ?? false,
+        }
+        if (prop.options) {
+          propFields['options'] = prop.options.map((option) => option.value)
+        }
+        return [prop.name, propFields] as const
+      })
+    )
+    await this._client.setState({
+      type: 'integration',
+      id: this._ctx.integrationId,
+      name: 'contactPropertyCache',
+      payload: { properties: this._contactProperties },
+    })
+    this._contactPropertiesAlreadyRefreshed = true
   }
 
   @handleErrors('Failed to create ticket')
@@ -490,7 +641,7 @@ export class HubspotClient {
       )
     )
 
-    this._client.setState({
+    await this._client.setState({
       type: 'integration',
       id: this._ctx.integrationId,
       name: 'ticketPropertyCache',

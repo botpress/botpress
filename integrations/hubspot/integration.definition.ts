@@ -162,6 +162,42 @@ export default new IntegrationDefinition({
           .describe('A mapping of company ids (string) to company details'),
       }),
     },
+    contactPropertyCache: {
+      type: 'integration',
+      schema: z.object({
+        properties: z
+          .record(
+            z.object({
+              label: z.string().title('Label').describe('The label of the property'),
+              type: z
+                .enum([
+                  'bool',
+                  'enumeration',
+                  'date',
+                  'datetime',
+                  'string',
+                  'number',
+                  'object_coordinates',
+                  'json',
+                  'phone_number',
+                ])
+                .title('Type')
+                .describe('The type of the property'),
+              hubspotDefined: z
+                .boolean()
+                .title('Hubspot Defined')
+                .describe('Whether the property is defined by Hubspot'),
+              options: z
+                .array(z.string())
+                .optional()
+                .title('Options')
+                .describe('The options of the property if it is an enumeration'),
+            })
+          )
+          .title('Properties')
+          .describe('A mapping of property names (string) to property details'),
+      }),
+    },
   },
   secrets: {
     CLIENT_ID: {
