@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "@hubspot/api-client": "^13.1.0"

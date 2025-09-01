@@ -1,9 +1,10 @@
 import * as sdk from '@botpress/sdk'
-import { Client as OfficialHubspotClient } from '@hubspot/api-client'
+import { Client as OfficialHubspotClient, AssociationTypes } from '@hubspot/api-client'
 import {
   AssociationSpecAssociationCategoryEnum,
   FilterOperatorEnum as ContactFilterOperator,
 } from '@hubspot/api-client/lib/codegen/crm/contacts'
+import { handleErrorsDecorator as handleErrors } from './error-handling'
 import * as bp from '.botpress'
 
 type TicketPropertiesCache = bp.states.States['ticketPropertyCache']['payload']['properties']
@@ -29,11 +30,13 @@ export class HubspotClient {
     this._hsClient = new OfficialHubspotClient({ accessToken })
   }
 
+  @handleErrors('Failed to validate authentication')
   public async getHubId() {
     const { hubId } = await this._hsClient.oauth.accessTokensApi.get(this._accessToken)
     return hubId.toString()
   }
 
+  @handleErrors('Failed to search contact')
   public async searchContact({
     email,
     phone,
@@ -87,6 +90,7 @@ export class HubspotClient {
     return hsContact
   }
 
+  @handleErrors('Failed to create ticket')
   public async createTicket({
     subject,
     category,
@@ -167,7 +171,7 @@ export class HubspotClient {
                 types: [
                   {
                     associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
-                    associationTypeId: 16, // 16 = Ticket to Contact
+                    associationTypeId: AssociationTypes.ticketToContact,
                   },
                 ],
               },
@@ -180,7 +184,7 @@ export class HubspotClient {
                 types: [
                   {
                     associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
-                    associationTypeId: 26, // 16 = Ticket to Company (primary)
+                    associationTypeId: AssociationTypes.primaryTicketToCompany,
                   },
                 ],
               },
@@ -194,6 +198,7 @@ export class HubspotClient {
     return { ticketId: newTicket.id }
   }
 
+  @handleErrors('Failed to search company')
   private async _searchCompany({ idOrNameOrDomain }: { idOrNameOrDomain: string }) {
     const canonicalInput = idOrNameOrDomain.trim()
 
@@ -339,6 +344,7 @@ export class HubspotClient {
     return this._ticketProperties as TicketPropertiesCache
   }
 
+  @handleErrors('Failed to retrieve ticket properties from HubSpot API')
   private async _refreshTicketPropertiesFromApi(): Promise<void> {
     if (this._ticketPropertiesAlreadyRefreshed) {
       // Prevent refreshing several times in a single lambda invocation
@@ -455,6 +461,7 @@ export class HubspotClient {
     return this._ticketPipelines as TicketPipelinesCache
   }
 
+  @handleErrors('Failed to retrieve ticket pipelines from HubSpot API')
   private async _refreshTicketPipelinesFromApi(): Promise<void> {
     if (this._ticketPipelinesAlreadyRefreshed) {
       // Prevent refreshing several times in a single lambda invocation
@@ -492,6 +499,7 @@ export class HubspotClient {
     this._ticketPipelinesAlreadyRefreshed = true
   }
 
+  @handleErrors('Failed to retrieve owner by email')
   private async _retrieveOwnerByEmail({ email }: { email: string }) {
     const canonicalEmail = _getCanonicalName(email)
     const owners = await this._hsClient.crm.owners.ownersApi.getPage(email, undefined, 1, false)
