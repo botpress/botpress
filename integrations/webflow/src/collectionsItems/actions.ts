@@ -1,9 +1,10 @@
 import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 import { WebflowClient } from 'webflow-api'
-import { ItemsUpdateItemsResponse, MultipleItems } from 'webflow-api/api/resources/collections'
-import { CollectionItem, CollectionItemList } from 'webflow-api/api'
+import { CreateBulkCollectionItemRequestBody, ItemsUpdateItemsResponse, MultipleItems } from 'webflow-api/api/resources/collections'
+import { BulkCollectionItem, CollectionItem, CollectionItemList } from 'webflow-api/api'
 import { ItemsCreateItemRequest } from 'webflow-api/wrapper/schemas'
+import { error } from 'console'
 
 export async function listItems(props: bp.ActionProps['listItems']): Promise<bp.actions.listItems.output.Output> {
   // TODO add check for collectionID, add limits and add offset
@@ -23,7 +24,7 @@ export async function getItem(props: bp.ActionProps['getItem']): Promise<bp.acti
   const apiToken = props.ctx.configuration.apiToken
   const client = new WebflowClient({ accessToken: apiToken })
 
-  const result = await client.collections.items.getItem(props.input.collectionID, props.input.itemID)
+  const result: CollectionItem = await client.collections.items.getItem(props.input.collectionID, props.input.itemID)
 
   if (result == undefined) throw new sdk.RuntimeError('Item not found')
   return { itemDetails: result }
@@ -33,10 +34,11 @@ export async function createItem(props: bp.ActionProps['createItem']): Promise<b
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
   const client = new WebflowClient({ accessToken: apiToken })
 
-  const result = await client.collections.items.createItem(props.input.collectionID, props.input.items as MultipleItems)
+  const result = await client.collections.items.createItems(props.input.collectionID, props.input.items)
 
-  if (result == undefined) throw new sdk.RuntimeError('Failed to create item')
-  return { item: result! }
+  props.logger.forBot().debug(result.items)
+  if (result == undefined) throw new sdk.RuntimeError('Failed to update item')
+  return { items: (result as CollectionItemList).items! }
 }
 
 export async function updateItems(props: bp.ActionProps['updateItems']): Promise<bp.actions.updateItems.output.Output> {

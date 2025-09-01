@@ -1,4 +1,4 @@
-import { optional, z } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 
 export const itemSchemaOutput = z.object({
   id: z.string().optional().describe('Unique identifier for the Item'),

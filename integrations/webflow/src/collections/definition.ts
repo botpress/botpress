@@ -1,5 +1,5 @@
 import { IntegrationDefinitionProps, z } from '@botpress/sdk'
-import { fieldSchemas } from './fields'
+import { CollectionSchema, CollectionDetailsSchema } from './collection'
 
 export const collectionsActionsDefinitions = {
   listCollections: {
@@ -12,7 +12,7 @@ export const collectionsActionsDefinitions = {
     output: {
       schema: z.object({
         // add collections schema
-        collections: z.array(z.any()).describe('Array of collections'),
+        collections: z.array(CollectionSchema).describe('Array of collections'),
       }),
     },
   },
@@ -27,7 +27,7 @@ export const collectionsActionsDefinitions = {
     output: {
       schema: z.object({
         // add collections details schema
-        collectionDetails: z.any().describe('Details of the collection'),
+        collectionDetails: CollectionDetailsSchema.describe('Details of the collection'),
       }),
     },
   },
@@ -36,23 +36,13 @@ export const collectionsActionsDefinitions = {
     input: {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
-        displayName: z
-          .string()
-          .min(1, 'Display Name is required')
-          .describe('The display name of your Webflow collection'),
-        singularName: z
-          .string()
-          .min(1, 'Singular Name is required')
-          .describe('The singular name of your Webflow collection'),
-        slug: z.string().optional().describe('The slug of your Webflow collection'),
-        // TODO: Add fields metadata
-        fields: z.array(fieldSchemas),
+        collectionInfo: CollectionSchema.describe("Informations of the collection to create.")
       }),
     },
     output: {
       schema: z.object({
         // add collections details schema
-        collectionDetails: z.any().describe('Details of the new collection'),
+        collectionDetails: CollectionDetailsSchema.describe('Details of the new collection'),
       }),
     },
   },

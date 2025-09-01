@@ -1,5 +1,5 @@
 {
-  "integrationName": "webflow/webflow",
+  "integrationName": "@botpresshub/webflow",
   "scripts": {
     "check:type": "tsc --noEmit"
   },

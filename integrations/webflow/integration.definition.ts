@@ -3,7 +3,7 @@ import { collectionsActionsDefinitions } from 'src/collections/definition'
 import { collectionsItemsActionsDefinitions } from 'src/collectionsItems/definition'
 
 export default new IntegrationDefinition({
-  name: 'webflow-cms',
+  name: 'webflow',
   version: '0.1.0',
   title: 'Webflow CMS',
   description: 'CRUD operations for Webflow CMS',

@@ -1,6 +1,8 @@
 import { IntegrationDefinitionProps, z } from '@botpress/sdk'
 import { itemSchemaInput, itemSchemaOutput } from './item'
 
+const extras = z.record(z.any()).optional()
+
 export const collectionsItemsActionsDefinitions = {
   listItems: {
     title: 'List Collection Items',
@@ -46,18 +48,34 @@ export const collectionsItemsActionsDefinitions = {
     },
   },
   createItem: {
-    // TODO: test single and multiple item creation
+    // TODO: test single and multiple item creation and rename to items
     title: 'Create Collection item(s)',
     input: {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
-        items: z.array(itemSchemaInput).describe('Array of items to create'),
+        items: z.object({
+          isArchived: z.boolean().default(false),
+          isDraft: z.boolean().default(false),
+          fieldData: z.array(z.object({ name: z.string().min(1), slug: z.string().min(1) })),
+        }),
       }),
     },
     output: {
       schema: z.object({
-        item: itemSchemaOutput.describe('Details of the new collection item'),
+        items: z.array(
+          z.object({
+            id: z.string().optional(),
+            cmsLocaleIds: z.array(z.string()).optional(),
+            lastPublished: z.string().nullable(),
+            lastUpdated: z.string().optional(),
+            createdOn: z.string().optional(),
+            // TODO find a more elegant solution
+            fieldData: z.record(z.string()).optional(),
+            isArchived: z.boolean().optional(),
+            isDrafted: z.boolean().optional()
+          })
+        )
       }),
     },
   },
