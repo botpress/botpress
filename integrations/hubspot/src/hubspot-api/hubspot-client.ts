@@ -186,6 +186,30 @@ export class HubspotClient {
     }
   }
 
+  public async updateContact({
+    contactId,
+    email,
+    phone,
+    additionalProperties,
+  }: {
+    contactId: string
+    email?: string
+    phone?: string
+    additionalProperties: Record<string, string>
+  }) {
+    const updatedContact = await this._hsClient.crm.contacts.basicApi.update(contactId, {
+      properties: {
+        ...additionalProperties,
+        ...(email ? { email } : {}),
+        ...(phone ? { phone } : {}),
+      },
+    })
+    return {
+      contactId: updatedContact.id,
+      properties: updatedContact.properties,
+    }
+  }
+
   public async deleteContact({ contactId }: { contactId: string }) {
     await this._hsClient.crm.contacts.basicApi.archive(contactId)
   }

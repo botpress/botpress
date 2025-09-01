@@ -68,12 +68,20 @@ export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({
   }
 }
 
-export const updateContact: bp.IntegrationProps['actions']['updateContact'] = async () => {
-  // TODO: Implement
+export const updateContact: bp.IntegrationProps['actions']['updateContact'] = async ({ ctx, client, input }) => {
+  const hsClient = await _getHubspotClient({ ctx, client })
+  const { contactId, phone, email, additionalProperties: additionalPropertiesInput } = input
+  const additionalProperties = _toPropertiesRecord(additionalPropertiesInput ?? [])
+  const updatedContact = await hsClient.updateContact({
+    contactId,
+    additionalProperties,
+    email,
+    phone,
+  })
   return {
     contact: {
-      id: '',
-      properties: {},
+      id: updatedContact.contactId,
+      properties: updatedContact.properties,
     },
   }
 }
