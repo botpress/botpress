@@ -66,6 +66,11 @@ const getContact: ActionDefinition = {
   input: {
     schema: z.object({
       contactId: z.string().min(1).title('Contact ID').describe('The ID of the contact to get'),
+      properties: z
+        .array(z.string())
+        .optional()
+        .title('Properties')
+        .describe('The properties to include in the response'),
     }),
   },
   output: {

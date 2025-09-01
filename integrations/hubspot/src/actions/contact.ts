@@ -30,7 +30,7 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
   const contact = await hsClient.searchContact({
     phone: input.phone,
     email: input.email,
-    propertiesToReturn: input.properties ?? [],
+    propertiesToReturn: input.properties,
   })
 
   return {
@@ -59,6 +59,7 @@ export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({
   const hsClient = await _getHubspotClient({ ctx, client })
   const contact = await hsClient.getContact({
     contactId: input.contactId,
+    propertiesToReturn: input.properties ?? [],
   })
   return {
     contact: {

@@ -71,8 +71,10 @@ export class HubspotClient {
       })
     }
     if (!filters.length) {
-      throw new sdk.RuntimeError('No filters provided')
+      throw new sdk.RuntimeError('Missing required filters: phone and/or email')
     }
+
+    await this._validateContactProperties({ properties: propertiesToReturn ?? [] })
 
     const contacts = await this._hsClient.crm.contacts.searchApi.doSearch({
       filterGroups: [
@@ -81,7 +83,6 @@ export class HubspotClient {
         },
       ],
       properties: [
-        // TODO: Return properties based on cache
         // Builtin properties normally returned by API
         'createdate',
         'email',
@@ -163,7 +164,7 @@ export class HubspotClient {
   }: {
     email?: string
     phone?: string
-    additionalProperties: Record<string, string> // TODO: Validate types
+    additionalProperties: Record<string, string>
   }) {
     if (!email && !phone) {
       throw new sdk.RuntimeError('Email or phone is required')
@@ -183,8 +184,10 @@ export class HubspotClient {
     }
   }
 
-  public async getContact({ contactId }: { contactId: string }) {
-    const contact = await this._hsClient.crm.contacts.basicApi.getById(contactId)
+  public async getContact({ contactId, propertiesToReturn }: { contactId: string; propertiesToReturn?: string[] }) {
+    await this._validateContactProperties({ properties: propertiesToReturn ?? [] })
+
+    const contact = await this._hsClient.crm.contacts.basicApi.getById(contactId, propertiesToReturn)
     return {
       contactId: contact.id,
       properties: contact.properties,
@@ -202,9 +205,11 @@ export class HubspotClient {
     phone?: string
     additionalProperties: Record<string, string>
   }) {
+    const resolvedProperties = await this._resolveAndCoerceContactProperties({ properties: additionalProperties })
+
     const updatedContact = await this._hsClient.crm.contacts.basicApi.update(contactId, {
       properties: {
-        ...additionalProperties,
+        ...resolvedProperties,
         ...(email ? { email } : {}),
         ...(phone ? { phone } : {}),
       },
@@ -217,6 +222,18 @@ export class HubspotClient {
 
   public async deleteContact({ contactId }: { contactId: string }) {
     await this._hsClient.crm.contacts.basicApi.archive(contactId)
+  }
+
+  private async _validateContactProperties({ properties }: { properties: string[] }) {
+    const unknownProperties: string[] = []
+    for (const property of properties) {
+      await this._getContactProperty({ nameOrLabel: property }).catch(() => {
+        unknownProperties.push(property)
+      })
+    }
+    if (unknownProperties.length) {
+      throw new sdk.RuntimeError(`Unknown properties: ${unknownProperties.join(', ')}`)
+    }
   }
 
   // TODO: Deduplicate methods below that are common with tickets
