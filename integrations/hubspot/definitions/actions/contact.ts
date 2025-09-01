@@ -65,7 +65,11 @@ const getContact: ActionDefinition = {
   description: 'Get a contact from Hubspot',
   input: {
     schema: z.object({
-      contactId: z.string().min(1).title('Contact ID').describe('The ID of the contact to get'),
+      contactIdOrEmail: z
+        .string()
+        .min(1)
+        .title('Contact ID or Email')
+        .describe('The ID or email of the contact to get'),
       properties: z
         .array(z.string())
         .optional()
@@ -91,14 +95,18 @@ const updateContact: ActionDefinition = {
   description: 'Update a contact in Hubspot',
   input: {
     schema: z.object({
-      contactId: z.string().min(1).title('Contact ID').describe('The ID of the contact to update'),
-      email: z.string().optional().title('Email').describe('The email of the contact'),
-      phone: z.string().optional().title('Phone').describe('The phone number of the contact'),
+      contactIdOrEmail: z
+        .string()
+        .min(1)
+        .title('Contact ID or Email')
+        .describe('The ID or email of the contact to update'),
+      email: z.string().optional().title('Email').describe('The new email of the contact'),
+      phone: z.string().optional().title('Phone').describe('The new phone number of the contact'),
       additionalProperties: z
         .array(
           z.object({
             name: z.string().title('Property Name').describe('The name of the property'),
-            value: z.string().title('Property Value').describe('The value of the property'),
+            value: z.string().title('Property Value').describe('The new value of the property'),
           })
         )
         .title('Additional Properties')

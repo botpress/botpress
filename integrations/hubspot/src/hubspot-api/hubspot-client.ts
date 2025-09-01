@@ -186,8 +186,15 @@ export class HubspotClient {
 
   public async getContact({ contactId, propertiesToReturn }: { contactId: string; propertiesToReturn?: string[] }) {
     await this._validateContactProperties({ properties: propertiesToReturn ?? [] })
-
-    const contact = await this._hsClient.crm.contacts.basicApi.getById(contactId, propertiesToReturn)
+    const idProperty = contactId.includes('@') ? 'email' : undefined
+    const contact = await this._hsClient.crm.contacts.basicApi.getById(
+      contactId,
+      propertiesToReturn,
+      undefined,
+      undefined,
+      undefined,
+      idProperty
+    )
     return {
       contactId: contact.id,
       properties: contact.properties,
@@ -207,13 +214,18 @@ export class HubspotClient {
   }) {
     const resolvedProperties = await this._resolveAndCoerceContactProperties({ properties: additionalProperties })
 
-    const updatedContact = await this._hsClient.crm.contacts.basicApi.update(contactId, {
-      properties: {
-        ...resolvedProperties,
-        ...(email ? { email } : {}),
-        ...(phone ? { phone } : {}),
+    const idProperty = contactId.includes('@') ? 'email' : undefined
+    const updatedContact = await this._hsClient.crm.contacts.basicApi.update(
+      contactId,
+      {
+        properties: {
+          ...resolvedProperties,
+          ...(email ? { email } : {}),
+          ...(phone ? { phone } : {}),
+        },
       },
-    })
+      idProperty
+    )
     return {
       contactId: updatedContact.id,
       properties: updatedContact.properties,
