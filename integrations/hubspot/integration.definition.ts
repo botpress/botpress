@@ -103,6 +103,20 @@ export default new IntegrationDefinition({
           .describe('A mapping of pipeline ids (string) to pipelines'),
       }),
     },
+    companiesCache: {
+      type: 'integration',
+      schema: z.object({
+        companies: z
+          .record(
+            z.object({
+              name: z.string().optional().title('Name').describe('The name of the company'),
+              domain: z.string().optional().title('Domain').describe('The domain of the company'),
+            })
+          )
+          .title('Companies')
+          .describe('A mapping of company ids (string) to company details'),
+      }),
+    },
   },
   secrets: {
     CLIENT_ID: {

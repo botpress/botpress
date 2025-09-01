@@ -11,12 +11,13 @@ webhookId = to_string!(.webhookId)
 
 scopes = [
   "oauth",
-  "crm.objects.contacts.read",
-  "crm.objects.contacts.write",
-  "tickets", # to retrieve ticket properties
+  "crm.objects.contacts.read", # to retrieve contacts
+  "crm.objects.contacts.write", # to create and update contacts
+  "tickets", # to retrieve ticket properties and create tickets
   #"tickets.sensitive", # to retrieve sensitive ticket properties
   #"tickets.highly_sensitive", # to retrieve highly sensitive ticket properties
   "crm.objects.owners.read", # to retrieve and assign owners to tickets
+  "crm.objects.companies.read", # to retrieve and assign companies to tickets
 ]
 scopesStr = encode_percent(join!(scopes, " "))
 
