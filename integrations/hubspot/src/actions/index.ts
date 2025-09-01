@@ -1,8 +1,8 @@
+import * as contactActions from './contact'
 import { createTicket } from './create-ticket'
-import { searchContact } from './search-contact'
 import * as bp from '.botpress'
 
 export default {
-  searchContact,
+  ...contactActions,
   createTicket,
 } as const satisfies bp.IntegrationProps['actions']
