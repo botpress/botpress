@@ -180,6 +180,14 @@ export class HubspotClient {
     }
   }
 
+  public async getContact({ contactId }: { contactId: string }) {
+    const contact = await this._hsClient.crm.contacts.basicApi.getById(contactId)
+    return {
+      contactId: contact.id,
+      properties: contact.properties,
+    }
+  }
+
   @handleErrors('Failed to create ticket')
   public async createTicket({
     subject,
