@@ -151,6 +151,35 @@ export class HubspotClient {
     }
   }
 
+  public async createContact({
+    email,
+    phone,
+    properties,
+  }: {
+    email?: string
+    phone?: string
+    properties: Record<string, string>
+  }) {
+    if (!email && !phone) {
+      throw new sdk.RuntimeError('Email or phone is required')
+    }
+    if (email) {
+      properties.email = email
+    }
+    if (phone) {
+      properties.phone = phone
+    }
+
+    const newContact = await this._hsClient.crm.contacts.basicApi.create({
+      properties,
+    })
+
+    return {
+      contactId: newContact.id,
+      properties: newContact.properties,
+    }
+  }
+
   @handleErrors('Failed to create ticket')
   public async createTicket({
     subject,

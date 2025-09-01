@@ -30,12 +30,17 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
   }
 }
 
-export const createContact: bp.IntegrationProps['actions']['createContact'] = async () => {
-  // TODO: Implement
+export const createContact: bp.IntegrationProps['actions']['createContact'] = async ({ ctx, client, input }) => {
+  const hsClient = new HubspotClient({ accessToken: await getAccessToken({ client, ctx }), client, ctx })
+  const newContact = await hsClient.createContact({
+    email: input.email,
+    phone: input.phone,
+    properties: input.properties ?? {},
+  })
   return {
     contact: {
-      id: '',
-      properties: {},
+      id: newContact.contactId,
+      properties: newContact.properties,
     },
   }
 }
