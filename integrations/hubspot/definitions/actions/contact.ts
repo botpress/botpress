@@ -56,7 +56,7 @@ const getContact: ActionDefinition = {
   description: 'Get a contact from Hubspot',
   input: {
     schema: z.object({
-      contactId: z.string().title('Contact ID').describe('The ID of the contact to get'),
+      contactId: z.string().min(1).title('Contact ID').describe('The ID of the contact to get'),
     }),
   },
   output: {
@@ -77,7 +77,7 @@ const updateContact: ActionDefinition = {
   description: 'Update a contact in Hubspot',
   input: {
     schema: z.object({
-      contactId: z.string().title('Contact ID').describe('The ID of the contact to update'),
+      contactId: z.string().min(1).title('Contact ID').describe('The ID of the contact to update'),
       phone: z.string().optional().title('Phone').describe('The phone number of the contact'),
       email: z.string().optional().title('Email').describe('The email of the contact'),
       properties: z.record(z.any()).title('Properties').optional().describe('The properties of the contact'),
@@ -101,7 +101,7 @@ const deleteContact: ActionDefinition = {
   description: 'Delete a contact in Hubspot',
   input: {
     schema: z.object({
-      contactId: z.string().title('Contact ID').describe('The ID of the contact to delete'),
+      contactId: z.string().min(1).title('Contact ID').describe('The ID of the contact to delete'),
     }),
   },
   output: {
