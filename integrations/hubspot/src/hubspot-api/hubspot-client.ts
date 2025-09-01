@@ -1,6 +1,9 @@
 import * as sdk from '@botpress/sdk'
 import { Client as OfficialHubspotClient } from '@hubspot/api-client'
-import { FilterOperatorEnum as ContactFilterOperator } from '@hubspot/api-client/lib/codegen/crm/contacts'
+import {
+  AssociationSpecAssociationCategoryEnum,
+  FilterOperatorEnum as ContactFilterOperator,
+} from '@hubspot/api-client/lib/codegen/crm/contacts'
 import * as bp from '.botpress'
 
 type TicketPropertiesCache = bp.states.States['ticketPropertyCache']['payload']['properties']
@@ -91,6 +94,7 @@ export class HubspotClient {
     pipelineStageNameOrId,
     priority,
     ticketOwnerEmailOrId,
+    requesterEmailOrId,
     linearTicketUrl,
     source,
     additionalProperties,
@@ -102,6 +106,7 @@ export class HubspotClient {
     pipelineStageNameOrId: string
     priority?: 'Low' | 'Medium' | 'High' | 'Urgent'
     ticketOwnerEmailOrId?: string
+    requesterEmailOrId?: string
     linearTicketUrl?: string
     source?: 'Zoom' | 'Email' | 'Phone' | 'Chat' | 'Form'
     additionalProperties: Record<string, string>
@@ -125,6 +130,12 @@ export class HubspotClient {
         : { id: ticketOwnerEmailOrId }
       : undefined
 
+    const requester = requesterEmailOrId
+      ? requesterEmailOrId.includes('@')
+        ? await this.searchContact({ email: requesterEmailOrId, propertiesToReturn: [] })
+        : { id: requesterEmailOrId }
+      : undefined
+
     const newTicket = await this._hsClient.crm.tickets.basicApi.create({
       properties: {
         subject,
@@ -138,6 +149,21 @@ export class HubspotClient {
         ...(ticketOwner ? { hubspot_owner_id: ticketOwner?.id } : {}),
         ...resolvedProperties,
       },
+      associations: [
+        ...(requester
+          ? [
+              {
+                to: { id: requester.id },
+                types: [
+                  {
+                    associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
+                    associationTypeId: 16, // 16 = Ticket to Contact
+                  },
+                ],
+              },
+            ]
+          : []),
+      ],
     })
 
     return { ticketId: newTicket.id }
