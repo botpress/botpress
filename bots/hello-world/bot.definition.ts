@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import * as env from './.genenv'
-import logger from './bp_modules/logger'
+import chat from './bp_modules/chat'
+import hubspot from './bp_modules/hubspot'
 import telegram from './bp_modules/telegram'
 import webhook from './bp_modules/webhook'
 
@@ -28,7 +29,14 @@ export default new sdk.BotDefinition({
     enabled: true,
     configuration: {},
   })
-  .addPlugin(logger, {
+  .addIntegration(hubspot, {
+    enabled: true,
+    configurationType: 'manual',
+    configuration: {
+      accessToken: '',
+    },
+  })
+  .addIntegration(chat, {
+    enabled: true,
     configuration: {},
-    interfaces: {},
   })

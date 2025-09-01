@@ -33,6 +33,54 @@ export default new IntegrationDefinition({
     },
   },
   actions: {
+    searchLead: {
+      title: 'Search Lead',
+      description: 'Search for a lead in Hubspot',
+      input: {
+        schema: z.object({
+          name: z.string().optional().title('Name').describe('The name of the lead to search for'),
+          email: z.string().optional().title('Email').describe('The email of the lead to search for'),
+          phone: z.string().optional().title('Phone').describe('The phone number of the contact to search for'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          lead: z
+            .object({
+              id: z.string().title('Lead ID').describe('The ID of the lead'),
+            })
+            .optional()
+            .title('Lead')
+            .describe('The lead found'),
+        }),
+      },
+    },
+    getLead: {
+      title: 'Get Lead',
+      description: 'Get a lead in Hubspot',
+      input: {
+        schema: z.object({
+          id: z.string().title('Lead ID').describe('The ID of the lead to get'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          lead: z.object({
+            id: z.string().title('Lead ID').describe('The ID of the lead'),
+          }),
+        }),
+      },
+    },
+    // listLeads: {},
+    // createLead: {},
+    // updateLead: {},
+    // deleteLead: {},
+    // createDeal: {},
+    // updateDeal: {},
+    // deleteDeal: {},
+    // listDeals: {},
+    // searchDeal: {},
+    // getDeal: {},
     searchContact: {
       title: 'Search Contact',
       description: 'Search for a contact in Hubspot',
