@@ -154,24 +154,22 @@ export class HubspotClient {
   public async createContact({
     email,
     phone,
-    properties,
+    additionalProperties,
   }: {
     email?: string
     phone?: string
-    properties: Record<string, string>
+    additionalProperties: Record<string, string> // TODO: Validate types
   }) {
     if (!email && !phone) {
       throw new sdk.RuntimeError('Email or phone is required')
     }
-    if (email) {
-      properties.email = email
-    }
-    if (phone) {
-      properties.phone = phone
-    }
 
     const newContact = await this._hsClient.crm.contacts.basicApi.create({
-      properties,
+      properties: {
+        ...additionalProperties,
+        ...(email ? { email } : {}),
+        ...(phone ? { phone } : {}),
+      },
     })
 
     return {

@@ -33,9 +33,18 @@ const createContact: ActionDefinition = {
   input: {
     schema: z.object({
       // TODO: Stricter types that would enforce at least one of phone or email
-      phone: z.string().optional().title('Phone').describe('The phone number of the contact'),
       email: z.string().optional().title('Email').describe('The email of the contact'),
-      properties: z.record(z.any()).title('Properties').optional().describe('The properties of the contact'),
+      phone: z.string().optional().title('Phone').describe('The phone number of the contact'),
+      additionalProperties: z
+        .array(
+          z.object({
+            name: z.string().title('Property Name').describe('The name of the property'),
+            value: z.string().title('Property Value').describe('The value of the property'),
+          })
+        )
+        .title('Additional Properties')
+        .optional()
+        .describe('Additional properties of the contact'),
     }),
   },
   output: {
