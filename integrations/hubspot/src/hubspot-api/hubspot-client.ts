@@ -188,6 +188,10 @@ export class HubspotClient {
     }
   }
 
+  public async deleteContact({ contactId }: { contactId: string }) {
+    await this._hsClient.crm.contacts.basicApi.archive(contactId)
+  }
+
   @handleErrors('Failed to create ticket')
   public async createTicket({
     subject,

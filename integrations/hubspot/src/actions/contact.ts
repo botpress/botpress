@@ -68,12 +68,11 @@ export const updateContact: bp.IntegrationProps['actions']['updateContact'] = as
   }
 }
 
-export const deleteContact: bp.IntegrationProps['actions']['deleteContact'] = async () => {
-  // TODO: Implement
-  return {
-    contact: {
-      id: '',
-      properties: {},
-    },
-  }
+export const deleteContact: bp.IntegrationProps['actions']['deleteContact'] = async ({ ctx, client, input }) => {
+  const hsClient = new HubspotClient({ accessToken: await getAccessToken({ client, ctx }), client, ctx })
+  console.log('deleting contact', input.contactId)
+  await hsClient.deleteContact({
+    contactId: input.contactId,
+  })
+  return {}
 }
