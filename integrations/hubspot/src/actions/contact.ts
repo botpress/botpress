@@ -29,3 +29,43 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
     contact,
   }
 }
+
+export const createContact: bp.IntegrationProps['actions']['createContact'] = async () => {
+  // TODO: Implement
+  return {
+    contact: {
+      id: '',
+      properties: {},
+    },
+  }
+}
+
+export const getContact: bp.IntegrationProps['actions']['getContact'] = async () => {
+  // TODO: Implement
+  return {
+    contact: {
+      id: '',
+      properties: {},
+    },
+  }
+}
+
+export const updateContact: bp.IntegrationProps['actions']['updateContact'] = async () => {
+  // TODO: Implement
+  return {
+    contact: {
+      id: '',
+      properties: {},
+    },
+  }
+}
+
+export const deleteContact: bp.IntegrationProps['actions']['deleteContact'] = async () => {
+  // TODO: Implement
+  return {
+    contact: {
+      id: '',
+      properties: {},
+    },
+  }
+}
