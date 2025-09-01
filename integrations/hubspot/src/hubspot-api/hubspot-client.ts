@@ -10,16 +10,23 @@ type TicketPropertiesCache = bp.states.States['ticketPropertyCache']['payload'][
 type TicketProperty = TicketPropertiesCache[string]
 type TicketPipelinesCache = bp.states.States['ticketPipelineCache']['payload']['pipelines']
 type TicketPipeline = TicketPipelinesCache[string]
+type CompaniesCache = bp.states.States['companiesCache']['payload']['companies']
+type Company = CompaniesCache[string]
+
+const PAGING_LIMIT = 100
 
 export class HubspotClient {
   private readonly _hsClient: OfficialHubspotClient
   private readonly _client: bp.Client
   private readonly _ctx: bp.Context
   private readonly _accessToken: string
+
   private _ticketProperties: TicketPropertiesCache | undefined
   private _ticketPropertiesAlreadyRefreshed: boolean = false
   private _ticketPipelines: TicketPipelinesCache | undefined
   private _ticketPipelinesAlreadyRefreshed: boolean = false
+  private _companies: CompaniesCache | undefined
+  private _companiesAlreadyRefreshed: boolean = false
 
   public constructor({ accessToken, client, ctx }: { accessToken: string; client: bp.Client; ctx: bp.Context }) {
     this._client = client
@@ -94,6 +101,7 @@ export class HubspotClient {
     pipelineStageNameOrId,
     priority,
     ticketOwnerEmailOrId,
+    companyIdOrNameOrDomain,
     requesterEmailOrId,
     linearTicketUrl,
     source,
@@ -106,6 +114,7 @@ export class HubspotClient {
     pipelineStageNameOrId: string
     priority?: 'Low' | 'Medium' | 'High' | 'Urgent'
     ticketOwnerEmailOrId?: string
+    companyIdOrNameOrDomain?: string
     requesterEmailOrId?: string
     linearTicketUrl?: string
     source?: 'Zoom' | 'Email' | 'Phone' | 'Chat' | 'Form'
@@ -136,6 +145,10 @@ export class HubspotClient {
         : { id: requesterEmailOrId }
       : undefined
 
+    const company = companyIdOrNameOrDomain
+      ? await this._getCompany({ idOrNameOrDomain: companyIdOrNameOrDomain })
+      : undefined
+
     const newTicket = await this._hsClient.crm.tickets.basicApi.create({
       properties: {
         subject,
@@ -158,6 +171,19 @@ export class HubspotClient {
                   {
                     associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
                     associationTypeId: 16, // 16 = Ticket to Contact
+                  },
+                ],
+              },
+            ]
+          : []),
+        ...(company
+          ? [
+              {
+                to: { id: company.id },
+                types: [
+                  {
+                    associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
+                    associationTypeId: 26, // 16 = Ticket to Company (primary)
                   },
                 ],
               },
@@ -220,7 +246,10 @@ export class HubspotClient {
     const canonicalName = _getCanonicalName(nameOrLabel)
 
     const knownTicketProperties = await this._getTicketPropertiesCache()
-    let matchingProperty = Object.entries(knownTicketProperties).find(
+    let matchingProperty = knownTicketProperties[nameOrLabel]
+      ? ([nameOrLabel, knownTicketProperties[nameOrLabel]] as const)
+      : undefined
+    matchingProperty ??= Object.entries(knownTicketProperties).find(
       ([name, { label }]) => _getCanonicalName(name) === canonicalName || _getCanonicalName(label) === canonicalName
     )
 
@@ -228,7 +257,10 @@ export class HubspotClient {
       // Refresh, then do a second pass:
       await this._refreshTicketPropertiesFromApi()
 
-      matchingProperty = Object.entries(this._ticketProperties!).find(
+      matchingProperty = this._ticketProperties![nameOrLabel]
+        ? ([nameOrLabel, this._ticketProperties![nameOrLabel]] as const)
+        : undefined
+      matchingProperty ??= Object.entries(this._ticketProperties!).find(
         ([name, { label }]) => _getCanonicalName(name) === canonicalName || _getCanonicalName(label) === canonicalName
       )
 
@@ -297,7 +329,11 @@ export class HubspotClient {
     const canonicalName = _getCanonicalName(nameOrLabel)
 
     const knownTicketPipelines = await this._getTicketPipelinesCache()
-    let matchingPipeline = Object.entries(knownTicketPipelines).find(
+
+    let matchingPipeline = knownTicketPipelines[nameOrLabel]
+      ? ([nameOrLabel, knownTicketPipelines[nameOrLabel]] as const)
+      : undefined
+    matchingPipeline ??= Object.entries(knownTicketPipelines).find(
       ([id, { label }]) =>
         _getCanonicalName(id) === canonicalName ||
         _getCanonicalName(label) === canonicalName ||
@@ -308,7 +344,10 @@ export class HubspotClient {
       // Refresh, then do a second pass:
       await this._refreshTicketPipelinesFromApi()
 
-      matchingPipeline = Object.entries(this._ticketPipelines!).find(
+      matchingPipeline = this._ticketPipelines![nameOrLabel]
+        ? ([nameOrLabel, this._ticketPipelines![nameOrLabel]] as const)
+        : undefined
+      matchingPipeline ??= Object.entries(this._ticketPipelines!).find(
         ([id, { label }]) =>
           _getCanonicalName(id) === canonicalName ||
           _getCanonicalName(label) === canonicalName ||
@@ -418,6 +457,104 @@ export class HubspotClient {
     }
 
     return matchingOwner
+  }
+
+  private async _getCompany({ idOrNameOrDomain }: { idOrNameOrDomain: string }) {
+    const canonicalName = _getCanonicalName(idOrNameOrDomain)
+
+    const knownCompanies = await this._getCompaniesCache()
+    let matchingCompany = knownCompanies[idOrNameOrDomain]
+      ? ([idOrNameOrDomain, knownCompanies[idOrNameOrDomain]] as const)
+      : undefined
+    matchingCompany ??= Object.entries(knownCompanies).find(
+      ([, { name, domain }]) =>
+        (name && _getCanonicalName(name) === canonicalName) || (domain && _getCanonicalName(domain) === canonicalName)
+    )
+
+    if (!matchingCompany) {
+      // Refresh, then do a second pass:
+      await this._refreshCompaniesFromApi()
+
+      matchingCompany = this._companies![idOrNameOrDomain]
+        ? ([idOrNameOrDomain, this._companies![idOrNameOrDomain]] as const)
+        : undefined
+      matchingCompany ??= Object.entries(this._companies!).find(
+        ([, { name, domain }]) =>
+          (name && _getCanonicalName(name) === canonicalName) || (domain && _getCanonicalName(domain) === canonicalName)
+      )
+
+      if (!matchingCompany) {
+        // At this point, we give up:
+        throw new sdk.RuntimeError(`Unable to find ticket company with name "${idOrNameOrDomain}"`)
+      }
+    }
+
+    return {
+      id: matchingCompany[0],
+      name: matchingCompany[1].name,
+      domain: matchingCompany[1].domain,
+    }
+  }
+
+  private async _getCompaniesCache(): Promise<CompaniesCache> {
+    if (!this._companies) {
+      try {
+        const { state } = await this._client.getState({
+          type: 'integration',
+          id: this._ctx.integrationId,
+          name: 'companiesCache',
+        })
+
+        this._companies = state.payload.companies
+      } catch {
+        await this._refreshCompaniesFromApi()
+      }
+    }
+
+    return this._companies as CompaniesCache
+  }
+
+  private async _refreshCompaniesFromApi(): Promise<void> {
+    if (this._companiesAlreadyRefreshed) {
+      // Prevent refreshing several times in a single lambda invocation
+      return
+    }
+
+    const companies: Awaited<ReturnType<OfficialHubspotClient['crm']['companies']['basicApi']['getPage']>>['results'] =
+      []
+
+    let after: string | undefined
+
+    do {
+      const companiesBatch = await this._hsClient.crm.companies.basicApi.getPage(PAGING_LIMIT, undefined, [
+        'name',
+        'domain',
+      ])
+      companies.push(...companiesBatch.results)
+      after = companiesBatch.paging?.next?.after
+    } while (after !== undefined)
+
+    this._companies = Object.fromEntries(
+      companies.map(
+        (company) =>
+          [
+            company.id,
+            {
+              name: company.properties.name ?? undefined,
+              domain: company.properties.domain ?? undefined,
+            } satisfies Company,
+          ] as const
+      )
+    )
+
+    this._client.setState({
+      type: 'integration',
+      id: this._ctx.integrationId,
+      name: 'companiesCache',
+      payload: { companies: this._companies },
+    })
+
+    this._companiesAlreadyRefreshed = true
   }
 }
 

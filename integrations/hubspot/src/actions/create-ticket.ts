@@ -16,6 +16,8 @@ export const createTicket: bp.IntegrationProps['actions']['createTicket'] = asyn
     linearTicketUrl: input.linearTicketUrl,
     priority: input.priority,
     ticketOwnerEmailOrId: input.ticketOwner,
+    requesterEmailOrId: input.requester,
+    companyIdOrNameOrDomain: input.company,
   })
 
   return {

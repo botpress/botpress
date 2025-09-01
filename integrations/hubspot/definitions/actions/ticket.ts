@@ -30,6 +30,16 @@ const createTicket: ActionDefinition = {
         .optional()
         .title('Ticket owner')
         .describe('User the ticket is assigned to. Can be an email address or user ID'),
+      requester: z
+        .string()
+        .optional()
+        .title('Customer')
+        .describe('The ticket requester. Can be an email address or contact ID'),
+      company: z
+        .string()
+        .optional()
+        .title('Company')
+        .describe('The company associated with the ticket. Can be a name, domain, or company ID'),
       linearTicketUrl: z.string().optional().title('Linear Ticket URL').describe('Link to the linear ticket'),
       source: z
         .enum(['Zoom', 'Email', 'Phone', 'Chat', 'Form'])
