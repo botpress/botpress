@@ -145,8 +145,11 @@ export class HubspotClient {
         : { id: requesterEmailOrId }
       : undefined
 
+    const isCompanyId = companyIdOrNameOrDomain !== '' && !isNaN(Number(companyIdOrNameOrDomain))
     const company = companyIdOrNameOrDomain
-      ? await this._searchCompany({ idOrNameOrDomain: companyIdOrNameOrDomain })
+      ? isCompanyId
+        ? { id: companyIdOrNameOrDomain } // Let hubspot handle invalid IDs
+        : await this._searchCompany({ idOrNameOrDomain: companyIdOrNameOrDomain })
       : undefined
 
     const ticketCreateInput: Parameters<OfficialHubspotClient['crm']['tickets']['basicApi']['create']>[0] = {
