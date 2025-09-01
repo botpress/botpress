@@ -146,10 +146,10 @@ export class HubspotClient {
       : undefined
 
     const company = companyIdOrNameOrDomain
-      ? await this._getCompany({ idOrNameOrDomain: companyIdOrNameOrDomain })
+      ? await this._searchCompany({ idOrNameOrDomain: companyIdOrNameOrDomain })
       : undefined
 
-    const newTicket = await this._hsClient.crm.tickets.basicApi.create({
+    const ticketCreateInput: Parameters<OfficialHubspotClient['crm']['tickets']['basicApi']['create']>[0] = {
       properties: {
         subject,
         ...(category ? { hs_ticket_category: category.toUpperCase().replace(' ', '_') } : {}),
@@ -190,9 +190,57 @@ export class HubspotClient {
             ]
           : []),
       ],
-    })
+    }
+
+    const newTicket = await this._hsClient.crm.tickets.basicApi.create(ticketCreateInput)
 
     return { ticketId: newTicket.id }
+  }
+
+  private async _searchCompany({ idOrNameOrDomain }: { idOrNameOrDomain: string }) {
+    const canonicalInput = idOrNameOrDomain.trim()
+
+    const isNumeric = canonicalInput !== '' && !isNaN(Number(canonicalInput))
+
+    if (isNumeric) {
+      const company = await this._hsClient.crm.companies.basicApi.getById(canonicalInput, [
+        'hs_object_id',
+        'name',
+        'domain',
+      ])
+      return company
+    }
+
+    const companies = await this._hsClient.crm.companies.searchApi.doSearch({
+      filterGroups: [
+        {
+          filters: [
+            {
+              propertyName: 'name',
+              operator: ContactFilterOperator.Eq,
+              value: idOrNameOrDomain,
+            },
+          ],
+        },
+        {
+          filters: [
+            {
+              propertyName: 'domain',
+              operator: ContactFilterOperator.Eq,
+              value: idOrNameOrDomain,
+            },
+          ],
+        },
+      ],
+      properties: ['hs_object_id', 'name', 'domain'],
+      limit: 2, // We only need to know if there's exactly one match
+    })
+
+    if (companies.total > 1) {
+      throw new sdk.RuntimeError(`Multiple companies found matching "${idOrNameOrDomain}"`)
+    }
+
+    return companies.results[0]
   }
 
   private async _resolveAndCoerceTicketProperty({
