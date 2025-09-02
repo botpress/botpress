@@ -3,9 +3,12 @@ import llm from './bp_modules/llm'
 
 export default new PluginDefinition({
   name: 'conversation-insights',
-  version: '0.2.1',
+  version: '0.3.0',
   configuration: {
-    schema: z.object({ modelId: z.string() }),
+    schema: z.object({
+      modelId: z.string().describe('The AI model id (ex: gpt-4.1-nano-2025-04-14)'),
+      aiEnabled: z.boolean().default(true).describe('Set to true to enable title, summary and sentiment ai generation'),
+    }),
   },
   conversation: {
     tags: {
@@ -22,10 +25,14 @@ export default new PluginDefinition({
         title: 'Participant count',
         description: 'The count of users having participated in the conversation, including the bot. Type: int',
       },
+      sentiment: {
+        title: 'Sentiment',
+        description: 'The sentiment that best describes the conversation. Type: enum Sentiments',
+      },
     },
   },
   events: {
-    updateSummary: {
+    updateAiInsight: {
       schema: z.object({}),
     },
   },

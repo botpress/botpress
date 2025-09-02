@@ -13,8 +13,18 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (pro
     downstreamBotpressUser.user.pictureUrl ??
     'https://app.botpress.dev/favicon/bp.svg'
 
+  const { user } = await client.getUser({
+    id: input.userId,
+  })
+
+  const zendeskAuthorId = user.tags.id
+
+  if (!zendeskAuthorId) {
+    throw new sdk.RuntimeError(`User ${user.id} not linked in Zendesk`)
+  }
+
   const zendeskClient = getZendeskClient(ctx.configuration)
-  const zendeskBotpressUser = await _retrieveAndUpdateZendeskBotpressUser(props, {
+  await _updateZendeskBotpressUser(props, {
     zendeskClient,
     chatbotName,
     chatbotPhotoUrl,
@@ -24,7 +34,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (pro
     input.title ?? 'Untitled Ticket',
     await _buildTicketBody(props, { chatbotName }),
     {
-      id: zendeskBotpressUser,
+      id: zendeskAuthorId,
     },
     {
       priority: input.hitlSession?.priority,
@@ -48,7 +58,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (pro
   }
 }
 
-const _retrieveAndUpdateZendeskBotpressUser = async (
+const _updateZendeskBotpressUser = async (
   { client, ctx }: bp.ActionProps['startHitl'],
   {
     zendeskClient,
@@ -62,13 +72,11 @@ const _retrieveAndUpdateZendeskBotpressUser = async (
     name: chatbotName,
   })
 
-  const zendeskUser = await zendeskClient.createOrUpdateUser({
+  await zendeskClient.createOrUpdateUser({
     external_id: ctx.botUserId,
     name: chatbotName,
     remote_photo_url: chatbotPhotoUrl,
   })
-
-  return String(zendeskUser.id)
 }
 
 const _buildTicketBody = async (

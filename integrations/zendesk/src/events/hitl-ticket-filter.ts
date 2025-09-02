@@ -13,6 +13,13 @@ export const retrieveHitlConversation = async ({
   ctx: bp.Context
   logger: bp.Logger
 }) => {
+  if (!zendeskTrigger.externalId?.length) {
+    logger.forBot().debug('No external ID associated with the Zendesk ticket. Ignoring the ticket...', {
+      zendeskTicketId: zendeskTrigger.ticketId,
+    })
+    return
+  }
+
   if (!ctx.configuration.ignoreNonHitlTickets) {
     const { conversation } = await client.getOrCreateConversation({
       channel: 'hitl',
@@ -20,13 +27,6 @@ export const retrieveHitlConversation = async ({
     })
 
     return conversation
-  }
-
-  if (!zendeskTrigger.externalId?.length) {
-    logger.forBot().debug('No external ID associated with the Zendesk ticket. Ignoring the ticket...', {
-      zendeskTicketId: zendeskTrigger.ticketId,
-    })
-    return
   }
 
   try {

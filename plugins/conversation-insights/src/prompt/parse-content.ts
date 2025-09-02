@@ -1,7 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import JSON5 from 'json5'
 import { jsonrepair } from 'jsonrepair'
-import { OutputFormat } from './summary-prompt'
 import * as bp from '.botpress'
 
 export type LLMInput = bp.interfaces.llm.actions.generateContent.input.Input
@@ -10,9 +9,9 @@ export type LLMOutput = bp.interfaces.llm.actions.generateContent.output.Output
 export type LLMMessage = LLMInput['messages'][number]
 export type LLMChoice = LLMOutput['choices'][number]
 
-type PredictResponse = {
+export type PredictResponse<T> = {
   success: boolean
-  json: OutputFormat
+  json: T
 }
 
 const tryParseJson = (str: string) => {
@@ -23,7 +22,7 @@ const tryParseJson = (str: string) => {
   }
 }
 
-export const parseLLMOutput = (output: LLMOutput): PredictResponse => {
+export const parseLLMOutput = <T>(output: LLMOutput): PredictResponse<T> => {
   const mappedChoices: LLMChoice['content'][] = output.choices.map((choice) => choice.content)
   if (!mappedChoices[0]) throw new sdk.RuntimeError('Could not parse LLM output')
   const firstChoice = mappedChoices[0]
