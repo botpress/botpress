@@ -17,7 +17,7 @@ export const fieldTypeSchema = z.enum([
   'Reference',
   'RichText',
   'Switch',
-  'VideoLink'
+  'VideoLink',
 ])
 
 export const CollectionSchema = z.object({
@@ -26,7 +26,7 @@ export const CollectionSchema = z.object({
   singularName: z.string(),
   slug: z.string().optional(),
   createdOn: z.string().optional(),
-  lastUpdated: z.string().optional()
+  lastUpdated: z.string().optional(),
 })
 
 export const CollectionDetailsSchema = z.object({
@@ -47,5 +47,5 @@ export const CollectionDetailsSchema = z.object({
   ),
   slug: z.string().optional(),
   createdOn: z.string().optional(),
-  lastUpdated: z.string().optional()
+  lastUpdated: z.string().optional(),
 })

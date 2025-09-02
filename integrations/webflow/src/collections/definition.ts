@@ -34,7 +34,7 @@ export const collectionsActionsDefinitions = {
     input: {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
-        collectionInfo: CollectionSchema.describe("Informations of the collection to create.")
+        collectionInfo: CollectionSchema.describe('Informations of the collection to create.'),
       }),
     },
     output: {

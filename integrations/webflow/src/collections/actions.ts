@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
-import * as bp from '.botpress'
-import { Collection, CollectionDetails } from './collection.d'
 import axios from 'axios'
+import { Collection, CollectionDetails } from './collection'
+import * as bp from '.botpress'
 
 export async function listCollections(
   props: bp.ActionProps['listCollections']
@@ -20,15 +20,15 @@ export async function listCollections(
           Authorization: `Bearer ${apiToken}`,
         },
       }
-    );
+    )
 
-    return response.data;
+    return response.data
   } catch (err) {
     if (axios.isAxiosError(err)) {
-      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message;
+      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message
       throw new sdk.RuntimeError(`webflow API error: ${serverMessage}`)
     }
-    throw err;
+    throw err
   }
 }
 
@@ -45,15 +45,15 @@ export async function getCollectionDetails(
           Authorization: `Bearer ${apiToken}`,
         },
       }
-    );
+    )
 
-    return { collectionDetails: response.data };
+    return { collectionDetails: response.data }
   } catch (err) {
     if (axios.isAxiosError(err)) {
-      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message;
+      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message
       throw new sdk.RuntimeError(`webflow API error: ${serverMessage}`)
     }
-    throw err;
+    throw err
   }
 }
 
@@ -70,18 +70,18 @@ export async function createCollection(
       {
         headers: {
           Authorization: `Bearer ${apiToken}`,
-          "Content-Type": "application/json"
+          'Content-Type': 'application/json',
         },
       }
-    );
+    )
 
-    return { collectionDetails: response.data };
+    return { collectionDetails: response.data }
   } catch (err) {
     if (axios.isAxiosError(err)) {
-      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message;
+      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message
       throw new sdk.RuntimeError(`webflow API error: ${serverMessage}`)
     }
-    throw err;
+    throw err
   }
 }
 
@@ -91,21 +91,18 @@ export async function deleteCollection(
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
   try {
-    await axios.delete(
-      `https://api.webflow.com/v2/collections/${props.input.collectionID}`,
-      {
-        headers: {
-          Authorization: `Bearer ${apiToken}`,
-        },
-      }
-    );
+    await axios.delete(`https://api.webflow.com/v2/collections/${props.input.collectionID}`, {
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+      },
+    })
 
-    return { success: true };
+    return { success: true }
   } catch (err) {
     if (axios.isAxiosError(err)) {
-      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message;
+      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message
       throw new sdk.RuntimeError(`webflow API error: ${serverMessage}`)
     }
-    throw err;
+    throw err
   }
 }

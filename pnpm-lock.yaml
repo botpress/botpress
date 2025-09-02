@@ -1638,13 +1638,6 @@ importers:
       axios:
         specifier: ^1.11.0
         version: 1.11.0
-    devDependencies:
-      '@types/node':
-        specifier: ^22.18.0
-        version: 22.18.0
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.2
 
   integrations/webhook:
     dependencies:

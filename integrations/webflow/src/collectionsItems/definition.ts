@@ -9,7 +9,7 @@ export const collectionsItemsActionsDefinitions = {
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
         pagination: paginationSchema.optional().describe('Pagination parameters'),
-        isLiveItems: z.boolean().default(false).describe('checkbox to decide if the list is for live items or not')
+        isLiveItems: z.boolean().default(false).describe('checkbox to decide if the list is for live items or not'),
       }),
     },
     output: {
@@ -52,7 +52,7 @@ export const collectionsItemsActionsDefinitions = {
             isDraft: z.boolean().default(false),
             fieldData: z.object({ name: z.string().min(1), slug: z.string().min(1) }),
           })
-        )
+        ),
       }),
     },
     output: {
@@ -68,9 +68,9 @@ export const collectionsItemsActionsDefinitions = {
             // Supports only text items
             fieldData: z.record(z.string()).optional(),
             isArchived: z.boolean().optional(),
-            isDrafted: z.boolean().optional()
+            isDrafted: z.boolean().optional(),
           })
-        )
+        ),
       }),
     },
   },
@@ -113,17 +113,15 @@ export const collectionsItemsActionsDefinitions = {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
-        itemIds: z.array(
-          z.string().min(1, 'Item ID is required').describe('Unique identifier for the Item')
-        ),
-      })
+        itemIds: z.array(z.string().min(1, 'Item ID is required').describe('Unique identifier for the Item')),
+      }),
     },
     output: {
       schema: z.object({
         publishedItemIds: z.array(z.string()),
-        errors: z.array(z.string())
-      })
-    }
+        errors: z.array(z.string()),
+      }),
+    },
   },
   unpublishLiveItems: {
     title: 'Unpublish Live Item(s)',
@@ -131,14 +129,11 @@ export const collectionsItemsActionsDefinitions = {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
-        itemIds: z.array(
-          z.string().min(1, 'Item ID is required').describe('Unique identifier for the Item')
-        ),
-      })
+        itemIds: z.array(z.string().min(1, 'Item ID is required').describe('Unique identifier for the Item')),
+      }),
     },
     output: {
       schema: z.object({ success: z.boolean().describe('Indicates if the items were successfully unpublished') }),
-    }
-  }
-
+    },
+  },
 } satisfies IntegrationDefinitionProps['actions']

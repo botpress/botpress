@@ -1,5 +1,5 @@
-import { z } from "@botpress/sdk"
-import { CollectionDetailsSchema, CollectionSchema, fieldTypeSchema } from "./collectionSchema.js"
+import { z } from '@botpress/sdk'
+import { CollectionDetailsSchema, CollectionSchema, fieldTypeSchema } from './collectionSchema'
 
 export type fieldType = z.infer<typeof fieldTypeSchema>
 export type CollectionDetails = z.infer<typeof CollectionDetailsSchema>

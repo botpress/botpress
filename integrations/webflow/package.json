@@ -1,16 +1,13 @@
 {
-  "integrationName": "@botpresshub/webflow",
+  "name": "@botpresshub/webflow",
   "scripts": {
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "axios": "^1.11.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.18.0",
-    "typescript": "^5.9.2"
   }
 }
