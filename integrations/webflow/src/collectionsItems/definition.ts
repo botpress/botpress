@@ -1,5 +1,5 @@
 import { IntegrationDefinitionProps, z } from '@botpress/sdk'
-import { itemSchemaInput, itemSchemaOutput } from './item'
+import { itemSchemaInput, itemSchemaOutput, paginationSchema } from './itemSchema'
 
 const extras = z.record(z.any()).optional()
 
@@ -10,13 +10,7 @@ export const collectionsItemsActionsDefinitions = {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
-        pagination: z
-          .object({
-            limit: z.number().default(100).optional().describe('The number of items to return'),
-            offset: z.number().default(0).optional().describe('The number of items to skip'),
-          })
-          .optional()
-          .describe('Pagination parameters'),
+        pagination: paginationSchema.optional().describe('Pagination parameters'),
       }),
     },
     output: {
@@ -47,7 +41,7 @@ export const collectionsItemsActionsDefinitions = {
       }),
     },
   },
-  createItem: {
+  createItems: {
     // TODO: test single and multiple item creation and rename to items
     title: 'Create Collection item(s)',
     input: {
@@ -85,9 +79,6 @@ export const collectionsItemsActionsDefinitions = {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
-        itemsID: z
-          .array(z.string().min(1, 'Item ID is required').describe('The ID of your Webflow item'))
-          .describe('Array of item IDs to update'),
         items: z.object({ items: z.array(itemSchemaInput).describe('Array of items to update') }),
       }),
     },

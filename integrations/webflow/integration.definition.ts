@@ -23,7 +23,7 @@ export default new IntegrationDefinition({
 
     listItems: collectionsItemsActionsDefinitions.listItems,
     getItem: collectionsItemsActionsDefinitions.getItem,
-    createItem: collectionsItemsActionsDefinitions.createItem,
+    createItems: collectionsItemsActionsDefinitions.createItems,
     updateItems: collectionsItemsActionsDefinitions.updateItems,
     deleteItems: collectionsItemsActionsDefinitions.deleteItems,
   },

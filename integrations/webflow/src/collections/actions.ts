@@ -5,6 +5,11 @@ import { Collection, CollectionDetails } from './collection.d'
 export async function listCollections(
   props: bp.ActionProps['listCollections']
 ): Promise<bp.actions.listCollections.output.Output> {
+
+  type Result = {
+    collections?: Collection[]
+  }
+
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
   const response = await fetch(
@@ -18,12 +23,11 @@ export async function listCollections(
   )
   if (!response.ok) throw new sdk.RuntimeError("siteID or apiToken not valid")
 
-  const result = await response.json()
-  const collections = result.collections as Collection[]
-  props.logger.forBot().debug(collections)
+  const result = await response.json() as Result
 
 
-  return { collections: collections }
+  if (result.collections == undefined) throw new sdk.RuntimeError("no Collection to display")
+  return { collections: result.collections }
 }
 
 export async function getCollectionDetails(

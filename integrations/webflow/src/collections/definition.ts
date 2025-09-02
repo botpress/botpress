@@ -1,5 +1,5 @@
 import { IntegrationDefinitionProps, z } from '@botpress/sdk'
-import { CollectionSchema, CollectionDetailsSchema } from './collection'
+import { CollectionSchema, CollectionDetailsSchema } from './collectionSchema'
 
 export const collectionsActionsDefinitions = {
   listCollections: {

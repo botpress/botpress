@@ -1,10 +1,10 @@
 import * as bp from '.botpress'
 import { createCollection, deleteCollection, getCollectionDetails, listCollections } from './collections/actions'
-import { getItem, listItems, createItem, updateItems, deleteItems } from './collectionsItems/actions'
+import { getItem, listItems, createItems, updateItems, deleteItems } from './collectionsItems/actions'
 
 export default new bp.Integration({
-  register: async () => {},
-  unregister: async () => {},
+  register: async () => { },
+  unregister: async () => { },
   actions: {
     listCollections: listCollections,
     getCollectionDetails: getCollectionDetails,
@@ -13,10 +13,10 @@ export default new bp.Integration({
 
     listItems: listItems,
     getItem: getItem,
-    createItem: createItem,
+    createItems: createItems,
     updateItems: updateItems,
     deleteItems: deleteItems,
   },
   channels: {},
-  handler: async () => {},
+  handler: async () => { },
 })

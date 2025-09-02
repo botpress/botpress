@@ -6,8 +6,7 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*",
-    "webflow-api": "^3.2.0"
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.18.0",

@@ -2,7 +2,7 @@ import { z } from '@botpress/sdk'
 
 export const itemSchemaOutput = z.object({
   id: z.string().optional().describe('Unique identifier for the Item'),
-  lastPublished: z.string().optional().describe('The date the item was last published'),
+  lastPublished: z.string().nullable().describe('The date the item was last published'),
   lastUpdated: z.string().optional().describe('The date the item was last updated'),
   createdOn: z.string().optional().describe('The date the item was created'),
   fieldData: z
@@ -32,4 +32,9 @@ export const itemSchemaInput = z.object({
   cmsLocaleId: z.string().optional().describe('Identifier for the locale of the CMS item'),
   isArchived: z.boolean().default(false).describe('Boolean determining if the Item is set to archived'),
   isDraft: z.boolean().default(true).describe('Boolean determining if the Item is set to draft'),
+})
+
+export const paginationSchema = z.object({
+  limit: z.number().default(100).optional().describe('The number of items to return'),
+  offset: z.number().default(0).optional().describe('The number of items to skip'),
 })
