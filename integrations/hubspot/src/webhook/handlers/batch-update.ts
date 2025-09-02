@@ -68,8 +68,26 @@ export const handleBatchUpdateEvent: bp.IntegrationProps['handler'] = async (pro
         })
         break
       case isTicketCreatedEvent(event):
+        const ticket = await hsClient.getTicketById({ ticketId: event.objectId })
+        props.client.createEvent({
+          type: 'ticketCreated',
+          payload: {
+            ticketId: event.objectId.toString(),
+            subject: ticket?.properties.subject ?? undefined,
+            priority: ticket?.properties.hs_ticket_priority ?? undefined,
+            category: ticket?.properties.hs_ticket_category ?? undefined,
+            pipeline: ticket?.pipeline.label,
+            stage: ticket?.pipelineStage.label,
+          },
+        })
         break
       case isTicketDeletedEvent(event):
+        props.client.createEvent({
+          type: 'ticketDeleted',
+          payload: {
+            ticketId: event.objectId.toString(),
+          },
+        })
         break
       case isLeadCreatedEvent(event):
         break
