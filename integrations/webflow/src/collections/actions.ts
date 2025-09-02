@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
+import * as bp from '../../.botpress'
 import { Collection, CollectionDetails } from '../types'
-import * as bp from '.botpress'
 
 export const listCollections: bp.IntegrationProps['actions']['listCollections'] = async (props) => {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
@@ -30,9 +30,7 @@ export const listCollections: bp.IntegrationProps['actions']['listCollections'] 
   }
 }
 
-export async function getCollectionDetails(
-  props: bp.ActionProps['getCollectionDetails']
-): Promise<bp.actions.getCollectionDetails.output.Output> {
+export const getCollectionDetails: bp.IntegrationProps['actions']['getCollectionDetails'] = async (props) => {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
   try {
@@ -55,9 +53,7 @@ export async function getCollectionDetails(
   }
 }
 
-export async function createCollection(
-  props: bp.ActionProps['createCollection']
-): Promise<bp.actions.createCollection.output.Output> {
+export const createCollection: bp.IntegrationProps['actions']['createCollection'] = async (props) => {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
   // TODO add check for valid field types
 
@@ -83,9 +79,7 @@ export async function createCollection(
   }
 }
 
-export async function deleteCollection(
-  props: bp.ActionProps['deleteCollection']
-): Promise<bp.actions.deleteCollection.output.Output> {
+export const deleteCollection: bp.IntegrationProps['actions']['deleteCollection'] = async (props) => {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
   try {

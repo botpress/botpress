@@ -1,9 +1,9 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
+import * as bp from '../../.botpress'
 import { ItemOutput } from '../types'
-import * as bp from '.botpress'
 
-export async function listItems(props: bp.ActionProps['listItems']): Promise<bp.actions.listItems.output.Output> {
+export const listItems: bp.IntegrationProps['actions']['listItems'] = async (props) => {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
   type Result = bp.actions.listItems.output.Output
@@ -27,7 +27,7 @@ export async function listItems(props: bp.ActionProps['listItems']): Promise<bp.
   }
 }
 
-export async function getItem(props: bp.ActionProps['getItem']): Promise<bp.actions.getItem.output.Output> {
+export const getItem: bp.IntegrationProps['actions']['getItem'] = async (props) => {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
   try {
@@ -49,7 +49,7 @@ export async function getItem(props: bp.ActionProps['getItem']): Promise<bp.acti
   }
 }
 
-export async function createItems(props: bp.ActionProps['createItems']): Promise<bp.actions.createItems.output.Output> {
+export const createItems: bp.IntegrationProps['actions']['createItems'] = async (props) => {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
   type Result = {
@@ -77,7 +77,7 @@ export async function createItems(props: bp.ActionProps['createItems']): Promise
   }
 }
 
-export async function updateItems(props: bp.ActionProps['updateItems']): Promise<bp.actions.updateItems.output.Output> {
+export const updateItems: bp.IntegrationProps['actions']['updateItems'] = async (props) => {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
   type Result = {
@@ -109,7 +109,7 @@ export async function updateItems(props: bp.ActionProps['updateItems']): Promise
   }
 }
 
-export async function deleteItems(props: bp.ActionProps['deleteItems']): Promise<bp.actions.deleteItems.output.Output> {
+export const deleteItems: bp.IntegrationProps['actions']['deleteItems'] = async (props) => {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
   try {
@@ -130,9 +130,7 @@ export async function deleteItems(props: bp.ActionProps['deleteItems']): Promise
   }
 }
 
-export async function publishItems(
-  props: bp.ActionProps['publishItems']
-): Promise<bp.actions.publishItems.output.Output> {
+export const publishItems: bp.IntegrationProps['actions']['publishItems'] = async (props) => {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
   type Result = {
@@ -162,9 +160,7 @@ export async function publishItems(
   }
 }
 
-export async function unpublishLiveItems(
-  props: bp.ActionProps['unpublishLiveItems']
-): Promise<bp.actions.unpublishLiveItems.output.Output> {
+export const unpublishLiveItems: bp.IntegrationProps['actions']['unpublishLiveItems'] = async (props) => {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
   try {
