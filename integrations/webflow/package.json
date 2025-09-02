@@ -6,7 +6,8 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*"
+    "@botpress/sdk": "workspace:*",
+    "axios": "^1.11.0"
   },
   "devDependencies": {
     "@types/node": "^22.18.0",

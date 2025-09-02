@@ -11,7 +11,7 @@ export async function listItems(props: bp.ActionProps['listItems']): Promise<bp.
   }
 
   const response = await fetch(
-    `https://api.webflow.com/v2/collections/${props.input.collectionID}/items?offset=${props.input.pagination?.offset}&limit=${props.input.pagination?.limit}`,
+    `https://api.webflow.com/v2/collections/${props.input.collectionID}/items?offset=${props.input.pagination?.offset ?? 0}&limit=${props.input.pagination?.limit ?? 100}`,
     {
       method: "GET",
       headers: {
@@ -61,7 +61,7 @@ export async function createItems(props: bp.ActionProps['createItems']): Promise
         "Authorization": `Bearer ${apiToken}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(props.input.items)
+      body: JSON.stringify({ items: props.input.items })
     }
   )
 

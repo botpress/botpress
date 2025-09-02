@@ -42,17 +42,18 @@ export const collectionsItemsActionsDefinitions = {
     },
   },
   createItems: {
-    // TODO: test single and multiple item creation and rename to items
     title: 'Create Collection item(s)',
     input: {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
-        items: z.object({
-          isArchived: z.boolean().default(false),
-          isDraft: z.boolean().default(false),
-          fieldData: z.array(z.object({ name: z.string().min(1), slug: z.string().min(1) })),
-        }),
+        items: z.array(
+          z.object({
+            isArchived: z.boolean().default(false),
+            isDraft: z.boolean().default(false),
+            fieldData: z.object({ name: z.string().min(1), slug: z.string().min(1) }),
+          })
+        )
       }),
     },
     output: {
