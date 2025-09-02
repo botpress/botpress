@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   source-map-js@1.2.1:
-    hash: h25dep36e76b3zca3v6s2554fi
+    hash: 0354139cbc5dbd66e1bc59167ff8e42d3a9a2169038a35f1b7b1b4b843e08a6c
     path: patches/source-map-js@1.2.1.patch
 
 importers:
@@ -2427,6 +2427,9 @@ importers:
       ulid:
         specifier: ^2.3.0
         version: 2.3.0
+    dependenciesMeta:
+      '@bpinternal/zui':
+        injected: true
     devDependencies:
       '@microsoft/api-extractor':
         specifier: ^7.49.0
@@ -2475,7 +2478,7 @@ importers:
         version: 9.3.5
       source-map-js:
         specifier: 1.2.1
-        version: 1.2.1(patch_hash=h25dep36e76b3zca3v6s2554fi)
+        version: 1.2.1(patch_hash=0354139cbc5dbd66e1bc59167ff8e42d3a9a2169038a35f1b7b1b4b843e08a6c)
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@22.16.4)(typescript@5.8.3)
@@ -2485,9 +2488,6 @@ importers:
       tsx:
         specifier: ^4.19.2
         version: 4.19.2
-    dependenciesMeta:
-      '@bpinternal/zui':
-        injected: true
 
   packages/sdk:
     dependencies:
@@ -19530,7 +19530,7 @@ snapshots:
     dependencies:
       nanoid: 3.3.7
       picocolors: 1.1.1
-      source-map-js: 1.2.1(patch_hash=h25dep36e76b3zca3v6s2554fi)
+      source-map-js: 1.2.1(patch_hash=0354139cbc5dbd66e1bc59167ff8e42d3a9a2169038a35f1b7b1b4b843e08a6c)
 
   postgres-array@2.0.0: {}
 
@@ -20177,7 +20177,7 @@ snapshots:
       dot-case: 3.0.4
       tslib: 2.6.2
 
-  source-map-js@1.2.1(patch_hash=h25dep36e76b3zca3v6s2554fi): {}
+  source-map-js@1.2.1(patch_hash=0354139cbc5dbd66e1bc59167ff8e42d3a9a2169038a35f1b7b1b4b843e08a6c): {}
 
   source-map-support@0.5.13:
     dependencies:
