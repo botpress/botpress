@@ -7,6 +7,8 @@ import * as bp from '.botpress'
 
 type CommonProps = types.CommonProps
 
+const HOUR_MILLISECONDS = 60 * 60 * 1000
+
 const plugin = new bp.Plugin({
   actions: {},
 })
@@ -18,8 +20,19 @@ plugin.on.afterIncomingMessage('*', async (props) => {
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
   const { message_count } = await _onNewMessage({ ...props, conversation })
 
-  if (props.configuration.aiEnabled && updateScheduler.isTimeToUpdate(message_count)) {
-    await props.events.updateAiInsight.withConversationId(props.data.conversationId).emit({})
+  if (props.configuration.aiEnabled) {
+    console.log('listing events')
+    const eventType = 'conversation-insights#updateAiInsight'
+    const events = await props.client.listEvents({ type: eventType })
+    if (
+      events.events.filter((event) => {
+        event.type === eventType && (event.status === 'pending' || event.status === 'scheduled')
+      }).length === 0
+    ) {
+      //looks like the schedule delay has a minimum value and causes an unknown error when triggering
+      console.log('creating event')
+      await props.events.updateAiInsight.schedule({}, { delay: HOUR_MILLISECONDS })
+    }
   }
 
   return undefined
@@ -64,25 +77,23 @@ plugin.on.event('updateAiInsight', async (props) => {
     props.logger.error('This event is not supported by the browser')
     return
   }
-  const firstMessagePage = await props.client
-    .listMessages({ conversationId: props.event.conversationId })
-    .then((res) => res.messages)
+  console.log('listing workflows')
+  const workflows = await props.client
+    .listWorkflows({ name: 'conversation-insights#updateAllConversations' })
+    .then((workflows) => {
+      return workflows.workflows.filter((workflow) => {
+        !['cancelled', 'failed'].includes(workflow.status)
+      })
+    })
 
-  if (!props.event.conversationId) {
-    throw new sdk.RuntimeError(`The conversationId cannot be null when calling the event '${props.event.type}'`)
+  if (workflows.length === 0) {
+    props.workflows.updateAllConversations.startNewInstance({ input: {} })
   }
-  const conversation = await props.client.getConversation({ id: props.event.conversationId })
-
-  await summaryUpdater.updateTitleAndSummary({
-    ...props,
-    conversation: conversation.conversation,
-    messages: firstMessagePage,
-  })
 })
 
 plugin.on.workflowStart('updateAllConversations', async (props) => {
-  // TODO
   console.log('workflow started')
+
   return undefined
 })
 
