@@ -30,6 +30,16 @@ const createLead: ActionDefinition = {
   description: 'Create a lead in Hubspot',
   input: {
     schema: z.object({
+      associations: z
+        .object({
+          contactId: z
+            .string()
+            .optional()
+            .title('Contact ID')
+            .describe('The ID of the contact to associate the lead with'),
+        })
+        .title('Associations')
+        .describe('The associations of the lead'),
       properties: z.record(z.any()).title('Properties').describe('The properties of the lead'),
     }),
   },

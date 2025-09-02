@@ -9,7 +9,7 @@ type HubspotApiError = Error & {
   }
 }
 
-export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction((error: Error, customMessage: string) => {
+const _errorRedactor = (error: Error, customMessage: string) => {
   if (error instanceof sdk.RuntimeError) {
     return error
   }
@@ -25,7 +25,9 @@ export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction((e
   }
 
   return new sdk.RuntimeError(customMessage)
-})
+}
+
+export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction(_errorRedactor)
 
 const _isHubspotApiError = (error: unknown): error is HubspotApiError => {
   return error instanceof Error && 'code' in error && typeof (error as any).code === 'number'
