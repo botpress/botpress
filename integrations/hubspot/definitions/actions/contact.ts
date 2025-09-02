@@ -32,9 +32,19 @@ const createContact: ActionDefinition = {
   description: 'Create a contact in Hubspot',
   input: {
     schema: z.object({
-      // TODO: Stricter types that would enforce at least one of phone or email
       email: z.string().optional().title('Email').describe('The email of the contact'),
       phone: z.string().optional().title('Phone').describe('The phone number of the contact'),
+      companies: z
+        .array(z.string().title('Company ID, name or domain').describe('The ID, name or domain of the company'))
+        .optional()
+        .title('Companies')
+        .describe('The companies of the contact'),
+      tickets: z
+        .array(z.string().title('Ticket ID').describe('The ID of the ticket'))
+        .optional()
+        .title('Tickets')
+        .describe('The associated tickets of the contact'),
+      // TODO: Leads
       additionalProperties: z
         .array(
           z.object({

@@ -28,6 +28,7 @@ export class HubspotClient {
   private _contactPropertiesAlreadyRefreshed: boolean = false
   private _ticketPipelines: TicketPipelinesCache | undefined
   private _ticketPipelinesAlreadyRefreshed: boolean = false
+  private _contactPropertyForceRefresh: boolean = false
 
   public constructor({ accessToken, client, ctx }: { accessToken: string; client: bp.Client; ctx: bp.Context }) {
     this._client = client
@@ -160,22 +161,51 @@ export class HubspotClient {
   public async createContact({
     email,
     phone,
+    companyIdsOrNamesOrDomains,
+    ticketIds,
     additionalProperties,
   }: {
     email?: string
     phone?: string
+    companyIdsOrNamesOrDomains?: string[]
+    ticketIds?: string[]
     additionalProperties: Record<string, string>
   }) {
     if (!email && !phone) {
       throw new sdk.RuntimeError('Email or phone is required')
     }
     const resolvedProperties = await this._resolveAndCoerceContactProperties({ properties: additionalProperties })
+    const companies = await Promise.all(
+      (companyIdsOrNamesOrDomains ?? []).map((idOrNameOrDomain) => this._searchCompany({ idOrNameOrDomain }))
+    )
+    const tickets = await Promise.all((ticketIds ?? []).map((id) => this._getTicket({ id })))
+
     const newContact = await this._hsClient.crm.contacts.basicApi.create({
       properties: {
         ...resolvedProperties,
         ...(email ? { email } : {}),
         ...(phone ? { phone } : {}),
       },
+      associations: [
+        ...companies.map((company) => ({
+          to: { id: company.id },
+          types: [
+            {
+              associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
+              associationTypeId: AssociationTypes.contactToCompany,
+            },
+          ],
+        })),
+        ...tickets.map((ticket) => ({
+          to: { id: ticket.id },
+          types: [
+            {
+              associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
+              associationTypeId: AssociationTypes.contactToTicket,
+            },
+          ],
+        })),
+      ],
     })
 
     return {
@@ -297,7 +327,8 @@ export class HubspotClient {
         return { propertyName: property.name, coercedValue: asDate.toISOString() }
       case 'enumeration':
         if (property.options && !property.options.includes(value)) {
-          const refreshedProperty = await this._getContactProperty({ nameOrLabel, forceRefresh: true })
+          this._contactPropertyForceRefresh = true
+          const refreshedProperty = await this._getContactProperty({ nameOrLabel })
           // Check if options have been updated since last refresh
           if (refreshedProperty.options && !refreshedProperty.options.includes(value)) {
             throw new sdk.RuntimeError(
@@ -319,7 +350,7 @@ export class HubspotClient {
     }
   }
 
-  private async _getContactProperty({ nameOrLabel, forceRefresh }: { nameOrLabel: string; forceRefresh?: boolean }) {
+  private async _getContactProperty({ nameOrLabel }: { nameOrLabel: string }) {
     const canonicalName = _getCanonicalName(nameOrLabel)
     const knownContactProperties = await this._getContactPropertiesCache()
     let matchingProperty = knownContactProperties[nameOrLabel]
@@ -328,9 +359,9 @@ export class HubspotClient {
     matchingProperty ??= Object.entries(knownContactProperties).find(
       ([name, { label }]) => _getCanonicalName(name) === canonicalName || _getCanonicalName(label) === canonicalName
     )
-    if (!matchingProperty || forceRefresh) {
+    if (!matchingProperty || this._contactPropertyForceRefresh) {
       // Refresh, then do a second pass:
-      await this._refreshContactPropertiesFromApi({ forceRefresh })
+      await this._refreshContactPropertiesFromApi()
       matchingProperty = this._contactProperties![nameOrLabel]
         ? ([nameOrLabel, this._contactProperties![nameOrLabel]] as const)
         : undefined
@@ -366,8 +397,8 @@ export class HubspotClient {
     return this._contactProperties as ContactPropertiesCache
   }
 
-  private async _refreshContactPropertiesFromApi({ forceRefresh }: { forceRefresh?: boolean } = {}): Promise<void> {
-    if (this._contactPropertiesAlreadyRefreshed && !forceRefresh) {
+  private async _refreshContactPropertiesFromApi(): Promise<void> {
+    if (this._contactPropertiesAlreadyRefreshed && !this._contactPropertyForceRefresh) {
       // Prevent refreshing several times in a single lambda invocation
       return
     }
@@ -392,6 +423,7 @@ export class HubspotClient {
       payload: { properties: this._contactProperties },
     })
     this._contactPropertiesAlreadyRefreshed = true
+    this._contactPropertyForceRefresh = false
   }
 
   @handleErrors('Failed to create ticket')
@@ -546,7 +578,13 @@ export class HubspotClient {
       throw new sdk.RuntimeError(`Multiple companies found matching "${idOrNameOrDomain}"`)
     }
 
-    return companies.results[0]
+    const matchingCompany = companies.results[0]
+
+    if (!matchingCompany) {
+      throw new sdk.RuntimeError(`No company found matching "${idOrNameOrDomain}"`)
+    }
+
+    return matchingCompany
   }
 
   private async _resolveAndCoerceTicketProperty({
@@ -795,7 +833,7 @@ export class HubspotClient {
       )
     )
 
-    this._client.setState({
+    await this._client.setState({
       type: 'integration',
       id: this._ctx.integrationId,
       name: 'ticketPipelineCache',
@@ -939,6 +977,11 @@ export class HubspotClient {
     }
 
     return lead
+  }
+
+  private async _getTicket({ id }: { id: string }) {
+    const ticket = await this._hsClient.crm.tickets.basicApi.getById(id)
+    return ticket
   }
 }
 
