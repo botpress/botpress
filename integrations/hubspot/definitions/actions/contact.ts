@@ -34,6 +34,7 @@ const createContact: ActionDefinition = {
     schema: z.object({
       email: z.string().optional().title('Email').describe('The email of the contact'),
       phone: z.string().optional().title('Phone').describe('The phone number of the contact'),
+      owner: z.string().optional().title('Owner').describe('The ID or email of the owner of the contact'),
       companies: z
         .array(z.string().title('Company ID, name or domain').describe('The ID, name or domain of the company'))
         .optional()

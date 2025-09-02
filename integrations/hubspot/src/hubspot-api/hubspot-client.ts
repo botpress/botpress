@@ -161,12 +161,14 @@ export class HubspotClient {
   public async createContact({
     email,
     phone,
+    ownerEmailOrId,
     companyIdsOrNamesOrDomains,
     ticketIds,
     additionalProperties,
   }: {
     email?: string
     phone?: string
+    ownerEmailOrId?: string
     companyIdsOrNamesOrDomains?: string[]
     ticketIds?: string[]
     additionalProperties: Record<string, string>
@@ -180,9 +182,16 @@ export class HubspotClient {
     )
     const tickets = await Promise.all((ticketIds ?? []).map((id) => this._getTicket({ id })))
 
+    const owner = ownerEmailOrId
+      ? ownerEmailOrId.includes('@')
+        ? await this._retrieveOwnerByEmail({ email: ownerEmailOrId })
+        : { id: ownerEmailOrId }
+      : undefined
+
     const newContact = await this._hsClient.crm.contacts.basicApi.create({
       properties: {
         ...resolvedProperties,
+        ...(owner ? { hubspot_owner_id: owner.id } : {}),
         ...(email ? { email } : {}),
         ...(phone ? { phone } : {}),
       },
