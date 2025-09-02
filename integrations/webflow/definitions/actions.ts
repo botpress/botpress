@@ -1,7 +1,149 @@
 import { IntegrationDefinitionProps, z } from '@botpress/sdk'
-import { itemSchemaInput, itemSchemaOutput, paginationSchema } from './item-schemas'
 
-export const collectionsItemsActionsDefinitions = {
+export const fieldTypeSchema = z.enum([
+  'Color',
+  'DateTime',
+  'Email',
+  'ExtFileRef',
+  'File',
+  'Image',
+  'Link',
+  'Multimage',
+  'MultiReference',
+  'Number',
+  'Option',
+  'Phone',
+  'PlainText',
+  'Reference',
+  'RichText',
+  'Switch',
+  'VideoLink',
+])
+
+export const collectionSchema = z.object({
+  id: z.string().optional(),
+  displayName: z.string(),
+  singularName: z.string(),
+  slug: z.string().optional(),
+  createdOn: z.string().optional(),
+  lastUpdated: z.string().optional(),
+})
+
+export const collectionDetailsSchema = z.object({
+  id: z.string().optional(),
+  displayName: z.string(),
+  singularName: z.string(),
+  fields: z.array(
+    z.object({
+      id: z.string(),
+      isRequired: z.boolean(),
+      type: fieldTypeSchema,
+      displayName: z.string(),
+      isEditable: z.boolean().nullable(),
+      slug: z.string().nullable(),
+      helpText: z.string().nullable(),
+      validation: z.any(),
+    })
+  ),
+  slug: z.string().optional(),
+  createdOn: z.string().optional(),
+  lastUpdated: z.string().optional(),
+})
+
+export const itemSchemaOutput = z.object({
+  id: z.string().optional().describe('Unique identifier for the Item'),
+  lastPublished: z.string().nullable().describe('The date the item was last published'),
+  lastUpdated: z.string().optional().describe('The date the item was last updated'),
+  createdOn: z.string().optional().describe('The date the item was created'),
+  fieldData: z
+    .object({
+      name: z.string().min(1, 'Field name is required').describe('Name of the Item'),
+      slug: z
+        .string()
+        .describe(
+          'URL structure of the Item in your site. Note: Updates to an item slug will break all links referencing the old slug.'
+        ),
+    })
+    .describe('The field data of your Webflow item'),
+  cmsLocaleId: z.string().optional().describe('Identifier for the locale of the CMS item'),
+  isArchived: z.boolean().optional().describe('Boolean determining if the Item is set to archived'),
+  isDraft: z.boolean().optional().describe('Boolean determining if the Item is set to draft'),
+})
+
+export const itemSchemaInput = z.object({
+  id: z.string().optional().describe('Unique identifier for the Item'),
+  fieldData: z.object({
+    name: z.string().min(1, 'Field name is required').describe('Name of the Item'),
+    slug: z
+      .string()
+      .describe(
+        'URL structure of the Item in your site. Note: Updates to an item slug will break all links referencing the old slug.'
+      ),
+  }),
+  cmsLocaleId: z.string().optional().describe('Identifier for the locale of the CMS item'),
+  isArchived: z.boolean().optional().describe('Boolean determining if the Item is set to archived'),
+  isDraft: z.boolean().optional().describe('Boolean determining if the Item is set to draft'),
+})
+
+export const paginationSchema = z.object({
+  limit: z.number().default(100).optional().describe('The number of items to return'),
+  offset: z.number().default(0).optional().describe('The number of items to skip'),
+})
+
+export const actions = {
+  listCollections: {
+    title: 'List Collections',
+    input: {
+      schema: z.object({
+        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
+      }),
+    },
+    output: {
+      schema: z.object({
+        collections: z.array(collectionSchema).describe('Array of collections'),
+      }),
+    },
+  },
+  getCollectionDetails: {
+    title: 'Get Collection Details',
+    input: {
+      schema: z.object({
+        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
+        collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
+      }),
+    },
+    output: {
+      schema: z.object({
+        collectionDetails: collectionDetailsSchema.describe('Details of the collection'),
+      }),
+    },
+  },
+  createCollection: {
+    title: 'Create Collection',
+    input: {
+      schema: z.object({
+        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
+        collectionInfo: collectionSchema.describe('Informations of the collection to create.'),
+      }),
+    },
+    output: {
+      schema: z.object({
+        collectionDetails: collectionDetailsSchema.describe('Details of the new collection'),
+      }),
+    },
+  },
+  deleteCollection: {
+    title: 'Delete Collection',
+    input: {
+      schema: z.object({
+        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
+        collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
+      }),
+    },
+    output: {
+      schema: z.object({ success: z.boolean().describe('Indicates if the collection was successfully deleted') }),
+    },
+  },
   listItems: {
     title: 'List Collection Items',
     input: {

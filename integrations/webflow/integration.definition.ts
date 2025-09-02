@@ -1,5 +1,5 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { collections, items } from './definitions/actions'
+import { actions } from './definitions/actions'
 
 export default new IntegrationDefinition({
   name: 'webflow',
@@ -15,17 +15,17 @@ export default new IntegrationDefinition({
     }),
   },
   actions: {
-    listCollections: collections.collectionsActionsDefinitions.listCollections,
-    getCollectionDetails: collections.collectionsActionsDefinitions.getCollectionDetails,
-    createCollection: collections.collectionsActionsDefinitions.createCollection,
-    deleteCollection: collections.collectionsActionsDefinitions.deleteCollection,
+    listCollections: actions.listCollections,
+    getCollectionDetails: actions.getCollectionDetails,
+    createCollection: actions.createCollection,
+    deleteCollection: actions.deleteCollection,
 
-    listItems: items.collectionsItemsActionsDefinitions.listItems,
-    getItem: items.collectionsItemsActionsDefinitions.getItem,
-    createItems: items.collectionsItemsActionsDefinitions.createItems,
-    updateItems: items.collectionsItemsActionsDefinitions.updateItems,
-    deleteItems: items.collectionsItemsActionsDefinitions.deleteItems,
-    publishItems: items.collectionsItemsActionsDefinitions.publishItems,
-    unpublishLiveItems: items.collectionsItemsActionsDefinitions.unpublishLiveItems,
+    listItems: actions.listItems,
+    getItem: actions.getItem,
+    createItems: actions.createItems,
+    updateItems: actions.updateItems,
+    deleteItems: actions.deleteItems,
+    publishItems: actions.publishItems,
+    unpublishLiveItems: actions.unpublishLiveItems,
   },
 })

@@ -1,3 +1,4 @@
+import * as bp from '../.botpress'
 import { createCollection, deleteCollection, getCollectionDetails, listCollections } from './collections/actions'
 import {
   getItem,
@@ -8,7 +9,6 @@ import {
   publishItems,
   unpublishLiveItems,
 } from './collectionsItems/actions'
-import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async () => {},
