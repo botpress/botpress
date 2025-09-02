@@ -44,7 +44,7 @@ export class HubspotClient {
   }: {
     email?: string
     phone?: string
-    propertiesToReturn: string[]
+    propertiesToReturn?: string[]
   }) {
     type SearchRequest = Parameters<OfficialHubspotClient['crm']['contacts']['searchApi']['doSearch']>[0]
     type Filter = NonNullable<SearchRequest['filterGroups']>[number]['filters'][number]
@@ -88,6 +88,21 @@ export class HubspotClient {
     const hsContact = contacts.results[0]
 
     return hsContact
+  }
+
+  @handleErrors('Failed to get contact by ID')
+  public async getContactById({ contactId, propertiesToReturn }: { contactId: number; propertiesToReturn?: string[] }) {
+    const contact = await this._hsClient.crm.contacts.basicApi.getById(contactId.toString(), [
+      // Builtin properties normally returned by API
+      'createdate',
+      'email',
+      'firstname',
+      'lastmodifieddate',
+      'lastname',
+      'phone',
+      ...(propertiesToReturn ?? []),
+    ])
+    return contact
   }
 
   @handleErrors('Failed to create ticket')

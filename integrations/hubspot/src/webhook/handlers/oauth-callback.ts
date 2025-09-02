@@ -3,8 +3,9 @@ import { exchangeCodeForOAuthCredentials, setOAuthCredentials } from '../../auth
 import { HubspotClient } from '../../hubspot-api'
 import * as bp from '.botpress'
 
-export const oauthCallbackHandler = async (props: bp.HandlerProps) => {
-  const { req, client, ctx } = props
+export const isOAuthCallback = (props: bp.HandlerProps): boolean => props.req.path.startsWith('/oauth')
+
+export const handleOAuthCallback: bp.IntegrationProps['handler'] = async ({ client, ctx, req }) => {
   const searchParams = new URLSearchParams(req.query)
   const authorizationCode = searchParams.get('code')
 

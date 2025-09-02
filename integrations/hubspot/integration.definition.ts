@@ -41,12 +41,19 @@ export default new IntegrationDefinition({
     contactCreated: {
       title: 'Contact Created',
       description: 'A new contact has been created in Hubspot.',
-      schema: z.object({}),
+      schema: z.object({
+        contactId: z.string().title('Contact ID').describe('The ID of the created contact'),
+        name: z.string().optional().title('Name').describe('The name of the created contact'),
+        email: z.string().optional().title('Email').describe('The email of the created contact'),
+        phoneNumber: z.string().optional().title('Phone Number').describe('The phone number of the created contact'),
+      }),
     },
-    contactUpdated: {
-      title: 'Contact Updated',
-      description: 'A contact has been updated in Hubspot.',
-      schema: z.object({}),
+    contactDeleted: {
+      title: 'Contact Deleted',
+      description: 'A contact has been deleted in Hubspot.',
+      schema: z.object({
+        contactId: z.string().title('Contact ID').describe('The ID of the deleted contact'),
+      }),
     },
   },
   states: {
