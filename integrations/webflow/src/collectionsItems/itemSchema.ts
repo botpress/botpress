@@ -21,6 +21,7 @@ export const itemSchemaOutput = z.object({
 })
 
 export const itemSchemaInput = z.object({
+  id: z.string().optional().describe('Unique identifier for the Item'),
   fieldData: z.object({
     name: z.string().min(1, 'Field name is required').describe('Name of the Item'),
     slug: z
@@ -30,8 +31,8 @@ export const itemSchemaInput = z.object({
       ),
   }),
   cmsLocaleId: z.string().optional().describe('Identifier for the locale of the CMS item'),
-  isArchived: z.boolean().default(false).describe('Boolean determining if the Item is set to archived'),
-  isDraft: z.boolean().default(true).describe('Boolean determining if the Item is set to draft'),
+  isArchived: z.boolean().optional().describe('Boolean determining if the Item is set to archived'),
+  isDraft: z.boolean().optional().describe('Boolean determining if the Item is set to draft'),
 })
 
 export const paginationSchema = z.object({

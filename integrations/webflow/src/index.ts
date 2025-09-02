@@ -1,6 +1,6 @@
 import * as bp from '.botpress'
 import { createCollection, deleteCollection, getCollectionDetails, listCollections } from './collections/actions'
-import { getItem, listItems, createItems, updateItems, deleteItems } from './collectionsItems/actions'
+import { getItem, listItems, createItems, updateItems, deleteItems, publishItems, unpublishLiveItems } from './collectionsItems/actions'
 
 export default new bp.Integration({
   register: async () => { },
@@ -16,6 +16,8 @@ export default new bp.Integration({
     createItems: createItems,
     updateItems: updateItems,
     deleteItems: deleteItems,
+    publishItems: publishItems,
+    unpublishLiveItems: unpublishLiveItems
   },
   channels: {},
   handler: async () => { },

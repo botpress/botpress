@@ -1,8 +1,6 @@
 import { IntegrationDefinitionProps, z } from '@botpress/sdk'
 import { itemSchemaInput, itemSchemaOutput, paginationSchema } from './itemSchema'
 
-const extras = z.record(z.any()).optional()
-
 export const collectionsItemsActionsDefinitions = {
   listItems: {
     title: 'List Collection Items',
@@ -11,11 +9,11 @@ export const collectionsItemsActionsDefinitions = {
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
         pagination: paginationSchema.optional().describe('Pagination parameters'),
+        isLiveItems: z.boolean().default(false).describe('checkbox to decide if the list is for live items or not')
       }),
     },
     output: {
       schema: z.object({
-        // add Item array schema
         items: z.array(itemSchemaOutput).describe('Array of items'),
         pagination: z.object({
           limit: z.number().min(1).optional().describe('The limit specified in the request'),
@@ -31,12 +29,12 @@ export const collectionsItemsActionsDefinitions = {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
+        isLiveItems: z.boolean().default(false).describe('checkbox to decide if the list is for live items or not'),
         itemID: z.string().min(1, 'Item ID is required').describe('The ID of your Webflow item'),
       }),
     },
     output: {
       schema: z.object({
-        // add item schema
         itemDetails: itemSchemaOutput.describe('Details of the item'),
       }),
     },
@@ -47,6 +45,7 @@ export const collectionsItemsActionsDefinitions = {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
+        isLiveItems: z.boolean().default(false).describe('checkbox to decide if the list is for live items or not'),
         items: z.array(
           z.object({
             isArchived: z.boolean().default(false),
@@ -66,6 +65,7 @@ export const collectionsItemsActionsDefinitions = {
             lastUpdated: z.string().optional(),
             createdOn: z.string().optional(),
             // TODO find a more elegant solution
+            // Supports only text items
             fieldData: z.record(z.string()).optional(),
             isArchived: z.boolean().optional(),
             isDrafted: z.boolean().optional()
@@ -80,7 +80,8 @@ export const collectionsItemsActionsDefinitions = {
       schema: z.object({
         apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
-        items: z.object({ items: z.array(itemSchemaInput).describe('Array of items to update') }),
+        items: z.array(itemSchemaInput).describe('Array of items to update'),
+        isLiveItems: z.boolean().default(false).describe('checkbox to decide if the list is for live items or not'),
       }),
     },
     output: {
@@ -106,4 +107,38 @@ export const collectionsItemsActionsDefinitions = {
       schema: z.object({ success: z.boolean().describe('Indicates if the items were successfully deleted') }),
     },
   },
+  publishItems: {
+    title: 'Publish Item(s)',
+    input: {
+      schema: z.object({
+        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
+        collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
+        itemIds: z.array(
+          z.string().min(1, 'Item ID is required').describe('Unique identifier for the Item')
+        ),
+      })
+    },
+    output: {
+      schema: z.object({
+        publishedItemIds: z.array(z.string()),
+        errors: z.array(z.string())
+      })
+    }
+  },
+  unpublishLiveItems: {
+    title: 'Unpublish Live Item(s)',
+    input: {
+      schema: z.object({
+        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
+        collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
+        itemIds: z.array(
+          z.string().min(1, 'Item ID is required').describe('Unique identifier for the Item')
+        ),
+      })
+    },
+    output: {
+      schema: z.object({ success: z.boolean().describe('Indicates if the items were successfully unpublished') }),
+    }
+  }
+
 } satisfies IntegrationDefinitionProps['actions']

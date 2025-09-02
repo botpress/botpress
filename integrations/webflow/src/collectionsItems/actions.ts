@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 import { ItemOutput, Pagination } from './item'
+import axios from 'axios'
 
 export async function listItems(props: bp.ActionProps['listItems']): Promise<bp.actions.listItems.output.Output> {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
@@ -10,40 +11,45 @@ export async function listItems(props: bp.ActionProps['listItems']): Promise<bp.
     pagination: Pagination
   }
 
-  const response = await fetch(
-    `https://api.webflow.com/v2/collections/${props.input.collectionID}/items?offset=${props.input.pagination?.offset ?? 0}&limit=${props.input.pagination?.limit ?? 100}`,
-    {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${apiToken}`
-      },
+  try {
+    const response = await axios.get<Result>(
+      `https://api.webflow.com/v2/collections/${props.input.collectionID}/items${props.input.isLiveItems ? "/live" : ""}?offset=${props.input.pagination?.offset ?? 0}&limit=${props.input.pagination?.limit ?? 100}`,
+      {
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message;
+      throw new sdk.RuntimeError(`webflow API error: ${serverMessage}`)
     }
-  )
-
-  if (!response.ok) throw new sdk.RuntimeError("siteID or apiToken not valid")
-
-  return await response.json() as Result
+    throw err;
+  }
 }
 
 export async function getItem(props: bp.ActionProps['getItem']): Promise<bp.actions.getItem.output.Output> {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
-  const response = await fetch(
-    `https://api.webflow.com/v2/collections/${props.input.collectionID}/items/${props.input.itemID}`,
-    {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${apiToken}`
-      },
+  try {
+    const response = await axios.get<ItemOutput>(
+      `https://api.webflow.com/v2/collections/${props.input.collectionID}/items/${props.input.itemID}${props.input.isLiveItems ? "/live" : ""}`,
+      {
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+        },
+      }
+    );
+    return { itemDetails: response.data };
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message;
+      throw new sdk.RuntimeError(`webflow API error: ${serverMessage}`)
     }
-  )
-
-  if (!response.ok) throw new sdk.RuntimeError("siteID or apiToken not valid")
-
-  const result = await response.json() as ItemOutput
-
-  if (result == undefined) throw new sdk.RuntimeError('Item not found')
-  return { itemDetails: result }
+    throw err;
+  }
 }
 
 export async function createItems(props: bp.ActionProps['createItems']): Promise<bp.actions.createItems.output.Output> {
@@ -53,21 +59,25 @@ export async function createItems(props: bp.ActionProps['createItems']): Promise
     items: ItemOutput[]
   }
 
-  const response = await fetch(
-    `https://api.webflow.com/v2/collections/${props.input.collectionID}/items?skipInvalidFiles=true`,
-    {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ items: props.input.items })
+  try {
+    const response = await axios.post<Result>(
+      `https://api.webflow.com/v2/collections/${props.input.collectionID}/items${props.input.isLiveItems ? "/live" : ""}?skipInvalidFiles=true`,
+      { items: props.input.items },
+      {
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json"
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message;
+      throw new sdk.RuntimeError(`webflow API error: ${serverMessage}`)
     }
-  )
-
-  if (!response.ok) throw new sdk.RuntimeError("siteID or apiToken not valid")
-
-  return await response.json() as Result
+    throw err;
+  }
 }
 
 export async function updateItems(props: bp.ActionProps['updateItems']): Promise<bp.actions.updateItems.output.Output> {
@@ -77,41 +87,104 @@ export async function updateItems(props: bp.ActionProps['updateItems']): Promise
     items: ItemOutput[]
   }
 
-  const response = await fetch(
-    `https://api.webflow.com/v2/collections/${props.input.collectionID}/items?skipInvalidFiles=true`,
-    {
-      method: "PATCH",
-      headers: {
-        "Authorization": `Bearer ${apiToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(props.input.items)
+  try {
+    props.logger.debug(props.input.items)
+    props.logger.debug(`https://api.webflow.com/v2/collections/${props.input.collectionID}/items${props.input.isLiveItems ? "/live" : ""}?skipInvalidFiles=true`)
+    const response = await axios.patch<Result>(
+      `https://api.webflow.com/v2/collections/${props.input.collectionID}/items${props.input.isLiveItems ? "/live" : ""}?skipInvalidFiles=true`,
+      { items: props.input.items },
+      {
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json"
+        },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message;
+      throw new sdk.RuntimeError(`webflow API error: ${serverMessage}`)
     }
-  )
-
-  if (!response.ok) throw new sdk.RuntimeError("siteID or apiToken not valid")
-
-  const result = await response.json() as Result
-
-
-  if (result == undefined) throw new sdk.RuntimeError('Failed to update item')
-  return result
+    throw err;
+  }
 }
 
 export async function deleteItems(props: bp.ActionProps['deleteItems']): Promise<bp.actions.deleteItems.output.Output> {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
-  const response = await fetch(
-    `https://api.webflow.com/v2/collections/${props.input.collectionID}/items`,
-    {
-      headers: {
-        "Authorization": `Bearer ${apiToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(props.input.itemIDs)
+  try {
+    await axios.delete(
+      `https://api.webflow.com/v2/collections/${props.input.collectionID}/items`,
+      {
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json"
+        },
+        data: props.input.itemIDs
+      }
+    );
+    return { success: true };
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message;
+      throw new sdk.RuntimeError(`webflow API error: ${serverMessage}`)
     }
-  )
-  if (!response.ok) throw new sdk.RuntimeError("items id invalid or collection id invalid")
-  return { success: true }
+    throw err;
+  }
 }
 
+export async function publishItems(props: bp.ActionProps['publishItems']): Promise<bp.actions.publishItems.output.Output> {
+  const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
+
+  type Result = {
+    publishedItemIds: string[],
+    errors: string[]
+  }
+
+  try {
+    const response = await axios.post<Result>(
+      `https://api.webflow.com/v2/collections/${props.input.collectionID}/items/publish`,
+      { itemIds: props.input.itemIds },
+      {
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json"
+        },
+      }
+    );
+
+    return response.data
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message;
+      throw new sdk.RuntimeError(`webflow API error: ${serverMessage}`)
+    }
+    throw err;
+  }
+}
+
+export async function unpublishLiveItems(props: bp.ActionProps['unpublishLiveItems']): Promise<bp.actions.unpublishLiveItems.output.Output> {
+  const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
+
+  try {
+    await axios.post(
+      `https://api.webflow.com/v2/collections/${props.input.collectionID}/items/publish`,
+      { itemIds: props.input.itemIds },
+      {
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json"
+        },
+      }
+    );
+
+    return { success: true }
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message;
+      throw new sdk.RuntimeError(`webflow API error: ${serverMessage}`)
+    }
+    throw err;
+  }
+}

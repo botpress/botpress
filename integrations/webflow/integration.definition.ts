@@ -26,5 +26,7 @@ export default new IntegrationDefinition({
     createItems: collectionsItemsActionsDefinitions.createItems,
     updateItems: collectionsItemsActionsDefinitions.updateItems,
     deleteItems: collectionsItemsActionsDefinitions.deleteItems,
+    publishItems: collectionsItemsActionsDefinitions.publishItems,
+    unpublishLiveItems: collectionsItemsActionsDefinitions.unpublishLiveItems,
   },
 })
