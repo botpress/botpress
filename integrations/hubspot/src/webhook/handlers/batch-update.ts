@@ -48,8 +48,24 @@ export const handleBatchUpdateEvent: bp.IntegrationProps['handler'] = async (pro
         })
         break
       case isCompanyCreatedEvent(event):
+        const company = await hsClient.getCompanyById({ companyId: event.objectId })
+        props.client.createEvent({
+          type: 'companyCreated',
+          payload: {
+            companyId: event.objectId.toString(),
+            domain: company?.properties.domain ?? undefined,
+            phoneNumber: company?.properties.phone ?? undefined,
+            name: company?.properties.name ?? undefined,
+          },
+        })
         break
       case isCompanyDeletedEvent(event):
+        props.client.createEvent({
+          type: 'companyDeleted',
+          payload: {
+            companyId: event.objectId.toString(),
+          },
+        })
         break
       case isTicketCreatedEvent(event):
         break
