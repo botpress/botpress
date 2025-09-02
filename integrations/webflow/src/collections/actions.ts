@@ -1,11 +1,9 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
-import { Collection } from '../types'
+import { Collection, CollectionDetails } from '../types'
 import * as bp from '.botpress'
 
-export async function listCollections(
-  props: bp.ActionProps['listCollections']
-): Promise<bp.actions.listCollections.output.Output> {
+export const listCollections: bp.IntegrationProps['actions']['listCollections'] = async (props) => {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
   type Result = {

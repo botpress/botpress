@@ -1,18 +1,14 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
-import { ItemOutput, Pagination } from '../types'
+import { ItemOutput } from '../types'
 import * as bp from '.botpress'
 
 export async function listItems(props: bp.ActionProps['listItems']): Promise<bp.actions.listItems.output.Output> {
   const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
 
-  type Result = {
-    items: ItemOutput[]
-    pagination: Pagination
-  }
-
+  type Result = bp.actions.listItems.output.Output
   try {
-    const response = await axios.get<Result>(
+    const { data } = await axios.get<Result>(
       `https://api.webflow.com/v2/collections/${props.input.collectionID}/items${props.input.isLiveItems ? '/live' : ''}?offset=${props.input.pagination?.offset ?? 0}&limit=${props.input.pagination?.limit ?? 100}`,
       {
         headers: {
@@ -20,7 +16,8 @@ export async function listItems(props: bp.ActionProps['listItems']): Promise<bp.
         },
       }
     )
-    return response.data
+
+    return data
   } catch (err) {
     if (axios.isAxiosError(err)) {
       const serverMessage = (err.response?.data as any)?.message || err.response?.statusText || err.message
