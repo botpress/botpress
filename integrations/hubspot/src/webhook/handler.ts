@@ -1,14 +1,14 @@
 import { Signature } from '@hubspot/api-client'
 import { getClientSecret } from '../auth'
-import { oauthCallbackHandler } from './handlers/oauth'
+import * as handlers from './handlers'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, logger } = props
 
   logger.debug(`Received request on ${req.path}: ${JSON.stringify(req.body, null, 2)}`)
-  if (req.path.startsWith('/oauth')) {
-    return await oauthCallbackHandler(props)
+  if (handlers.isOAuthCallback(props)) {
+    return await handlers.handleOAuthCallback(props)
   }
 
   const validation = _validateRequestAuthentication(props)
@@ -16,6 +16,13 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     logger.error(`Error validating request: ${validation.message}`)
     return { status: 401, body: validation.message }
   }
+
+  if (handlers.isBatchUpdateEvent(props)) {
+    return await handlers.handleBatchUpdateEvent(props)
+  }
+
+  logger.warn(`No handler found for request on ${req.path}`)
+  return { status: 404, body: 'No handler found' }
 }
 
 const _validateRequestAuthentication = ({ req, ctx }: bp.HandlerProps) => {
