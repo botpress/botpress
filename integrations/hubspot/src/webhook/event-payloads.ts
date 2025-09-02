@@ -8,11 +8,11 @@ const OBJECT_TYPES = {
 } as const
 
 const BASE_EVENT_PAYLOAD = sdk.z.object({
-  eventId: sdk.z.string().min(1),
+  eventId: sdk.z.number(),
   changeSource: sdk.z.literal('CRM'),
-  occurredAt: sdk.z.number().positive(),
+  occurredAt: sdk.z.number().nonnegative(),
   subscriptionType: sdk.z.enum(['object.creation', 'object.deletion']),
-  attemptNumber: sdk.z.number().positive(),
+  attemptNumber: sdk.z.number().nonnegative(),
   objectId: sdk.z.number(),
   objectTypeId: sdk.z.enum([OBJECT_TYPES.COMPANY, OBJECT_TYPES.CONTACT, OBJECT_TYPES.LEAD, OBJECT_TYPES.TICKET]),
 })

@@ -55,6 +55,11 @@ export default new IntegrationDefinition({
         contactId: z.string().title('Contact ID').describe('The ID of the deleted contact'),
       }),
     },
+    contactUpdated: {
+      title: 'Contact Updated',
+      description: 'A contact has been updated in Hubspot.',
+      schema: z.object({}),
+    },
     companyCreated: {
       title: 'Company Created',
       description: 'A new company has been created in Hubspot.',
