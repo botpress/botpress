@@ -119,6 +119,36 @@ export class HubspotClient {
     return company
   }
 
+  @handleErrors('Failed to get ticket by ID')
+  public async getTicketById({ ticketId, propertiesToReturn }: { ticketId: number; propertiesToReturn?: string[] }) {
+    const ticket = await this._hsClient.crm.tickets.basicApi.getById(ticketId.toString(), [
+      // Builtin properties normally returned by API
+      'createdate',
+      'hs_pipeline',
+      'hs_pipeline_stage',
+      'hs_ticket_category',
+      'hs_ticket_priority',
+      'subject',
+      ...(propertiesToReturn ?? []),
+    ])
+
+    if (!ticket.properties.hs_pipeline || !ticket.properties.hs_pipeline_stage) {
+      throw new sdk.RuntimeError('Ticket is missing pipeline or pipeline stage information')
+    }
+
+    const pipeline = await this._getTicketPipeline({ nameOrLabel: ticket.properties.hs_pipeline })
+    const pipelineStage = this._getTicketPipelineStage({
+      nameOrLabel: ticket.properties.hs_pipeline_stage,
+      stages: pipeline.stages,
+    })
+
+    return {
+      ...ticket,
+      pipeline,
+      pipelineStage,
+    }
+  }
+
   @handleErrors('Failed to create ticket')
   public async createTicket({
     subject,
@@ -442,6 +472,7 @@ export class HubspotClient {
 
     return {
       id: matchingPipeline[0],
+      label: matchingPipeline[1].label,
       stages: matchingPipeline[1].stages,
     }
   }
@@ -469,6 +500,7 @@ export class HubspotClient {
 
     return {
       id: matchingStage[0],
+      label: matchingStage[1].label,
     }
   }
 
