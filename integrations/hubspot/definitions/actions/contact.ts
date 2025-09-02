@@ -163,10 +163,61 @@ const deleteContact: ActionDefinition = {
   },
 }
 
+const listContacts: ActionDefinition = {
+  title: 'List Contacts',
+  description: 'List contacts in Hubspot',
+  input: {
+    schema: z.object({
+      properties: z
+        .array(z.string())
+        .optional()
+        .title('Properties')
+        .describe('The properties to include in the response'),
+      meta: z
+        .object({
+          nextToken: z
+            .string()
+            .optional()
+            .title('Pagination token')
+            .describe('The token to get the next page of contacts'),
+        })
+        .title('Metadata')
+        .describe('Metadata containing pagination information'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      contacts: z
+        .array(
+          z
+            .object({
+              id: z.string().title('Contact ID').describe('The ID of the contact'),
+              properties: z.record(z.any()).title('Properties').describe('The properties of the contact'),
+            })
+            .title('Contact')
+            .describe('A contact')
+        )
+        .title('Contacts')
+        .describe('The contacts found'),
+      meta: z
+        .object({
+          nextToken: z
+            .string()
+            .optional()
+            .title('Pagination token')
+            .describe('The token to get the next page of contacts'),
+        })
+        .title('Metadata')
+        .describe('Metadata containing pagination information'),
+    }),
+  },
+}
+
 export const actions = {
   searchContact,
   createContact,
   getContact,
   updateContact,
   deleteContact,
+  listContacts,
 } as const

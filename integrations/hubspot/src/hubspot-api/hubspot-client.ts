@@ -16,6 +16,8 @@ type TicketProperty = TicketPropertiesCache[string]
 type TicketPipelinesCache = bp.states.States['ticketPipelineCache']['payload']['pipelines']
 type TicketPipeline = TicketPipelinesCache[string]
 
+const PAGING_LIMIT = 100
+
 export class HubspotClient {
   private readonly _hsClient: OfficialHubspotClient
   private readonly _client: bp.Client
@@ -291,6 +293,19 @@ export class HubspotClient {
 
   public async deleteContact({ contactId }: { contactId: string }) {
     await this._hsClient.crm.contacts.basicApi.archive(contactId)
+  }
+
+  public async listContacts({ properties, nextToken }: { properties?: string[]; nextToken?: string }) {
+    const { results, paging } = await this._hsClient.crm.contacts.basicApi.getPage(PAGING_LIMIT, nextToken, properties)
+    const contacts = results.map((contact) => ({
+      id: contact.id,
+      properties: contact.properties,
+    }))
+
+    return {
+      contacts,
+      nextToken: paging?.next?.after,
+    }
   }
 
   private async _validateContactProperties({ properties }: { properties: string[] }) {
