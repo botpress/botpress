@@ -105,6 +105,20 @@ export class HubspotClient {
     return contact
   }
 
+  @handleErrors('Failed to get company by ID')
+  public async getCompanyById({ companyId, propertiesToReturn }: { companyId: number; propertiesToReturn?: string[] }) {
+    const company = await this._hsClient.crm.companies.basicApi.getById(companyId.toString(), [
+      // Builtin properties normally returned by API
+      'createdate',
+      'domain',
+      'name',
+      'hs_lastmodifieddate',
+      'phone',
+      ...(propertiesToReturn ?? []),
+    ])
+    return company
+  }
+
   @handleErrors('Failed to create ticket')
   public async createTicket({
     subject,

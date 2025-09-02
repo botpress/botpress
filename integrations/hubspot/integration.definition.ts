@@ -55,6 +55,23 @@ export default new IntegrationDefinition({
         contactId: z.string().title('Contact ID').describe('The ID of the deleted contact'),
       }),
     },
+    companyCreated: {
+      title: 'Company Created',
+      description: 'A new company has been created in Hubspot.',
+      schema: z.object({
+        companyId: z.string().title('Company ID').describe('The ID of the created company'),
+        name: z.string().optional().title('Name').describe('The name of the created company'),
+        domain: z.string().optional().title('Domain').describe('The domain of the created company'),
+        phoneNumber: z.string().optional().title('Phone Number').describe('The phone number of the created company'),
+      }),
+    },
+    companyDeleted: {
+      title: 'Company Deleted',
+      description: 'A company has been deleted in Hubspot.',
+      schema: z.object({
+        companyId: z.string().title('Company ID').describe('The ID of the deleted company'),
+      }),
+    },
   },
   states: {
     oauthCredentials: {
