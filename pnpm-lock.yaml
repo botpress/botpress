@@ -12,6 +12,10 @@ patchedDependencies:
 importers:
 
   .:
+    dependencies:
+      yn:
+        specifier: ^4.0.0
+        version: 4.0.0
     devDependencies:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.564.0

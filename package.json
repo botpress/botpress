@@ -68,5 +68,8 @@
     "patchedDependencies": {
       "source-map-js@1.2.1": "patches/source-map-js@1.2.1.patch"
     }
+  },
+  "dependencies": {
+    "yn": "^4.0.0"
   }
 }
