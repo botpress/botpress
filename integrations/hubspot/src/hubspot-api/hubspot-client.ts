@@ -28,9 +28,9 @@ export class HubspotClient {
   private _ticketPropertiesAlreadyRefreshed: boolean = false
   private _contactProperties: ContactPropertiesCache | undefined
   private _contactPropertiesAlreadyRefreshed: boolean = false
+  private _contactPropertyForceRefresh: boolean = false
   private _ticketPipelines: TicketPipelinesCache | undefined
   private _ticketPipelinesAlreadyRefreshed: boolean = false
-  private _contactPropertyForceRefresh: boolean = false
 
   public constructor({ accessToken, client, ctx }: { accessToken: string; client: bp.Client; ctx: bp.Context }) {
     this._client = client
@@ -160,6 +160,7 @@ export class HubspotClient {
     }
   }
 
+  @handleErrors('Failed to create contact')
   public async createContact({
     email,
     phone,
@@ -243,6 +244,7 @@ export class HubspotClient {
     }
   }
 
+  @handleErrors('Failed to get contact by ID')
   public async getContact({ contactId, propertiesToReturn }: { contactId: string; propertiesToReturn?: string[] }) {
     await this._validateContactProperties({ properties: propertiesToReturn ?? [] })
     const idProperty = contactId.includes('@') ? 'email' : undefined
@@ -260,6 +262,7 @@ export class HubspotClient {
     }
   }
 
+  @handleErrors('Failed to update contact')
   public async updateContact({
     contactId,
     email,
@@ -291,10 +294,12 @@ export class HubspotClient {
     }
   }
 
+  @handleErrors('Failed to delete contact')
   public async deleteContact({ contactId }: { contactId: string }) {
     await this._hsClient.crm.contacts.basicApi.archive(contactId)
   }
 
+  @handleErrors('Failed to list contacts')
   public async listContacts({ properties, nextToken }: { properties?: string[]; nextToken?: string }) {
     const { results, paging } = await this._hsClient.crm.contacts.basicApi.getPage(PAGING_LIMIT, nextToken, properties)
     const contacts = results.map((contact) => ({
