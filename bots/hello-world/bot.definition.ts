@@ -29,13 +29,6 @@ export default new sdk.BotDefinition({
     enabled: true,
     configuration: {},
   })
-  .addIntegration(hubspot, {
-    enabled: true,
-    configurationType: 'manual',
-    configuration: {
-      accessToken: '',
-    },
-  })
   .addIntegration(chat, {
     enabled: true,
     configuration: {},

@@ -1,5 +1,5 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { contactActions, ticketActions } from './definitions'
+import { contactActions, dealActions, leadActions, ticketActions } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'hubspot',
@@ -34,6 +34,8 @@ export default new IntegrationDefinition({
     },
   },
   actions: {
+    ...leadActions,
+    ...dealActions,
     ...contactActions,
     ...ticketActions,
   },

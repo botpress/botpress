@@ -10,26 +10,6 @@ const bot = new bp.Bot({
   },
 })
 
-bot.on.message('*', async (props) => {
-  const result = await props.client.callAction({
-    type: 'hubspot:searchLead',
-    input: {
-      // email: 'test@test.com',
-      name: 'Andrew',
-    },
-  })
-
-  await props.client.createMessage({
-    payload: {
-      text: JSON.stringify(result),
-    },
-    type: 'text',
-    userId: props.ctx.botId,
-    conversationId: props.conversation.id,
-    tags: {},
-  })
-
-  console.log(result)
-})
+bot.on.message('*', async (props) => {})
 
 export default bot

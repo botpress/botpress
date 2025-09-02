@@ -4,6 +4,8 @@ import {
   AssociationSpecAssociationCategoryEnum,
   FilterOperatorEnum as ContactFilterOperator,
 } from '@hubspot/api-client/lib/codegen/crm/contacts'
+import { FilterOperatorEnum as DealFilterOperator } from '@hubspot/api-client/lib/codegen/crm/deals'
+import { FilterOperatorEnum as LeadFilterOperator } from '@hubspot/api-client/lib/codegen/crm/objects/leads'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import * as bp from '.botpress'
 
@@ -571,6 +573,129 @@ export class HubspotClient {
     }
 
     return matchingOwner
+  }
+
+  @handleErrors('Failed to search deal')
+  public async searchDeal({ name }: { name?: string }) {
+    const filters = []
+
+    if (name) {
+      filters.push({
+        propertyName: '',
+        operator: DealFilterOperator.Eq,
+        value: name,
+      })
+    }
+
+    if (!filters.length) {
+      throw new Error('No filters provided')
+    }
+
+    const deals = await this._hsClient.crm.deals.searchApi.doSearch({
+      filterGroups: [
+        {
+          filters,
+        },
+      ],
+    })
+
+    const deal = deals.results[0]
+
+    if (!deal) {
+      throw new sdk.RuntimeError('Unable to find deal')
+    }
+
+    return deal
+  }
+
+  @handleErrors('Failed to get deal')
+  public async getDealById({ dealId, propertiesToReturn }: { dealId: string; propertiesToReturn?: string[] }) {
+    const deal = await this._hsClient.crm.deals.basicApi.getById(dealId, [
+      // Builtin properties normally returned by API
+      ...(propertiesToReturn ?? []),
+    ])
+
+    return deal
+  }
+
+  @handleErrors('Failed to delete deal')
+  public async deleteDealById({ dealId }: { dealId: string }) {
+    await this._hsClient.crm.deals.basicApi.archive(dealId)
+  }
+
+  @handleErrors('Failed to update deal')
+  public async updateDealById({ dealId, properties }: { dealId: string; properties: Record<string, string> }) {
+    const deal = await this._hsClient.crm.deals.basicApi.update(dealId, { properties })
+
+    return deal
+  }
+
+  @handleErrors('Failed to create deal')
+  public async createDeal({ properties }: { properties: Record<string, string> }) {
+    const deal = await this._hsClient.crm.deals.basicApi.create({
+      properties,
+    })
+
+    return deal
+  }
+
+  @handleErrors('Failed to create lead')
+  public async createLead({ properties }: { properties: Record<string, string> }) {
+    const lead = await this._hsClient.crm.objects.leads.basicApi.create({
+      properties,
+    })
+
+    return lead
+  }
+
+  @handleErrors('Failed to get lead')
+  public async getLeadById({ leadId, propertiesToReturn }: { leadId: string; propertiesToReturn?: string[] }) {
+    const lead = await this._hsClient.crm.objects.leads.basicApi.getById(leadId, propertiesToReturn)
+    return lead
+  }
+
+  @handleErrors('Failed to delete lead')
+  public async deleteLead({ leadId }: { leadId: string }) {
+    await this._hsClient.crm.objects.leads.basicApi.archive(leadId)
+  }
+
+  @handleErrors('Failed to update lead')
+  public async updateLead({ leadId, properties }: { leadId: string; properties: Record<string, string> }) {
+    const lead = await this._hsClient.crm.objects.leads.basicApi.update(leadId, { properties })
+    return lead
+  }
+
+  @handleErrors('Failed to search lead')
+  public async searchLead({ name }: { name?: string }) {
+    const filters = []
+
+    if (name) {
+      filters.push({
+        propertyName: 'hs_lead_name',
+        operator: LeadFilterOperator.Eq,
+        value: name,
+      })
+    }
+
+    if (!filters.length) {
+      throw new Error('No filters provided')
+    }
+
+    const leads = await this._hsClient.crm.objects.leads.searchApi.doSearch({
+      filterGroups: [
+        {
+          filters,
+        },
+      ],
+    })
+
+    const lead = leads.results[0]
+
+    if (!lead) {
+      throw new sdk.RuntimeError('Unable to find lead')
+    }
+
+    return lead
   }
 }
 
