@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
-import { ItemOutput, Pagination } from './item'
+import { ItemOutput, Pagination } from '../types'
 import * as bp from '.botpress'
 
 export async function listItems(props: bp.ActionProps['listItems']): Promise<bp.actions.listItems.output.Output> {

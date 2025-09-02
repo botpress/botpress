@@ -1,5 +1,5 @@
 import { IntegrationDefinitionProps, z } from '@botpress/sdk'
-import { itemSchemaInput, itemSchemaOutput, paginationSchema } from './itemSchema'
+import { itemSchemaInput, itemSchemaOutput, paginationSchema } from './item-schemas'
 
 export const collectionsItemsActionsDefinitions = {
   listItems: {

@@ -1,6 +1,5 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { collectionsActionsDefinitions } from 'src/collections/definition'
-import { collectionsItemsActionsDefinitions } from 'src/collectionsItems/definition'
+import { collections, items } from './definitions/actions'
 
 export default new IntegrationDefinition({
   name: 'webflow',
@@ -16,17 +15,17 @@ export default new IntegrationDefinition({
     }),
   },
   actions: {
-    listCollections: collectionsActionsDefinitions.listCollections,
-    getCollectionDetails: collectionsActionsDefinitions.getCollectionDetails,
-    createCollection: collectionsActionsDefinitions.createCollection,
-    deleteCollection: collectionsActionsDefinitions.deleteCollection,
+    listCollections: collections.collectionsActionsDefinitions.listCollections,
+    getCollectionDetails: collections.collectionsActionsDefinitions.getCollectionDetails,
+    createCollection: collections.collectionsActionsDefinitions.createCollection,
+    deleteCollection: collections.collectionsActionsDefinitions.deleteCollection,
 
-    listItems: collectionsItemsActionsDefinitions.listItems,
-    getItem: collectionsItemsActionsDefinitions.getItem,
-    createItems: collectionsItemsActionsDefinitions.createItems,
-    updateItems: collectionsItemsActionsDefinitions.updateItems,
-    deleteItems: collectionsItemsActionsDefinitions.deleteItems,
-    publishItems: collectionsItemsActionsDefinitions.publishItems,
-    unpublishLiveItems: collectionsItemsActionsDefinitions.unpublishLiveItems,
+    listItems: items.collectionsItemsActionsDefinitions.listItems,
+    getItem: items.collectionsItemsActionsDefinitions.getItem,
+    createItems: items.collectionsItemsActionsDefinitions.createItems,
+    updateItems: items.collectionsItemsActionsDefinitions.updateItems,
+    deleteItems: items.collectionsItemsActionsDefinitions.deleteItems,
+    publishItems: items.collectionsItemsActionsDefinitions.publishItems,
+    unpublishLiveItems: items.collectionsItemsActionsDefinitions.unpublishLiveItems,
   },
 })

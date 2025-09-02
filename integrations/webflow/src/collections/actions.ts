@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
-import { Collection, CollectionDetails } from './collection'
+import { Collection } from '../types'
 import * as bp from '.botpress'
 
 export async function listCollections(
