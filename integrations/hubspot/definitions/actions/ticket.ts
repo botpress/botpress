@@ -46,13 +46,14 @@ const createTicket: ActionDefinition = {
         .optional()
         .title('Source')
         .describe('The original source of the ticket'),
-      additionalProperties: z
+      properties: z
         .array(
           z.object({
             name: z.string().title('Property Name').describe('The name of the property'),
             value: z.string().title('Property Value').describe('The value of the property'),
           })
         )
+        .optional()
         .title('Additional Properties')
         .describe('Additional ticket properties'),
     }),

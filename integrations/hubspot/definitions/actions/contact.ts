@@ -57,8 +57,8 @@ const createContact: ActionDefinition = {
         .optional()
         .title('Tickets')
         .describe('The associated tickets of the contact'),
-      // TODO: Leads
-      additionalProperties: z
+      // TODO: Associate leads?
+      properties: z
         .array(
           z.object({
             name: z.string().title('Property Name').describe('The name of the property'),
@@ -125,7 +125,7 @@ const updateContact: ActionDefinition = {
         .describe('The ID or email of the contact to update'),
       email: z.string().optional().title('Email').describe('The new email of the contact'),
       phone: z.string().optional().title('Phone').describe('The new phone number of the contact'),
-      additionalProperties: z
+      properties: z
         .array(
           z.object({
             name: z.string().title('Property Name').describe('The name of the property'),

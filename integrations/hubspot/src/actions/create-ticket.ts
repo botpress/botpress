@@ -10,7 +10,7 @@ export const createTicket: bp.IntegrationProps['actions']['createTicket'] = asyn
     category: input.category,
     source: input.source,
     description: input.description,
-    additionalProperties: Object.fromEntries(input.additionalProperties.map(({ name, value }) => [name, value])),
+    additionalProperties: Object.fromEntries((input.properties ?? []).map(({ name, value }) => [name, value])),
     pipelineNameOrId: input.pipeline,
     pipelineStageNameOrId: input.pipelineStage,
     linearTicketUrl: input.linearTicketUrl,

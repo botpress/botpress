@@ -40,15 +40,15 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
 
 export const createContact: bp.IntegrationProps['actions']['createContact'] = async ({ ctx, client, input }) => {
   const hsClient = await _getHubspotClient({ ctx, client })
-  const { email, phone, owner, companies, tickets, additionalProperties } = input
-  const properties = _toPropertiesRecord(additionalProperties ?? [])
+  const { email, phone, owner, companies, tickets, properties } = input
+  const additionalProperties = _toPropertiesRecord(properties ?? [])
   const newContact = await hsClient.createContact({
     email,
     phone,
     ownerEmailOrId: owner,
     companies,
     ticketIds: tickets,
-    additionalProperties: properties,
+    additionalProperties,
   })
   return {
     contact: {
@@ -74,8 +74,8 @@ export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({
 
 export const updateContact: bp.IntegrationProps['actions']['updateContact'] = async ({ ctx, client, input }) => {
   const hsClient = await _getHubspotClient({ ctx, client })
-  const { contactIdOrEmail, phone, email, additionalProperties: additionalPropertiesInput } = input
-  const additionalProperties = _toPropertiesRecord(additionalPropertiesInput ?? [])
+  const { contactIdOrEmail, phone, email, properties } = input
+  const additionalProperties = _toPropertiesRecord(properties ?? [])
   const updatedContact = await hsClient.updateContact({
     contactId: contactIdOrEmail,
     additionalProperties,
