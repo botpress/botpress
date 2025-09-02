@@ -162,31 +162,40 @@ export class HubspotClient {
     email,
     phone,
     ownerEmailOrId,
-    companyIdsOrNamesOrDomains,
+    companies,
     ticketIds,
     additionalProperties,
   }: {
     email?: string
     phone?: string
     ownerEmailOrId?: string
-    companyIdsOrNamesOrDomains?: string[]
+    companies?: { idOrNameOrDomain: string; primary?: boolean }[]
     ticketIds?: string[]
     additionalProperties: Record<string, string>
   }) {
     if (!email && !phone) {
       throw new sdk.RuntimeError('Email or phone is required')
     }
-    const resolvedProperties = await this._resolveAndCoerceContactProperties({ properties: additionalProperties })
-    const companies = await Promise.all(
-      (companyIdsOrNamesOrDomains ?? []).map((idOrNameOrDomain) => this._searchCompany({ idOrNameOrDomain }))
-    )
-    const tickets = await Promise.all((ticketIds ?? []).map((id) => this._getTicket({ id })))
 
     const owner = ownerEmailOrId
       ? ownerEmailOrId.includes('@')
         ? await this._retrieveOwnerByEmail({ email: ownerEmailOrId })
         : { id: ownerEmailOrId }
       : undefined
+
+    const resolvedProperties = await this._resolveAndCoerceContactProperties({ properties: additionalProperties })
+    const resolvedCompanies = companies
+      ? await Promise.all(
+          companies.map(async ({ idOrNameOrDomain, primary }) => ({
+            ...(await this._searchCompany({ idOrNameOrDomain })),
+            primary: primary ?? false,
+          }))
+        )
+      : []
+
+    const resolvedPrimaryCompanies = resolvedCompanies.filter((company) => company.primary)
+    const resolvedOtherCompanies = resolvedCompanies.filter((company) => !company.primary)
+    const resolvedTickets = await Promise.all((ticketIds ?? []).map((id) => this._getTicket({ id })))
 
     const newContact = await this._hsClient.crm.contacts.basicApi.create({
       properties: {
@@ -196,7 +205,16 @@ export class HubspotClient {
         ...(phone ? { phone } : {}),
       },
       associations: [
-        ...companies.map((company) => ({
+        ...resolvedPrimaryCompanies.map((company) => ({
+          to: { id: company.id },
+          types: [
+            {
+              associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
+              associationTypeId: AssociationTypes.primaryContactToCompany,
+            },
+          ],
+        })),
+        ...resolvedOtherCompanies.map((company) => ({
           to: { id: company.id },
           types: [
             {
@@ -205,7 +223,7 @@ export class HubspotClient {
             },
           ],
         })),
-        ...tickets.map((ticket) => ({
+        ...resolvedTickets.map((ticket) => ({
           to: { id: ticket.id },
           types: [
             {

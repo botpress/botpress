@@ -36,7 +36,19 @@ const createContact: ActionDefinition = {
       phone: z.string().optional().title('Phone').describe('The phone number of the contact'),
       owner: z.string().optional().title('Owner').describe('The ID or email of the owner of the contact'),
       companies: z
-        .array(z.string().title('Company ID, name or domain').describe('The ID, name or domain of the company'))
+        .array(
+          z.object({
+            idOrNameOrDomain: z
+              .string()
+              .title('Company ID, name or domain')
+              .describe('The ID, name or domain of the company'),
+            primary: z
+              .boolean()
+              .optional()
+              .title('Primary Contact')
+              .describe('Whether the contact is the primary contact for the company'),
+          })
+        )
         .optional()
         .title('Companies')
         .describe('The companies of the contact'),

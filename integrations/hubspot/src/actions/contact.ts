@@ -46,7 +46,7 @@ export const createContact: bp.IntegrationProps['actions']['createContact'] = as
     email,
     phone,
     ownerEmailOrId: owner,
-    companyIdsOrNamesOrDomains: companies,
+    companies,
     ticketIds: tickets,
     additionalProperties: properties,
   })
