@@ -2,7 +2,7 @@
   "name": "llmz",
   "type": "module",
   "description": "LLMz – An LLM-native Typescript VM built on top of Zui",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -34,7 +34,7 @@
     "@babel/standalone": "^7.26.4",
     "@babel/traverse": "^7.26.4",
     "@babel/types": "^7.26.3",
-    "@botpress/client": "1.24.0",
+    "@botpress/client": "1.24.1",
     "bytes": "^3.1.2",
     "exponential-backoff": "^3.1.1",
     "handlebars": "^4.7.8",
@@ -67,7 +67,7 @@
     "tsx": "^4.19.2"
   },
   "peerDependencies": {
-    "@botpress/cognitive": "0.1.34",
+    "@botpress/cognitive": "0.1.35",
     "@bpinternal/thicktoken": "^1.0.5",
     "@bpinternal/zui": "^1.0.1"
   },
