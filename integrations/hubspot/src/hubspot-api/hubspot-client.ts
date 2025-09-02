@@ -581,7 +581,7 @@ export class HubspotClient {
 
     if (name) {
       filters.push({
-        propertyName: '',
+        propertyName: 'dealname',
         operator: DealFilterOperator.Eq,
         value: name,
       })
@@ -640,9 +640,32 @@ export class HubspotClient {
   }
 
   @handleErrors('Failed to create lead')
-  public async createLead({ properties }: { properties: Record<string, string> }) {
+  public async createLead({
+    properties,
+    associations,
+  }: {
+    properties: Record<string, string>
+    associations: {
+      contactId?: string
+    }
+  }) {
     const lead = await this._hsClient.crm.objects.leads.basicApi.create({
       properties,
+      associations: [
+        ...(associations.contactId
+          ? [
+              {
+                to: { id: associations.contactId },
+                types: [
+                  {
+                    associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
+                    associationTypeId: 578, // contact to lead
+                  },
+                ],
+              },
+            ]
+          : []),
+      ],
     })
 
     return lead
@@ -666,7 +689,7 @@ export class HubspotClient {
   }
 
   @handleErrors('Failed to search lead')
-  public async searchLead({ name }: { name?: string }) {
+  public async searchLead({ name, propertiesToReturn }: { name?: string; propertiesToReturn?: string[] }) {
     const filters = []
 
     if (name) {
@@ -687,6 +710,7 @@ export class HubspotClient {
           filters,
         },
       ],
+      properties: propertiesToReturn,
     })
 
     const lead = leads.results[0]

@@ -2,10 +2,27 @@ import { getAccessToken } from '../auth'
 import { HubspotClient } from '../hubspot-api'
 import * as bp from '.botpress'
 
+const leadDefaultProperties = [
+  'hs_lead_name',
+  'hs_pipeline_stage',
+  'hs_createdate',
+  'hs_lastmodifieddate',
+  'hs_lead_name',
+  'hs_lead_name_calculated',
+  'hs_object_id',
+  'hs_object_source',
+  'hs_object_source_id',
+  'hs_object_source_label',
+  'hs_pipeline',
+  'hs_pipeline_stage',
+  'hs_pipeline_stage_last_updated',
+  'hs_primary_associated_object_name',
+]
+
 export const searchLead: bp.IntegrationProps['actions']['searchLead'] = async ({ client, ctx, input }) => {
   const hsClient = new HubspotClient({ accessToken: await getAccessToken({ client, ctx }), client, ctx })
 
-  const lead = await hsClient.searchLead({ name: input.name })
+  const lead = await hsClient.searchLead({ name: input.name, propertiesToReturn: leadDefaultProperties })
 
   return {
     lead: {
@@ -21,7 +38,7 @@ export const searchLead: bp.IntegrationProps['actions']['searchLead'] = async ({
 export const createLead: bp.IntegrationProps['actions']['createLead'] = async ({ client, ctx, input }) => {
   const hsClient = new HubspotClient({ accessToken: await getAccessToken({ client, ctx }), client, ctx })
 
-  const lead = await hsClient.createLead({ properties: input.properties })
+  const lead = await hsClient.createLead({ properties: input.properties, associations: input.associations })
 
   return {
     lead: {
@@ -37,7 +54,7 @@ export const createLead: bp.IntegrationProps['actions']['createLead'] = async ({
 export const getLead: bp.IntegrationProps['actions']['getLead'] = async ({ client, ctx, input }) => {
   const hsClient = new HubspotClient({ accessToken: await getAccessToken({ client, ctx }), client, ctx })
 
-  const lead = await hsClient.getLeadById({ leadId: input.leadId })
+  const lead = await hsClient.getLeadById({ leadId: input.leadId, propertiesToReturn: leadDefaultProperties })
 
   return {
     lead: {
