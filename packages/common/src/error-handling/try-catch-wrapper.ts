@@ -1,12 +1,14 @@
 import * as sdk from '@botpress/sdk'
 
 type RedactFn = (originalError: Error, customErrorMessage: string) => sdk.RuntimeError
+type ShouldRetryFn = (x: { error: Error; retryCount: number }) => boolean
 
 /**
  * Creates a wrapper function for asynchronous functions that catches errors and
  * redacts them using a provided redactor function.
  *
  * @param redactorFn - A function that redacts the original error and returns a `sdk.RuntimeError`.
+ * @param shouldRetryFn - An optional function that determines whether to retry the async function based on the error and the current retry count.
  * @returns A function that takes an asynchronous function and a custom error message, and returns a wrapped version of the asynchronous function.
  *
  * @example
@@ -26,7 +28,7 @@ type RedactFn = (originalError: Error, customErrorMessage: string) => sdk.Runtim
  * ```
  */
 export const createAsyncFnWrapperWithErrorRedaction =
-  (redactorFn: RedactFn) =>
+  (redactorFn: RedactFn, shouldRetryFn?: ShouldRetryFn) =>
   /**
    * Wraps an async function with a try-catch block that catches any errors and
    * logs them as a `sdk.RuntimeError` after redacting them with a redactor
@@ -42,7 +44,25 @@ export const createAsyncFnWrapperWithErrorRedaction =
         return await asyncFn(...args)
       } catch (thrown: unknown) {
         const originalError = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-        const runtimeError = redactorFn(originalError, errorCustomMessage)
+        let currentError = originalError
+
+        if (shouldRetryFn) {
+          for (let retryCount = 0; shouldRetryFn({ error: currentError, retryCount }); ++retryCount) {
+            if (currentError instanceof sdk.RuntimeError) {
+              // Short-circuit the retry if we've already handled this error
+              break
+            }
+
+            try {
+              return await asyncFn(...args)
+            } catch (thrown2: unknown) {
+              currentError = thrown2 instanceof Error ? thrown2 : new Error(`${thrown2}`)
+            }
+          }
+        }
+
+        const runtimeError =
+          currentError instanceof sdk.RuntimeError ? currentError : redactorFn(currentError, errorCustomMessage)
         throw runtimeError
       }
     }) as WrappedFn

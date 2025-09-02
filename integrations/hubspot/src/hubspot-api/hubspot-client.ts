@@ -29,7 +29,7 @@ export class HubspotClient {
     this._client = client
     this._ctx = ctx
     this._accessToken = accessToken
-    this._hsClient = new OfficialHubspotClient({ accessToken })
+    this._hsClient = new OfficialHubspotClient({ accessToken, numberOfApiCallRetries: 2 })
   }
 
   @handleErrors('Failed to validate authentication')
