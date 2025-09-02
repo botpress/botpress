@@ -1004,6 +1004,9 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
+      '@hubspot/api-client':
+        specifier: ^13.1.0
+        version: 13.1.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -5809,6 +5812,21 @@ packages:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
     dependencies:
       graphql: 15.8.0
+    dev: false
+
+  /@hubspot/api-client@13.1.0:
+    resolution: {integrity: sha512-l+GIaMOFF0rQKMEs6+hTdaGhw0i4ym/LppKryt1d4xWakFlckJ/BFxmbjRZXX248fwRzKPQCw2y0FZ0ajCWePQ==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      '@types/node': 22.16.4
+      '@types/node-fetch': 2.6.12
+      bottleneck: 2.19.5
+      es6-promise: 4.2.8
+      form-data: 4.0.4
+      lodash.merge: 4.6.2
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /@humanfs/core@0.19.1:
@@ -14381,7 +14399,6 @@ packages:
 
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
-    dev: true
 
   /lodash.once@4.1.1:
     resolution: {integrity: sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg==}
