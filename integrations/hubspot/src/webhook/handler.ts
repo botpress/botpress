@@ -21,7 +21,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     return await handlers.handleBatchUpdateEvent(props)
   }
 
-  logger.warn(`No handler found for request on ${req.path}`)
+  logger.warn(`No handler found for request on '/${req.path}'`)
   return { status: 404, body: 'No handler found' }
 }
 
