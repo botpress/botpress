@@ -1,21 +1,21 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
+import { WeblowClientBuilder } from 'src/client'
 import * as bp from '../../.botpress'
 import { ItemOutput } from '../types'
 
 export const listItems: bp.IntegrationProps['actions']['listItems'] = async (props) => {
-  const apiToken = props.input.apiTokenOverwrite ? props.input.apiTokenOverwrite : props.ctx.configuration.apiToken
-
-  type Result = bp.actions.listItems.output.Output
   try {
-    const { data } = await axios.get<Result>(
-      `https://api.webflow.com/v2/collections/${props.input.collectionID}/items${props.input.isLiveItems ? '/live' : ''}?offset=${props.input.pagination?.offset ?? 0}&limit=${props.input.pagination?.limit ?? 100}`,
-      {
-        headers: {
-          Authorization: `Bearer ${apiToken}`,
-        },
-      }
+    const builder = new WeblowClientBuilder()
+    props.logger.debug('1')
+    builder.producePath(
+      `/collections/${props.input.collectionID}/items${props.input.isLiveItems ? '/live' : ''}?offset=${props.input.pagination?.offset ?? 0}&limit=${props.input.pagination?.limit ?? 100}`
     )
+    props.logger.debug('2')
+    builder.produceToken(props.input.apiTokenOverwrite ?? props.ctx.configuration.apiToken)
+    props.logger.debug('3')
+    const { data } = await builder.getWebflowClient().sendRequest()
+    props.logger.debug('4')
 
     return data
   } catch (err) {
