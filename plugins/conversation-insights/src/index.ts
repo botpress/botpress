@@ -17,7 +17,7 @@ plugin.on.afterIncomingMessage('*', async (props) => {
   await onNewMessageHandler.onNewMessage({ ...props, conversation })
 
   if (props.configuration.aiEnabled) {
-    const eventType = 'conversation-insights#updateAiInsight'
+    const eventType = `${props.alias}#updateAiInsight`
     const events = await props.client.listEvents({ type: eventType, status: 'scheduled' })
 
     if (events.events.length === 0) {
@@ -45,7 +45,7 @@ plugin.on.event('updateAiInsight', async (props) => {
   }
 
   const workflows = await props.client.listWorkflows({
-    name: 'conversation-insights#updateAllConversations',
+    name: 'updateAllConversations',
     statuses: ['in_progress', 'listening', 'pending'],
   })
 
@@ -63,12 +63,13 @@ plugin.on.workflowStart('updateAllConversations', async (props) => {
 plugin.on.workflowContinue('updateAllConversations', async (props) => {
   const dirtyConversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
 
-  const promises = []
+  const promises: Promise<void>[] = []
   for (const conversation of dirtyConversations.conversations) {
     const firstMessagePage = await props.client
       .listMessages({ conversationId: props.event.conversationId })
       .then((res) => res.messages)
-    promises.push(summaryUpdater.updateTitleAndSummary({ ...props, conversation, messages: firstMessagePage }))
+    const promise = summaryUpdater.updateTitleAndSummary({ ...props, conversation, messages: firstMessagePage })
+    promises.push(promise)
   }
 
   await Promise.all(promises)
