@@ -5,10 +5,15 @@ import globals from "globals";
 import tsParser from "@typescript-eslint/parser";
 import tseslint from 'typescript-eslint';
 import stylistic from '@stylistic/eslint-plugin'
-import oxlint from 'eslint-plugin-oxlint';
-import path from "path"
 
-const oxlintFile = path.join(import.meta.dirname, '.oxlintrc.json');
+// import oxlint from 'eslint-plugin-oxlint';
+// import path from "path"
+// const oxlintFile = path.join(import.meta.dirname, '.oxlintrc.json');
+// const oxlintRules = oxlint.buildFromOxlintConfigFile(oxlintFile)
+//     .map(config => config.rules)
+//     .reduce((acc, rules) => ({ ...acc, ...rules }), {})
+
+// console.log(JSON.stringify(oxlintRules, null, 2))
 
 const ignores = [
     ".git/",
@@ -116,9 +121,22 @@ export default [{
 
         "@typescript-eslint/explicit-member-accessibility": "warn",
 
-        // Disable every rule already covered by oxlint:
-        ...oxlint.buildFromOxlintConfigFile(oxlintFile)
-            .map(config => config.rules)
-            .reduce((acc, rules) => ({ ...acc, ...rules }), {}),
+        // Disable every rule already covered by oxlint
+        "no-console": "off",
+        "no-cond-assign": "off",
+        "no-const-assign": "off",
+        "no-debugger": "off",
+        "no-sparse-arrays": "off",
+        "default-case": "off",
+        "default-case-last": "off",
+        "no-eval": "off",
+        "no-return-assign": "off",
+        "no-var": "off",
+        "no-duplicate-imports": "off",
+        "@typescript-eslint/consistent-type-definitions": "off",
+        "@typescript-eslint/prefer-namespace-keyword": "off",
+        "eqeqeq": "off",
+        "unicorn/no-empty-file": "off",
+        "unicorn/no-lonely-if": "off",
     },
 }];
