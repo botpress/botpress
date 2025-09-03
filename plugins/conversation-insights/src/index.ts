@@ -66,7 +66,7 @@ plugin.on.workflowContinue('updateAllConversations', async (props) => {
   const promises: Promise<void>[] = []
   for (const conversation of dirtyConversations.conversations) {
     const firstMessagePage = await props.client
-      .listMessages({ conversationId: props.event.conversationId })
+      .listMessages({ conversationId: conversation.id })
       .then((res) => res.messages)
     const promise = summaryUpdater.updateTitleAndSummary({ ...props, conversation, messages: firstMessagePage })
     promises.push(promise)
