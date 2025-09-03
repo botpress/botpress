@@ -1,5 +1,6 @@
 {
   "name": "@botpresshub/canny",
+  "integrationName": "canny",
   "description": "Canny integration for Botpress",
   "private": true,
   "scripts": {
