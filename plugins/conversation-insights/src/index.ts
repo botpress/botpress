@@ -111,6 +111,7 @@ plugin.on.workflowContinue('updateAllConversations', async (props) => {
   }
 
   await Promise.all(promises)
+  await props.workflow.setCompleted()
 
   return undefined
 })
