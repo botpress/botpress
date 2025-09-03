@@ -19,7 +19,9 @@ export default new IntegrationDefinition({
         schema: z.object({
           email: z.string().describe('Email address'),
           transactionalId: z.string().describe('Transactional ID'),
-          dataVariables: z.record(z.string(), z.string()).describe('Data variables'),
+          dataVariables: z.record(z.string(), z.union([z.string(), z.number()]))
+            .describe('Data variables. Values must be strings or numbers.'),
+          addToAudience: z.boolean().optional().describe('Add to audience?'),
         }),
       },
       output: {

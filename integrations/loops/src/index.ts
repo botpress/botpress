@@ -22,6 +22,7 @@ export default new bp.Integration({
           email, 
           transactionalId, 
           dataVariables,
+          addToAudience,
         },
         ctx: {
           configuration: {
@@ -33,7 +34,8 @@ export default new bp.Integration({
       const response = await axios.post("https://api.loops.so/api/v1/transactional/send", {
         email,
         transactionalId,
-        dataVariables
+        dataVariables,
+        ...(addToAudience && { addToAudience })
       }, {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
