@@ -1,6 +1,6 @@
 {
   "name": "@botpress/client",
-  "version": "1.22.2",
+  "version": "1.24.1",
   "description": "Botpress Client",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -36,5 +36,5 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@8.6.2"
+  "packageManager": "pnpm@10.12.4"
 }

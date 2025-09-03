@@ -43,6 +43,7 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
       title: parsedSummary.json.title,
       summary: parsedSummary.json.summary,
       sentiment: parsedSentiment.json.sentiment,
+      isDirty: 'false',
     },
   })
 }

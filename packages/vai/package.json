@@ -36,7 +36,7 @@
     "tsup": "^8.0.2"
   },
   "peerDependencies": {
-    "@botpress/client": "1.22.2",
+    "@botpress/client": "1.24.1",
     "@bpinternal/thicktoken": "^1.0.1",
     "@bpinternal/zui": "^1.0.1",
     "lodash": "^4.17.21",
@@ -45,5 +45,5 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@8.6.2"
+  "packageManager": "pnpm@10.12.4"
 }
