@@ -29,7 +29,7 @@ export const handleBatchUpdateEvent: bp.IntegrationProps['handler'] = async (pro
     switch (true) {
       case isContactCreatedEvent(event):
         const contact = await hsClient.getContactById({ contactId: event.objectId })
-        props.client.createEvent({
+        await props.client.createEvent({
           type: 'contactCreated',
           payload: {
             contactId: event.objectId.toString(),
@@ -40,7 +40,7 @@ export const handleBatchUpdateEvent: bp.IntegrationProps['handler'] = async (pro
         })
         break
       case isContactDeletedEvent(event):
-        props.client.createEvent({
+        await props.client.createEvent({
           type: 'contactDeleted',
           payload: {
             contactId: event.objectId.toString(),
@@ -49,7 +49,7 @@ export const handleBatchUpdateEvent: bp.IntegrationProps['handler'] = async (pro
         break
       case isCompanyCreatedEvent(event):
         const company = await hsClient.getCompanyById({ companyId: event.objectId })
-        props.client.createEvent({
+        await props.client.createEvent({
           type: 'companyCreated',
           payload: {
             companyId: event.objectId.toString(),
@@ -60,7 +60,7 @@ export const handleBatchUpdateEvent: bp.IntegrationProps['handler'] = async (pro
         })
         break
       case isCompanyDeletedEvent(event):
-        props.client.createEvent({
+        await props.client.createEvent({
           type: 'companyDeleted',
           payload: {
             companyId: event.objectId.toString(),
@@ -69,7 +69,7 @@ export const handleBatchUpdateEvent: bp.IntegrationProps['handler'] = async (pro
         break
       case isTicketCreatedEvent(event):
         const ticket = await hsClient.getTicketById({ ticketId: event.objectId })
-        props.client.createEvent({
+        await props.client.createEvent({
           type: 'ticketCreated',
           payload: {
             ticketId: event.objectId.toString(),
@@ -82,7 +82,7 @@ export const handleBatchUpdateEvent: bp.IntegrationProps['handler'] = async (pro
         })
         break
       case isTicketDeletedEvent(event):
-        props.client.createEvent({
+        await props.client.createEvent({
           type: 'ticketDeleted',
           payload: {
             ticketId: event.objectId.toString(),
