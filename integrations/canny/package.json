@@ -1,0 +1,17 @@
+{
+  "name": "@bp-templates/hello-world",
+  "integrationName": "canny/canny",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "1.24.0",
+    "@botpress/sdk": "4.15.5",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.4",
+    "typescript": "^5.6.3"
+  }
+}
