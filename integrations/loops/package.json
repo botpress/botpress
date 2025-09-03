@@ -1,6 +1,6 @@
 {
   "name": "@bp-templates/empty-integration",
-  "integrationName": "botpress/loops",
+  "integrationName": "yang-li-test/loops",
   "scripts": {
     "check:type": "tsc --noEmit"
   },
