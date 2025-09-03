@@ -21,7 +21,7 @@ plugin.on.afterIncomingMessage('*', async (props) => {
     const events = await props.client.listEvents({ type: eventType, status: 'scheduled' })
 
     if (events.events.length === 0) {
-      const dateTime = new Date(Date.now() + 10000).toISOString()
+      const dateTime = new Date(Date.now() + HOUR_MILLISECONDS).toISOString()
       await props.events.updateAiInsight.schedule({}, { dateTime })
     }
   }
@@ -55,7 +55,7 @@ plugin.on.event('updateAiInsight', async (props) => {
 })
 
 plugin.on.workflowStart('updateAllConversations', async (props) => {
-  props.logger.info('Starting updateAllConversation workflow')
+  props.logger.info('Starting updateAllConversations workflow')
 
   return undefined
 })
@@ -73,6 +73,7 @@ plugin.on.workflowContinue('updateAllConversations', async (props) => {
 
   await Promise.all(promises)
   await props.workflow.setCompleted()
+  props.logger.info('updateAllConversations workflow completed')
 
   return undefined
 })
