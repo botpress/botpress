@@ -39,7 +39,7 @@ export const webhook: WebhookHandler = async ({ req, client, ctx }) => {
   }
 }
 
-async function handlePostCreated(client: any, ctx: any, postData: any) {
+async function handlePostCreated(client: any, _ctx: any, postData: any) {
   try {
     const { conversation } = await client.createConversation({
       channel: 'posts',
@@ -66,7 +66,7 @@ async function handlePostCreated(client: any, ctx: any, postData: any) {
   }
 }
 
-async function handleCommentCreated(client: any, ctx: any, commentData: any) {
+async function handleCommentCreated(client: any, _ctx: any, commentData: any) {
   try {
     const { conversations } = await client.listConversations({
       tags: {
