@@ -29,6 +29,11 @@ export default new PluginDefinition({
         title: 'Sentiment',
         description: 'The sentiment that best describes the conversation. Type: enum Sentiments',
       },
+      isDirty: {
+        title: 'Is Dirty',
+        description:
+          "Indicates whether a conversation's AI insight has been updated since the last message. Type: boolean",
+      },
     },
   },
   events: {
@@ -36,6 +41,7 @@ export default new PluginDefinition({
       schema: z.object({}),
     },
   },
+  workflows: { updateAllConversations: { input: { schema: z.object({}) }, output: { schema: z.object({}) } } },
   interfaces: {
     llm,
   },
