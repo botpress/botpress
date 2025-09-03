@@ -94,9 +94,7 @@ export const actions = {
   listCollections: {
     title: 'List Collections',
     input: {
-      schema: z.object({
-        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
-      }),
+      schema: z.object({}),
     },
     output: {
       schema: z.object({
@@ -108,7 +106,6 @@ export const actions = {
     title: 'Get Collection Details',
     input: {
       schema: z.object({
-        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
       }),
     },
@@ -122,7 +119,6 @@ export const actions = {
     title: 'Create Collection',
     input: {
       schema: z.object({
-        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionInfo: collectionSchema.describe('Informations of the collection to create.'),
       }),
     },
@@ -136,7 +132,6 @@ export const actions = {
     title: 'Delete Collection',
     input: {
       schema: z.object({
-        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
       }),
     },
@@ -148,7 +143,6 @@ export const actions = {
     title: 'List Collection Items',
     input: {
       schema: z.object({
-        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
         pagination: paginationSchema.optional().describe('Pagination parameters'),
         isLiveItems: z.boolean().default(false).describe('checkbox to decide if the list is for live items or not'),
@@ -169,7 +163,6 @@ export const actions = {
     title: 'Get Collection Item',
     input: {
       schema: z.object({
-        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
         isLiveItems: z.boolean().default(false).describe('checkbox to decide if the list is for live items or not'),
         itemID: z.string().min(1, 'Item ID is required').describe('The ID of your Webflow item'),
@@ -185,7 +178,6 @@ export const actions = {
     title: 'Create Collection item(s)',
     input: {
       schema: z.object({
-        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
         isLiveItems: z.boolean().default(false).describe('checkbox to decide if the list is for live items or not'),
         items: z.array(
@@ -220,7 +212,6 @@ export const actions = {
     title: 'Update Item(s)',
     input: {
       schema: z.object({
-        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
         items: z.array(itemSchemaInput).describe('Array of items to update'),
         isLiveItems: z.boolean().default(false).describe('checkbox to decide if the list is for live items or not'),
@@ -236,7 +227,6 @@ export const actions = {
     title: 'Delete Item(s)',
     input: {
       schema: z.object({
-        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
         itemIDs: z.object({
           items: z.array(
@@ -253,7 +243,6 @@ export const actions = {
     title: 'Publish Item(s)',
     input: {
       schema: z.object({
-        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
         itemIds: z.array(z.string().min(1, 'Item ID is required').describe('Unique identifier for the Item')),
       }),
@@ -269,7 +258,6 @@ export const actions = {
     title: 'Unpublish Live Item(s)',
     input: {
       schema: z.object({
-        apiTokenOverwrite: z.string().optional().describe('Optional API Token to overwrite the default one'),
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
         itemIds: z.array(z.string().min(1, 'Item ID is required').describe('Unique identifier for the Item')),
       }),
