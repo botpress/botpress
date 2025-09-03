@@ -1,34 +1,59 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
-	"vcs": {
-		"enabled": false,
-		"clientKind": "git",
-		"useIgnoreFile": false
-	},
-	"files": {
-		"ignoreUnknown": false
-	},
+	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
+	"files": { "ignoreUnknown": false },
 	"formatter": {
 		"enabled": true,
-		"indentStyle": "tab"
+		"formatWithErrors": false,
+		"indentStyle": "space",
+		"indentWidth": 2,
+		"lineEnding": "lf",
+		"lineWidth": 120,
+		"attributePosition": "auto",
+		"bracketSameLine": false,
+		"bracketSpacing": true,
+		"expand": "auto",
+		"useEditorconfig": true,
+		"includes": [
+			"**",
+			"!**/*",
+			"**/",
+			"**/*.ts",
+			"**/*.tsx",
+			"**/*.json",
+			"**/*.yaml",
+			"**/*.yml",
+			"**/*.md",
+			"!**/pnpm-lock.yaml",
+			"!**/gen",
+			"!**/dist",
+			"!**/.botpress",
+			"!**/.botpresshome",
+			"!**/.botpresshome.*",
+			"!**/bp_modules",
+			"!**/.genenv/",
+			"!**/.genenv.*",
+			"!**/.turbo",
+			"!**/*.md.ts"
+		]
 	},
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"recommended": true
-		}
-	},
+	"linter": { "enabled": true, "rules": { "recommended": true } },
 	"javascript": {
 		"formatter": {
-			"quoteStyle": "double"
+			"jsxQuoteStyle": "double",
+			"quoteProperties": "asNeeded",
+			"trailingCommas": "es5",
+			"semicolons": "asNeeded",
+			"arrowParentheses": "always",
+			"bracketSameLine": false,
+			"quoteStyle": "single",
+			"attributePosition": "auto",
+			"bracketSpacing": true
 		}
 	},
+	"html": { "formatter": { "selfCloseVoidElements": "always" } },
 	"assist": {
 		"enabled": true,
-		"actions": {
-			"source": {
-				"organizeImports": "on"
-			}
-		}
+		"actions": { "source": { "organizeImports": "on" } }
 	}
 }
