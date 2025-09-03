@@ -6,6 +6,8 @@ export const handleEvent: bp.WorkflowHandlers['buildQueue'] = async (props) => {
   const workflowState = await props.states.workflow.buildQueueRuntimeState.get(props.workflow.id)
   const { syncQueue, key } = await SyncQueue.jobFileManager.getSyncQueue(props, workflowState.jobFileId)
 
+  await props.workflow.acknowledgeStartOfProcessing()
+
   props.logger.info('Enumerating files...')
   const enumerationState = await SyncQueue.directoryTraversalWithBatching.enumerateAllFilesRecursive(
     _getEnumerateAllFilesRecursiveProps(props, syncQueue, key, workflowState)
