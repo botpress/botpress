@@ -18,7 +18,7 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
   })
 
   let authorID = input.authorID
-  
+
   if (!authorID) {
     const botUser = await client.createOrUpdateUser({
       name: 'BotpressIntegration',
@@ -38,7 +38,6 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
   }
 
   try {
-
     const result = await client.createPost({
       authorID: authorID,
       boardID: input.boardID,
@@ -57,11 +56,19 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
       postId: result.id,
     }
   } catch (error: any) {
-    if (error.response?.data?.error?.includes('user') || error.response?.data?.error?.includes('author') || error.message?.includes('user')) {
+    if (
+      error.response?.data?.error?.includes('user') ||
+      error.response?.data?.error?.includes('author') ||
+      error.message?.includes('user')
+    ) {
       if (!input.authorID) {
-        throw new RuntimeError(`Post creation failed: Canny requires users to be "identified" through their SDK. Please provide an authorID of a user who has been identified in your Canny workspace, or implement Canny's Identify SDK for the BotpressIntegration user.`)
+        throw new RuntimeError(
+          `Post creation failed: Canny requires users to be "identified" through their SDK. Please provide an authorID of a user who has been identified in your Canny workspace, or implement Canny's Identify SDK for the BotpressIntegration user.`
+        )
       } else {
-        throw new RuntimeError(`Post creation failed: The authorID "${authorID}" is not valid or the user hasn't been identified through Canny's SDK.`)
+        throw new RuntimeError(
+          `Post creation failed: The authorID "${authorID}" is not valid or the user hasn't been identified through Canny's SDK.`
+        )
       }
     }
     throw new RuntimeError(`Canny API error: ${error.response?.data?.error || error.message || 'Unknown error'}`)
@@ -110,7 +117,7 @@ export const listPosts: ListPostsAction = async ({ input, ctx }) => {
   })
 
   return {
-    posts: result.posts.map(post => ({
+    posts: result.posts.map((post) => ({
       id: post.id,
       title: post.title,
       details: post.details,

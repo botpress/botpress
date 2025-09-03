@@ -24,22 +24,22 @@ export const listBoards: ListBoardsAction = async ({ input, ctx }) => {
     const hasMore = result.hasMore !== undefined ? result.hasMore : boards.length >= requestedLimit
 
     return {
-      boards: boards.map(board => ({
+      boards: boards.map((board) => ({
         id: board.id,
         name: board.name,
         postCount: board.postCount,
         url: board.url,
         created: board.created,
       })),
-      hasMore, 
+      hasMore,
     }
   } catch (error: any) {
     console.error('Error listing boards:', error)
-    
+
     if (error.response?.status === 401) {
       throw new RuntimeError('Invalid Canny API key. Please check your API key in the integration settings.')
     }
-    
+
     throw new RuntimeError(`Canny API error: ${error.response?.data?.error || error.message || 'Unknown error'}`)
   }
 }

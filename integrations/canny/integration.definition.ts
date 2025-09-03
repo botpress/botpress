@@ -66,7 +66,10 @@ export default new IntegrationDefinition({
       description: 'Create a new post in Canny',
       input: {
         schema: z.object({
-          authorID: z.string().optional().describe('The author ID (defaults to BotpressIntegration user if not provided)'),
+          authorID: z
+            .string()
+            .optional()
+            .describe('The author ID (defaults to BotpressIntegration user if not provided)'),
           boardID: z.string().describe('The board ID'),
           title: z.string().describe('Post title'),
           details: z.string().describe('Post details'),
@@ -130,19 +133,21 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          posts: z.array(z.object({
-            id: z.string(),
-            title: z.string(),
-            details: z.string().optional(),
-            authorName: z.string().optional(),
-            authorEmail: z.string().optional(),
-            boardName: z.string(),
-            status: z.string(),
-            score: z.number(),
-            commentCount: z.number(),
-            created: z.string(),
-            url: z.string(),
-          })),
+          posts: z.array(
+            z.object({
+              id: z.string(),
+              title: z.string(),
+              details: z.string().optional(),
+              authorName: z.string().optional(),
+              authorEmail: z.string().optional(),
+              boardName: z.string(),
+              status: z.string(),
+              score: z.number(),
+              commentCount: z.number(),
+              created: z.string(),
+              url: z.string(),
+            })
+          ),
           hasMore: z.boolean(),
         }),
       },
@@ -188,7 +193,10 @@ export default new IntegrationDefinition({
       description: 'Create a new comment on a post',
       input: {
         schema: z.object({
-          authorID: z.string().optional().describe('The author ID (defaults to BotpressIntegration user if not provided)'),
+          authorID: z
+            .string()
+            .optional()
+            .describe('The author ID (defaults to BotpressIntegration user if not provided)'),
           postID: z.string().describe('The post ID'),
           value: z.string().describe('Comment text'),
           parentID: z.string().optional().describe('Parent comment ID for replies'),
@@ -243,17 +251,19 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          comments: z.array(z.object({
-            id: z.string(),
-            value: z.string(),
-            authorName: z.string(),
-            authorEmail: z.string(),
-            postTitle: z.string(),
-            postID: z.string(),
-            created: z.string(),
-            internal: z.boolean(),
-            likeCount: z.number(),
-          })),
+          comments: z.array(
+            z.object({
+              id: z.string(),
+              value: z.string(),
+              authorName: z.string(),
+              authorEmail: z.string(),
+              postTitle: z.string(),
+              postID: z.string(),
+              created: z.string(),
+              internal: z.boolean(),
+              likeCount: z.number(),
+            })
+          ),
           hasMore: z.boolean(),
         }),
       },
@@ -313,15 +323,17 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          users: z.array(z.object({
-            id: z.string(),
-            name: z.string(),
-            email: z.string(),
-            avatarURL: z.string().optional(),
-            userID: z.string(), // Can be empty string if user has no userID
-            isAdmin: z.boolean(),
-            created: z.string(),
-          })),
+          users: z.array(
+            z.object({
+              id: z.string(),
+              name: z.string(),
+              email: z.string(),
+              avatarURL: z.string().optional(),
+              userID: z.string(), // Can be empty string if user has no userID
+              isAdmin: z.boolean(),
+              created: z.string(),
+            })
+          ),
           hasNextPage: z.boolean(),
           cursor: z.string().optional(),
         }),
@@ -340,13 +352,15 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          boards: z.array(z.object({
-            id: z.string(),
-            name: z.string(),
-            postCount: z.number(),
-            url: z.string(),
-            created: z.string(),
-          })),
+          boards: z.array(
+            z.object({
+              id: z.string(),
+              name: z.string(),
+              postCount: z.number(),
+              url: z.string(),
+              created: z.string(),
+            })
+          ),
           hasMore: z.boolean(),
         }),
       },

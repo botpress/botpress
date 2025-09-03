@@ -504,6 +504,9 @@ importers:
       axios:
         specifier: ^1.6.0
         version: 1.11.0
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
     devDependencies:
       '@types/node':
         specifier: ^22.16.4

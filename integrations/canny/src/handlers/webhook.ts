@@ -5,7 +5,7 @@ type WebhookHandler = IntegrationProps['handler']
 
 type CannyWebhookPayload = {
   type: 'post.created' | 'comment.created'
-  data: any 
+  data: any
 }
 
 export const webhook: WebhookHandler = async ({ req, client, ctx }) => {
@@ -61,7 +61,6 @@ async function handlePostCreated(client: any, ctx: any, postData: any) {
         cannyPostId: postData.id,
       },
     })
-
   } catch (error) {
     console.error('Error handling post creation:', error)
   }
@@ -95,7 +94,6 @@ async function handleCommentCreated(client: any, ctx: any, commentData: any) {
         cannyPostId: commentData.post.id,
       },
     })
-
   } catch (error) {
     console.error('Error handling comment creation:', error)
   }

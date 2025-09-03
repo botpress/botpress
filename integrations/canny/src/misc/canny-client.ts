@@ -83,7 +83,6 @@ export type Comment = {
   value: string
 }
 
-
 export type CreatePostRequest = {
   authorID: string
   boardID: string
@@ -151,7 +150,6 @@ export type ListCommentsResponse = {
   hasMore: boolean
 }
 
-
 export type CreateUserRequest = {
   name: string
   userID?: string
@@ -163,8 +161,8 @@ export type CreateUserRequest = {
 }
 
 export type ListUsersRequest = {
-  limit?: number 
-  cursor?: string 
+  limit?: number
+  cursor?: string
 }
 
 export type ListUsersResponse = {
@@ -184,7 +182,10 @@ export type ListBoardsResponse = {
 }
 
 export class CannyClient {
-  private constructor(private readonly _client: Axios, private readonly _apiKey: string) {}
+  private constructor(
+    private readonly _client: Axios,
+    private readonly _apiKey: string
+  ) {}
 
   public static create(config: CannyClientConfiguration) {
     const client = axios.create({
@@ -207,12 +208,11 @@ export class CannyClient {
       console.error(`Canny API error for ${endpoint}:`, {
         status: error.response?.status,
         data: error.response?.data,
-        message: error.message
+        message: error.message,
       })
       throw error
     }
   }
-
 
   public async createPost(request: CreatePostRequest): Promise<{ id: string }> {
     return this._makeRequest('/posts/create', request)
@@ -236,7 +236,6 @@ export class CannyClient {
     return { success: response === 'success' }
   }
 
-
   public async createComment(request: CreateCommentRequest): Promise<{ id: string }> {
     return this._makeRequest('/comments/create', request)
   }
@@ -254,7 +253,6 @@ export class CannyClient {
     return { success: response === 'success' }
   }
 
-
   public async createOrUpdateUser(request: CreateUserRequest): Promise<User> {
     return this._makeRequest('/users/create_or_update', request)
   }
@@ -268,12 +266,10 @@ export class CannyClient {
     return this._makeRequest('/boards/list', request)
   }
 
-
-
   private async _makeRequestV2<T>(endpoint: string, data: any): Promise<T> {
     try {
       const requestData = { ...data, apiKey: this._apiKey }
-      
+
       const v2Client = axios.create({
         baseURL: 'https://canny.io/api/v2',
         timeout: 10_000,
@@ -281,14 +277,14 @@ export class CannyClient {
           'Content-Type': 'application/json',
         },
       })
-      
+
       const response = await v2Client.post(endpoint, requestData)
       return response.data
     } catch (error: any) {
       console.error(`Canny API v2 error for ${endpoint}:`, {
         status: error.response?.status,
         data: error.response?.data,
-        message: error.message
+        message: error.message,
       })
       throw error
     }

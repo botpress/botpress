@@ -11,7 +11,8 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "axios": "^1.6.0"
+    "axios": "^1.6.0",
+    "prettier": "^3.5.3"
   },
   "devDependencies": {
     "@types/node": "^22.16.4",
