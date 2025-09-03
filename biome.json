@@ -58,7 +58,9 @@
       "!**/.genenv/",
       "!**/.ignore.me.*",
       "!**/*.md.ts",
-      "!packages/llmz/examples/"
+      "!packages/llmz/examples/",
+      "!.oxlintrc.json",
+      "!eslint.config.mjs"
     ]
   },
   "javascript": {
@@ -241,6 +243,7 @@
             "useDefaultSwitchClause": "off",
             "useNamingConvention": {
               "level": "warn",
+              "fix": "none",
               "options": {
                 "strictCase": false,
                 "requireAscii": false,
