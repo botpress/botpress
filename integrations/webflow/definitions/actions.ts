@@ -1,6 +1,6 @@
 import { IntegrationDefinitionProps, z } from '@botpress/sdk'
 
-export const fieldTypeSchema = z.enum([
+const fieldTypeSchema = z.enum([
   'Color',
   'DateTime',
   'Email',
@@ -20,7 +20,7 @@ export const fieldTypeSchema = z.enum([
   'VideoLink',
 ])
 
-export const collectionSchema = z.object({
+const collectionSchema = z.object({
   id: z.string().optional(),
   displayName: z.string(),
   singularName: z.string(),
@@ -29,7 +29,7 @@ export const collectionSchema = z.object({
   lastUpdated: z.string().optional(),
 })
 
-export const collectionDetailsSchema = z.object({
+const collectionDetailsSchema = z.object({
   id: z.string().optional(),
   displayName: z.string(),
   singularName: z.string(),
@@ -50,7 +50,7 @@ export const collectionDetailsSchema = z.object({
   lastUpdated: z.string().optional(),
 })
 
-export const itemSchemaOutput = z.object({
+const itemSchemaOutput = z.object({
   id: z.string().optional().describe('Unique identifier for the Item'),
   lastPublished: z.string().nullable().describe('The date the item was last published'),
   lastUpdated: z.string().optional().describe('The date the item was last updated'),
@@ -70,7 +70,7 @@ export const itemSchemaOutput = z.object({
   isDraft: z.boolean().optional().describe('Boolean determining if the Item is set to draft'),
 })
 
-export const itemSchemaInput = z.object({
+const itemSchemaInput = z.object({
   id: z.string().optional().describe('Unique identifier for the Item'),
   fieldData: z.object({
     name: z.string().min(1, 'Field name is required').describe('Name of the Item'),
@@ -85,7 +85,7 @@ export const itemSchemaInput = z.object({
   isDraft: z.boolean().optional().describe('Boolean determining if the Item is set to draft'),
 })
 
-export const paginationSchema = z.object({
+const paginationSchema = z.object({
   limit: z.number().default(100).optional().describe('The number of items to return'),
   offset: z.number().default(0).optional().describe('The number of items to skip'),
 })

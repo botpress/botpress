@@ -1,4 +1,3 @@
-import * as sdk from '@botpress/sdk'
 import axios, { AxiosInstance } from 'axios'
 import * as bp from '.botpress'
 
@@ -23,11 +22,7 @@ export class WebflowClient {
   ): Promise<bp.actions.listItems.output.Output> => {
     const path = `/collections/${collectionID}/items${isLiveItems ? '/live' : ''}?offset=${offset}&limit=${limit}`
     const resp = await this._axiosClient.get<bp.actions.listItems.output.Output>(path)
-    try {
-      return resp.data
-    } catch {
-      throw new sdk.RuntimeError('Failed to list items due to unexpected api response')
-    }
+    return resp.data
   }
 
   public getItem = async (
@@ -37,11 +32,7 @@ export class WebflowClient {
   ): Promise<bp.actions.getItem.output.Output> => {
     const path = `/collections/${collectionID}/items/${itemID}${isLiveItems ? '/live' : ''}`
     const resp = await this._axiosClient.get(path)
-    try {
-      return { itemDetails: resp.data }
-    } catch {
-      throw new sdk.RuntimeError('Failed to get item due to unexpected api response')
-    }
+    return { itemDetails: resp.data }
   }
 
   public createItems = async (
@@ -51,11 +42,7 @@ export class WebflowClient {
   ): Promise<bp.actions.createItems.output.Output> => {
     const path = `/collections/${collectionID}/items${isLiveItems ? '/live' : ''}?skipInvalidFiles=true`
     const resp = await this._axiosClient.post(path, { items })
-    try {
-      return resp.data
-    } catch {
-      throw new sdk.RuntimeError('Failed to get item due to unexpected api response')
-    }
+    return resp.data
   }
 
   public updateItem = async (
@@ -65,21 +52,13 @@ export class WebflowClient {
   ): Promise<bp.actions.updateItems.output.Output> => {
     const path = `/collections/${collectionID}/items${isLiveItems ? '/live' : ''}?skipInvalidFiles=true`
     const resp = await this._axiosClient.patch(path, { items })
-    try {
-      return resp.data
-    } catch {
-      throw new sdk.RuntimeError('Failed to get item due to unexpected api response')
-    }
+    return resp.data
   }
 
   public deleteItem = async (collectionID: string, itemIds: object): Promise<bp.actions.deleteItems.output.Output> => {
     const path = `/collections/${collectionID}/items`
     await this._axiosClient.delete(path, { data: itemIds })
-    try {
-      return { success: true }
-    } catch {
-      throw new sdk.RuntimeError('Failed to get item due to unexpected api response')
-    }
+    return { success: true }
   }
 
   public publishItems = async (
@@ -88,11 +67,7 @@ export class WebflowClient {
   ): Promise<bp.actions.publishItems.output.Output> => {
     const path = `/collections/${collectionID}/items/publish`
     const resp = await this._axiosClient.post(path, { itemIds })
-    try {
-      return resp.data
-    } catch {
-      throw new sdk.RuntimeError('Failed to get item due to unexpected api response')
-    }
+    return resp.data
   }
 
   public unpublishLiveItems = async (
@@ -101,21 +76,13 @@ export class WebflowClient {
   ): Promise<bp.actions.unpublishLiveItems.output.Output> => {
     const path = `https://api.webflow.com/v2/collections/${collectionID}/items/publish`
     await this._axiosClient.post(path, { items: itemIds })
-    try {
-      return { success: true }
-    } catch {
-      throw new sdk.RuntimeError('Failed to get item due to unexpected api response')
-    }
+    return { success: true }
   }
 
   public listCollections = async (siteID: string): Promise<bp.actions.listCollections.output.Output> => {
     const path = `/sites/${siteID}/collections`
     const resp = await this._axiosClient.get(path)
-    try {
-      return resp.data
-    } catch {
-      throw new sdk.RuntimeError('Failed to get item due to unexpected api response')
-    }
+    return resp.data
   }
 
   public getCollectionDetails = async (
@@ -123,11 +90,7 @@ export class WebflowClient {
   ): Promise<bp.actions.getCollectionDetails.output.Output> => {
     const path = `/collections/${collectionID}`
     const resp = await this._axiosClient.get(path)
-    try {
-      return { collectionDetails: resp.data }
-    } catch {
-      throw new sdk.RuntimeError('Failed to get item due to unexpected api response')
-    }
+    return { collectionDetails: resp.data }
   }
 
   public createCollection = async (
@@ -136,20 +99,12 @@ export class WebflowClient {
   ): Promise<bp.actions.createCollection.output.Output> => {
     const path = `/sites/${siteID}/collections`
     const resp = await this._axiosClient.post(path, collectionInfo)
-    try {
-      return { collectionDetails: resp.data }
-    } catch {
-      throw new sdk.RuntimeError('Failed to get item due to unexpected api response')
-    }
+    return { collectionDetails: resp.data }
   }
 
   public deleteCollection = async (collectionID: string): Promise<bp.actions.deleteCollection.output.Output> => {
     const path = `/collections/${collectionID}`
     await this._axiosClient.delete(path)
-    try {
-      return { success: true }
-    } catch {
-      throw new sdk.RuntimeError('Failed to get item due to unexpected api response')
-    }
+    return { success: true }
   }
 }
