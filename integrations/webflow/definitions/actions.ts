@@ -160,31 +160,12 @@ export const actions = {
       schema: z.object({
         collectionID: z.string().min(1, 'Collection ID is required').describe('The ID of your Webflow collection'),
         isLiveItems: z.boolean().default(false).describe('checkbox to decide if the list is for live items or not'),
-        items: z.array(
-          z.object({
-            isArchived: z.boolean().default(false),
-            isDraft: z.boolean().default(false),
-            fieldData: z.object({ name: z.string().min(1), slug: z.string().min(1) }),
-          })
-        ),
+        items: z.array(itemSchemaInput).describe('Items to add to the collection'),
       }),
     },
     output: {
       schema: z.object({
-        items: z.array(
-          z.object({
-            id: z.string().optional(),
-            cmsLocaleIds: z.array(z.string()).optional(),
-            lastPublished: z.string().nullable(),
-            lastUpdated: z.string().optional(),
-            createdOn: z.string().optional(),
-            // TODO find a more elegant solution
-            // Supports only text items
-            fieldData: z.record(z.string()).optional(),
-            isArchived: z.boolean().optional(),
-            isDrafted: z.boolean().optional(),
-          })
-        ),
+        items: z.array(itemSchemaOutput).describe('Details of the items created'),
       }),
     },
   },
