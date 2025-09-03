@@ -1,11 +1,7 @@
-import * as sdk from '@botpress/sdk'
 import { isBrowser } from 'browser-or-node'
-import * as updateScheduler from './summaryUpdateScheduler'
+import * as onNewMessageHandler from './onNewMessageHandler'
 import * as summaryUpdater from './tagsUpdater'
-import * as types from './types'
 import * as bp from '.botpress'
-
-type CommonProps = types.CommonProps
 
 const HOUR_MILLISECONDS = 60 * 60 * 1000
 
@@ -18,14 +14,14 @@ plugin.on.afterIncomingMessage('*', async (props) => {
     return
   }
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
-  await _onNewMessage({ ...props, conversation })
+  await onNewMessageHandler.onNewMessage({ ...props, conversation })
 
   if (props.configuration.aiEnabled) {
     const eventType = 'conversation-insights#updateAiInsight'
     const events = await props.client.listEvents({ type: eventType, status: 'scheduled' })
 
     if (events.events.length === 0) {
-      const dateTime = new Date(Date.now() + HOUR_MILLISECONDS).toISOString()
+      const dateTime = new Date(Date.now() + 10000).toISOString()
       await props.events.updateAiInsight.schedule({}, { dateTime })
     }
   }
@@ -38,32 +34,9 @@ plugin.on.afterOutgoingMessage('*', async (props) => {
     return
   }
   const { conversation } = await props.client.getConversation({ id: props.data.message.conversationId })
-  await _onNewMessage({ ...props, conversation })
+  await onNewMessageHandler.onNewMessage({ ...props, conversation })
   return undefined
 })
-
-type OnNewMessageProps = CommonProps & {
-  conversation: bp.ClientOutputs['getConversation']['conversation']
-}
-const _onNewMessage = async (props: OnNewMessageProps) => {
-  const message_count = props.conversation.tags.message_count ? parseInt(props.conversation.tags.message_count) + 1 : 1
-
-  const participant_count = await props.client
-    .listParticipants({ id: props.conversation.id })
-    .then(({ participants }) => participants.length)
-
-  const tags = {
-    message_count: message_count.toString(),
-    participant_count: participant_count.toString(),
-    isDirty: 'true',
-  }
-
-  await props.client.updateConversation({
-    id: props.conversation.id,
-    tags,
-  })
-  return
-}
 
 plugin.on.event('updateAiInsight', async (props) => {
   if (isBrowser) {
@@ -81,7 +54,9 @@ plugin.on.event('updateAiInsight', async (props) => {
   }
 })
 
-plugin.on.workflowStart('updateAllConversations', async (_props) => {
+plugin.on.workflowStart('updateAllConversations', async (props) => {
+  props.logger.info('Starting updateAllConversation workflow')
+
   return undefined
 })
 
