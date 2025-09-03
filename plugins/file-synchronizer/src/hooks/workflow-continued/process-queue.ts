@@ -5,6 +5,8 @@ export const handleEvent: bp.WorkflowHandlers['processQueue'] = async (props) =>
   const { syncQueue, key } = await SyncQueue.jobFileManager.getSyncQueue(props)
   const logger = props.logger.withWorkflowId(props.workflow.id)
 
+  await props.workflow.acknowledgeStartOfProcessing()
+
   const { finished } = await SyncQueue.queueProcessor.processQueue({
     logger,
     syncQueue,

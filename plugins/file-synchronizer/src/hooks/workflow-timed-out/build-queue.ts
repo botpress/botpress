@@ -1,3 +1,5 @@
 import * as bp from '.botpress'
 
-export const handleEvent: bp.WorkflowHandlers['buildQueue'] = async (_props) => {}
+export const handleEvent: bp.WorkflowHandlers['buildQueue'] = async (props) => {
+  await props.workflow.setFailed({ failureReason: 'Workflow timed out' })
+}
