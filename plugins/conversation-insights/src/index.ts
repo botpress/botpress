@@ -21,16 +21,10 @@ plugin.on.afterIncomingMessage('*', async (props) => {
   const { message_count } = await _onNewMessage({ ...props, conversation })
 
   if (props.configuration.aiEnabled) {
-    console.log('listing events')
     const eventType = 'conversation-insights#updateAiInsight'
-    const events = await props.client.listEvents({ type: eventType })
-    if (
-      events.events.filter((event) => {
-        event.type === eventType && (event.status === 'pending' || event.status === 'scheduled')
-      }).length === 0
-    ) {
-      //looks like the schedule delay has a minimum value and causes an unknown error when triggering
-      console.log('creating event')
+    const events = await props.client.listEvents({ type: eventType, status: 'scheduled' })
+
+    if (events.events.length === 0) {
       const dateTime = new Date(Date.now() + HOUR_MILLISECONDS).toISOString()
       await props.events.updateAiInsight.schedule({}, { dateTime })
     }
@@ -78,7 +72,7 @@ plugin.on.event('updateAiInsight', async (props) => {
     props.logger.error('This event is not supported by the browser')
     return
   }
-  console.log('listing workflows')
+
   const workflows = await props.client
     .listWorkflows({ name: 'conversation-insights#updateAllConversations' })
     .then((workflows) => {
@@ -93,14 +87,10 @@ plugin.on.event('updateAiInsight', async (props) => {
 })
 
 plugin.on.workflowStart('updateAllConversations', async (props) => {
-  console.log('workflow started')
-
   return undefined
 })
 
 plugin.on.workflowContinue('updateAllConversations', async (props) => {
-  // TODO
-  console.log('workflow continues')
   const dirtyConversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
 
   const promises = []
