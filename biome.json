@@ -31,10 +31,13 @@
       "!**/.botpresshome",
       "!**/.botpresshome.*",
       "!**/bp_modules",
-      "!**/.genenv/",
+      "!**/.genenv/*",
       "!**/.genenv.*",
       "!**/.turbo",
-      "!**/*.md.ts"
+      "!**/*.md.ts",
+      "!**/.ignore.me.*",
+      "!.oxlintrc.json",
+      "!eslint.config.mjs"
     ]
   },
   "linter": {

@@ -199,14 +199,13 @@ export type ContainerComponentDefinition<T extends z.ZodObject<any> = z.ZodObjec
 export type ComponentDefinition = DefaultComponentDefinition | LeafComponentDefinition | ContainerComponentDefinition
 
 // Helper type to extract props from any component definition type
-type ExtractComponentProps<T extends ComponentDefinition> =
-  T extends LeafComponentDefinition<infer P>
+type ExtractComponentProps<T extends ComponentDefinition> = T extends LeafComponentDefinition<infer P>
+  ? z.infer<P>
+  : T extends ContainerComponentDefinition<infer P>
     ? z.infer<P>
-    : T extends ContainerComponentDefinition<infer P>
+    : T extends DefaultComponentDefinition<infer P>
       ? z.infer<P>
-      : T extends DefaultComponentDefinition<infer P>
-        ? z.infer<P>
-        : never
+      : never
 
 // Rendered component type
 export type RenderedComponent<TProps = Record<string, any>> = {

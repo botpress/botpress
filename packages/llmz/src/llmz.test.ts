@@ -540,8 +540,9 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       expect(result.iterations).toHaveLength(2)
       assert(result.iterations[0]!.status.type === 'thinking_requested', 'First iteration should be partial')
       expect(result.iterations[1]!.status.type).toBe('exit_success')
-      expect(result.iterations[1]!.status.type === 'exit_success' && result.iterations[1]!.status.exit_success)
-        .toMatchInlineSnapshot(`
+      expect(
+        result.iterations[1]!.status.type === 'exit_success' && result.iterations[1]!.status.exit_success
+      ).toMatchInlineSnapshot(`
         {
           "exit_name": "is_animal",
           "return_value": {
@@ -565,8 +566,9 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       expect(result.iterations).toHaveLength(2)
       assert(result.iterations[0]!.status.type === 'thinking_requested', 'First iteration should be partial')
       expect(result.iterations[1]!.status.type).toBe('exit_success')
-      expect(result.iterations[1]!.status.type === 'exit_success' && result.iterations[1]!.status.exit_success)
-        .toMatchInlineSnapshot(`
+      expect(
+        result.iterations[1]!.status.type === 'exit_success' && result.iterations[1]!.status.exit_success
+      ).toMatchInlineSnapshot(`
         {
           "exit_name": "is_plant",
           "return_value": {

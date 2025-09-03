@@ -87,7 +87,9 @@ describe('functions', () => {
         // Arg 1
         z.object({ a: z.number().optional(), b: z.string().title('B').describe('This is B parameter') }),
         // Arg 2
-        z.number().describe('This is a number'),
+        z
+          .number()
+          .describe('This is a number'),
         // Arg 3
         z.tuple([z.string(), z.number().describe('This is a number')])
       )
