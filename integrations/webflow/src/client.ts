@@ -58,7 +58,7 @@ export class WebflowClient {
   public deleteItem = async (collectionID: string, itemIds: object): Promise<bp.actions.deleteItems.output.Output> => {
     const path = `/collections/${collectionID}/items`
     await this._axiosClient.delete(path, { data: itemIds })
-    return { success: true }
+    return {}
   }
 
   public publishItems = async (
@@ -76,7 +76,7 @@ export class WebflowClient {
   ): Promise<bp.actions.unpublishLiveItems.output.Output> => {
     const path = `https://api.webflow.com/v2/collections/${collectionID}/items/publish`
     await this._axiosClient.post(path, { items: itemIds })
-    return { success: true }
+    return {}
   }
 
   public listCollections = async (siteID: string): Promise<bp.actions.listCollections.output.Output> => {
@@ -105,6 +105,6 @@ export class WebflowClient {
   public deleteCollection = async (collectionID: string): Promise<bp.actions.deleteCollection.output.Output> => {
     const path = `/collections/${collectionID}`
     await this._axiosClient.delete(path)
-    return { success: true }
+    return {}
   }
 }

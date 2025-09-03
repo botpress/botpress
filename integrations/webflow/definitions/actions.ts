@@ -29,10 +29,7 @@ const collectionSchema = z.object({
   lastUpdated: z.string().optional(),
 })
 
-const collectionDetailsSchema = z.object({
-  id: z.string().optional(),
-  displayName: z.string(),
-  singularName: z.string(),
+const collectionDetailsSchema = collectionSchema.extend({
   fields: z.array(
     z.object({
       id: z.string(),
@@ -45,16 +42,10 @@ const collectionDetailsSchema = z.object({
       validation: z.any(),
     })
   ),
-  slug: z.string().optional(),
-  createdOn: z.string().optional(),
-  lastUpdated: z.string().optional(),
 })
 
-const itemSchemaOutput = z.object({
+const itemSchemaInput = z.object({
   id: z.string().optional().describe('Unique identifier for the Item'),
-  lastPublished: z.string().nullable().describe('The date the item was last published'),
-  lastUpdated: z.string().optional().describe('The date the item was last updated'),
-  createdOn: z.string().optional().describe('The date the item was created'),
   fieldData: z
     .object({
       name: z.string().min(1, 'Field name is required').describe('Name of the Item'),
@@ -70,19 +61,10 @@ const itemSchemaOutput = z.object({
   isDraft: z.boolean().optional().describe('Boolean determining if the Item is set to draft'),
 })
 
-const itemSchemaInput = z.object({
-  id: z.string().optional().describe('Unique identifier for the Item'),
-  fieldData: z.object({
-    name: z.string().min(1, 'Field name is required').describe('Name of the Item'),
-    slug: z
-      .string()
-      .describe(
-        'URL structure of the Item in your site. Note: Updates to an item slug will break all links referencing the old slug.'
-      ),
-  }),
-  cmsLocaleId: z.string().optional().describe('Identifier for the locale of the CMS item'),
-  isArchived: z.boolean().optional().describe('Boolean determining if the Item is set to archived'),
-  isDraft: z.boolean().optional().describe('Boolean determining if the Item is set to draft'),
+const itemSchemaOutput = itemSchemaInput.extend({
+  lastPublished: z.string().nullable().describe('The date the item was last published'),
+  lastUpdated: z.string().optional().describe('The date the item was last updated'),
+  createdOn: z.string().optional().describe('The date the item was created'),
 })
 
 const paginationSchema = z.object({
@@ -136,7 +118,7 @@ export const actions = {
       }),
     },
     output: {
-      schema: z.object({ success: z.boolean().describe('Indicates if the collection was successfully deleted') }),
+      schema: z.object({}),
     },
   },
   listItems: {
@@ -151,9 +133,7 @@ export const actions = {
     output: {
       schema: z.object({
         items: z.array(itemSchemaOutput).describe('Array of items'),
-        pagination: z.object({
-          limit: z.number().min(1).optional().describe('The limit specified in the request'),
-          offset: z.number().min(0).optional().describe('The offset specified for the pagination'),
+        pagination: paginationSchema.extend({
           total: z.number().min(0).optional().describe('Total number of items in the collection'),
         }),
       }),
@@ -236,7 +216,7 @@ export const actions = {
       }),
     },
     output: {
-      schema: z.object({ success: z.boolean().describe('Indicates if the items were successfully deleted') }),
+      schema: z.object({}),
     },
   },
   publishItems: {
@@ -263,7 +243,7 @@ export const actions = {
       }),
     },
     output: {
-      schema: z.object({ success: z.boolean().describe('Indicates if the items were successfully unpublished') }),
+      schema: z.object({}),
     },
   },
 } satisfies IntegrationDefinitionProps['actions']
