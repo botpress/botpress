@@ -995,15 +995,12 @@ importers:
 
   integrations/hubspot:
     dependencies:
-      '@botpress/client':
+      '@botpress/common':
         specifier: workspace:*
-        version: link:../../packages/client
+        version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      '@botpress/sdk-addons':
-        specifier: workspace:*
-        version: link:../../packages/sdk-addons
       '@hubspot/api-client':
         specifier: ^13.1.0
         version: 13.1.0
@@ -1011,12 +1008,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@types/node':
-        specifier: ^22.16.4
-        version: 22.16.4
-      typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
 
   integrations/instagram:
     dependencies:
