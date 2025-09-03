@@ -17,11 +17,14 @@ export default new IntegrationDefinition({
       description: 'Send a transactional email to a client',
       input: {
         schema: z.object({
-          email: z.string().describe('Email address'),
-          transactionalId: z.string().describe('Transactional ID'),
-          dataVariables: z.record(z.string(), z.union([z.string(), z.number()]))
-            .describe('Data variables. Values must be strings or numbers.'),
-          addToAudience: z.boolean().optional().describe('Add to audience?'),
+          email: z.string().describe('The email address of the recipient.'),
+          transactionalId: z.string().describe('The ID of the transactional email to send.'),
+          dataVariables: z.record(z.string(), z.union([z.string(), z.number()])).optional()
+            .describe('An object containing data as defined by the data variables added to the transactional email template. Values can be of type string or number.'),
+          addToAudience: z.boolean().optional()
+            .describe('If true, a contact will be created in your audience using the email value (if a matching contact doesn’t already exist).'),
+          idempotencyKey: z.string().optional()
+            .describe('Optionally send an idempotency key to avoid duplicate requests. The value should be a string of up to 100 characters and should be unique for each request.'),
         }),
       },
       output: {

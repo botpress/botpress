@@ -2,6 +2,13 @@ import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 import axios from 'axios'
 
+interface LoopsApiResponse {
+  success: boolean;
+  path?: string;
+  message?: string;
+  error?: object;
+}
+
 export default new bp.Integration({
   register: async () => {
     /**
@@ -23,6 +30,7 @@ export default new bp.Integration({
           transactionalId, 
           dataVariables,
           addToAudience,
+          idempotencyKey
         },
         ctx: {
           configuration: {
@@ -31,11 +39,12 @@ export default new bp.Integration({
         }
       } = props;
 
-      const response = await axios.post("https://api.loops.so/api/v1/transactional/send", {
+      const response = await axios.post<LoopsApiResponse>("https://api.loops.so/api/v1/transactional", {
         email,
         transactionalId,
-        dataVariables,
-        ...(addToAudience && { addToAudience })
+        ...(dataVariables && { dataVariables }),
+        ...(addToAudience && { addToAudience }),
+        ...(idempotencyKey && { idempotencyKey })
       }, {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
@@ -44,7 +53,7 @@ export default new bp.Integration({
       })
 
       return {
-        success: response.status >= 200 && response.status < 300 // HTTP 2XX
+        success: response.data.success
       }
     }
   },
