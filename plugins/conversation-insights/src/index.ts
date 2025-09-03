@@ -31,7 +31,8 @@ plugin.on.afterIncomingMessage('*', async (props) => {
     ) {
       //looks like the schedule delay has a minimum value and causes an unknown error when triggering
       console.log('creating event')
-      await props.events.updateAiInsight.schedule({}, { delay: HOUR_MILLISECONDS })
+      const dateTime = new Date(Date.now() + HOUR_MILLISECONDS).toISOString()
+      await props.events.updateAiInsight.schedule({}, { dateTime })
     }
   }
 
