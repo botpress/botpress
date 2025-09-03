@@ -18,7 +18,7 @@ plugin.on.afterIncomingMessage('*', async (props) => {
     return
   }
   const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
-  const { message_count } = await _onNewMessage({ ...props, conversation })
+  await _onNewMessage({ ...props, conversation })
 
   if (props.configuration.aiEnabled) {
     const eventType = 'conversation-insights#updateAiInsight'
@@ -45,9 +45,7 @@ plugin.on.afterOutgoingMessage('*', async (props) => {
 type OnNewMessageProps = CommonProps & {
   conversation: bp.ClientOutputs['getConversation']['conversation']
 }
-const _onNewMessage = async (
-  props: OnNewMessageProps
-): Promise<{ message_count: number; participant_count: number }> => {
+const _onNewMessage = async (props: OnNewMessageProps) => {
   const message_count = props.conversation.tags.message_count ? parseInt(props.conversation.tags.message_count) + 1 : 1
 
   const participant_count = await props.client
@@ -64,7 +62,7 @@ const _onNewMessage = async (
     id: props.conversation.id,
     tags,
   })
-  return { message_count, participant_count }
+  return
 }
 
 plugin.on.event('updateAiInsight', async (props) => {
@@ -73,20 +71,17 @@ plugin.on.event('updateAiInsight', async (props) => {
     return
   }
 
-  const workflows = await props.client
-    .listWorkflows({ name: 'conversation-insights#updateAllConversations' })
-    .then((workflows) => {
-      return workflows.workflows.filter((workflow) => {
-        !['cancelled', 'failed'].includes(workflow.status)
-      })
-    })
+  const workflows = await props.client.listWorkflows({
+    name: 'conversation-insights#updateAllConversations',
+    statuses: ['in_progress', 'listening', 'pending'],
+  })
 
-  if (workflows.length === 0) {
+  if (workflows.workflows.length === 0) {
     props.workflows.updateAllConversations.startNewInstance({ input: {} })
   }
 })
 
-plugin.on.workflowStart('updateAllConversations', async (props) => {
+plugin.on.workflowStart('updateAllConversations', async (_props) => {
   return undefined
 })
 
