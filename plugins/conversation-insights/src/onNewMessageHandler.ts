@@ -14,7 +14,7 @@ export const onNewMessage = async (props: OnNewMessageProps) => {
   const tags = {
     message_count: message_count.toString(),
     participant_count: participant_count.toString(),
-    isDirty: 'true',
+    isDirty: props.configuration.aiEnabled ? 'true' : 'false',
   }
 
   await props.client.updateConversation({
