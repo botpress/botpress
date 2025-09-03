@@ -19,7 +19,7 @@ export default new IntegrationDefinition({
         schema: z.object({
           email: z.string().describe('The email address of the recipient.'),
           transactionalId: z.string().describe('The ID of the transactional email to send.'),
-          dataVariables: z.array(z.object({ key: z.string(), value: z.union([z.string(), z.number()]) })).optional()
+          dataVariables: z.array(z.object({ key: z.string(), value: z.string() })).optional()
             .describe('An object containing data as defined by the data variables added to the transactional email template. Values can be of type string or number.'),
           addToAudience: z.boolean().optional()
             .describe('If true, a contact will be created in your audience using the email value (if a matching contact doesn’t already exist).'),
