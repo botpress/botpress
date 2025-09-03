@@ -1,6 +1,7 @@
 import { isBrowser } from 'browser-or-node'
 import * as onNewMessageHandler from './onNewMessageHandler'
 import * as summaryUpdater from './tagsUpdater'
+import * as types from './types'
 import * as bp from '.botpress'
 
 const HOUR_MILLISECONDS = 60 * 60 * 1000
@@ -56,11 +57,23 @@ plugin.on.event('updateAiInsight', async (props) => {
 
 plugin.on.workflowStart('updateAllConversations', async (props) => {
   props.logger.info('Starting updateAllConversations workflow')
+  await _updateAllConversations(props)
 
   return undefined
 })
 
 plugin.on.workflowContinue('updateAllConversations', async (props) => {
+  await _updateAllConversations(props)
+
+  return undefined
+})
+
+plugin.on.workflowTimeout('updateAllConversations', async (props) => {
+  props.logger.error('Workflow timed out')
+})
+
+type WorkflowProps = types.CommonProps & bp.WorkflowHandlerProps['updateAllConversations']
+const _updateAllConversations = async (props: WorkflowProps) => {
   const dirtyConversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
 
   const promises: Promise<void>[] = []
@@ -75,12 +88,6 @@ plugin.on.workflowContinue('updateAllConversations', async (props) => {
   await Promise.all(promises)
   await props.workflow.setCompleted()
   props.logger.info('updateAllConversations workflow completed')
-
-  return undefined
-})
-
-plugin.on.workflowTimeout('updateAllConversations', async (props) => {
-  props.logger.error('Workflow timed out')
-})
+}
 
 export default plugin
