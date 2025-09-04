@@ -5,13 +5,8 @@ import { WebflowClient } from './client'
 
 export default new bp.Integration({
   register: async (props) => {
-    await axios
-      .get(`https://api.webflow.com/v2/sites/${props.ctx.configuration.siteID}/collections`, {
-        headers: {
-          Authorization: `Bearer ${props.ctx.configuration.apiToken}`,
-        },
-      })
-      .catch(_handleError('Failed to register integration'))
+    const client = new WebflowClient(props.ctx.configuration.apiToken)
+    await client.listCollections(props.ctx.configuration.siteID).catch(_handleError('Failed to register integration'))
   },
   unregister: async () => {},
   actions: {
