@@ -42,49 +42,78 @@ export class CalendlyClient {
 
   public async getCurrentUser(): Promise<GetCurrentUserResp> {
     const resp = await this._axiosClient.get<object>('/users/me')
-    try {
-      return getCurrentUserRespSchema.parse(resp.data)
-    } catch {
+
+    const result = getCurrentUserRespSchema.safeParse(resp.data)
+    if (!result.success) {
       throw new RuntimeError('Failed to get current user due to unexpected api response')
     }
+    return result.data
   }
 
   public async getEventTypesList(userUri: CalendlyUri): Promise<GetEventTypesListResp> {
     const searchParams = new URLSearchParams({ user: userUri })
     const resp = await this._axiosClient.get<object>(`/event_types?${searchParams}`)
-    try {
-      return getEventTypesListRespSchema.parse(resp.data)
-    } catch {
+
+    const result = getEventTypesListRespSchema.safeParse(resp.data)
+    if (!result.success) {
       throw new RuntimeError('Failed to get event types list due to unexpected api response')
     }
+    return result.data
   }
 
   public async getWebhooksList(params: WebhooksListParams): Promise<GetWebhooksListResp> {
     const searchParams = new URLSearchParams({ ...params, count: '100' })
     const resp = await this._axiosClient.get<object>(`/webhook_subscriptions?${searchParams}`)
 
-    try {
-      return getWebhooksListRespSchema.parse(resp.data)
-    } catch {
+    const result = getWebhooksListRespSchema.safeParse(resp.data)
+    if (!result.success) {
       throw new RuntimeError('Failed to get webhooks list due to unexpected api response')
     }
+    return result.data
   }
 
   public async createWebhook(params: RegisterWebhookParams): Promise<CreateWebhookResp> {
     const { webhookUrl, events, organization, scope, user, signingKey } = params
-    const resp = await this._axiosClient.post<object>('/webhook_subscriptions', {
-      url: webhookUrl,
-      events,
-      organization,
-      user,
-      scope,
-      signing_key: signingKey,
-    })
 
     try {
-      return createWebhookRespSchema.parse(resp.data)
-    } catch {
-      throw new RuntimeError('Failed to create webhook due to unexpected api response')
+      const resp = await this._axiosClient.post<object>('/webhook_subscriptions', {
+        url: webhookUrl,
+        events,
+        organization,
+        user,
+        scope,
+        signing_key: signingKey,
+      })
+
+      const result = createWebhookRespSchema.safeParse(resp.data)
+      if (!result.success) {
+        throw new RuntimeError('Failed to create webhook due to unexpected api response', result.error)
+      }
+      return result.data
+    } catch (thrown: unknown) {
+      if (axios.isAxiosError(thrown)) {
+        if (thrown.status === 403) {
+          let errorMsg: string
+          const respData = thrown.response?.data
+          if (typeof respData === 'object' && 'message' in respData) {
+            errorMsg = respData.message
+          } else {
+            errorMsg =
+              "Either the user's account plan is insufficient (requires standard or above) or the user's account does not have the permission to register webhooks"
+          }
+
+          throw new RuntimeError(errorMsg, thrown)
+        }
+
+        throw new RuntimeError(thrown.message, thrown)
+      }
+
+      if (thrown instanceof RuntimeError) {
+        throw thrown
+      }
+
+      const error = thrown instanceof Error ? new RuntimeError(thrown.message) : new RuntimeError(String(thrown))
+      throw error
     }
   }
 
@@ -101,11 +130,11 @@ export class CalendlyClient {
       owner_type: 'EventType',
     })
 
-    try {
-      return createSchedulingLinkRespSchema.parse(resp.data)
-    } catch {
+    const result = createSchedulingLinkRespSchema.safeParse(resp.data)
+    if (!result.success) {
       throw new RuntimeError('Failed to create scheduling link due to unexpected api response')
     }
+    return result.data
   }
 
   private static async _createFromManualConfig(ctx: ContextOfType<'manual'>) {
