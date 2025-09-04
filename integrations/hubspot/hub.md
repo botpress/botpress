@@ -1,4 +1,4 @@
-The Hubspot integration allows you to connect your Botpress chatbot with Hubspot, a leading CRM and marketing automation platform. With this integration, your chatbot can manage contacts, tickets, and more directly within Hubspot, enabling seamless automation of sales, marketing, and support workflows.
+The HubSpot integration allows you to connect your Botpress chatbot with HubSpot, a leading CRM and marketing automation platform. With this integration, your chatbot can manage contacts, tickets, and more directly within HubSpot, enabling seamless automation of sales, marketing, and support workflows.
 
 ## Configuration
 
