@@ -46,6 +46,7 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
       isDirty: 'false',
     },
   })
+  props.logger.info(`The AI insight was updated for conversation ${props.conversation.id}`)
 }
 
 type ParsePromptProps = {
