@@ -20,7 +20,7 @@ export default new bp.Integration({
      * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
      */
     try {
-      const response = await axios.get('https://app.loops.so/api/v1/api-key', {
+      await axios.get('https://app.loops.so/api/v1/api-key', {
         headers: {
           Authorization: `Bearer ${props.ctx.configuration.apiKey}`,
         },
