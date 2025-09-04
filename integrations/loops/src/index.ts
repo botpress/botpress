@@ -25,13 +25,12 @@ export default new bp.Integration({
           Authorization: `Bearer ${props.ctx.configuration.apiKey}`,
         },
       })
-    }
-    catch (error) {
+    } catch (error) {
       if (axios.isAxiosError<LoopsApiError>(error)) {
         if (!error.response) {
           throw new sdk.RuntimeError('A network error occurred when trying to validate the API key.')
         }
-        
+
         if (error.response.status === 401) {
           throw new sdk.RuntimeError('Invalid or missing API key.')
         }
