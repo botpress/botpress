@@ -75,22 +75,23 @@ export default new IntegrationDefinition({
           authorID: z
             .string()
             .optional()
+            .title('Author ID')
             .describe('The author ID (defaults to BotpressIntegration user if not provided)'),
-          boardID: z.string().describe('The board ID'),
-          title: z.string().describe('Post title'),
-          details: z.string().describe('Post details'),
-          byID: z.string().optional().describe('Admin ID who created the post'),
-          categoryID: z.string().optional().describe('Category ID'),
-          ownerID: z.string().optional().describe('Owner ID'),
-          imageURLs: z.array(z.string()).optional().describe('Image URLs'),
-          eta: z.string().optional().describe('ETA (MM/YYYY)'),
-          etaPublic: z.boolean().optional().describe('Make ETA public'),
-          customFields: z.record(z.any()).optional().describe('Custom fields'),
+          boardID: z.string().title('Board ID').describe('The board ID'),
+          title: z.string().title('Post Title').describe('Post title'),
+          details: z.string().title('Post Details').describe('Post details'),
+          byID: z.string().optional().title('By ID').describe('Admin ID who created the post'),
+          categoryID: z.string().optional().title('Category ID').describe('Category ID'),
+          ownerID: z.string().optional().title('Owner ID').describe('Owner ID'),
+          imageURLs: z.array(z.string()).optional().title('Image URLs').describe('Image URLs'),
+          eta: z.string().optional().title('ETA').describe('ETA (MM/YYYY)'),
+          etaPublic: z.boolean().optional().title('ETA Public').describe('Make ETA public'),
+          customFields: z.record(z.any()).optional().title('Custom Fields').describe('Custom fields'),
         }),
       },
       output: {
         schema: z.object({
-          postId: z.string(),
+          postId: z.string().title('Post ID').describe('The ID of the created post'),
         }),
       },
     },
@@ -99,8 +100,8 @@ export default new IntegrationDefinition({
       description: 'Retrieve a post by ID',
       input: {
         schema: z.object({
-          postID: z.string().describe('The post ID'),
-          boardID: z.string().optional().describe('The board ID'),
+          postID: z.string().title('Post ID').describe('The post ID'),
+          boardID: z.string().optional().title('Board ID').describe('The board ID'),
         }),
       },
       output: {
@@ -117,7 +118,7 @@ export default new IntegrationDefinition({
             commentCount: z.number(),
             created: z.string(),
             url: z.string(),
-          }),
+          }).title('Post').describe('The retrieved post object'),
         }),
       },
     },
@@ -126,15 +127,15 @@ export default new IntegrationDefinition({
       description: 'List posts with optional filters',
       input: {
         schema: z.object({
-          boardID: z.string().optional(),
-          authorID: z.string().optional(),
-          companyID: z.string().optional(),
-          tagIDs: z.array(z.string()).optional(),
-          limit: z.number().optional(),
-          skip: z.number().optional(),
-          search: z.string().optional(),
-          sort: z.enum(['newest', 'oldest', 'relevance', 'score', 'statusChanged', 'trending']).optional(),
-          status: z.string().optional(),
+          boardID: z.string().optional().title('Board ID').describe('Filter posts by board ID'),
+          authorID: z.string().optional().title('Author ID').describe('Filter posts by author ID'),
+          companyID: z.string().optional().title('Company ID').describe('Filter posts by company ID'),
+          tagIDs: z.array(z.string()).optional().title('Tag IDs').describe('Filter posts by tag IDs'),
+          limit: z.number().optional().title('Limit').describe('Number of posts to return'),
+          skip: z.number().optional().title('Skip').describe('Number of posts to skip'),
+          search: z.string().optional().title('Search').describe('Search term to filter posts'),
+          sort: z.enum(['newest', 'oldest', 'relevance', 'score', 'statusChanged', 'trending']).optional().title('Sort').describe('Sort order for posts'),
+          status: z.string().optional().title('Status').describe('Filter posts by status'),
         }),
       },
       output: {
@@ -153,8 +154,8 @@ export default new IntegrationDefinition({
               created: z.string(),
               url: z.string(),
             })
-          ),
-          hasMore: z.boolean(),
+          ).title('Posts').describe('Array of posts'),
+          hasMore: z.boolean().title('Has More').describe('Whether there are more posts available'),
         }),
       },
     },
@@ -163,18 +164,18 @@ export default new IntegrationDefinition({
       description: 'Update an existing post',
       input: {
         schema: z.object({
-          postID: z.string().describe('The post ID'),
-          title: z.string().optional(),
-          details: z.string().optional(),
-          eta: z.string().optional(),
-          etaPublic: z.boolean().optional(),
-          imageURLs: z.array(z.string()).optional(),
-          customFields: z.record(z.any()).optional(),
+          postID: z.string().title('Post ID').describe('The post ID'),
+          title: z.string().optional().title('Title').describe('Updated post title'),
+          details: z.string().optional().title('Details').describe('Updated post details'),
+          eta: z.string().optional().title('ETA').describe('Updated ETA (MM/YYYY)'),
+          etaPublic: z.boolean().optional().title('ETA Public').describe('Make ETA public'),
+          imageURLs: z.array(z.string()).optional().title('Image URLs').describe('Updated image URLs'),
+          customFields: z.record(z.any()).optional().title('Custom Fields').describe('Updated custom fields'),
         }),
       },
       output: {
         schema: z.object({
-          success: z.boolean(),
+          success: z.boolean().title('Success').describe('Whether the update was successful'),
         }),
       },
     },
@@ -183,12 +184,12 @@ export default new IntegrationDefinition({
       description: 'Delete a post',
       input: {
         schema: z.object({
-          postID: z.string().describe('The post ID to delete'),
+          postID: z.string().title('Post ID').describe('The post ID to delete'),
         }),
       },
       output: {
         schema: z.object({
-          success: z.boolean(),
+          success: z.boolean().title('Success').describe('Whether the deletion was successful'),
         }),
       },
     },
@@ -202,19 +203,20 @@ export default new IntegrationDefinition({
           authorID: z
             .string()
             .optional()
+            .title('Author ID')
             .describe('The author ID (defaults to BotpressIntegration user if not provided)'),
-          postID: z.string().describe('The post ID'),
-          value: z.string().describe('Comment text'),
-          parentID: z.string().optional().describe('Parent comment ID for replies'),
-          imageURLs: z.array(z.string()).optional().describe('Image URLs'),
-          internal: z.boolean().optional().describe('Whether this is an internal comment'),
-          shouldNotifyVoters: z.boolean().optional().describe('Notify voters'),
-          createdAt: z.string().optional().describe('Created timestamp'),
+          postID: z.string().title('Post ID').describe('The post ID'),
+          value: z.string().title('Comment Text').describe('Comment text'),
+          parentID: z.string().optional().title('Parent ID').describe('Parent comment ID for replies'),
+          imageURLs: z.array(z.string()).optional().title('Image URLs').describe('Image URLs'),
+          internal: z.boolean().optional().title('Internal').describe('Whether this is an internal comment'),
+          shouldNotifyVoters: z.boolean().optional().title('Notify Voters').describe('Notify voters'),
+          createdAt: z.string().optional().title('Created At').describe('Created timestamp'),
         }),
       },
       output: {
         schema: z.object({
-          commentId: z.string(),
+          commentId: z.string().title('Comment ID').describe('The ID of the created comment'),
         }),
       },
     },
@@ -223,7 +225,7 @@ export default new IntegrationDefinition({
       description: 'Retrieve a comment by ID',
       input: {
         schema: z.object({
-          commentID: z.string().describe('The comment ID'),
+          commentID: z.string().title('Comment ID').describe('The comment ID'),
         }),
       },
       output: {
@@ -238,7 +240,7 @@ export default new IntegrationDefinition({
             created: z.string(),
             internal: z.boolean(),
             likeCount: z.number(),
-          }),
+          }).title('Comment').describe('The retrieved comment object'),
         }),
       },
     },
@@ -247,12 +249,12 @@ export default new IntegrationDefinition({
       description: 'List comments with optional filters',
       input: {
         schema: z.object({
-          postID: z.string().optional(),
-          authorID: z.string().optional(),
-          boardID: z.string().optional(),
-          companyID: z.string().optional(),
-          limit: z.number().optional(),
-          skip: z.number().optional(),
+          postID: z.string().optional().title('Post ID').describe('Filter comments by post ID'),
+          authorID: z.string().optional().title('Author ID').describe('Filter comments by author ID'),
+          boardID: z.string().optional().title('Board ID').describe('Filter comments by board ID'),
+          companyID: z.string().optional().title('Company ID').describe('Filter comments by company ID'),
+          limit: z.number().optional().title('Limit').describe('Number of comments to return'),
+          skip: z.number().optional().title('Skip').describe('Number of comments to skip'),
         }),
       },
       output: {
@@ -269,8 +271,8 @@ export default new IntegrationDefinition({
               internal: z.boolean(),
               likeCount: z.number(),
             })
-          ),
-          hasMore: z.boolean(),
+          ).title('Comments').describe('Array of comments'),
+          hasMore: z.boolean().title('Has More').describe('Whether there are more comments available'),
         }),
       },
     },
@@ -279,12 +281,12 @@ export default new IntegrationDefinition({
       description: 'Delete a comment',
       input: {
         schema: z.object({
-          commentID: z.string().describe('The comment ID to delete'),
+          commentID: z.string().title('Comment ID').describe('The comment ID to delete'),
         }),
       },
       output: {
         schema: z.object({
-          success: z.boolean(),
+          success: z.boolean().title('Success').describe('Whether the deletion was successful'),
         }),
       },
     },
@@ -295,13 +297,13 @@ export default new IntegrationDefinition({
       description: 'Create a new user or update an existing one in Canny',
       input: {
         schema: z.object({
-          name: z.string().min(1).max(50).describe('User display name (required, 1-50 characters)'),
-          userID: z.string().optional().describe('Your internal user ID'),
-          email: z.string().optional().describe('User email address'),
-          avatarURL: z.string().optional().describe('User avatar URL'),
-          alias: z.string().optional().describe('User alias'),
-          created: z.string().optional().describe('User creation timestamp'),
-          customFields: z.record(z.any()).optional().describe('Custom fields'),
+          name: z.string().min(1).max(50).title('Name').describe('User display name (required, 1-50 characters)'),
+          userID: z.string().optional().title('User ID').describe('Your internal user ID'),
+          email: z.string().optional().title('Email').describe('User email address'),
+          avatarURL: z.string().optional().title('Avatar URL').describe('User avatar URL'),
+          alias: z.string().optional().title('Alias').describe('User alias'),
+          created: z.string().optional().title('Created').describe('User creation timestamp'),
+          customFields: z.record(z.any()).optional().title('Custom Fields').describe('Custom fields'),
         }),
       },
       output: {
@@ -314,7 +316,7 @@ export default new IntegrationDefinition({
             userID: z.string(),
             isAdmin: z.boolean(),
             created: z.string(),
-          }),
+          }).title('User').describe('The created or updated user object'),
         }),
       },
     },
@@ -323,8 +325,8 @@ export default new IntegrationDefinition({
       description: 'List all users in your Canny workspace with pagination',
       input: {
         schema: z.object({
-          limit: z.number().min(1).max(100).optional().describe('Number of users to fetch (1-100, defaults to 10)'),
-          cursor: z.string().optional().describe('Cursor from previous request for pagination'),
+          limit: z.number().min(1).max(100).optional().title('Limit').describe('Number of users to fetch (1-100, defaults to 10)'),
+          cursor: z.string().optional().title('Cursor').describe('Cursor from previous request for pagination'),
         }),
       },
       output: {
@@ -339,9 +341,9 @@ export default new IntegrationDefinition({
               isAdmin: z.boolean(),
               created: z.string(),
             })
-          ),
-          hasNextPage: z.boolean(),
-          cursor: z.string().optional(),
+          ).title('Users').describe('Array of users'),
+          hasNextPage: z.boolean().title('Has Next Page').describe('Whether there are more users available'),
+          cursor: z.string().optional().title('Cursor').describe('Cursor for next page'),
         }),
       },
     },
@@ -352,8 +354,8 @@ export default new IntegrationDefinition({
       description: 'List all boards in your Canny workspace',
       input: {
         schema: z.object({
-          limit: z.number().optional().describe('Number of boards to fetch'),
-          skip: z.number().optional().describe('Number of boards to skip'),
+          limit: z.number().optional().title('Limit').describe('Number of boards to fetch'),
+          skip: z.number().optional().title('Skip').describe('Number of boards to skip'),
         }),
       },
       output: {
@@ -366,8 +368,8 @@ export default new IntegrationDefinition({
               url: z.string(),
               created: z.string(),
             })
-          ),
-          hasMore: z.boolean(),
+          ).title('Boards').describe('Array of boards'),
+          hasMore: z.boolean().title('Has More').describe('Whether there are more boards available'),
         }),
       },
     },
