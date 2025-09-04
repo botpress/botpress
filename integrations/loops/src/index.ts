@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
-import * as bp from '.botpress'
 import axios from 'axios'
+import * as bp from '.botpress'
 
 type LoopsApiResponse = {
   success: boolean
