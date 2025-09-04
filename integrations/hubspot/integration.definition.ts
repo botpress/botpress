@@ -3,7 +3,7 @@ import { actions } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'hubspot',
-  title: 'Hubspot',
+  title: 'HubSpot',
   description: 'Manage contacts, tickets and more from your chatbot.',
   version: '1.0.0',
   readme: 'hub.md',
