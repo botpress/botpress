@@ -39,10 +39,16 @@ export default new bp.Integration({
         }
       } = props;
 
+      // Parse { key, value } array to object with { key: value }
+      const transformedDataVariables = dataVariables?.reduce((acc, item) => {
+        acc[item.key] = item.value;
+        return acc;
+      }, {} as Record<string, string>);
+
       const response = await axios.post<LoopsApiResponse>("https://api.loops.so/api/v1/transactional", {
         email,
         transactionalId,
-        ...(dataVariables && { dataVariables }),
+        ...(transformedDataVariables && { dataVariables: transformedDataVariables }),
         ...(addToAudience && { addToAudience }),
         ...(idempotencyKey && { idempotencyKey })
       }, {
