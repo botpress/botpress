@@ -20,7 +20,7 @@ export const posts = {
       const authorID = botUser.id
 
       await client.createComment({
-        authorID: authorID,
+        authorID,
         postID: postId,
         value: payload.text,
       })
@@ -46,7 +46,7 @@ export const posts = {
       const authorID = botUser.id
 
       await client.createComment({
-        authorID: authorID,
+        authorID,
         postID: postId,
         value: payload.caption || 'Image attached',
         imageURLs: [payload.imageUrl],

@@ -1,6 +1,6 @@
+import { RuntimeError } from '@botpress/sdk'
 import { CannyClient } from '../misc/canny-client'
 import { IntegrationProps } from '.botpress'
-import { RuntimeError } from '@botpress/sdk'
 
 type ListBoardsAction = IntegrationProps['actions']['listBoards']
 

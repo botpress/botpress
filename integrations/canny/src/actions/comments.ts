@@ -1,6 +1,6 @@
+import { RuntimeError } from '@botpress/sdk'
 import { CannyClient } from '../misc/canny-client'
 import { IntegrationProps } from '.botpress'
-import { RuntimeError } from '@botpress/sdk'
 
 type CreateCommentAction = IntegrationProps['actions']['createComment']
 type GetCommentAction = IntegrationProps['actions']['getComment']
@@ -35,7 +35,7 @@ export const createComment: CreateCommentAction = async ({ input, ctx }) => {
 
   try {
     const result = await client.createComment({
-      authorID: authorID,
+      authorID,
       postID: input.postID,
       value: input.value,
       parentID: input.parentID,
@@ -56,7 +56,7 @@ export const createComment: CreateCommentAction = async ({ input, ctx }) => {
     ) {
       if (!input.authorID) {
         throw new RuntimeError(
-          `Comment creation failed: Canny requires users to be "identified" through their SDK. Please provide an authorID of a user who has been identified in your Canny workspace, or implement Canny's Identify SDK for the BotpressIntegration user.`
+          'Comment creation failed: Canny requires users to be "identified" through their SDK. Please provide an authorID of a user who has been identified in your Canny workspace, or implement Canny\'s Identify SDK for the BotpressIntegration user.'
         )
       } else {
         throw new RuntimeError(
