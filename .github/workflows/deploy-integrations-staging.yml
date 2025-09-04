@@ -39,7 +39,6 @@ jobs:
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'staging'
-          extra_filter: "-F '!calendly'"
           force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
           dry_run: ${{ github.event_name == 'pull_request' }}
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
