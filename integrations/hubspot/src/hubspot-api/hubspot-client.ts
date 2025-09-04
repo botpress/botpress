@@ -1035,7 +1035,6 @@ export class HubspotClient {
       case 'string':
       case 'object_coordinates':
       case 'json':
-      case 'phone_number':
         return { propertyName: property.name, coercedValue: value }
       default:
         property.type satisfies never
@@ -1261,7 +1260,6 @@ export class HubspotClient {
       case 'string':
       case 'object_coordinates':
       case 'json':
-      case 'phone_number':
         return { propertyName: property.name, coercedValue: value }
       default:
         property.type satisfies never
