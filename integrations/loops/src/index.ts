@@ -3,10 +3,14 @@ import * as bp from '.botpress'
 import axios from 'axios'
 
 interface LoopsApiResponse {
-  success: boolean;
-  path?: string;
-  message?: string;
-  error?: object;
+  success: boolean
+}
+
+interface LoopsApiError {
+  success: boolean
+  path?: string
+  message?: string
+  error?: object
 }
 
 export default new bp.Integration({
@@ -24,44 +28,75 @@ export default new bp.Integration({
   },
   actions: {
     sendTransactionalEmail: async (props) => {
-      const { 
-        input: {
-          email, 
-          transactionalId, 
-          dataVariables,
-          addToAudience,
-          idempotencyKey
-        },
+      const logger = props.logger.forBot()
+
+      const {
+        input: { email, transactionalId, dataVariables, addToAudience, idempotencyKey },
         ctx: {
-          configuration: {
-            apiKey
-          }
-        }
-      } = props;
+          configuration: { apiKey },
+        },
+      } = props
+
+      logger.info('This is the data variables:', { dataVariables, type: typeof dataVariables })
 
       // Parse { key, value } array to object with { key: value }
-      const transformedDataVariables = dataVariables?.reduce((acc, item) => {
-        acc[item.key] = item.value;
-        return acc;
-      }, {} as Record<string, string>);
+      const transformedDataVariables = dataVariables?.reduce((acc: Record<string, string>, item) => {
+        acc[item.key] = item.value
+        return acc
+      }, {})
 
-      const response = await axios.post<LoopsApiResponse>("https://api.loops.so/api/v1/transactional", {
-        email,
-        transactionalId,
-        ...(transformedDataVariables && { dataVariables: transformedDataVariables }),
-        ...(addToAudience && { addToAudience }),
-        ...(idempotencyKey && { idempotencyKey })
-      }, {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
-        }
+      logger.info('This is the transformed data variables:', {
+        transformedDataVariables,
+        type: typeof transformedDataVariables,
       })
 
-      return {
-        success: response.data.success
+      const requestBody = {
+        email,
+        transactionalId,
+        ...(dataVariables.length > 0 && { dataVariables: transformedDataVariables }),
+        ...(addToAudience && { addToAudience }),
+        ...(idempotencyKey && { idempotencyKey }),
       }
-    }
+
+      logger.info('This is the request body:', { requestBody, type: typeof requestBody })
+
+      try {
+        const response = await axios.post<LoopsApiResponse>('https://app.loops.so/api/v1/transactional', requestBody, {
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        return {
+          success: response.data.success,
+        }
+      } catch (error) {
+        if (axios.isAxiosError<LoopsApiError>(error)) {
+          if (!error.response) {
+            logger.error('A network error occurred when calling the Loops API:', error)
+            return {
+              success: false,
+              message: error.message,
+            }
+          }
+
+          logger.error('An HTTP error occurred when calling the Loops API:', {
+            code: error.response.status,
+            ...error.response.data,
+          })
+          return {
+            success: error.response.data.success,
+            path: error.response.data.path,
+            message: error.response.data.message,
+            error: error.response.data.error,
+          }
+        }
+
+        logger.error('An unexpected error occurred when calling the Loops API:', error)
+        throw error
+      }
+    },
   },
   channels: {},
   handler: async () => {},
