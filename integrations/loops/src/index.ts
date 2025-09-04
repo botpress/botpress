@@ -94,7 +94,9 @@ export default new bp.Integration({
         }
 
         logger.error('An unexpected error occurred when calling the Loops API:', error)
-        throw error
+        throw new sdk.RuntimeError(
+          'An unexpected error occurred when calling the Loops API, see logs for more information.'
+        )
       }
     },
   },
