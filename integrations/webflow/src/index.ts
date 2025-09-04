@@ -13,7 +13,7 @@ export default new bp.Integration({
       })
       .catch(_handleError('Failed to register integration'))
   },
-  unregister: async () => { },
+  unregister: async () => {},
   actions: {
     async listCollections(props) {
       const client = new WebflowClient(props.ctx.configuration.apiToken)
@@ -91,7 +91,7 @@ export default new bp.Integration({
     },
   },
   channels: {},
-  handler: async () => { },
+  handler: async () => {},
 })
 
 const _handleError = (outterMessage: string) => (thrown: unknown) => {
