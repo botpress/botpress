@@ -91,7 +91,16 @@ export default new bp.Integration({
     },
   },
   channels: {},
-  handler: async () => {},
+  handler: async (props) => {
+    if (!props.req.body) {
+      props.logger.warn('Handler received an empty body')
+      return
+    }
+
+    const data = JSON.parse(props.req.body)
+
+    console.log(data)
+  },
 })
 
 const _handleError = (outterMessage: string) => (thrown: unknown) => {

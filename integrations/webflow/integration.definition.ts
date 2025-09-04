@@ -28,4 +28,28 @@ export default new IntegrationDefinition({
     publishItems: actions.publishItems,
     unpublishLiveItems: actions.unpublishLiveItems,
   },
+  events: {
+    collectionItemCreated: {
+      title: 'Collection Item Created',
+      description: 'Information about a new collection item',
+      schema: z.object({
+        triggerType: z.string(),
+        payload: z.object({
+          id: z.string(),
+          workspaceId: z.string(),
+          siteId: z.string(),
+          collectionId: z.string(),
+          fieldData: z.object({
+            name: z.string(),
+            slug: z.string(),
+          }),
+          lastPublished: z.string(),
+          lastUpdated: z.string(),
+          createdOn: z.string(),
+          isArchived: z.boolean(),
+          isDraft: z.boolean(),
+        }),
+      }),
+    },
+  },
 })
