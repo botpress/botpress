@@ -2,11 +2,11 @@ import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 import axios from 'axios'
 
-interface LoopsApiResponse {
+type LoopsApiResponse = {
   success: boolean
 }
 
-interface LoopsApiError {
+type LoopsApiError = {
   success: boolean
   path?: string
   message?: string
