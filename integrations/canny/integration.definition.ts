@@ -11,7 +11,11 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z.object({
       apiKey: z.string().title('API Key').describe('Your Canny API key'),
-      defaultAuthorID: z.string().optional().title('Default Author ID').describe('Default author ID for system messages'),
+      defaultAuthorID: z
+        .string()
+        .optional()
+        .title('Default Author ID')
+        .describe('Default author ID for system messages'),
     }),
   },
   channels: {
