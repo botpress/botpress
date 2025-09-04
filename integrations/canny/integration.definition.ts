@@ -106,19 +106,22 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          post: z.object({
-            id: z.string(),
-            title: z.string(),
-            details: z.string().optional(),
-            authorName: z.string().optional(),
-            authorEmail: z.string().optional(),
-            boardName: z.string(),
-            status: z.string(),
-            score: z.number(),
-            commentCount: z.number(),
-            created: z.string(),
-            url: z.string(),
-          }).title('Post').describe('The retrieved post object'),
+          post: z
+            .object({
+              id: z.string(),
+              title: z.string(),
+              details: z.string().optional(),
+              authorName: z.string().optional(),
+              authorEmail: z.string().optional(),
+              boardName: z.string(),
+              status: z.string(),
+              score: z.number(),
+              commentCount: z.number(),
+              created: z.string(),
+              url: z.string(),
+            })
+            .title('Post')
+            .describe('The retrieved post object'),
         }),
       },
     },
@@ -134,27 +137,34 @@ export default new IntegrationDefinition({
           limit: z.number().optional().title('Limit').describe('Number of posts to return'),
           skip: z.number().optional().title('Skip').describe('Number of posts to skip'),
           search: z.string().optional().title('Search').describe('Search term to filter posts'),
-          sort: z.enum(['newest', 'oldest', 'relevance', 'score', 'statusChanged', 'trending']).optional().title('Sort').describe('Sort order for posts'),
+          sort: z
+            .enum(['newest', 'oldest', 'relevance', 'score', 'statusChanged', 'trending'])
+            .optional()
+            .title('Sort')
+            .describe('Sort order for posts'),
           status: z.string().optional().title('Status').describe('Filter posts by status'),
         }),
       },
       output: {
         schema: z.object({
-          posts: z.array(
-            z.object({
-              id: z.string(),
-              title: z.string(),
-              details: z.string().optional(),
-              authorName: z.string().optional(),
-              authorEmail: z.string().optional(),
-              boardName: z.string(),
-              status: z.string(),
-              score: z.number(),
-              commentCount: z.number(),
-              created: z.string(),
-              url: z.string(),
-            })
-          ).title('Posts').describe('Array of posts'),
+          posts: z
+            .array(
+              z.object({
+                id: z.string(),
+                title: z.string(),
+                details: z.string().optional(),
+                authorName: z.string().optional(),
+                authorEmail: z.string().optional(),
+                boardName: z.string(),
+                status: z.string(),
+                score: z.number(),
+                commentCount: z.number(),
+                created: z.string(),
+                url: z.string(),
+              })
+            )
+            .title('Posts')
+            .describe('Array of posts'),
           hasMore: z.boolean().title('Has More').describe('Whether there are more posts available'),
         }),
       },
@@ -230,17 +240,20 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          comment: z.object({
-            id: z.string(),
-            value: z.string(),
-            authorName: z.string(),
-            authorEmail: z.string(),
-            postTitle: z.string(),
-            postID: z.string(),
-            created: z.string(),
-            internal: z.boolean(),
-            likeCount: z.number(),
-          }).title('Comment').describe('The retrieved comment object'),
+          comment: z
+            .object({
+              id: z.string(),
+              value: z.string(),
+              authorName: z.string(),
+              authorEmail: z.string(),
+              postTitle: z.string(),
+              postID: z.string(),
+              created: z.string(),
+              internal: z.boolean(),
+              likeCount: z.number(),
+            })
+            .title('Comment')
+            .describe('The retrieved comment object'),
         }),
       },
     },
@@ -259,19 +272,22 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          comments: z.array(
-            z.object({
-              id: z.string(),
-              value: z.string(),
-              authorName: z.string(),
-              authorEmail: z.string(),
-              postTitle: z.string(),
-              postID: z.string(),
-              created: z.string(),
-              internal: z.boolean(),
-              likeCount: z.number(),
-            })
-          ).title('Comments').describe('Array of comments'),
+          comments: z
+            .array(
+              z.object({
+                id: z.string(),
+                value: z.string(),
+                authorName: z.string(),
+                authorEmail: z.string(),
+                postTitle: z.string(),
+                postID: z.string(),
+                created: z.string(),
+                internal: z.boolean(),
+                likeCount: z.number(),
+              })
+            )
+            .title('Comments')
+            .describe('Array of comments'),
           hasMore: z.boolean().title('Has More').describe('Whether there are more comments available'),
         }),
       },
@@ -308,15 +324,18 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          user: z.object({
-            id: z.string(),
-            name: z.string(),
-            email: z.string(),
-            avatarURL: z.string().optional(),
-            userID: z.string(),
-            isAdmin: z.boolean(),
-            created: z.string(),
-          }).title('User').describe('The created or updated user object'),
+          user: z
+            .object({
+              id: z.string(),
+              name: z.string(),
+              email: z.string(),
+              avatarURL: z.string().optional(),
+              userID: z.string(),
+              isAdmin: z.boolean(),
+              created: z.string(),
+            })
+            .title('User')
+            .describe('The created or updated user object'),
         }),
       },
     },
@@ -325,23 +344,32 @@ export default new IntegrationDefinition({
       description: 'List all users in your Canny workspace with pagination',
       input: {
         schema: z.object({
-          limit: z.number().min(1).max(100).optional().title('Limit').describe('Number of users to fetch (1-100, defaults to 10)'),
+          limit: z
+            .number()
+            .min(1)
+            .max(100)
+            .optional()
+            .title('Limit')
+            .describe('Number of users to fetch (1-100, defaults to 10)'),
           cursor: z.string().optional().title('Cursor').describe('Cursor from previous request for pagination'),
         }),
       },
       output: {
         schema: z.object({
-          users: z.array(
-            z.object({
-              id: z.string(),
-              name: z.string(),
-              email: z.string(),
-              avatarURL: z.string().optional(),
-              userID: z.string(), // Can be empty string if user has no userID
-              isAdmin: z.boolean(),
-              created: z.string(),
-            })
-          ).title('Users').describe('Array of users'),
+          users: z
+            .array(
+              z.object({
+                id: z.string(),
+                name: z.string(),
+                email: z.string(),
+                avatarURL: z.string().optional(),
+                userID: z.string(), // Can be empty string if user has no userID
+                isAdmin: z.boolean(),
+                created: z.string(),
+              })
+            )
+            .title('Users')
+            .describe('Array of users'),
           hasNextPage: z.boolean().title('Has Next Page').describe('Whether there are more users available'),
           cursor: z.string().optional().title('Cursor').describe('Cursor for next page'),
         }),
@@ -360,15 +388,18 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          boards: z.array(
-            z.object({
-              id: z.string(),
-              name: z.string(),
-              postCount: z.number(),
-              url: z.string(),
-              created: z.string(),
-            })
-          ).title('Boards').describe('Array of boards'),
+          boards: z
+            .array(
+              z.object({
+                id: z.string(),
+                name: z.string(),
+                postCount: z.number(),
+                url: z.string(),
+                created: z.string(),
+              })
+            )
+            .title('Boards')
+            .describe('Array of boards'),
           hasMore: z.boolean().title('Has More').describe('Whether there are more boards available'),
         }),
       },
