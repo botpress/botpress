@@ -1,5 +1,6 @@
 {
   "name": "@botpresshub/loops",
+  "integrationName": "loops",
   "description": "Loops integration for Botpress",
   "private": true,
   "scripts": {
