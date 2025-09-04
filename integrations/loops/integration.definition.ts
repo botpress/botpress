@@ -3,12 +3,14 @@ import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
   name: integrationName,
+  title: 'Loops',
+  description: 'Handle transactional emails from your chatbot.',
   version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      apiKey: z.string().describe('Loops API Key'),
+      apiKey: z.string().title('Loops API Key').describe('Your Loops API Key'),
     }),
   },
   actions: {
