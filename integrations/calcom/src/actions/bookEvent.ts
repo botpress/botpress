@@ -4,7 +4,7 @@ import { TIntegration } from '.botpress'
 import { Input } from '.botpress/implementation/typings/actions/bookEvent/input'
 
 export async function bookEvent(props: ActionHandlerProps<TIntegration, 'bookEvent', Input>) {
-  const { input, logger, ctx, client } = props
+  const { input, logger, ctx } = props
 
   const calcom = new CalcomApi(ctx.configuration.calcomApiKey, logger.forBot())
 
