@@ -5,8 +5,8 @@ import * as leadActions from './lead'
 import * as bp from '.botpress'
 
 export default {
+  createTicket,
   ...contactActions,
   ...dealActions,
   ...leadActions,
-  createTicket,
 } as const satisfies bp.IntegrationProps['actions']
