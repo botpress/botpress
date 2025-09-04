@@ -317,6 +317,7 @@ const SECONDS_IN_A_DAY = 24 * 60 * 60
 
 const provider = 'OpenAI'
 
+// oxlint-disable-next-line no-unused-vars
 const SupportedReasoningEfforts = ['minimal', 'low', 'medium', 'high'] as ChatCompletionReasoningEffort[]
 
 export default new bp.Integration({
