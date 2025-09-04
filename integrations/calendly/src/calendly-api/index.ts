@@ -72,14 +72,39 @@ export class CalendlyClient {
 
   public async createWebhook(params: RegisterWebhookParams): Promise<CreateWebhookResp> {
     const { webhookUrl, events, organization, scope, user, signingKey } = params
-    const resp = await this._axiosClient.post<object>('/webhook_subscriptions', {
-      url: webhookUrl,
-      events,
-      organization,
-      user,
-      scope,
-      signing_key: signingKey,
-    })
+    const resp = await this._axiosClient
+      .post<object>('/webhook_subscriptions', {
+        url: webhookUrl,
+        events,
+        organization,
+        user,
+        scope,
+        signing_key: signingKey,
+      })
+      .catch((thrown: unknown) => {
+        if (axios.isAxiosError(thrown)) {
+          if (thrown.status === 403) {
+            let errorMsg: string
+            const respData = thrown.response?.data
+            if (typeof respData === 'object' && 'message' in respData) {
+              errorMsg = respData.message
+            } else {
+              errorMsg =
+                "Either the user's account plan is insufficient (requires standard or above) or the user's account does not have the permission to register webhooks"
+            }
+
+            throw new RuntimeError(errorMsg, thrown)
+          }
+
+          throw new RuntimeError(thrown.message, thrown)
+        }
+
+        if (thrown instanceof RuntimeError) {
+          throw thrown
+        }
+
+        throw thrown instanceof Error ? new RuntimeError(thrown.message) : new RuntimeError(String(thrown))
+      })
 
     try {
       return createWebhookRespSchema.parse(resp.data)
