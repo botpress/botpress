@@ -46,7 +46,7 @@ const companiesCache = {
   }),
 } satisfies StateDefinition
 
-const DEFAULT_PROPERTY_TYPES = [
+const PROPERTY_TYPES = [
   'bool',
   'enumeration',
   'date',
@@ -55,19 +55,20 @@ const DEFAULT_PROPERTY_TYPES = [
   'number',
   'object_coordinates',
   'json',
+  'phone_number',
 ] as const
-const CONTACT_PROPERTY_TYPES = [...DEFAULT_PROPERTY_TYPES, 'phone_number'] as const
 
-export const propertyTypesSchema = z.enum(DEFAULT_PROPERTY_TYPES)
-export type PropertyTypes = z.infer<typeof propertyTypesSchema>
+export const propertyTypeSchema = z.enum(PROPERTY_TYPES)
+export type PropertyType = z.infer<typeof propertyTypeSchema>
 
-const makePropertyCacheSchema = <TTypes extends readonly [string, ...string[]]>(allowedTypes: TTypes) =>
-  z.object({
+const propertyCacheStateDefinition = {
+  type: 'integration',
+  schema: z.object({
     properties: z
       .record(
         z.object({
           label: z.string().title('Label').describe('The label of the property'),
-          type: z.enum(allowedTypes),
+          type: propertyTypeSchema,
           hubspotDefined: z.boolean().title('Hubspot Defined').describe('Whether the property is defined by Hubspot'),
           options: z
             .array(z.string())
@@ -78,34 +79,20 @@ const makePropertyCacheSchema = <TTypes extends readonly [string, ...string[]]>(
       )
       .title('Properties')
       .describe('A mapping of property names (string) to property details'),
-  })
-
-const ticketPropertyCache = {
-  type: 'integration',
-  schema: makePropertyCacheSchema(DEFAULT_PROPERTY_TYPES),
+  }),
 } satisfies StateDefinition
 
-const contactPropertyCache = {
-  type: 'integration',
-  schema: makePropertyCacheSchema(CONTACT_PROPERTY_TYPES),
-} satisfies StateDefinition
-
-const dealPropertyCache = {
-  type: 'integration',
-  schema: makePropertyCacheSchema(DEFAULT_PROPERTY_TYPES),
-} satisfies StateDefinition
-
-const leadPropertyCache = {
-  type: 'integration',
-  schema: makePropertyCacheSchema(DEFAULT_PROPERTY_TYPES),
-} satisfies StateDefinition
+export type CrmObjectType = 'ticket' | 'deal' | 'contact' | 'lead'
+const propertyCacheStates = {
+  ticketPropertyCache: propertyCacheStateDefinition,
+  dealPropertyCache: propertyCacheStateDefinition,
+  contactPropertyCache: propertyCacheStateDefinition,
+  leadPropertyCache: propertyCacheStateDefinition,
+} satisfies Record<`${CrmObjectType}PropertyCache`, StateDefinition>
 
 export const states = {
   oauthCredentials,
   ticketPipelineCache,
   companiesCache,
-  ticketPropertyCache,
-  contactPropertyCache,
-  dealPropertyCache,
-  leadPropertyCache,
-}
+  ...propertyCacheStates,
+} satisfies Record<string, StateDefinition>

@@ -1,21 +1,17 @@
 import { RuntimeError } from '@botpress/sdk'
 import { Client as OfficialHubspotClient } from '@hubspot/api-client'
-import { propertyTypesSchema } from '../../definitions/states'
+import { CrmObjectType, propertyTypeSchema } from '../../definitions/states'
 import * as bp from '.botpress'
 
-type TCrmObject = 'ticket' | 'contact' | 'deal' | 'lead' // TODO: Infer from the Hubspot API client or definition
-type TSetStatePayloadCallback = (state: bp.states.States[`${TCrmObject}PropertyCache`]['payload']) => Promise<void>
-type TProperties = NonNullable<bp.states.States[`${TCrmObject}PropertyCache`]['payload']['properties']>
-type TProperty = TProperties[string]
+type Properties = NonNullable<bp.states.States[`${CrmObjectType}PropertyCache`]['payload']['properties']>
+type Property = Properties[string]
 
-// TODO: Infer types from the state definition and make it generic
 export class PropertiesCache {
   private readonly _client: bp.Client
   private readonly _ctx: bp.Context
   private readonly _hsClient: OfficialHubspotClient
-  private readonly _type: TCrmObject
-  private _properties?: TProperties
-  private readonly _setStateCallback: TSetStatePayloadCallback
+  private readonly _type: CrmObjectType
+  private _properties?: Properties
   private _forceRefresh: boolean = false
   private _alreadyRefreshed: boolean = false
 
@@ -24,19 +20,30 @@ export class PropertiesCache {
     ctx,
     accessToken,
     type,
-    setStateCallback,
   }: {
     client: bp.Client
     ctx: bp.Context
     accessToken: string
-    type: TCrmObject
-    setStateCallback: TSetStatePayloadCallback
+    type: CrmObjectType
   }) {
     this._client = client
     this._ctx = ctx
     this._type = type
     this._hsClient = new OfficialHubspotClient({ accessToken, numberOfApiCallRetries: 2 })
-    this._setStateCallback = setStateCallback
+  }
+
+  public static create({
+    client,
+    ctx,
+    accessToken,
+    type,
+  }: {
+    client: bp.Client
+    ctx: bp.Context
+    accessToken: string
+    type: CrmObjectType
+  }) {
+    return new PropertiesCache({ client, ctx, accessToken, type })
   }
 
   public async getProperty({ nameOrLabel }: { nameOrLabel: string }) {
@@ -60,11 +67,11 @@ export class PropertiesCache {
     this._forceRefresh = true
   }
 
-  private _propertiesRecordToNormalizedArray(properties: TProperties) {
+  private _propertiesRecordToNormalizedArray(properties: Properties) {
     return Object.entries(properties).map(([name, property]) => ({ name, ...property }))
   }
 
-  private _resolveProperty(nameOrLabel: string, properties: TProperties) {
+  private _resolveProperty(nameOrLabel: string, properties: Properties) {
     const normalizedProperties = this._propertiesRecordToNormalizedArray(properties)
     return normalizedProperties.find((property) => {
       if (property.name === nameOrLabel || property.label === nameOrLabel) {
@@ -105,11 +112,11 @@ export class PropertiesCache {
     const properties = await this._hsClient.crm.properties.coreApi.getAll(this._type, false)
     this._properties = Object.fromEntries(
       properties.results.map((prop) => {
-        const parseResult = propertyTypesSchema.safeParse(prop.type) // TODO: Make sure this will work for all CRM objects (if they don't all have the same types)
+        const parseResult = propertyTypeSchema.safeParse(prop.type)
         if (!parseResult.success) {
           throw new RuntimeError(`Invalid property type "${prop.type}" for ${this._type} property "${prop.label}"`)
         }
-        const propFields: TProperty = {
+        const propFields: Property = {
           label: prop.label,
           type: parseResult.data,
           hubspotDefined: prop.hubspotDefined ?? false,
