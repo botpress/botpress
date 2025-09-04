@@ -14,11 +14,31 @@ interface LoopsApiError {
 }
 
 export default new bp.Integration({
-  register: async () => {
+  register: async (props) => {
     /**
      * This is called when an integration configuration is saved.
      * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
      */
+    try {
+      const response = await axios.get('https://app.loops.so/api/v1/api-key', {
+        headers: {
+          Authorization: `Bearer ${props.ctx.configuration.apiKey}`,
+        },
+      })
+    }
+    catch (error) {
+      if (axios.isAxiosError<LoopsApiError>(error)) {
+        if (!error.response) {
+          throw new sdk.RuntimeError('A network error occurred when trying to validate the API key.')
+        }
+        
+        if (error.response.status === 401) {
+          throw new sdk.RuntimeError('Invalid or missing API key.')
+        }
+
+        throw new sdk.RuntimeError('An unexpected error occurred when trying to validate the API key.')
+      }
+    }
   },
   unregister: async () => {
     /**
