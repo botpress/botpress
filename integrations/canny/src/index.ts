@@ -1,4 +1,3 @@
-import * as sdk from '@botpress/sdk'
 
 import { listBoards } from './actions/boards'
 import { createComment, getComment, listComments, deleteComment } from './actions/comments'
@@ -29,7 +28,7 @@ export default new bp.Integration({
 
       const boardsResult = await client.listBoards()
 
-      boardsResult.boards.forEach((board) => {})
+      boardsResult.boards.forEach((_board) => {})
     } catch (error) {
       console.error('Failed to register Canny integration:', error)
       throw error

@@ -1,4 +1,3 @@
-import { RuntimeError } from '@botpress/sdk'
 import { CannyClient } from '../misc/canny-client'
 import { IntegrationProps } from '.botpress'
 import { InvalidAPIKeyError, CannyAPIError } from '../misc/errors'

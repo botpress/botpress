@@ -1,5 +1,4 @@
 import { z } from '@botpress/sdk'
-import { CannyClient } from '../misc/canny-client'
 import { IntegrationProps } from '.botpress'
 
 type WebhookHandler = IntegrationProps['handler']
@@ -9,9 +8,7 @@ const CannyWebhookPayloadSchema = z.object({
   data: z.any(),
 })
 
-type CannyWebhookPayload = z.infer<typeof CannyWebhookPayloadSchema>
-
-export const webhook: WebhookHandler = async ({ req, client, ctx }) => {
+export const webhook: WebhookHandler = async ({ req, client }) => {
   if (req.method !== 'POST') {
     return { status: 405, body: 'Method not allowed' }
   }
