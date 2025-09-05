@@ -3,7 +3,7 @@ import { z } from '@botpress/sdk'
 export const sendTransactionalEmailInputSchema = z.object({
   email: z.string().describe('The email address of the recipient.').title('Email'),
   transactionalId: z.string().describe('The ID of the transactional email to send.').title('Transactional ID'),
-  dataVariables: z
+  dataVariableEntries: z
     .array(z.object({ key: z.string(), value: z.string() }))
     .describe('An object containing data as defined by the data variables added to the transactional email template.')
     .title('Data Variables'),

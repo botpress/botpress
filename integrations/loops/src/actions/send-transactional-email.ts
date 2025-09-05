@@ -7,34 +7,30 @@ export async function sendTransactionalEmail(props: ActionHandlerProps<TIntegrat
   const logger = props.logger.forBot()
 
   const {
-    input: { email, transactionalId, dataVariables, addToAudience, idempotencyKey },
+    input: { email, transactionalId, dataVariableEntries, addToAudience, idempotencyKey },
     ctx: {
       configuration: { apiKey },
     },
   } = props
 
-  logger.info('This is the data variables:', { dataVariables, type: typeof dataVariables })
+  logger.info('This is the data variables:', { dataVariableEntries })
 
-  // Parse { key, value } array to object with { key: value }
-  const transformedDataVariables = dataVariables?.reduce((acc: Record<string, string>, item) => {
+  const dataVariables = dataVariableEntries?.reduce((acc: Record<string, string>, item) => {
     acc[item.key] = item.value
     return acc
   }, {})
 
-  logger.info('This is the transformed data variables:', {
-    transformedDataVariables,
-    type: typeof transformedDataVariables,
-  })
+  logger.info('This is the parsed data variables for the API request:', { dataVariables })
 
   const requestBody = {
     email,
     transactionalId,
-    ...(dataVariables.length > 0 && { dataVariables: transformedDataVariables }),
-    ...(addToAudience && { addToAudience }),
-    ...(idempotencyKey && { idempotencyKey }),
+    addToAudience,
+    idempotencyKey,
+    dataVariables: Object.keys(dataVariables).length > 0 ? dataVariables : undefined,
   }
 
-  logger.info('This is the request body:', { requestBody, type: typeof requestBody })
+  logger.info('This is the request body:', { requestBody })
 
   const loops = new LoopsApi(apiKey, logger)
   return await loops.postTransactionalEmail(requestBody)
