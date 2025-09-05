@@ -54,7 +54,9 @@ const _getOrRefreshOAuthAccessToken = async ({ client, ctx }: { client: bp.Clien
     state: {
       payload: { accessToken, refreshToken, expiresAtSeconds },
     },
-  } = await client.getState({ type: 'integration', name: 'oauthCredentials', id: ctx.integrationId })
+  } = await client.getState({ type: 'integration', name: 'oauthCredentials', id: ctx.integrationId }).catch(() => {
+    throw new RuntimeError('OAuth credentials not found, please reauthorize')
+  })
   const nowSeconds = Date.now() / 1000
   if (nowSeconds <= expiresAtSeconds - FIVE_MINUTES_IN_SECONDS) {
     return accessToken
@@ -84,8 +86,7 @@ const _getOrRefreshOAuthAccessToken = async ({ client, ctx }: { client: bp.Clien
 
 export const getAccessToken = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
   let accessToken: string | undefined
-  // TODO: re-add oauth support and change this condition to === 'manual':
-  if (ctx.configurationType === null) {
+  if (ctx.configurationType === 'manual') {
     accessToken = ctx.configuration.accessToken
   } else {
     accessToken = await _getOrRefreshOAuthAccessToken({ client, ctx })
@@ -100,8 +101,7 @@ export const getAccessToken = async ({ client, ctx }: { client: bp.Client; ctx: 
 
 export const getClientSecret = (ctx: bp.Context) => {
   let clientSecret: string | undefined
-  // TODO: re-add oauth support and change this condition to === 'manual':
-  if (ctx.configurationType === null) {
+  if (ctx.configurationType === 'manual') {
     clientSecret = ctx.configuration.clientSecret
   } else {
     clientSecret = bp.secrets.CLIENT_SECRET
