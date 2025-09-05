@@ -1,8 +1,7 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
-  name: integrationName,
+  name: 'canny', 
   version: '0.1.0',
   title: 'Canny',
   description: 'Connect your Botpress bot to Canny for feature request management and customer feedback collection',
@@ -11,7 +10,7 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z.object({
       apiKey: z.string().title('API Key').describe('Your Canny API key'),
-      defaultAuthorID: z
+      defaultAuthorId: z
         .string()
         .optional()
         .title('Default Author ID')
@@ -72,17 +71,17 @@ export default new IntegrationDefinition({
       description: 'Create a new post in Canny',
       input: {
         schema: z.object({
-          authorID: z
+          authorId: z
             .string()
             .optional()
-            .title('Author ID')
-            .describe('The author ID (defaults to the default Author ID from the integration configuration if not provided)'),
-          boardID: z.string().title('Board ID').describe('The board ID'),
+            .title('Author Id')
+            .describe('The author Id (defaults to the default Author Id from the integration configuration if not provided)'),
+          boardId: z.string().title('Board Id').describe('The board Id'),
           title: z.string().title('Post Title').describe('Post title'),
           details: z.string().title('Post Details').describe('Post details'),
-          byID: z.string().optional().title('By ID').describe('Admin ID who created the post'),
-          categoryID: z.string().optional().title('Category ID').describe('Category ID'),
-          ownerID: z.string().optional().title('Owner ID').describe('Owner ID'),
+          byId: z.string().optional().title('By Id').describe('Admin Id who created the post'),
+          categoryId: z.string().optional().title('Category Id').describe('Category Id'),
+          ownerId: z.string().optional().title('Owner Id').describe('Owner Id'),
           imageURLs: z.array(z.string()).optional().title('Image URLs').describe('Image URLs'),
           eta: z.string().optional().title('ETA').describe('ETA (MM/YYYY)'),
           etaPublic: z.boolean().optional().title('ETA Public').describe('Make ETA public'),
@@ -100,8 +99,8 @@ export default new IntegrationDefinition({
       description: 'Retrieve a post by ID',
       input: {
         schema: z.object({
-          postID: z.string().title('Post ID').describe('The post ID'),
-          boardID: z.string().optional().title('Board ID').describe('The board ID'),
+          postId: z.string().title('Post Id').describe('The post Id'),
+          boardId: z.string().optional().title('Board Id').describe('The board Id'),
         }),
       },
       output: {
@@ -130,10 +129,10 @@ export default new IntegrationDefinition({
       description: 'List posts with optional filters',
       input: {
         schema: z.object({
-          boardID: z.string().optional().title('Board ID').describe('Filter posts by board ID'),
-          authorID: z.string().optional().title('Author ID').describe('Filter posts by author ID'),
-          companyID: z.string().optional().title('Company ID').describe('Filter posts by company ID'),
-          tagIDs: z.array(z.string()).optional().title('Tag IDs').describe('Filter posts by tag IDs'),
+          boardId: z.string().optional().title('Board Id').describe('Filter posts by board Id'),
+          authorId: z.string().optional().title('Author Id').describe('Filter posts by author Id'),
+          companyId: z.string().optional().title('Company Id').describe('Filter posts by company Id'),
+          tagIds: z.array(z.string()).optional().title('Tag Ids').describe('Filter posts by tag Ids'),
           limit: z.number().optional().title('Limit').describe('Number of posts to return'),
           skip: z.number().optional().title('Skip').describe('Number of posts to skip'),
           search: z.string().optional().title('Search').describe('Search term to filter posts'),
@@ -174,7 +173,7 @@ export default new IntegrationDefinition({
       description: 'Update an existing post',
       input: {
         schema: z.object({
-          postID: z.string().title('Post ID').describe('The post ID'),
+          postId: z.string().title('Post Id').describe('The post Id'),
           title: z.string().optional().title('Title').describe('Updated post title'),
           details: z.string().optional().title('Details').describe('Updated post details'),
           eta: z.string().optional().title('ETA').describe('Updated ETA (MM/YYYY)'),

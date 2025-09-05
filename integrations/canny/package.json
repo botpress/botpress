@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/canny",
-  "integrationName": "canny",
   "description": "Canny integration for Botpress",
   "private": true,
   "scripts": {
@@ -11,11 +10,6 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "axios": "^1.6.0",
-    "prettier": "^3.4.2"
-  },
-  "devDependencies": {
-    "@types/node": "^22.16.4",
-    "typescript": "^5.6.3"
+    "axios": "^1.6.0"
   }
 }
