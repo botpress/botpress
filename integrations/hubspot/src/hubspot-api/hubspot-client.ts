@@ -10,7 +10,6 @@ import { CrmObjectType } from '../../definitions/states'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { PropertiesCache } from './properties-cache'
 import * as bp from '.botpress'
-import { RuntimeError } from '@botpress/sdk'
 
 type TicketPipelinesCache = bp.states.States['ticketPipelineCache']['payload']['pipelines']
 type TicketPipeline = TicketPipelinesCache[string]
@@ -812,7 +811,7 @@ export class HubspotClient {
     }
 
     if (!this._ticketPipelines) {
-      throw new RuntimeError('Could not get ticket pipelines cache')
+      throw new sdk.RuntimeError('Could not get ticket pipelines cache')
     }
 
     return this._ticketPipelines
