@@ -3,8 +3,8 @@ import { actions } from './definitions/actions'
 
 export default new IntegrationDefinition({
   name: 'webflow',
-  version: '0.1.0',
-  title: 'Webflow CMS',
+  version: '3.0.0',
+  title: 'Webflow',
   description: 'CRUD operations for Webflow CMS',
   readme: 'hub.md',
   icon: 'icon.svg',
