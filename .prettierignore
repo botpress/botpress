@@ -13,6 +13,7 @@
 !*.yaml
 !*.yml
 !*.md
+!*.mjs
 
 # exclusions
 # **/*.d.ts
