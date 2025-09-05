@@ -1,12 +1,13 @@
 import { RuntimeError } from '@botpress/sdk'
-import sgMail from '@sendgrid/mail'
 import { markdownToHtml } from '../misc/markdown-utils'
+import { getOrCreateSendGridMailClient } from '../misc/sendgrid-api'
 import { parseError } from '../misc/utils'
 import * as bp from '.botpress'
 
 export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ ctx, input, logger }) => {
   try {
-    const [response] = await sgMail.send({
+    const sgMailClient = getOrCreateSendGridMailClient(ctx.configuration)
+    const [response] = await sgMailClient.send({
       personalizations: [
         {
           to: input.to,

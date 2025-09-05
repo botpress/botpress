@@ -1,6 +1,5 @@
-import sgClient from '@sendgrid/client'
-import sgMail from '@sendgrid/mail'
 import actions from './actions'
+import { getOrCreateSendGridRequestClient } from './misc/sendgrid-api'
 import { parseError } from './misc/utils'
 import { parseWebhookData, verifyWebhookSignature } from './misc/webhook-utils'
 import { dispatchIntegrationEvent } from './webhook-events/event-dispatcher'
@@ -9,11 +8,10 @@ import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async ({ ctx }) => {
-    sgClient.setApiKey(ctx.configuration.apiKey)
-    sgMail.setClient(sgClient)
+    const sgRequestClient = getOrCreateSendGridRequestClient(ctx.configuration)
 
     try {
-      const [response] = await sgClient.request({
+      const [response] = await sgRequestClient.request({
         method: 'GET',
         url: '/v3/scopes',
       })
