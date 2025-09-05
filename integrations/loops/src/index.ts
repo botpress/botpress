@@ -15,10 +15,6 @@ type LoopsApiError = {
 
 export default new bp.Integration({
   register: async (props) => {
-    /**
-     * This is called when an integration configuration is saved.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
     try {
       await axios.get('https://app.loops.so/api/v1/api-key', {
         headers: {
@@ -39,12 +35,7 @@ export default new bp.Integration({
       }
     }
   },
-  unregister: async () => {
-    /**
-     * This is called when a bot removes the integration.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-  },
+  unregister: async () => {},
   actions: {
     sendTransactionalEmail: async (props) => {
       const logger = props.logger.forBot()
