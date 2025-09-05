@@ -12,7 +12,7 @@ import {
 export default new IntegrationDefinition({
   name: 'sendgrid',
   title: 'SendGrid',
-  version: '0.1.4',
+  version: '0.1.5',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send markdown rich-text emails using the SendGrid email service.',
