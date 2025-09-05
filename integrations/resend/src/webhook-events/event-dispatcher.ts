@@ -1,6 +1,5 @@
 import * as emailHandlers from './handlers/email'
 import { WebhookEventPayloads } from './schemas'
-import { ignoredEventTypes } from './schemas/ignored'
 import * as bp from '.botpress'
 
 export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEvent: WebhookEventPayloads) => {
@@ -22,10 +21,7 @@ export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEv
     case 'email.failed':
       return await emailHandlers.handleFailedToSendEvent(props, webhookEvent)
     default:
-      const result = ignoredEventTypes.safeParse(webhookEvent)
-      if (result.success) {
-        props.logger.info(`Ignoring unsupported webhook type: '${result.data}'`)
-      }
+      props.logger.info(`Ignoring unsupported webhook type: '${webhookEvent.type}'`)
       return null
   }
 }
