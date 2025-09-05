@@ -1,5 +1,5 @@
 import actions from './actions'
-import { getOrCreateSendGridRequestClient } from './misc/sendgrid-api'
+import { SendGridClient } from './misc/sendgrid-api'
 import { parseError } from './misc/utils'
 import { parseWebhookData, verifyWebhookSignature } from './misc/webhook-utils'
 import { dispatchIntegrationEvent } from './webhook-events/event-dispatcher'
@@ -8,13 +8,9 @@ import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async ({ ctx }) => {
-    const sgRequestClient = getOrCreateSendGridRequestClient(ctx.configuration)
-
     try {
-      const [response] = await sgRequestClient.request({
-        method: 'GET',
-        url: '/v3/scopes',
-      })
+      const httpClient = new SendGridClient(ctx.configuration.apiKey)
+      const response = await httpClient.getPermissionScopes()
 
       if (response && response.statusCode < 200 && response.statusCode >= 300) {
         // noinspection ExceptionCaughtLocallyJS
