@@ -23,7 +23,7 @@ export default new IntegrationDefinition({
           dataVariables: z
             .array(z.object({ key: z.string(), value: z.string() }))
             .describe(
-              'An object containing data as defined by the data variables added to the transactional email template. Values can be of type string or number.'
+              'An object containing data as defined by the data variables added to the transactional email template.'
             ),
           addToAudience: z
             .boolean()
