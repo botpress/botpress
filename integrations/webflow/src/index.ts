@@ -2,6 +2,8 @@ import * as sdk from '@botpress/sdk'
 import axios from 'axios'
 import {
   commentSchema,
+  ecommInventorySchema,
+  ecommOrderSchema,
   formSchema,
   itemSchema,
   pageSchema,
@@ -17,7 +19,7 @@ export default new bp.Integration({
     const client = new WebflowClient(props.ctx.configuration.apiToken)
     await client.listCollections(props.ctx.configuration.siteID).catch(_handleError('Failed to register integration'))
   },
-  unregister: async () => {},
+  unregister: async () => { },
   actions: {
     async listCollections(props) {
       const client = new WebflowClient(props.ctx.configuration.apiToken)
@@ -160,6 +162,27 @@ export default new bp.Integration({
         await props.client.createEvent({
           type: triggerType,
           payload: commentSchema.parse(data.payload),
+        })
+        break
+
+      case 'ecommNewOrder':
+        await props.client.createEvent({
+          type: triggerType,
+          payload: ecommOrderSchema.parse(data.payload),
+        })
+        break
+
+      case 'ecommOrderChanged':
+        await props.client.createEvent({
+          type: 'ecommOrderUpdated',
+          payload: ecommOrderSchema.parse(data.payload),
+        })
+        break
+
+      case 'ecommInventoryChanged':
+        await props.client.createEvent({
+          type: 'ecommInventoryUpdated',
+          payload: ecommInventorySchema.parse(data.payload),
         })
         break
 

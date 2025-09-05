@@ -49,5 +49,9 @@ export default new IntegrationDefinition({
     formSubmission: events.formSubmission,
 
     commentCreated: events.commentCreated,
+
+    ecommNewOrder: events.ecommNewOrder,
+    ecommOrderUpdated: events.ecommOrderUpdated,
+    ecommInventoryUpdated: events.ecommInventoryUpdated,
   },
 })
