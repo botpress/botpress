@@ -2,6 +2,12 @@ import * as sdk from '@botpress/sdk'
 
 type RedactFn = (originalError: Error, customErrorMessage: string) => sdk.RuntimeError
 type ShouldRetryFn = (x: { error: Error; retryCount: number }) => boolean
+type AnyFunction = (...args: unknown[]) => unknown
+
+const _isPromise = (x: unknown): x is Promise<unknown> =>
+  x instanceof Promise || (x !== null && typeof x === 'object' && 'then' in x && typeof x.then === 'function')
+
+export class InvalidAsyncFunctionArgumentError extends Error {}
 
 /**
  * Creates a wrapper function for asynchronous functions that catches errors and
@@ -34,15 +40,30 @@ export const createAsyncFnWrapperWithErrorRedaction =
    * logs them as a `sdk.RuntimeError` after redacting them with a redactor
    * function to remove sensitive information.
    *
-   * @param asyncFn - The function to wrap
+   * @param fn - The function to wrap
    * @param errorCustomMessage - The error message to log
    * @returns A function identical to the input function, but wrapped with a try-catch block
    */
-  <WrappedFn extends (...args: any[]) => Promise<any>>(asyncFn: WrappedFn, errorCustomMessage: string): WrappedFn => {
-    return (async (...args: Parameters<WrappedFn>): Promise<Awaited<ReturnType<WrappedFn>>> => {
+  <WrappedFn extends AnyFunction>(fn: WrappedFn, errorCustomMessage: string): WrappedFn => {
+    return ((...args: Parameters<WrappedFn>): ReturnType<WrappedFn> => {
+      let output: unknown
       try {
-        return await asyncFn(...args)
+        output = fn(...args)
       } catch (thrown: unknown) {
+        // TODO: handle non-async functions too
+        throw new InvalidAsyncFunctionArgumentError(
+          'This decorator only works with async functions, but an error was thrown synchronously. Please pass an async function'
+        )
+      }
+
+      if (!_isPromise(output)) {
+        // TODO: handle non-async functions too
+        throw new InvalidAsyncFunctionArgumentError(
+          'This decorator only works with async functions. Please pass an async function'
+        )
+      }
+
+      return output.catch(async (thrown: unknown) => {
         const originalError = thrown instanceof Error ? thrown : new Error(`${thrown}`)
         let currentError = originalError
 
@@ -54,7 +75,7 @@ export const createAsyncFnWrapperWithErrorRedaction =
             }
 
             try {
-              return await asyncFn(...args)
+              return await fn(...args)
             } catch (thrown2: unknown) {
               currentError = thrown2 instanceof Error ? thrown2 : new Error(`${thrown2}`)
             }
@@ -64,7 +85,7 @@ export const createAsyncFnWrapperWithErrorRedaction =
         const runtimeError =
           currentError instanceof sdk.RuntimeError ? currentError : redactorFn(currentError, errorCustomMessage)
         throw runtimeError
-      }
+      }) as ReturnType<WrappedFn>
     }) as WrappedFn
   }
 
