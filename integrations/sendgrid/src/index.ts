@@ -12,8 +12,7 @@ export default new bp.Integration({
       const httpClient = new SendGridClient(ctx.configuration.apiKey)
       const response = await httpClient.getPermissionScopes()
 
-      if (response && response.statusCode < 200 && response.statusCode >= 300) {
-        // noinspection ExceptionCaughtLocallyJS
+      if (response && (response.statusCode < 200 || response.statusCode >= 300)) {
         throw new Error(`The status code '${response.statusCode}' is not within the accepted bounds.`)
       }
     } catch (thrown: unknown) {
