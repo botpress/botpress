@@ -21,8 +21,7 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ ctx
       html: markdownToHtml(input.body),
     })
 
-    if (response.statusCode < 200 && response.statusCode >= 300) {
-      // noinspection ExceptionCaughtLocallyJS
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw new RuntimeError('Failed to send email.')
     }
 
