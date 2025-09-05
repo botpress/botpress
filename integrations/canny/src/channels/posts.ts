@@ -14,14 +14,14 @@ export const posts = {
 
       const botUser = await client.createOrUpdateUser({
         name: 'BotpressIntegration',
-        userID: 'botpress-integration-user',
+        userId: 'botpress-integration-user',
         email: 'integration@botpress.com',
       })
-      const authorID = botUser.id
+      const authorId = botUser.id
 
       await client.createComment({
-        authorID,
-        postID: postId,
+        authorId,
+        postId: postId,
         value: payload.text,
       })
 
@@ -40,14 +40,14 @@ export const posts = {
 
       const botUser = await client.createOrUpdateUser({
         name: 'BotpressIntegration',
-        userID: 'botpress-integration-user',
+        userId: 'botpress-integration-user',
         email: 'integration@botpress.com',
       })
-      const authorID = botUser.id
+      const authorId = botUser.id
 
       await client.createComment({
-        authorID,
-        postID: postId,
+        authorId,
+        postId: postId,
         value: payload.caption || 'Image attached',
         imageURLs: [payload.imageUrl],
       })

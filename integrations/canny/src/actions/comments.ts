@@ -16,18 +16,18 @@ export const createComment: CreateCommentAction = async ({ input, ctx }) => {
     apiKey: ctx.configuration.apiKey,
   })
 
-  let authorID = input.authorID
+  let authorId = input.authorId
 
-  if (!authorID) {
+  if (!authorId) {
     const botUser = await client.createOrUpdateUser({
       name: 'BotpressIntegration',
-      userID: 'botpress-integration-user',
+      userId: 'botpress-integration-user',
       email: 'integration@botpress.com',
     })
-    authorID = botUser.id
+    authorId = botUser.id
   }
-  if (!input.postID) {
-    throw new RuntimeError('postID is required to create a comment')
+  if (!input.postId) {
+    throw new RuntimeError('postId is required to create a comment')
   }
   if (!input.value) {
     throw new RuntimeError('value (comment text) is required to create a comment')
@@ -35,10 +35,10 @@ export const createComment: CreateCommentAction = async ({ input, ctx }) => {
 
   try {
     const result = await client.createComment({
-      authorID,
-      postID: input.postID,
+      authorId,
+      postId: input.postId,
       value: input.value,
-      parentID: input.parentID,
+      parentId: input.parentId,
       imageURLs: input.imageURLs,
       internal: input.internal,
       shouldNotifyVoters: input.shouldNotifyVoters,
@@ -54,13 +54,13 @@ export const createComment: CreateCommentAction = async ({ input, ctx }) => {
       error.response?.data?.error?.includes('author') ||
       error.message?.includes('user')
     ) {
-      if (!input.authorID) {
+      if (!input.authorId) {
         throw new RuntimeError(
-          'Comment creation failed: Canny requires users to be "identified" through their SDK. Please provide an authorID of a user who has been identified in your Canny workspace, or implement Canny\'s Identify SDK for the BotpressIntegration user.'
+          'Comment creation failed: Canny requires users to be "identified" through their SDK. Please provide an authorId of a user who has been identified in your Canny workspace, or implement Canny\'s Identify SDK for the BotpressIntegration user.'
         )
       } else {
         throw new RuntimeError(
-          `Comment creation failed: The authorID "${authorID}" is not valid or the user hasn't been identified through Canny's SDK.`
+          `Comment creation failed: The authorId "${authorId}" is not valid or the user hasn't been identified through Canny's SDK.`
         )
       }
     }
@@ -73,7 +73,7 @@ export const getComment: GetCommentAction = async ({ input, ctx }) => {
     apiKey: ctx.configuration.apiKey,
   })
 
-  const comment = await client.getComment(input.commentID)
+  const comment = await client.getComment(input.commentId)
 
   return {
     comment: {
@@ -82,7 +82,7 @@ export const getComment: GetCommentAction = async ({ input, ctx }) => {
       authorName: comment.author.name,
       authorEmail: comment.author.email,
       postTitle: comment.post.title,
-      postID: comment.post.id,
+      postId: comment.post.id,
       created: comment.created,
       internal: comment.internal,
       likeCount: comment.likeCount,
@@ -96,10 +96,10 @@ export const listComments: ListCommentsAction = async ({ input, ctx }) => {
   })
 
   const result = await client.listComments({
-    postID: input.postID,
-    authorID: input.authorID,
-    boardID: input.boardID,
-    companyID: input.companyID,
+    postId: input.postId,
+    authorId: input.authorId,
+    boardId: input.boardId,
+    companyId: input.companyId,
     limit: input.limit,
     skip: input.skip,
   })
@@ -111,7 +111,7 @@ export const listComments: ListCommentsAction = async ({ input, ctx }) => {
       authorName: comment.author.name,
       authorEmail: comment.author.email,
       postTitle: comment.post.title,
-      postID: comment.post.id,
+      postId: comment.post.id,
       created: comment.created,
       internal: comment.internal,
       likeCount: comment.likeCount,
@@ -125,7 +125,7 @@ export const deleteComment: DeleteCommentAction = async ({ input, ctx }) => {
     apiKey: ctx.configuration.apiKey,
   })
 
-  await client.deleteComment(input.commentID)
+  await client.deleteComment(input.commentId)
 
   return {
     success: true,

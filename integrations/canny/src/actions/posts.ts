@@ -17,18 +17,18 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
     apiKey: ctx.configuration.apiKey,
   })
 
-  let authorID = input.authorID
+  let authorId = input.authorId
 
-  if (!authorID) {
+  if (!authorId) {
     const botUser = await client.createOrUpdateUser({
       name: 'BotpressIntegration',
-      userID: 'botpress-integration-user',
+      userId: 'botpress-integration-user',
       email: 'integration@botpress.com',
     })
-    authorID = botUser.id
+    authorId = botUser.id
   }
-  if (!input.boardID) {
-    throw new RuntimeError('boardID is required to create a post')
+  if (!input.boardId) {
+    throw new RuntimeError('boardId is required to create a post')
   }
   if (!input.title) {
     throw new RuntimeError('title is required to create a post')
@@ -39,13 +39,13 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
 
   try {
     const result = await client.createPost({
-      authorID,
-      boardID: input.boardID,
+      authorId,
+      boardId: input.boardId,
       title: input.title,
       details: input.details,
-      byID: input.byID,
-      categoryID: input.categoryID,
-      ownerID: input.ownerID,
+      byId: input.byId,
+      categoryId: input.categoryId,
+      ownerId: input.ownerId,
       imageURLs: input.imageURLs,
       eta: input.eta,
       etaPublic: input.etaPublic,
@@ -61,13 +61,13 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
       error.response?.data?.error?.includes('author') ||
       error.message?.includes('user')
     ) {
-      if (!input.authorID) {
+      if (!input.authorId) {
         throw new RuntimeError(
-          'Post creation failed: Canny requires users to be "identified" through their SDK. Please provide an authorID of a user who has been identified in your Canny workspace, or implement Canny\'s Identify SDK for the BotpressIntegration user.'
+          'Post creation failed: Canny requires users to be "identified" through their SDK. Please provide an authorId of a user who has been identified in your Canny workspace, or implement Canny\'s Identify SDK for the BotpressIntegration user.'
         )
       } else {
         throw new RuntimeError(
-          `Post creation failed: The authorID "${authorID}" is not valid or the user hasn't been identified through Canny's SDK.`
+          `Post creation failed: The authorId "${authorId}" is not valid or the user hasn't been identified through Canny's SDK.`
         )
       }
     }
@@ -80,7 +80,7 @@ export const getPost: GetPostAction = async ({ input, ctx }) => {
     apiKey: ctx.configuration.apiKey,
   })
 
-  const post = await client.getPost(input.postID, input.boardID)
+  const post = await client.getPost(input.postId, input.boardId)
 
   return {
     post: {
@@ -105,10 +105,10 @@ export const listPosts: ListPostsAction = async ({ input, ctx }) => {
   })
 
   const result = await client.listPosts({
-    boardID: input.boardID,
-    authorID: input.authorID,
-    companyID: input.companyID,
-    tagIDs: input.tagIDs,
+    boardId: input.boardId,
+    authorId: input.authorId,
+    companyId: input.companyId,
+    tagIds: input.tagIds,
     limit: input.limit,
     skip: input.skip,
     search: input.search,
@@ -140,7 +140,7 @@ export const updatePost: UpdatePostAction = async ({ input, ctx }) => {
   })
 
   await client.updatePost({
-    postID: input.postID,
+    postId: input.postId,
     title: input.title,
     details: input.details,
     eta: input.eta,
@@ -159,7 +159,7 @@ export const deletePost: DeletePostAction = async ({ input, ctx }) => {
     apiKey: ctx.configuration.apiKey,
   })
 
-  await client.deletePost(input.postID)
+  await client.deletePost(input.postId)
 
   return {
     success: true,

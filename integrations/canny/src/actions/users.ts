@@ -25,13 +25,13 @@ export const createOrUpdateUser: CreateOrUpdateUserAction = async ({ input, ctx 
   try {
     console.log('Creating/updating user:', {
       name: input.name,
-      userID: input.userID,
+      userId: input.userId,
       email: input.email,
     })
 
     const user = await client.createOrUpdateUser({
       name: input.name,
-      userID: input.userID,
+      userId: input.userId,
       email: input.email,
       avatarURL: input.avatarURL,
       alias: input.alias,
@@ -47,7 +47,7 @@ export const createOrUpdateUser: CreateOrUpdateUserAction = async ({ input, ctx 
         name: user.name,
         email: user.email,
         avatarURL: user.url, // Canny returns avatar in 'url' field
-        userID: user.userID,
+        userId: user.userId,
         isAdmin: user.isAdmin,
         created: user.created,
       },
@@ -102,7 +102,7 @@ export const listUsers: ListUsersAction = async ({ input, ctx }) => {
         name: user.name,
         email: user.email || '',
         avatarURL: user.url || undefined,
-        userID: user.userID || '',
+        userId: user.userId || '',
         isAdmin: user.isAdmin,
         created: user.created,
       })),

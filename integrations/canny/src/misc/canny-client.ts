@@ -11,7 +11,7 @@ export type User = {
   isAdmin: boolean
   name: string
   url: string
-  userID: string
+  userId: string
 }
 
 export type Board = {
@@ -27,7 +27,7 @@ export type Category = {
   name: string
   postCount: number
   url: string
-  parentID?: string
+  parentId?: string
 }
 
 export type Tag = {
@@ -76,7 +76,7 @@ export type Comment = {
   internal: boolean
   likeCount: number
   mentions: User[]
-  parentID?: string
+  parentId?: string
   post: Post
   private: boolean
   reactions: Record<string, number>
@@ -84,13 +84,13 @@ export type Comment = {
 }
 
 export type CreatePostRequest = {
-  authorID: string
-  boardID: string
-  byID?: string
-  categoryID?: string
+  authorId: string
+  boardId: string
+  byId?: string
+  categoryId?: string
   details: string
   title: string
-  ownerID?: string
+  ownerId?: string
   imageURLs?: string[]
   createdAt?: string
   eta?: string
@@ -99,7 +99,7 @@ export type CreatePostRequest = {
 }
 
 export type UpdatePostRequest = {
-  postID: string
+  postId: string
   title?: string
   details?: string
   eta?: string
@@ -109,10 +109,10 @@ export type UpdatePostRequest = {
 }
 
 export type CreateCommentRequest = {
-  authorID: string
-  postID: string
+  authorId: string
+  postId: string
   value: string
-  parentID?: string
+  parentId?: string
   imageURLs?: string[]
   internal?: boolean
   shouldNotifyVoters?: boolean
@@ -120,10 +120,10 @@ export type CreateCommentRequest = {
 }
 
 export type ListPostsRequest = {
-  boardID?: string
-  authorID?: string
-  companyID?: string
-  tagIDs?: string[]
+  boardId?: string
+  authorId?: string
+  companyId?: string
+  tagIds?: string[]
   limit?: number
   skip?: number
   search?: string
@@ -132,10 +132,10 @@ export type ListPostsRequest = {
 }
 
 export type ListCommentsRequest = {
-  postID?: string
-  authorID?: string
-  boardID?: string
-  companyID?: string
+  postId?: string
+  authorId?: string
+  boardId?: string
+  companyId?: string
   limit?: number
   skip?: number
 }
@@ -152,7 +152,7 @@ export type ListCommentsResponse = {
 
 export type CreateUserRequest = {
   name: string
-  userID?: string
+  userId?: string
   email?: string
   avatarURL?: string
   alias?: string
@@ -218,8 +218,8 @@ export class CannyClient {
     return this._makeRequest('/posts/create', request)
   }
 
-  public async getPost(id: string, boardID?: string): Promise<Post> {
-    return this._makeRequest('/posts/retrieve', { id, boardID })
+  public async getPost(id: string, boardId?: string): Promise<Post> {
+    return this._makeRequest('/posts/retrieve', { id, boardId })
   }
 
   public async listPosts(request: ListPostsRequest = {}): Promise<ListPostsResponse> {
@@ -231,8 +231,8 @@ export class CannyClient {
     return { success: response === 'success' }
   }
 
-  public async deletePost(postID: string): Promise<{ success: boolean }> {
-    const response = await this._makeRequest('/posts/delete', { postID })
+  public async deletePost(postId: string): Promise<{ success: boolean }> {
+    const response = await this._makeRequest('/posts/delete', { postId })
     return { success: response === 'success' }
   }
 
@@ -248,8 +248,8 @@ export class CannyClient {
     return this._makeRequest('/comments/list', request)
   }
 
-  public async deleteComment(commentID: string): Promise<{ success: boolean }> {
-    const response = await this._makeRequest('/comments/delete', { commentID })
+  public async deleteComment(commentId: string): Promise<{ success: boolean }> {
+    const response = await this._makeRequest('/comments/delete', { commentId })
     return { success: response === 'success' }
   }
 

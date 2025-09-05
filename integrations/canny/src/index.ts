@@ -25,7 +25,7 @@ export default new bp.Integration({
 
       const botUser = await client.createOrUpdateUser({
         name: 'BotpressIntegration',
-        userID: 'botpress-integration-user',
+        userId: 'botpress-integration-user',
         email: 'integration@botpress.com',
       })
 
