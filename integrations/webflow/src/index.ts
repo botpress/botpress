@@ -1,16 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
-import {
-  commentSchema,
-  ecommInventorySchema,
-  ecommOrderSchema,
-  formSchema,
-  itemSchema,
-  pageSchema,
-  siteSchema,
-  userSchema,
-  WebflowEvent,
-} from 'definitions/events'
+import { commentSchema, formSchema, itemSchema, pageSchema, siteSchema, WebflowEvent } from 'definitions/events'
 import * as bp from '../.botpress'
 import { WebflowClient } from './client'
 
@@ -108,7 +98,32 @@ export default new bp.Integration({
     // snake_case to camelCase
     const triggerType = data.triggerType.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
 
+    props.logger.debug(data)
+
     switch (triggerType) {
+      case 'formSubmission':
+        await props.client.createEvent({
+          type: triggerType,
+          payload: formSchema.parse(data.payload),
+        })
+        break
+
+      case 'sitePublish':
+        await props.client.createEvent({
+          type: triggerType,
+          payload: siteSchema.parse(data.payload),
+        })
+        break
+
+      case 'pageCreated':
+      case 'pageMetadataUpdated':
+      case 'pageDeleted':
+        await props.client.createEvent({
+          type: triggerType,
+          payload: pageSchema.parse(data.payload),
+        })
+        break
+
       case 'collectionItemCreated':
       case 'collectionItemDeleted':
       case 'collectionItemPublished':
@@ -126,38 +141,6 @@ export default new bp.Integration({
         })
         break
 
-      case 'userAccountAdded':
-      case 'userAccountUpdated':
-      case 'userAccountDeleted':
-        await props.client.createEvent({
-          type: triggerType,
-          payload: userSchema.parse(data.payload),
-        })
-        break
-
-      case 'pageCreated':
-      case 'pageMetadataUpdated':
-      case 'pageDeleted':
-        await props.client.createEvent({
-          type: triggerType,
-          payload: pageSchema.parse(data.payload),
-        })
-        break
-
-      case 'sitePublish':
-        await props.client.createEvent({
-          type: triggerType,
-          payload: siteSchema.parse(data.payload),
-        })
-        break
-
-      case 'formSubmission':
-        await props.client.createEvent({
-          type: triggerType,
-          payload: formSchema.parse(data.payload),
-        })
-        break
-
       case 'commentCreated':
         await props.client.createEvent({
           type: triggerType,
@@ -165,29 +148,8 @@ export default new bp.Integration({
         })
         break
 
-      case 'ecommNewOrder':
-        await props.client.createEvent({
-          type: triggerType,
-          payload: ecommOrderSchema.parse(data.payload),
-        })
-        break
-
-      case 'ecommOrderChanged':
-        await props.client.createEvent({
-          type: 'ecommOrderUpdated',
-          payload: ecommOrderSchema.parse(data.payload),
-        })
-        break
-
-      case 'ecommInventoryChanged':
-        await props.client.createEvent({
-          type: 'ecommInventoryUpdated',
-          payload: ecommInventorySchema.parse(data.payload),
-        })
-        break
-
       default:
-        props.logger.info('event not supported')
+        props.logger.info(`event ${triggerType} not supported`)
         break
     }
   },

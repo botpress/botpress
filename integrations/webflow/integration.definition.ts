@@ -30,28 +30,22 @@ export default new IntegrationDefinition({
     unpublishLiveItems: actions.unpublishLiveItems,
   },
   events: {
+    formSubmission: events.formSubmission,
+
+    sitePublish: events.sitePublish,
+
+    pageCreated: events.pageCreated,
+    pageMetadataUpdated: events.pageMetadataUpdated,
+    pageDeleted: events.pageDeleted,
+
     collectionItemCreated: events.collectionItemCreated,
     collectionItemDeleted: events.collectionItemDeleted,
     collectionItemUpdated: events.collectionItemUpdated,
     collectionItemPublished: events.collectionItemPublished,
     collectionItemUnpublished: events.collectionItemUnpublished,
 
-    userAccountAdded: events.userAccountAdded,
-    userAccountUpdated: events.userAccountUpdated,
-    userAccountDeleted: events.userAccountDeleted,
-
-    pageCreated: events.pageCreated,
-    pageMetadataUpdated: events.pageMetadataUpdated,
-    pageDeleted: events.pageDeleted,
-
-    sitePublish: events.sitePublish,
-
-    formSubmission: events.formSubmission,
-
+    // user not supported
+    // ecomm not supported
     commentCreated: events.commentCreated,
-
-    ecommNewOrder: events.ecommNewOrder,
-    ecommOrderUpdated: events.ecommOrderUpdated,
-    ecommInventoryUpdated: events.ecommInventoryUpdated,
   },
 })
