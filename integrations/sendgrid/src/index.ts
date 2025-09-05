@@ -18,8 +18,7 @@ export default new bp.Integration({
         url: '/v3/scopes',
       })
 
-      if (response && response.statusCode < 200 && response.statusCode >= 300) {
-        // noinspection ExceptionCaughtLocallyJS
+      if (response && (response.statusCode < 200 || response.statusCode >= 300)) {
         throw new Error(`The status code '${response.statusCode}' is not within the accepted bounds.`)
       }
     } catch (thrown: unknown) {
