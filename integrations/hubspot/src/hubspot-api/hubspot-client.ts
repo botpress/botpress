@@ -15,6 +15,19 @@ type TicketPipelinesCache = bp.states.States['ticketPipelineCache']['payload']['
 type TicketPipeline = TicketPipelinesCache[string]
 
 const PAGING_LIMIT = 100
+
+// Builtin properties normally returned by API when doing a 'get' operation
+const DEFAULT_CONTACT_PROPERTIES = ['createdate', 'email', 'firstname', 'lastmodifieddate', 'lastname', 'phone']
+const DEFAULT_COMPANY_PROPERTIES = ['createdate', 'domain', 'name', 'hs_lastmodifieddate', 'phone']
+const DEFAULT_TICKET_PROPERTIES = [
+  'createdate',
+  'hs_pipeline',
+  'hs_pipeline_stage',
+  'hs_ticket_category',
+  'hs_ticket_priority',
+  'subject',
+]
+
 export class HubspotClient {
   private readonly _hsClient: OfficialHubspotClient
   private readonly _client: bp.Client
@@ -84,16 +97,7 @@ export class HubspotClient {
           filters,
         },
       ],
-      properties: [
-        // Builtin properties normally returned by API
-        'createdate',
-        'email',
-        'firstname',
-        'lastmodifieddate',
-        'lastname',
-        'phone',
-        ...(propertiesToReturn ?? []),
-      ],
+      properties: [...DEFAULT_CONTACT_PROPERTIES, ...(propertiesToReturn ?? [])],
     })
     const hsContact = contacts.results[0]
 
@@ -103,13 +107,7 @@ export class HubspotClient {
   @handleErrors('Failed to get contact by ID')
   public async getContactById({ contactId, propertiesToReturn }: { contactId: number; propertiesToReturn?: string[] }) {
     const contact = await this._hsClient.crm.contacts.basicApi.getById(contactId.toString(), [
-      // Builtin properties normally returned by API
-      'createdate',
-      'email',
-      'firstname',
-      'lastmodifieddate',
-      'lastname',
-      'phone',
+      ...DEFAULT_CONTACT_PROPERTIES,
       ...(propertiesToReturn ?? []),
     ])
     return contact
@@ -118,12 +116,7 @@ export class HubspotClient {
   @handleErrors('Failed to get company by ID')
   public async getCompanyById({ companyId, propertiesToReturn }: { companyId: number; propertiesToReturn?: string[] }) {
     const company = await this._hsClient.crm.companies.basicApi.getById(companyId.toString(), [
-      // Builtin properties normally returned by API
-      'createdate',
-      'domain',
-      'name',
-      'hs_lastmodifieddate',
-      'phone',
+      ...DEFAULT_COMPANY_PROPERTIES,
       ...(propertiesToReturn ?? []),
     ])
     return company
@@ -132,13 +125,7 @@ export class HubspotClient {
   @handleErrors('Failed to get ticket by ID')
   public async getTicketById({ ticketId, propertiesToReturn }: { ticketId: number; propertiesToReturn?: string[] }) {
     const ticket = await this._hsClient.crm.tickets.basicApi.getById(ticketId.toString(), [
-      // Builtin properties normally returned by API
-      'createdate',
-      'hs_pipeline',
-      'hs_pipeline_stage',
-      'hs_ticket_category',
-      'hs_ticket_priority',
-      'subject',
+      ...DEFAULT_TICKET_PROPERTIES,
       ...(propertiesToReturn ?? []),
     ])
 
