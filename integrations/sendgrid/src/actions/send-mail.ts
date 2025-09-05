@@ -1,12 +1,13 @@
 import { RuntimeError } from '@botpress/sdk'
-import sgMail from '@sendgrid/mail'
 import { markdownToHtml } from '../misc/markdown-utils'
+import { SendGridClient } from '../misc/sendgrid-api'
 import { parseError } from '../misc/utils'
 import * as bp from '.botpress'
 
 export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ ctx, input, logger }) => {
   try {
-    const [response] = await sgMail.send({
+    const httpClient = new SendGridClient(ctx.configuration.apiKey)
+    const response = await httpClient.sendMail({
       personalizations: [
         {
           to: input.to,
@@ -20,8 +21,7 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ ctx
       html: markdownToHtml(input.body),
     })
 
-    if (response.statusCode < 200 && response.statusCode >= 300) {
-      // noinspection ExceptionCaughtLocallyJS
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw new RuntimeError('Failed to send email.')
     }
 
