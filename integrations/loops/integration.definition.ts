@@ -1,8 +1,7 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
-  name: integrationName,
+  name: 'loops',
   title: 'Loops',
   description: 'Handle transactional emails from your chatbot.',
   version: '0.1.0',
