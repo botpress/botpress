@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/sdk'
+import { RuntimeError, isApiError } from '@botpress/sdk'
 import { Client as OfficialHubspotClient } from '@hubspot/api-client'
 import * as bp from '.botpress'
 
@@ -54,9 +54,14 @@ const _getOrRefreshOAuthAccessToken = async ({ client, ctx }: { client: bp.Clien
     state: {
       payload: { accessToken, refreshToken, expiresAtSeconds },
     },
-  } = await client.getState({ type: 'integration', name: 'oauthCredentials', id: ctx.integrationId }).catch(() => {
-    throw new RuntimeError('OAuth credentials not found, please reauthorize')
-  })
+  } = await client
+    .getState({ type: 'integration', name: 'oauthCredentials', id: ctx.integrationId })
+    .catch((e: unknown) => {
+      if (isApiError(e) && e.code === 404) {
+        throw new RuntimeError('OAuth credentials not found, please reauthorize')
+      }
+      throw e
+    })
   const nowSeconds = Date.now() / 1000
   if (nowSeconds <= expiresAtSeconds - FIVE_MINUTES_IN_SECONDS) {
     return accessToken
