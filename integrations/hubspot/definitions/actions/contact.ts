@@ -1,6 +1,9 @@
 import { z, ActionDefinition } from '@botpress/sdk'
 
-// TODO: Extract common schema for contact
+const contactSchema = z.object({
+  id: z.string().title('Contact ID').describe('The ID of the contact'),
+  properties: z.record(z.any()).title('Properties').describe('The properties of the contact'),
+})
 
 const searchContact: ActionDefinition = {
   title: 'Search Contact',
@@ -18,14 +21,7 @@ const searchContact: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      contact: z
-        .object({
-          id: z.string().title('Contact ID').describe('The ID of the contact'),
-          properties: z.record(z.any()).title('Properties').describe('The properties of the contact'),
-        })
-        .optional()
-        .title('Contact')
-        .describe('The contact found'),
+      contact: contactSchema.optional().title('Contact').describe('The contact found'),
     }),
   },
 }
@@ -60,7 +56,6 @@ const createContact: ActionDefinition = {
         .optional()
         .title('Tickets')
         .describe('The tickets to which the contact is associated'),
-      // TODO: Associate leads?
       properties: z
         .array(
           z.object({
@@ -75,13 +70,7 @@ const createContact: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      contact: z
-        .object({
-          id: z.string().title('Contact ID').describe('The ID of the contact'),
-          properties: z.record(z.any()).title('Properties').describe('The properties of the contact'),
-        })
-        .title('Contact')
-        .describe('The created contact'),
+      contact: contactSchema.title('Contact').describe('The created contact'),
     }),
   },
 }
@@ -105,13 +94,7 @@ const getContact: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      contact: z
-        .object({
-          id: z.string().title('Contact ID').describe('The ID of the contact'),
-          properties: z.record(z.any()).title('Properties').describe('The properties of the contact'),
-        })
-        .title('Contact')
-        .describe('The fetched contact'),
+      contact: contactSchema.title('Contact').describe('The fetched contact'),
     }),
   },
 }
@@ -142,13 +125,7 @@ const updateContact: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      contact: z
-        .object({
-          id: z.string().title('Contact ID').describe('The ID of the contact'),
-          properties: z.record(z.any()).title('Properties').describe('The properties of the contact'),
-        })
-        .title('Contact')
-        .describe('The updated contact'),
+      contact: contactSchema.title('Contact').describe('The updated contact'),
     }),
   },
 }
@@ -191,15 +168,7 @@ const listContacts: ActionDefinition = {
   output: {
     schema: z.object({
       contacts: z
-        .array(
-          z
-            .object({
-              id: z.string().title('Contact ID').describe('The ID of the contact'),
-              properties: z.record(z.any()).title('Properties').describe('The properties of the contact'),
-            })
-            .title('Contact')
-            .describe('A contact')
-        )
+        .array(contactSchema.title('Contact').describe('A contact'))
         .title('Contacts')
         .describe('The contacts found'),
       meta: z
