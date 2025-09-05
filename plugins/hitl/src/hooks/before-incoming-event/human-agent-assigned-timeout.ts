@@ -1,4 +1,4 @@
-import { DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE, DEFAULT_USER_HITL_CANCELLED_MESSAGE } from '../../../plugin.definition'
+import { DEFAULT_USER_HITL_CANCELLED_MESSAGE } from '../../../plugin.definition'
 import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
 import * as consts from '../consts'
@@ -80,7 +80,7 @@ const _handleTimeout = async (
   await downstreamCm.respond({
     // TODO: We might want to add a custom message for the human agent.
     type: 'text',
-    text: sessionConfig.onUserHitlCancelledMessage?.length
+    text: sessionConfig.onUserHitlCancelledMessage?.trim()?.length
       ? sessionConfig.onUserHitlCancelledMessage
       : DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   })
@@ -98,10 +98,10 @@ const _handleTimeout = async (
   // Call stopHitl in the hitl integration (zendesk, etc.):
   await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
 
-  await upstreamCm.respond({
-    type: 'text',
-    text: sessionConfig.onAgentAssignedTimeoutMessage?.length
-      ? sessionConfig.onAgentAssignedTimeoutMessage
-      : DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE,
-  })
+  if (sessionConfig.onAgentAssignedTimeoutMessage?.trim()?.length) {
+    await upstreamCm.respond({
+      type: 'text',
+      text: sessionConfig.onAgentAssignedTimeoutMessage,
+    })
+  }
 }
