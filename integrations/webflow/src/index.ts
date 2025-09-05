@@ -7,9 +7,14 @@ import { WebflowClient } from './client'
 export default new bp.Integration({
   register: async (props) => {
     const client = new WebflowClient(props.ctx.configuration.apiToken)
-    await client.listCollections(props.ctx.configuration.siteID).catch(_handleError('Failed to register integration'))
+    await client
+      .createWebhook(props.ctx.configuration.siteID, props.webhookUrl)
+      .catch(_handleError('Failed to create webhooks'))
   },
-  unregister: async () => { },
+  unregister: async (props) => {
+    const client = new WebflowClient(props.ctx.configuration.apiToken)
+    await client.deleteWebhooks(props.ctx.configuration.siteID).catch(_handleError('Failed to delete webhooks'))
+  },
   actions: {
     async listCollections(props) {
       const client = new WebflowClient(props.ctx.configuration.apiToken)
