@@ -10,18 +10,12 @@ import { CrmObjectType } from '../../definitions/states'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { PropertiesCache } from './properties-cache'
 import * as bp from '.botpress'
+import { RuntimeError } from '@botpress/sdk'
 
-type TicketPropertiesCache = bp.states.States['ticketPropertyCache']['payload']['properties']
-type TicketProperty = TicketPropertiesCache[string]
 type TicketPipelinesCache = bp.states.States['ticketPipelineCache']['payload']['pipelines']
 type TicketPipeline = TicketPipelinesCache[string]
-type DealPropertiesCache = bp.states.States['dealPropertyCache']['payload']['properties']
-type DealProperty = DealPropertiesCache[string]
-type LeadPropertiesCache = bp.states.States['leadPropertyCache']['payload']['properties']
-type LeadProperty = LeadPropertiesCache[string]
 
 const PAGING_LIMIT = 100
-
 export class HubspotClient {
   private readonly _hsClient: OfficialHubspotClient
   private readonly _client: bp.Client
@@ -29,16 +23,8 @@ export class HubspotClient {
   private readonly _accessToken: string
 
   private _crmObjectPropertiesCaches: Record<CrmObjectType, PropertiesCache>
-  private _ticketProperties: TicketPropertiesCache | undefined
-  private _ticketPropertiesAlreadyRefreshed: boolean = false
   private _ticketPipelines: TicketPipelinesCache | undefined
   private _ticketPipelinesAlreadyRefreshed: boolean = false
-  private _dealProperties: DealPropertiesCache | undefined
-  private _dealPropertiesAlreadyRefreshed: boolean = false
-  private _dealPropertyForceRefresh: boolean = false
-  private _leadProperties: LeadPropertiesCache | undefined
-  private _leadPropertiesAlreadyRefreshed: boolean = false
-  private _leadPropertyForceRefresh: boolean = false
 
   public constructor({ accessToken, client, ctx }: { accessToken: string; client: bp.Client; ctx: bp.Context }) {
     this._client = client
@@ -333,94 +319,6 @@ export class HubspotClient {
     }
   }
 
-  private async _validateProperties({ properties, type }: { properties: string[]; type: CrmObjectType }) {
-    const unknownProperties: string[] = []
-    for (const property of properties) {
-      await this._crmObjectPropertiesCaches[type].getProperty({ nameOrLabel: property }).catch(() => {
-        unknownProperties.push(property)
-      })
-    }
-    if (unknownProperties.length) {
-      throw new sdk.RuntimeError(`Unknown properties: ${unknownProperties.join(', ')}`)
-    }
-  }
-
-  private async _resolveAndCoerceProperties({
-    properties,
-    type,
-  }: {
-    properties: Record<string, string>
-    type: CrmObjectType
-  }): Promise<Record<string, any>> {
-    const resolvedProperties: Record<string, any> = {}
-    for (const [nameOrLabel, value] of Object.entries(properties)) {
-      const { propertyName, coercedValue } = await this._resolveAndCoerceProperty({ nameOrLabel, value, type })
-      resolvedProperties[propertyName] = coercedValue
-    }
-    return resolvedProperties
-  }
-
-  private async _resolveAndCoerceProperty({
-    nameOrLabel,
-    value,
-    type,
-  }: {
-    nameOrLabel: string
-    value: string
-    type: CrmObjectType
-  }): Promise<{
-    propertyName: string
-    coercedValue: boolean | number | string
-  }> {
-    const propertiesCache = this._crmObjectPropertiesCaches[type]
-    const property = await propertiesCache.getProperty({ nameOrLabel })
-    switch (property.type) {
-      case 'bool':
-        if (['true', '1', 'yes'].includes(value.trim().toLowerCase())) {
-          return { propertyName: property.name, coercedValue: true }
-        } else if (['false', '0', 'no'].includes(value.trim().toLowerCase())) {
-          return { propertyName: property.name, coercedValue: false }
-        } else {
-          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to boolean for property "${nameOrLabel}"`)
-        }
-      case 'number':
-        const asNumber = Number(value)
-        if (isNaN(asNumber)) {
-          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to number for property "${nameOrLabel}"`)
-        }
-        return { propertyName: property.name, coercedValue: asNumber }
-      case 'date':
-      case 'datetime':
-        const asDate = new Date(value)
-        if (isNaN(asDate.getTime())) {
-          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to date for property "${nameOrLabel}"`)
-        }
-        return { propertyName: property.name, coercedValue: asDate.toISOString() }
-      case 'enumeration':
-        if (property.options && !property.options.includes(value)) {
-          propertiesCache.invalidate()
-          const refreshedProperty = await propertiesCache.getProperty({ nameOrLabel })
-          // Check if options have been updated since last refresh
-          if (refreshedProperty.options && !refreshedProperty.options.includes(value)) {
-            throw new sdk.RuntimeError(
-              `Unable to coerce value "${value}" to enumeration for property "${nameOrLabel}", valid options are ${refreshedProperty.options.join(', ')}`
-            )
-          }
-        }
-        return { propertyName: property.name, coercedValue: value }
-      case 'string':
-      case 'object_coordinates':
-      case 'json':
-      case 'phone_number':
-        return { propertyName: property.name, coercedValue: value }
-      default:
-        property.type satisfies never
-        throw new sdk.RuntimeError(
-          `Property "${nameOrLabel}" has unsupported type "${property.type}". Supported types are: bool, number, date, datetime, enumeration, string, object_coordinates, json`
-        )
-    }
-  }
-
   @handleErrors('Failed to create ticket')
   public async createTicket({
     subject,
@@ -458,7 +356,11 @@ export class HubspotClient {
     const resolvedProperties: Record<string, any> = {}
 
     for (const [nameOrLabel, value] of Object.entries(additionalProperties)) {
-      const { propertyName, coercedValue } = await this._resolveAndCoerceTicketProperty({ nameOrLabel, value })
+      const { propertyName, coercedValue } = await this._resolveAndCoerceProperty({
+        nameOrLabel,
+        value,
+        type: 'ticket',
+      })
       resolvedProperties[propertyName] = coercedValue
     }
 
@@ -529,6 +431,246 @@ export class HubspotClient {
     return { ticketId: newTicket.id }
   }
 
+  @handleErrors('Failed to search deal')
+  public async searchDeal({ name }: { name?: string }) {
+    const filters = []
+
+    if (name) {
+      filters.push({
+        propertyName: 'dealname',
+        operator: DealFilterOperator.Eq,
+        value: name,
+      })
+    }
+
+    if (!filters.length) {
+      throw new Error('No filters provided')
+    }
+
+    const deals = await this._hsClient.crm.deals.searchApi.doSearch({
+      filterGroups: [
+        {
+          filters,
+        },
+      ],
+    })
+
+    const deal = deals.results[0]
+
+    if (!deal) {
+      throw new sdk.RuntimeError('Unable to find deal')
+    }
+
+    return deal
+  }
+
+  @handleErrors('Failed to get deal')
+  public async getDealById({ dealId, propertiesToReturn }: { dealId: string; propertiesToReturn?: string[] }) {
+    const deal = await this._hsClient.crm.deals.basicApi.getById(dealId, [
+      // Builtin properties normally returned by API
+      ...(propertiesToReturn ?? []),
+    ])
+
+    return deal
+  }
+
+  @handleErrors('Failed to delete deal')
+  public async deleteDealById({ dealId }: { dealId: string }) {
+    await this._hsClient.crm.deals.basicApi.archive(dealId)
+  }
+
+  @handleErrors('Failed to update deal')
+  public async updateDealById({ dealId, properties }: { dealId: string; properties: Record<string, string> }) {
+    const resolvedProperties = await this._resolveAndCoerceProperties({ properties, type: 'deal' })
+
+    const deal = await this._hsClient.crm.deals.basicApi.update(dealId, { properties: resolvedProperties })
+
+    return deal
+  }
+
+  @handleErrors('Failed to create deal')
+  public async createDeal({ properties }: { properties: Record<string, string> }) {
+    const resolvedProperties = await this._resolveAndCoerceProperties({ properties, type: 'deal' })
+
+    const deal = await this._hsClient.crm.deals.basicApi.create({ properties: resolvedProperties })
+
+    return deal
+  }
+
+  @handleErrors('Failed to create lead')
+  public async createLead({
+    properties,
+    contactEmailOrId,
+  }: {
+    properties: Record<string, string>
+    contactEmailOrId?: string
+  }) {
+    const contact = contactEmailOrId ? await this.getContact({ contactId: contactEmailOrId }) : undefined
+    const resolvedProperties = await this._resolveAndCoerceProperties({ properties, type: 'lead' })
+    const lead = await this._hsClient.crm.objects.leads.basicApi.create({
+      properties: resolvedProperties,
+      associations: contact
+        ? [
+            {
+              to: { id: contact.contactId },
+              types: [
+                {
+                  associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
+                  associationTypeId: 578, // lead to primary contact
+                },
+              ],
+            },
+          ]
+        : [],
+    })
+
+    return lead
+  }
+
+  @handleErrors('Failed to get lead')
+  public async getLeadById({ leadId, propertiesToReturn }: { leadId: string; propertiesToReturn?: string[] }) {
+    const lead = await this._hsClient.crm.objects.leads.basicApi.getById(leadId, propertiesToReturn)
+    return lead
+  }
+
+  @handleErrors('Failed to delete lead')
+  public async deleteLead({ leadId }: { leadId: string }) {
+    await this._hsClient.crm.objects.leads.basicApi.archive(leadId)
+  }
+
+  @handleErrors('Failed to update lead')
+  public async updateLead({ leadId, properties }: { leadId: string; properties: Record<string, string> }) {
+    const resolvedProperties = await this._resolveAndCoerceProperties({ properties, type: 'lead' })
+
+    const lead = await this._hsClient.crm.objects.leads.basicApi.update(leadId, { properties: resolvedProperties })
+
+    return lead
+  }
+
+  @handleErrors('Failed to search lead')
+  public async searchLead({ name, propertiesToReturn }: { name?: string; propertiesToReturn?: string[] }) {
+    const filters = []
+
+    if (name) {
+      filters.push({
+        propertyName: 'hs_lead_name',
+        operator: LeadFilterOperator.Eq,
+        value: name,
+      })
+    }
+
+    if (!filters.length) {
+      throw new Error('No filters provided')
+    }
+
+    const leads = await this._hsClient.crm.objects.leads.searchApi.doSearch({
+      filterGroups: [
+        {
+          filters,
+        },
+      ],
+      properties: propertiesToReturn,
+    })
+
+    const lead = leads.results[0]
+
+    if (!lead) {
+      throw new sdk.RuntimeError('Unable to find lead')
+    }
+
+    return lead
+  }
+
+  @handleErrors('Failed to validate properties')
+  private async _validateProperties({ properties, type }: { properties: string[]; type: CrmObjectType }) {
+    const unknownProperties: string[] = []
+    for (const property of properties) {
+      await this._crmObjectPropertiesCaches[type].getProperty({ nameOrLabel: property }).catch(() => {
+        unknownProperties.push(property)
+      })
+    }
+    if (unknownProperties.length) {
+      throw new sdk.RuntimeError(`Unknown properties: ${unknownProperties.join(', ')}`)
+    }
+  }
+
+  private async _resolveAndCoerceProperties({
+    properties,
+    type,
+  }: {
+    properties: Record<string, string>
+    type: CrmObjectType
+  }): Promise<Record<string, any>> {
+    const resolvedProperties: Record<string, any> = {}
+    for (const [nameOrLabel, value] of Object.entries(properties)) {
+      const { propertyName, coercedValue } = await this._resolveAndCoerceProperty({ nameOrLabel, value, type })
+      resolvedProperties[propertyName] = coercedValue
+    }
+    return resolvedProperties
+  }
+
+  @handleErrors('Failed to resolve and coerce property')
+  private async _resolveAndCoerceProperty({
+    nameOrLabel,
+    value,
+    type,
+  }: {
+    nameOrLabel: string
+    value: string
+    type: CrmObjectType
+  }): Promise<{
+    propertyName: string
+    coercedValue: boolean | number | string
+  }> {
+    const propertiesCache = this._crmObjectPropertiesCaches[type]
+    const property = await propertiesCache.getProperty({ nameOrLabel })
+    switch (property.type) {
+      case 'bool':
+        if (['true', '1', 'yes'].includes(value.trim().toLowerCase())) {
+          return { propertyName: property.name, coercedValue: true }
+        } else if (['false', '0', 'no'].includes(value.trim().toLowerCase())) {
+          return { propertyName: property.name, coercedValue: false }
+        } else {
+          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to boolean for property "${nameOrLabel}"`)
+        }
+      case 'number':
+        const asNumber = Number(value)
+        if (isNaN(asNumber)) {
+          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to number for property "${nameOrLabel}"`)
+        }
+        return { propertyName: property.name, coercedValue: asNumber }
+      case 'date':
+      case 'datetime':
+        const asDate = new Date(value)
+        if (isNaN(asDate.getTime())) {
+          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to date for property "${nameOrLabel}"`)
+        }
+        return { propertyName: property.name, coercedValue: asDate.toISOString() }
+      case 'enumeration':
+        if (property.options && !property.options.includes(value)) {
+          propertiesCache.invalidate()
+          const refreshedProperty = await propertiesCache.getProperty({ nameOrLabel })
+          // Check if options have been updated since last refresh
+          if (refreshedProperty.options && !refreshedProperty.options.includes(value)) {
+            throw new sdk.RuntimeError(
+              `Unable to coerce value "${value}" to enumeration for property "${nameOrLabel}", valid options are ${refreshedProperty.options.join(', ')}`
+            )
+          }
+        }
+        return { propertyName: property.name, coercedValue: value }
+      case 'string':
+      case 'object_coordinates':
+      case 'json':
+      case 'phone_number':
+        return { propertyName: property.name, coercedValue: value }
+      default:
+        property.type satisfies never
+        throw new sdk.RuntimeError(
+          `Property "${nameOrLabel}" has unsupported type "${property.type}". Supported types are: bool, number, date, datetime, enumeration, string, object_coordinates, json`
+        )
+    }
+  }
+
   @handleErrors('Failed to search company')
   private async _searchCompany({ idOrNameOrDomain }: { idOrNameOrDomain: string }) {
     const canonicalInput = idOrNameOrDomain.trim()
@@ -582,137 +724,8 @@ export class HubspotClient {
     return matchingCompany
   }
 
-  private async _resolveAndCoerceTicketProperty({
-    nameOrLabel,
-    value,
-  }: {
-    nameOrLabel: string
-    value: string
-  }): Promise<{
-    propertyName: string
-    coercedValue: boolean | number | string
-  }> {
-    const property = await this._getTicketProperty({ nameOrLabel })
-
-    switch (property.type) {
-      case 'bool':
-        if (['true', '1', 'yes'].includes(value.trim().toLowerCase())) {
-          return { propertyName: property.name, coercedValue: true }
-        } else if (['false', '0', 'no'].includes(value.trim().toLowerCase())) {
-          return { propertyName: property.name, coercedValue: false }
-        } else {
-          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to boolean for property "${nameOrLabel}"`)
-        }
-      case 'number':
-        const asNumber = Number(value)
-        if (isNaN(asNumber)) {
-          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to number for property "${nameOrLabel}"`)
-        }
-        return { propertyName: property.name, coercedValue: asNumber }
-      case 'date':
-      case 'datetime':
-        const asDate = new Date(value)
-        if (isNaN(asDate.getTime())) {
-          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to date for property "${nameOrLabel}"`)
-        }
-        return { propertyName: property.name, coercedValue: asDate.toISOString() }
-      case 'enumeration':
-      case 'string':
-      case 'object_coordinates':
-      case 'json':
-        return { propertyName: property.name, coercedValue: value }
-      default:
-        property.type satisfies never
-        throw new sdk.RuntimeError(
-          `Property "${nameOrLabel}" has unsupported type "${property.type}". Supported types are: bool, number, date, datetime, enumeration, string, object_coordinates, json`
-        )
-    }
-  }
-
-  private async _getTicketProperty({ nameOrLabel }: { nameOrLabel: string }) {
-    const canonicalName = _getCanonicalName(nameOrLabel)
-
-    const knownTicketProperties = await this._getTicketPropertiesCache()
-    let matchingProperty = knownTicketProperties[nameOrLabel]
-      ? ([nameOrLabel, knownTicketProperties[nameOrLabel]] as const)
-      : undefined
-    matchingProperty ??= Object.entries(knownTicketProperties).find(
-      ([name, { label }]) => _getCanonicalName(name) === canonicalName || _getCanonicalName(label) === canonicalName
-    )
-
-    if (!matchingProperty) {
-      // Refresh, then do a second pass:
-      await this._refreshTicketPropertiesFromApi()
-
-      matchingProperty = this._ticketProperties![nameOrLabel]
-        ? ([nameOrLabel, this._ticketProperties![nameOrLabel]] as const)
-        : undefined
-      matchingProperty ??= Object.entries(this._ticketProperties!).find(
-        ([name, { label }]) => _getCanonicalName(name) === canonicalName || _getCanonicalName(label) === canonicalName
-      )
-
-      if (!matchingProperty) {
-        // At this point, we give up:
-        throw new sdk.RuntimeError(`Unable to find ticket property with name "${nameOrLabel}"`)
-      }
-    }
-
-    return {
-      name: matchingProperty[0],
-      type: matchingProperty[1].type,
-    }
-  }
-
-  private async _getTicketPropertiesCache(): Promise<TicketPropertiesCache> {
-    if (!this._ticketProperties) {
-      try {
-        const { state } = await this._client.getState({
-          type: 'integration',
-          id: this._ctx.integrationId,
-          name: 'ticketPropertyCache',
-        })
-
-        this._ticketProperties = state.payload.properties
-      } catch {
-        await this._refreshTicketPropertiesFromApi()
-      }
-    }
-
-    return this._ticketProperties as TicketPropertiesCache
-  }
-
-  @handleErrors('Failed to retrieve ticket properties from HubSpot API')
-  private async _refreshTicketPropertiesFromApi(): Promise<void> {
-    if (this._ticketPropertiesAlreadyRefreshed) {
-      // Prevent refreshing several times in a single lambda invocation
-      return
-    }
-
-    const properties = await this._hsClient.crm.properties.coreApi.getAll('ticket', false)
-    this._ticketProperties = Object.fromEntries(
-      properties.results.map(
-        (prop) =>
-          [
-            prop.name,
-            {
-              label: prop.label,
-              type: prop.type as TicketPropertiesCache[string]['type'],
-              hubspotDefined: prop.hubspotDefined ?? false,
-            } satisfies TicketProperty,
-          ] as const
-      )
-    )
-
-    await this._client.setState({
-      type: 'integration',
-      id: this._ctx.integrationId,
-      name: 'ticketPropertyCache',
-      payload: { properties: this._ticketProperties },
-    })
-
-    this._ticketPropertiesAlreadyRefreshed = true
-  }
-
+  // TODO: Check if this can be deduplicated also
+  @handleErrors('Failed to get ticket pipeline')
   private async _getTicketPipeline({ nameOrLabel }: { nameOrLabel: string }) {
     const canonicalName = _getCanonicalName(nameOrLabel)
 
@@ -782,6 +795,7 @@ export class HubspotClient {
     }
   }
 
+  @handleErrors('Failed to get ticket pipelines cache')
   private async _getTicketPipelinesCache(): Promise<TicketPipelinesCache> {
     if (!this._ticketPipelines) {
       try {
@@ -797,7 +811,11 @@ export class HubspotClient {
       }
     }
 
-    return this._ticketPipelines as TicketPipelinesCache
+    if (!this._ticketPipelines) {
+      throw new RuntimeError('Could not get ticket pipelines cache')
+    }
+
+    return this._ticketPipelines
   }
 
   @handleErrors('Failed to retrieve ticket pipelines from HubSpot API')
@@ -851,438 +869,7 @@ export class HubspotClient {
     return matchingOwner
   }
 
-  @handleErrors('Failed to search deal')
-  public async searchDeal({ name }: { name?: string }) {
-    const filters = []
-
-    if (name) {
-      filters.push({
-        propertyName: 'dealname',
-        operator: DealFilterOperator.Eq,
-        value: name,
-      })
-    }
-
-    if (!filters.length) {
-      throw new Error('No filters provided')
-    }
-
-    const deals = await this._hsClient.crm.deals.searchApi.doSearch({
-      filterGroups: [
-        {
-          filters,
-        },
-      ],
-    })
-
-    const deal = deals.results[0]
-
-    if (!deal) {
-      throw new sdk.RuntimeError('Unable to find deal')
-    }
-
-    return deal
-  }
-
-  @handleErrors('Failed to get deal')
-  public async getDealById({ dealId, propertiesToReturn }: { dealId: string; propertiesToReturn?: string[] }) {
-    const deal = await this._hsClient.crm.deals.basicApi.getById(dealId, [
-      // Builtin properties normally returned by API
-      ...(propertiesToReturn ?? []),
-    ])
-
-    return deal
-  }
-
-  @handleErrors('Failed to delete deal')
-  public async deleteDealById({ dealId }: { dealId: string }) {
-    await this._hsClient.crm.deals.basicApi.archive(dealId)
-  }
-
-  @handleErrors('Failed to update deal')
-  public async updateDealById({ dealId, properties }: { dealId: string; properties: Record<string, string> }) {
-    const resolvedProperties = await this._resolveAndCoerceDealProperties({ properties })
-
-    const deal = await this._hsClient.crm.deals.basicApi.update(dealId, { properties: resolvedProperties })
-
-    return deal
-  }
-
-  @handleErrors('Failed to create deal')
-  public async createDeal({ properties }: { properties: Record<string, string> }) {
-    const resolvedProperties = await this._resolveAndCoerceDealProperties({ properties })
-
-    const deal = await this._hsClient.crm.deals.basicApi.create({ properties: resolvedProperties })
-
-    return deal
-  }
-
-  // TODO: Deduplicate also
-  private async _resolveAndCoerceDealProperties({
-    properties,
-  }: {
-    properties: Record<string, string>
-  }): Promise<Record<string, any>> {
-    const resolvedProperties: Record<string, any> = {}
-    for (const [nameOrLabel, value] of Object.entries(properties)) {
-      const { propertyName, coercedValue } = await this._resolveAndCoerceDealProperty({ nameOrLabel, value })
-      resolvedProperties[propertyName] = coercedValue
-    }
-    return resolvedProperties
-  }
-
-  private async _resolveAndCoerceDealProperty({ nameOrLabel, value }: { nameOrLabel: string; value: string }): Promise<{
-    propertyName: string
-    coercedValue: boolean | number | string
-  }> {
-    const property = await this._getDealProperty({ nameOrLabel })
-    switch (property.type) {
-      case 'bool':
-        if (['true', '1', 'yes'].includes(value.trim().toLowerCase())) {
-          return { propertyName: property.name, coercedValue: true }
-        } else if (['false', '0', 'no'].includes(value.trim().toLowerCase())) {
-          return { propertyName: property.name, coercedValue: false }
-        } else {
-          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to boolean for property "${nameOrLabel}"`)
-        }
-      case 'number':
-        const asNumber = Number(value)
-        if (isNaN(asNumber)) {
-          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to number for property "${nameOrLabel}"`)
-        }
-        return { propertyName: property.name, coercedValue: asNumber }
-      case 'date':
-      case 'datetime':
-        const asDate = new Date(value)
-        if (isNaN(asDate.getTime())) {
-          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to date for property "${nameOrLabel}"`)
-        }
-        return { propertyName: property.name, coercedValue: asDate.toISOString() }
-      case 'enumeration':
-        if (property.options && !property.options.includes(value)) {
-          this._dealPropertyForceRefresh = true
-          const refreshedProperty = await this._getDealProperty({ nameOrLabel })
-          // Check if options have been updated since last refresh
-          if (refreshedProperty.options && !refreshedProperty.options.includes(value)) {
-            throw new sdk.RuntimeError(
-              `Unable to coerce value "${value}" to enumeration for property "${nameOrLabel}", valid options are ${refreshedProperty.options.join(', ')}`
-            )
-          }
-        }
-        return { propertyName: property.name, coercedValue: value }
-      case 'string':
-      case 'object_coordinates':
-      case 'json':
-        return { propertyName: property.name, coercedValue: value }
-      default:
-        property.type satisfies never
-        throw new sdk.RuntimeError(
-          `Property "${nameOrLabel}" has unsupported type "${property.type}". Supported types are: bool, number, date, datetime, enumeration, string, object_coordinates, json`
-        )
-    }
-  }
-
-  private async _getDealProperty({ nameOrLabel }: { nameOrLabel: string }) {
-    const canonicalName = _getCanonicalName(nameOrLabel)
-    const knownDealProperties = await this._getDealPropertiesCache()
-    let matchingProperty = knownDealProperties[nameOrLabel]
-      ? ([nameOrLabel, knownDealProperties[nameOrLabel]] as const)
-      : undefined
-    matchingProperty ??= Object.entries(knownDealProperties).find(
-      ([name, { label }]) => _getCanonicalName(name) === canonicalName || _getCanonicalName(label) === canonicalName
-    )
-    if (!matchingProperty || this._dealPropertyForceRefresh) {
-      // Refresh, then do a second pass:
-      await this._refreshDealPropertiesFromApi()
-      matchingProperty = this._dealProperties![nameOrLabel]
-        ? ([nameOrLabel, this._dealProperties![nameOrLabel]] as const)
-        : undefined
-      matchingProperty ??= Object.entries(this._dealProperties!).find(
-        ([name, { label }]) => _getCanonicalName(name) === canonicalName || _getCanonicalName(label) === canonicalName
-      )
-
-      if (!matchingProperty) {
-        // At this point, we give up:
-        throw new sdk.RuntimeError(`Unable to find deal property with name "${nameOrLabel}"`)
-      }
-    }
-    return {
-      name: matchingProperty[0],
-      type: matchingProperty[1].type,
-      options: matchingProperty[1].options,
-    }
-  }
-
-  private async _getDealPropertiesCache(): Promise<DealPropertiesCache> {
-    if (!this._dealProperties) {
-      try {
-        const { state } = await this._client.getState({
-          type: 'integration',
-          id: this._ctx.integrationId,
-          name: 'dealPropertyCache',
-        })
-        this._dealProperties = state.payload.properties
-      } catch {
-        await this._refreshDealPropertiesFromApi()
-      }
-    }
-    return this._dealProperties as DealPropertiesCache
-  }
-
-  private async _refreshDealPropertiesFromApi(): Promise<void> {
-    if (this._dealPropertiesAlreadyRefreshed && !this._dealPropertyForceRefresh) {
-      // Prevent refreshing several times in a single lambda invocation
-      return
-    }
-    const properties = await this._hsClient.crm.properties.coreApi.getAll('deal', false)
-    this._dealProperties = Object.fromEntries(
-      properties.results.map((prop) => {
-        const propFields: DealProperty = {
-          label: prop.label,
-          type: prop.type as DealPropertiesCache[string]['type'],
-          hubspotDefined: prop.hubspotDefined ?? false,
-        }
-        if (prop.options) {
-          propFields['options'] = prop.options.map((option) => option.value)
-        }
-        return [prop.name, propFields] as const
-      })
-    )
-    await this._client.setState({
-      type: 'integration',
-      id: this._ctx.integrationId,
-      name: 'dealPropertyCache',
-      payload: { properties: this._dealProperties },
-    })
-    this._dealPropertiesAlreadyRefreshed = true
-    this._dealPropertyForceRefresh = false
-  }
-
-  @handleErrors('Failed to create lead')
-  public async createLead({
-    properties,
-    contactEmailOrId,
-  }: {
-    properties: Record<string, string>
-    contactEmailOrId?: string
-  }) {
-    const contact = contactEmailOrId ? await this.getContact({ contactId: contactEmailOrId }) : undefined
-    const resolvedProperties = await this._resolveAndCoerceLeadProperties({ properties })
-    const lead = await this._hsClient.crm.objects.leads.basicApi.create({
-      properties: resolvedProperties,
-      associations: contact
-        ? [
-            {
-              to: { id: contact.contactId },
-              types: [
-                {
-                  associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
-                  associationTypeId: 578, // lead to primary contact
-                },
-              ],
-            },
-          ]
-        : [],
-    })
-
-    return lead
-  }
-
-  @handleErrors('Failed to get lead')
-  public async getLeadById({ leadId, propertiesToReturn }: { leadId: string; propertiesToReturn?: string[] }) {
-    const lead = await this._hsClient.crm.objects.leads.basicApi.getById(leadId, propertiesToReturn)
-    return lead
-  }
-
-  @handleErrors('Failed to delete lead')
-  public async deleteLead({ leadId }: { leadId: string }) {
-    await this._hsClient.crm.objects.leads.basicApi.archive(leadId)
-  }
-
-  @handleErrors('Failed to update lead')
-  public async updateLead({ leadId, properties }: { leadId: string; properties: Record<string, string> }) {
-    const resolvedProperties = await this._resolveAndCoerceLeadProperties({ properties })
-
-    const lead = await this._hsClient.crm.objects.leads.basicApi.update(leadId, { properties: resolvedProperties })
-
-    return lead
-  }
-
-  @handleErrors('Failed to search lead')
-  public async searchLead({ name, propertiesToReturn }: { name?: string; propertiesToReturn?: string[] }) {
-    const filters = []
-
-    if (name) {
-      filters.push({
-        propertyName: 'hs_lead_name',
-        operator: LeadFilterOperator.Eq,
-        value: name,
-      })
-    }
-
-    if (!filters.length) {
-      throw new Error('No filters provided')
-    }
-
-    const leads = await this._hsClient.crm.objects.leads.searchApi.doSearch({
-      filterGroups: [
-        {
-          filters,
-        },
-      ],
-      properties: propertiesToReturn,
-    })
-
-    const lead = leads.results[0]
-
-    if (!lead) {
-      throw new sdk.RuntimeError('Unable to find lead')
-    }
-
-    return lead
-  }
-
-  // TODO: Deduplicate also
-  private async _resolveAndCoerceLeadProperties({
-    properties,
-  }: {
-    properties: Record<string, string>
-  }): Promise<Record<string, any>> {
-    const resolvedProperties: Record<string, any> = {}
-    for (const [nameOrLabel, value] of Object.entries(properties)) {
-      const { propertyName, coercedValue } = await this._resolveAndCoerceLeadProperty({ nameOrLabel, value })
-      resolvedProperties[propertyName] = coercedValue
-    }
-    return resolvedProperties
-  }
-
-  private async _resolveAndCoerceLeadProperty({ nameOrLabel, value }: { nameOrLabel: string; value: string }): Promise<{
-    propertyName: string
-    coercedValue: boolean | number | string
-  }> {
-    const property = await this._getLeadProperty({ nameOrLabel })
-    switch (property.type) {
-      case 'bool':
-        if (['true', '1', 'yes'].includes(value.trim().toLowerCase())) {
-          return { propertyName: property.name, coercedValue: true }
-        } else if (['false', '0', 'no'].includes(value.trim().toLowerCase())) {
-          return { propertyName: property.name, coercedValue: false }
-        } else {
-          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to boolean for property "${nameOrLabel}"`)
-        }
-      case 'number':
-        const asNumber = Number(value)
-        if (isNaN(asNumber)) {
-          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to number for property "${nameOrLabel}"`)
-        }
-        return { propertyName: property.name, coercedValue: asNumber }
-      case 'date':
-      case 'datetime':
-        const asDate = new Date(value)
-        if (isNaN(asDate.getTime())) {
-          throw new sdk.RuntimeError(`Unable to coerce value "${value}" to date for property "${nameOrLabel}"`)
-        }
-        return { propertyName: property.name, coercedValue: asDate.toISOString() }
-      case 'enumeration':
-        if (property.options && !property.options.includes(value)) {
-          this._leadPropertyForceRefresh = true
-          const refreshedProperty = await this._getLeadProperty({ nameOrLabel })
-          // Check if options have been updated since last refresh
-          if (refreshedProperty.options && !refreshedProperty.options.includes(value)) {
-            throw new sdk.RuntimeError(
-              `Unable to coerce value "${value}" to enumeration for property "${nameOrLabel}", valid options are ${refreshedProperty.options.join(', ')}`
-            )
-          }
-        }
-        return { propertyName: property.name, coercedValue: value }
-      case 'string':
-      case 'object_coordinates':
-      case 'json':
-        return { propertyName: property.name, coercedValue: value }
-      default:
-        property.type satisfies never
-        throw new sdk.RuntimeError(
-          `Property "${nameOrLabel}" has unsupported type "${property.type}". Supported types are: bool, number, date, datetime, enumeration, string, object_coordinates, json`
-        )
-    }
-  }
-
-  private async _getLeadProperty({ nameOrLabel }: { nameOrLabel: string }) {
-    const canonicalName = _getCanonicalName(nameOrLabel)
-    const knownLeadProperties = await this._getLeadPropertiesCache()
-    let matchingProperty = knownLeadProperties[nameOrLabel]
-      ? ([nameOrLabel, knownLeadProperties[nameOrLabel]] as const)
-      : undefined
-    matchingProperty ??= Object.entries(knownLeadProperties).find(
-      ([name, { label }]) => _getCanonicalName(name) === canonicalName || _getCanonicalName(label) === canonicalName
-    )
-    if (!matchingProperty || this._leadPropertyForceRefresh) {
-      // Refresh, then do a second pass:
-      await this._refreshLeadPropertiesFromApi()
-      matchingProperty = this._leadProperties![nameOrLabel]
-        ? ([nameOrLabel, this._leadProperties![nameOrLabel]] as const)
-        : undefined
-      matchingProperty ??= Object.entries(this._leadProperties!).find(
-        ([name, { label }]) => _getCanonicalName(name) === canonicalName || _getCanonicalName(label) === canonicalName
-      )
-
-      if (!matchingProperty) {
-        // At this point, we give up:
-        throw new sdk.RuntimeError(`Unable to find lead property with name "${nameOrLabel}"`)
-      }
-    }
-    return {
-      name: matchingProperty[0],
-      type: matchingProperty[1].type,
-      options: matchingProperty[1].options,
-    }
-  }
-
-  private async _getLeadPropertiesCache(): Promise<LeadPropertiesCache> {
-    if (!this._leadProperties) {
-      try {
-        const { state } = await this._client.getState({
-          type: 'integration',
-          id: this._ctx.integrationId,
-          name: 'leadPropertyCache',
-        })
-        this._leadProperties = state.payload.properties
-      } catch {
-        await this._refreshLeadPropertiesFromApi()
-      }
-    }
-    return this._leadProperties as DealPropertiesCache
-  }
-
-  private async _refreshLeadPropertiesFromApi(): Promise<void> {
-    if (this._leadPropertiesAlreadyRefreshed && !this._leadPropertyForceRefresh) {
-      // Prevent refreshing several times in a single lambda invocation
-      return
-    }
-    const properties = await this._hsClient.crm.properties.coreApi.getAll('lead', false)
-    this._leadProperties = Object.fromEntries(
-      properties.results.map((prop) => {
-        const propFields: LeadProperty = {
-          label: prop.label,
-          type: prop.type as LeadPropertiesCache[string]['type'],
-          hubspotDefined: prop.hubspotDefined ?? false,
-        }
-        if (prop.options) {
-          propFields['options'] = prop.options.map((option) => option.value)
-        }
-        return [prop.name, propFields] as const
-      })
-    )
-    await this._client.setState({
-      type: 'integration',
-      id: this._ctx.integrationId,
-      name: 'leadPropertyCache',
-      payload: { properties: this._leadProperties },
-    })
-    this._leadPropertiesAlreadyRefreshed = true
-    this._leadPropertyForceRefresh = false
-  }
-
+  @handleErrors('Failed to get ticket')
   private async _getTicket({ id }: { id: string }) {
     const ticket = await this._hsClient.crm.tickets.basicApi.getById(id)
     return ticket
