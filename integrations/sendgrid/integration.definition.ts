@@ -21,7 +21,7 @@ export default new IntegrationDefinition({
       apiKey: z.string().secret().min(1).describe('Your SendGrid API Key').title('SendGrid API Key'),
       publicSignatureKey: z
         .string()
-        // .secret() // Uncomment secret once the ZUI bug has been fixed (Linear Issue: DEV-3073)
+        .secret()
         .min(1)
         .optional()
         .describe(
