@@ -1,4 +1,3 @@
-import * as sdk from '@botpress/sdk'
 import { sendTransactionalEmail } from './actions/send-transactional-email'
 import { LoopsApi } from './loops.api'
 import * as bp from '.botpress'
