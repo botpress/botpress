@@ -20,7 +20,6 @@
     "fix:dep": "depsynky sync --ignore-dev",
     "fix:sherif": "sherif -i zod -i axios -i query-string -i googleapis -i @linear/sdk -i openai --fix",
     "fix:format": "prettier --write .",
-    "fix:format:memory": "NODE_OPTIONS=\"--max-old-space-size=4096\" prettier --write .",
     "fix:oxlint": "oxlint -c .oxlintrc.json --fix --fix-suggestions",
     "fix:eslint": "eslint --fix ./",
     "fix:eslint:memory": "NODE_OPTIONS=\"--max-old-space-size=4096\" eslint --fix ./",
