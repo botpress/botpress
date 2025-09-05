@@ -5,19 +5,29 @@ export default new IntegrationDefinition({
   name: 'hubspot',
   title: 'HubSpot',
   description: 'Manage contacts, tickets and more from your chatbot.',
-  version: '1.0.0',
+  version: '2.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
-    schema: z.object({
-      accessToken: z.string().min(1).secret().title('Access Token').describe('Your Hubspot Access Token'),
-      clientSecret: z
-        .string()
-        .secret()
-        .optional()
-        .title('Client Secret')
-        .describe('Hubspot Client Secret (used for webhook signature check)'),
-    }),
+    schema: z.object({}),
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+    },
+  },
+  configurations: {
+    manual: {
+      title: 'Manual Configuration',
+      description: 'Manual configuration, use your own Hubspot app',
+      schema: z.object({
+        accessToken: z.string().min(1).secret().title('Access Token').describe('Your Hubspot Access Token'),
+        clientSecret: z
+          .string()
+          .secret()
+          .optional()
+          .title('Client Secret')
+          .describe('Hubspot Client Secret (used for webhook signature check)'),
+      }),
+    },
   },
   identifier: {
     extractScript: 'extract.vrl',
@@ -261,6 +271,10 @@ export default new IntegrationDefinition({
     },
     CLIENT_SECRET: {
       description: 'The client secret of the Hubspot app',
+    },
+    DISABLE_OAUTH: {
+      // TODO: Remove once the OAuth app allows for unlimited installs
+      description: 'Whether to disable OAuth',
     },
   },
 })
