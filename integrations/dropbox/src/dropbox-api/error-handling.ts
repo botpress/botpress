@@ -15,7 +15,7 @@ const COMMON_ERRORS: Readonly<Record<string, string>> = {
   'to/conflict/': 'The target path already exists',
 } as const
 
-const _errorRedactor = (error: Error, customMessage: string): sdk.RuntimeError => {
+const _errorRedactor = (error: Error, customMessage: string) => {
   if (error instanceof sdk.RuntimeError) {
     return error
   }
@@ -25,7 +25,7 @@ const _errorRedactor = (error: Error, customMessage: string): sdk.RuntimeError =
   return _tryToHandleDropboxError(error, customMessage) ?? new sdk.RuntimeError(customMessage)
 }
 
-const _tryToHandleDropboxError = (error: Error, customMessage: string): sdk.RuntimeError | undefined => {
+const _tryToHandleDropboxError = (error: Error, customMessage: string) => {
   if (!(error instanceof DropboxResponseError && 'error_summary' in error.error)) {
     return
   }
