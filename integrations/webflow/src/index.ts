@@ -103,9 +103,6 @@ export default new bp.Integration({
     const snakeCase2CamelCase = (str: string) => str.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase())
     const triggerType = snakeCase2CamelCase(data.triggerType)
 
-    // TODO remove before pushing to prod
-    props.logger.debug(data)
-
     switch (triggerType) {
       case 'formSubmission':
         await props.client

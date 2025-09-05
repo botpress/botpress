@@ -20,7 +20,7 @@ export const formSchema = z.object({
     .array(
       z.object({
         fieldName: z.string().optional(),
-        fieldType: z // TODO verifie FormTextarea no majuscule on 'a'
+        fieldType: z
           .enum(['FormTextInput', 'FormTextarea', 'FormCheckboxInput', 'FormRadioInput', 'FormFileUploadInput'])
           .optional(),
         fieldElementId: z.string(),
@@ -98,28 +98,28 @@ export const commentSchema = z.object({
 
 export const events = {
   formSubmission: {
-    title: '',
-    description: '',
+    title: 'Form Submission',
+    description: 'Information about a form that was submitted',
     schema: formSchema,
   },
   sitePublish: {
-    title: '',
-    description: '',
+    title: 'Site Publish',
+    description: 'Information about a site that was published',
     schema: siteSchema,
   },
   pageCreated: {
-    title: '',
-    description: '',
+    title: 'Page Created',
+    description: 'Information about a new pages',
     schema: pageSchema,
   },
   pageMetadataUpdated: {
-    title: '',
-    description: '',
+    title: 'Page Metadata Updated',
+    description: "Information about a page's updated metadata and/or settings",
     schema: pageSchema,
   },
   pageDeleted: {
-    title: '',
-    description: '',
+    title: 'Page Deleted',
+    description: 'Information about a page that was deleted',
     schema: pageSchema,
   },
   collectionItemCreated: {
@@ -139,19 +139,19 @@ export const events = {
   },
   collectionItemPublished: {
     title: 'Collection Item Published',
-    description: '',
+    description: 'Information about a collection item that was published',
     schema: itemSchema,
   },
   collectionItemUnpublished: {
     title: 'Collection Item Unpublished',
-    description: '',
+    description: 'Information about a collection item that was removed from the live site',
     schema: itemSchema,
   },
   // user not supported
   // ecomm not supported
   commentCreated: {
-    title: '',
-    description: '',
+    title: 'New Comment Thread',
+    description: 'Information about a new comment thread or reply',
     schema: commentSchema,
   },
 } satisfies IntegrationDefinitionProps['events']
