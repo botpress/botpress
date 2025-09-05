@@ -17,7 +17,7 @@ export default new bp.Integration({
     const client = new WebflowClient(props.ctx.configuration.apiToken)
     await client.listCollections(props.ctx.configuration.siteID).catch(_handleError('Failed to register integration'))
   },
-  unregister: async () => { },
+  unregister: async () => {},
   actions: {
     async listCollections(props) {
       const client = new WebflowClient(props.ctx.configuration.apiToken)

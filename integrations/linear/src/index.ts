@@ -25,7 +25,7 @@ const integration = new bp.Integration({
         },
       })
       return {
-        items: res.issues.map(({ linearIds, ...item }) => item),
+        items: res.issues.map(({ linearIds: _, ...item }) => item),
         meta: { nextToken: res.nextCursor },
       }
     },

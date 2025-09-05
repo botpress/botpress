@@ -1,5 +1,5 @@
 import { ActionHandlerProps } from '@botpress/sdk/dist/integration'
-import { CalcomApi, CalcomEventType } from 'src/calcom.api'
+import { CalcomApi } from 'src/calcom.api'
 import { TIntegration } from '.botpress'
 import { Input } from '.botpress/implementation/typings/actions/getEventTypes/input'
 
