@@ -5,7 +5,6 @@ import * as bp from '.botpress'
 
 type Properties = NonNullable<bp.states.States[`${CrmObjectType}PropertyCache`]['payload']['properties']>
 type Property = Properties[string]
-
 export class PropertiesCache {
   private readonly _client: bp.Client
   private readonly _ctx: bp.Context
@@ -67,17 +66,13 @@ export class PropertiesCache {
     this._forceRefresh = true
   }
 
-  private _propertiesRecordToNormalizedArray(properties: Properties) {
-    return Object.entries(properties).map(([name, property]) => ({ name, ...property }))
-  }
-
   private _resolveProperty(nameOrLabel: string, properties: Properties) {
-    const normalizedProperties = this._propertiesRecordToNormalizedArray(properties)
+    const normalizedProperties = _propertiesRecordToNormalizedArray(properties)
     return normalizedProperties.find((property) => {
       if (property.name === nameOrLabel || property.label === nameOrLabel) {
         return property
       }
-      const canonicalName = this._getCanonicalName(nameOrLabel)
+      const canonicalName = _getCanonicalName(nameOrLabel)
       return property.name === canonicalName || property.label === canonicalName
     })
   }
@@ -138,8 +133,10 @@ export class PropertiesCache {
     this._alreadyRefreshed = true
     this._forceRefresh = false
   }
-
-  private _getCanonicalName(nameOrLabel: string) {
-    return nameOrLabel.trim().toUpperCase()
-  }
 }
+
+const _propertiesRecordToNormalizedArray = (properties: Properties) => {
+  return Object.entries(properties).map(([name, property]) => ({ name, ...property }))
+}
+
+const _getCanonicalName = (nameOrLabel: string) => nameOrLabel.trim().toUpperCase()
