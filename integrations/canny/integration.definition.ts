@@ -76,7 +76,7 @@ export default new IntegrationDefinition({
             .string()
             .optional()
             .title('Author ID')
-            .describe('The author ID (defaults to BotpressIntegration user if not provided)'),
+            .describe('The author ID (defaults to the default Author ID from the integration configuration if not provided)'),
           boardID: z.string().title('Board ID').describe('The board ID'),
           title: z.string().title('Post Title').describe('Post title'),
           details: z.string().title('Post Details').describe('Post details'),
