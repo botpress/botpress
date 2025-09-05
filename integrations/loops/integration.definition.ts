@@ -40,12 +40,7 @@ export default new IntegrationDefinition({
         }),
       },
       output: {
-        schema: z.object({
-          success: z.boolean().describe('Success'),
-          path: z.string().optional().describe('The source of the error, if any.'),
-          message: z.string().optional().describe('The message of the error, if any.'),
-          error: z.object({}).optional().describe('The error object, if any.'),
-        }),
+        schema: z.object({}),
       },
     },
   },

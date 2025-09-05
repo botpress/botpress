@@ -80,43 +80,38 @@ export default new bp.Integration({
       logger.info('This is the request body:', { requestBody, type: typeof requestBody })
 
       try {
-        const response = await axios.post<LoopsApiResponse>('https://app.loops.so/api/v1/transactional', requestBody, {
+        await axios.post<LoopsApiResponse>('https://app.loops.so/api/v1/transactional', requestBody, {
           headers: {
             Authorization: `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
           },
         })
 
-        return {
-          success: response.data.success,
-        }
+        return {};
       } catch (error) {
         if (axios.isAxiosError<LoopsApiError>(error)) {
           if (!error.response) {
             logger.error('A network error occurred when calling the Loops API:', error)
-            return {
-              success: false,
-              message: error.message,
-            }
+            throw new sdk.RuntimeError('A network error occurred when calling the Loops API.')
           }
 
           logger.error('An HTTP error occurred when calling the Loops API:', {
             code: error.response.status,
             ...error.response.data,
           })
-          return {
-            success: error.response.data.success,
-            path: error.response.data.path,
-            message: error.response.data.message,
-            error: error.response.data.error,
+
+          if (error.response.status === 409) {
+            throw new sdk.RuntimeError('An idempotency key has been used in the previous 24 hours.')
           }
+
+          throw new sdk.RuntimeError('An HTTP error occurred when calling the Loops API.')
         }
 
         logger.error('An unexpected error occurred when calling the Loops API:', error)
         throw new sdk.RuntimeError(
           'An unexpected error occurred when calling the Loops API, see logs for more information.'
         )
-      }
+      } 
     },
   },
   channels: {},
