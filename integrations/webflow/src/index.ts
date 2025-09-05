@@ -95,57 +95,70 @@ export default new bp.Integration({
     }
 
     const data: WebflowEvent = JSON.parse(props.req.body)
-    // snake_case to camelCase
-    const triggerType = data.triggerType.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
+    const snakeCase2CamelCase = (str: string) => str.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase())
+    const triggerType = snakeCase2CamelCase(data.triggerType)
 
+    // TODO remove before pushing to prod
     props.logger.debug(data)
 
     switch (triggerType) {
       case 'formSubmission':
-        await props.client.createEvent({
-          type: triggerType,
-          payload: formSchema.parse(data.payload),
-        })
+        await props.client
+          .createEvent({
+            type: triggerType,
+            payload: formSchema.parse(data.payload),
+          })
+          .catch(_handleError(`Failed to create ${triggerType} event`))
         break
 
       case 'sitePublish':
-        await props.client.createEvent({
-          type: triggerType,
-          payload: siteSchema.parse(data.payload),
-        })
+        await props.client
+          .createEvent({
+            type: triggerType,
+            payload: siteSchema.parse(data.payload),
+          })
+          .catch(_handleError(`Failed to create ${triggerType} event`))
         break
 
       case 'pageCreated':
       case 'pageMetadataUpdated':
       case 'pageDeleted':
-        await props.client.createEvent({
-          type: triggerType,
-          payload: pageSchema.parse(data.payload),
-        })
+        await props.client
+          .createEvent({
+            type: triggerType,
+            payload: pageSchema.parse(data.payload),
+          })
+          .catch(_handleError(`Failed to create ${triggerType} event`))
         break
 
       case 'collectionItemCreated':
       case 'collectionItemDeleted':
       case 'collectionItemPublished':
       case 'collectionItemUnpublished':
-        await props.client.createEvent({
-          type: triggerType,
-          payload: itemSchema.parse(data.payload),
-        })
+        await props.client
+          .createEvent({
+            type: triggerType,
+            payload: itemSchema.parse(data.payload),
+          })
+          .catch(_handleError(`Failed to create ${triggerType} event`))
         break
 
       case 'collectionItemChanged':
-        await props.client.createEvent({
-          type: 'collectionItemUpdated',
-          payload: itemSchema.parse(data.payload),
-        })
+        await props.client
+          .createEvent({
+            type: 'collectionItemUpdated',
+            payload: itemSchema.parse(data.payload),
+          })
+          .catch(_handleError(`Failed to create ${triggerType} event`))
         break
 
       case 'commentCreated':
-        await props.client.createEvent({
-          type: triggerType,
-          payload: commentSchema.parse(data.payload),
-        })
+        await props.client
+          .createEvent({
+            type: triggerType,
+            payload: commentSchema.parse(data.payload),
+          })
+          .catch(_handleError(`Failed to create ${triggerType} event`))
         break
 
       default:
