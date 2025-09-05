@@ -21,7 +21,7 @@ export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEv
     case 'email.failed':
       return await emailHandlers.handleFailedToSendEvent(props, webhookEvent)
     default:
-      props.logger.info(`Ignoring unsupported webhook type: '${webhookEvent.type}'`)
+      props.logger.warn(`Ignoring unsupported webhook type: '${webhookEvent.type}'`)
       return null
   }
 }
