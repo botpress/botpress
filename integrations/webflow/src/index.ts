@@ -1,5 +1,14 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
+import {
+  commentSchema,
+  formSchema,
+  itemSchema,
+  pageSchema,
+  siteSchema,
+  userSchema,
+  WebflowEvent,
+} from 'definitions/events'
 import * as bp from '../.botpress'
 import { WebflowClient } from './client'
 
@@ -8,7 +17,7 @@ export default new bp.Integration({
     const client = new WebflowClient(props.ctx.configuration.apiToken)
     await client.listCollections(props.ctx.configuration.siteID).catch(_handleError('Failed to register integration'))
   },
-  unregister: async () => {},
+  unregister: async () => { },
   actions: {
     async listCollections(props) {
       const client = new WebflowClient(props.ctx.configuration.apiToken)
@@ -87,14 +96,77 @@ export default new bp.Integration({
   },
   channels: {},
   handler: async (props) => {
+    type triggerType = 'collection_item_created'
     if (!props.req.body) {
       props.logger.warn('Handler received an empty body')
       return
     }
 
-    const data = JSON.parse(props.req.body)
+    const data: WebflowEvent = JSON.parse(props.req.body)
+    // snake_case to camelCase
+    const triggerType = data.triggerType.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
 
-    console.log(data)
+    switch (triggerType) {
+      case 'collectionItemCreated':
+      case 'collectionItemDeleted':
+      case 'collectionItemPublished':
+      case 'collectionItemUnpublished':
+        await props.client.createEvent({
+          type: triggerType,
+          payload: itemSchema.parse(data.payload),
+        })
+        break
+
+      case 'collectionItemChanged':
+        await props.client.createEvent({
+          type: 'collectionItemUpdated',
+          payload: itemSchema.parse(data.payload),
+        })
+        break
+
+      case 'userAccountAdded':
+      case 'userAccountUpdated':
+      case 'userAccountDeleted':
+        await props.client.createEvent({
+          type: triggerType,
+          payload: userSchema.parse(data.payload),
+        })
+        break
+
+      case 'pageCreated':
+      case 'pageMetadataUpdated':
+      case 'pageDeleted':
+        await props.client.createEvent({
+          type: triggerType,
+          payload: pageSchema.parse(data.payload),
+        })
+        break
+
+      case 'sitePublish':
+        await props.client.createEvent({
+          type: triggerType,
+          payload: siteSchema.parse(data.payload),
+        })
+        break
+
+      case 'formSubmission':
+        await props.client.createEvent({
+          type: triggerType,
+          payload: formSchema.parse(data.payload),
+        })
+        break
+
+      case 'commentCreated':
+        await props.client.createEvent({
+          type: triggerType,
+          payload: commentSchema.parse(data.payload),
+        })
+        break
+
+      default:
+        props.logger.info('event not supported')
+        break
+    }
   },
 })
 

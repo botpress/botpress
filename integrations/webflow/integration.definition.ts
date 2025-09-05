@@ -1,4 +1,5 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
+import { events } from 'definitions/events'
 import { actions } from './definitions/actions'
 
 export default new IntegrationDefinition({
@@ -29,27 +30,24 @@ export default new IntegrationDefinition({
     unpublishLiveItems: actions.unpublishLiveItems,
   },
   events: {
-    collectionItemCreated: {
-      title: 'Collection Item Created',
-      description: 'Information about a new collection item',
-      schema: z.object({
-        triggerType: z.string(),
-        payload: z.object({
-          id: z.string(),
-          workspaceId: z.string(),
-          siteId: z.string(),
-          collectionId: z.string(),
-          fieldData: z.object({
-            name: z.string(),
-            slug: z.string(),
-          }),
-          lastPublished: z.string(),
-          lastUpdated: z.string(),
-          createdOn: z.string(),
-          isArchived: z.boolean(),
-          isDraft: z.boolean(),
-        }),
-      }),
-    },
+    collectionItemCreated: events.collectionItemCreated,
+    collectionItemDeleted: events.collectionItemDeleted,
+    collectionItemUpdated: events.collectionItemUpdated,
+    collectionItemPublished: events.collectionItemPublished,
+    collectionItemUnpublished: events.collectionItemUnpublished,
+
+    userAccountAdded: events.userAccountAdded,
+    userAccountUpdated: events.userAccountUpdated,
+    userAccountDeleted: events.userAccountDeleted,
+
+    pageCreated: events.pageCreated,
+    pageMetadataUpdated: events.pageMetadataUpdated,
+    pageDeleted: events.pageDeleted,
+
+    sitePublish: events.sitePublish,
+
+    formSubmission: events.formSubmission,
+
+    commentCreated: events.commentCreated,
   },
 })
