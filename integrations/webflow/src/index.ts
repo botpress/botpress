@@ -1,8 +1,33 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
-import { commentSchema, formSchema, itemSchema, pageSchema, siteSchema, WebflowEvent } from 'definitions/events'
+import { commentSchema, formSchema, itemSchema, pageSchema, siteSchema } from 'definitions/sub-schemas'
 import * as bp from '../.botpress'
 import { WebflowClient } from './client'
+import { safeJsonParse } from './utils'
+
+const webhookRequestSchema = sdk.z.union([
+  sdk.z.object({ triggerType: sdk.z.literal('form_submission'), payload: formSchema }),
+  sdk.z.object({ triggerType: sdk.z.literal('site_publish'), payload: siteSchema }),
+  sdk.z.object({ triggerType: sdk.z.literal('page_created'), payload: pageSchema }),
+  sdk.z.object({ triggerType: sdk.z.literal('page_metadata_updated'), payload: pageSchema }),
+  sdk.z.object({ triggerType: sdk.z.literal('page_deleted'), payload: pageSchema }),
+  sdk.z.object({ triggerType: sdk.z.literal('collection_item_created'), payload: itemSchema }),
+  sdk.z.object({ triggerType: sdk.z.literal('collection_item_deleted'), payload: itemSchema }),
+  sdk.z.object({ triggerType: sdk.z.literal('collection_item_changed'), payload: itemSchema }),
+  sdk.z.object({ triggerType: sdk.z.literal('collection_item_published'), payload: itemSchema }),
+  sdk.z.object({ triggerType: sdk.z.literal('collection_item_unpublished'), payload: itemSchema }),
+  sdk.z.object({ triggerType: sdk.z.literal('comment_created'), payload: commentSchema }),
+])
+
+const fireEvent = async <T extends keyof bp.events.Events>(
+  props: bp.HandlerProps,
+  type: T,
+  payload: bp.events.Events[T]
+) => {
+  await props.client
+    .createEvent({ type: type as Extract<T, string>, payload })
+    .catch(_handleError(`Failed to create ${type} event`))
+}
 
 export default new bp.Integration({
   register: async (props) => {
@@ -93,78 +118,62 @@ export default new bp.Integration({
   },
   channels: {},
   handler: async (props) => {
-    type triggerType = 'collection_item_created'
     if (!props.req.body) {
-      props.logger.warn('Handler received an empty body')
+      props.logger.error('Handler received an empty body')
       return
     }
 
-    const data: WebflowEvent = JSON.parse(props.req.body)
-    const snakeCase2CamelCase = (str: string) => str.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase())
-    const triggerType = snakeCase2CamelCase(data.triggerType)
+    const jsonParseResult = safeJsonParse(props.req.body)
+    if (!jsonParseResult.success) {
+      props.logger.error(`Failed to parse request body: ${jsonParseResult.err.message}`)
+      return
+    }
 
-    switch (triggerType) {
-      case 'formSubmission':
-        await props.client
-          .createEvent({
-            type: triggerType,
-            payload: formSchema.parse(data.payload),
-          })
-          .catch(_handleError(`Failed to create ${triggerType} event`))
+    const zodParseResult = webhookRequestSchema.safeParse(jsonParseResult.data)
+    if (!zodParseResult.success) {
+      props.logger.error(`Failed to validate request body: ${zodParseResult.error.message}`)
+      return
+    }
+
+    const { data } = zodParseResult
+
+    switch (data.triggerType) {
+      case 'form_submission':
+        await fireEvent(props, 'formSubmission', data.payload)
         break
-
-      case 'sitePublish':
-        await props.client
-          .createEvent({
-            type: triggerType,
-            payload: siteSchema.parse(data.payload),
-          })
-          .catch(_handleError(`Failed to create ${triggerType} event`))
+      case 'site_publish':
+        await fireEvent(props, 'sitePublish', data.payload)
         break
-
-      case 'pageCreated':
-      case 'pageMetadataUpdated':
-      case 'pageDeleted':
-        await props.client
-          .createEvent({
-            type: triggerType,
-            payload: pageSchema.parse(data.payload),
-          })
-          .catch(_handleError(`Failed to create ${triggerType} event`))
+      case 'page_created':
+        await fireEvent(props, 'pageCreated', data.payload)
         break
-
-      case 'collectionItemCreated':
-      case 'collectionItemDeleted':
-      case 'collectionItemPublished':
-      case 'collectionItemUnpublished':
-        await props.client
-          .createEvent({
-            type: triggerType,
-            payload: itemSchema.parse(data.payload),
-          })
-          .catch(_handleError(`Failed to create ${triggerType} event`))
+      case 'page_metadata_updated':
+        await fireEvent(props, 'pageMetadataUpdated', data.payload)
         break
-
-      case 'collectionItemChanged':
-        await props.client
-          .createEvent({
-            type: 'collectionItemUpdated',
-            payload: itemSchema.parse(data.payload),
-          })
-          .catch(_handleError(`Failed to create ${triggerType} event`))
+      case 'page_deleted':
+        await fireEvent(props, 'pageDeleted', data.payload)
         break
-
-      case 'commentCreated':
-        await props.client
-          .createEvent({
-            type: triggerType,
-            payload: commentSchema.parse(data.payload),
-          })
-          .catch(_handleError(`Failed to create ${triggerType} event`))
+      case 'collection_item_created':
+        await fireEvent(props, 'collectionItemCreated', data.payload)
         break
-
+      case 'collection_item_deleted':
+        await fireEvent(props, 'collectionItemDeleted', data.payload)
+        break
+      case 'collection_item_published':
+        await fireEvent(props, 'collectionItemPublished', data.payload)
+        break
+      case 'collection_item_unpublished':
+        await fireEvent(props, 'collectionItemUnpublished', data.payload)
+        break
+      case 'collection_item_changed':
+        await fireEvent(props, 'collectionItemUpdated', data.payload)
+        break
+      case 'comment_created':
+        await fireEvent(props, 'commentCreated', data.payload)
+        break
       default:
-        props.logger.info(`event ${triggerType} not supported`)
+        data satisfies never
+        props.logger.info(`event ${(data as any).triggerType} not supported`)
         break
     }
   },
