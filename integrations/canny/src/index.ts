@@ -29,23 +29,15 @@ export default new bp.Integration({
         email: 'integration@botpress.com',
       })
 
-      console.log('BotpressIntegration user created/updated:', botUser.id)
-
       const boardsResult = await client.listBoards()
-      console.log(`Found ${boardsResult.boards.length} boards:`)
-      boardsResult.boards.forEach((board) => {
-        console.log(`- ${board.name} (ID: ${board.id}) - ${board.postCount} posts`)
-      })
 
-      console.log('Canny integration registered successfully')
+      boardsResult.boards.forEach((board) => {})
     } catch (error) {
       console.error('Failed to register Canny integration:', error)
       throw error
     }
   },
-  unregister: async () => {
-    console.log('Canny integration unregistered successfully')
-  },
+  unregister: async () => {},
   actions: {
     createPost,
     getPost,

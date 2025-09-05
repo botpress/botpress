@@ -29,7 +29,6 @@ export const webhook: WebhookHandler = async ({ req, client, ctx }) => {
         break
 
       default:
-        console.log(`Unhandled webhook type: ${payload.type}`)
     }
 
     return { status: 200, body: 'OK' }
@@ -75,7 +74,6 @@ async function handleCommentCreated(client: any, _ctx: any, commentData: any) {
     })
 
     if (conversations.length === 0) {
-      console.log(`No conversation found for post ${commentData.post.id}`)
       return
     }
 

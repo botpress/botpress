@@ -1399,6 +1399,8 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/spotify: {}
+
   integrations/stripe:
     dependencies:
       '@botpress/client':

@@ -23,12 +23,6 @@ export const createOrUpdateUser: CreateOrUpdateUserAction = async ({ input, ctx 
   }
 
   try {
-    console.log('Creating/updating user:', {
-      name: input.name,
-      userId: input.userId,
-      email: input.email,
-    })
-
     const user = await client.createOrUpdateUser({
       name: input.name,
       userId: input.userId,
@@ -38,8 +32,6 @@ export const createOrUpdateUser: CreateOrUpdateUserAction = async ({ input, ctx 
       created: input.created,
       customFields: input.customFields,
     })
-
-    console.log('User created/updated successfully:', user.id)
 
     return {
       user: {
@@ -87,14 +79,10 @@ export const listUsers: ListUsersAction = async ({ input, ctx }) => {
   })
 
   try {
-    console.log('Listing users with params:', { limit: input.limit, cursor: input.cursor })
-
     const result = await client.listUsers({
       limit: input.limit,
       cursor: input.cursor,
     })
-
-    console.log(`Found ${result.users.length} users, hasNextPage: ${result.hasNextPage}`)
 
     const response = {
       users: result.users.map((user) => ({
