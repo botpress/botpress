@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import { CannyClient } from '../misc/canny-client'
 import { IntegrationProps } from '.botpress'
+import { InvalidAPIKeyError, CannyAPIError } from '../misc/errors'
 
 type CreateCommentAction = IntegrationProps['actions']['createComment']
 type GetCommentAction = IntegrationProps['actions']['getComment']
@@ -9,7 +10,7 @@ type DeleteCommentAction = IntegrationProps['actions']['deleteComment']
 
 export const createComment: CreateCommentAction = async ({ input, ctx }) => {
   if (!ctx.configuration.apiKey) {
-    throw new RuntimeError('Canny API key is not configured. Please add your API key in the integration settings.')
+    throw new InvalidAPIKeyError()
   }
 
   const client = CannyClient.create({
@@ -19,12 +20,7 @@ export const createComment: CreateCommentAction = async ({ input, ctx }) => {
   let authorId = input.authorId
 
   if (!authorId) {
-    const botUser = await client.createOrUpdateUser({
-      name: 'BotpressIntegration',
-      userId: 'botpress-integration-user',
-      email: 'integration@botpress.com',
-    })
-    authorId = botUser.id
+    authorId = ctx.configuration.defaultAuthorId
   }
   if (!input.postId) {
     throw new RuntimeError('postId is required to create a comment')
@@ -56,7 +52,7 @@ export const createComment: CreateCommentAction = async ({ input, ctx }) => {
     ) {
       if (!input.authorId) {
         throw new RuntimeError(
-          'Comment creation failed: Canny requires users to be "identified" through their SDK. Please provide an authorId of a user who has been identified in your Canny workspace, or implement Canny\'s Identify SDK for the BotpressIntegration user.'
+          'Comment creation failed: Canny requires users to be "identified" through their SDK. Please provide an authorId of a user who has been identified in your Canny workspace, or ensure the default author from the integration configuration is properly identified.'
         )
       } else {
         throw new RuntimeError(
@@ -64,7 +60,7 @@ export const createComment: CreateCommentAction = async ({ input, ctx }) => {
         )
       }
     }
-    throw new RuntimeError(`Canny API error: ${error.response?.data?.error || error.message || 'Unknown error'}`)
+    throw new CannyAPIError(error)
   }
 }
 
@@ -101,7 +97,7 @@ export const listComments: ListCommentsAction = async ({ input, ctx }) => {
     boardId: input.boardId,
     companyId: input.companyId,
     limit: input.limit,
-    skip: input.skip,
+    skip: input.nextToken,
   })
 
   return {
@@ -116,7 +112,7 @@ export const listComments: ListCommentsAction = async ({ input, ctx }) => {
       internal: comment.internal,
       likeCount: comment.likeCount,
     })),
-    hasMore: result.hasMore,
+    nextToken: result.hasMore ? (input.nextToken || 0) + (input.limit || 10) : undefined,
   }
 }
 

@@ -1,12 +1,15 @@
+import { z } from '@botpress/sdk'
 import { CannyClient } from '../misc/canny-client'
 import { IntegrationProps } from '.botpress'
 
 type WebhookHandler = IntegrationProps['handler']
 
-type CannyWebhookPayload = {
-  type: 'post.created' | 'comment.created'
-  data: any
-}
+const CannyWebhookPayloadSchema = z.object({
+  type: z.enum(['post.created', 'comment.created']),
+  data: z.any(),
+})
+
+type CannyWebhookPayload = z.infer<typeof CannyWebhookPayloadSchema>
 
 export const webhook: WebhookHandler = async ({ req, client, ctx }) => {
   if (req.method !== 'POST') {
@@ -14,18 +17,15 @@ export const webhook: WebhookHandler = async ({ req, client, ctx }) => {
   }
 
   try {
-    if (!req.body || typeof req.body !== 'object') {
-      throw new Error('Invalid webhook payload')
-    }
-    const payload = req.body as CannyWebhookPayload
+    const payload = CannyWebhookPayloadSchema.parse(req.body)
 
     switch (payload.type) {
       case 'post.created':
-        await handlePostCreated(client, ctx, payload.data)
+        await handlePostCreated(client, payload.data)
         break
 
       case 'comment.created':
-        await handleCommentCreated(client, ctx, payload.data)
+        await handleCommentCreated(client, payload.data)
         break
 
       default:
@@ -38,7 +38,7 @@ export const webhook: WebhookHandler = async ({ req, client, ctx }) => {
   }
 }
 
-async function handlePostCreated(client: any, _ctx: any, postData: any) {
+async function handlePostCreated(client: Parameters<WebhookHandler>[0]['client'], postData: any) {
   try {
     const { conversation } = await client.createConversation({
       channel: 'posts',
@@ -65,7 +65,7 @@ async function handlePostCreated(client: any, _ctx: any, postData: any) {
   }
 }
 
-async function handleCommentCreated(client: any, _ctx: any, commentData: any) {
+async function handleCommentCreated(client: Parameters<WebhookHandler>[0]['client'], commentData: any) {
   try {
     const { conversations } = await client.listConversations({
       tags: {
@@ -73,11 +73,10 @@ async function handleCommentCreated(client: any, _ctx: any, commentData: any) {
       },
     })
 
-    if (conversations.length === 0) {
+    const conversation = conversations[0]
+    if (!conversation) {
       return
     }
-
-    const conversation = conversations[0]
 
     await client.createMessage({
       conversationId: conversation.id,

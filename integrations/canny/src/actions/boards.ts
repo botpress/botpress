@@ -1,12 +1,13 @@
 import { RuntimeError } from '@botpress/sdk'
 import { CannyClient } from '../misc/canny-client'
 import { IntegrationProps } from '.botpress'
+import { InvalidAPIKeyError, CannyAPIError } from '../misc/errors'
 
 type ListBoardsAction = IntegrationProps['actions']['listBoards']
 
 export const listBoards: ListBoardsAction = async ({ input, ctx }) => {
   if (!ctx.configuration.apiKey) {
-    throw new RuntimeError('Canny API key is not configured. Please add your API key in the integration settings.')
+    throw new InvalidAPIKeyError()
   }
 
   const client = CannyClient.create({
@@ -16,7 +17,7 @@ export const listBoards: ListBoardsAction = async ({ input, ctx }) => {
   try {
     const result = await client.listBoards({
       limit: input.limit,
-      skip: input.skip,
+      skip: input.nextToken,
     })
 
     const boards = result.boards || []
@@ -31,15 +32,15 @@ export const listBoards: ListBoardsAction = async ({ input, ctx }) => {
         url: board.url,
         created: board.created,
       })),
-      hasMore,
+      nextToken: hasMore ? (input.nextToken || 0) + (input.limit || 25) : undefined,
     }
   } catch (error: any) {
     console.error('Error listing boards:', error)
 
     if (error.response?.status === 401) {
-      throw new RuntimeError('Invalid Canny API key. Please check your API key in the integration settings.')
+      throw new InvalidAPIKeyError()
     }
 
-    throw new RuntimeError(`Canny API error: ${error.response?.data?.error || error.message || 'Unknown error'}`)
+    throw new CannyAPIError(error)
   }
 }

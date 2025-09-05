@@ -1,7 +1,7 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
-  name: 'canny', 
+  name: 'canny',
   version: '0.1.0',
   title: 'Canny',
   description: 'Connect your Botpress bot to Canny for feature request management and customer feedback collection',
@@ -10,11 +10,7 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z.object({
       apiKey: z.string().title('API Key').describe('Your Canny API key'),
-      defaultAuthorId: z
-        .string()
-        .optional()
-        .title('Default Author ID')
-        .describe('Default author ID for system messages'),
+      defaultAuthorId: z.string().title('Default Author Id').describe('Default author Id for system messages'),
     }),
   },
   channels: {
@@ -75,7 +71,9 @@ export default new IntegrationDefinition({
             .string()
             .optional()
             .title('Author Id')
-            .describe('The author Id (defaults to the default Author Id from the integration configuration if not provided)'),
+            .describe(
+              'The author Id (defaults to the default Author Id from the integration configuration if not provided)'
+            ),
           boardId: z.string().title('Board Id').describe('The board Id'),
           title: z.string().title('Post Title').describe('Post title'),
           details: z.string().title('Post Details').describe('Post details'),
@@ -134,7 +132,7 @@ export default new IntegrationDefinition({
           companyId: z.string().optional().title('Company Id').describe('Filter posts by company Id'),
           tagIds: z.array(z.string()).optional().title('Tag Ids').describe('Filter posts by tag Ids'),
           limit: z.number().optional().title('Limit').describe('Number of posts to return'),
-          skip: z.number().optional().title('Skip').describe('Number of posts to skip'),
+          nextToken: z.number().optional().title('Next Token').describe('Token for pagination - skip this many posts'),
           search: z.string().optional().title('Search').describe('Search term to filter posts'),
           sort: z
             .enum(['newest', 'oldest', 'relevance', 'score', 'statusChanged', 'trending'])
@@ -164,7 +162,7 @@ export default new IntegrationDefinition({
             )
             .title('Posts')
             .describe('Array of posts'),
-          hasMore: z.boolean().title('Has More').describe('Whether there are more posts available'),
+          nextToken: z.number().optional().title('Next Token').describe('Token for next page if more posts available'),
         }),
       },
     },
@@ -266,7 +264,11 @@ export default new IntegrationDefinition({
           boardId: z.string().optional().title('Board Id').describe('Filter comments by board Id'),
           companyId: z.string().optional().title('Company Id').describe('Filter comments by company Id'),
           limit: z.number().optional().title('Limit').describe('Number of comments to return'),
-          skip: z.number().optional().title('Skip').describe('Number of comments to skip'),
+          nextToken: z
+            .number()
+            .optional()
+            .title('Next Token')
+            .describe('Token for pagination - skip this many comments'),
         }),
       },
       output: {
@@ -287,7 +289,11 @@ export default new IntegrationDefinition({
             )
             .title('Comments')
             .describe('Array of comments'),
-          hasMore: z.boolean().title('Has More').describe('Whether there are more comments available'),
+          nextToken: z
+            .number()
+            .optional()
+            .title('Next Token')
+            .describe('Token for next page if more comments available'),
         }),
       },
     },
@@ -350,7 +356,7 @@ export default new IntegrationDefinition({
             .optional()
             .title('Limit')
             .describe('Number of users to fetch (1-100, defaults to 10)'),
-          cursor: z.string().optional().title('Cursor').describe('Cursor from previous request for pagination'),
+          nextToken: z.string().optional().title('Next Token').describe('Token for pagination from previous request'),
         }),
       },
       output: {
@@ -369,8 +375,7 @@ export default new IntegrationDefinition({
             )
             .title('Users')
             .describe('Array of users'),
-          hasNextPage: z.boolean().title('Has Next Page').describe('Whether there are more users available'),
-          cursor: z.string().optional().title('Cursor').describe('Cursor for next page'),
+          nextToken: z.string().optional().title('Next Token').describe('Token for next page if more users available'),
         }),
       },
     },
@@ -382,7 +387,7 @@ export default new IntegrationDefinition({
       input: {
         schema: z.object({
           limit: z.number().optional().title('Limit').describe('Number of boards to fetch'),
-          skip: z.number().optional().title('Skip').describe('Number of boards to skip'),
+          nextToken: z.number().optional().title('Next Token').describe('Token for pagination - skip this many boards'),
         }),
       },
       output: {
@@ -399,7 +404,7 @@ export default new IntegrationDefinition({
             )
             .title('Boards')
             .describe('Array of boards'),
-          hasMore: z.boolean().title('Has More').describe('Whether there are more boards available'),
+          nextToken: z.number().optional().title('Next Token').describe('Token for next page if more boards available'),
         }),
       },
     },

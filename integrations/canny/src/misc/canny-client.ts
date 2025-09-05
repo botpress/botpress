@@ -194,99 +194,73 @@ export class CannyClient {
       headers: {
         'Content-Type': 'application/json',
       },
+      transformRequest: [
+        (data) => {
+          return JSON.stringify({ ...data, apiKey: config.apiKey })
+        },
+      ],
     })
 
     return new CannyClient(client, config.apiKey)
   }
 
-  private async _makeRequest<T>(endpoint: string, data: any): Promise<T> {
-    try {
-      const requestData = { ...data, apiKey: this._apiKey }
-      const response = await this._client.post(endpoint, requestData)
-      return response.data
-    } catch (error: any) {
-      console.error(`Canny API error for ${endpoint}:`, {
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message,
-      })
-      throw error
-    }
-  }
-
   public async createPost(request: CreatePostRequest): Promise<{ id: string }> {
-    return this._makeRequest('/posts/create', request)
+    const response = await this._client.post('/posts/create', request)
+    return response.data
   }
 
   public async getPost(id: string, boardId?: string): Promise<Post> {
-    return this._makeRequest('/posts/retrieve', { id, boardId })
+    const response = await this._client.post('/posts/retrieve', { id, boardId })
+    return response.data
   }
 
   public async listPosts(request: ListPostsRequest = {}): Promise<ListPostsResponse> {
-    return this._makeRequest('/posts/list', request)
+    const response = await this._client.post('/posts/list', request)
+    return response.data
   }
 
   public async updatePost(request: UpdatePostRequest): Promise<{ success: boolean }> {
-    const response = await this._makeRequest('/posts/update', request)
-    return { success: response === 'success' }
+    const response = await this._client.post('/posts/update', request)
+    return { success: response.data === 'success' }
   }
 
   public async deletePost(postId: string): Promise<{ success: boolean }> {
-    const response = await this._makeRequest('/posts/delete', { postId })
-    return { success: response === 'success' }
+    const response = await this._client.post('/posts/delete', { postId })
+    return { success: response.data === 'success' }
   }
 
   public async createComment(request: CreateCommentRequest): Promise<{ id: string }> {
-    return this._makeRequest('/comments/create', request)
+    const response = await this._client.post('/comments/create', request)
+    return response.data
   }
 
   public async getComment(id: string): Promise<Comment> {
-    return this._makeRequest('/comments/retrieve', { id })
+    const response = await this._client.post('/comments/retrieve', { id })
+    return response.data
   }
 
   public async listComments(request: ListCommentsRequest = {}): Promise<ListCommentsResponse> {
-    return this._makeRequest('/comments/list', request)
+    const response = await this._client.post('/comments/list', request)
+    return response.data
   }
 
   public async deleteComment(commentId: string): Promise<{ success: boolean }> {
-    const response = await this._makeRequest('/comments/delete', { commentId })
-    return { success: response === 'success' }
+    const response = await this._client.post('/comments/delete', { commentId })
+    return { success: response.data === 'success' }
   }
 
   public async createOrUpdateUser(request: CreateUserRequest): Promise<User> {
-    return this._makeRequest('/users/create_or_update', request)
+    const response = await this._client.post('/users/create_or_update', request)
+    return response.data
   }
 
   public async listUsers(request: ListUsersRequest = {}): Promise<ListUsersResponse> {
-    const response = await this._makeRequestV2<ListUsersResponse>('/users/list', request)
-    return response
+    const response = await this._client.post('https://canny.io/api/v2/users/list', request)
+    return response.data
   }
 
   public async listBoards(request: ListBoardsRequest = {}): Promise<ListBoardsResponse> {
-    return this._makeRequest('/boards/list', request)
-  }
-
-  private async _makeRequestV2<T>(endpoint: string, data: any): Promise<T> {
-    try {
-      const requestData = { ...data, apiKey: this._apiKey }
-
-      const v2Client = axios.create({
-        baseURL: 'https://canny.io/api/v2',
-        timeout: 10_000,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      const response = await v2Client.post(endpoint, requestData)
-      return response.data
-    } catch (error: any) {
-      console.error(`Canny API v2 error for ${endpoint}:`, {
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message,
-      })
-      throw error
-    }
+    const response = await this._client.post('/boards/list', request)
+    return response.data
   }
 }

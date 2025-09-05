@@ -23,11 +23,9 @@ export default new bp.Integration({
         apiKey: ctx.configuration.apiKey,
       })
 
-      const botUser = await client.createOrUpdateUser({
-        name: 'BotpressIntegration',
-        userId: 'botpress-integration-user',
-        email: 'integration@botpress.com',
-      })
+      if (!ctx.configuration.defaultAuthorId) {
+        throw new Error('Default author ID is required in integration configuration.')
+      }
 
       const boardsResult = await client.listBoards()
 

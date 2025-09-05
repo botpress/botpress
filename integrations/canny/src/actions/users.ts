@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import { CannyClient } from '../misc/canny-client'
 import { IntegrationProps } from '.botpress'
+import { InvalidAPIKeyError, InvalidRequestError, CannyAPIError } from '../misc/errors'
 
 // User action types
 type CreateOrUpdateUserAction = IntegrationProps['actions']['createOrUpdateUser']
@@ -8,7 +9,7 @@ type ListUsersAction = IntegrationProps['actions']['listUsers']
 
 export const createOrUpdateUser: CreateOrUpdateUserAction = async ({ input, ctx }) => {
   if (!ctx.configuration.apiKey) {
-    throw new RuntimeError('Canny API key is not configured. Please add your API key in the integration settings.')
+    throw new InvalidAPIKeyError()
   }
 
   const client = CannyClient.create({
@@ -48,11 +49,11 @@ export const createOrUpdateUser: CreateOrUpdateUserAction = async ({ input, ctx 
     console.error('Error creating/updating user:', error)
 
     if (error.response?.status === 401) {
-      throw new RuntimeError('Invalid Canny API key. Please check your API key in the integration settings.')
+      throw new InvalidAPIKeyError()
     }
 
     if (error.response?.status === 400) {
-      throw new RuntimeError(`Invalid request: ${error.response?.data?.error || error.message}`)
+      throw new InvalidRequestError(error)
     }
 
     if (error.response?.data?.error?.includes('user') || error.message?.includes('user')) {
@@ -61,13 +62,13 @@ export const createOrUpdateUser: CreateOrUpdateUserAction = async ({ input, ctx 
       )
     }
 
-    throw new RuntimeError(`Canny API error: ${error.response?.data?.error || error.message || 'Unknown error'}`)
+    throw new CannyAPIError(error)
   }
 }
 
 export const listUsers: ListUsersAction = async ({ input, ctx }) => {
   if (!ctx.configuration.apiKey) {
-    throw new RuntimeError('Canny API key is not configured. Please add your API key in the integration settings.')
+    throw new InvalidAPIKeyError()
   }
 
   if (input.limit && (input.limit < 1 || input.limit > 100)) {
@@ -81,7 +82,7 @@ export const listUsers: ListUsersAction = async ({ input, ctx }) => {
   try {
     const result = await client.listUsers({
       limit: input.limit,
-      cursor: input.cursor,
+      cursor: input.nextToken,
     })
 
     const response = {
@@ -94,11 +95,7 @@ export const listUsers: ListUsersAction = async ({ input, ctx }) => {
         isAdmin: user.isAdmin,
         created: user.created,
       })),
-      hasNextPage: result.hasNextPage,
-    }
-
-    if ('cursor' in result && typeof (result as any).cursor === 'string') {
-      ;(response as any).cursor = (result as any).cursor
+      nextToken: result.hasNextPage ? (result as any).cursor : undefined,
     }
 
     return response
@@ -106,9 +103,9 @@ export const listUsers: ListUsersAction = async ({ input, ctx }) => {
     console.error('Error listing users:', error)
 
     if (error.response?.status === 401) {
-      throw new RuntimeError('Invalid Canny API key. Please check your API key in the integration settings.')
+      throw new InvalidAPIKeyError()
     }
 
-    throw new RuntimeError(`Canny API error: ${error.response?.data?.error || error.message || 'Unknown error'}`)
+    throw new CannyAPIError(error)
   }
 }
