@@ -1,4 +1,3 @@
-
 import { listBoards } from './actions/boards'
 import { createComment, getComment, listComments, deleteComment } from './actions/comments'
 import { createPost, getPost, listPosts, updatePost, deletePost } from './actions/posts'
