@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import { CannyClient } from '../misc/canny-client'
-import { IntegrationProps } from '.botpress'
 import { InvalidAPIKeyError, InvalidRequestError, CannyAPIError } from '../misc/errors'
+import { IntegrationProps } from '.botpress'
 
 // User action types
 type CreateOrUpdateUserAction = IntegrationProps['actions']['createOrUpdateUser']

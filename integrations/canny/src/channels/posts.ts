@@ -21,7 +21,7 @@ export const posts = {
 
       await client.createComment({
         authorId,
-        postId: postId,
+        postId,
         value: payload.text,
       })
 
@@ -47,7 +47,7 @@ export const posts = {
 
       await client.createComment({
         authorId,
-        postId: postId,
+        postId,
         value: payload.caption || 'Image attached',
         imageURLs: [payload.imageUrl],
       })

@@ -1,6 +1,6 @@
 import { CannyClient } from '../misc/canny-client'
-import { IntegrationProps } from '.botpress'
 import { InvalidAPIKeyError, CannyAPIError } from '../misc/errors'
+import { IntegrationProps } from '.botpress'
 
 type ListBoardsAction = IntegrationProps['actions']['listBoards']
 
