@@ -44,9 +44,9 @@ To use this integration, you'll need:
 
 ## Author ID
 
-Posts and comments will appear as "BotpressIntegration" unless you provide a specific `authorID`.
+Posts and comments will appear as "BotpressIntegration" unless you provide a specific `authorId`.
 
-To use a different author, provide an `authorID` of an existing user in your Canny workspace. You can find available user IDs using the "List Users" action.
+To use a different author, provide an `authorId` of an existing user in your Canny workspace. You can find available user Ids using the "List Users" action.
 
 ## Usage Examples
 
@@ -54,7 +54,7 @@ To use a different author, provide an `authorID` of an existing user in your Can
 
 ```javascript
 const result = await actions.createPost({
-  boardID: 'board456',
+  boardId: 'board456',
   title: 'New Feature Request',
   details: 'I would like to see...',
 })
@@ -64,8 +64,8 @@ const result = await actions.createPost({
 
 ```javascript
 const result = await actions.createPost({
-  authorID: '507f1f77bcf86cd799439011', // Specific user ID
-  boardID: 'board456',
+  authorId: '507f1f77bcf86cd799439011', // Specific user Id
+  boardId: 'board456',
   title: 'New Feature Request',
   details: 'I would like to see...',
 })

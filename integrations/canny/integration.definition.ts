@@ -193,7 +193,7 @@ export default new IntegrationDefinition({
       description: 'Delete a post',
       input: {
         schema: z.object({
-          postID: z.string().title('Post ID').describe('The post ID to delete'),
+          postId: z.string().title('Post Id').describe('The post Id to delete'),
         }),
       },
       output: {
@@ -209,14 +209,14 @@ export default new IntegrationDefinition({
       description: 'Create a new comment on a post',
       input: {
         schema: z.object({
-          authorID: z
+          authorId: z
             .string()
             .optional()
-            .title('Author ID')
-            .describe('The author ID (defaults to BotpressIntegration user if not provided)'),
-          postID: z.string().title('Post ID').describe('The post ID'),
+            .title('Author Id')
+            .describe('The author Id (defaults to BotpressIntegration user if not provided)'),
+          postId: z.string().title('Post Id').describe('The post Id'),
           value: z.string().title('Comment Text').describe('Comment text'),
-          parentID: z.string().optional().title('Parent ID').describe('Parent comment ID for replies'),
+          parentId: z.string().optional().title('Parent Id').describe('Parent comment Id for replies'),
           imageURLs: z.array(z.string()).optional().title('Image URLs').describe('Image URLs'),
           internal: z.boolean().optional().title('Internal').describe('Whether this is an internal comment'),
           shouldNotifyVoters: z.boolean().optional().title('Notify Voters').describe('Notify voters'),
@@ -234,7 +234,7 @@ export default new IntegrationDefinition({
       description: 'Retrieve a comment by ID',
       input: {
         schema: z.object({
-          commentID: z.string().title('Comment ID').describe('The comment ID'),
+          commentId: z.string().title('Comment Id').describe('The comment Id'),
         }),
       },
       output: {
@@ -246,7 +246,7 @@ export default new IntegrationDefinition({
               authorName: z.string(),
               authorEmail: z.string(),
               postTitle: z.string(),
-              postID: z.string(),
+              postId: z.string(),
               created: z.string(),
               internal: z.boolean(),
               likeCount: z.number(),
@@ -261,10 +261,10 @@ export default new IntegrationDefinition({
       description: 'List comments with optional filters',
       input: {
         schema: z.object({
-          postID: z.string().optional().title('Post ID').describe('Filter comments by post ID'),
-          authorID: z.string().optional().title('Author ID').describe('Filter comments by author ID'),
-          boardID: z.string().optional().title('Board ID').describe('Filter comments by board ID'),
-          companyID: z.string().optional().title('Company ID').describe('Filter comments by company ID'),
+          postId: z.string().optional().title('Post Id').describe('Filter comments by post Id'),
+          authorId: z.string().optional().title('Author Id').describe('Filter comments by author Id'),
+          boardId: z.string().optional().title('Board Id').describe('Filter comments by board Id'),
+          companyId: z.string().optional().title('Company Id').describe('Filter comments by company Id'),
           limit: z.number().optional().title('Limit').describe('Number of comments to return'),
           skip: z.number().optional().title('Skip').describe('Number of comments to skip'),
         }),
@@ -279,7 +279,7 @@ export default new IntegrationDefinition({
                 authorName: z.string(),
                 authorEmail: z.string(),
                 postTitle: z.string(),
-                postID: z.string(),
+                postId: z.string(),
                 created: z.string(),
                 internal: z.boolean(),
                 likeCount: z.number(),
@@ -296,7 +296,7 @@ export default new IntegrationDefinition({
       description: 'Delete a comment',
       input: {
         schema: z.object({
-          commentID: z.string().title('Comment ID').describe('The comment ID to delete'),
+          commentId: z.string().title('Comment Id').describe('The comment Id to delete'),
         }),
       },
       output: {
@@ -313,7 +313,7 @@ export default new IntegrationDefinition({
       input: {
         schema: z.object({
           name: z.string().min(1).max(50).title('Name').describe('User display name (required, 1-50 characters)'),
-          userID: z.string().optional().title('User ID').describe('Your internal user ID'),
+          userId: z.string().optional().title('User Id').describe('Your internal user Id'),
           email: z.string().optional().title('Email').describe('User email address'),
           avatarURL: z.string().optional().title('Avatar URL').describe('User avatar URL'),
           alias: z.string().optional().title('Alias').describe('User alias'),
@@ -329,7 +329,7 @@ export default new IntegrationDefinition({
               name: z.string(),
               email: z.string(),
               avatarURL: z.string().optional(),
-              userID: z.string(),
+              userId: z.string(),
               isAdmin: z.boolean(),
               created: z.string(),
             })
@@ -362,7 +362,7 @@ export default new IntegrationDefinition({
                 name: z.string(),
                 email: z.string(),
                 avatarURL: z.string().optional(),
-                userID: z.string(), // Can be empty string if user has no userID
+                userId: z.string(), // Can be empty string if user has no userId
                 isAdmin: z.boolean(),
                 created: z.string(),
               })
