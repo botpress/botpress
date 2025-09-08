@@ -110,7 +110,8 @@ export class WebflowClient {
 
   public createWebhook = async (siteID: string, webhookUrl: string): Promise<void> => {
     const path = `/sites/${siteID}/webhooks`
-    const triggerTypes = [
+    const { data } = await this._axiosClient.get<{ webhooks: { triggerType: string }[] }>(path)
+    const triggerTypesToHook = [
       'form_submission',
       'site_publish',
       'page_created',
@@ -123,7 +124,11 @@ export class WebflowClient {
       'collection_item_unpublished',
       'comment_created',
     ]
-    for (const triggerType of triggerTypes) {
+
+    const existing = new Set(data.webhooks.map((w) => w.triggerType))
+    const missing = triggerTypesToHook.filter((t) => !existing.has(t))
+
+    for (const triggerType of missing) {
       await this._axiosClient.post(path, {
         triggerType,
         url: webhookUrl,
