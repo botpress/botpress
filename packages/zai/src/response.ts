@@ -68,8 +68,8 @@ export class Response<T = any, S = T> implements PromiseLike<S> {
 
     signal.addEventListener('abort', () => signalAbort())
 
-    this.once('complete', () => signal.removeEventListener('abort', signalAbort))
-    this.once('error', () => signal.removeEventListener('abort', signalAbort))
+    void this.once('complete', () => signal.removeEventListener('abort', signalAbort))
+    void this.once('error', () => signal.removeEventListener('abort', signalAbort))
 
     return this
   }
@@ -78,6 +78,7 @@ export class Response<T = any, S = T> implements PromiseLike<S> {
     this._context.controller.abort(reason)
   }
 
+  // oxlint-disable-next-line no-thenable
   public then<TResult1 = S, TResult2 = never>(
     onfulfilled?: ((value: S) => TResult1 | PromiseLike<TResult1>) | null,
     onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null

@@ -17,7 +17,10 @@ import { Transcript } from './transcript.js'
 const client = getCachedCognitiveClient()
 
 function assertSuccess(result: ExecutionResult): asserts result is SuccessExecutionResult {
-  assert(result instanceof SuccessExecutionResult, `Expected result to be success but got ${result.status}`)
+  assert(
+    result instanceof SuccessExecutionResult,
+    `Expected result to be success but got ${result.status}\n${result.isError() ? result.error : ''}`.trim()
+  )
 }
 
 function assertError(result: ExecutionResult): asserts result is ErrorExecutionResult {
@@ -756,7 +759,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     expect(result.iterations).toHaveLength(1)
     assert(result.iterations[0]!.status.type === 'execution_error', 'First iteration should be an execution error')
     expect(result.iterations[0]!.status.execution_error.stack).toMatchInlineSnapshot(`
-      "001 | // Call the demo tool as instructed in Part 3
+      "001 | // Calling the demo tool as per the instructions
         002 | await demo()
       > 003 | return { action: 'done' }
       ...^^^^^^^^^^"
@@ -781,10 +784,11 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       instructions: 'exit by doing nothing. do not call any tool.',
       tools: [tDemo],
       client,
-      async onBeforeExecution(iteration) {
+      async onBeforeExecution() {
         await new Promise((resolve) => setTimeout(resolve, 10))
         // Mutate the code to change the action
-        iteration.code = `await demo('hello 123');\nreturn { action: 'done' }`
+
+        return { code: `await demo('hello 123');\nreturn { action: 'done' }` }
       },
     })
 
@@ -795,6 +799,54 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         "hello 123",
       ]
     `)
+  })
+
+  it('onBeforeTool and onAfterTool hooks (mutate input and output)', async () => {
+    let originalInputName: string | undefined
+    let calledInputName: string | undefined
+
+    const tGreeting = new Tool({
+      name: 'greeting',
+      input: z.object({
+        name: z.string(),
+      }),
+      output: z.string(),
+      handler: async ({ name }) => {
+        calledInputName = name
+        return `Hi there, ${name}!`
+      },
+    })
+
+    const eWithResult = new Exit({
+      name: 'done',
+      description: 'call this when you are done',
+      schema: z.object({
+        greeting: z.string(),
+      }),
+    })
+
+    const result = await llmz.executeContext({
+      options: { loop: 1 },
+      exits: [eWithResult],
+      instructions: 'Call the greeting tool with name "Alice" and exit right after with the result.',
+      tools: [tGreeting],
+      client,
+      async onBeforeTool({ input }) {
+        originalInputName = input.name
+        return { input: { name: 'Jacques' } }
+      },
+      async onAfterTool({ output }) {
+        return { output: output.toUpperCase() }
+      },
+    })
+
+    assertSuccess(result)
+    expect(result.iterations).toHaveLength(1)
+    assert(result.is(eWithResult), 'Result should be an exit success with the expected exit')
+
+    expect(originalInputName).toBe('Alice')
+    expect(calledInputName).toBe('Jacques')
+    expect(result.output.greeting).toMatchInlineSnapshot(`"HI THERE, JACQUES!"`)
   })
 
   describe('images', () => {
@@ -828,6 +880,37 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       assertSuccess(result)
       expect(result.iterations).toHaveLength(1)
       expect(dogMentionned).toBe(true)
+    }, 20_000)
+  })
+
+  describe('events in transcript', () => {
+    it('can handle events in transcript', async () => {
+      let messages: string = ''
+
+      const chat = new Chat({
+        components: [DefaultComponents.Text],
+        transcript: [
+          {
+            role: 'event',
+            name: 'pageLoaded',
+            payload: { url: 'https://example.com/pricing', title: 'Pricing Page' },
+          } satisfies Transcript.EventMessage,
+        ],
+        handler: async (msg) => {
+          messages += JSON.stringify(msg)
+        },
+      })
+
+      const result = await llmz.executeContext({
+        instructions: 'You are a helpful assistant deployed on a business website. Greet the user in a contextual way.',
+        options: { loop: 1 },
+        chat,
+        client,
+      })
+
+      assertSuccess(result)
+      expect(result.iterations).toHaveLength(1)
+      expect(messages.toLowerCase()).toContain('pricing')
     })
   })
 })

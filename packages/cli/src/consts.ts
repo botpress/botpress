@@ -18,6 +18,8 @@ export const cliRootDir = CLI_ROOT_DIR
 export const installDirName = 'bp_modules'
 export const outDirName = '.botpress'
 export const distDirName = 'dist'
+export const profileFileName = 'profiles.json'
+export const defaultProfileName = 'default'
 
 export const fromCliRootDir = {}
 

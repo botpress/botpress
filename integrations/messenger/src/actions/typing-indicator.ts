@@ -1,6 +1,6 @@
 import { MessengerTypes } from 'messaging-api-messenger'
-import { getRecipientId } from 'src/misc/outgoing-message'
-import { getMessengerClient } from 'src/misc/utils'
+import { create as createMessengerClient } from '../misc/messenger-client'
+import { getRecipientId } from '../misc/utils'
 import * as bp from '.botpress'
 
 export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIndicator'] = async (props) => {
@@ -17,11 +17,11 @@ const sendSenderActions = async ({
   props: { client, ctx, input },
   actions,
 }: {
-  props: bp.AnyActionProps
+  props: bp.ActionProps['startTypingIndicator'] | bp.ActionProps['stopTypingIndicator']
   actions: MessengerTypes.SenderAction[]
 }) => {
   const { conversationId } = input
-  const messengerClient = await getMessengerClient(client, ctx)
+  const messengerClient = await createMessengerClient(client, ctx)
   const { conversation } = await client.getConversation({ id: conversationId })
   const recipientId = getRecipientId(conversation)
   for (const action of actions) {

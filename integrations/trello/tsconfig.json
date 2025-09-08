@@ -11,5 +11,5 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": [".botpress/**/*", "src/**/*", "integration.definition.ts", "definitions/**/*", "interfaces.ts"]
+  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "integration.definition.ts"]
 }

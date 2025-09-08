@@ -61,6 +61,53 @@ test('TagsOfMessage with specific message', () => {
   type _assertion = utils.AssertTrue<utils.IsEqual<Actual, Expected>>
 })
 
+test('EnumerateMessages of FooBarBazIntegration returns union of all message types', () => {
+  type Actual = EnumerateMessages<FooBarBazIntegration>
+  type Expected = {
+    messageFoo: {
+      type: 'messageFoo'
+      tags: {
+        fooMessageTag1?: string
+        fooMessageTag2?: string
+        fooMessageTag3?: string
+      }
+      payload: {
+        foo: string
+      }
+    }
+    messageBar: {
+      type: 'messageBar'
+      tags: {
+        barMessageTag1?: string
+        barMessageTag2?: string
+        barMessageTag3?: string
+      }
+      payload: {
+        bar: number
+      }
+    }
+    messageBaz: {
+      type: 'messageBaz'
+      tags: {
+        bazMessageTag1?: string
+        bazMessageTag2?: string
+        bazMessageTag3?: string
+      }
+      payload: {
+        baz: boolean
+      }
+    }
+  }
+
+  type _assertion = utils.AssertAll<
+    [
+      utils.AssertExtends<Actual, Expected>,
+      utils.AssertExtends<Expected, Actual>,
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
+    ]
+  >
+})
+
 test('GetChannelByName', () => {
   type Actual = GetChannelByName<FooBarBazIntegration, 'channelFoo'>
   type Expected = {
@@ -90,10 +137,11 @@ test('GetChannelByName', () => {
 test('GetMessageByName', () => {
   type Actual = GetMessageByName<FooBarBazIntegration, 'messageFoo'>
   type Expected = {
+    type: 'messageFoo'
     tags: {
-      fooMessageTag1: ''
-      fooMessageTag2: ''
-      fooMessageTag3: ''
+      fooMessageTag1?: string
+      fooMessageTag2?: string
+      fooMessageTag3?: string
     }
     payload: {
       foo: string

@@ -3,5 +3,5 @@ import { pluginName } from './package.json'
 
 export default new PluginDefinition({
   name: pluginName,
-  version: '1.0.0',
+  version: '0.1.0',
 })

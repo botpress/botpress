@@ -13,6 +13,7 @@ import * as bp from '.botpress'
 
 export const handleSentEvent = async ({ client }: bp.HandlerProps, event: EmailSentWebhook) => {
   const { cc, bcc, rest: headers } = _extractCcsAndBccs(event.data)
+
   return await client.createEvent({
     type: 'sent',
     payload: {
@@ -31,6 +32,7 @@ export const handleSentEvent = async ({ client }: bp.HandlerProps, event: EmailS
 
 export const handleDeliveredEvent = async ({ client }: bp.HandlerProps, event: EmailDeliveredWebhook) => {
   const { cc, bcc, rest: headers } = _extractCcsAndBccs(event.data)
+
   return await client.createEvent({
     type: 'delivered',
     payload: {
@@ -48,8 +50,6 @@ export const handleDeliveredEvent = async ({ client }: bp.HandlerProps, event: E
 }
 
 export const handleDeliveryDelayedEvent = async ({ client }: bp.HandlerProps, event: EmailDelayedWebhook) => {
-  console.log({ client, event })
-
   const { cc, bcc, rest: headers } = _extractCcsAndBccs(event.data)
 
   return await client.createEvent({
@@ -88,7 +88,6 @@ export const handleMarkedAsSpamEvent = async ({ client }: bp.HandlerProps, event
 }
 
 export const handleBouncedEvent = async ({ client }: bp.HandlerProps, event: EmailBouncedWebhook) => {
-  console.log({ client, event })
   const { cc, bcc, rest: headers } = _extractCcsAndBccs(event.data)
 
   return await client.createEvent({

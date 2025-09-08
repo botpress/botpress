@@ -80,7 +80,7 @@ export const handleEvent = async ({
     conversationId: botpressConversation.id,
   })
 
-  const isSentInChannel = slackEvent.channel_type === 'channel'
+  const isSentInChannel = !slackEvent.thread_ts
   const isThreadingEnabled = ctx.configuration.createReplyThread?.enabled ?? false
   const threadingRequiresMention = ctx.configuration.createReplyThread?.onlyOnBotMention ?? false
 

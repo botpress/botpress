@@ -38,8 +38,12 @@ export class ListPluginsCommand extends GlobalCommand<ListPluginsCommandDefiniti
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
 
-    const privateLister = (req: { nextToken?: string }) => api.client.listPlugins({ nextToken: req.nextToken })
-    const publicLister = (req: { nextToken?: string }) => api.client.listPublicPlugins({ nextToken: req.nextToken })
+    const { name, versionNumber: version } = this.argv
+
+    const privateLister = (req: { nextToken?: string }) =>
+      api.client.listPlugins({ nextToken: req.nextToken, name, version })
+    const publicLister = (req: { nextToken?: string }) =>
+      api.client.listPublicPlugins({ nextToken: req.nextToken, name, version })
 
     try {
       const privatePlugins = await api.listAllPages(privateLister, (r) => r.plugins)

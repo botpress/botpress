@@ -24,7 +24,7 @@ export const actions = {
     },
     output: {
       schema: sdk.z.object({
-        userId: sdk.z.string().title('User ID').describe('The ID of the user'),
+        userId: sdk.z.string().title('User ID').describe('The ID of the user').optional(),
         conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
       }),
     },

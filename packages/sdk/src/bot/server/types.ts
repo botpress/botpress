@@ -211,6 +211,7 @@ export type WorkflowPayloads<TBot extends common.BaseBot> = {
     event: WorkflowUpdateEvent
     conversation?: client.Conversation
     user?: client.User
+    event: WorkflowUpdateEvent
 
     /**
      * # EXPERIMENTAL

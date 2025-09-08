@@ -1,4 +1,5 @@
 import { llm, speechToText } from '@botpress/common'
+import { validateGptOssReasoningEffort } from '@botpress/common/src/llm/openai'
 import OpenAI from 'openai'
 import { ModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
@@ -12,6 +13,35 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
   // Reference:
   //  https://console.groq.com/docs/models
   //  https://groq.com/pricing/
+  'openai/gpt-oss-20b': {
+    name: 'GPT-OSS 20B (Preview)',
+    description:
+      'gpt-oss-20b is a compact, open-weight language model optimized for low-latency. It shares the same training foundation and capabilities as the GPT-OSS 120B model, with faster responses and lower cost.',
+    tags: ['preview', 'general-purpose', 'reasoning', 'low-cost'],
+    input: {
+      costPer1MTokens: 0.1,
+      maxTokens: 131_000,
+    },
+    output: {
+      costPer1MTokens: 0.5,
+      maxTokens: 32_000,
+    },
+  },
+  'openai/gpt-oss-120b': {
+    name: 'GPT-OSS 120B (Preview)',
+    description:
+      'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
+    tags: ['preview', 'general-purpose', 'reasoning'],
+
+    input: {
+      costPer1MTokens: 0.15,
+      maxTokens: 131_000,
+    },
+    output: {
+      costPer1MTokens: 0.75,
+      maxTokens: 32_000,
+    },
+  },
   'deepseek-r1-distill-llama-70b': {
     name: 'DeepSeek R1-Distill Llama 3.3 70B (Preview)',
     description:
@@ -180,6 +210,19 @@ export default new bp.Integration({
         provider,
         models: languageModels,
         defaultModel: 'llama-3.3-70b-versatile',
+        overrideRequest: (request) => {
+          if (input.model?.id === 'openai/gpt-oss-20b' || input.model?.id === 'openai/gpt-oss-120b') {
+            request.reasoning_effort = validateGptOssReasoningEffort(input, logger)
+
+            // GPT-OSS models don't work well with a stop sequence, so we have to remove it from the request.
+            delete request.stop
+
+            // Reasoning models don't support temperature
+            delete request.temperature
+          }
+
+          return request
+        },
         overrideResponse: (response) => {
           if (input.model?.id === 'deepseek-r1-distill-llama-70b') {
             for (const choice of response.choices) {

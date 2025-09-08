@@ -1,2 +1,3 @@
-export * from './issue-opened'
-export * from './sync-issues'
+export * from './github-issue-opened'
+export * from './linear-issue-updated'
+export * from './message-created'

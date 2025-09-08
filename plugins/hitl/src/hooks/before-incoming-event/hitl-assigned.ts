@@ -30,12 +30,14 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
   })
 
   const { user: humanAgentUser } = await props.client.getUser({ id: humanAgentUserId })
-  const humanAgentName = humanAgentUser?.name ?? 'A Human Agent'
+  const humanAgentName = humanAgentUser?.name?.length ? humanAgentUser.name : 'A Human Agent'
 
   await Promise.all([
     upstreamCm.respond({
       type: 'text',
-      text: sessionConfig.onHumanAgentAssignedMessage ?? DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE,
+      text: sessionConfig.onHumanAgentAssignedMessage?.length
+        ? sessionConfig.onHumanAgentAssignedMessage
+        : DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE,
     }),
     downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),

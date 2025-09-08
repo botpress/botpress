@@ -1,0 +1,9 @@
+env = to_string!(.env)
+
+profile = if env == "production" {
+  "botpresssandbox"
+} else {
+  "botpresssandboxstaging"
+}
+
+"https://ig.me/m/{{ profile }}"

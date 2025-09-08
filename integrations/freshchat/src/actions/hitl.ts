@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { buildConversationTranscript } from '@botpress/common'
+import { AxiosError } from 'axios'
 import { getFreshchatClient } from 'src/client'
 import * as bp from '.botpress'
 
@@ -74,6 +75,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       userId: user.tags.id as string,
       messages,
       channelId,
+      priority: input.hitlSession?.priority,
     })
 
     const { conversation } = await client.getOrCreateConversation({
@@ -105,7 +107,12 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx
 
   const freshchatClient = getFreshchatClient({ ...ctx.configuration }, logger)
 
-  await freshchatClient.setConversationAsResolved(freshchatConversationId)
+  try {
+    await freshchatClient.setConversationAsResolved(freshchatConversationId)
+  } catch (thrown: unknown) {
+    const error: AxiosError = thrown instanceof AxiosError ? thrown : new AxiosError(String(thrown))
+    logger.forBot().error('Error resolving HITL conversation on Freshchat: ' + error.message, error?.response?.data)
+  }
 
   return {}
 }

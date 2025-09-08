@@ -1,6 +1,6 @@
 Optimize your customer support workflow with the Zendesk integration for your chatbot. Seamlessly manage tickets, engage customers, and access critical information—all within your bot. Elevate your customer service game and improve internal processes by triggering automations from real-time ticket updates.
 
-> 🤝 **Usage with HITL (Human in the Loop)**  
+> 🤝 **Usage with HITL (Human in the Loop)**
 > If you intend to use the Zendesk integration with HITL, ensure that you have the HITL plugin installed.
 
 ## Installation and Configuration

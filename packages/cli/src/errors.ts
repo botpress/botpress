@@ -163,3 +163,9 @@ export class ProjectDefinitionNotFoundError extends BotpressCLIError {
     super(message)
   }
 }
+
+export class AbortedOperationError extends BotpressCLIError {
+  public constructor() {
+    super('Aborted')
+  }
+}

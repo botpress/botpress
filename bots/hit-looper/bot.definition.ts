@@ -5,7 +5,7 @@ import chat from './bp_modules/chat'
 import hitl from './bp_modules/hitl'
 import zendesk from './bp_modules/zendesk'
 
-const zendeskHitl = zendesk.definition.interfaces['hitl']
+const zendeskHitl = zendesk.definition.interfaces['hitl<hitlTicket>']
 
 export default new sdk.BotDefinition({
   configuration: {

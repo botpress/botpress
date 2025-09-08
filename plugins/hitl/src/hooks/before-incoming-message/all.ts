@@ -56,7 +56,9 @@ const _handleDownstreamMessage = async (
     props.logger.with(props.data).error('Downstream conversation received a non-text message')
     await downstreamCm.respond({
       type: 'text',
-      text: sessionConfig.onIncompatibleMsgTypeMessage ?? DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
+      text: sessionConfig.onIncompatibleMsgTypeMessage?.length
+        ? sessionConfig.onIncompatibleMsgTypeMessage
+        : DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
     })
     return consts.STOP_EVENT_HANDLING
   }
@@ -164,7 +166,9 @@ const _isHitlCloseCommand = (
   props: bp.HookHandlerProps['before_incoming_message'],
   sessionConfig: bp.configuration.Configuration
 ) => {
-  const closeCommand = sessionConfig.userHitlCloseCommand || DEFAULT_USER_HITL_CLOSE_COMMAND
+  const closeCommand = sessionConfig.userHitlCloseCommand?.length
+    ? sessionConfig.userHitlCloseCommand
+    : DEFAULT_USER_HITL_CLOSE_COMMAND
 
   const inputText: string | undefined = props.data.payload.text
   return inputText && inputText.trim().toLowerCase() === closeCommand.trim().toLowerCase()
@@ -184,7 +188,9 @@ const _handleHitlCloseCommand = async (
 ) => {
   await downstreamCm.respond({
     type: 'text',
-    text: sessionConfig.onUserHitlCancelledMessage ?? DEFAULT_USER_HITL_CANCELLED_MESSAGE,
+    text: sessionConfig.onUserHitlCancelledMessage?.length
+      ? sessionConfig.onUserHitlCancelledMessage
+      : DEFAULT_USER_HITL_CANCELLED_MESSAGE,
   })
 
   await Promise.allSettled([
@@ -204,6 +210,8 @@ const _handleHitlCloseCommand = async (
 
   await upstreamCm.respond({
     type: 'text',
-    text: sessionConfig.onUserHitlCloseMessage ?? DEFAULT_USER_HITL_COMMAND_MESSAGE,
+    text: sessionConfig.onUserHitlCloseMessage?.length
+      ? sessionConfig.onUserHitlCloseMessage
+      : DEFAULT_USER_HITL_COMMAND_MESSAGE,
   })
 }

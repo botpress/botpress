@@ -1,17 +1,12 @@
 import * as dynamodb from '@aws-sdk/client-dynamodb'
+import { mapBotpressMessageToChat } from './api/message-payload'
 import { makeApiUtils } from './api-utils'
 import { AuthKeyHandler } from './auth-key'
 import * as debug from './debug'
 import { makeHandler } from './handler'
 import { MemorySpace, ChatIdStore, InMemoryChatIdStore, DynamoDbChatIdStore } from './id-store'
 import { Options, options } from './options'
-import {
-  CompositeSignalEmiter,
-  PushpinEmitter,
-  SignalEmitter,
-  WebhookEmitter,
-  MessageCreatedSignal,
-} from './signal-emitter'
+import { CompositeSignalEmiter, PushpinEmitter, SignalEmitter, WebhookEmitter } from './signal-emitter'
 import { MessageArgs, ActionArgs } from './types'
 import * as bp from '.botpress'
 
@@ -54,15 +49,6 @@ const makeEmitter = (options: Options): SignalEmitter => {
 
   const webhookEmitter = new WebhookEmitter(webhookUrl, webhookSecret)
   return new CompositeSignalEmiter([pushpinEmitter, webhookEmitter])
-}
-
-const messageToSignal = (args: MessageArgs): MessageCreatedSignal['data']['payload'] => {
-  const { type } = args
-  const { metadata: _, ...payload } = args.payload
-  return {
-    type,
-    ...payload,
-  } as MessageCreatedSignal['data']['payload']
 }
 
 const mapMessageSignalFid = async (idStores: ChatIdStores, args: MessageArgs): Promise<MessageArgs> => {
@@ -110,6 +96,7 @@ const emitMessage = async (args: MessageArgs) => {
   args = await mapMessageSignalFid(idStores, args)
   debug.debugSignal(args)
 
+  const { metadata, payload } = mapBotpressMessageToChat(args)
   await signalEmitter.emit(channel, {
     type: 'message_created',
     data: {
@@ -117,8 +104,8 @@ const emitMessage = async (args: MessageArgs) => {
       conversationId: args.conversation.id,
       userId: args.user.id,
       createdAt: args.message.createdAt,
-      payload: messageToSignal(args),
-      metadata: args.payload.metadata,
+      payload,
+      metadata,
       isBot: true,
     },
   })

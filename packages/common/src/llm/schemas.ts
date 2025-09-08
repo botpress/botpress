@@ -81,6 +81,7 @@ export const ModelSchema = ModelRefSchema.extend({
 })
 
 const ReasoningEffortSchema = z.enum(['low', 'medium', 'high', 'dynamic', 'none'])
+export type ReasoningEffort = z.infer<typeof ReasoningEffortSchema>
 
 export const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
   z.object({

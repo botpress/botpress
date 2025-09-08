@@ -10,6 +10,7 @@ export const configuration = {
 
 export const identifier = {
   extractScript: 'extract.vrl',
+  fallbackHandlerScript: 'fallbackHandler.vrl',
 } as const satisfies sdk.IntegrationDefinitionProps['identifier']
 
 export const configurations = {

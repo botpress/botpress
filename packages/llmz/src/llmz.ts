@@ -5,6 +5,7 @@ import { clamp, isEqual, isPlainObject, omit } from 'lodash-es'
 import ms from 'ms'
 
 import { ulid } from 'ulid'
+import { createJoinedAbortController } from './abort-signal.js'
 import { Chat } from './chat.js'
 import { Context, Iteration } from './context.js'
 import {
@@ -52,28 +53,171 @@ const getModelOutputLimit = (inputLength: number) =>
 
 export type ExecutionHooks = {
   /**
-   * Called after each iteration ends
+   * NON-BLOCKING HOOK
+   *   This hook will not block the execution of the iteration.
+   * NON-MUTATION HOOK
+   *   This hook can't mutate traces.
    *
-   * **Warning**: This should not be a long task as it blocks the execution
+   * This hook is called for each trace that is generated during the iteration.
+   * It is useful for logging, debugging, or monitoring the execution of the iteration.
    */
-  onIterationEnd?: (iteration: Iteration) => Promise<void> | void
   onTrace?: (event: { trace: Trace; iteration: number }) => void
+
+  /**
+   * BLOCKING HOOK
+   *   This hook will block the execution of the iteration until it resolves.
+   * NON-MUTATION HOOK
+   *   This hook can't mutate the result or status of the iteration.
+   *
+   * This hook will be called after each iteration ends, regardless of the status.
+   * This is useful for logging, cleanup or to prevent or delay the next iteration from starting.
+   */
+  onIterationEnd?: (iteration: Iteration, controller: AbortController) => Promise<void> | void
+
+  /**
+   * BLOCKING HOOK
+   *   This hook will block the execution of the iteration until it resolves.
+   * NON-MUTATION HOOK
+   *   This hook can't mutate the exit result.
+   *
+   * This hook is called when an exit is reached in the iteration.
+   * It is useful for logging, sending notifications, or performing actions based on the exit.
+   * It can also be used to throw an error and preventing the exit from being successful.
+   * If this hook throws an error, the execution will keep iterating with the error as context.
+   */
   onExit?: <T = unknown>(result: ExitResult<T>) => Promise<void> | void
-  onBeforeExecution?: (iteration: Iteration) => Promise<void> | void
+
+  /**
+   * BLOCKING HOOK
+   *   This hook will block the execution of the iteration until it resolves.
+   * MUTATION HOOK
+   *   This hook can mutate the code to run in the iteration.
+   *
+   * This hook is called after the LLM generates the code for the iteration, but before it is executed.
+   * It is useful for modifying the code to run, or for guarding against certain code patterns.
+   */
+  onBeforeExecution?: (iteration: Iteration, controller: AbortController) => Promise<{ code?: string } | void>
+
+  /**
+   * BLOCKING HOOK
+   *   This hook will block the execution of the iteration until it resolves.
+   * MUTATION HOOK
+   *   This hook can mutate the input to the tool.
+   *
+   * This hook is called before any tool is executed.
+   * It is useful for modifying the input to a tool or prevent a tool from executing.
+   */
+  onBeforeTool?: (event: {
+    iteration: Iteration
+    tool: Tool
+    input: any
+    controller: AbortController
+  }) => Promise<{ input?: any } | void>
+
+  /**
+   * BLOCKING HOOK
+   *   This hook will block the execution of the iteration until it resolves.
+   * MUTATION HOOK
+   *   This hook can mutate the output of the tool.
+   *
+   * This hook is called after a tool is executed.
+   * It is useful for modifying the output of a tool or for logging purposes.
+   */
+  onAfterTool?: (event: {
+    iteration: Iteration
+    tool: Tool
+    input: any
+    output: any
+    controller: AbortController
+  }) => Promise<{ output?: any } | void>
 }
 
 type Options = Partial<Pick<Context, 'loop' | 'temperature' | 'model' | 'timeout'>>
 
 export type ExecutionProps = {
+  /**
+   * If provided, the execution will be run in "Chat Mode".
+   * In this mode, the execution will be able to send messages to the chat and will also have access to a chat transcript.
+   * The execution can still end with a custom Exit, but a special ListenExit will be added to give back the chat control to the user.
+   *
+   * If `chat` is not provided, the execution will run in "Worker Mode", where it will not have access to a chat transcript.
+   * In Worker Mode, the execution will iterate until it reaches an Exit or runs out of iterations.
+   */
   chat?: Chat
+
+  /**
+   * Instructions for the LLM to follow.
+   * This is a system prompt that will be used to guide the LLM's behavior.
+   * It can be a simple string or a function that returns a string based on the current context (dynamic instructions).
+   * Dynamic instructions are evaluated at the start of each iteration, allowing for context-aware instructions.
+   */
   instructions?: ValueOrGetter<string, Context>
+
+  /**
+   * Objects available in the context.
+   * Objects are useful to scope related tools together and to provide data to the VM.
+   * Objects can contain "properties" that can be read and written to, as well as "tools" that can be executed.
+   * Properties are type-safe and can be defined using a Zui schema.
+   * Properties can be marked as read-only or writable.
+   * The sandbox will ensure that properties are only modified if they are writable, and will also ensure that the values are valid according to the schema.
+   *
+   * Objects can be a static array of objects or a function that returns an array based on the current context.
+   * Dynamic objects are evaluated at the start of each iteration, allowing for context-aware objects.
+   *
+   * Example:
+   * An object "user" with properties "name" (string, writable) and "age" (number, read-only) will allow the LLM to see both properties and their values,
+   * and executing the code `user.name = 'John'` will succeed, while `user.age = 30` will throw an error as the property is read-only.
+   * Similarly, `user.name = 123` will throw an error as the value is not a string.
+   */
   objects?: ValueOrGetter<ObjectInstance[], Context>
+
+  /**
+   * Tools available in the context.
+   * Tools are functions that can be executed by the LLM to perform actions or retrieve data.
+   * Tools can be defined with input and output schemas using Zui, and can be scoped to an object.
+   * Tools can also have aliases, which are alternative names for the tool that can be used to call it.
+   *
+   * Tools can be a static array of tools or a function that returns an array based on the current context.
+   * Dynamic tools are evaluated at the start of each iteration, allowing for context-aware tools.
+   */
   tools?: ValueOrGetter<Tool[], Context>
+
+  /**
+   * Exits available in the context.
+   * Exits define the possible endpoints for the execution. Every execution will either end with an exit, or run out of iterations.
+   *
+   * When `chat` is provided, the built-in "ListenExit" is automatically added.
+   * When `exits` is not provided, the built-in "DefaultExit" is automatically added.
+   *
+   * Each exit has a name and can have aliases, which are alternative names for the exit that can be used to call it.
+   * Exits can also have a Zui schema to validate the return value when the exit is reached.
+   *
+   * Exits can be a static array of exits or a function that returns an array based on the current context.
+   * Dynamic exits are evaluated at the start of each iteration, allowing for context-aware exits.
+   */
   exits?: ValueOrGetter<Exit[], Context>
   options?: Options
-  /** An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive) */
+
+  /**
+   * An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive).
+   * This is used to generate content using the LLM and to access the Botpress API.
+   */
   client: Cognitive | BotpressClientLike
+
+  /**
+   * When provided, the execution will immediately stop when the signal is aborted.
+   * This will stop the LLM generation, as well as kill the VM sandbox execution.
+   * Aborted iterations will end with IterationStatuses.Aborted and the execution will be marked as failed.
+   */
   signal?: AbortSignal
+
+  /**
+   * A snapshot is a saved state of the execution context.
+   * It can be used to resume the execution of a context at a later time.
+   * This is useful for long-running executions that may need to be paused and resumed later.
+   * The snapshot MUST be settled, which means it has to be resolved or rejected.
+   * Providing an unsettled snapshot will throw an error.
+   */
   snapshot?: Snapshot
 } & ExecutionHooks
 
@@ -87,7 +231,8 @@ export const executeContext = async (props: ExecutionProps): Promise<ExecutionRe
 }
 
 export const _executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
-  const { signal, onIterationEnd, onTrace, onExit, onBeforeExecution } = props
+  const controller = createJoinedAbortController([props.signal])
+  const { onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
   const cognitive = Cognitive.isCognitiveClient(props.client) ? props.client : new Cognitive({ client: props.client })
   const cleanups: (() => void)[] = []
 
@@ -107,21 +252,20 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
   try {
     while (true) {
       if (ctx.iterations.length >= ctx.loop) {
-        // TODO:
         return new ErrorExecutionResult(ctx, new LoopExceededError())
       }
 
       const iteration = await ctx.nextIteration()
 
-      if (signal?.aborted) {
+      if (controller.signal.aborted) {
         iteration.end({
           type: 'aborted',
           aborted: {
-            reason: signal.reason ?? 'The operation was aborted',
+            reason: controller.signal.reason ?? 'The operation was aborted',
           },
         })
 
-        return new ErrorExecutionResult(ctx, signal.reason ?? 'The operation was aborted')
+        return new ErrorExecutionResult(ctx, controller.signal.reason ?? 'The operation was aborted')
       }
 
       cleanups.push(
@@ -137,9 +281,11 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
           iteration,
           ctx,
           cognitive,
-          abortSignal: signal,
+          controller,
           onExit,
           onBeforeExecution,
+          onAfterTool,
+          onBeforeTool,
         })
       } catch (err) {
         // this should not happen, but if it does, we want to catch it and mark the iteration as failed and loop
@@ -153,7 +299,7 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
       }
 
       try {
-        await onIterationEnd?.(iteration)
+        await onIterationEnd?.(iteration, controller)
       } catch (err) {
         console.error(err)
       }
@@ -204,14 +350,16 @@ const executeIteration = async ({
   iteration,
   ctx,
   cognitive,
-  abortSignal,
+  controller,
   onExit,
   onBeforeExecution,
+  onBeforeTool,
+  onAfterTool,
 }: {
   ctx: Context
   iteration: Iteration
   cognitive: Cognitive
-  abortSignal?: AbortController['signal']
+  controller: AbortController
 } & ExecutionHooks): Promise<void> => {
   let startedAt = Date.now()
   const traces = iteration.traces
@@ -238,7 +386,7 @@ const executeIteration = async ({
   })
 
   const output = await cognitive.generateContent({
-    signal: abortSignal,
+    signal: controller.signal,
     systemPrompt: messages.find((x) => x.role === 'system')?.content,
     model: model.ref,
     temperature: ctx.temperature,
@@ -262,7 +410,10 @@ const executeIteration = async ({
 
   if (typeof onBeforeExecution === 'function') {
     try {
-      await onBeforeExecution(iteration)
+      const hookRes = await onBeforeExecution(iteration, controller)
+      if (typeof hookRes?.code === 'string' && hookRes.code.trim().length > 0) {
+        iteration.code = hookRes.code.trim()
+      }
     } catch (err) {
       if (err instanceof ThinkSignal) {
         return iteration.end({
@@ -358,7 +509,15 @@ const executeIteration = async ({
     }
 
     for (const tool of obj.tools ?? []) {
-      instance[tool.name] = wrapTool({ tool, traces, object: obj.name })
+      instance[tool.name] = wrapTool({
+        tool,
+        traces,
+        object: obj.name,
+        iteration,
+        beforeHook: onBeforeTool,
+        afterHook: onAfterTool,
+        controller,
+      })
     }
 
     Object.preventExtensions(instance)
@@ -368,13 +527,13 @@ const executeIteration = async ({
   }
 
   for (const tool of iteration.tools) {
-    const wrapped = wrapTool({ tool, traces })
+    const wrapped = wrapTool({ tool, traces, iteration, beforeHook: onBeforeTool, afterHook: onAfterTool, controller })
     for (const key of [tool.name, ...(tool.aliases ?? [])]) {
       vmContext[key] = wrapped
     }
   }
 
-  if (abortSignal?.aborted) {
+  if (controller.signal.aborted) {
     traces.push({
       type: 'abort_signal',
       started_at: Date.now(),
@@ -385,7 +544,7 @@ const executeIteration = async ({
     return iteration.end({
       type: 'aborted',
       aborted: {
-        reason: abortSignal?.reason ?? 'The operation was aborted',
+        reason: controller.signal.reason ?? 'The operation was aborted',
       },
     })
   }
@@ -393,17 +552,21 @@ const executeIteration = async ({
   type Result = Awaited<ReturnType<typeof runAsyncFunction>>
 
   startedAt = Date.now()
-  const result: Result = await runAsyncFunction(vmContext, iteration.code, traces, abortSignal, ctx.timeout).catch(
-    (err) => {
-      return {
-        success: false,
-        error: err as Error,
-        lines_executed: [],
-        traces: [],
-        variables: {},
-      } satisfies Result
-    }
-  )
+  const result: Result = await runAsyncFunction(
+    vmContext,
+    iteration.code,
+    traces,
+    controller.signal,
+    ctx.timeout
+  ).catch((err) => {
+    return {
+      success: false,
+      error: err as Error,
+      lines_executed: [],
+      traces: [],
+      variables: {},
+    } satisfies Result
+  })
 
   if (result.error && result.error instanceof InvalidCodeError) {
     return iteration.end({
@@ -431,11 +594,11 @@ const executeIteration = async ({
     })
   }
 
-  if (abortSignal?.aborted) {
+  if (controller.signal.aborted) {
     return iteration.end({
       type: 'aborted',
       aborted: {
-        reason: abortSignal?.reason ?? 'The operation was aborted',
+        reason: controller.signal.reason ?? 'The operation was aborted',
       },
     })
   }
@@ -565,9 +728,13 @@ type Props = {
   tool: Tool
   object?: string
   traces: Trace[]
+  iteration: Iteration
+  beforeHook?: ExecutionHooks['onBeforeTool']
+  afterHook?: ExecutionHooks['onAfterTool']
+  controller: AbortController
 }
 
-function wrapTool({ tool, traces, object }: Props) {
+function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, controller }: Props) {
   const getToolInput = (input: any) => tool.zInput.safeParse(input).data ?? input
 
   return function (input: any) {
@@ -586,6 +753,7 @@ function wrapTool({ tool, traces, object }: Props) {
         }),
       SLOW_TOOL_WARNING
     )
+
     const cancelSlowTool = () => clearTimeout(alertSlowTool)
 
     const toolStart = Date.now()
@@ -624,9 +792,39 @@ function wrapTool({ tool, traces, object }: Props) {
     }
 
     try {
-      const result = tool.execute(input, {
-        callId: toolCallId,
-      })
+      const withHooks = async (input: any): Promise<any> => {
+        const beforeRes = await beforeHook?.({
+          iteration,
+          tool,
+          input,
+          controller,
+        })
+
+        if (typeof beforeRes?.input !== 'undefined') {
+          input = beforeRes.input
+        }
+
+        let output = await tool.execute(input, {
+          callId: toolCallId,
+        })
+
+        const afterRes = await afterHook?.({
+          iteration,
+          tool,
+          input,
+          output,
+          controller,
+        })
+
+        if (typeof afterRes?.output !== 'undefined') {
+          output = afterRes.output
+        }
+
+        return output
+      }
+
+      const result = withHooks(input)
+
       if (result instanceof Promise || ((result as any)?.then && (result as any)?.catch)) {
         return result
           .then((res: any) => {

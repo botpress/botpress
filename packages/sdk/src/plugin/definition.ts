@@ -67,15 +67,13 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
 >
 
 export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = {
-  [K in keyof TEvents]: TEvents[K] extends ZuiObjectSchema
-    ? {
-        type: K
-        payload: z.infer<TEvents[K]>
-        schedule: {
-          cron: string
-        }
-      }
-    : never
+  [K in keyof TEvents]: {
+    type: K
+    payload: z.infer<TEvents[K]>
+    schedule: {
+      cron: string
+    }
+  }
 }[keyof TEvents]
 
 export type ZuiSchemaWithEntityReferences<

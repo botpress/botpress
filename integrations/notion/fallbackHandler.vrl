@@ -1,0 +1,16 @@
+verification_token = parse_json!(.body).verification_token
+
+# Notion sends a verification token in the body of the request to verify the
+# webhook endpoint, but this request does not contain a workspace_id, so the
+# extract.vrl script fails and the request does not get handled by the
+# integration. To circumvent this, we log the verification token so that it
+# can be manually retrieved from the logs.
+
+msg, err = "Notion verification token received: " + verification_token
+
+if err == null{
+  # The log() function is not available in wasm, so we have to get creative:
+  assert!(false, message: msg)
+}
+
+{}

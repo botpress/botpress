@@ -7,7 +7,7 @@ import _ from 'lodash'
 import semver from 'semver'
 import * as apiUtils from '../api'
 import * as codegen from '../code-generation'
-import type * as config from '../config'
+import * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import { validateIntegrationDefinition, validateBotDefinition } from '../sdk'
@@ -32,10 +32,6 @@ export type ProjectDefinition = LintIgnoredConfig &
     | { type: 'bot'; definition: sdk.BotDefinition }
     | { type: 'plugin'; definition: sdk.PluginDefinition }
   )
-
-export type PluginTagNames = {
-  immutableTags: { user: string[]; conversation: string[]; message: string[] }
-}
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
@@ -345,7 +341,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   protected async prepareBotDependencies(
     botDef: sdk.BotDefinition,
     api: apiUtils.ApiClient
-  ): Promise<Partial<apiUtils.UpdateBotRequestBody> & PluginTagNames> {
+  ): Promise<Partial<apiUtils.UpdateBotRequestBody>> {
     const integrations = await this._fetchDependencies(botDef.integrations ?? {}, ({ name, version }) =>
       api.getPublicOrPrivateIntegration({ type: 'name', name, version })
     )
@@ -366,6 +362,15 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return {
       integrations: _(integrations)
         .keyBy((i) => i.id)
+        .mapValues(
+          ({ enabled, configurationType, configuration, disabledChannels }) =>
+            ({
+              enabled,
+              configurationType,
+              configuration,
+              disabledChannels,
+            }) satisfies NonNullable<apiUtils.UpdateBotRequestBody['integrations']>[string]
+        )
         .value(),
       plugins: utils.records.mapValues(pluginsWithBackingIntegrations, (plugin) => ({
         ...plugin,
@@ -374,30 +379,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
           integrationId: iface.id,
         })),
       })),
-      // Tags that are defined by plugins and that cannot be updated:
-      immutableTags: {
-        user: [
-          ...new Set(
-            Object.values(pluginsWithBackingIntegrations).flatMap((plugin) =>
-              Object.keys(plugin.definition.user?.tags ?? {})
-            )
-          ),
-        ],
-        conversation: [
-          ...new Set(
-            Object.values(pluginsWithBackingIntegrations).flatMap((plugin) =>
-              Object.keys(plugin.definition.conversation?.tags ?? {})
-            )
-          ),
-        ],
-        message: [
-          ...new Set(
-            Object.values(pluginsWithBackingIntegrations).flatMap((plugin) =>
-              Object.keys(plugin.definition.message?.tags ?? {})
-            )
-          ),
-        ],
-      },
     }
   }
 
