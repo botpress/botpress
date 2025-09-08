@@ -46,35 +46,6 @@ type ZaiConfig = {
   namespace?: string
 }
 
-type ZaiWithOptions = {
-  /**
-   * An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive).
-   */
-  client?: BotpressClientLike | Cognitive
-
-  /** The ID of the user consuming the API */
-  userId?: string
-
-  /** The ID of the model you want to use
-   * Can be:
-   *  - 'best' (default)
-   *  - 'fast'
-   *  or a "provider:model" string like "openai:gpt-4o-2024-11-20" or "anthropic:claude-3-5-sonnet-20240620"
-   */
-  modelId?: ModelId | ModelIdString
-
-  /** Configure active learning
-   *
-   * - `enable`: Whether to enable active learning (default: false)
-   * - `tableName`: The name of the table to store active learning tasks (must end with "Table",default: "ActiveLearningTable")
-   * - `taskId`: The ID of the task (default: "default")
-   */
-  activeLearning?: ActiveLearning
-
-  /** The namespace to use for the API (alphanumeric with underscores, hyphens and slashes) */
-  namespace?: string
-}
-
 const _ZaiConfig = z.object({
   client: z
     .custom<BotpressClientLike | Cognitive>()
@@ -187,7 +158,7 @@ export class Zai {
     return `${this.namespace}/${this.activeLearning.taskId}`.replace(/\/+/g, '/')
   }
 
-  public with(options: ZaiWithOptions): Zai {
+  public with(options: Partial<ZaiConfig>): Zai {
     return new Zai({
       ...this._originalConfig,
       ...options,
