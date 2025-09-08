@@ -32,13 +32,45 @@ const fireEvent = async <T extends keyof bp.events.Events>(
 export default new bp.Integration({
   register: async (props) => {
     const client = new WebflowClient(props.ctx.configuration.apiToken)
-    await client
-      .createWebhook(props.ctx.configuration.siteID, props.webhookUrl)
+    const triggerTypesToHook = [
+      'form_submission',
+      'site_publish',
+      'page_created',
+      'page_metadata_updated',
+      'page_deleted',
+      'collection_item_created',
+      'collection_item_changed',
+      'collection_item_deleted',
+      'collection_item_published',
+      'collection_item_unpublished',
+      'comment_created',
+    ]
+
+    const already = await client
+      .listWebhook(props.ctx.configuration.siteID)
       .catch(_handleError('Failed to create webhooks'))
+
+    const existing = new Set(already.map((w: { triggerType: string }) => w.triggerType))
+    const missing = triggerTypesToHook.filter((t) => !existing.has(t))
+    await Promise.all(
+      missing.map((triggerType) =>
+        client
+          .createWebhook(triggerType, props.ctx.configuration.siteID, props.webhookUrl)
+          .catch(_handleError('Failed to create webhooks'))
+      )
+    )
   },
   unregister: async (props) => {
     const client = new WebflowClient(props.ctx.configuration.apiToken)
-    await client.deleteWebhooks(props.ctx.configuration.siteID).catch(_handleError('Failed to delete webhooks'))
+
+    const webhooks = await client
+      .listWebhook(props.ctx.configuration.siteID)
+      .catch(_handleError('Failed to create webhooks'))
+
+    const webhookIDs = webhooks.map((w: { id: string }) => w.id)
+    await Promise.all(
+      webhookIDs.map((webhookID) => client.deleteWebhooks(webhookID).catch(_handleError('Failed to delete webhook')))
+    )
   },
   actions: {
     async listCollections(props) {

@@ -107,41 +107,21 @@ export class WebflowClient {
     await this._axiosClient.delete(path)
     return {}
   }
-
-  public createWebhook = async (siteID: string, webhookUrl: string): Promise<void> => {
+  public listWebhook = async (siteID: string): Promise<{ triggerType: string; id: string }[]> => {
     const path = `/sites/${siteID}/webhooks`
-    const { data } = await this._axiosClient.get<{ webhooks: { triggerType: string }[] }>(path)
-    const triggerTypesToHook = [
-      'form_submission',
-      'site_publish',
-      'page_created',
-      'page_metadata_updated',
-      'page_deleted',
-      'collection_item_created',
-      'collection_item_changed',
-      'collection_item_deleted',
-      'collection_item_published',
-      'collection_item_unpublished',
-      'comment_created',
-    ]
-
-    const existing = new Set(data.webhooks.map((w) => w.triggerType))
-    const missing = triggerTypesToHook.filter((t) => !existing.has(t))
-
-    for (const triggerType of missing) {
-      await this._axiosClient.post(path, {
-        triggerType,
-        url: webhookUrl,
-      })
-    }
+    const { data } = await this._axiosClient.get<{ webhooks: { triggerType: string; id: string }[] }>(path)
+    return data.webhooks
   }
 
-  public deleteWebhooks = async (siteID: string): Promise<void> => {
-    const listPath = `/sites/${siteID}/webhooks`
-    const listResp = await this._axiosClient.get(listPath)
-    const webhookIDs = listResp.data.webhooks.map((w: { id: string }) => w.id)
-    for (const webhookID of webhookIDs) {
-      await this._axiosClient.delete(`/webhooks/${webhookID}`)
-    }
+  public createWebhook = async (triggerType: string, siteID: string, webhookUrl: string): Promise<void> => {
+    const path = `/sites/${siteID}/webhooks`
+    await this._axiosClient.post(path, {
+      triggerType,
+      url: webhookUrl,
+    })
+  }
+
+  public deleteWebhooks = async (webhookID: string): Promise<void> => {
+    await this._axiosClient.delete(`/webhooks/${webhookID}`)
   }
 }
