@@ -4,7 +4,7 @@ import actions from './actions'
 import { ResendError } from './misc/ResendError'
 import { parseWebhookData, verifyWebhookSignature } from './misc/webhook-utils'
 import { dispatchIntegrationEvent } from './webhook-events/event-dispatcher'
-import { emailWebhookEventPayloadSchemas } from './webhook-events/schemas/email'
+import { webhookEventPayloadSchemas } from './webhook-events/schemas'
 import * as bp from '.botpress'
 
 const FALLBACK_ERROR_RESP: ErrorResponse = { message: 'Unable to evaluate API key validity', name: 'application_error' }
@@ -40,7 +40,11 @@ export default new bp.Integration({
       return
     }
 
-    const eventPayload = emailWebhookEventPayloadSchemas.parse(result.data.body)
-    await dispatchIntegrationEvent(props, eventPayload)
+    const payloadResult = webhookEventPayloadSchemas.safeParse(result.data.body)
+    if (!payloadResult.success) {
+      props.logger.forBot().error('Unexpected webhook event payload', payloadResult.error)
+      return
+    }
+    await dispatchIntegrationEvent(props, payloadResult.data)
   },
 })
