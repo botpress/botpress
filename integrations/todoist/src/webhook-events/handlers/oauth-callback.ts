@@ -19,7 +19,7 @@ export const oauthCallbackHandler = async ({ client, ctx, req, logger }: bp.Hand
 
   const userIdentity = await todoistClient.getAuthenticatedUserIdentity()
 
-  client.configureIntegration({
+  await client.configureIntegration({
     identifier: userIdentity.id,
   })
 
