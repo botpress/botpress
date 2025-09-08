@@ -4,5 +4,5 @@
     "baseUrl": ".",
     "strict": false
   },
-  "include": ["src/**/*", "./e2e/**/*", "./*.ts"]
+  "include": ["src/**/*", "e2e/**/*", "*.ts"]
 }
