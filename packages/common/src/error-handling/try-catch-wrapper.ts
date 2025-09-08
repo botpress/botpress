@@ -6,8 +6,6 @@ type AnyFunction = (...args: unknown[]) => unknown
 const _isPromise = (x: unknown): x is Promise<unknown> =>
   x instanceof Promise || (x !== null && typeof x === 'object' && 'then' in x && typeof x.then === 'function')
 
-export class InvalidAsyncFunctionArgumentError extends Error {}
-
 /**
  * Creates a wrapper function for asynchronous functions that catches errors and
  * redacts them using a provided redactor function.
@@ -47,25 +45,21 @@ export const createAsyncFnWrapperWithErrorRedaction =
       let output: unknown
       try {
         output = fn(...args)
-      } catch {
-        // TODO: handle non-async functions too
-        throw new InvalidAsyncFunctionArgumentError(
-          'This decorator only works with async functions, but an error was thrown synchronously. Please pass an async function'
-        )
-      }
-
-      if (!_isPromise(output)) {
-        // TODO: handle non-async functions too
-        throw new InvalidAsyncFunctionArgumentError(
-          'This decorator only works with async functions. Please pass an async function'
-        )
-      }
-
-      return output.catch(async (thrown: unknown) => {
+      } catch (thrown: unknown) {
         const originalError = thrown instanceof Error ? thrown : new Error(`${thrown}`)
         const runtimeError = redactorFn(originalError, customErrorMessage)
         throw runtimeError
-      }) as ReturnType<WrappedFn>
+      }
+
+      return (
+        _isPromise(output)
+          ? output.catch(async (thrown: unknown) => {
+              const originalError = thrown instanceof Error ? thrown : new Error(`${thrown}`)
+              const runtimeError = redactorFn(originalError, customErrorMessage)
+              throw runtimeError
+            })
+          : output
+      ) as ReturnType<WrappedFn>
     }) as WrappedFn
   }
 

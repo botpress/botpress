@@ -1,9 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import {
-  createAsyncFnWrapperWithErrorRedaction,
-  createErrorHandlingDecorator,
-  InvalidAsyncFunctionArgumentError,
-} from './try-catch-wrapper'
+import { createAsyncFnWrapperWithErrorRedaction, createErrorHandlingDecorator } from './try-catch-wrapper'
 import { expect, test } from 'vitest'
 
 const _errorRedactor = (error: Error, customMessage: string): RuntimeError =>
@@ -34,31 +30,48 @@ export class MyClient {
   }
 }
 
-test('decorating successfull async methods shouldnt change their behavior', async () => {
+test("decorating successful async methods shouldn't change their behavior", async () => {
+  // Arrange
   const client = new MyClient()
-  expect(await client.asyncSuccessMethod()).toBe('apple')
+
+  // Act
+  const promise = client.asyncSuccessMethod()
+
+  // Assert
+  await expect(promise).resolves.toBe('apple')
 })
 
 test('decorating failed async methods should redact the error', async () => {
+  // Arrange
   const client = new MyClient()
 
-  let thrown: unknown | undefined = undefined
-  try {
-    await client.asyncFailureMethod()
-  } catch (e) {
-    thrown = e
-  }
+  // Act
+  const promise = client.asyncFailureMethod()
 
-  expect(thrown).toBeInstanceOf(RuntimeError)
-  expect((thrown as Error).message).toBe('oops: hello4')
+  // Assert
+  await expect(promise).rejects.toThrow(RuntimeError)
+  await expect(promise).rejects.toThrow('oops: hello4')
 })
 
-test('decorating successfull sync methods should throw', () => {
+test("decorating successful sync methods shouldn't change their behaviour", () => {
+  // Arrange
   const client = new MyClient()
-  expect(() => client.syncSuccessMethod()).toThrowError(InvalidAsyncFunctionArgumentError)
+
+  // Act
+  const result = client.syncSuccessMethod()
+
+  // Assert
+  expect(result).toBe('banana')
 })
 
-test('decorating failed sync methods should throw', () => {
+test('decorating failed sync methods should redact the error', () => {
+  // Arrange
   const client = new MyClient()
-  expect(() => client.syncFailureMethod()).toThrowError(InvalidAsyncFunctionArgumentError)
+
+  // Act
+  const call = () => client.syncFailureMethod()
+
+  // Assert
+  expect(call).toThrow(RuntimeError)
+  expect(call).toThrow('oops: hello2')
 })
