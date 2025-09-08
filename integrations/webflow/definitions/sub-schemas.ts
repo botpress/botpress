@@ -5,10 +5,10 @@ export const formSchema = z.object({
   siteId: z.string(),
   data: z
     .object({
-      'First Name': z.string().optional(),
-      'Last Name': z.string().optional(),
+      firstName: z.string().optional(),
+      lastName: z.string().optional(),
       email: z.string().optional(),
-      'Phone Number': z.number().optional(),
+      phoneNumber: z.number().optional(),
     })
     .optional(),
   schema: z
