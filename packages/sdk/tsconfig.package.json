@@ -2,8 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "noErrorTruncation": true
+    "rootDir": "src",
+    "outDir": "dist"
   },
-  "include": ["src/**/*", "*.ts"],
+  "include": ["src/**/*"],
   "exclude": ["dist"]
 }

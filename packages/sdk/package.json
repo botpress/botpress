@@ -6,8 +6,8 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "check:type": "tsc --noEmit",
-    "build:type": "tsc --emitDeclarationOnly --declaration",
+    "check:type": "tsc -p ./tsconfig.json --noEmit",
+    "build:type": "tsc -p ./tsconfig.package.json --emitDeclarationOnly --declaration",
     "build:browser": "ts-node -T ./build.ts --browser",
     "build:node": "ts-node -T ./build.ts --node",
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser"
