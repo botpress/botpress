@@ -26,7 +26,7 @@ export const createComment: CreateCommentAction = async ({ input, ctx }) => {
       userId: 'botpress-integration-user',
       email: 'integration@botpress.com',
     })
-    authorId = 'botpress-integration-user' // Use the userID field
+    authorId = 'botpress-integration-user' // Use the userId field
   }
   if (!input.postId) {
     throw new RuntimeError('postId is required to create a comment')
@@ -37,10 +37,10 @@ export const createComment: CreateCommentAction = async ({ input, ctx }) => {
 
   try {
     const result = await client.createComment({
-      authorID: authorId,
-      postID: input.postId,
+      authorId: authorId,
+      postId: input.postId,
       value: input.value,
-      parentID: input.parentId,
+      parentId: input.parentId,
       imageURLs: input.imageURLs,
       internal: input.internal,
       shouldNotifyVoters: input.shouldNotifyVoters,

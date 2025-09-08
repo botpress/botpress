@@ -23,6 +23,7 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
   if (!input.boardId) {
     throw new RuntimeError('boardId is required to create a post')
   }
+
   if (!input.title) {
     throw new RuntimeError('title is required to create a post')
   }
@@ -43,16 +44,16 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
         email: 'integration@botpress.com',
       })
 
-      // Try approach 1: Use the userID field
+      // Try approach 1: Use the userId field
       try {
         const result = await client.createPost({
-          authorID: 'botpress-integration-user',
-          boardID: input.boardId,
+          authorId: 'botpress-integration-user',
+          boardId: input.boardId,
           title: input.title,
           details: input.details,
-          byID: input.byId,
-          categoryID: input.categoryId,
-          ownerID: input.ownerId,
+          byId: input.byId,
+          categoryId: input.categoryId,
+          ownerId: input.ownerId,
           imageURLs: input.imageURLs,
           eta: input.eta,
           etaPublic: input.etaPublic,
@@ -63,17 +64,17 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
           postId: result.id,
         }
       } catch (error1: any) {
-        debugInfo += `Approach 1 (userID) failed: ${error1.response?.data?.error || error1.message}. `
+        debugInfo += `Approach 1 (userId) failed: ${error1.response?.data?.error || error1.message}. `
         // Try approach 2: Use the Canny-generated id
         try {
           const result = await client.createPost({
-            authorID: botUser.id,
-            boardID: input.boardId,
+            authorId: botUser.id,
+            boardId: input.boardId,
             title: input.title,
             details: input.details,
-            byID: input.byId,
-            categoryID: input.categoryId,
-            ownerID: input.ownerId,
+            byId: input.byId,
+            categoryId: input.categoryId,
+            ownerId: input.ownerId,
             imageURLs: input.imageURLs,
             eta: input.eta,
             etaPublic: input.etaPublic,
@@ -85,16 +86,16 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
           }
         } catch (error2: any) {
           debugInfo += `Approach 2 (Canny id) failed: ${error2.response?.data?.error || error2.message}. `
-          // Try approach 3: Use byID field as the primary identifier
+          // Try approach 3: Use byId field as the primary identifier
           try {
             const result = await client.createPost({
-              authorID: botUser.id,
-              boardID: input.boardId,
+              authorId: botUser.id,
+              boardId: input.boardId,
               title: input.title,
               details: input.details,
-              byID: botUser.id, // Use the bot user as the admin creating the post
-              categoryID: input.categoryId,
-              ownerID: input.ownerId,
+              byId: botUser.id, // Use the bot user as the admin creating the post
+              categoryId: input.categoryId,
+              ownerId: input.ownerId,
               imageURLs: input.imageURLs,
               eta: input.eta,
               etaPublic: input.etaPublic,
@@ -105,17 +106,17 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
               postId: result.id,
             }
           } catch (error3: any) {
-            debugInfo += `Approach 3 (byID) failed: ${error3.response?.data?.error || error3.message}. `
-            // Try approach 4: Use a generic authorId and rely on byID
+            debugInfo += `Approach 3 (byId) failed: ${error3.response?.data?.error || error3.message}. `
+            // Try approach 4: Use a generic authorId and rely on byId
             try {
               const result = await client.createPost({
-                authorID: 'system', // Try a generic system user
-                boardID: input.boardId,
+                authorId: 'system', // Try a generic system user
+                boardId: input.boardId,
                 title: input.title,
                 details: input.details,
-                byID: botUser.id, // Use the bot user as the admin creating the post
-                categoryID: input.categoryId,
-                ownerID: input.ownerId,
+                byId: botUser.id, // Use the bot user as the admin creating the post
+                categoryId: input.categoryId,
+                ownerId: input.ownerId,
                 imageURLs: input.imageURLs,
                 eta: input.eta,
                 etaPublic: input.etaPublic,
@@ -141,13 +142,13 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
   // If authorId is provided, try to create the post normally
   try {
         const result = await client.createPost({
-          authorID: authorId,
-          boardID: input.boardId,
+          authorId: authorId,
+          boardId: input.boardId,
           title: input.title,
           details: input.details,
-          byID: input.byId,
-          categoryID: input.categoryId,
-          ownerID: input.ownerId,
+          byId: input.byId,
+          categoryId: input.categoryId,
+          ownerId: input.ownerId,
           imageURLs: input.imageURLs,
           eta: input.eta,
           etaPublic: input.etaPublic,

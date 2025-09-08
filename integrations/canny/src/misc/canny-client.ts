@@ -56,7 +56,7 @@ export type Post = {
     }>
   }
   linear?: {
-    linkedIssueIDs: string[]
+    linkedIssueIds: string[]
   }
   owner?: User
   score: number
@@ -84,13 +84,13 @@ export type Comment = {
 }
 
 export type CreatePostRequest = {
-  authorID: string
-  boardID: string
-  byID?: string
-  categoryID?: string
+  authorId: string
+  boardId: string
+  byId?: string
+  categoryId?: string
   details: string
   title: string
-  ownerID?: string
+  ownerId?: string
   imageURLs?: string[]
   createdAt?: string
   eta?: string
@@ -109,10 +109,10 @@ export type UpdatePostRequest = {
 }
 
 export type CreateCommentRequest = {
-  authorID: string
-  postID: string
+  authorId: string
+  postId: string
   value: string
-  parentID?: string
+  parentId?: string
   imageURLs?: string[]
   internal?: boolean
   shouldNotifyVoters?: boolean
