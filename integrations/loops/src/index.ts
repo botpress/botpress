@@ -1,4 +1,5 @@
 import actions from './actions'
+import { handler } from './handler'
 import { LoopsApi } from './loops.api'
 import * as bp from '.botpress'
 
@@ -10,5 +11,5 @@ export default new bp.Integration({
   unregister: async () => {},
   actions,
   channels: {},
-  handler: async () => {},
+  handler,
 })
