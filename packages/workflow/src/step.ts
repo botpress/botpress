@@ -1,4 +1,4 @@
-import { getContext, saveContext } from './context'
+import { getContext, saveState } from './context'
 import { AbortError, FailedError } from './error'
 
 export const step = async <T>(
@@ -30,9 +30,9 @@ export const step = async <T>(
 
   context.state.steps[name] = { output: output ?? null, attempts: 0 }
 
-  await saveContext({
+  await saveState({
     client: context.client,
-    context: context.state,
+    state: context.state,
     workflowId: context.workflow.id,
   })
 
@@ -77,9 +77,9 @@ step.map = async <T, U>(
       throw new FailedError(`Step "${name}" failed on item ${i} after ${maxAttempts} attempts`)
     }
 
-    await saveContext({
+    await saveState({
       client: context.client,
-      context: context.state,
+      state: context.state,
       workflowId: context.workflow.id,
     })
   }
@@ -87,9 +87,9 @@ step.map = async <T, U>(
   stepContext.output = Object.values(stepContext.steps ?? {}).map((s) => s.output)
   stepContext.steps = undefined
 
-  await saveContext({
+  await saveState({
     client: context.client,
-    context: context.state,
+    state: context.state,
     workflowId: context.workflow.id,
   })
 

@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 import type { WorkflowUpdateEvent } from '@botpress/sdk/src/bot'
-import { type Client, saveContext, storage, type WorkflowContext } from './context'
-import { AbortError, FailedError } from './error'
+import { type Client, getOrSetState, storage, type WorkflowContext } from './context'
+import { AbortError, FailedError, isWorkflowError } from './error'
 import { type Step, step } from './step'
 import { type Wait, wait } from './wait'
 
@@ -39,33 +39,18 @@ export const workflow = <I, O>({ run, name }: WorkflowParams<I, O>) => {
       return workflow
     },
     run: async ({ event, input, client }: { event?: WorkflowUpdateEvent; input: I; client: Client }) => {
-      const workflow =
-        event && event.payload.workflow.name === name && event.type === 'workflow_update'
-          ? event.payload.workflow
-          : await getOrCreateWorkflow({ client, name, event, input })
+      const workflow = await getOrCreateWorkflow({ client, name, event, input })
 
       if (!workflow) {
         throw new Error(`Workflow "${name}" not found`)
       }
 
-      const state = await client.getOrSetState({
-        id: workflow.id,
-        type: 'workflow',
-        payload: {
-          executionCount: 0,
-          steps: {},
-        },
-        name: 'context',
-      })
-
-      state.state.payload.executionCount++
-
-      await saveContext({ client, context: state.state.payload as any, workflowId: workflow.id })
+      const state = await getOrSetState({ client, workflowId: workflow.id })
 
       const ctx = {
         workflow,
         client,
-        state: state.state.payload as any,
+        state,
         abort: () => {
           ctx.aborted = true
         },
@@ -73,15 +58,19 @@ export const workflow = <I, O>({ run, name }: WorkflowParams<I, O>) => {
       }
 
       const output = await storage.run(ctx, () =>
-        run({ ctx, input, step, wait }).catch(async (e) => {
-          if (e instanceof FailedError) {
-            await client.updateWorkflow({
-              id: workflow.id,
-              status: 'failed',
-              output: {},
-            })
+        run({ ctx, input, step, wait, client }).catch(async (e) => {
+          if (isWorkflowError(e)) {
+            if (e.type === 'failed') {
+              if (e instanceof FailedError) {
+                await client.updateWorkflow({
+                  id: workflow.id,
+                  status: 'failed',
+                  output: {},
+                })
 
-            throw new AbortError()
+                throw new AbortError()
+              }
+            }
           }
 
           throw e
@@ -106,12 +95,28 @@ type GetOrCreateWorkflow = {
   name: string
   event?: WorkflowUpdateEvent
   input?: unknown
+  tags?: Record<string, string>
 }
 
-const getOrCreateWorkflow = async ({ client, name, event, input }: GetOrCreateWorkflow) => {
+const getOrCreateWorkflow = async ({ client, name, event, input, tags }: GetOrCreateWorkflow) => {
+  if (event) {
+    if (event.workflowId) {
+      const { workflow } = await client.getWorkflow({ id: event.workflowId })
+
+      if (workflow.name === name) {
+        return workflow
+      }
+    }
+
+    if (event.type === 'workflow_update' && event.payload.workflow.name === name) {
+      return event.payload.workflow
+    }
+  }
+
   const { workflows } = await client.listWorkflows({
-    statuses: ['listening'],
+    statuses: ['listening', 'in_progress', 'pending'],
     name,
+    tags,
   })
 
   if (workflows.length === 0) {
@@ -119,11 +124,9 @@ const getOrCreateWorkflow = async ({ client, name, event, input }: GetOrCreateWo
       name,
       status: event ? 'in_progress' : 'pending',
       eventId: event?.id,
+      tags,
       input,
     })
-
-    // TODO remove this
-    await client.updateWorkflow({ id: workflow.id, status: 'listening' })
 
     return workflow
   }
