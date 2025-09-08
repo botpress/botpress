@@ -4,5 +4,5 @@
     "baseUrl": ".",
     "outDir": "dist"
   },
-  "include": ["interface.definition.ts"]
+  "include": ["*.ts"]
 }

@@ -3,7 +3,7 @@ import rootConfig from '../../eslint.config.mjs'
 export default [
   ...rootConfig,
   {
-    ignores: ['templates/**/*', 'e2e/fixtures/**/*', 'build.ts'],
+    ignores: ['templates/**/*', 'e2e/fixtures/**/*'],
     languageOptions: {
       parserOptions: {
         project: ['./tsconfig.json'],
