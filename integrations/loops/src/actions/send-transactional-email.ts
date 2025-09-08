@@ -1,9 +1,7 @@
-import { ActionHandlerProps } from '@botpress/sdk/dist/integration'
 import { LoopsApi } from 'src/loops.api'
-import { TIntegration } from '.botpress'
-import { Input } from '.botpress/implementation/typings/actions/sendTransactionalEmail/input'
+import * as bp from '.botpress'
 
-export async function sendTransactionalEmail(props: ActionHandlerProps<TIntegration, 'sendTransactionalEmail', Input>) {
+export const sendTransactionalEmail: bp.IntegrationProps['actions']['sendTransactionalEmail'] = async (props) => {
   const logger = props.logger.forBot()
 
   const {

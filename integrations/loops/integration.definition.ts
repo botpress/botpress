@@ -1,5 +1,5 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { actions, configuration } from './definitions'
+import { actions, configuration, events } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'loops',
@@ -10,4 +10,5 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   configuration,
   actions,
+  events,
 })

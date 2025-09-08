@@ -1,4 +1,4 @@
-import { sendTransactionalEmail } from './actions/send-transactional-email'
+import actions from './actions'
 import { LoopsApi } from './loops.api'
 import * as bp from '.botpress'
 
@@ -8,9 +8,7 @@ export default new bp.Integration({
     await loops.verifyApiKey()
   },
   unregister: async () => {},
-  actions: {
-    sendTransactionalEmail,
-  },
+  actions,
   channels: {},
   handler: async () => {},
 })
