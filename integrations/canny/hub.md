@@ -48,27 +48,6 @@ To use a different author, provide an `authorId` of an existing user in your Can
 
 # Usage Examples
 
-## Creating a Post (uses Botpress by default)
-
-```javascript
-const result = await actions.createPost({
-  boardId: 'board456',
-  title: 'New Feature Request',
-  details: 'I would like to see...',
-})
-```
-
-## Creating a Post with specific author
-
-```javascript
-const result = await actions.createPost({
-  authorId: '507f1f77bcf86cd799439011', // Specific user Id
-  boardId: 'board456',
-  title: 'New Feature Request',
-  details: 'I would like to see...',
-})
-```
-
 ## Setting up Webhooks
 
 Configure webhooks in your Canny account to point to your Botpress integration endpoint to automatically sync posts and comments as conversations.
