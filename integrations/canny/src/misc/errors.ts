@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
+import { isAxiosError } from 'axios'
 
 export class InvalidAPIKeyError extends RuntimeError {
   public constructor() {
@@ -7,13 +8,25 @@ export class InvalidAPIKeyError extends RuntimeError {
 }
 
 export class InvalidRequestError extends RuntimeError {
-  public constructor(axiosError: any) {
-    super(`Invalid request: ${axiosError.response?.data?.error || axiosError.message}`)
+  public constructor(thrown: unknown) {
+    let message: string
+    if (isAxiosError(thrown)) {
+      message = thrown.response?.data?.error || thrown.message || 'Unknown error'
+    } else {
+      message = thrown instanceof Error ? thrown.message : String(thrown)
+    }
+    super(`Invalid request: ${message}`)
   }
 }
 
 export class CannyAPIError extends RuntimeError {
-  public constructor(axiosError: any) {
-    super(`Canny API error: ${axiosError.response?.data?.error || axiosError.message || 'Unknown error'}`)
+  public constructor(thrown: unknown) {
+    let message: string
+    if (isAxiosError(thrown)) {
+      message = thrown.response?.data?.error || thrown.message || 'Unknown error'
+    } else {
+      message = thrown instanceof Error ? thrown.message : String(thrown)
+    }
+    super(`Canny API error: ${message}`)
   }
 }
