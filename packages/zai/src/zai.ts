@@ -56,7 +56,7 @@ interface ZaiWithOptions {
    *  - 'fast'
    *  or a "provider:model" string like "openai:gpt-4o-2024-11-20" or "anthropic:claude-3-5-sonnet-20240620"
    */
-  modelId?: ModelId | string
+  modelId?: ModelId | ModelIdString
 
   /** Whether to enable active learning */
   activeLearning?: ActiveLearning
