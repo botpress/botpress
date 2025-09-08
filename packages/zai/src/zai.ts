@@ -76,10 +76,12 @@ type ZaiWithOptions = {
 }
 
 const _ZaiConfig = z.object({
-  client: z.custom<BotpressClientLike | Cognitive>(),
+  client: z
+    .custom<BotpressClientLike | Cognitive>()
+    .describe('An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive).'),
   userId: z.string().describe('The ID of the user consuming the API').optional(),
   modelId: z
-    .custom<ModelId | string>(
+    .custom<ModelId | ModelIdString>(
       (value) => {
         if (typeof value !== 'string') {
           return false
@@ -95,15 +97,22 @@ const _ZaiConfig = z.object({
         message: 'Invalid model ID',
       }
     )
-    .describe('The ID of the model you want to use')
+    .describe(
+      'The ID of the model you want to use. Can be: "best" (default), "fast", or a "provider:model" string from an installed integration like "openai:gpt-4o-2024-11-20" or "anthropic:claude-3-5-sonnet-20240620"'
+    )
     .default('best' satisfies ModelId),
-  activeLearning: _ActiveLearning.default({ enable: false }),
+  activeLearning: _ActiveLearning
+    .describe(
+      'Configure active learning. enable: Whether to enable active learning (default: false), tableName: The name of the table to store active learning tasks (must end with "Table", default: "ActiveLearningTable"), taskId: The ID of the task (default: "default")'
+    )
+    .default({ enable: false }),
   namespace: z
     .string()
     .regex(
       /^[A-Za-z0-9_/-]{1,100}$/,
       'Namespace must be alphanumeric and contain only letters, numbers, underscores, hyphens and slashes'
     )
+    .describe('The namespace to use for the API (alphanumeric with underscores, hyphens and slashes)')
     .default('zai'),
 })
 
