@@ -57,8 +57,7 @@ export const clickedEmailWebhookSchema = _baseSentEmailWebhookEventSchema.extend
   }),
 })
 
-export type SendGridWebhookEvent = z.infer<typeof sendGridWebhookEventSchema>
-export const sendGridWebhookEventSchema = z.union([
+export const emailWebhookEventSchema = z.union([
   processedEmailWebhookSchema,
   deliveredEmailWebhookSchema,
   deferredEmailWebhookSchema,
