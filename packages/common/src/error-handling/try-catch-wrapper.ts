@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 
 type RedactFn = (originalError: Error, customErrorMessage: string) => sdk.RuntimeError
-type AnyFunction = (...args: unknown[]) => unknown
+type AnyFunction = (...args: any[]) => any
 
 const _isPromise = (x: unknown): x is Promise<unknown> =>
   x instanceof Promise || (x !== null && typeof x === 'object' && 'then' in x && typeof x.then === 'function')
