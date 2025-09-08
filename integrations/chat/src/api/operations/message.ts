@@ -1,4 +1,5 @@
 import * as errors from '../../gen/errors'
+import * as msgPayload from '../message-payload'
 import * as types from '../types'
 import * as fid from './fid'
 import * as model from './model'
@@ -15,15 +16,13 @@ export const createMessage: types.AuthenticatedOperations['createMessage'] = asy
     throw new errors.ForbiddenError("You are not a participant in this message's conversation")
   }
 
+  const { type, payload: mappedPayload } = msgPayload.mapChatMessageToBotpress({ payload, metadata })
   const { message } = await props.client.createMessage({
-    type: payload.type,
+    type,
     conversationId,
     tags: {},
     userId,
-    payload: {
-      ...payload,
-      metadata,
-    },
+    payload: mappedPayload,
   })
 
   const res = await fidHandler.mapResponse({

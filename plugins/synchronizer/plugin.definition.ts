@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import semver from 'semver'
 import deletable from './bp_modules/deletable'
 import listable from './bp_modules/listable'
 
@@ -6,7 +7,7 @@ const itemSchema = listable.definition.entities.item.schema
 
 export default new sdk.PluginDefinition({
   name: 'synchronizer',
-  version: '0.0.1',
+  version: '1.0.0',
   configuration: {
     schema: sdk.z.object({
       tableName: sdk.z.string().title('Table Name').describe('The name of the table to store items'),
@@ -68,7 +69,13 @@ export default new sdk.PluginDefinition({
     },
   },
   interfaces: {
-    listable,
-    deletable,
+    listable: {
+      ...listable,
+      version: `>=${semver.major(listable.version)}.0.0 <${semver.major(listable.version) + 1}.0.0`,
+    },
+    deletable: {
+      ...deletable,
+      version: `>=${semver.major(deletable.version)}.0.0 <${semver.major(deletable.version) + 1}.0.0`,
+    },
   },
 })

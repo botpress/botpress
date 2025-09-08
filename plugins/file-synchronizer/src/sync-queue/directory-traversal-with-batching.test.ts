@@ -242,7 +242,7 @@ describe.concurrent('enumerateAllFilesRecursive', () => {
           id: 'file1',
         }),
       ])
-      expect(mocks.logger.debug).toHaveBeenCalledWith('Ignoring item', expect.any(Object))
+      expect(mocks.logger.debug).toHaveBeenCalledWith('Ignoring item', expect.any(Object), expect.any(String))
     })
   })
 })

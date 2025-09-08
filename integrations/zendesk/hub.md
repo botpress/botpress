@@ -26,9 +26,3 @@ Password: `API_TOKEN`
 3.  Enable the integration to complete the setup.
 
 Once these steps are completed, your Zendesk articles will automatically sync to the specified knowledge base in Botpress. You can manually sync by using the "Sync KB" action.
-
-### HITL
-
-#### Via Channel Types
-
-On the "Start HITL" card you can use only "via channel" types documented by [Zendesk Docs](https://developer.zendesk.com/documentation/ticketing/reference-guides/via-types)

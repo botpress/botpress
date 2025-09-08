@@ -1,13 +1,22 @@
 import { axios } from '@botpress/client'
-import { Response, RuntimeError } from '@botpress/sdk'
+import { IntegrationLogger, Response, RuntimeError } from '@botpress/sdk'
 import { ok } from 'assert'
 import _ from 'lodash'
-import { Context, Markup, Telegraf, Telegram } from 'telegraf'
+import { Context, Markup, Telegraf, Telegram, TelegramError } from 'telegraf'
 import { PhotoSize, Update, User, Sticker } from 'telegraf/typings/core/types/typegram'
+import { telegramTextMsgToStdMarkdown } from './telegram-to-markdown'
 import { Card, AckFunction, Logger, MessageHandlerProps, BotpressMessage, TelegramMessage } from './types'
 import * as bp from '.botpress'
 
 export const USER_PICTURE_MAX_SIZE_BYTES = 25_000
+
+export function mapToRuntimeErrorAndThrow(thrown: unknown): never {
+  if (thrown instanceof TelegramError) {
+    throw new RuntimeError(thrown.description, thrown)
+  }
+
+  throw thrown instanceof Error ? new RuntimeError(thrown.message, thrown) : new RuntimeError(String(thrown))
+}
 
 export async function ackMessage(message: TelegramMessage, ack: AckFunction) {
   await ack({ tags: { id: `${message.message_id}` } })
@@ -26,21 +35,25 @@ export async function sendCard(payload: Card, client: Telegraf<Context<Update>>,
         case 'say':
           return Markup.button.callback(item.label, `say:${item.value}`)
         default:
-          throw new Error(`Unknown action type: ${item.action}`)
+          throw new RuntimeError(`Unknown action type: ${item.action}`)
       }
     })
   if (payload.imageUrl) {
-    const message = await client.telegram.sendPhoto(chat, payload.imageUrl, {
-      caption: text,
-      parse_mode: 'MarkdownV2',
-      ...Markup.inlineKeyboard(buttons),
-    })
+    const message = await client.telegram
+      .sendPhoto(chat, payload.imageUrl, {
+        caption: text,
+        parse_mode: 'MarkdownV2',
+        ...Markup.inlineKeyboard(buttons),
+      })
+      .catch(mapToRuntimeErrorAndThrow)
     await ackMessage(message, ack)
   } else {
-    const message = await client.telegram.sendMessage(chat, text, {
-      parse_mode: 'MarkdownV2',
-      ...Markup.inlineKeyboard(buttons),
-    })
+    const message = await client.telegram
+      .sendMessage(chat, text, {
+        parse_mode: 'MarkdownV2',
+        ...Markup.inlineKeyboard(buttons),
+      })
+      .catch(mapToRuntimeErrorAndThrow)
     await ackMessage(message, ack)
   }
 }
@@ -95,7 +108,7 @@ const getMimeTypeFromExtension = (extension: string): string => {
 const getDataUriFromImgHref = async (imgHref: string): Promise<string> => {
   const fileExtension = imgHref.substring(imgHref.lastIndexOf('.') + 1)
 
-  const { data } = await axios.default.get(imgHref, { responseType: 'arraybuffer' })
+  const { data } = await axios.default.get(imgHref, { responseType: 'arraybuffer' }).catch(mapToRuntimeErrorAndThrow)
 
   const base64File = Buffer.from(data, 'binary').toString('base64')
 
@@ -128,7 +141,7 @@ export const getUserPictureDataUri = async ({
 }): Promise<string | null> => {
   try {
     const telegraf = new Telegraf(botToken)
-    const res = await telegraf.telegram.getUserProfilePhotos(telegramUserId)
+    const res = await telegraf.telegram.getUserProfilePhotos(telegramUserId).catch(mapToRuntimeErrorAndThrow)
     logger.forBot().debug('Fetched user profile pictures from Telegram')
 
     if (!res.photos[0]) {
@@ -138,7 +151,7 @@ export const getUserPictureDataUri = async ({
     const photoToUse = getBestPhotoSize(res.photos[0])
 
     if (photoToUse) {
-      const fileLink = await telegraf.telegram.getFileLink(photoToUse.file_id)
+      const fileLink = await telegraf.telegram.getFileLink(photoToUse.file_id).catch(mapToRuntimeErrorAndThrow)
 
       return await getDataUriFromImgHref(fileLink.href)
     }
@@ -152,15 +165,17 @@ export const getUserPictureDataUri = async ({
 export const convertTelegramMessageToBotpressMessage = async ({
   message,
   telegram,
+  logger,
 }: {
   message: TelegramMessage
   telegram: Telegram
+  logger: IntegrationLogger
 }): Promise<BotpressMessage> => {
   if ('photo' in message) {
     const photo = _.maxBy(message.photo, (photo) => photo.height * photo.width)
 
     ok(photo, 'No photo found in message')
-    const fileUrl = await telegram.getFileLink(photo.file_id)
+    const fileUrl = await telegram.getFileLink(photo.file_id).catch(mapToRuntimeErrorAndThrow)
 
     return {
       type: 'image',
@@ -172,7 +187,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
 
   if ('sticker' in message) {
     const stickerMessage = message as TelegramMessage & { sticker: Sticker }
-    const fileUrl = await telegram.getFileLink(stickerMessage.sticker.file_id)
+    const fileUrl = await telegram.getFileLink(stickerMessage.sticker.file_id).catch(mapToRuntimeErrorAndThrow)
     return {
       type: 'image',
       payload: {
@@ -182,7 +197,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
   }
 
   if ('audio' in message) {
-    const fileUrl = await telegram.getFileLink(message.audio.file_id)
+    const fileUrl = await telegram.getFileLink(message.audio.file_id).catch(mapToRuntimeErrorAndThrow)
     return {
       type: 'audio',
       payload: {
@@ -192,7 +207,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
   }
 
   if ('voice' in message) {
-    const fileUrl = await telegram.getFileLink(message.voice.file_id)
+    const fileUrl = await telegram.getFileLink(message.voice.file_id).catch(mapToRuntimeErrorAndThrow)
     return {
       type: 'audio',
       payload: {
@@ -202,7 +217,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
   }
 
   if ('video' in message) {
-    const fileUrl = await telegram.getFileLink(message.video.file_id)
+    const fileUrl = await telegram.getFileLink(message.video.file_id).catch(mapToRuntimeErrorAndThrow)
     return {
       type: 'video',
       payload: {
@@ -212,7 +227,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
   }
 
   if ('document' in message) {
-    const fileUrl = await telegram.getFileLink(message.document.file_id)
+    const fileUrl = await telegram.getFileLink(message.document.file_id).catch(mapToRuntimeErrorAndThrow)
     return {
       type: 'file',
       payload: {
@@ -222,9 +237,12 @@ export const convertTelegramMessageToBotpressMessage = async ({
   }
 
   if ('text' in message) {
+    const { text, warnings } = telegramTextMsgToStdMarkdown(message.text, message.entities)
+    warnings?.forEach((warningMsg) => logger.forBot().warn(warningMsg))
+
     return {
       type: 'text',
-      payload: { text: message.text },
+      payload: { text },
     }
   }
 

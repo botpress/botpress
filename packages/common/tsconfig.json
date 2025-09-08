@@ -6,7 +6,9 @@
     "outDir": "dist",
     "baseUrl": ".",
     "rootDir": "src",
-    "types": ["preact"]
+    "types": ["preact"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*"]
 }

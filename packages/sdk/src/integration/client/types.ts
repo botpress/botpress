@@ -1,14 +1,7 @@
 import * as client from '@botpress/client'
 import * as utils from '../../utils/type-utils'
 import * as common from '../common'
-import {
-  EnumerateMessages,
-  ConversationTags,
-  GetChannelByName,
-  GetMessageByName,
-  MessageTags,
-  TagsOfMessage,
-} from './sub-types'
+import { EnumerateMessages, ConversationTags, GetChannelByName, GetMessageByName, MessageTags } from './sub-types'
 
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
 type Res<F extends (...args: any[]) => any> = ReturnType<F>
@@ -119,12 +112,8 @@ type MessageResponse<
   TMessage extends keyof EnumerateMessages<TIntegration> = keyof EnumerateMessages<TIntegration>,
 > = {
   message: utils.Merge<
-    Awaited<Res<client.Client['createMessage']>>['message'],
-    {
-      type: utils.Cast<TMessage, string>
-      payload: GetMessageByName<TIntegration, TMessage>['payload']
-      tags: common.ToTags<TagsOfMessage<TIntegration, TMessage>>
-    }
+    Awaited<Res<client.Client['getMessage']>>['message'],
+    utils.Cast<EnumerateMessages<TIntegration>[TMessage], object>
   >
 }
 

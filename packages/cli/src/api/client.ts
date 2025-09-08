@@ -1,9 +1,10 @@
 import * as client from '@botpress/client'
+import semver from 'semver'
 import yn from 'yn'
+import * as errors from '../errors'
 import type { Logger } from '../logger'
 import { formatPackageRef, ApiPackageRef, NamePackageRef } from '../package-ref'
 import * as utils from '../utils'
-import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
 import * as retry from './retry'
 
@@ -64,6 +65,25 @@ export class ApiClient {
       '95de33eb-1551-4af9-9088-e5dcb02efd09',
       '11111111-1111-1111-aaaa-111111111111',
     ].includes(this.workspaceId)
+  }
+
+  public async safeListTables(req: client.ClientInputs['listTables']): Promise<
+    | {
+        success: true
+        tables: client.ClientOutputs['listTables']['tables']
+      }
+    | {
+        success: false
+        error: Error
+      }
+  > {
+    try {
+      const result = await this.client.listTables(req)
+      return { success: true, tables: result.tables }
+    } catch (thrown) {
+      const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+      return { success: false, error }
+    }
   }
 
   public async getWorkspace(): Promise<client.ClientOutputs['getWorkspace']> {
@@ -260,11 +280,14 @@ export class ApiClient {
   public listAllPages = paging.listAllPages
 
   public async findPreviousIntegrationVersion(ref: NamePackageRef): Promise<PublicOrPrivateIntegration | undefined> {
-    const previous = await findPreviousIntegrationVersion(this.client, ref)
-    if (!previous) {
-      return
+    const isValidSemverVersion = semver.valid(ref.version)
+
+    // Sanity check (this should never happen):
+    if (!isValidSemverVersion) {
+      throw new errors.BotpressCLIError(`Invalid version "${ref.version}" for integration "${ref.name}"`)
     }
-    return this.findPublicOrPrivateIntegration({ type: 'id', id: previous.id })
+
+    return this.findPublicOrPrivateIntegration({ ...ref, version: `<${ref.version}` })
   }
 
   public async findBotByName(name: string): Promise<BotSummary | undefined> {

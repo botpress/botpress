@@ -1,4 +1,7 @@
+import { RuntimeError } from '@botpress/sdk'
+import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import { Location, SendMessageProps } from './types'
+import * as bp from '.botpress'
 
 export function getGoogleMapLinkFromLocation(payload: Location) {
   return `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
@@ -8,7 +11,7 @@ export function getRecipientId(conversation: SendMessageProps['conversation']): 
   const recipientId = conversation.tags.id
 
   if (!recipientId) {
-    throw Error(`No recipient id found for user ${conversation.id}`)
+    throw new RuntimeError(`No recipient id found for conversation ${conversation.id}`)
   }
 
   return recipientId
@@ -28,7 +31,7 @@ export async function getMediaMetadata(url: string): Promise<FileMetadata> {
   const response = await fetch(url, { method: 'HEAD' })
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch metadata for URL: ${url}`)
+    throw new RuntimeError(`Failed to fetch metadata for URL: ${url}`)
   }
 
   const mimeType = response.headers.get('content-type') ?? 'application/octet-stream'
@@ -37,7 +40,7 @@ export async function getMediaMetadata(url: string): Promise<FileMetadata> {
 
   const fileSize = contentLength ? Number(contentLength) : undefined
   if (fileSize !== undefined && isNaN(fileSize)) {
-    throw new Error(`Failed to parse file size from response: ${contentLength}`)
+    throw new RuntimeError(`Failed to parse file size from response: ${contentLength}`)
   }
 
   // Try to extract filename from content-disposition
@@ -70,4 +73,32 @@ export function getErrorFromUnknown(thrown: unknown): Error {
     return thrown
   }
   return new Error(String(thrown))
+}
+
+export const shouldGetUserProfile = (ctx: bp.Context) => {
+  if (ctx.configurationType === 'sandbox') {
+    return bp.secrets.SANDBOX_SHOULD_GET_USER_PROFILE === 'true'
+  }
+  if (ctx.configurationType === 'manual') {
+    return ctx.configuration.shouldGetUserProfile ?? true
+  }
+
+  return bp.secrets.SHOULD_GET_USER_PROFILE === 'true'
+}
+
+export const tryGetUserProfile = async (
+  messengerClient: MessengerClient,
+  ctx: bp.Context,
+  userId: string,
+  fields?: MessengerTypes.UserProfileField[]
+) => {
+  if (!shouldGetUserProfile(ctx)) {
+    return undefined
+  }
+
+  try {
+    return await messengerClient.getUserProfile(userId, { fields })
+  } catch {
+    return undefined
+  }
 }

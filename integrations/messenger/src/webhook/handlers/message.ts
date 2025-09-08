@@ -6,7 +6,13 @@ import {
   MessengerMessagingEntryMessage,
   MessengerMessagingEntryPostback,
 } from '../../misc/types'
-import { FileMetadata, generateIdFromUrl, getErrorFromUnknown, getMediaMetadata } from '../../misc/utils'
+import {
+  FileMetadata,
+  generateIdFromUrl,
+  getErrorFromUnknown,
+  getMediaMetadata,
+  shouldGetUserProfile,
+} from '../../misc/utils'
 import * as bp from '.botpress'
 
 type IncomingMessageTypes = keyof Pick<bp.channels.channel.Messages, 'audio' | 'image' | 'text' | 'video' | 'bloc'>
@@ -198,21 +204,9 @@ async function _downloadMedia(params: { url: string } & FileMetadata, client: bp
   return { url: file.url, mimeType, fileSize, fileName }
 }
 
-const _shouldGetUserProfile = (props: bp.HandlerProps) => {
-  const { ctx } = props
-  if (ctx.configurationType === 'sandbox') {
-    return bp.secrets.SANDBOX_SHOULD_GET_USER_PROFILE === 'true'
-  }
-  if (ctx.configurationType === 'manual') {
-    return ctx.configuration.shouldGetUserProfile ?? true
-  }
-
-  return bp.secrets.SHOULD_GET_USER_PROFILE === 'true'
-}
-
 const _updateUserProfile = async (user: User, messengerUserId: string, props: bp.HandlerProps) => {
   const { client, ctx, logger } = props
-  if (_shouldGetUserProfile(props) && (!user.name || !user.pictureUrl)) {
+  if (shouldGetUserProfile(ctx) && (!user.name || !user.pictureUrl)) {
     try {
       const messengerClient = await createMessengerClient(client, ctx)
       const profile = await messengerClient.getUserProfile(messengerUserId, { fields: ['id', 'name', 'profile_pic'] })
