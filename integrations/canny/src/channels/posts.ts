@@ -13,8 +13,8 @@ export const posts = {
       }
 
       const botUser = await client.createOrUpdateUser({
-        name: 'BotpressIntegration',
-        userId: 'botpress-integration-user',
+        name: 'Botpress',
+        userId: 'botpress-user',
         email: 'integration@botpress.com',
       })
       const authorId = botUser.id
@@ -39,8 +39,8 @@ export const posts = {
       }
 
       const botUser = await client.createOrUpdateUser({
-        name: 'BotpressIntegration',
-        userId: 'botpress-integration-user',
+        name: 'Botpress',
+        userId: 'botpress-user',
         email: 'integration@botpress.com',
       })
       const authorId = botUser.id

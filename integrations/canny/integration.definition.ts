@@ -72,7 +72,7 @@ export default new IntegrationDefinition({
             .optional()
             .title('Author Id')
             .describe(
-              'The author Id (defaults to the default Author Id from the integration configuration if not provided)'
+              'The author Id (defaults to Botpress user if not provided)'
             ),
           boardId: z.string().title('Board Id').describe('The board Id'),
           title: z.string().title('Post Title').describe('Post title'),
@@ -211,7 +211,7 @@ export default new IntegrationDefinition({
             .string()
             .optional()
             .title('Author Id')
-            .describe('The author Id (defaults to BotpressIntegration user if not provided)'),
+            .describe('The author Id (defaults to Botpress user if not provided)'),
           postId: z.string().title('Post Id').describe('The post Id'),
           value: z.string().title('Comment Text').describe('Comment text'),
           parentId: z.string().optional().title('Parent Id').describe('Parent comment Id for replies'),

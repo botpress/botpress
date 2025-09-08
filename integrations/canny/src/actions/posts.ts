@@ -33,21 +33,21 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
 
   // If no authorId provided, try multiple approaches to create the post
   if (!authorId) {
-    // Skip the identified user approach - go straight to BotpressIntegration
-    let debugInfo = 'Using BotpressIntegration user for post creation. '
+    // Skip the identified user approach - go straight to Botpress
+    let debugInfo = 'Using Botpress user for post creation. '
 
-    // If no identified user found or it failed, create the BotpressIntegration user
+    // If no identified user found or it failed, create the Botpress user
     if (!authorId) {
       const botUser = await client.createOrUpdateUser({
-        name: 'BotpressIntegration',
-        userId: 'botpress-integration-user',
+        name: 'Botpress',
+        userId: 'botpress-user',
         email: 'integration@botpress.com',
       })
 
       // Try approach 1: Use the userId field
       try {
         const result = await client.createPost({
-          authorId: 'botpress-integration-user',
+          authorId: 'botpress-user',
           boardId: input.boardId,
           title: input.title,
           details: input.details,

@@ -42,13 +42,13 @@ To use this integration, you'll need:
 
 # Author ID
 
-Posts and comments will appear as "BotpressIntegration" unless you provide a specific `authorId`.
+Posts and comments will appear as "Botpress" unless you provide a specific `authorId`.
 
 To use a different author, provide an `authorId` of an existing user in your Canny workspace. You can find available user Ids using the "List Users" action.
 
 # Usage Examples
 
-## Creating a Post (uses BotpressIntegration by default)
+## Creating a Post (uses Botpress by default)
 
 ```javascript
 const result = await actions.createPost({
