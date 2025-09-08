@@ -29,11 +29,18 @@ export const actions = {
       }),
     },
   },
-  addReaction: {
-    title: 'Add Reaction',
-    description: 'Add a reaction to a message in a Teams conversation.',
+  addReactions: {
+    //   title: 'Add Reaction',
+    //   description: 'Add a reaction to a message in a Teams conversation.',
+    title: 'Add Reactions',
+    description: 'Add one or more reactions (up to 20) to a chat message',
     input: {
       schema: sdk.z.object({
+        conversationId: sdk.z
+          .string()
+          .title('Botpress Conversation ID')
+          .describe('The ID of any Botpress conversation from channel "Teams", eg: "conv_01JZ..."'),
+        emoji: sdk.z.string().title('Reaction Emoji').describe('The emoji that will be used to react to a message'),
         teamsUserId: sdk.z
           .string()
           .title('Teams User ID')
