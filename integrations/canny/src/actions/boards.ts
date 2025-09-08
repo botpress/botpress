@@ -24,7 +24,7 @@ export const listBoards: ListBoardsAction = async ({ input, ctx }) => {
     const boards = result.boards || []
     const requestedLimit = input.limit || DEFAULT_BOARD_LIMIT
     const hasMore = result.hasMore !== undefined ? result.hasMore : boards.length >= requestedLimit
-    
+
     const nextToken = hasMore ? (input.nextToken ?? 0) + (input.limit ?? DEFAULT_BOARD_LIMIT) : undefined
 
     return {

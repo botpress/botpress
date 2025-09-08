@@ -31,23 +31,35 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
     throw new RuntimeError('details is required to create a post')
   }
 
-  // If no authorId provided, try multiple approaches to create the post
   if (!authorId) {
-    // Skip the identified user approach - go straight to Botpress
-    let debugInfo = 'Using Botpress user for post creation. '
+    const botUser = await client.createOrUpdateUser({
+      name: 'Botpress',
+      userId: 'botpress-user',
+      email: 'integration@botpress.com',
+    })
 
-    // If no identified user found or it failed, create the Botpress user
-    if (!authorId) {
-      const botUser = await client.createOrUpdateUser({
-        name: 'Botpress',
-        userId: 'botpress-user',
-        email: 'integration@botpress.com',
+    // Try approach 1: Use the userId field
+    try {
+      const result = await client.createPost({
+        authorId: 'botpress-user',
+        boardId: input.boardId,
+        title: input.title,
+        details: input.details,
+        byId: input.byId,
+        categoryId: input.categoryId,
+        ownerId: input.ownerId,
+        imageURLs: input.imageURLs,
+        eta: input.eta,
+        etaPublic: input.etaPublic,
+        customFields: input.customFields,
       })
 
-      // Try approach 1: Use the userId field
+      return { postId: result.id }
+    } catch (error1: any) {
+      // Try approach 2: Use the Canny-generated id
       try {
         const result = await client.createPost({
-          authorId: 'botpress-user',
+          authorId: botUser.id,
           boardId: input.boardId,
           title: input.title,
           details: input.details,
@@ -60,100 +72,29 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
           customFields: input.customFields,
         })
 
-        return {
-          postId: result.id,
-        }
-      } catch (error1: any) {
-        debugInfo += `Approach 1 (userId) failed: ${error1.response?.data?.error || error1.message}. `
-        // Try approach 2: Use the Canny-generated id
-        try {
-          const result = await client.createPost({
-            authorId: botUser.id,
-            boardId: input.boardId,
-            title: input.title,
-            details: input.details,
-            byId: input.byId,
-            categoryId: input.categoryId,
-            ownerId: input.ownerId,
-            imageURLs: input.imageURLs,
-            eta: input.eta,
-            etaPublic: input.etaPublic,
-            customFields: input.customFields,
-          })
-
-          return {
-            postId: result.id,
-          }
-        } catch (error2: any) {
-          debugInfo += `Approach 2 (Canny id) failed: ${error2.response?.data?.error || error2.message}. `
-          // Try approach 3: Use byId field as the primary identifier
-          try {
-            const result = await client.createPost({
-              authorId: botUser.id,
-              boardId: input.boardId,
-              title: input.title,
-              details: input.details,
-              byId: botUser.id, // Use the bot user as the admin creating the post
-              categoryId: input.categoryId,
-              ownerId: input.ownerId,
-              imageURLs: input.imageURLs,
-              eta: input.eta,
-              etaPublic: input.etaPublic,
-              customFields: input.customFields,
-            })
-
-            return {
-              postId: result.id,
-            }
-          } catch (error3: any) {
-            debugInfo += `Approach 3 (byId) failed: ${error3.response?.data?.error || error3.message}. `
-            // Try approach 4: Use a generic authorId and rely on byId
-            try {
-              const result = await client.createPost({
-                authorId: 'system', // Try a generic system user
-                boardId: input.boardId,
-                title: input.title,
-                details: input.details,
-                byId: botUser.id, // Use the bot user as the admin creating the post
-                categoryId: input.categoryId,
-                ownerId: input.ownerId,
-                imageURLs: input.imageURLs,
-                eta: input.eta,
-                etaPublic: input.etaPublic,
-                customFields: input.customFields,
-              })
-
-              return {
-                postId: result.id,
-              }
-            } catch (error4: any) {
-              debugInfo += `Approach 4 (system) failed: ${error4.response?.data?.error || error4.message}. `
-              // All approaches failed, throw a helpful error with debug info
-              throw new RuntimeError(
-                `Post creation failed: Canny requires users to be "identified" through their SDK. Debug info: ${debugInfo}Please provide an authorId of a user who has been identified in your Canny workspace! Error: ${error4.response?.data?.error || error4.message}`
-              )
-            }
-          }
-        }
+        return { postId: result.id }
+      } catch (error2: any) {
+        throw new RuntimeError(
+          `Post creation failed: Canny requires users to be "identified" through their SDK. Both approaches failed: userId (${error1.response?.data?.error || error1.message}) and Canny id (${error2.response?.data?.error || error2.message}). Please provide an authorId of a user who has been identified in your Canny workspace!`
+        )
       }
     }
   }
 
-  // If authorId is provided, try to create the post normally
   try {
-        const result = await client.createPost({
-          authorId: authorId,
-          boardId: input.boardId,
-          title: input.title,
-          details: input.details,
-          byId: input.byId,
-          categoryId: input.categoryId,
-          ownerId: input.ownerId,
-          imageURLs: input.imageURLs,
-          eta: input.eta,
-          etaPublic: input.etaPublic,
-          customFields: input.customFields,
-        })
+    const result = await client.createPost({
+      authorId: authorId,
+      boardId: input.boardId,
+      title: input.title,
+      details: input.details,
+      byId: input.byId,
+      categoryId: input.categoryId,
+      ownerId: input.ownerId,
+      imageURLs: input.imageURLs,
+      eta: input.eta,
+      etaPublic: input.etaPublic,
+      customFields: input.customFields,
+    })
 
     return {
       postId: result.id,

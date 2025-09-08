@@ -71,9 +71,7 @@ export default new IntegrationDefinition({
             .string()
             .optional()
             .title('Author Id')
-            .describe(
-              'The author Id (defaults to Botpress user if not provided)'
-            ),
+            .describe('The author Id (defaults to Botpress user if not provided)'),
           boardId: z.string().title('Board Id').describe('The board Id'),
           title: z.string().title('Post Title').describe('Post title'),
           details: z.string().title('Post Details').describe('Post details'),
@@ -181,8 +179,7 @@ export default new IntegrationDefinition({
         }),
       },
       output: {
-        schema: z.object({
-        }),
+        schema: z.object({}),
       },
     },
     deletePost: {
@@ -194,8 +191,7 @@ export default new IntegrationDefinition({
         }),
       },
       output: {
-        schema: z.object({
-        }),
+        schema: z.object({}),
       },
     },
 
@@ -304,8 +300,7 @@ export default new IntegrationDefinition({
         }),
       },
       output: {
-        schema: z.object({
-        }),
+        schema: z.object({}),
       },
     },
 
