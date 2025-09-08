@@ -58,7 +58,12 @@ interface ZaiWithOptions {
    */
   modelId?: ModelId | ModelIdString
 
-  /** Whether to enable active learning */
+  /** Configure active learning
+   *
+   * - `enable`: Whether to enable active learning (default: false)
+   * - `tableName`: The name of the table to store active learning tasks (must end with "Table",default: "ActiveLearningTable")
+   * - `taskId`: The ID of the task (default: "default")
+   */
   activeLearning?: ActiveLearning
 
   /** The namespace to use for the API (alphanumeric with underscores, hyphens and slashes) */
