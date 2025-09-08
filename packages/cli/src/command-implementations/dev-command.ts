@@ -325,6 +325,11 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
     })
+    for (const integration of Object.values(bot.integrations).filter(utils.guards.is.defined)) {
+      if (integration.enabled && integration.status === 'registration_failed') {
+        throw new errors.BotpressCLIError(`${chalk.bold(integration.name)} integration failed to register.`)
+      }
+    }
     updateLine.success(`Dev Bot deployed with id "${updatedBot.id}" at "${externalUrl}"`)
     updateLine.commit()
 
