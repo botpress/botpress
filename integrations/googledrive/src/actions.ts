@@ -124,6 +124,7 @@ const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = wra
 }, 'Error downloading file')
 
 const syncChannels: bp.IntegrationProps['actions']['syncChannels'] = wrapWithTryCatch(async (baseProps) => {
+  // should fail here
   const props = await createActionPropsAndTools(baseProps)
   const { driveClient, fileChannelsCache } = props
   const { fileChannels: newChannels } = await driveClient.tryWatchAll()
