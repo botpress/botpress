@@ -205,7 +205,22 @@ export class CannyClient {
   }
 
   public async createPost(request: CreatePostRequest): Promise<{ id: string }> {
-    const response = await this._client.post('/posts/create', request)
+    // Convert Id fields to ID for Canny API
+    const apiRequest = {
+      authorID: request.authorId,
+      boardID: request.boardId,
+      byID: request.byId,
+      categoryID: request.categoryId,
+      ownerID: request.ownerId,
+      details: request.details,
+      title: request.title,
+      imageURLs: request.imageURLs,
+      createdAt: request.createdAt,
+      eta: request.eta,
+      etaPublic: request.etaPublic,
+      customFields: request.customFields,
+    }
+    const response = await this._client.post('/posts/create', apiRequest)
     return response.data
   }
 
@@ -230,7 +245,17 @@ export class CannyClient {
   }
 
   public async createComment(request: CreateCommentRequest): Promise<{ id: string }> {
-    const response = await this._client.post('/comments/create', request)
+    const apiRequest = {
+      authorID: request.authorId,
+      postID: request.postId,
+      value: request.value,
+      parentID: request.parentId,
+      imageURLs: request.imageURLs,
+      internal: request.internal,
+      shouldNotifyVoters: request.shouldNotifyVoters,
+      createdAt: request.createdAt,
+    }
+    const response = await this._client.post('/comments/create', apiRequest)
     return response.data
   }
 
