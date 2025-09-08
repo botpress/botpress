@@ -1,9 +1,10 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
+import { events } from 'definitions/events'
 import { actions } from './definitions/actions'
 
 export default new IntegrationDefinition({
   name: 'webflow',
-  version: '3.0.0',
+  version: '3.1.0',
   title: 'Webflow',
   description: 'CRUD operations for Webflow CMS',
   readme: 'hub.md',
@@ -27,5 +28,24 @@ export default new IntegrationDefinition({
     deleteItems: actions.deleteItems,
     publishItems: actions.publishItems,
     unpublishLiveItems: actions.unpublishLiveItems,
+  },
+  events: {
+    formSubmission: events.formSubmission,
+
+    sitePublish: events.sitePublish,
+
+    pageCreated: events.pageCreated,
+    pageMetadataUpdated: events.pageMetadataUpdated,
+    pageDeleted: events.pageDeleted,
+
+    collectionItemCreated: events.collectionItemCreated,
+    collectionItemDeleted: events.collectionItemDeleted,
+    collectionItemUpdated: events.collectionItemUpdated,
+    collectionItemPublished: events.collectionItemPublished,
+    collectionItemUnpublished: events.collectionItemUnpublished,
+
+    // user not supported
+    // ecomm not supported
+    commentCreated: events.commentCreated,
   },
 })
