@@ -1,5 +1,5 @@
 import { EventDefinition, IntegrationDefinitionProps } from "@botpress/sdk";
-import { campaignOrLoopEmailEventSchema, fullEmailEventSchema, testEventSchema } from "./schemas";
+import { campaignOrLoopEmailEventSchema, fullEmailEventSchema } from "./schemas";
 
 const emailDelivered = {
   title: 'Email Delivered',
@@ -43,13 +43,6 @@ const emailSpamReported = {
   schema: fullEmailEventSchema,
 } as const satisfies EventDefinition
 
-// TODO: Remove test event for prod
-const testEvent = {
-  title: 'Test Event',
-  description: 'Sent when a test event is triggered.',
-  schema: testEventSchema,
-} as const satisfies EventDefinition
-
 export const events = {
   emailDelivered,
   emailSoftBounced,
@@ -58,5 +51,4 @@ export const events = {
   emailClicked,
   emailUnsubscribed,
   emailSpamReported,
-  testEvent,
 } as const satisfies IntegrationDefinitionProps['events']

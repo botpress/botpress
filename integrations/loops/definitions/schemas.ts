@@ -56,8 +56,3 @@ export const fullEmailEventSchema = _baseEmailEventSchema.extend({
   loopId: z.string().optional().title('Loop ID').describe('The ID of the loop email. Only one of Campaign ID or Loop ID must exist.'),
   transactionalId: z.string().optional().title('Transactional ID').describe('The ID of the transactional email. Only one of Campaign ID, Loop ID, or Transactional ID must exist.'),
 })
-
-// TODO: Remove test schema for prod
-export const testEventSchema = _commonEventSchema.extend({
-  message: z.string().title('Message').describe('The message of the test event'),
-})
