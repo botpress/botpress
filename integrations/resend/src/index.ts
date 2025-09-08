@@ -40,7 +40,11 @@ export default new bp.Integration({
       return
     }
 
-    const eventPayload = webhookEventPayloadSchemas.parse(result.data.body)
-    await dispatchIntegrationEvent(props, eventPayload)
+    const payloadResult = webhookEventPayloadSchemas.safeParse(result.data.body)
+    if (!payloadResult.success) {
+      props.logger.forBot().error('Unexpected webhook event payload', payloadResult.error)
+      return
+    }
+    await dispatchIntegrationEvent(props, payloadResult.data)
   },
 })
