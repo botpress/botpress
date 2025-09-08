@@ -84,13 +84,13 @@ export type Comment = {
 }
 
 export type CreatePostRequest = {
-  authorId: string
-  boardId: string
-  byId?: string
-  categoryId?: string
+  authorID: string
+  boardID: string
+  byID?: string
+  categoryID?: string
   details: string
   title: string
-  ownerId?: string
+  ownerID?: string
   imageURLs?: string[]
   createdAt?: string
   eta?: string
@@ -109,10 +109,10 @@ export type UpdatePostRequest = {
 }
 
 export type CreateCommentRequest = {
-  authorId: string
-  postId: string
+  authorID: string
+  postID: string
   value: string
-  parentId?: string
+  parentID?: string
   imageURLs?: string[]
   internal?: boolean
   shouldNotifyVoters?: boolean
