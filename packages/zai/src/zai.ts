@@ -46,7 +46,7 @@ type ZaiConfig = {
   namespace?: string
 }
 
-interface ZaiWithOptions {
+type ZaiWithOptions = {
   /** The ID of the user consuming the API */
   userId?: string
 
