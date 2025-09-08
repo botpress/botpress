@@ -47,6 +47,11 @@ type ZaiConfig = {
 }
 
 type ZaiWithOptions = {
+  /**
+   * An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive).
+   */
+  client?: BotpressClientLike | Cognitive
+
   /** The ID of the user consuming the API */
   userId?: string
 
