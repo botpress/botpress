@@ -44,6 +44,25 @@ type ZaiConfig = {
   namespace?: string
 }
 
+interface ZaiWithOptions {
+  /** The ID of the user consuming the API */
+  userId?: string
+
+  /** The ID of the model you want to use
+   * Can be:
+   *  - 'best' (default)
+   *  - 'fast'
+   *  or a "provider:model" string like "openai:gpt-4o-2024-11-20" or "anthropic:claude-3-5-sonnet-20240620"
+   */
+  modelId?: ModelId | string
+
+  /** Whether to enable active learning */
+  activeLearning?: ActiveLearning
+
+  /** The namespace to use for the API (alphanumeric with underscores, hyphens and slashes) */
+  namespace?: string
+}
+
 const _ZaiConfig = z.object({
   client: z.custom<BotpressClientLike | Cognitive>(),
   userId: z.string().describe('The ID of the user consuming the API').optional(),
@@ -147,7 +166,7 @@ export class Zai {
     return `${this.namespace}/${this.activeLearning.taskId}`.replace(/\/+/g, '/')
   }
 
-  public with(options: Partial<ZaiConfig>): Zai {
+  public with(options: ZaiWithOptions): Zai {
     return new Zai({
       ...this._originalConfig,
       ...options,
