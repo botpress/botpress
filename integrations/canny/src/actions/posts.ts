@@ -18,7 +18,7 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
     apiKey: ctx.configuration.apiKey,
   })
 
-  let authorId = input.authorId
+  const authorId = input.authorId
 
   if (!input.boardId) {
     throw new RuntimeError('boardId is required to create a post')
@@ -83,7 +83,7 @@ export const createPost: CreatePostAction = async ({ input, ctx }) => {
 
   try {
     const result = await client.createPost({
-      authorId: authorId,
+      authorId,
       boardId: input.boardId,
       title: input.title,
       details: input.details,
