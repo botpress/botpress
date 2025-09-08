@@ -3,15 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/index.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@botpress/client": "workspace:^",
-    "@botpress/sdk": "workspace:^",
-    "glob": "^9.3.4"
+    "@botpress/sdk": "workspace:^"
   }
 }

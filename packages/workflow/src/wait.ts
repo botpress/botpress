@@ -18,14 +18,11 @@ export const wait = {
         throw new FailedError(`Workflow "${workflow.name}" (${workflowId}) failed`)
       }
 
-      if (
-        workflow.status === 'completed' ||
-        workflow.status === 'cancelled' ||
-        workflow.status === 'timedout' ||
-        workflow.status === 'failed'
-      ) {
+      if (status === 'completed' || status === 'cancelled' || status === 'timedout' || status === 'failed') {
         return
       }
+
+      await context.client.updateWorkflow({ id: context.workflow.id, status: 'listening' })
 
       context.abort()
     })
@@ -33,7 +30,9 @@ export const wait = {
   listen: async (name: string) => {
     await step(name, async () => {
       const context = getContext()
+
       await context.client.updateWorkflow({ id: context.workflow.id, status: 'listening' })
+
       context.abort()
     })
   },

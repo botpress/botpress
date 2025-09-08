@@ -36,6 +36,10 @@ export const step = async <T>(
     workflowId: context.workflow.id,
   })
 
+  if (context.aborted) {
+    throw new AbortError()
+  }
+
   return output
 }
 
@@ -92,6 +96,10 @@ step.map = async <T, U>(
     state: context.state,
     workflowId: context.workflow.id,
   })
+
+  if (context.aborted) {
+    throw new AbortError()
+  }
 
   return stepContext.output as U[]
 }

@@ -1,2 +1,2 @@
-export { step } from './step'
 export { workflow } from './workflow'
+export { handler } from './handler'
