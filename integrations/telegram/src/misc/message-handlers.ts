@@ -126,9 +126,9 @@ export const handleCarouselMessage = async ({
   const client = new Telegraf(ctx.configuration.botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending carousel message to Telegram chat ${chat}:`, payload)
-  payload.items.forEach(async (item) => {
+  for (const item of payload.items) {
     await sendCard(item, client, chat, ack)
-  })
+  }
 }
 
 export const handleDropdownMessage = async ({
