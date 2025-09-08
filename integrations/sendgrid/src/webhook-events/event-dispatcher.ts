@@ -1,5 +1,5 @@
 import handlers from './handlers'
-import { SendGridWebhookEvent } from './sendgrid-webhook-schemas'
+import { SendGridWebhookEvent } from './schemas/emails'
 import * as bp from '.botpress'
 
 export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEvent: SendGridWebhookEvent) => {

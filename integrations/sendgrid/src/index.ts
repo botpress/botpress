@@ -3,7 +3,7 @@ import { SendGridClient } from './misc/sendgrid-api'
 import { parseError } from './misc/utils'
 import { parseWebhookData, verifyWebhookSignature } from './misc/webhook-utils'
 import { dispatchIntegrationEvent } from './webhook-events/event-dispatcher'
-import { sendGridWebhookEventSchema } from './webhook-events/sendgrid-webhook-schemas'
+import { sendGridWebhookEventSchema } from './webhook-events/schemas/emails'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
