@@ -182,7 +182,6 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          success: z.boolean().title('Success').describe('Whether the update was successful'),
         }),
       },
     },
@@ -196,7 +195,6 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          success: z.boolean().title('Success').describe('Whether the deletion was successful'),
         }),
       },
     },
@@ -307,7 +305,6 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          success: z.boolean().title('Success').describe('Whether the deletion was successful'),
         }),
       },
     },

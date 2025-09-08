@@ -129,7 +129,5 @@ export const deleteComment: DeleteCommentAction = async ({ input, ctx }) => {
 
   await client.deleteComment(input.commentId)
 
-  return {
-    success: true,
-  }
+  return {}
 }

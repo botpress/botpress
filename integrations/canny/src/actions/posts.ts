@@ -252,9 +252,7 @@ export const updatePost: UpdatePostAction = async ({ input, ctx }) => {
     customFields: input.customFields,
   })
 
-  return {
-    success: true,
-  }
+  return {}
 }
 
 export const deletePost: DeletePostAction = async ({ input, ctx }) => {
@@ -264,7 +262,5 @@ export const deletePost: DeletePostAction = async ({ input, ctx }) => {
 
   await client.deletePost(input.postId)
 
-  return {
-    success: true,
-  }
+  return {}
 }
