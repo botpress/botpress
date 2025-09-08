@@ -36,10 +36,12 @@ const _ActiveLearning = z.object({
     .default('default'),
 })
 
+type ModelIdString = 'best' | 'fast' | `${string}:${string}`
+
 type ZaiConfig = {
   client: BotpressClientLike | Cognitive
   userId?: string
-  modelId?: ModelId | string
+  modelId?: ModelId | ModelIdString
   activeLearning?: ActiveLearning
   namespace?: string
 }
