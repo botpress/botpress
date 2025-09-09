@@ -802,7 +802,6 @@ export class HubspotClient {
     return matchingCompany
   }
 
-  // TODO: Check if this can be deduplicated also
   @handleErrors('Failed to get ticket pipeline')
   private async _getTicketPipeline({ nameOrLabel }: { nameOrLabel: string }) {
     const canonicalName = _getCanonicalName(nameOrLabel)
