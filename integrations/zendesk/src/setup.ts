@@ -121,8 +121,7 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, clien
 
   if (ctx.configuration.syncKnowledgeBaseWithBot) {
     if (!ctx.configuration.knowledgeBaseId) {
-      logger.forBot().error('Knowledge base id was not provided')
-      return
+      throw new sdk.RuntimeError('Knowledge base id was not provided')
     }
     await deleteKbArticles(ctx.configuration.knowledgeBaseId, client)
   }
