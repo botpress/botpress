@@ -22,13 +22,15 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
 
   await zendeskClient.createArticleWebhook(webhookUrl, ctx.webhookId)
 
-  const user = await zendeskClient.createOrUpdateUser({
-    role: 'end-user',
-    external_id: ctx.botUserId,
-    name: 'Botpress',
-    // FIXME: use a PNG image hosted on the Botpress CDN
-    remote_photo_url: 'https://app.botpress.dev/favicon/bp.svg',
-  })
+  const user = await zendeskClient
+    .createOrUpdateUser({
+      role: 'end-user',
+      external_id: ctx.botUserId,
+      name: 'Botpress',
+      // FIXME: use a PNG image hosted on the Botpress CDN
+      remote_photo_url: 'https://app.botpress.dev/favicon/bp.svg',
+    })
+    .catch(_handleError('Failed getting or creating error'))
 
   await client.updateUser({
     id: ctx.botUserId,
@@ -121,4 +123,14 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, clien
     }
     await deleteKbArticles(ctx.configuration.knowledgeBaseId, client)
   }
+}
+
+const _handleError = (outterMessage: string) => (thrown: unknown) => {
+  let innerMessage: string | undefined = undefined
+
+  const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+  innerMessage = err.message
+
+  const fullMessage = innerMessage ? `${outterMessage}: ${innerMessage}` : outterMessage
+  throw new sdk.RuntimeError(fullMessage)
 }
