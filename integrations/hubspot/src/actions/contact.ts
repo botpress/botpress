@@ -40,7 +40,7 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
   })
 
   return {
-    contact: contact ? _mapHsContactToBpContact(contact) : undefined,
+    contact: _mapHsContactToBpContact(contact),
   }
 }
 
