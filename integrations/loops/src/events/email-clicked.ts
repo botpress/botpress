@@ -1,7 +1,7 @@
-import { TIntegration } from '.botpress'
 import { WebhookHandlerProps } from '@botpress/sdk/dist/integration'
 import { campaignOrLoopEmailEventSchema } from 'definitions/schemas'
 import { formatWebhookEventPayload, TValidWebhookEventPayload } from 'src/loops.webhook'
+import { TIntegration } from '.botpress'
 
 export const fireEmailClicked = async (
   client: WebhookHandlerProps<TIntegration>['client'],

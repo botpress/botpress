@@ -1,7 +1,7 @@
-import { TIntegration } from '.botpress'
 import { RuntimeError, z } from '@botpress/sdk'
 import { WebhookHandlerProps } from '@botpress/sdk/dist/integration'
 import crypto from 'crypto'
+import { TIntegration } from '.botpress'
 
 export type TValidWebhookEventPayload = { eventName: string }
 
@@ -64,7 +64,7 @@ export const getWebhookEventPayload = (
     }
 
     return payload
-  } catch (error) {
+  } catch (_) {
     throw new RuntimeError('Webhook request has an invalid JSON body')
   }
 }

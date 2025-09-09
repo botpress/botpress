@@ -1,7 +1,7 @@
-import * as bp from '.botpress'
-import { getWebhookEventPayload, verifyWebhookSignature } from './loops.webhook'
-import events from './events'
 import { RuntimeError } from '@botpress/sdk'
+import events from './events'
+import { getWebhookEventPayload, verifyWebhookSignature } from './loops.webhook'
+import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   props.logger.forBot().info('Handler received request from Loops with request:', props.req)
