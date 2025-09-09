@@ -1,4 +1,5 @@
 import { isApiError } from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import { getZendeskClient } from './client'
 import { uploadArticlesToKb } from './misc/upload-articles-to-kb'
 import { deleteKbArticles } from './misc/utils'
@@ -16,8 +17,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
   const subscriptionId = await zendeskClient.subscribeWebhook(webhookUrl)
 
   if (!subscriptionId) {
-    logger.forBot().error('Could not create webhook subscription')
-    return
+    throw new sdk.RuntimeError('Could not create webhook subscription')
   }
 
   await zendeskClient.createArticleWebhook(webhookUrl, ctx.webhookId)
@@ -30,17 +30,19 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
       // FIXME: use a PNG image hosted on the Botpress CDN
       remote_photo_url: 'https://app.botpress.dev/favicon/bp.svg',
     })
-    .catch(_handleError('Failed getting or creating error'))
+    .catch(_handleError('Failed to create or update user'))
 
-  await client.updateUser({
-    id: ctx.botUserId,
-    pictureUrl: 'https://app.botpress.dev/favicon/bp.svg',
-    name: 'Botpress',
-    tags: {
-      id: `${user.id}`,
-      role: 'bot-user',
-    },
-  })
+  await client
+    .updateUser({
+      id: ctx.botUserId,
+      pictureUrl: 'https://app.botpress.dev/favicon/bp.svg',
+      name: 'Botpress',
+      tags: {
+        id: `${user.id}`,
+        role: 'bot-user',
+      },
+    })
+    .catch(_handleError('Failed updating user'))
 
   const triggersCreated: string[] = []
 
@@ -50,21 +52,22 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
       triggersCreated.push(triggerId)
     }
   } finally {
-    await client.setState({
-      type: 'integration',
-      id: ctx.integrationId,
-      name: 'subscriptionInfo',
-      payload: {
-        subscriptionId,
-        triggerIds: triggersCreated,
-      },
-    })
+    await client
+      .setState({
+        type: 'integration',
+        id: ctx.integrationId,
+        name: 'subscriptionInfo',
+        payload: {
+          subscriptionId,
+          triggerIds: triggersCreated,
+        },
+      })
+      .catch(_handleError('Failed setting state'))
   }
 
   if (ctx.configuration.syncKnowledgeBaseWithBot) {
     if (!ctx.configuration.knowledgeBaseId) {
-      logger.forBot().error('No KB id provided')
-      return
+      throw new sdk.RuntimeError('No KB id provided')
     }
     await uploadArticlesToKb({ ctx, client, logger, kbId: ctx.configuration.knowledgeBaseId })
   }
@@ -126,11 +129,7 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, clien
 }
 
 const _handleError = (outterMessage: string) => (thrown: unknown) => {
-  let innerMessage: string | undefined = undefined
-
-  const err = thrown instanceof Error ? thrown : new Error(String(thrown))
-  innerMessage = err.message
-
+  const innerMessage = (thrown instanceof Error ? thrown : new Error(String(thrown))).message
   const fullMessage = innerMessage ? `${outterMessage}: ${innerMessage}` : outterMessage
   throw new sdk.RuntimeError(fullMessage)
 }
