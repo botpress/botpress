@@ -130,7 +130,7 @@ export class HubspotClient {
     })
     const hsContact = contacts.results[0]
     if (!hsContact) {
-      return undefined
+      throw new sdk.RuntimeError('Unable to find contact')
     }
 
     return hsContact
