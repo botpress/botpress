@@ -24,7 +24,6 @@ const ignores = [
   '**/.genenv/',
   '**/.ignore.me.*',
   '**/*.md.ts',
-  'packages/llmz/examples/',
 ]
 
 const oxlintRules = oxlint
