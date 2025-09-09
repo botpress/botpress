@@ -5,7 +5,7 @@ export const sendTransactionalEmail: bp.IntegrationProps['actions']['sendTransac
   const logger = props.logger.forBot()
 
   const {
-    input: { email, transactionalId, dataVariableEntries, addToAudience, idempotencyKey },
+    input: { email, transactionalId, dataVariables: dataVariableEntries, addToAudience, idempotencyKey },
     ctx: {
       configuration: { apiKey },
     },
