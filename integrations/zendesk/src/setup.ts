@@ -14,13 +14,13 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
   }
 
   const zendeskClient = getZendeskClient(ctx.configuration)
-  const subscriptionId = await zendeskClient.subscribeWebhook(webhookUrl)
+  const subscriptionId = await zendeskClient
+    .subscribeWebhook(webhookUrl)
+    .catch(_handleError('Failed to create webhook subscription'))
 
-  if (!subscriptionId) {
-    throw new sdk.RuntimeError('Could not create webhook subscription')
-  }
-
-  await zendeskClient.createArticleWebhook(webhookUrl, ctx.webhookId)
+  await zendeskClient
+    .createArticleWebhook(webhookUrl, ctx.webhookId)
+    .catch(_handleError('Failed to create article webhook'))
 
   const user = await zendeskClient
     .createOrUpdateUser({
@@ -86,8 +86,8 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, clien
       if (isApiError(thrown) && thrown.type === 'ResourceNotFound') {
         return { state: null }
       }
-      logger.forBot().error('Could not get subscription info state', thrown)
-      throw thrown
+      const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+      throw new sdk.RuntimeError(`Failed to get state : ${err.message}`)
     })
 
   if (state === null) {
@@ -96,34 +96,40 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, clien
   }
 
   if (state.payload.subscriptionId?.length) {
-    await zendeskClient.unsubscribeWebhook(state.payload.subscriptionId).catch((err) => {
-      logger.forBot().error('Could not unsubscribe webhook', err)
-    })
+    await zendeskClient
+      .unsubscribeWebhook(state.payload.subscriptionId)
+      .catch(_handleError('Failed to unsubscribe webhook'))
   }
 
   if (state.payload.triggerIds?.length) {
-    for (const trigger of state.payload.triggerIds) {
-      await zendeskClient.deleteTrigger(trigger).catch((err) => {
-        logger.forBot().error('Could not delete trigger', err)
-      })
-    }
+    await Promise.all(
+      state.payload.triggerIds.map((trigger) =>
+        zendeskClient.deleteTrigger(trigger).catch(_handleError('Failed to unsubscribe webhook'))
+      )
+    )
   }
 
-  const articleWebhooks = await zendeskClient.findWebhooks({
-    'filter[name_contains]': `bpc_article_event_${ctx.webhookId}`,
-  })
-
-  for (const articleWebhook of articleWebhooks) {
-    await zendeskClient.deleteWebhook(articleWebhook.id).catch((err) => {
-      logger.forBot().error('Could not delete article webhook', err)
+  const articleWebhooks = await zendeskClient
+    .findWebhooks({
+      'filter[name_contains]': `bpc_article_event_${ctx.webhookId}`,
     })
-  }
+    .catch(_handleError('Failed to find webhooks'))
+
+  await Promise.all(
+    articleWebhooks.map((articleWebhook) =>
+      zendeskClient
+        .deleteWebhook(articleWebhook.id)
+        .catch(_handleError(`Failed to delete webhook ${articleWebhook.name}`))
+    )
+  )
 
   if (ctx.configuration.syncKnowledgeBaseWithBot) {
     if (!ctx.configuration.knowledgeBaseId) {
       throw new sdk.RuntimeError('Knowledge base id was not provided')
     }
-    await deleteKbArticles(ctx.configuration.knowledgeBaseId, client)
+    await deleteKbArticles(ctx.configuration.knowledgeBaseId, client).catch(
+      _handleError('Failed to delete knowledge base articles')
+    )
   }
 }
 
