@@ -1,7 +1,9 @@
 import { TIntegration } from '.botpress'
-import { RuntimeError } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import { WebhookHandlerProps } from '@botpress/sdk/dist/integration'
 import crypto from 'crypto'
+
+export type TValidWebhookEventPayload = { eventName: string }
 
 export function validateWebhookSigningSecret(value: string): void {
   if (!value || !value.startsWith('whsec_')) {
@@ -17,7 +19,7 @@ export function validateWebhookSigningSecret(value: string): void {
   }
 }
 
-export const verifyWebhookSignature = async (props: WebhookHandlerProps<TIntegration>): Promise<void> => {
+export const verifyWebhookSignature = (props: WebhookHandlerProps<TIntegration>): void => {
   const headers = props.req.headers
 
   const eventId = headers['webhook-id']
@@ -45,4 +47,33 @@ export const verifyWebhookSignature = async (props: WebhookHandlerProps<TIntegra
   }
 
   props.logger.forBot().info('Webhook signature of incoming request verified successfully')
+}
+
+export const getWebhookEventPayload = (body: WebhookHandlerProps<TIntegration>['req']['body']): TValidWebhookEventPayload => {
+  if (!body) {
+    throw new RuntimeError('Webhook request is missing body')
+  }
+
+  try {
+    const payload = JSON.parse(body)
+
+    if (!payload.hasOwnProperty('eventName')) {
+      throw new RuntimeError('Webhook request is missing the event name')
+    }
+
+    return payload
+  }
+  catch (error) {
+    throw new RuntimeError('Webhook request has an invalid JSON body')
+  } 
+}
+
+export const formatWebhookEventPayload = (payload: TValidWebhookEventPayload, targetSchema: z.ZodSchema): z.infer<typeof targetSchema> => {
+  const formattedPayload = targetSchema.safeParse(payload)
+
+  if (!formattedPayload.success) {
+    throw new RuntimeError(`The payload of this webhook event does not match the expected schema of an event of type ${payload.eventName}`)
+  }
+
+  return formattedPayload.data
 }
