@@ -215,7 +215,7 @@ export class Cognitive {
           if (action === 'fallback') {
             // We don't want to retry if the request was already retried with a fallback model
             this._downtimes.push({
-              ref: `${integration!}:${model!}`,
+              ref: `${integration!}:${model!}` as ModelRef,
               startedAt: new Date().toISOString(),
               reason: 'Model is down',
             })

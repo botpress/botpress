@@ -6,8 +6,9 @@ import { BotpressClientLike } from './types'
 export const DOWNTIME_THRESHOLD_MINUTES = 5
 const PREFERENCES_FILE_SUFFIX = 'models.config.json'
 
-export const DEFAULT_INTEGRATIONS = ['google-ai', 'anthropic', 'openai', 'cerebras', 'fireworks-ai', 'groq']
+export const DEFAULT_INTEGRATIONS = ['google-ai', 'anthropic', 'openai', 'cerebras', 'fireworks-ai', 'groq'] as const
 
+export type IntegrationId = (typeof DEFAULT_INTEGRATIONS)[number]
 // Biases for vendors and models
 const VendorPreferences = ['google-ai', 'anthropic', 'openai']
 const BestModelPreferences = ['4.1', '4o', '3-5-sonnet', 'gemini-1.5-pro']
@@ -19,10 +20,10 @@ const LowTokensPenalty = 128_000 // 128k tokens
 
 export type Model = RawModel & {
   ref: ModelRef
-  integration: string
+  integration: IntegrationId
 }
 
-export type ModelRef = `${string}:${string}`
+export type ModelRef = `${IntegrationId}:${string}`
 
 export type ModelPreferences = {
   best: ModelRef[]
@@ -145,8 +146,8 @@ export class RemoteModelProvider extends ModelProvider {
         for (const model of output.models as RawModel[]) {
           if (model.name && model.id && model.input && model.tags) {
             models.push({
-              ref: `${integration}:${model.id}`,
-              integration,
+              ref: `${integration}:${model.id}` as ModelRef,
+              integration: integration as IntegrationId,
               id: model.id,
               name: model.name,
               description: model.description,

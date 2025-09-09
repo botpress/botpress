@@ -1,5 +1,6 @@
 import { Client } from '@botpress/client'
 import { BotpressClientLike, Cognitive, Model } from '@botpress/cognitive'
+import { IntegrationId, ModelRef } from '@botpress/cognitive/src/models'
 
 import { type TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
 import { z } from '@bpinternal/zui'
@@ -8,7 +9,7 @@ import { Adapter } from './adapters/adapter'
 import { TableAdapter } from './adapters/botpress-table'
 import { MemoryAdapter } from './adapters/memory'
 
-type ModelId = Required<Parameters<Cognitive['generateContent']>[0]['model']>
+type ModelId = 'best' | 'fast' | ModelRef
 
 type ActiveLearning = {
   enable: boolean
@@ -36,12 +37,10 @@ const _ActiveLearning = z.object({
     .default('default'),
 })
 
-type ModelIdString = 'best' | 'fast' | `${string}:${string}`
-
 type ZaiConfig = {
   client: BotpressClientLike | Cognitive
   userId?: string
-  modelId?: ModelId | ModelIdString
+  modelId?: ModelId
   activeLearning?: ActiveLearning
   namespace?: string
 }
@@ -52,20 +51,38 @@ const _ZaiConfig = z.object({
     .describe('An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive).'),
   userId: z.string().describe('The ID of the user consuming the API').optional(),
   modelId: z
-    .custom<ModelId | ModelIdString>(
+    .custom<ModelId>(
       (value) => {
         if (typeof value !== 'string') {
           return false
         }
 
-        if (value !== 'best' && value !== 'fast' && !value.includes(':')) {
-          return false
+        if (value === 'best' || value === 'fast') {
+          return true
         }
 
-        return true
+        if (value.includes(':')) {
+          const [integration, ...modelParts] = value.split(':')
+          const model = modelParts.join(':')
+
+          const supportedIntegrations: IntegrationId[] = [
+            'google-ai',
+            'anthropic',
+            'openai',
+            'cerebras',
+            'fireworks-ai',
+            'groq',
+          ]
+          if (!supportedIntegrations.includes(integration as IntegrationId)) {
+            return false
+          }
+          return true
+        }
+        return false
       },
       {
-        message: 'Invalid model ID',
+        message:
+          'Invalid model ID. Must be "best", "fast", or in format "integration:model" where integration is one of: google-ai, anthropic, openai, cerebras, fireworks-ai, groq',
       }
     )
     .describe(
