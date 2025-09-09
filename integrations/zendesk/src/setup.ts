@@ -69,7 +69,9 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
     if (!ctx.configuration.knowledgeBaseId) {
       throw new sdk.RuntimeError('No KB id provided')
     }
-    await uploadArticlesToKb({ ctx, client, logger, kbId: ctx.configuration.knowledgeBaseId })
+    await uploadArticlesToKb({ ctx, client, logger, kbId: ctx.configuration.knowledgeBaseId }).catch(
+      _handleError('Failed uploading articles to knowledge base')
+    )
   }
 }
 
@@ -104,7 +106,7 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, clien
   if (state.payload.triggerIds?.length) {
     await Promise.all(
       state.payload.triggerIds.map((trigger) =>
-        zendeskClient.deleteTrigger(trigger).catch(_handleError('Failed to unsubscribe webhook'))
+        zendeskClient.deleteTrigger(trigger).catch(_handleError(`Failed to delete trigger : ${trigger}`))
       )
     )
   }
@@ -119,7 +121,7 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, clien
     articleWebhooks.map((articleWebhook) =>
       zendeskClient
         .deleteWebhook(articleWebhook.id)
-        .catch(_handleError(`Failed to delete webhook ${articleWebhook.name}`))
+        .catch(_handleError(`Failed to delete webhook : ${articleWebhook.name}`))
     )
   )
 
