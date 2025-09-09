@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import axios, { Axios, AxiosResponse } from 'axios'
-import { Actions } from '.botpress/implementation/typings/actions'
+import { Actions } from '../.botpress/implementation/typings/actions'
 
 type Input<K extends keyof Actions> = Actions[K]['input']
 
