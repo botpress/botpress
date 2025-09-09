@@ -1,8 +1,12 @@
 import { z, ActionDefinition } from '@botpress/sdk'
 
-const contactSchema = z.object({
+export const contactSchema = z.object({
   id: z.string().title('Contact ID').describe('The ID of the contact'),
-  properties: z.record(z.any()).title('Properties').describe('The properties of the contact'),
+  email: z.string().title('Email').describe('The email of the contact'),
+  phone: z.string().title('Phone').describe('The phone number of the contact'),
+  createdAt: z.string().title('Created At').describe('The date and time the contact was created'),
+  updatedAt: z.string().title('Updated At').describe('The date and time the contact was last updated'),
+  properties: z.record(z.string().nullable()).title('Properties').describe('The properties of the contact'),
 })
 
 const searchContact: ActionDefinition = {
@@ -80,11 +84,7 @@ const getContact: ActionDefinition = {
   description: 'Get a contact from Hubspot',
   input: {
     schema: z.object({
-      contactIdOrEmail: z
-        .string()
-        .min(1)
-        .title('Contact ID or Email')
-        .describe('The ID or email of the contact to get'),
+      contactIdOrEmail: z.string().title('Contact ID or Email').describe('The ID or email of the contact to get'),
       properties: z
         .array(z.string())
         .optional()
@@ -104,11 +104,7 @@ const updateContact: ActionDefinition = {
   description: 'Update a contact in Hubspot',
   input: {
     schema: z.object({
-      contactIdOrEmail: z
-        .string()
-        .min(1)
-        .title('Contact ID or Email')
-        .describe('The ID or email of the contact to update'),
+      contactIdOrEmail: z.string().title('Contact ID or Email').describe('The ID or email of the contact to update'),
       email: z.string().optional().title('Email').describe('The new email of the contact'),
       phone: z.string().optional().title('Phone').describe('The new phone number of the contact'),
       properties: z
@@ -125,7 +121,14 @@ const updateContact: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      contact: contactSchema.title('Contact').describe('The updated contact'),
+      contact: contactSchema
+        .extend({
+          // May not be returned by API
+          phone: contactSchema.shape.phone.optional(),
+          email: contactSchema.shape.email.optional(),
+        })
+        .title('Contact')
+        .describe('The updated contact'),
     }),
   },
 }
@@ -135,7 +138,7 @@ const deleteContact: ActionDefinition = {
   description: 'Delete a contact in Hubspot',
   input: {
     schema: z.object({
-      contactId: z.string().min(1).title('Contact ID').describe('The ID of the contact to delete'),
+      contactId: z.string().title('Contact ID').describe('The ID of the contact to delete'),
     }),
   },
   output: {

@@ -13,12 +13,41 @@ import * as bp from '.botpress'
 
 type TicketPipelinesCache = bp.states.States['ticketPipelineCache']['payload']['pipelines']
 type TicketPipeline = TicketPipelinesCache[string]
-
 const PAGING_LIMIT = 100
 
 // Builtin properties normally returned by API when doing a 'get' operation
 const DEFAULT_CONTACT_PROPERTIES = ['createdate', 'email', 'firstname', 'lastmodifieddate', 'lastname', 'phone']
 const DEFAULT_COMPANY_PROPERTIES = ['createdate', 'domain', 'name', 'hs_lastmodifieddate', 'phone']
+const DEFAULT_DEAL_PROPERTIES = [
+  'dealname',
+  'pipeline',
+  'dealstage',
+  'closedate',
+  'amount',
+  'hubspot_owner_id',
+  'createdate',
+  'hs_lastmodifieddate',
+  'hs_lastactivitydate',
+  'hs_last_contacted',
+  'hs_next_activity_date',
+  'num_associated_contacts',
+]
+const DEFAULT_LEAD_PROPERTIES = [
+  'hs_lead_name',
+  'hs_pipeline_stage',
+  'hs_createdate',
+  'hs_lastmodifieddate',
+  'hs_lead_name',
+  'hs_lead_name_calculated',
+  'hs_object_id',
+  'hs_object_source',
+  'hs_object_source_id',
+  'hs_object_source_label',
+  'hs_pipeline',
+  'hs_pipeline_stage',
+  'hs_pipeline_stage_last_updated',
+  'hs_primary_associated_object_name',
+]
 const DEFAULT_TICKET_PROPERTIES = [
   'createdate',
   'hs_pipeline',
@@ -100,6 +129,9 @@ export class HubspotClient {
       properties: [...DEFAULT_CONTACT_PROPERTIES, ...(propertiesToReturn ?? [])],
     })
     const hsContact = contacts.results[0]
+    if (!hsContact) {
+      return undefined
+    }
 
     return hsContact
   }
@@ -227,28 +259,23 @@ export class HubspotClient {
       ],
     })
 
-    return {
-      contactId: newContact.id,
-      properties: newContact.properties,
-    }
+    return newContact
   }
 
   @handleErrors('Failed to get contact by ID')
   public async getContact({ contactId, propertiesToReturn }: { contactId: string; propertiesToReturn?: string[] }) {
-    await this._validateProperties({ properties: propertiesToReturn ?? [], type: 'contact' })
+    const allPropertiesToReturn = [...DEFAULT_CONTACT_PROPERTIES, ...(propertiesToReturn ?? [])]
+    await this._validateProperties({ properties: allPropertiesToReturn ?? [], type: 'contact' })
     const idProperty = contactId.includes('@') ? 'email' : undefined
     const contact = await this._hsClient.crm.contacts.basicApi.getById(
       contactId,
-      propertiesToReturn,
+      allPropertiesToReturn,
       undefined,
       undefined,
       undefined,
       idProperty
     )
-    return {
-      contactId: contact.id,
-      properties: contact.properties,
-    }
+    return contact
   }
 
   @handleErrors('Failed to update contact')
@@ -280,10 +307,7 @@ export class HubspotClient {
       },
       idProperty
     )
-    return {
-      contactId: updatedContact.id,
-      properties: updatedContact.properties,
-    }
+    return updatedContact
   }
 
   @handleErrors('Failed to delete contact')
@@ -294,13 +318,9 @@ export class HubspotClient {
   @handleErrors('Failed to list contacts')
   public async listContacts({ properties, nextToken }: { properties?: string[]; nextToken?: string }) {
     const { results, paging } = await this._hsClient.crm.contacts.basicApi.getPage(PAGING_LIMIT, nextToken, properties)
-    const contacts = results.map((contact) => ({
-      id: contact.id,
-      properties: contact.properties,
-    }))
 
     return {
-      contacts,
+      contacts: results,
       nextToken: paging?.next?.after,
     }
   }
@@ -316,28 +336,29 @@ export class HubspotClient {
     ticketOwnerEmailOrId,
     companyIdOrNameOrDomain,
     requesterEmailOrId,
-    linearTicketUrl,
     source,
     additionalProperties,
   }: {
     subject: string
-    category?: 'Product Issue' | 'Billing Issue' | 'Feature Request' | 'General Inquiry'
+    category?: string
     description?: string
-    pipelineNameOrId: string
-    pipelineStageNameOrId: string
-    priority?: 'Low' | 'Medium' | 'High' | 'Urgent'
+    pipelineNameOrId?: string
+    pipelineStageNameOrId?: string
+    priority?: string
     ticketOwnerEmailOrId?: string
     companyIdOrNameOrDomain?: string
     requesterEmailOrId?: string
-    linearTicketUrl?: string
-    source?: 'Zoom' | 'Email' | 'Phone' | 'Chat' | 'Form'
+    source?: string
     additionalProperties: Record<string, string>
   }) {
-    const pipeline = await this._getTicketPipeline({ nameOrLabel: pipelineNameOrId })
-    const pipelineStage = this._getTicketPipelineStage({
-      nameOrLabel: pipelineStageNameOrId,
-      stages: pipeline.stages,
-    })
+    const pipeline = pipelineNameOrId ? await this._getTicketPipeline({ nameOrLabel: pipelineNameOrId }) : undefined
+    const pipelineStage =
+      pipelineStageNameOrId && pipeline
+        ? this._getTicketPipelineStage({
+            nameOrLabel: pipelineStageNameOrId,
+            stages: pipeline.stages,
+          })
+        : undefined
 
     const resolvedProperties: Record<string, any> = {}
 
@@ -374,11 +395,10 @@ export class HubspotClient {
         subject,
         ...(category ? { hs_ticket_category: category.toUpperCase().replace(' ', '_') } : {}),
         ...(description ? { content: description } : {}),
-        hs_pipeline: pipeline.id,
-        hs_pipeline_stage: pipelineStage.id,
+        ...(pipeline ? { hs_pipeline: pipeline.id } : {}),
+        ...(pipelineStage ? { hs_pipeline_stage: pipelineStage.id } : {}),
         ...(priority ? { hs_ticket_priority: priority.toUpperCase() } : {}),
         ...(source ? { source_type: source === 'Zoom' ? 'Zoom' : source.toUpperCase() } : {}),
-        ...(linearTicketUrl ? { linear_ticket: linearTicketUrl } : {}),
         ...(ticketOwner ? { hubspot_owner_id: ticketOwner?.id } : {}),
         ...resolvedProperties,
       },
@@ -412,13 +432,11 @@ export class HubspotClient {
       ],
     }
 
-    const newTicket = await this._hsClient.crm.tickets.basicApi.create(ticketCreateInput)
-
-    return { ticketId: newTicket.id }
+    return await this._hsClient.crm.tickets.basicApi.create(ticketCreateInput)
   }
 
   @handleErrors('Failed to search deal')
-  public async searchDeal({ name }: { name?: string }) {
+  public async searchDeal({ name, propertiesToReturn }: { name?: string; propertiesToReturn?: string[] }) {
     const filters = []
 
     if (name) {
@@ -439,6 +457,7 @@ export class HubspotClient {
           filters,
         },
       ],
+      properties: [...DEFAULT_DEAL_PROPERTIES, ...(propertiesToReturn ?? [])],
     })
 
     const deal = deals.results[0]
@@ -454,6 +473,7 @@ export class HubspotClient {
   public async getDealById({ dealId, propertiesToReturn }: { dealId: string; propertiesToReturn?: string[] }) {
     const deal = await this._hsClient.crm.deals.basicApi.getById(dealId, [
       // Builtin properties normally returned by API
+      ...DEFAULT_DEAL_PROPERTIES,
       ...(propertiesToReturn ?? []),
     ])
 
@@ -498,7 +518,7 @@ export class HubspotClient {
       associations: contact
         ? [
             {
-              to: { id: contact.contactId },
+              to: { id: contact.id },
               types: [
                 {
                   associationCategory: AssociationSpecAssociationCategoryEnum.HubspotDefined,
@@ -515,7 +535,10 @@ export class HubspotClient {
 
   @handleErrors('Failed to get lead')
   public async getLeadById({ leadId, propertiesToReturn }: { leadId: string; propertiesToReturn?: string[] }) {
-    const lead = await this._hsClient.crm.objects.leads.basicApi.getById(leadId, propertiesToReturn)
+    const lead = await this._hsClient.crm.objects.leads.basicApi.getById(leadId, [
+      ...DEFAULT_LEAD_PROPERTIES,
+      ...(propertiesToReturn ?? []),
+    ])
     return lead
   }
 
@@ -555,7 +578,7 @@ export class HubspotClient {
           filters,
         },
       ],
-      properties: propertiesToReturn,
+      properties: [...DEFAULT_LEAD_PROPERTIES, ...(propertiesToReturn ?? [])],
     })
 
     const lead = leads.results[0]

@@ -5,6 +5,7 @@ import * as bp from '.botpress'
 
 type Properties = NonNullable<bp.states.States[`${CrmObjectType}PropertyCache`]['payload']['properties']>
 type Property = Properties[string]
+
 export class PropertiesCache {
   private readonly _client: bp.Client
   private readonly _ctx: bp.Context

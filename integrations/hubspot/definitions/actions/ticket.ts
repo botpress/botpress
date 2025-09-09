@@ -1,30 +1,35 @@
 import { ActionDefinition, z } from '@botpress/sdk'
 
+export const ticketSchema = z.object({
+  id: z.string().title('Ticket ID').describe('The ID of the ticket'),
+  subject: z.string().title('Ticket name').describe('Short summary of ticket'),
+  category: z.string().title('Category').describe('Main reason customer reached out for help'),
+  description: z.string().title('Ticket description').describe('Description of the ticket'),
+  priority: z.string().title('Priority').describe('The level of attention needed on the ticket'),
+  source: z.string().title('Source').describe('The original source of the ticket'),
+  properties: z.record(z.string().nullable()).title('Properties').describe('The properties of the ticket'),
+})
+
 const createTicket: ActionDefinition = {
   title: 'Create Ticket',
   description: 'Create a ticket in Hubspot',
   input: {
     schema: z.object({
       subject: z.string().title('Ticket name').describe('Short summary of ticket'),
-      category: z
-        .enum(['Product Issue', 'Billing Issue', 'Feature Request', 'General Inquiry'])
-        .optional()
-        .title('Category')
-        .describe('Main reason customer reached out for help'),
+      category: z.string().optional().title('Category').describe('Main reason customer reached out for help'),
       description: z.string().optional().title('Ticket description').describe('Description of the ticket'),
-      pipeline: z
+      priority: z.string().optional().title('Priority').describe('The level of attention needed on the ticket'),
+      source: z.string().optional().title('Source').describe('The original source of the ticket'),
+      pipeline: z // TODO: See if it will be associated with a default pipeline
         .string()
+        .optional()
         .title('Pipeline')
         .describe('The pipeline that contains this ticket. Can be a name or internal ID'),
-      pipelineStage: z
+      pipelineStage: z // TODO: See if it will be associated with a default pipeline stage
         .string()
+        .optional()
         .title('Ticket status')
         .describe('The pipeline stage that contains this ticket. Can be a name or internal ID'),
-      priority: z
-        .enum(['Low', 'Medium', 'High', 'Urgent'])
-        .optional()
-        .title('Priority')
-        .describe('The level of attention needed on the ticket'),
       ticketOwner: z
         .string()
         .optional()
@@ -40,12 +45,6 @@ const createTicket: ActionDefinition = {
         .optional()
         .title('Company')
         .describe('The company associated with the ticket. Can be a name, domain, or company ID'),
-      linearTicketUrl: z.string().optional().title('Linear Ticket URL').describe('Link to the linear ticket'),
-      source: z
-        .enum(['Zoom', 'Email', 'Phone', 'Chat', 'Form'])
-        .optional()
-        .title('Source')
-        .describe('The original source of the ticket'),
       properties: z
         .array(
           z.object({
@@ -60,7 +59,7 @@ const createTicket: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      ticketId: z.string().title('Ticket ID').describe('The ID of the created ticket'),
+      ticket: ticketSchema.title('Ticket').describe('The created ticket'),
     }),
   },
 }

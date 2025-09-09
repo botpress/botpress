@@ -1,34 +1,27 @@
+import { z } from '@botpress/sdk'
+import { dealSchema } from '../../definitions/actions/deal'
 import { getAuthenticatedHubspotClient, propertiesEntriesToRecord } from '../utils'
 import * as bp from '.botpress'
 
-const dealDefaultProperties = [
-  'dealname',
-  'pipeline',
-  'dealstage',
-  'closedate',
-  'amount',
-  'hubspot_owner_id',
-  'createdate',
-  'hs_lastmodifieddate',
-  'hs_lastactivitydate',
-  'hs_last_contacted',
-  'hs_next_activity_date',
-  'num_associated_contacts',
-]
+type HubspotClient = Awaited<ReturnType<typeof getAuthenticatedHubspotClient>>
+type HsDeal = Awaited<ReturnType<HubspotClient['getDealById']>>
+type BpDeal = z.infer<typeof dealSchema>
+
+const _mapHsDealToBpDeal = (hsDeal: HsDeal): BpDeal => ({
+  id: hsDeal.id,
+  name: hsDeal.properties.dealname ?? '',
+  createdAt: hsDeal.createdAt.toISOString(),
+  updatedAt: hsDeal.updatedAt.toISOString(),
+  properties: hsDeal.properties,
+})
 
 export const searchDeal: bp.IntegrationProps['actions']['searchDeal'] = async ({ client, ctx, input }) => {
   const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
 
-  const deal = await hsClient.searchDeal({ name: input.name })
+  const deal = await hsClient.searchDeal({ name: input.name, propertiesToReturn: input.properties })
 
   return {
-    deal: {
-      id: deal.id,
-      name: deal.properties.dealname ?? '',
-      createdAt: deal.createdAt.toISOString(),
-      updatedAt: deal.updatedAt.toISOString(),
-      properties: deal.properties,
-    },
+    deal: _mapHsDealToBpDeal(deal),
   }
 }
 
@@ -38,29 +31,17 @@ export const createDeal: bp.IntegrationProps['actions']['createDeal'] = async ({
   const deal = await hsClient.createDeal({ properties: propertiesEntriesToRecord(input.properties ?? []) })
 
   return {
-    deal: {
-      id: deal.id,
-      name: deal.properties.dealname ?? '',
-      createdAt: deal.createdAt.toISOString(),
-      updatedAt: deal.updatedAt.toISOString(),
-      properties: deal.properties,
-    },
+    deal: _mapHsDealToBpDeal(deal),
   }
 }
 
 export const getDeal: bp.IntegrationProps['actions']['getDeal'] = async ({ client, ctx, input }) => {
   const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
 
-  const deal = await hsClient.getDealById({ dealId: input.dealId, propertiesToReturn: dealDefaultProperties })
+  const deal = await hsClient.getDealById({ dealId: input.dealId, propertiesToReturn: input.properties })
 
   return {
-    deal: {
-      id: deal.id,
-      name: deal.properties.dealname ?? '',
-      createdAt: deal.createdAt.toISOString(),
-      updatedAt: deal.updatedAt.toISOString(),
-      properties: deal.properties,
-    },
+    deal: _mapHsDealToBpDeal(deal),
   }
 }
 
@@ -74,11 +55,8 @@ export const updateDeal: bp.IntegrationProps['actions']['updateDeal'] = async ({
 
   return {
     deal: {
-      id: deal.id,
-      name: deal.properties.dealname ?? '',
-      createdAt: deal.createdAt.toISOString(),
-      updatedAt: deal.updatedAt.toISOString(),
-      properties: deal.properties,
+      ..._mapHsDealToBpDeal(deal),
+      name: deal.properties.dealname ?? undefined,
     },
   }
 }
