@@ -1,34 +1,34 @@
+import { FeatureBaseClient } from './client'
 import * as bp from '.botpress'
-import { FeatureBaseClient } from "./client";
 
 export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
     listPosts: async (props) => {
-      const client = new FeatureBaseClient(props.ctx.configuration.apiKey);
-      return await client.listPosts(props.input);
+      const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
+      return await client.listPosts(props.input)
     },
     createPost: async (props) => {
-      const client = new FeatureBaseClient(props.ctx.configuration.apiKey);
-      return await client.createPost(props.input);
+      const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
+      return await client.createPost(props.input)
     },
     updatePost: async (props) => {
-      const client = new FeatureBaseClient(props.ctx.configuration.apiKey);
-      return await client.updatePost(props.input);
+      const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
+      return await client.updatePost(props.input)
     },
     deletePost: async (props) => {
-      const client = new FeatureBaseClient(props.ctx.configuration.apiKey);
-      return await client.deletePost(props.input);
+      const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
+      return await client.deletePost(props.input)
     },
     listBoards: async (props) => {
-      const client = new FeatureBaseClient(props.ctx.configuration.apiKey);
-      return await client.listBoards();
+      const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
+      return await client.listBoards()
     },
     getBoard: async (props) => {
-      const client = new FeatureBaseClient(props.ctx.configuration.apiKey);
-      return await client.getBoard(props.input);
-    }
+      const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
+      return await client.getBoard(props.input)
+    },
   },
   channels: {},
   handler: async () => {},
