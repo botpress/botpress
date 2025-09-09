@@ -3,7 +3,7 @@ import axios, { type AxiosInstance } from 'axios'
 
 const LOOPS_API_BASE_URL = 'https://app.loops.so/api/v1'
 
-type postTransactionalEmailRequest = {
+type sendTransactionalEmailRequest = {
   email: string
   transactionalId: string
   dataVariables?: Record<string, string>
@@ -11,7 +11,7 @@ type postTransactionalEmailRequest = {
   idempotencyKey?: string
 }
 
-type postTransactionalEmailResponse = {}
+type sendTransactionalEmailResponse = {}
 
 export class LoopsApi {
   private _axios: AxiosInstance
@@ -45,7 +45,7 @@ export class LoopsApi {
     }
   }
 
-  public async postTransactionalEmail(req: postTransactionalEmailRequest): Promise<postTransactionalEmailResponse> {
+  public async sendTransactionalEmail(req: sendTransactionalEmailRequest): Promise<sendTransactionalEmailResponse> {
     try {
       await this._axios.post('/transactional', req, {
         headers: {

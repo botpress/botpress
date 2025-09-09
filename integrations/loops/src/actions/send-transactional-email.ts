@@ -31,5 +31,5 @@ export const sendTransactionalEmail: bp.IntegrationProps['actions']['sendTransac
   logger.info('This is the request body:', { requestBody })
 
   const loops = new LoopsApi(apiKey, logger)
-  return await loops.postTransactionalEmail(requestBody)
+  return await loops.sendTransactionalEmail(requestBody)
 }
