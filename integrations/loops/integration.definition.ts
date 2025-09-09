@@ -1,4 +1,4 @@
-import { IntegrationDefinition, z } from '@botpress/sdk'
+import { IntegrationDefinition } from '@botpress/sdk'
 import { actions, configuration, events } from './definitions'
 
 export default new IntegrationDefinition({

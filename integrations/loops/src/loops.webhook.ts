@@ -64,7 +64,7 @@ export const getWebhookEventPayload = (
     }
 
     return payload
-  } catch (_) {
+  } catch {
     throw new RuntimeError('Webhook request has an invalid JSON body')
   }
 }
