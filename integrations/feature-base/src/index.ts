@@ -1,8 +1,16 @@
-import { FeatureBaseClient } from './client'
+import { RuntimeError } from '@botpress/client'
 import * as bp from '../.botpress'
+import { FeatureBaseClient } from './client'
 
 export default new bp.Integration({
-  register: async () => {},
+  register: async (props) => {
+    const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
+    try {
+      await client.listBoards()
+    } catch {
+      throw new RuntimeError('Failed to register the integration.')
+    }
+  },
   unregister: async () => {},
   actions: {
     listPosts: async (props) => {
