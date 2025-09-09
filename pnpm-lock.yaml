@@ -493,6 +493,18 @@ importers:
         specifier: ^1.11.0
         version: 1.11.0
 
+  integrations/canny:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.6.0
+        version: 1.11.0
+
   integrations/cerebras:
     dependencies:
       '@botpress/client':
