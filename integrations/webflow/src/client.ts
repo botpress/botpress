@@ -107,7 +107,7 @@ export class WebflowClient {
     await this._axiosClient.delete(path)
     return {}
   }
-  public listWebhook = async (siteID: string): Promise<{ triggerType: string; id: string }[]> => {
+  public listWebhooks = async (siteID: string): Promise<{ triggerType: string; id: string }[]> => {
     const path = `/sites/${siteID}/webhooks`
     const { data } = await this._axiosClient.get<{ webhooks: { triggerType: string; id: string }[] }>(path)
     return data.webhooks

@@ -47,8 +47,8 @@ export default new bp.Integration({
     ]
 
     const already = await client
-      .listWebhook(props.ctx.configuration.siteID)
-      .catch(_handleError('Failed to create webhooks'))
+      .listWebhooks(props.ctx.configuration.siteID)
+      .catch(_handleError('Failed to list webhooks'))
 
     const existing = new Set(already.map((w: { triggerType: string }) => w.triggerType))
     const missing = triggerTypesToHook.filter((t) => !existing.has(t))
@@ -64,7 +64,7 @@ export default new bp.Integration({
     const client = new WebflowClient(props.ctx.configuration.apiToken)
 
     const webhooks = await client
-      .listWebhook(props.ctx.configuration.siteID)
+      .listWebhooks(props.ctx.configuration.siteID)
       .catch(_handleError('Failed to create webhooks'))
 
     const webhookIDs = webhooks.map((w: { id: string }) => w.id)
@@ -171,6 +171,7 @@ export default new bp.Integration({
 
     switch (data.triggerType) {
       case 'form_submission':
+        console.log(data.payload)
         await fireEvent(props, 'formSubmission', data.payload)
         break
       case 'site_publish':
