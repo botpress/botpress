@@ -32,27 +32,65 @@ const _commonEventSchema = z.object({
 })
 
 const _baseEmailEventSchema = _commonEventSchema.extend({
-  contactIdentity: z.object({
-    id: z.string().title('Contact ID').describe('The ID of the contact assigned by Loops'),
-    email: z.string().title('Contact Email').describe('The email address of the contact'),
-    userId: z.string().nullable().title('Contact User ID').describe('The unique user ID created by the contact. May be null')
-  }).title('Contact Identity').describe('The identifiers of the contact. Includes the contact ID, email address, and user ID'),
-  email: z.object({
-    id: z.string().title('Email ID').describe('The ID of the email'),
-    emailMessageId: z.string().title('Email Message ID').describe('The ID of the sent version of the email'),
-    subject: z.string().title('Email Subject').describe('The subject of the sent version of the email'),
-  }).title('Email Details').describe('The details about an individual email sent to a recipient. Includes the email ID, the ID of the sent version, and the subject')
+  contactIdentity: z
+    .object({
+      id: z.string().title('Contact ID').describe('The ID of the contact assigned by Loops'),
+      email: z.string().title('Contact Email').describe('The email address of the contact'),
+      userId: z
+        .string()
+        .nullable()
+        .title('Contact User ID')
+        .describe('The unique user ID created by the contact. May be null'),
+    })
+    .title('Contact Identity')
+    .describe('The identifiers of the contact. Includes the contact ID, email address, and user ID'),
+  email: z
+    .object({
+      id: z.string().title('Email ID').describe('The ID of the email'),
+      emailMessageId: z.string().title('Email Message ID').describe('The ID of the sent version of the email'),
+      subject: z.string().title('Email Subject').describe('The subject of the sent version of the email'),
+    })
+    .title('Email Details')
+    .describe(
+      'The details about an individual email sent to a recipient. Includes the email ID, the ID of the sent version, and the subject'
+    ),
 })
 
 export const campaignOrLoopEmailEventSchema = _baseEmailEventSchema.extend({
-  sourceType: z.enum(['campaign', 'loop']).title('Source Type').describe('The type of email that triggered the event. One of campaign or loop'),
-  campaignId: z.string().optional().title('Campaign ID').describe('The ID of the campaign email. Only one of Campaign ID or Loop ID must exist.'),
-  loopId: z.string().optional().title('Loop ID').describe('The ID of the loop email. Only one of Campaign ID or Loop ID must exist.'),
+  sourceType: z
+    .enum(['campaign', 'loop'])
+    .title('Source Type')
+    .describe('The type of email that triggered the event. One of campaign or loop'),
+  campaignId: z
+    .string()
+    .optional()
+    .title('Campaign ID')
+    .describe('The ID of the campaign email. Only one of Campaign ID or Loop ID must exist.'),
+  loopId: z
+    .string()
+    .optional()
+    .title('Loop ID')
+    .describe('The ID of the loop email. Only one of Campaign ID or Loop ID must exist.'),
 })
 
 export const fullEmailEventSchema = _baseEmailEventSchema.extend({
-  sourceType: z.enum(['campaign', 'loop', 'transactional']).title('Source Type').describe('The type of email that triggered the event. One of campaign, loop, or transactional'),
-  campaignId: z.string().optional().title('Campaign ID').describe('The ID of the campaign email. Only one of Campaign ID or Loop ID must exist.'),
-  loopId: z.string().optional().title('Loop ID').describe('The ID of the loop email. Only one of Campaign ID or Loop ID must exist.'),
-  transactionalId: z.string().optional().title('Transactional ID').describe('The ID of the transactional email. Only one of Campaign ID, Loop ID, or Transactional ID must exist.'),
+  sourceType: z
+    .enum(['campaign', 'loop', 'transactional'])
+    .title('Source Type')
+    .describe('The type of email that triggered the event. One of campaign, loop, or transactional'),
+  campaignId: z
+    .string()
+    .optional()
+    .title('Campaign ID')
+    .describe('The ID of the campaign email. Only one of Campaign ID or Loop ID must exist.'),
+  loopId: z
+    .string()
+    .optional()
+    .title('Loop ID')
+    .describe('The ID of the loop email. Only one of Campaign ID or Loop ID must exist.'),
+  transactionalId: z
+    .string()
+    .optional()
+    .title('Transactional ID')
+    .describe('The ID of the transactional email. Only one of Campaign ID, Loop ID, or Transactional ID must exist.'),
 })

@@ -1,5 +1,5 @@
-import { ActionDefinition, IntegrationDefinitionProps } from "@botpress/sdk";
-import { sendTransactionalEmailInputSchema, sendTransactionalEmailOutputSchema } from "./schemas";
+import { ActionDefinition, IntegrationDefinitionProps } from '@botpress/sdk'
+import { sendTransactionalEmailInputSchema, sendTransactionalEmailOutputSchema } from './schemas'
 
 const sendTransactionalEmail = {
   title: 'Send Transactional Email',

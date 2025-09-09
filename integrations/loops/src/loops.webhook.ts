@@ -49,7 +49,9 @@ export const verifyWebhookSignature = (props: WebhookHandlerProps<TIntegration>)
   props.logger.forBot().info('Webhook signature of incoming request verified successfully')
 }
 
-export const getWebhookEventPayload = (body: WebhookHandlerProps<TIntegration>['req']['body']): TValidWebhookEventPayload => {
+export const getWebhookEventPayload = (
+  body: WebhookHandlerProps<TIntegration>['req']['body']
+): TValidWebhookEventPayload => {
   if (!body) {
     throw new RuntimeError('Webhook request is missing body')
   }
@@ -62,17 +64,21 @@ export const getWebhookEventPayload = (body: WebhookHandlerProps<TIntegration>['
     }
 
     return payload
-  }
-  catch (error) {
+  } catch (error) {
     throw new RuntimeError('Webhook request has an invalid JSON body')
-  } 
+  }
 }
 
-export const formatWebhookEventPayload = (payload: TValidWebhookEventPayload, targetSchema: z.ZodSchema): z.infer<typeof targetSchema> => {
+export const formatWebhookEventPayload = (
+  payload: TValidWebhookEventPayload,
+  targetSchema: z.ZodSchema
+): z.infer<typeof targetSchema> => {
   const formattedPayload = targetSchema.safeParse(payload)
 
   if (!formattedPayload.success) {
-    throw new RuntimeError(`The payload of this webhook event does not match the expected schema of an event of type ${payload.eventName}`)
+    throw new RuntimeError(
+      `The payload of this webhook event does not match the expected schema of an event of type ${payload.eventName}`
+    )
   }
 
   return formattedPayload.data

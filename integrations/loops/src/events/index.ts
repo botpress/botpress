@@ -6,4 +6,12 @@ import { fireEmailSoftBounced } from './email-soft-bounced'
 import { fireEmailSpamReported } from './email-spam-reported'
 import { fireEmailUnsubscribed } from './email-unsubscribed'
 
-export default { fireEmailClicked, fireEmailDelivered, fireEmailHardBounced, fireEmailOpened, fireEmailSoftBounced, fireEmailSpamReported, fireEmailUnsubscribed }
+export default {
+  fireEmailClicked,
+  fireEmailDelivered,
+  fireEmailHardBounced,
+  fireEmailOpened,
+  fireEmailSoftBounced,
+  fireEmailSpamReported,
+  fireEmailUnsubscribed,
+}
