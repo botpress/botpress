@@ -4,5 +4,5 @@
     "baseUrl": ".",
     "outDir": "dist"
   },
-  "include": [".botpress/**/*", "src/**/*", "bot.definition.ts"]
+  "include": [".botpress/**/*", "src/**/*", "*.ts"]
 }

@@ -3,5 +3,5 @@
   "compilerOptions": {
     "baseUrl": "."
   },
-  "include": ["src/**/*", "./e2e/**/*"]
+  "include": ["src/**/*", "./e2e/**/*", "./*.ts"]
 }
