@@ -1,4 +1,3 @@
-import { RuntimeError } from '@botpress/sdk'
 import events from './events'
 import { getWebhookEventPayload, verifyWebhookSignature } from './loops.webhook'
 import * as bp from '.botpress'
