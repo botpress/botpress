@@ -29,6 +29,7 @@ export const createLead: bp.IntegrationProps['actions']['createLead'] = async ({
   const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
 
   const lead = await hsClient.createLead({
+    name: input.name,
     contactEmailOrId: input.contact,
     properties: propertiesEntriesToRecord(input.properties ?? []),
   })
@@ -53,6 +54,7 @@ export const updateLead: bp.IntegrationProps['actions']['updateLead'] = async ({
 
   const lead = await hsClient.updateLead({
     leadId: input.leadId,
+    name: input.name,
     properties: propertiesEntriesToRecord(input.properties ?? []),
   })
 

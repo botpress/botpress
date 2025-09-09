@@ -28,7 +28,10 @@ export const searchDeal: bp.IntegrationProps['actions']['searchDeal'] = async ({
 export const createDeal: bp.IntegrationProps['actions']['createDeal'] = async ({ client, ctx, input }) => {
   const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
 
-  const deal = await hsClient.createDeal({ properties: propertiesEntriesToRecord(input.properties ?? []) })
+  const deal = await hsClient.createDeal({
+    name: input.name,
+    properties: propertiesEntriesToRecord(input.properties ?? []),
+  })
 
   return {
     deal: _mapHsDealToBpDeal(deal),
@@ -50,6 +53,7 @@ export const updateDeal: bp.IntegrationProps['actions']['updateDeal'] = async ({
 
   const deal = await hsClient.updateDealById({
     dealId: input.dealId,
+    name: input.name,
     properties: propertiesEntriesToRecord(input.properties ?? []),
   })
 

@@ -377,6 +377,7 @@ export class HubspotClient {
           type: 'ticket',
         })
       : undefined
+
     const pipeline = pipelineNameOrId ? await this._getTicketPipeline({ nameOrLabel: pipelineNameOrId }) : undefined
     const pipelineStage =
       pipelineStageNameOrId && pipeline
@@ -518,35 +519,58 @@ export class HubspotClient {
   }
 
   @handleErrors('Failed to update deal')
-  public async updateDealById({ dealId, properties }: { dealId: string; properties: Record<string, string> }) {
+  public async updateDealById({
+    dealId,
+    name,
+    properties,
+  }: {
+    dealId: string
+    name?: string
+    properties: Record<string, string>
+  }) {
     const resolvedProperties = await this._resolveAndCoerceProperties({ properties, type: 'deal' })
 
-    const deal = await this._hsClient.crm.deals.basicApi.update(dealId, { properties: resolvedProperties })
+    const deal = await this._hsClient.crm.deals.basicApi.update(dealId, {
+      properties: {
+        ...resolvedProperties,
+        ...(name ? { dealname: name } : {}),
+      },
+    })
 
     return deal
   }
 
   @handleErrors('Failed to create deal')
-  public async createDeal({ properties }: { properties: Record<string, string> }) {
+  public async createDeal({ name, properties }: { name: string; properties: Record<string, string> }) {
     const resolvedProperties = await this._resolveAndCoerceProperties({ properties, type: 'deal' })
-
-    const deal = await this._hsClient.crm.deals.basicApi.create({ properties: resolvedProperties })
+    console.log('resolvedProperties', resolvedProperties) // TOOD: Remove
+    const deal = await this._hsClient.crm.deals.basicApi.create({
+      properties: {
+        ...resolvedProperties,
+        ...(name ? { dealname: name } : {}),
+      },
+    })
 
     return deal
   }
 
   @handleErrors('Failed to create lead')
   public async createLead({
+    name,
     properties,
     contactEmailOrId,
   }: {
+    name: string
     properties: Record<string, string>
     contactEmailOrId?: string
   }) {
     const contact = contactEmailOrId ? await this.getContact({ contactId: contactEmailOrId }) : undefined
     const resolvedProperties = await this._resolveAndCoerceProperties({ properties, type: 'lead' })
     const lead = await this._hsClient.crm.objects.leads.basicApi.create({
-      properties: resolvedProperties,
+      properties: {
+        ...resolvedProperties,
+        ...(name ? { hs_lead_name: name } : {}),
+      },
       associations: contact
         ? [
             {
@@ -580,10 +604,23 @@ export class HubspotClient {
   }
 
   @handleErrors('Failed to update lead')
-  public async updateLead({ leadId, properties }: { leadId: string; properties: Record<string, string> }) {
+  public async updateLead({
+    leadId,
+    name,
+    properties,
+  }: {
+    leadId: string
+    name?: string
+    properties: Record<string, string>
+  }) {
     const resolvedProperties = await this._resolveAndCoerceProperties({ properties, type: 'lead' })
 
-    const lead = await this._hsClient.crm.objects.leads.basicApi.update(leadId, { properties: resolvedProperties })
+    const lead = await this._hsClient.crm.objects.leads.basicApi.update(leadId, {
+      properties: {
+        ...resolvedProperties,
+        ...(name ? { hs_lead_name: name } : {}),
+      },
+    })
 
     return lead
   }
