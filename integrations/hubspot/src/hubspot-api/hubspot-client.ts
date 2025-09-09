@@ -317,7 +317,10 @@ export class HubspotClient {
 
   @handleErrors('Failed to list contacts')
   public async listContacts({ properties, nextToken }: { properties?: string[]; nextToken?: string }) {
-    const { results, paging } = await this._hsClient.crm.contacts.basicApi.getPage(PAGING_LIMIT, nextToken, properties)
+    const { results, paging } = await this._hsClient.crm.contacts.basicApi.getPage(PAGING_LIMIT, nextToken, [
+      ...DEFAULT_CONTACT_PROPERTIES,
+      ...(properties ?? []),
+    ])
 
     return {
       contacts: results,
