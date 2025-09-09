@@ -1,15 +1,12 @@
 import { z, ActionDefinition } from '@botpress/sdk'
 
-export const dealSchema = z
-  .object({
-    id: z.string().title('Deal ID').describe('The ID of the deal'),
-    name: z.string().title('Name').describe('The name of the deal'),
-    createdAt: z.string().title('Created At').describe('Creation date of the deal'),
-    updatedAt: z.string().title('Updated At').describe('Last time the deal was updated'),
-    properties: z.record(z.string().nullable()).title('Properties').describe('The properties of the deal'),
-  })
-  .title('Deal')
-  .describe('The deal object')
+export const dealSchema = z.object({
+  id: z.string().title('Deal ID').describe('The ID of the deal'),
+  name: z.string().title('Name').describe('The name of the deal'),
+  createdAt: z.string().title('Created At').describe('Creation date of the deal'),
+  updatedAt: z.string().title('Updated At').describe('Last time the deal was updated'),
+  properties: z.record(z.string().nullable()).title('Properties').describe('The properties of the deal'),
+})
 
 const searchDeal: ActionDefinition = {
   title: 'Search Deal',
@@ -26,7 +23,7 @@ const searchDeal: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      deal: dealSchema,
+      deal: dealSchema.title('Deal').describe('The deal found'),
     }),
   },
 }
@@ -51,7 +48,7 @@ const createDeal: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      deal: dealSchema,
+      deal: dealSchema.title('Deal').describe('The created deal'),
     }),
   },
 }
@@ -71,7 +68,7 @@ const getDeal: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      deal: dealSchema,
+      deal: dealSchema.title('Deal').describe('The fetched deal'),
     }),
   },
 }

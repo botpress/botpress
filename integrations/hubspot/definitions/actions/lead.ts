@@ -1,15 +1,12 @@
 import { z, ActionDefinition } from '@botpress/sdk'
 
-export const leadSchema = z
-  .object({
-    id: z.string().title('Lead ID').describe('The ID of the lead'),
-    name: z.string().title('Name').describe('The name of the lead'),
-    createdAt: z.string().title('Created At').describe('Creation date of the lead'),
-    updatedAt: z.string().title('Updated At').describe('Last time the lead was updated'),
-    properties: z.record(z.string().nullable()).title('Properties').describe('The properties of the lead'),
-  })
-  .title('Lead')
-  .describe('The lead object')
+export const leadSchema = z.object({
+  id: z.string().title('Lead ID').describe('The ID of the lead'),
+  name: z.string().title('Name').describe('The name of the lead'),
+  createdAt: z.string().title('Created At').describe('Creation date of the lead'),
+  updatedAt: z.string().title('Updated At').describe('Last time the lead was updated'),
+  properties: z.record(z.string().nullable()).title('Properties').describe('The properties of the lead'),
+})
 
 const searchLead: ActionDefinition = {
   title: 'Search Lead',
@@ -26,7 +23,7 @@ const searchLead: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      lead: leadSchema,
+      lead: leadSchema.title('Lead').describe('The lead found'),
     }),
   },
 }
@@ -38,7 +35,6 @@ const createLead: ActionDefinition = {
       name: z.string().title('Name').describe('The name of the lead'),
       contact: z
         .string()
-        .optional()
         .title('Contact')
         .describe('The contact to associate the lead with. Can be an email address or contact ID'),
       properties: z
@@ -55,7 +51,7 @@ const createLead: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      lead: leadSchema,
+      lead: leadSchema.title('Lead').describe('The created lead'),
     }),
   },
 }
@@ -75,7 +71,7 @@ const getLead: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      lead: leadSchema,
+      lead: leadSchema.title('Lead').describe('The fetched lead'),
     }),
   },
 }
