@@ -56,7 +56,7 @@ export const getComments = {
       submissionId: z.string().optional().describe('The id of the submission to get comments for.'),
       changelogId: z.string().optional().describe('The id of the changelog to get comments for.'),
       privacy: z
-        .union([z.literal('public'), z.literal('private'), z.literal('all')])
+        .enum(['public', 'private', 'all'])
         .optional()
         .describe('Filter comments by privacy setting. Allowed values: "public", "private", "all"'),
       inReview: z
@@ -74,7 +74,7 @@ export const getComments = {
       limit: z.number().optional().describe('Number of results per page. Default is 10.'),
       page: z.number().optional().describe('Page number. Default is 1.'),
       sortBy: z
-        .union([z.literal('best'), z.literal('top'), z.literal('new'), z.literal('old')])
+        .enum(['best', 'top', 'new', 'old'])
         .optional()
         .describe('Sort order of the results. Allowed values: "best", "top", "new", "old"'),
     }),
