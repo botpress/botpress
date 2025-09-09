@@ -1,15 +1,12 @@
 import { z, ActionDefinition } from '@botpress/sdk'
 
-const dealSchema = z
-  .object({
-    id: z.string().title('Deal ID').describe('The ID of the deal'),
-    name: z.string().title('Name').describe('The name of the deal'),
-    createdAt: z.string().title('Created At').describe('Creation date of the deal'),
-    updatedAt: z.string().title('Updated At').describe('Last time the deal was updated'),
-    properties: z.record(z.any()).title('Properties').describe('The properties of the deal'),
-  })
-  .title('Deal')
-  .describe('The deal object')
+export const dealSchema = z.object({
+  id: z.string().title('Deal ID').describe('The ID of the deal'),
+  name: z.string().title('Name').describe('The name of the deal'),
+  createdAt: z.string().title('Created At').describe('Creation date of the deal'),
+  updatedAt: z.string().title('Updated At').describe('Last time the deal was updated'),
+  properties: z.record(z.string().nullable()).title('Properties').describe('The properties of the deal'),
+})
 
 const searchDeal: ActionDefinition = {
   title: 'Search Deal',
@@ -17,11 +14,16 @@ const searchDeal: ActionDefinition = {
   input: {
     schema: z.object({
       name: z.string().optional().title('Name').describe('The name of the deal to search for'),
+      properties: z
+        .array(z.string())
+        .optional()
+        .title('Properties')
+        .describe('The properties to include in the response'),
     }),
   },
   output: {
     schema: z.object({
-      deal: dealSchema,
+      deal: dealSchema.title('Deal').describe('The deal found'),
     }),
   },
 }
@@ -31,6 +33,7 @@ const createDeal: ActionDefinition = {
   description: 'Create a deal in Hubspot',
   input: {
     schema: z.object({
+      name: z.string().title('Name').describe('The name of the deal'),
       properties: z
         .array(
           z.object({
@@ -45,7 +48,7 @@ const createDeal: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      deal: dealSchema,
+      deal: dealSchema.title('Deal').describe('The created deal'),
     }),
   },
 }
@@ -56,11 +59,16 @@ const getDeal: ActionDefinition = {
   input: {
     schema: z.object({
       dealId: z.string().title('Deal ID').describe('The ID of the deal to get'),
+      properties: z
+        .array(z.string())
+        .optional()
+        .title('Properties')
+        .describe('The properties to include in the response'),
     }),
   },
   output: {
     schema: z.object({
-      deal: dealSchema,
+      deal: dealSchema.title('Deal').describe('The fetched deal'),
     }),
   },
 }
@@ -71,6 +79,7 @@ const updateDeal: ActionDefinition = {
   input: {
     schema: z.object({
       dealId: z.string().title('Deal ID').describe('The ID of the deal to update'),
+      name: z.string().optional().title('Name').describe('The name of the deal'),
       properties: z
         .array(
           z.object({
@@ -85,7 +94,13 @@ const updateDeal: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      deal: dealSchema,
+      deal: dealSchema
+        .extend({
+          // May not be returned by API
+          name: dealSchema.shape.name.optional(),
+        })
+        .title('Deal')
+        .describe('The updated deal'),
     }),
   },
 }
