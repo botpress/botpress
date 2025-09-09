@@ -35,9 +35,10 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
       await events.fireEmailSpamReported(client, payload)
       break
     default:
-      throw new RuntimeError(
-        'Unsupported event type: ' + payload.eventName + ' with payload: ' + JSON.stringify(payload)
-      )
+      props.logger
+        .forBot()
+        .error('Unsupported event type: ' + payload.eventName + ' with payload: ' + JSON.stringify(payload))
+      return
   }
 
   props.logger.forBot().info('Event processed successfully with payload:', payload)
