@@ -51,7 +51,7 @@ plugin.on.event('updateAiInsight', async (props) => {
   })
 
   if (workflows.workflows.length === 0) {
-    props.workflows.updateAllConversations.startNewInstance({ input: {} })
+    await props.workflows.updateAllConversations.startNewInstance({ input: {} })
   }
 })
 
