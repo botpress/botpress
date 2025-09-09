@@ -15,26 +15,28 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   switch (payload.eventName) {
     case 'email.delivered':
       await events.fireEmailDelivered(client, payload)
-      return
+      break
     case 'email.softBounced':
       await events.fireEmailSoftBounced(client, payload)
-      return
+      break
     case 'email.hardBounced':
       await events.fireEmailHardBounced(client, payload)
-      return
+      break
     case 'email.opened':
       await events.fireEmailOpened(client, payload)
-      return
+      break
     case 'email.clicked':
       await events.fireEmailClicked(client, payload)
-      return
+      break
     case 'email.unsubscribed':
       await events.fireEmailUnsubscribed(client, payload)
-      return
+      break
     case 'email.spamReported':
       await events.fireEmailSpamReported(client, payload)
-      return
+      break
     default:
-      throw new RuntimeError('Unsupported event type: ' + payload.eventName)
+      throw new RuntimeError('Unsupported event type: ' + payload.eventName + ' with payload: ' + JSON.stringify(payload))
   } 
+
+  props.logger.forBot().info('Event processed successfully with payload:', payload)
 }
