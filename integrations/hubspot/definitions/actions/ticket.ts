@@ -20,14 +20,12 @@ const createTicket: ActionDefinition = {
       description: z.string().optional().title('Ticket description').describe('Description of the ticket'),
       priority: z.string().optional().title('Priority').describe('The level of attention needed on the ticket'),
       source: z.string().optional().title('Source').describe('The original source of the ticket'),
-      pipeline: z // TODO: See if it will be associated with a default pipeline
+      pipeline: z
         .string()
-        .optional()
         .title('Pipeline')
         .describe('The pipeline that contains this ticket. Can be a name or internal ID'),
-      pipelineStage: z // TODO: See if it will be associated with a default pipeline stage
+      pipelineStage: z
         .string()
-        .optional()
         .title('Ticket status')
         .describe('The pipeline stage that contains this ticket. Can be a name or internal ID'),
       ticketOwner: z

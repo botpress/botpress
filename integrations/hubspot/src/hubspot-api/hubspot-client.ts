@@ -354,6 +354,29 @@ export class HubspotClient {
     source?: string
     additionalProperties: Record<string, string>
   }) {
+    const resolvedCategory = category
+      ? await this._resolveAndCoerceProperty({
+          nameOrLabel: 'hs_ticket_category',
+          value: category,
+          type: 'ticket',
+        })
+      : undefined
+
+    const resolvedPriority = priority
+      ? await this._resolveAndCoerceProperty({
+          nameOrLabel: 'hs_ticket_priority',
+          value: priority,
+          type: 'ticket',
+        })
+      : undefined
+
+    const resolvedSource = source
+      ? await this._resolveAndCoerceProperty({
+          nameOrLabel: 'source_type',
+          value: source,
+          type: 'ticket',
+        })
+      : undefined
     const pipeline = pipelineNameOrId ? await this._getTicketPipeline({ nameOrLabel: pipelineNameOrId }) : undefined
     const pipelineStage =
       pipelineStageNameOrId && pipeline
@@ -376,13 +399,17 @@ export class HubspotClient {
 
     const ticketOwner = ticketOwnerEmailOrId
       ? ticketOwnerEmailOrId.includes('@')
-        ? await this._retrieveOwnerByEmail({ email: ticketOwnerEmailOrId })
+        ? await this._retrieveOwnerByEmail({ email: ticketOwnerEmailOrId }).catch(() => {
+            throw new sdk.RuntimeError('Unable to find owner for ticket')
+          })
         : { id: ticketOwnerEmailOrId }
       : undefined
 
     const requester = requesterEmailOrId
       ? requesterEmailOrId.includes('@')
-        ? await this.searchContact({ email: requesterEmailOrId, propertiesToReturn: [] })
+        ? await this.searchContact({ email: requesterEmailOrId, propertiesToReturn: [] }).catch(() => {
+            throw new sdk.RuntimeError('Unable to find requester contact for ticket')
+          })
         : { id: requesterEmailOrId }
       : undefined
 
@@ -390,18 +417,20 @@ export class HubspotClient {
     const company = companyIdOrNameOrDomain
       ? isCompanyId
         ? { id: companyIdOrNameOrDomain } // Let hubspot handle invalid IDs
-        : await this._searchCompany({ idOrNameOrDomain: companyIdOrNameOrDomain })
+        : await this._searchCompany({ idOrNameOrDomain: companyIdOrNameOrDomain }).catch(() => {
+            throw new sdk.RuntimeError('Unable to find company for ticket')
+          })
       : undefined
 
     const ticketCreateInput: Parameters<OfficialHubspotClient['crm']['tickets']['basicApi']['create']>[0] = {
       properties: {
         subject,
-        ...(category ? { hs_ticket_category: category.toUpperCase().replace(' ', '_') } : {}),
+        ...(resolvedCategory ? { hs_ticket_category: resolvedCategory.coercedValue.toString() } : {}),
         ...(description ? { content: description } : {}),
         ...(pipeline ? { hs_pipeline: pipeline.id } : {}),
         ...(pipelineStage ? { hs_pipeline_stage: pipelineStage.id } : {}),
-        ...(priority ? { hs_ticket_priority: priority.toUpperCase() } : {}),
-        ...(source ? { source_type: source === 'Zoom' ? 'Zoom' : source.toUpperCase() } : {}),
+        ...(resolvedPriority ? { hs_ticket_priority: resolvedPriority.coercedValue.toString() } : {}),
+        ...(resolvedSource ? { source_type: resolvedSource.coercedValue.toString() } : {}),
         ...(ticketOwner ? { hubspot_owner_id: ticketOwner?.id } : {}),
         ...resolvedProperties,
       },
