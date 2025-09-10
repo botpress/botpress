@@ -1,7 +1,8 @@
 import { RuntimeError } from '@botpress/client'
 import axios, { Axios, AxiosResponse } from 'axios'
-import { Actions } from '../.botpress/implementation/typings/actions'
+import * as bp from '.botpress'
 
+type Actions = bp.actions.Actions
 type Input<K extends keyof Actions> = Actions[K]['input']
 
 export type ErrorResponse = {
