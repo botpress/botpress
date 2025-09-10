@@ -1,5 +1,20 @@
+import { z } from '@botpress/sdk'
+import { contactSchema } from '../../definitions/actions/contact'
 import { getAuthenticatedHubspotClient, propertiesEntriesToRecord } from '../utils'
 import * as bp from '.botpress'
+
+type HubspotClient = Awaited<ReturnType<typeof getAuthenticatedHubspotClient>>
+type HsContact = Awaited<ReturnType<HubspotClient['getContact']>>
+type BpContact = z.infer<typeof contactSchema>
+
+const _mapHsContactToBpContact = (hsContact: HsContact): BpContact => ({
+  id: hsContact.id,
+  properties: hsContact.properties,
+  email: hsContact.properties['email'] ?? '',
+  phone: hsContact.properties['phone'] ?? '',
+  createdAt: hsContact.createdAt.toISOString(),
+  updatedAt: hsContact.updatedAt.toISOString(),
+})
 
 export const searchContact: bp.IntegrationProps['actions']['searchContact'] = async ({
   client,
@@ -25,7 +40,7 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
   })
 
   return {
-    contact,
+    contact: _mapHsContactToBpContact(contact),
   }
 }
 
@@ -42,10 +57,7 @@ export const createContact: bp.IntegrationProps['actions']['createContact'] = as
     additionalProperties,
   })
   return {
-    contact: {
-      id: newContact.contactId,
-      properties: newContact.properties,
-    },
+    contact: _mapHsContactToBpContact(newContact),
   }
 }
 
@@ -53,13 +65,10 @@ export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client })
   const contact = await hsClient.getContact({
     contactId: input.contactIdOrEmail,
-    propertiesToReturn: input.properties ?? [],
+    propertiesToReturn: input.properties,
   })
   return {
-    contact: {
-      id: contact.contactId,
-      properties: contact.properties,
-    },
+    contact: _mapHsContactToBpContact(contact),
   }
 }
 
@@ -75,8 +84,9 @@ export const updateContact: bp.IntegrationProps['actions']['updateContact'] = as
   })
   return {
     contact: {
-      id: updatedContact.contactId,
-      properties: updatedContact.properties,
+      ..._mapHsContactToBpContact(updatedContact),
+      email: updatedContact.properties['email'] ?? undefined,
+      phone: updatedContact.properties['phone'] ?? undefined,
     },
   }
 }
@@ -96,7 +106,7 @@ export const listContacts: bp.IntegrationProps['actions']['listContacts'] = asyn
     nextToken: input.meta.nextToken,
   })
   return {
-    contacts,
+    contacts: contacts.map(_mapHsContactToBpContact),
     meta: {
       nextToken,
     },

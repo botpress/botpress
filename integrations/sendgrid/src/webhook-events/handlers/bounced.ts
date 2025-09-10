@@ -1,6 +1,6 @@
 import * as bp from '../../../.botpress'
 import { unixTimestampToUtcDatetime } from '../../misc/utils'
-import { BouncedEmailWebhook } from '../sendgrid-webhook-schemas'
+import { BouncedEmailWebhook } from '../schemas/emails'
 
 export const handleBouncedEvent = async ({ client }: bp.HandlerProps, event: BouncedEmailWebhook) => {
   await client.createEvent({
