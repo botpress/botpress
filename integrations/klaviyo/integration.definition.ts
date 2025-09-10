@@ -12,7 +12,7 @@ export default new IntegrationDefinition({
       description: 'A simple hello world action',
       input: {
         schema: z.object({
-          name: z.string().optional(),
+          message: z.string().optional(),
         }),
       },
       output: {
