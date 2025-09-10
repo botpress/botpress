@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'loops',
   title: 'Loops',
   description: 'Handle transactional emails from your chatbot.',
-  version: '0.1.0',
+  version: '0.1.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration,
