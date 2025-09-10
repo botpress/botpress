@@ -1,7 +1,8 @@
 import { RuntimeError } from '@botpress/client'
 import axios, { Axios, AxiosResponse } from 'axios'
-import { Actions } from '../.botpress/implementation/typings/actions'
+import * as bp from '.botpress'
 
+type Actions = bp.actions.Actions;
 type Input<K extends keyof Actions> = Actions[K]['input']
 
 export type ErrorResponse = {
@@ -11,6 +12,12 @@ export type ErrorResponse = {
 
 type Output<K extends keyof Actions> = Actions[K]['output']
 type ApiOutput<K extends keyof Actions> = Output<K> | ErrorResponse
+
+type PagedApiOutput<K extends keyof Actions> = ErrorResponse | Omit<ApiOutput<K>, 'nextToken'> & {
+  page: number;
+  limit: number;
+  totalResults: number;
+};
 
 export class FeatureBaseClient {
   private _client: Axios
@@ -23,6 +30,35 @@ export class FeatureBaseClient {
         'Content-Type': 'application/json',
       },
     })
+  }
+
+  private _unwrapPagedResponse<K extends keyof Actions>(response: PagedApiOutput<K>): Output<K> {
+    if ('message' in response) {
+      throw new RuntimeError(response.message)
+    }
+    const { limit, page, totalResults, ...result } = response;
+    let nextToken: string | undefined = undefined;
+    if (limit * page < totalResults) {
+      nextToken = String(page + 1);
+    }
+    return {
+      ...result,
+      nextToken
+    };
+  }
+
+  private _parsePagedParams<K extends keyof Actions>(params: Input<K>): Omit<Input<K>, 'nextToken'> & { page?: number } {
+    if (!('nextToken' in params)) {
+      return params;
+    }
+    let page: number | undefined = undefined;
+    if (params.nextToken && !isNaN(Number(params.nextToken))) {
+      page = Number(params.nextToken);
+    }
+    return {
+      ...params,
+      page
+    }
   }
 
   private _unwrapResponse<K extends keyof Actions>(response: ApiOutput<K>): Output<K> {
@@ -57,10 +93,12 @@ export class FeatureBaseClient {
   }
 
   public async listPosts(params: Input<'listPosts'>): Promise<Output<'listPosts'>> {
-    const response: AxiosResponse<ApiOutput<'listPosts'>> = await this._client
-      .get('/v2/posts', { params })
+    const response: AxiosResponse<PagedApiOutput<'listPosts'>> = await this._client
+      .get('/v2/posts', {
+        params: this._parsePagedParams(params)
+      })
       .catch(this._handleAxiosError)
-    return this._unwrapResponse(response.data)
+    return this._unwrapPagedResponse(response.data)
   }
 
   public async createPost(params: Input<'createPost'>): Promise<Output<'createPost'>> {

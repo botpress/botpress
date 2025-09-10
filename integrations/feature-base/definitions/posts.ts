@@ -34,7 +34,6 @@ export const createPost = {
   },
   output: {
     schema: z.object({
-      success: z.boolean(),
       submission: z.object({
         id: z.string(),
       }),
@@ -55,11 +54,13 @@ export const listPosts = {
       startDate: z.date().optional().describe('Get posts created after a specific date.'),
       endDate: z.date().optional().describe('Get posts created before a specific date.'),
       limit: z.number().optional().describe('Number of results per page'),
-      page: z.number().optional().describe('Page number'),
+      page: z.number().optional().describe('Page number. Starts at 1'),
+      nextToken: z.string().optional().describe('Page number. Starts at 1'),
     }),
   },
   output: {
     schema: z.object({
+      nextToken: z.string().optional(),
       results: z.array(
         z.object({
           title: z.string(),
@@ -109,9 +110,7 @@ export const updatePost = {
     }),
   },
   output: {
-    schema: z.object({
-      success: z.boolean(),
-    }),
+    schema: z.object({}),
   },
 }
 
@@ -124,8 +123,6 @@ export const deletePost = {
     }),
   },
   output: {
-    schema: z.object({
-      success: z.boolean(),
-    }),
+    schema: z.object({}),
   },
 }

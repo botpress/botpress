@@ -33,7 +33,6 @@ export const listBoards = {
   },
   output: {
     schema: z.object({
-      success: z.boolean(),
       results: z.array(z.object(boardModel)),
     }),
   },
