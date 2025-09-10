@@ -402,7 +402,7 @@ function verifyRequest(req: Request, ctx: bp.Context): VerifyResult {
   }
   const signature = extractSignature(req)
   const secret = getSignatureSecret(ctx)
-  if (!signature || !isSignatureValid(signature, req.body, secret)) {
+  if (secret && (!signature || !isSignatureValid(signature, req.body, secret))) {
     return { result: 'error', isError: true, message: 'Handler received request with invalid signature' }
   }
 
