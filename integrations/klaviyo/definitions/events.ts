@@ -7,13 +7,14 @@ const LOCALE_REGEX = /^[a-z]{2,3}-[A-Z]{2}$/
 
 const locationSchema = z
   .object({
-    address1: z.string().title('Address line 1').optional(),
-    address2: z.string().title('Address line 2').optional(),
-    city: z.string().optional(),
-    country: z.string().optional(),
-    region: z.string().optional(),
-    zip: z.string().optional(),
+    address1: z.string().title('Address line 1'),
+    address2: z.string().title('Address line 2'),
+    city: z.string(),
+    country: z.string(),
+    region: z.string(),
+    zip: z.string(),
   })
+  .partial()
   .strict()
 
 const profileCreated = {
