@@ -326,12 +326,12 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
     })
 
-    const integrationsFailed = Object.values(updatedBot.integrations).filter(
-      (integration) => integration.enabled && integration.status === 'registration_failed'
-    )
-    const failedIntegrationNames = integrationsFailed.map((integration) => integration.name).join(', ')
-    if (integrationsFailed.length > 0) {
-      throw new errors.BotpressCLIError(`${failedIntegrationNames} integrations failed to register`)
+    const failedIntegrationNames = Object.values(updatedBot.integrations)
+      .filter((integration) => integration.enabled && integration.status === 'registration_failed')
+      .map(({ name }) => name)
+
+    if (failedIntegrationNames.length > 0) {
+      throw new errors.BotpressCLIError(`${failedIntegrationNames.join(', ')} integrations failed to register`)
     }
 
     updateLine.success(`Dev Bot deployed with id "${updatedBot.id}" at "${externalUrl}"`)
