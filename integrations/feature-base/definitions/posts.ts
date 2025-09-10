@@ -34,9 +34,11 @@ export const createPost = {
   },
   output: {
     schema: z.object({
-      submission: z.object({
-        id: z.string(),
-      }),
+      submission: z
+        .object({
+          id: z.string(),
+        })
+        .describe('Represent the created post.'),
     }),
   },
 }
@@ -60,20 +62,22 @@ export const listPosts = {
   },
   output: {
     schema: z.object({
-      nextToken: z.string().optional(),
-      results: z.array(
-        z.object({
-          title: z.string(),
-          content: z.string(),
-          author: z.string(),
-          authorId: z.string(),
-          organization: z.string(),
-          postCategory: z.object({
-            category: z.string(),
-          }),
-          id: z.string(),
-        })
-      ),
+      nextToken: z.string().optional().describe('Use the token to fetch the next page of posts.'),
+      results: z
+        .array(
+          z.object({
+            title: z.string(),
+            content: z.string(),
+            author: z.string(),
+            authorId: z.string(),
+            organization: z.string(),
+            postCategory: z.object({
+              category: z.string(),
+            }),
+            id: z.string(),
+          })
+        )
+        .describe('An array of posts.'),
     }),
   },
 }

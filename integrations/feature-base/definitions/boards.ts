@@ -33,7 +33,7 @@ export const listBoards = {
   },
   output: {
     schema: z.object({
-      results: z.array(z.object(boardModel)),
+      results: z.array(z.object(boardModel)).describe('An array of boards.'),
     }),
   },
 }
@@ -47,6 +47,6 @@ export const getBoard = {
     }),
   },
   output: {
-    schema: z.object(boardModel),
+    schema: z.object(boardModel).describe('A single board'),
   },
 }

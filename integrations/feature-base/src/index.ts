@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
-import * as bp from '.botpress'
 import { FeatureBaseClient } from './client'
+import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async (props) => {
@@ -16,7 +16,7 @@ export default new bp.Integration({
     listPosts: async (props) => {
       const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
       const posts = await client.listPosts(props.input)
-      return posts;
+      return posts
     },
     createPost: async (props) => {
       const client = new FeatureBaseClient(props.ctx.configuration.apiKey)

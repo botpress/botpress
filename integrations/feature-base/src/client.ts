@@ -2,8 +2,8 @@ import { RuntimeError } from '@botpress/client'
 import axios, { Axios, AxiosResponse } from 'axios'
 import * as bp from '.botpress'
 
-type Actions = bp.actions.Actions;
-type Input<K extends keyof Actions> = Actions[K]['input'];
+type Actions = bp.actions.Actions
+type Input<K extends keyof Actions> = Actions[K]['input']
 
 export type ErrorResponse = {
   code: number
@@ -13,11 +13,13 @@ export type ErrorResponse = {
 type Output<K extends keyof Actions> = Actions[K]['output']
 type ApiOutput<K extends keyof Actions> = Output<K> | ErrorResponse
 
-type PagedApiOutput<K extends keyof Actions> = ErrorResponse | Omit<ApiOutput<K>, 'nextToken'> & {
-  page: number;
-  limit: number;
-  totalResults: number;
-};
+type PagedApiOutput<K extends keyof Actions> =
+  | ErrorResponse
+  | (Omit<ApiOutput<K>, 'nextToken'> & {
+      page: number
+      limit: number
+      totalResults: number
+    })
 
 export class FeatureBaseClient {
   private _client: Axios
@@ -36,28 +38,30 @@ export class FeatureBaseClient {
     if ('message' in response) {
       throw new RuntimeError(response.message)
     }
-    const { limit, page, totalResults, ...result } = response;
-    let nextToken: string | undefined = undefined;
+    const { limit, page, totalResults, ...result } = response
+    let nextToken: string | undefined = undefined
     if (limit * page < totalResults) {
-      nextToken = String(page + 1);
+      nextToken = String(page + 1)
     }
     return {
       ...result,
-      nextToken
-    };
+      nextToken,
+    }
   }
 
-  private _parsePagedParams<K extends keyof Actions>(params: Input<K>): Omit<Input<K>, 'nextToken'> & { page?: number } {
+  private _parsePagedParams<K extends keyof Actions>(
+    params: Input<K>
+  ): Omit<Input<K>, 'nextToken'> & { page?: number } {
     if (!('nextToken' in params)) {
-      return params;
+      return params
     }
-    let page: number | undefined = undefined;
+    let page: number | undefined = undefined
     if (params.nextToken && !isNaN(Number(params.nextToken))) {
-      page = Number(params.nextToken);
+      page = Number(params.nextToken)
     }
     return {
       ...params,
-      page
+      page,
     }
   }
 
@@ -95,7 +99,7 @@ export class FeatureBaseClient {
   public async listPosts(params: Input<'listPosts'>): Promise<Output<'listPosts'>> {
     const response: AxiosResponse<PagedApiOutput<'listPosts'>> = await this._client
       .get('/v2/posts', {
-        params: this._parsePagedParams(params)
+        params: this._parsePagedParams(params),
       })
       .catch(this._handleAxiosError)
     return this._unwrapPagedResponse(response.data)
