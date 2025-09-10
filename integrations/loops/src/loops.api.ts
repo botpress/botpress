@@ -46,10 +46,12 @@ export class LoopsApi {
   }
 
   public async sendTransactionalEmail(req: sendTransactionalEmailRequest): Promise<sendTransactionalEmailResponse> {
+    const { idempotencyKey, ...reqBody } = req
     try {
-      await this._axios.post('/transactional', req, {
+      await this._axios.post('/transactional', reqBody, {
         headers: {
           'Content-Type': 'application/json',
+          'Idempotency-Key': idempotencyKey,
         },
       })
 
