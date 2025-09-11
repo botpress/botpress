@@ -17,6 +17,15 @@ const locationSchema = z
   .partial()
   .strict()
 
+//the main schema for the profile: intended to be the primary fields we'd want for context
+const profileSchema = z.object({
+  id: z.string().title('Profile ID').describe('The unique (Klaviyo) identifier of the profile'),
+  email: z.string().email().title('Email address').describe('The email of the profile').optional(),
+  phone: z.string().optional().title('Phone').describe('The phone number of the profile'),
+  firstName: z.string().optional().title('First Name').describe('The first name of the profile'),
+  lastName: z.string().optional().title('Last Name').describe('The last name of the profile'),
+})
+
 const createProfile = {
   title: 'Create Profile',
   description: 'Create a profile in Klaviyo: either email or phone is required',
@@ -46,11 +55,7 @@ const createProfile = {
   },
   output: {
     schema: z.object({
-      profileId: z.string().title('Profile ID').describe('The unique identifier of the created profile'),
-      email: z.string().email().optional().title('Email').describe('The email address of the profile'),
-      phone: z.string().optional().title('Phone').describe('The phone number of the profile'),
-      firstName: z.string().optional().title('First Name').describe('The first name of the profile'),
-      lastName: z.string().optional().title('Last Name').describe('The last name of the profile'),
+      profile: profileSchema.title('Profile').describe('The created profile'),
     }),
   },
 }
@@ -83,10 +88,10 @@ const updateProfile = {
       location: locationSchema.optional(),
     }),
   },
-  //TODO: add more fields to output schema
+  // TODO: i think it merits a discussion on what to include in the output schema
   output: {
     schema: z.object({
-      profileId: z.string().title('Profile ID').describe('The unique (Klaviyo) identifier of the updated profile'),
+      profile: profileSchema.title('Profile').describe('The updated profile'),
     }),
   },
 }
