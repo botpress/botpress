@@ -2,16 +2,14 @@ import { RuntimeError } from '@botpress/sdk'
 import { ApiKeySession, AccountsApi } from 'klaviyo-api'
 import * as bp from '.botpress'
 
-/**
- * Validates the Klaviyo API key by making a test request to the Klaviyo API
- */
+// Klaviyo API key validation test
 const validateKlaviyoApiKey = async (apiKey: string): Promise<boolean> => {
   try {
-    // Create API key session
     const session = new ApiKeySession(apiKey)
     const accountsApi = new AccountsApi(session)
 
     // Test the API key by making a simple request to get account info
+    // TODO: Change this to a more formal validation... this likely isnt best practices
     await accountsApi.getAccounts()
     return true
   } catch (error) {
@@ -20,7 +18,7 @@ const validateKlaviyoApiKey = async (apiKey: string): Promise<boolean> => {
 }
 
 export const register: bp.IntegrationProps['register'] = async ({ ctx }) => {
-  // Only validate if using manual configuration
+  // TODO: built oauth
   if (ctx.configurationType !== 'manual') {
     return
   }
@@ -40,5 +38,5 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx }) => {
 }
 
 export const unregister: bp.IntegrationProps['unregister'] = async () => {
-  // Cleanup logic if needed
+  // TODO: Add ability to unregister (required by BP typing)
 }

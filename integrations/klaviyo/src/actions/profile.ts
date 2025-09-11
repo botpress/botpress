@@ -1,27 +1,31 @@
 import { RuntimeError } from '@botpress/sdk'
 import { ApiKeySession, ProfilesApi, ProfileCreateQuery, ProfileEnum } from 'klaviyo-api'
 import * as bp from '.botpress'
+import { ProfileAttributes } from './types'
 
 export const createProfile: bp.IntegrationProps['actions']['createProfile'] = async (props) => {
   const { email, phone, firstName, lastName, organization, title, locale, location } = props.input
+
+  if (props.ctx.configurationType !== 'manual') {
+    throw new RuntimeError('Manual configuration is required for Klaviyo integration')
+  }
+
   const { apiKey } = props.ctx.configuration
 
   if (!apiKey) {
     throw new RuntimeError('API Key is required for Klaviyo integration')
   }
 
-  // Runtime validation - either email or phone is required
+  // Error in runtime if no email or phone is provided
   if (!email && !phone) {
     throw new RuntimeError('Either email or phone is required to create a profile')
   }
 
   try {
-    // Create API key session
     const session = new ApiKeySession(apiKey)
     const profilesApi = new ProfilesApi(session)
 
-    // Build profile attributes
-    const profileAttributes: any = {}
+    const profileAttributes: ProfileAttributes = {}
 
     if (email) profileAttributes.email = email
     if (phone) profileAttributes.phone_number = phone
@@ -53,11 +57,11 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
     const result = await profilesApi.createProfile(profileQuery)
 
     return {
-      profileId: result.body.data.id,
-      email: result.body.data.attributes.email,
-      phone: result.body.data.attributes.phoneNumber,
-      firstName: result.body.data.attributes.firstName,
-      lastName: result.body.data.attributes.lastName,
+      profileId: result.body.data.id || '',
+      email: result.body.data.attributes.email || undefined,
+      phone: result.body.data.attributes.phoneNumber || undefined,
+      firstName: result.body.data.attributes.firstName || undefined,
+      lastName: result.body.data.attributes.lastName || undefined,
     }
   } catch (error: any) {
     props.logger.forBot().error('Failed to create Klaviyo profile', error)
