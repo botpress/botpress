@@ -125,4 +125,11 @@ export class FeatureBaseClient {
       .catch(this._handleAxiosError)
     return this._unwrapResponse(response.data)
   }
+
+  public async createComment(params: Input<'createComment'>): Promise<Output<'createComment'>> {
+    const response: AxiosResponse<ApiOutput<'createComment'>> = await this._client
+      .post('/v2/comment', params)
+      .catch(this._handleAxiosError)
+    return this._unwrapResponse(response.data)
+  }
 }

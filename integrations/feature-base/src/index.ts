@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import { postUpdated, postCreated, postDeleted, postVoted } from 'definitions/events/posts'
 import { FeatureBaseClient } from './client'
 import * as bp from '.botpress'
+import { handleTextMessage } from './channels'
 
 export default new bp.Integration({
   register: async (props) => {
@@ -40,7 +41,13 @@ export default new bp.Integration({
       return await client.getBoard(props.input)
     },
   },
-  channels: {},
+  channels: {
+    comments: {
+      messages: {
+        text: handleTextMessage,
+      },
+    },
+  },
   handler: async (props) => {
     if (!props.req.body) {
       props.logger.error('Handler received an empty body')
