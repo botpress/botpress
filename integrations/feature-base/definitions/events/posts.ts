@@ -1,4 +1,4 @@
-import { z } from '@botpress/sdk'
+import { z, EventDefinition } from '@botpress/sdk'
 
 const webhookEvent = {
   type: z.string().title('Type').describe('The type of event'),
@@ -60,7 +60,7 @@ export const postCreated = {
       .title('Data')
       .describe('Event data'),
   }),
-}
+} satisfies EventDefinition
 
 export const postUpdated = {
   title: 'Post Updated',
@@ -81,7 +81,7 @@ export const postUpdated = {
       .title('Data')
       .describe('Event data'),
   }),
-}
+} satisfies EventDefinition
 
 export const postDeleted = {
   title: 'Post Deleted',
@@ -95,7 +95,7 @@ export const postDeleted = {
       .title('Data')
       .describe('Event data'),
   }),
-}
+} satisfies EventDefinition
 
 export const postVoted = {
   title: 'Post voted',
@@ -114,6 +114,4 @@ export const postVoted = {
       .title('Data')
       .describe('Event data'),
   }),
-}
-
-export const webhookEventSchema = z.object(webhookEvent)
+} satisfies EventDefinition
