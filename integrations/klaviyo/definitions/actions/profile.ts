@@ -19,10 +19,10 @@ const locationSchema = z
 
 const createProfile = {
   title: 'Create Profile',
-  description: 'Create a profile in Klaviyo',
+  description: 'Create a profile in Klaviyo: either email or phone is required',
   input: {
     schema: z.object({
-      email: z.string().email().title('Email address').describe('The email of the profile'),
+      email: z.string().email().title('Email address').describe('The email of the profile').optional(),
       phone: z
         .string()
         .regex(E164_REGEX, 'Must be E.164 format (e.g. +15005550006)')
@@ -45,7 +45,13 @@ const createProfile = {
     }),
   },
   output: {
-    schema: z.object({}),
+    schema: z.object({
+      profileId: z.string().title('Profile ID').describe('The unique identifier of the created profile'),
+      email: z.string().email().optional().title('Email').describe('The email address of the profile'),
+      phone: z.string().optional().title('Phone').describe('The phone number of the profile'),
+      firstName: z.string().optional().title('First Name').describe('The first name of the profile'),
+      lastName: z.string().optional().title('Last Name').describe('The last name of the profile'),
+    }),
   },
 }
 
