@@ -5,7 +5,7 @@ import { postCreated, postUpdated, postDeleted, postVoted } from 'definitions/ev
 
 export default new IntegrationDefinition({
   name: 'feature-base',
-  version: '0.1.0',
+  version: '0.2.0',
   title: 'Feature Base',
   description: 'CRUD operations for Feature Base',
   readme: 'hub.md',
