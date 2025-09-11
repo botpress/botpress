@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import { ProfileCreateQuery, ProfileEnum } from 'klaviyo-api'
+import { ProfileCreateQuery, ProfilePartialUpdateQuery, ProfileEnum } from 'klaviyo-api'
 import * as bp from '.botpress'
 import { getProfilesApi } from '../auth'
 import { ProfileAttributes } from './types'
@@ -67,7 +67,61 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
 }
 
 export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = async ({ ctx, logger, input }) => {
-  // TODO: Implement updateProfile action
-  logger.forBot().info('updateProfile action called but not yet implemented')
-  throw new RuntimeError('updateProfile action is not yet implemented')
+  const { profileId, email, phone, firstName, lastName, organization, title, locale, location } = input
+
+  //redundant but i think fine to keep
+  if (!profileId) {
+    throw new RuntimeError('Klaviyo Profile ID is require to update a profile')
+  }
+
+  try {
+    const profilesApi = getProfilesApi(ctx)
+
+    const updatedProfileAttributes: ProfileAttributes = {}
+
+    if (email) updatedProfileAttributes.email = email
+    //may need this in camel case, check if works
+    if (phone) updatedProfileAttributes.phone_number = phone
+    if (firstName) updatedProfileAttributes.first_name = firstName
+    if (lastName) updatedProfileAttributes.last_name = lastName
+    if (organization) updatedProfileAttributes.organization = organization
+    if (title) updatedProfileAttributes.title = title
+    if (locale) updatedProfileAttributes.locale = locale
+    if (location) {
+      updatedProfileAttributes.location = {
+        address1: location.address1,
+        address2: location.address2,
+        city: location.city,
+        country: location.country,
+        region: location.region,
+        zip: location.zip,
+      }
+    }
+
+    const updatedProfileQuery: ProfilePartialUpdateQuery = {
+      data: {
+        type: ProfileEnum.Profile,
+        id: profileId,
+        attributes: updatedProfileAttributes,
+      },
+    }
+
+    const result = await profilesApi.updateProfile(profileId, updatedProfileQuery)
+
+    return {
+      profileId: result.body.data.id || '',
+      email: result.body.data.attributes.email || undefined,
+      phone: result.body.data.attributes.phoneNumber || undefined,
+      firstName: result.body.data.attributes.firstName || undefined,
+      lastName: result.body.data.attributes.lastName || undefined,
+    }
+  } catch (error: any) {
+    logger.forBot().error('Failed to update Klaviyo profile', error)
+    if (error.response?.data?.errors) {
+      const errorMessages = error.response.data.errors.map((err: any) => err.detail).join(', ')
+      throw new RuntimeError(`Klaviyo API error: ${errorMessages}`)
+    }
+
+    throw new RuntimeError('Failed to update profile in Klaviyo')
+  }
 }
