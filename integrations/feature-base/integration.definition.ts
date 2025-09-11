@@ -27,6 +27,6 @@ export default new IntegrationDefinition({
     postCreated,
     postUpdated,
     postDeleted,
-    postVoted
+    postVoted,
   },
 })
