@@ -1,10 +1,11 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { listBoards, getBoard } from 'definitions/boards'
-import { listPosts, createPost, deletePost, updatePost } from 'definitions/posts'
+import { listBoards, getBoard } from 'definitions/actions/boards'
+import { listPosts, createPost, deletePost, updatePost } from 'definitions/actions/posts'
+import { postCreated, postUpdated, postDeleted, postVoted } from 'definitions/events/posts'
 
 export default new IntegrationDefinition({
   name: 'feature-base',
-  version: '0.1.0',
+  version: '0.2.0',
   title: 'Feature Base',
   description: 'CRUD operations for Feature Base',
   readme: 'hub.md',
@@ -21,5 +22,11 @@ export default new IntegrationDefinition({
     listPosts,
     deletePost,
     updatePost,
+  },
+  events: {
+    postCreated,
+    postUpdated,
+    postDeleted,
+    postVoted,
   },
 })
