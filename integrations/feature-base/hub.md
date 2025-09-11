@@ -8,4 +8,8 @@ This integration allows Botpress bots to interact with Feature Base’s API. By 
 
 ### Configuration
 
+#### Actions
 Your API key is needed to configure this integration. How to find your API key is describe in [this documentation](https://docs.featurebase.app/quickstart).
+
+#### Events
+The webhook URL found on the configuration page of this integration should be added in the Feature Base's dashboard. [See this documentation for more information](https://docs.featurebase.app/webhooks#registering-webhooks)
