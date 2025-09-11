@@ -26,8 +26,7 @@ To set up the Klaviyo integration, you'll need to provide your Klaviyo Private A
 1. In Botpress, navigate to the Klaviyo integration settings
 2. Select **Manual Configuration**
 3. Paste your Klaviyo Private API Key into the **API Key** field
-4. Optionally, add a **Webhook Secret** if you plan to use webhooks for real-time event tracking
-5. Click **Save** to save the configuration
+4. Click **Save** to save the configuration
 
 #### Step 3: Test the Configuration
 
@@ -52,23 +51,11 @@ Create a new customer profile in Klaviyo with the following information:
 
 **Note**: Either email or phone number is required to create a profile.
 
-## Webhook Events (Optional)
-
-If you want to receive real-time notifications when events occur in Klaviyo, you can set up webhooks:
-
-1. In your Klaviyo account, go to **Account** → **Settings** → **Webhooks**
-2. Click **Create Webhook**
-3. Use the webhook URL provided by Botpress
-4. Select the events you want to track
-5. Set a webhook secret for security
-6. Add the same webhook secret to your Botpress integration configuration
-
 ## Security Notes
 
 - Your API key is stored securely and encrypted
 - The integration only requests the minimum required permissions
 - All API communications are encrypted using HTTPS
-- Webhook signatures are verified when webhook secret is provided
 
 ## Support
 

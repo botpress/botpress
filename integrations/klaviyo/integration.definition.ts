@@ -4,7 +4,7 @@ import { actions } from './definitions'
 
 export default new IntegrationDefinition({
   name: integrationName,
-  version: '0.1.1',
+  version: '0.1.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -16,13 +16,6 @@ export default new IntegrationDefinition({
       description: 'Manual configuration with your Klaviyo API key',
       schema: z.object({
         apiKey: z.string().min(1).secret().title('API Key').describe('Your Klaviyo Private API Key'),
-        webhookSecret: z
-          .string()
-          .min(1)
-          .secret()
-          .optional()
-          .title('Webhook Secret')
-          .describe('Webhook secret for signature verification (optional)'),
       }),
     },
   },

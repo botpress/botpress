@@ -55,6 +55,43 @@ const createProfile = {
   },
 }
 
+const updateProfile = {
+  title: 'Update Profile',
+  description: 'Update a profile in Klaviyo',
+  input: {
+    schema: z.object({
+      profileId: z.string().title('Profile ID').describe('The unique (Klaviyo) identifier of the profile'),
+      email: z.string().email().title('Email address').describe('The email of the profile').optional(),
+      phone: z
+        .string()
+        .regex(E164_REGEX, 'Must be E.164 format (e.g. +15005550006)')
+        .title('Phone number')
+        .describe('The phone number of the profile (E.164 format)')
+        .optional(),
+      firstName: z.string().title('First name').describe('The first name of the profile').optional(),
+      lastName: z.string().title('Last name').describe('The last name of the profile').optional(),
+      organization: z.string().title('Organization').describe('The organization or company of the profile').optional(),
+      title: z.string().title('Job title').describe('The job title of the profile').optional(),
+      locale: z
+        .string()
+        .regex(LOCALE_REGEX)
+        .title('The locale of the profile')
+        .describe(
+          'The locale of the profile in the IETF BCP 47 language tag format like (ISO 639-1/2)-(ISO 3166 alpha-2)'
+        )
+        .optional(),
+      location: locationSchema.optional(),
+    }),
+  },
+  //TODO: add more fields to output schema
+  output: {
+    schema: z.object({
+      profileId: z.string().title('Profile ID').describe('The unique (Klaviyo) identifier of the updated profile'),
+    }),
+  },
+}
+
 export const actions = {
   createProfile,
+  updateProfile,
 } as const

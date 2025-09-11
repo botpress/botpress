@@ -1,5 +1,6 @@
-import { createProfile } from './profile'
+import * as profileActions from './profile'
+import * as bp from '.botpress'
 
 export default {
-  createProfile,
-}
+  ...profileActions,
+} as const satisfies bp.IntegrationProps['actions']

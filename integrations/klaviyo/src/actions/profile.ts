@@ -1,20 +1,11 @@
 import { RuntimeError } from '@botpress/sdk'
-import { ApiKeySession, ProfilesApi, ProfileCreateQuery, ProfileEnum } from 'klaviyo-api'
+import { ProfileCreateQuery, ProfileEnum } from 'klaviyo-api'
 import * as bp from '.botpress'
+import { getProfilesApi } from '../auth'
 import { ProfileAttributes } from './types'
 
-export const createProfile: bp.IntegrationProps['actions']['createProfile'] = async (props) => {
-  const { email, phone, firstName, lastName, organization, title, locale, location } = props.input
-
-  if (props.ctx.configurationType !== 'manual') {
-    throw new RuntimeError('Manual configuration is required for Klaviyo integration')
-  }
-
-  const { apiKey } = props.ctx.configuration
-
-  if (!apiKey) {
-    throw new RuntimeError('API Key is required for Klaviyo integration')
-  }
+export const createProfile: bp.IntegrationProps['actions']['createProfile'] = async ({ ctx, logger, input }) => {
+  const { email, phone, firstName, lastName, organization, title, locale, location } = input
 
   // Error in runtime if no email or phone is provided
   if (!email && !phone) {
@@ -22,8 +13,7 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
   }
 
   try {
-    const session = new ApiKeySession(apiKey)
-    const profilesApi = new ProfilesApi(session)
+    const profilesApi = getProfilesApi(ctx)
 
     const profileAttributes: ProfileAttributes = {}
 
@@ -64,7 +54,7 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
       lastName: result.body.data.attributes.lastName || undefined,
     }
   } catch (error: any) {
-    props.logger.forBot().error('Failed to create Klaviyo profile', error)
+    logger.forBot().error('Failed to create Klaviyo profile', error)
 
     // Handle specific Klaviyo API errors
     if (error.response?.data?.errors) {
@@ -74,4 +64,10 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
 
     throw new RuntimeError('Failed to create profile in Klaviyo')
   }
+}
+
+export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = async ({ ctx, logger, input }) => {
+  // TODO: Implement updateProfile action
+  logger.forBot().info('updateProfile action called but not yet implemented')
+  throw new RuntimeError('updateProfile action is not yet implemented')
 }
