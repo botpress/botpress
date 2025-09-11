@@ -7,7 +7,6 @@ import { ProfileAttributes } from './types'
 export const createProfile: bp.IntegrationProps['actions']['createProfile'] = async ({ ctx, logger, input }) => {
   const { email, phone, firstName, lastName, organization, title, locale, location } = input
 
-  // Error in runtime if no email or phone is provided
   if (!email && !phone) {
     throw new RuntimeError('Either email or phone is required to create a profile')
   }
@@ -35,7 +34,6 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
       }
     }
 
-    // Create profile query
     const profileQuery: ProfileCreateQuery = {
       data: {
         type: ProfileEnum.Profile,
@@ -43,7 +41,6 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
       },
     }
 
-    // Create the profile
     const result = await profilesApi.createProfile(profileQuery)
 
     return {
@@ -52,7 +49,6 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
   } catch (error: any) {
     logger.forBot().error('Failed to create Klaviyo profile', error)
 
-    // Handle specific Klaviyo API errors
     if (error.response?.data?.errors) {
       const errorMessages = error.response.data.errors.map((err: any) => err.detail).join(', ')
       throw new RuntimeError(`Klaviyo API error: ${errorMessages}`)
@@ -65,7 +61,6 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
 export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = async ({ ctx, logger, input }) => {
   const { profileId, email, phone, firstName, lastName, organization, title, locale, location } = input
 
-  //redundant but i think fine to keep
   if (!profileId) {
     throw new RuntimeError('Klaviyo Profile ID is require to update a profile')
   }
@@ -76,7 +71,6 @@ export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = as
     const updatedProfileAttributes: ProfileAttributes = {}
 
     if (email) updatedProfileAttributes.email = email
-    //may need this in camel case, check if works
     if (phone) updatedProfileAttributes.phoneNumber = phone
     if (firstName) updatedProfileAttributes.firstName = firstName
     if (lastName) updatedProfileAttributes.lastName = lastName
