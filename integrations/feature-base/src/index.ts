@@ -4,12 +4,7 @@ import { postUpdated, postCreated, postDeleted, postVoted } from 'definitions/ev
 import { FeatureBaseClient } from './client'
 import * as bp from '.botpress'
 
-const webhookRequestSchema = z.union([
-  z.object({ topic: z.literal('post.created'), data: postCreated.schema }),
-  z.object({ topic: z.literal('post.updated'), data: postUpdated.schema }),
-  z.object({ topic: z.literal('post.deleted'), data: postDeleted.schema }),
-  z.object({ topic: z.literal('post.voted'), data: postVoted.schema }),
-])
+const webhookRequestSchema = z.union([postCreated.schema, postUpdated.schema, postDeleted.schema, postVoted.schema])
 
 export default new bp.Integration({
   register: async (props) => {
@@ -73,19 +68,19 @@ export default new bp.Integration({
 
     switch (webhookRequestPayload.topic) {
       case 'post.created': {
-        props.client.createEvent({ type: 'postCreated', payload: webhookRequestPayload.data })
+        props.client.createEvent({ type: 'postCreated', payload: webhookRequestPayload })
         break
       }
       case 'post.updated': {
-        props.client.createEvent({ type: 'postUpdated', payload: webhookRequestPayload.data })
+        props.client.createEvent({ type: 'postUpdated', payload: webhookRequestPayload })
         break
       }
       case 'post.deleted': {
-        props.client.createEvent({ type: 'postDeleted', payload: webhookRequestPayload.data })
+        props.client.createEvent({ type: 'postDeleted', payload: webhookRequestPayload })
         break
       }
       case 'post.voted': {
-        props.client.createEvent({ type: 'postVoted', payload: webhookRequestPayload.data })
+        props.client.createEvent({ type: 'postVoted', payload: webhookRequestPayload })
         break
       }
       default:
