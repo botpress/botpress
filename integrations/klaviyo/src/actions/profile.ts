@@ -44,7 +44,13 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
     const result = await profilesApi.createProfile(profileQuery)
 
     return {
-      profileId: result.body.data.id || '',
+      profile: {
+        id: result.body.data.id || '',
+        email: result.body.data.attributes.email || undefined,
+        phone: result.body.data.attributes.phoneNumber || undefined,
+        firstName: result.body.data.attributes.firstName || undefined,
+        lastName: result.body.data.attributes.lastName || undefined,
+      },
     }
   } catch (error: any) {
     logger.forBot().error('Failed to create Klaviyo profile', error)
@@ -99,7 +105,13 @@ export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = as
     const result = await profilesApi.updateProfile(profileId, updatedProfileQuery)
 
     return {
-      profileId: result.body.data.id || '',
+      profile: {
+        id: result.body.data.id || '',
+        email: result.body.data.attributes.email || undefined,
+        phone: result.body.data.attributes.phoneNumber || undefined,
+        firstName: result.body.data.attributes.firstName || undefined,
+        lastName: result.body.data.attributes.lastName || undefined,
+      },
     }
   } catch (error: any) {
     logger.forBot().error('Failed to update Klaviyo profile', error)
@@ -109,5 +121,37 @@ export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = as
     }
 
     throw new RuntimeError('Failed to update profile in Klaviyo')
+  }
+}
+
+export const getProfile: bp.IntegrationProps['actions']['getProfile'] = async ({ ctx, logger, input }) => {
+  const { profileId } = input
+
+  if (!profileId) {
+    throw new RuntimeError('Klaviyo Profile ID is require to get a profile')
+  }
+
+  try {
+    const profilesApi = getProfilesApi(ctx)
+
+    const result = await profilesApi.getProfile(profileId)
+
+    return {
+      profile: {
+        id: result.body.data.id || '',
+        email: result.body.data.attributes.email || undefined,
+        phone: result.body.data.attributes.phoneNumber || undefined,
+        firstName: result.body.data.attributes.firstName || undefined,
+        lastName: result.body.data.attributes.lastName || undefined,
+      },
+    }
+  } catch (error: any) {
+    logger.forBot().error('Failed to get Klaviyo profile', error)
+    if (error.response?.data?.errors) {
+      const errorMessages = error.response.data.errors.map((err: any) => err.detail).join(', ')
+      throw new RuntimeError(`Klaviyo API error: ${errorMessages}`)
+    }
+
+    throw new RuntimeError('Failed to get profile in Klaviyo')
   }
 }

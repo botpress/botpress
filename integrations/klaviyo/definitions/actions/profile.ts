@@ -96,7 +96,24 @@ const updateProfile = {
   },
 }
 
+//TODO: there is both a getProfile and getProfiles endpoint - the latter can be used to get all profiles and can sort by email, phone number, created at, name, etc.
+const getProfile = {
+  title: 'Get Profile',
+  description: 'Get a profile in Klaviyo',
+  input: {
+    schema: z.object({
+      profileId: z.string().title('Profile ID').describe('The unique (Klaviyo) identifier of the profile'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      profile: profileSchema.title('Profile').describe('The retrieved profile'),
+    }),
+  },
+}
+
 export const actions = {
   createProfile,
   updateProfile,
+  getProfile,
 } as const
