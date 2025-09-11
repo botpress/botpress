@@ -1,8 +1,11 @@
 import { RuntimeError } from '@botpress/client'
+import { z } from '@botpress/sdk'
 import { postUpdated, postCreated, postDeleted, postVoted } from 'definitions/events/posts'
+import { handleTextMessage } from './channels'
 import { FeatureBaseClient } from './client'
 import * as bp from '.botpress'
-import { handleTextMessage } from './channels'
+
+const webhookRequestSchema = z.union([postCreated.schema, postUpdated.schema, postDeleted.schema, postVoted.schema])
 
 export default new bp.Integration({
   register: async (props) => {
@@ -54,7 +57,7 @@ export default new bp.Integration({
       return
     }
 
-    let json: any | null = null
+    let json: unknown | null = null
     try {
       json = JSON.parse(props.req.body)
     } catch {
@@ -62,46 +65,29 @@ export default new bp.Integration({
       return
     }
 
-    if (!json?.topic) {
-      props.logger.error('Failed to find event topic')
+    const parseResult = webhookRequestSchema.safeParse(json)
+    if (!parseResult.success) {
+      props.logger.error(`Failed to validate request body: ${parseResult.error.message}`)
       return
     }
 
-    switch (json.topic) {
+    const { data: webhookRequestPayload } = parseResult
+
+    switch (webhookRequestPayload.topic) {
       case 'post.created': {
-        const result = postCreated.schema.safeParse(json)
-        if (!result.success) {
-          props.logger.error(`Failed to validate request body: ${result.error.message}`)
-          return
-        }
-        props.client.createEvent({ type: 'postCreated', payload: result.data })
+        props.client.createEvent({ type: 'postCreated', payload: webhookRequestPayload })
         break
       }
       case 'post.updated': {
-        const result = postUpdated.schema.safeParse(json)
-        if (!result.success) {
-          props.logger.error(`Failed to validate request body: ${result.error.message}`)
-          return
-        }
-        props.client.createEvent({ type: 'postUpdated', payload: result.data })
+        props.client.createEvent({ type: 'postUpdated', payload: webhookRequestPayload })
         break
       }
       case 'post.deleted': {
-        const result = postDeleted.schema.safeParse(json)
-        if (!result.success) {
-          props.logger.error(`Failed to validate request body: ${result.error.message}`)
-          return
-        }
-        props.client.createEvent({ type: 'postDeleted', payload: result.data })
+        props.client.createEvent({ type: 'postDeleted', payload: webhookRequestPayload })
         break
       }
       case 'post.voted': {
-        const result = postVoted.schema.safeParse(json)
-        if (!result.success) {
-          props.logger.error(`Failed to validate request body: ${result.error.message}`)
-          return
-        }
-        props.client.createEvent({ type: 'postVoted', payload: result.data })
+        props.client.createEvent({ type: 'postVoted', payload: webhookRequestPayload })
         break
       }
       default:

@@ -1,8 +1,7 @@
-import { z } from '@botpress/sdk'
+import { z, EventDefinition } from '@botpress/sdk'
 
-const webhookEvent = {
+const webhookEvent = z.object({
   type: z.string().title('Type').describe('The type of event'),
-  topic: z.string().title('Topic').describe('Topic of the event'),
   organizationId: z.string().title('Organization Id').describe('Organization associated with the event'),
   id: z.string().title('Id').describe('ID of the event'),
   webhookId: z.string().title('Webhook Id').describe('The ID of the webhook').optional(),
@@ -14,7 +13,7 @@ const webhookEvent = {
     .title('Delivery Attempts')
     .describe('The number of times the event tried to be delivered')
     .optional(),
-}
+})
 
 const userSchema = z.object({
   id: z.string().optional(),
@@ -51,8 +50,8 @@ const postSchema = z.object({
 export const postCreated = {
   title: 'Post Created',
   description: 'A post was created on a board.',
-  schema: z.object({
-    ...webhookEvent,
+  schema: webhookEvent.extend({
+    topic: z.literal('post.created').title('Topic').describe('The topic of the event'),
     data: z
       .object({
         item: postSchema,
@@ -60,13 +59,13 @@ export const postCreated = {
       .title('Data')
       .describe('Event data'),
   }),
-}
+} satisfies EventDefinition
 
 export const postUpdated = {
   title: 'Post Updated',
   description: 'A post was updated on a board.',
-  schema: z.object({
-    ...webhookEvent,
+  schema: webhookEvent.extend({
+    topic: z.literal('post.updated').title('Topic').describe('The topic of the event'),
     data: z
       .object({
         item: postSchema,
@@ -81,13 +80,13 @@ export const postUpdated = {
       .title('Data')
       .describe('Event data'),
   }),
-}
+} satisfies EventDefinition
 
 export const postDeleted = {
   title: 'Post Deleted',
   description: 'A post was deleted on a board.',
-  schema: z.object({
-    ...webhookEvent,
+  schema: webhookEvent.extend({
+    topic: z.literal('post.deleted').title('Topic').describe('The topic of the event'),
     data: z
       .object({
         item: postSchema,
@@ -95,13 +94,13 @@ export const postDeleted = {
       .title('Data')
       .describe('Event data'),
   }),
-}
+} satisfies EventDefinition
 
 export const postVoted = {
   title: 'Post voted',
   description: 'A post was voted on a board.',
-  schema: z.object({
-    ...webhookEvent,
+  schema: webhookEvent.extend({
+    topic: z.literal('post.voted').title('Topic').describe('The topic of the event'),
     data: z
       .object({
         item: z.object({
@@ -114,6 +113,4 @@ export const postVoted = {
       .title('Data')
       .describe('Event data'),
   }),
-}
-
-export const webhookEventSchema = z.object(webhookEvent)
+} satisfies EventDefinition
