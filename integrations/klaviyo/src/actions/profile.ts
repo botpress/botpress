@@ -18,9 +18,9 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
     const profileAttributes: ProfileAttributes = {}
 
     if (email) profileAttributes.email = email
-    if (phone) profileAttributes.phone_number = phone
-    if (firstName) profileAttributes.first_name = firstName
-    if (lastName) profileAttributes.last_name = lastName
+    if (phone) profileAttributes.phoneNumber = phone
+    if (firstName) profileAttributes.firstName = firstName
+    if (lastName) profileAttributes.lastName = lastName
     if (organization) profileAttributes.organization = organization
     if (title) profileAttributes.title = title
     if (locale) profileAttributes.locale = locale
@@ -48,10 +48,6 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
 
     return {
       profileId: result.body.data.id || '',
-      email: result.body.data.attributes.email || undefined,
-      phone: result.body.data.attributes.phoneNumber || undefined,
-      firstName: result.body.data.attributes.firstName || undefined,
-      lastName: result.body.data.attributes.lastName || undefined,
     }
   } catch (error: any) {
     logger.forBot().error('Failed to create Klaviyo profile', error)
@@ -81,9 +77,9 @@ export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = as
 
     if (email) updatedProfileAttributes.email = email
     //may need this in camel case, check if works
-    if (phone) updatedProfileAttributes.phone_number = phone
-    if (firstName) updatedProfileAttributes.first_name = firstName
-    if (lastName) updatedProfileAttributes.last_name = lastName
+    if (phone) updatedProfileAttributes.phoneNumber = phone
+    if (firstName) updatedProfileAttributes.firstName = firstName
+    if (lastName) updatedProfileAttributes.lastName = lastName
     if (organization) updatedProfileAttributes.organization = organization
     if (title) updatedProfileAttributes.title = title
     if (locale) updatedProfileAttributes.locale = locale
@@ -110,10 +106,6 @@ export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = as
 
     return {
       profileId: result.body.data.id || '',
-      email: result.body.data.attributes.email || undefined,
-      phone: result.body.data.attributes.phoneNumber || undefined,
-      firstName: result.body.data.attributes.firstName || undefined,
-      lastName: result.body.data.attributes.lastName || undefined,
     }
   } catch (error: any) {
     logger.forBot().error('Failed to update Klaviyo profile', error)

@@ -1,8 +1,8 @@
 export type ProfileAttributes = {
   email?: string
-  phone_number?: string
-  first_name?: string
-  last_name?: string
+  phoneNumber?: string
+  firstName?: string
+  lastName?: string
   organization?: string
   title?: string
   locale?: string
