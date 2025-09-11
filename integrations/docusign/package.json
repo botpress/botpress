@@ -8,6 +8,10 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*"
+    "@botpress/sdk": "workspace:*",
+    "docusign-esign": "^8.4.0"
+  },
+  "devDependencies": {
+    "@types/docusign-esign": "^5.19.9"
   }
 }
