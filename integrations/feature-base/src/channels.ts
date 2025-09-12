@@ -13,7 +13,6 @@ export const handleOutgoingTextMessage = async (props: MessageHandlerProps<'text
     .createComment({
       content: props.payload.text,
       submissionId: props.conversation.tags.submissionId,
-      parentCommentId: props.conversation.tags.rootCommentId,
     })
     .catch((thrown: unknown) => {
       const err = thrown instanceof Error ? thrown : new Error(String(thrown))
