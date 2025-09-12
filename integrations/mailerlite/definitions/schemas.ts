@@ -24,8 +24,12 @@ export const subscriberSchema = z.object({
         phone: z.string().nullable(),
         state: z.string().nullable(),
         z_i_p: z.string().nullable()
-    }),
+    }).passthrough(),
     groups: z.array(z.any()),
     opted_in_at: z.string().nullable(),
     optin_ip: z.string().nullable()
 })
+
+export const webhookSchema = z.object({
+    event: z.string()
+}).passthrough()

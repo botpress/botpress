@@ -24,6 +24,28 @@ const fetchSubscriber: ActionDefinition = {
     }
 }
 
+const createOrUpsertSubscriber: ActionDefinition = {
+    title: 'Create or Upsert Subscriber',
+    description: 'Create or update existing subscriber with given fields, identified by their email or id',
+    input: {
+        schema: z.object({
+            email: z.string().title("Email").describe("Email of the subscriber to create/upsert"),
+            name: z.string().title("Name").describe("First name of the subscriber").optional(),
+            last_name: z.string().title("Last Name").describe("Last name of the subscriber").optional(),
+            company: z.string().title("Company").describe("Company name").optional(),
+            country: z.string().title("Country").describe("Country").optional(),
+            city: z.string().title("City").describe("City").optional(),
+            phone: z.string().title("Phone").describe("Phone number").optional(),
+            state: z.string().title("State").describe("State/Province").optional(),
+            zip: z.string().title("ZIP Code").describe("ZIP/Postal code").optional()
+        })
+    },
+    output: {
+        schema: subscriberSchema
+    }
+}
+
 export const actions = {
     fetchSubscriber,
+    createOrUpsertSubscriber,
 } as const
