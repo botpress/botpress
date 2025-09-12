@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import { ApiKeySession, ProfilesApi, AccountsApi } from 'klaviyo-api'
+import { ApiKeySession, ProfilesApi, ListsApi } from 'klaviyo-api'
 import * as bp from '.botpress'
 
 /**
@@ -40,10 +40,10 @@ export const getProfilesApi = (ctx: bp.Context): ProfilesApi => {
 }
 
 /**
- * Creates an AccountsApi instance with the configured API key
+ * Creates an ListsApi instance with the configured API key
  */
-export const getAccountsApi = (ctx: bp.Context): AccountsApi => {
+export const getListsApi = (ctx: bp.Context): ListsApi => {
   const apiKey = getApiKey(ctx)
   const session = createKlaviyoSession(apiKey)
-  return new AccountsApi(session)
+  return new ListsApi(session)
 }
