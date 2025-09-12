@@ -65,21 +65,30 @@ export const handleIncomingTextMessage = async (props: bp.HandlerProps, payload:
   if (!payload.data.item.user?.id || !payload.data.item.submission) {
     return
   }
+
   const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
   const commentThread = await client.getComments({
     submissionId: payload.data.item.submission,
     commentThreadId: payload.data.item.id,
   })
+
   props.logger.forBot().info(`[${ID}] commentId: ${payload.data.item.id}, submission ${payload.data.item.submission}`)
   if (commentThread.results.length === 0) {
     throw new RuntimeError('The comment does not exists.')
   }
+
   const comment = commentThread.results[0]!
   props.logger
     .forBot()
     .info(
       `[${ID}] parent comment id: ${comment.id}, length: ${commentThread.results.length}, content: ${commentThread.results.map((r) => r.content).join(' --- ')}`
     )
+
+  const alreadyExistsMessage = await _findMessage(props, comment.id)
+  if (alreadyExistsMessage) {
+    // ignoring message sent by the bot
+    return
+  }
 
   const { isRoot, tags } = extractTags(comment)
 
@@ -94,6 +103,7 @@ export const handleIncomingTextMessage = async (props: bp.HandlerProps, payload:
     channel: 'comments',
     tags,
   })
+
   const { user } = await props.client.getOrCreateUser({
     tags: {
       id: payload.data.item.user.id,
@@ -101,6 +111,7 @@ export const handleIncomingTextMessage = async (props: bp.HandlerProps, payload:
     name: comment.author,
     pictureUrl: comment.authorPicture,
   })
+
   await props.client.getOrCreateMessage({
     type: 'text',
     payload: {
@@ -113,3 +124,10 @@ export const handleIncomingTextMessage = async (props: bp.HandlerProps, payload:
     conversationId: conversation.id,
   })
 }
+
+const _findMessage = (props: bp.HandlerProps, commentId: string) =>
+  props.client
+    .listMessages({
+      tags: { id: commentId },
+    })
+    .then((res) => res.messages[0])

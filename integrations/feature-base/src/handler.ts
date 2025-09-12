@@ -55,6 +55,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     props.logger.error(`Failed to validate request body: ${error.message}`)
     return
   }
+
   switch (webhookRequestPayload.topic) {
     case 'post.created':
       props.client.createEvent({ type: 'postCreated', payload: webhookRequestPayload })
