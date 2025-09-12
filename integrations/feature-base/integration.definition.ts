@@ -1,7 +1,7 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { listBoards, getBoard, listPosts, createPost, deletePost, updatePost, getComments } from 'definitions/actions'
-import { postCreated, postUpdated, postDeleted, postVoted } from 'definitions/events'
 import { comments } from 'definitions/channels'
+import { postCreated, postUpdated, postDeleted, postVoted } from 'definitions/events'
 
 export default new IntegrationDefinition({
   name: 'feature-base',
