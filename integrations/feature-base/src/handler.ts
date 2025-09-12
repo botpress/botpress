@@ -45,6 +45,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   // We check that the request is actually a topic that can be handle by the handler. This prevent
   // from throwing an error because we are not able to parse the payload.
   if (!isHandeledTopic(topicResult.data)) {
+    props.logger.forBot().info(`Event ${topicResult.data} filtered out`)
     return
   }
 

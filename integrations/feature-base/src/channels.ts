@@ -52,7 +52,7 @@ const extractTags = (comment: Actions['getComments']['output']['results'][0]): E
     }
   }
   return {
-    isRoot: false,
+    isRoot: pathParts.length <= 2,
     tags: {
       submissionId: pathParts[0]!,
       rootCommentId: pathParts[1]!,
@@ -61,6 +61,7 @@ const extractTags = (comment: Actions['getComments']['output']['results'][0]): E
 }
 
 export const handleIncomingTextMessage = async (props: bp.HandlerProps, payload: CommentCreatedSchema) => {
+  const ID = Math.floor(Math.random() * 1000)
   if (!payload.data.item.user?.id || !payload.data.item.submission) {
     return
   }
@@ -69,16 +70,23 @@ export const handleIncomingTextMessage = async (props: bp.HandlerProps, payload:
     submissionId: payload.data.item.submission,
     commentThreadId: payload.data.item.id,
   })
+  props.logger.forBot().info(`[${ID}] commentId: ${payload.data.item.id}, submission ${payload.data.item.submission}`)
   if (commentThread.results.length === 0) {
     throw new RuntimeError('The comment does not exists.')
   }
   const comment = commentThread.results[0]!
+  props.logger
+    .forBot()
+    .info(
+      `[${ID}] parent comment id: ${comment.id}, length: ${commentThread.results.length}, content: ${commentThread.results.map((r) => r.content).join(' --- ')}`
+    )
 
   const { isRoot, tags } = extractTags(comment)
 
   // We only want to respond to roots comment. If the comment is not at the root of the comments
   // section we do not respond to the message
   if (!isRoot) {
+    props.logger.forBot().info(`[${ID}] path: ${comment.path}, isRoot: ${isRoot}, tags: ${tags}`)
     return
   }
 
