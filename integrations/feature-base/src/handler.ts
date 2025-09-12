@@ -49,16 +49,16 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
 
   switch (webhookRequestPayload.topic) {
     case 'post.created':
-      props.client.createEvent({ type: 'postCreated', payload: webhookRequestPayload })
+      await props.client.createEvent({ type: 'postCreated', payload: webhookRequestPayload })
       break
     case 'post.updated':
-      props.client.createEvent({ type: 'postUpdated', payload: webhookRequestPayload })
+      await props.client.createEvent({ type: 'postUpdated', payload: webhookRequestPayload })
       break
     case 'post.deleted':
-      props.client.createEvent({ type: 'postDeleted', payload: webhookRequestPayload })
+      await props.client.createEvent({ type: 'postDeleted', payload: webhookRequestPayload })
       break
     case 'post.voted':
-      props.client.createEvent({ type: 'postVoted', payload: webhookRequestPayload })
+      await props.client.createEvent({ type: 'postVoted', payload: webhookRequestPayload })
       break
     case 'comment.created':
       await handleIncomingTextMessage(props, webhookRequestPayload)

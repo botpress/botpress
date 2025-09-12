@@ -1,9 +1,9 @@
 import { RuntimeError } from '@botpress/client'
 
 import { FeatureBaseClient } from './feature-base-api/client'
+import { CommentCreated } from './feature-base-api/sub-schemas'
 import * as bp from '.botpress'
 import { Actions } from '.botpress/implementation/typings/actions'
-import { CommentCreated } from './feature-base-api/sub-schemas'
 
 type MessageHandlerProps<T extends keyof bp.MessageProps['comments']> = bp.MessageProps['comments'][T]
 

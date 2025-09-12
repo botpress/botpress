@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import axios, { Axios, AxiosResponse } from 'axios'
-import * as bp from '.botpress'
 import { CreateCommentInput, CreateCommentOutput } from './sub-schemas'
+import * as bp from '.botpress'
 
 type Actions = bp.actions.Actions
 type Input<K extends keyof Actions> = Actions[K]['input']

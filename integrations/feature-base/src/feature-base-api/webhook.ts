@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
-import { commentCreatedSchema } from './sub-schemas'
 import { postCreated, postUpdated, postDeleted, postVoted } from 'definitions/events/posts'
+import { commentCreatedSchema } from './sub-schemas'
 
 export const webhookRequestSchema = z.union([
   postCreated.schema,
