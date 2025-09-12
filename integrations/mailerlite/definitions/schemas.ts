@@ -33,3 +33,49 @@ export const subscriberSchema = z.object({
 export const webhookSchema = z.object({
     event: z.string()
 }).passthrough()
+
+export const groupSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    active_count: z.number(),
+    sent_count: z.number(),
+    opens_count: z.number(),
+    open_rate: z.object({
+        float: z.number(),
+        string: z.string()
+    }),
+    clicks_count: z.number(),
+    click_rate: z.object({
+        float: z.number(),
+        string: z.string()
+    }),
+    unsubscribed_count: z.number(),
+    unconfirmed_count: z.number(),
+    bounced_count: z.number(),
+    junk_count: z.number(),
+    created_at: z.string()
+})
+
+export const groupsResponseSchema = z.object({
+    data: z.array(groupSchema),
+    links: z.object({
+        first: z.string(),
+        last: z.string(),
+        prev: z.string().nullable(),
+        next: z.string().nullable()
+    }),
+    meta: z.object({
+        current_page: z.number(),
+        from: z.number().nullable(),
+        last_page: z.number(),
+        links: z.array(z.object({
+          url: z.string().nullable(),
+          label: z.string(),
+          active: z.boolean(),
+        })),
+        path: z.string(),
+        per_page: z.number(),
+        to: z.number().nullable(),
+        total: z.number(),
+      })
+})

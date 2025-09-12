@@ -1,7 +1,6 @@
 import { z, ActionDefinition } from '@botpress/sdk'
 import { subscriberSchema } from '../schemas'
 
-
 const fetchSubscriber: ActionDefinition = {
     title: 'Fetch Subscriber',
     description: 'Search subscriber by id or by email',
@@ -16,7 +15,7 @@ const fetchSubscriber: ActionDefinition = {
                 .string()
                 .title("Subscriber email")
                 .describe("Subscriber email to search for")
-                .optional()
+                .optional(),
         })
     },
     output: {
@@ -45,7 +44,29 @@ const createOrUpsertSubscriber: ActionDefinition = {
     }
 }
 
+const deleteSubscriber: ActionDefinition = {
+    title: 'Delete Subscriber',
+    description: 'Delete existing subscriber by subscriber id',
+    input: {
+        schema: z.
+            object({
+                id: z.
+                string()
+                .title("Subscriber id")
+                .describe("Id of the subscriber to remove"),
+            })
+    },
+    output: {
+        schema: z.
+            object({
+                success: z.boolean().title("Delete success").describe("Returns boolean depending on the return code of the action"),
+                message: z.string().title("Success messsage").describe("Explains return status"),
+            })
+    }
+}
+
 export const actions = {
     fetchSubscriber,
     createOrUpsertSubscriber,
+    deleteSubscriber,
 } as const

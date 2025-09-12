@@ -1,4 +1,4 @@
-import { RuntimeError, z } from '@botpress/sdk'
+import { RuntimeError } from '@botpress/sdk'
 import { subscriberSchema } from 'definitions/schemas'
 import { getAuthenticatedMailerLiteClient } from 'src/utils'
 import * as bp from '.botpress'
@@ -14,9 +14,10 @@ export const fetchSubscriber: bp.Integration['actions']['fetchSubscriber'] = asy
 
     const mlClient: MailerLiteClient = await getAuthenticatedMailerLiteClient({ ctx, client })
     const { id, email } = input
-    logger.forBot().debug(`Fetching Subscriber by : id:${id} or email:${email}`)
     
-    const searchParam = id ?? email
+    logger.forBot().debug(`Fetching Subscriber by : id:${id} or email:${email}`)
+
+    const searchParam = [id, email].find(v => typeof v === 'string' && v.trim().length > 0)
     if (!searchParam) {
         throw new RuntimeError("Must provide an email or id to search for!")
     }
@@ -32,6 +33,29 @@ export const createOrUpsertSubscriber: bp.Integration['actions']['createOrUpsert
 }) => {
     const mlClient: MailerLiteClient = await getAuthenticatedMailerLiteClient({ ctx, client })
     const response = await mlClient.subscribers.createOrUpdate(input)
+    logger.forBot().debug(`Create or updated new user ${input}`)
 
     return subscriberSchema.parse(response.data.data)
 }
+
+export const deleteSubscriber: bp.Integration['actions']['deleteSubscriber'] = async ({
+    client, ctx, input, logger,
+  }) => {
+    const { id } = input
+    const mlClient = await getAuthenticatedMailerLiteClient({ ctx, client })
+  
+    try {
+      const res = await mlClient.subscribers.delete(id)
+      if (res.status === 204) {
+        logger.forBot().debug('Subscriber deleted successfully')
+        return { success: true, message: 'Subscriber deleted' }
+      }
+      throw new RuntimeError(`Unexpected status: ${res.status}`)
+    } catch (e: any) {
+      if (e?.response?.status === 404) {
+        logger.forBot().debug('Subscriber not found')
+        return { success: false, message: 'Subscriber not found' }
+      }
+      throw e
+    }
+  }
