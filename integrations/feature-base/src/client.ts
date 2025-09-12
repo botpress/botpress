@@ -132,4 +132,13 @@ export class FeatureBaseClient {
       .catch(this._handleAxiosError)
     return this._unwrapResponse(response.data)
   }
+
+  public async getComments(params: Input<'getComments'>): Promise<Output<'getComments'>> {
+    const response: AxiosResponse<PagedApiOutput<'getComments'>> = await this._client
+      .get('/v2/comment', {
+        params: this._parsePagedParams(params),
+      })
+      .catch(this._handleAxiosError)
+    return this._unwrapPagedResponse(response.data)
+  }
 }
