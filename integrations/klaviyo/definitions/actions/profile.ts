@@ -1,9 +1,6 @@
 import { z } from '@botpress/sdk'
-
-// E.164 phone number format: a "+" followed by 2-15 digits total, no leader zero
-const E164_REGEX = /^\+[1-9]\d{1,14}$/
-// IETF BCP 47 tags: language-country, where Language is ISO 639-1/2 (2-3 letters, lowercase) and counter is ISO 3166 alpha-2 (2 letters, uppercase)
-const LOCALE_REGEX = /^[a-z]{2,3}-[A-Z]{2}$/
+import { profileSchema } from './shared'
+import { E164_REGEX, LOCALE_REGEX } from './regex'
 
 const locationSchema = z
   .object({
@@ -16,15 +13,6 @@ const locationSchema = z
   })
   .partial()
   .strict()
-
-//the main schema for the profile: intended to be the primary fields we'd want for context
-const profileSchema = z.object({
-  id: z.string().title('Profile ID').describe('The unique (Klaviyo) identifier of the profile'),
-  email: z.string().email().title('Email address').describe('The email of the profile').optional(),
-  phone: z.string().optional().title('Phone').describe('The phone number of the profile'),
-  firstName: z.string().optional().title('First Name').describe('The first name of the profile'),
-  lastName: z.string().optional().title('Last Name').describe('The last name of the profile'),
-})
 
 const createProfile = {
   title: 'Create Profile',
