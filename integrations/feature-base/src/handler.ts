@@ -1,16 +1,7 @@
 import { z } from '@botpress/sdk'
-import { commentCreatedSchema } from 'definitions/channels/comments'
-import { postCreated, postUpdated, postDeleted, postVoted } from 'definitions/events/posts'
 import { handleIncomingTextMessage } from './channels'
+import { webhookRequestSchema } from './feature-base-api'
 import * as bp from '.botpress'
-
-const webhookRequestSchema = z.union([
-  postCreated.schema,
-  postUpdated.schema,
-  postDeleted.schema,
-  postVoted.schema,
-  commentCreatedSchema,
-])
 
 const webhookTopicSchema = z.object({
   topic: z.string(),

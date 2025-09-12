@@ -1,5 +1,5 @@
 import { z, EventDefinition } from '@botpress/sdk'
-import { webhookEvent, userSchema } from '.'
+import { webhookEvent, userSchema } from './common'
 
 const postSchema = z.object({
   id: z.string().title('Id').optional(),

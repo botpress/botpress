@@ -1,8 +1,9 @@
 import { RuntimeError } from '@botpress/client'
-import { CommentCreatedSchema } from 'definitions/channels/comments'
-import { FeatureBaseClient } from './client'
+
+import { FeatureBaseClient } from './feature-base-api/client'
 import * as bp from '.botpress'
 import { Actions } from '.botpress/implementation/typings/actions'
+import { CommentCreated } from './feature-base-api/sub-schemas'
 
 type MessageHandlerProps<T extends keyof bp.MessageProps['comments']> = bp.MessageProps['comments'][T]
 
@@ -60,7 +61,7 @@ const extractTags = (comment: Actions['getComments']['output']['results'][0]): E
   }
 }
 
-export const handleIncomingTextMessage = async (props: bp.HandlerProps, payload: CommentCreatedSchema) => {
+export const handleIncomingTextMessage = async (props: bp.HandlerProps, payload: CommentCreated) => {
   const ID = Math.floor(Math.random() * 1000)
   if (!payload.data.item.user?.id || !payload.data.item.submission) {
     return

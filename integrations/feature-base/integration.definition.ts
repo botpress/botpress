@@ -1,8 +1,7 @@
-import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { listBoards, getBoard } from 'definitions/actions/boards'
-import { getComments } from 'definitions/actions/comments'
-import { listPosts, createPost, deletePost, updatePost } from 'definitions/actions/posts'
-import { postCreated, postUpdated, postDeleted, postVoted } from 'definitions/events/posts'
+import { z, IntegrationDefinition } from '@botpress/sdk'
+import { listBoards, getBoard, listPosts, createPost, deletePost, updatePost, getComments } from 'definitions/actions'
+import { postCreated, postUpdated, postDeleted, postVoted } from 'definitions/events'
+import { comments } from 'definitions/channels'
 
 export default new IntegrationDefinition({
   name: 'feature-base',
@@ -32,33 +31,7 @@ export default new IntegrationDefinition({
     postVoted,
   },
   channels: {
-    comments: {
-      title: 'Comments',
-      description: 'Comment section of a post',
-      messages: {
-        text: messages.defaults.text,
-      },
-      message: {
-        tags: {
-          id: {
-            title: 'ID',
-            description: 'The Feature Base ID of the comment',
-          },
-        },
-      },
-      conversation: {
-        tags: {
-          rootCommentId: {
-            title: 'Root Comment ID',
-            description: 'The Feature Base ID of the root comment of the reply chain',
-          },
-          submissionId: {
-            title: 'Submission ID',
-            description: 'The Feature Base ID of the submission (post) where the comment was posted',
-          },
-        },
-      },
-    },
+    comments,
   },
   user: {
     tags: {

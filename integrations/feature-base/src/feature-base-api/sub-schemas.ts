@@ -1,6 +1,7 @@
 import { z } from '@botpress/sdk'
-import { userSchema, webhookEvent } from '../events'
+import { userSchema, webhookEvent } from '../../definitions/events/common'
 
+export type CommentCreated = z.infer<typeof commentCreatedSchema>
 export const commentCreatedSchema = webhookEvent.extend({
   topic: z.literal('comment.created').title('Topic').describe('The topic of the event'),
   data: z
@@ -29,8 +30,7 @@ export const commentCreatedSchema = webhookEvent.extend({
     .describe('Event data'),
 })
 
-export type CommentCreatedSchema = z.infer<typeof commentCreatedSchema>
-
+export type CreateCommentInput = z.infer<typeof createCommentInputSchema>
 export const createCommentInputSchema = z.object({
   submissionId: z.string().title('SubmissionId').describe('The id of the submission to get comments for.').optional(),
   changelogId: z
@@ -72,8 +72,7 @@ export const createCommentInputSchema = z.object({
     ),
 })
 
-export type CreateCommentInputSchema = z.infer<typeof createCommentInputSchema>
-
+export type CreateCommentOutput = z.infer<typeof createCommentOutputSchema>
 export const createCommentOutputSchema = z.object({
   comment: z
     .object({
@@ -82,5 +81,3 @@ export const createCommentOutputSchema = z.object({
     .title('Comment')
     .describe('Represent the created comment.'),
 })
-
-export type CreateCommentOutputSchema = z.infer<typeof createCommentOutputSchema>

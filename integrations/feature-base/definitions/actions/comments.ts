@@ -1,4 +1,4 @@
-import { z } from '@botpress/sdk'
+import { z, ActionDefinition } from '@botpress/sdk'
 
 export const getComments = {
   title: 'Get Comments',
@@ -74,4 +74,4 @@ export const getComments = {
         .describe('A list of comments.'),
     }),
   },
-}
+} satisfies ActionDefinition

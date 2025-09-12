@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { handleOutgoingTextMessage } from './channels'
-import { FeatureBaseClient } from './client'
+import { FeatureBaseClient } from './feature-base-api/client'
 import { handler } from './handler'
 import * as bp from '.botpress'
 

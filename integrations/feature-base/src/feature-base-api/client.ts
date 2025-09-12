@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import axios, { Axios, AxiosResponse } from 'axios'
-import { CreateCommentInputSchema, CreateCommentOutputSchema } from 'definitions/channels/comments'
 import * as bp from '.botpress'
+import { CreateCommentInput, CreateCommentOutput } from './sub-schemas'
 
 type Actions = bp.actions.Actions
 type Input<K extends keyof Actions> = Actions[K]['input']
@@ -127,8 +127,8 @@ export class FeatureBaseClient {
     return this._unwrapResponse(response.data)
   }
 
-  public async createComment(params: CreateCommentInputSchema): Promise<CreateCommentOutputSchema> {
-    const response: AxiosResponse<CreateCommentOutputSchema | ErrorResponse> = await this._client
+  public async createComment(params: CreateCommentInput): Promise<CreateCommentOutput> {
+    const response: AxiosResponse<CreateCommentOutput | ErrorResponse> = await this._client
       .post('/v2/comment', params)
       .catch(this._handleAxiosError)
     if ('message' in response.data) {

@@ -1,4 +1,5 @@
-import { z } from '@botpress/sdk'
+import { ActionDefinition, z } from '@botpress/sdk'
+
 const boardModel = {
   id: z.string().title('id').describe('The unique identifier of the board.'),
   category: z.string().title('Category').describe('The name of the board/category. Example: "Feature Requests"'),
@@ -46,7 +47,7 @@ export const listBoards = {
       results: z.array(z.object(boardModel)).title('Results').describe('An array of boards.'),
     }),
   },
-}
+} satisfies ActionDefinition
 
 export const getBoard = {
   title: 'Get a board',
@@ -59,4 +60,4 @@ export const getBoard = {
   output: {
     schema: z.object(boardModel).title('Board').describe('A single board'),
   },
-}
+} satisfies ActionDefinition
