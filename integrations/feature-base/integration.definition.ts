@@ -1,6 +1,6 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { listBoards, getBoard } from 'definitions/actions/boards'
-import { createComment, getComments } from 'definitions/actions/comments'
+import { getComments } from 'definitions/actions/comments'
 import { listPosts, createPost, deletePost, updatePost } from 'definitions/actions/posts'
 import { postCreated, postUpdated, postDeleted, postVoted } from 'definitions/events/posts'
 
@@ -23,7 +23,6 @@ export default new IntegrationDefinition({
     listPosts,
     deletePost,
     updatePost,
-    createComment,
     getComments,
   },
   events: {

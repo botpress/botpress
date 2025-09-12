@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { CommentCreatedPayload } from 'definitions/channels/comments'
+import { CommentCreatedSchema } from 'definitions/channels/comments'
 import { FeatureBaseClient } from './client'
 import * as bp from '.botpress'
 import { Actions } from '.botpress/implementation/typings/actions'
@@ -51,9 +51,8 @@ const extractTags = (comment: Actions['getComments']['output']['results'][0]): T
   }
 }
 
-export const handleIncomingTextMessage = async (props: bp.HandlerProps, payload: CommentCreatedPayload) => {
+export const handleIncomingTextMessage = async (props: bp.HandlerProps, payload: CommentCreatedSchema) => {
   if (!payload.data.item.user?.id || !payload.data.item.submission) {
-    // ...
     return
   }
   const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
