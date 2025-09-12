@@ -34,26 +34,38 @@ export default new IntegrationDefinition({
   channels: {
     comments: {
       title: 'Comments',
-      description: '',
+      description: 'Comment section of a post',
       messages: {
         text: messages.defaults.text,
       },
       message: {
         tags: {
-          id: {},
+          id: {
+            title: 'ID',
+            description: 'The Feature Base ID of the comment',
+          },
         },
       },
       conversation: {
         tags: {
-          rootCommentId: {},
-          submissionId: {},
+          rootCommentId: {
+            title: 'Root Comment ID',
+            description: 'The Feature Base ID of the root comment of the reply chain',
+          },
+          submissionId: {
+            title: 'Submission ID',
+            description: 'The Feature Base ID of the submission (post) where the comment was posted',
+          },
         },
       },
     },
   },
   user: {
     tags: {
-      id: {},
+      id: {
+        title: 'ID',
+        description: 'The Feature Base ID of the user',
+      },
     },
   },
 })

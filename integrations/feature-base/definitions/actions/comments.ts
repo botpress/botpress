@@ -42,33 +42,36 @@ export const getComments = {
   },
   output: {
     schema: z.object({
-      results: z.array(
-        z
-          .object({
-            id: z.string(),
-            upvoted: z.boolean().optional(),
-            downvoted: z.boolean().optional(),
-            inReview: z.boolean().optional(),
-            isSpam: z.boolean().optional(),
-            pinned: z.boolean().optional(),
-            emailSent: z.boolean().optional(),
-            sendNotification: z.boolean().optional(),
-            organization: z.string().optional(),
-            submission: z.string().optional(),
-            author: z.string().optional(),
-            authorId: z.string().optional(),
-            authorPicture: z.string().optional(),
-            isPrivate: z.boolean().optional(),
-            isDeleted: z.boolean().optional(),
-            content: z.string().optional(),
-            upvotes: z.number().optional(),
-            downvotes: z.number().optional(),
-            parentComment: z.string().nullable().optional(),
-            path: z.string().optional(),
-          })
-          .title('Comment')
-          .describe('Represent the created comment.')
-      ),
+      results: z
+        .array(
+          z
+            .object({
+              id: z.string(),
+              upvoted: z.boolean().optional(),
+              downvoted: z.boolean().optional(),
+              inReview: z.boolean().optional(),
+              isSpam: z.boolean().optional(),
+              pinned: z.boolean().optional(),
+              emailSent: z.boolean().optional(),
+              sendNotification: z.boolean().optional(),
+              organization: z.string().optional(),
+              submission: z.string().optional(),
+              author: z.string().optional(),
+              authorId: z.string().optional(),
+              authorPicture: z.string().optional(),
+              isPrivate: z.boolean().optional(),
+              isDeleted: z.boolean().optional(),
+              content: z.string().optional(),
+              upvotes: z.number().optional(),
+              downvotes: z.number().optional(),
+              parentComment: z.string().nullable().optional(),
+              path: z.string().optional(),
+            })
+            .title('Comment')
+            .describe('Represent a single comment.')
+        )
+        .title('Comments')
+        .describe('A list of comments.'),
     }),
   },
 }
