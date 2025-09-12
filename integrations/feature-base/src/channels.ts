@@ -12,22 +12,23 @@ type Tags = {
 }
 
 export const handleOutgoingTextMessage = async (props: MessageHandlerProps<'text'>) => {
-  try {
-    const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
-    const comment = await client.createComment({
+  const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
+  const comment = await client
+    .createComment({
       content: props.payload.text,
       submissionId: props.conversation.tags.submissionId,
       parentCommentId: props.conversation.tags.rootCommentId,
     })
-    await props.ack({
-      tags: {
-        id: comment.comment.id,
-      },
+    .catch((thrown: unknown) => {
+      const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+      throw new RuntimeError('Failed to send message in Feature Base: ' + err.message)
     })
-  } catch (thrown) {
-    const err = thrown instanceof Error ? thrown : new Error(String(thrown))
-    props.logger.error('Failed to send message to Feature Base: ' + err.message)
-  }
+
+  await props.ack({
+    tags: {
+      id: comment.comment.id,
+    },
+  })
 }
 
 const extractTags = (comment: Actions['getComments']['output']['results'][0]): Tags => {
