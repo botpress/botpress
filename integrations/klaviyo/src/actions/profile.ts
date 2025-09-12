@@ -1,5 +1,11 @@
 import { RuntimeError } from '@botpress/sdk'
-import { ProfileCreateQuery, ProfilePartialUpdateQuery, ProfileEnum } from 'klaviyo-api'
+import {
+  ProfileCreateQuery,
+  ProfilePartialUpdateQuery,
+  ProfileEnum,
+  SubscriptionCreateJobCreateQuery,
+  ProfileSubscriptionBulkCreateJobEnum,
+} from 'klaviyo-api'
 import * as bp from '.botpress'
 import { getProfilesApi } from '../auth'
 import { ProfileAttributes } from './types'
@@ -153,5 +159,85 @@ export const getProfile: bp.IntegrationProps['actions']['getProfile'] = async ({
     }
 
     throw new RuntimeError('Failed to get profile in Klaviyo')
+  }
+}
+
+export const bulkSubscribeProfiles: bp.IntegrationProps['actions']['bulkSubscribeProfiles'] = async ({
+  ctx,
+  logger,
+  input,
+}) => {
+  const { profileSubscriptions, listId, historicalImport } = input
+
+  if (!profileSubscriptions || profileSubscriptions.length === 0) {
+    throw new RuntimeError('At least one profile is required to bulk subscribe')
+  }
+  if (profileSubscriptions.length > 1000) {
+    throw new RuntimeError('You can only bulk subscribe up to 1000 profiles at a time')
+  }
+
+  try {
+    const profilesApi = getProfilesApi(ctx)
+
+    const profilesData = profileSubscriptions.map((p) => {
+      const subscriptions: any = {}
+
+      if (p.emailConsent) {
+        subscriptions.email = {
+          marketing: {
+            consent: 'SUBSCRIBED',
+            consented_at: historicalImport ? new Date().toISOString() : undefined,
+          },
+        }
+      }
+
+      if (p.smsConsent) {
+        subscriptions.sms = {
+          marketing: {
+            consent: 'SUBSCRIBED',
+            consented_at: historicalImport ? new Date().toISOString() : undefined,
+          },
+        }
+      }
+
+      return {
+        type: ProfileEnum.Profile,
+        ...(p.id && { id: p.id }),
+        attributes: {
+          ...(p.email && { email: p.email }),
+          ...(p.phone && { phone_number: p.phone }),
+          subscriptions,
+        },
+      }
+    })
+
+    const bulkSubscribeProfilesQuery: SubscriptionCreateJobCreateQuery = {
+      data: {
+        type: ProfileSubscriptionBulkCreateJobEnum.ProfileSubscriptionBulkCreateJob,
+        attributes: {
+          profiles: { data: profilesData },
+          ...(historicalImport !== undefined && { historical_import: historicalImport }),
+        },
+        ...(listId && {
+          relationships: {
+            list: { data: { type: 'list', id: listId } },
+          },
+        }),
+      },
+    }
+
+    const result = await profilesApi.bulkSubscribeProfiles(bulkSubscribeProfilesQuery)
+
+    return {
+      success: result.response.status === 202,
+    }
+  } catch (error: any) {
+    logger.forBot().error('Failed to bulk subscribe Klaviyo profiles', error)
+    if (error.response?.data?.errors) {
+      const errorMessages = error.response.data.errors.map((err: any) => err.detail).join(', ')
+      throw new RuntimeError(`Klaviyo API error: ${errorMessages}`)
+    }
+
+    throw new RuntimeError('Failed to bulk subscribe profiles in Klaviyo')
   }
 }

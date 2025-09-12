@@ -112,8 +112,44 @@ const getProfile = {
   },
 }
 
+const profileSubscriptions = z.object({
+  id: z.string().title('Profile ID').describe('The unique (Klaviyo) identifier of the profile'),
+  email: z.string().email().title('Email address').describe('The email of the profile').optional(),
+  phone: z.string().title('Phone').describe('The phone number of the profile').optional(),
+  emailConsent: z.boolean().title('Email Consent').describe('Whether the profile has consented to email'),
+  smsConsent: z.boolean().title('Phone Consent').describe('Whether the profile has consented to SMS'),
+})
+
+const bulkSubscribeProfiles = {
+  title: 'Bulk Subscribe Profiles',
+  description: 'Bulk subscribe profiles asynchronously to a SMS and/or email marketing in Klaviyo',
+  input: {
+    schema: z.object({
+      profileSubscriptions: z
+        .array(profileSubscriptions)
+        .title('Profile Subscriptions')
+        .describe('The list of profiles and Email/SMS consent to use to subscribe Email/SMS marketing'),
+      listId: z.string().title('List ID').describe('An optional list id to add the subscribed profiles to').optional(),
+      historicalImport: z
+        .boolean()
+        .title('Historical Import')
+        .describe('Whether to import historical profiles')
+        .optional(),
+    }),
+  },
+  output: {
+    schema: z.object({
+      success: z
+        .boolean()
+        .title('Success')
+        .describe('Whether the job to subscribe the profiles has been successfully scheduled'),
+    }),
+  },
+}
+
 export const actions = {
   createProfile,
   updateProfile,
   getProfile,
+  bulkSubscribeProfiles,
 } as const
