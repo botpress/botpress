@@ -162,7 +162,7 @@ export const getProfile: bp.IntegrationProps['actions']['getProfile'] = async ({
   }
 }
 
-export const bulkSubscribeProfiles: bp.IntegrationProps['actions']['bulkSubscribeProfiles'] = async ({
+export const subscribeProfiles: bp.IntegrationProps['actions']['subscribeProfiles'] = async ({
   ctx,
   logger,
   input,
@@ -170,10 +170,10 @@ export const bulkSubscribeProfiles: bp.IntegrationProps['actions']['bulkSubscrib
   const { profileSubscriptions, listId, historicalImport } = input
 
   if (!profileSubscriptions || profileSubscriptions.length === 0) {
-    throw new RuntimeError('At least one profile is required to bulk subscribe')
+    throw new RuntimeError('At least one profile is required to subscribe')
   }
   if (profileSubscriptions.length > 1000) {
-    throw new RuntimeError('You can only bulk subscribe up to 1000 profiles at a time')
+    throw new RuntimeError('You can only subscribe up to 1000 profiles at a time')
   }
 
   try {
@@ -211,7 +211,7 @@ export const bulkSubscribeProfiles: bp.IntegrationProps['actions']['bulkSubscrib
       }
     })
 
-    const bulkSubscribeProfilesQuery: SubscriptionCreateJobCreateQuery = {
+    const subscribeProfilesQuery: SubscriptionCreateJobCreateQuery = {
       data: {
         type: ProfileSubscriptionBulkCreateJobEnum.ProfileSubscriptionBulkCreateJob,
         attributes: {
@@ -226,18 +226,18 @@ export const bulkSubscribeProfiles: bp.IntegrationProps['actions']['bulkSubscrib
       },
     }
 
-    const result = await profilesApi.bulkSubscribeProfiles(bulkSubscribeProfilesQuery)
+    const result = await profilesApi.bulkSubscribeProfiles(subscribeProfilesQuery)
 
     return {
       success: result.response.status === 202,
     }
   } catch (error: any) {
-    logger.forBot().error('Failed to bulk subscribe Klaviyo profiles', error)
+    logger.forBot().error('Failed to subscribe Klaviyo profiles', error)
     if (error.response?.data?.errors) {
       const errorMessages = error.response.data.errors.map((err: any) => err.detail).join(', ')
       throw new RuntimeError(`Klaviyo API error: ${errorMessages}`)
     }
 
-    throw new RuntimeError('Failed to bulk subscribe profiles in Klaviyo')
+    throw new RuntimeError('Failed to subscribe profiles in Klaviyo')
   }
 }

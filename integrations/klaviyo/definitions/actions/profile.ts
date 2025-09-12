@@ -108,9 +108,9 @@ const profileSubscriptions = z.object({
   smsConsent: z.boolean().title('Phone Consent').describe('Whether the profile has consented to SMS'),
 })
 
-const bulkSubscribeProfiles = {
-  title: 'Bulk Subscribe Profiles',
-  description: 'Bulk subscribe profiles asynchronously to a SMS and/or email marketing in Klaviyo',
+const subscribeProfiles = {
+  title: 'Subscribe Profiles',
+  description: 'Subscribe profiles asynchronously to a SMS and/or email marketing in Klaviyo',
   input: {
     schema: z.object({
       profileSubscriptions: z
@@ -139,5 +139,5 @@ export const actions = {
   createProfile,
   updateProfile,
   getProfile,
-  bulkSubscribeProfiles,
+  subscribeProfiles,
 } as const
