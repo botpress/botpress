@@ -40,10 +40,6 @@ export default new bp.Integration({
       const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
       return await client.getBoard(props.input)
     },
-    createComment: async (props) => {
-      const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
-      return await client.createComment(props.input)
-    },
     getComments: async (props) => {
       const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
       return await client.getComments(props.input)
