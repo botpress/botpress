@@ -1074,6 +1074,25 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/klaviyo:
+    dependencies:
+      '@botpress/client':
+        specifier: 1.24.1
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: 4.15.6
+        version: link:../../packages/sdk
+      klaviyo-api:
+        specifier: ^19.0.2
+        version: 19.0.2
+    devDependencies:
+      '@types/node':
+        specifier: ^22.16.4
+        version: 22.16.4
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
+
   integrations/line:
     dependencies:
       '@botpress/cli':
@@ -8438,6 +8457,9 @@ packages:
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
+
+  klaviyo-api@19.0.2:
+    resolution: {integrity: sha512-ivoDYHj8Fg9f8ncXSZ1IJ4ao6GMMucntTX1UMIgF8gCTrreliIilZ8wp623LBGtcrTHiCqRv4lih3vbNRymLHQ==}
 
   kleur@3.0.3:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
@@ -18390,6 +18412,13 @@ snapshots:
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
+
+  klaviyo-api@19.0.2:
+    dependencies:
+      axios: 1.11.0
+      form-data: 4.0.4
+    transitivePeerDependencies:
+      - debug
 
   kleur@3.0.3: {}
 
