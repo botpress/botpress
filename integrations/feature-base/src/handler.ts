@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { commentCreated } from 'definitions/channels/comments'
+import { commentCreatedSchema } from 'definitions/channels/comments'
 import { postCreated, postUpdated, postDeleted, postVoted } from 'definitions/events/posts'
 import { handleIncomingTextMessage } from './channels'
 import * as bp from '.botpress'
@@ -9,7 +9,7 @@ const webhookRequestSchema = z.union([
   postUpdated.schema,
   postDeleted.schema,
   postVoted.schema,
-  commentCreated.schema,
+  commentCreatedSchema,
 ])
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {

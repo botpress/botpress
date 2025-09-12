@@ -6,11 +6,6 @@ import { Actions } from '.botpress/implementation/typings/actions'
 
 type MessageHandlerProps<T extends keyof bp.MessageProps['comments']> = bp.MessageProps['comments'][T]
 
-type Tags = {
-  rootCommentId: string
-  submissionId: string
-}
-
 export const handleOutgoingTextMessage = async (props: MessageHandlerProps<'text'>) => {
   const client = new FeatureBaseClient(props.ctx.configuration.apiKey)
   const comment = await client
@@ -31,7 +26,15 @@ export const handleOutgoingTextMessage = async (props: MessageHandlerProps<'text
   })
 }
 
-const extractTags = (comment: Actions['getComments']['output']['results'][0]): Tags => {
+type ExtractTagsReturn = {
+  isRoot: boolean
+  tags: {
+    rootCommentId: string
+    submissionId: string
+  }
+}
+
+const extractTags = (comment: Actions['getComments']['output']['results'][0]): ExtractTagsReturn => {
   if (!comment.path) {
     throw new RuntimeError('Path is not defined. Not possible to extract a tag')
   }
@@ -41,13 +44,19 @@ const extractTags = (comment: Actions['getComments']['output']['results'][0]): T
   }
   if (pathParts.length === 1) {
     return {
-      submissionId: pathParts[0]!,
-      rootCommentId: comment.id,
+      isRoot: true,
+      tags: {
+        submissionId: pathParts[0]!,
+        rootCommentId: comment.id,
+      },
     }
   }
   return {
-    submissionId: pathParts[0]!,
-    rootCommentId: pathParts[1]!,
+    isRoot: false,
+    tags: {
+      submissionId: pathParts[0]!,
+      rootCommentId: pathParts[1]!,
+    },
   }
 }
 
@@ -65,7 +74,13 @@ export const handleIncomingTextMessage = async (props: bp.HandlerProps, payload:
   }
   const comment = commentThread.results[0]!
 
-  const tags = extractTags(comment)
+  const { isRoot, tags } = extractTags(comment)
+
+  // We only want to respond to roots comment. If the comment is not at the root of the comments
+  // section we do not respond to the message
+  if (!isRoot) {
+    return
+  }
 
   const { conversation } = await props.client.getOrCreateConversation({
     channel: 'comments',
