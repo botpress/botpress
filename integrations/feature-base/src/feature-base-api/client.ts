@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import axios, { Axios, AxiosResponse } from 'axios'
+import { CreateCommentInput, CreateCommentOutput } from './sub-schemas'
 import * as bp from '.botpress'
 
 type Actions = bp.actions.Actions
@@ -124,5 +125,24 @@ export class FeatureBaseClient {
       .patch('/v2/posts', params)
       .catch(this._handleAxiosError)
     return this._unwrapResponse(response.data)
+  }
+
+  public async createComment(params: CreateCommentInput): Promise<CreateCommentOutput> {
+    const response: AxiosResponse<CreateCommentOutput | ErrorResponse> = await this._client
+      .post('/v2/comment', params)
+      .catch(this._handleAxiosError)
+    if ('message' in response.data) {
+      throw new RuntimeError(response.data.message)
+    }
+    return response.data
+  }
+
+  public async getComments(params: Input<'getComments'>): Promise<Output<'getComments'>> {
+    const response: AxiosResponse<PagedApiOutput<'getComments'>> = await this._client
+      .get('/v2/comment', {
+        params: this._parsePagedParams(params),
+      })
+      .catch(this._handleAxiosError)
+    return this._unwrapPagedResponse(response.data)
   }
 }
