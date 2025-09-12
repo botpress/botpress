@@ -17,3 +17,33 @@ export type Location = {
   region?: string
   zip?: string
 }
+
+export type KlaviyoError = {
+  id: string
+  code: string
+  title: string
+  detail: string
+  source: {
+    pointer: string
+    parameter: string
+  }
+}
+
+export type KlaviyoApiError = {
+  errors: KlaviyoError[]
+}
+
+export type ProfileSubscriptions = {
+  email?: {
+    marketing: {
+      consent: 'SUBSCRIBED'
+      consented_at?: string
+    }
+  }
+  sms?: {
+    marketing: {
+      consent: 'SUBSCRIBED'
+      consented_at?: string
+    }
+  }
+}

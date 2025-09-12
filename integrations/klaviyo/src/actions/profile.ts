@@ -8,7 +8,8 @@ import {
 } from 'klaviyo-api'
 import * as bp from '.botpress'
 import { getProfilesApi } from '../auth'
-import { ProfileAttributes } from './types'
+import { ProfileAttributes, ProfileSubscriptions } from './types'
+import { isKlaviyoErrorResponse, extractKlaviyoMessage } from './error-handler'
 
 export const createProfile: bp.IntegrationProps['actions']['createProfile'] = async ({ ctx, logger, input }) => {
   const { email, phone, firstName, lastName, organization, title, locale, location } = input
@@ -58,12 +59,12 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
         lastName: result.body.data.attributes.lastName || undefined,
       },
     }
-  } catch (error: any) {
+  } catch (error) {
     logger.forBot().error('Failed to create Klaviyo profile', error)
 
-    if (error.response?.data?.errors) {
-      const errorMessages = error.response.data.errors.map((err: any) => err.detail).join(', ')
-      throw new RuntimeError(`Klaviyo API error: ${errorMessages}`)
+    if (typeof error === 'object' && error && isKlaviyoErrorResponse(error)) {
+      const msg = extractKlaviyoMessage(error.response.data.errors)
+      throw new RuntimeError(`Klaviyo API error: ${msg}`)
     }
 
     throw new RuntimeError('Failed to create profile in Klaviyo')
@@ -119,11 +120,12 @@ export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = as
         lastName: result.body.data.attributes.lastName || undefined,
       },
     }
-  } catch (error: any) {
+  } catch (error) {
     logger.forBot().error('Failed to update Klaviyo profile', error)
-    if (error.response?.data?.errors) {
-      const errorMessages = error.response.data.errors.map((err: any) => err.detail).join(', ')
-      throw new RuntimeError(`Klaviyo API error: ${errorMessages}`)
+
+    if (typeof error === 'object' && error && isKlaviyoErrorResponse(error)) {
+      const msg = extractKlaviyoMessage(error.response.data.errors)
+      throw new RuntimeError(`Klaviyo API error: ${msg}`)
     }
 
     throw new RuntimeError('Failed to update profile in Klaviyo')
@@ -151,11 +153,12 @@ export const getProfile: bp.IntegrationProps['actions']['getProfile'] = async ({
         lastName: result.body.data.attributes.lastName || undefined,
       },
     }
-  } catch (error: any) {
-    logger.forBot().error('Failed to get Klaviyo profile', error)
-    if (error.response?.data?.errors) {
-      const errorMessages = error.response.data.errors.map((err: any) => err.detail).join(', ')
-      throw new RuntimeError(`Klaviyo API error: ${errorMessages}`)
+  } catch (error) {
+    logger.forBot().error('Failed to get Klaviyo profile', String(error))
+
+    if (typeof error === 'object' && error && isKlaviyoErrorResponse(error)) {
+      const msg = extractKlaviyoMessage(error.response.data.errors)
+      throw new RuntimeError(`Klaviyo API error: ${msg}`)
     }
 
     throw new RuntimeError('Failed to get profile in Klaviyo')
@@ -180,7 +183,7 @@ export const subscribeProfiles: bp.IntegrationProps['actions']['subscribeProfile
     const profilesApi = getProfilesApi(ctx)
 
     const profilesData = profileSubscriptions.map((p) => {
-      const subscriptions: any = {}
+      const subscriptions: ProfileSubscriptions = {}
 
       if (p.emailConsent) {
         subscriptions.email = {
@@ -231,11 +234,12 @@ export const subscribeProfiles: bp.IntegrationProps['actions']['subscribeProfile
     return {
       success: result.response.status === 202,
     }
-  } catch (error: any) {
+  } catch (error) {
     logger.forBot().error('Failed to subscribe Klaviyo profiles', error)
-    if (error.response?.data?.errors) {
-      const errorMessages = error.response.data.errors.map((err: any) => err.detail).join(', ')
-      throw new RuntimeError(`Klaviyo API error: ${errorMessages}`)
+
+    if (typeof error === 'object' && error && isKlaviyoErrorResponse(error)) {
+      const msg = extractKlaviyoMessage(error.response.data.errors)
+      throw new RuntimeError(`Klaviyo API error: ${msg}`)
     }
 
     throw new RuntimeError('Failed to subscribe profiles in Klaviyo')
