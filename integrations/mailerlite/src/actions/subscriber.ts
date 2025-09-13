@@ -5,6 +5,14 @@ import * as bp from '.botpress'
 
 type MailerLiteClient = Awaited<ReturnType<typeof getAuthenticatedMailerLiteClient>>
 
+const isHttpError = (err: unknown): err is { response?: { status?: number } } => {
+    if (typeof err !== 'object' || err === null) return false
+    if (!('response' in err)) return false
+    const response = (err as { response?: unknown }).response
+    if (typeof response !== 'object' || response === null) return false
+    return 'status' in response && typeof (response as { status?: unknown }).status === 'number'
+  }
+  
 export const fetchSubscriber: bp.Integration['actions']['fetchSubscriber'] = async ({
     client,
     ctx,
@@ -51,11 +59,11 @@ export const deleteSubscriber: bp.Integration['actions']['deleteSubscriber'] = a
         return { success: true, message: 'Subscriber deleted' }
       }
       throw new RuntimeError(`Unexpected status: ${res.status}`)
-    } catch (e: any) {
-      if (e?.response?.status === 404) {
+    } catch (error) {
+      if (isHttpError(error) && error.response?.status === 404) {
         logger.forBot().debug('Subscriber not found')
         return { success: false, message: 'Subscriber not found' }
       }
-      throw e
+      throw error
     }
   }

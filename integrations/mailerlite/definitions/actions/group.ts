@@ -1,5 +1,5 @@
 import { z, ActionDefinition } from '@botpress/sdk'
-import { groupsResponseSchema, subscriberSchema } from '../schemas'
+import { groupSchema, groupsResponseSchema, subscriberSchema } from '../schemas'
 
 const listGroups: ActionDefinition = {
     title: 'List Groups',
@@ -20,6 +20,26 @@ const listGroups: ActionDefinition = {
     }
 }
 
+const assignToGroup: ActionDefinition = {
+    title: 'Assign Subscriber to Group',
+    description: 'Assigns a subscriber to a group, to allow for targeted marketing',
+    input: {
+        schema: z.object({
+            subscriberId: z.string().title('Subscriber Id').describe('Id of subscriber to assign to a group').min(1),
+            groupId: z.string().title('Group Id').describe('Id of group to assign subscriber to').min(1),
+        })
+    },
+    output: {
+        schema: z.
+            object({
+                success: z.boolean(),
+                message: z.string(),
+                group: groupSchema.optional(),
+            }),
+    }
+}
+
 export const actions = {
     listGroups,
+    assignToGroup,
 } as const
