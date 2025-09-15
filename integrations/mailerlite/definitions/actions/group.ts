@@ -46,9 +46,9 @@ const assignToGroup: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      success: z.boolean(),
-      message: z.string(),
-      group: groupSchema.optional(),
+      success: z.boolean().title('Success').describe('Whether the assignment operation was successful'),
+      message: z.string().title('Message').describe('Status message describing the result of the operation'),
+      group: groupSchema.optional().title('Group').describe('The group object if assignment was successful'),
     }),
   },
 }
