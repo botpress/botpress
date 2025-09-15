@@ -9,15 +9,13 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
 
   configuration: {
-    schema: z.object({
-      APIKey : z.string()
-        .title("API Key").
-        describe("Developer API token").
-        min(1).
-        secret()
-    }).required()
+    schema: z
+      .object({
+        APIKey: z.string().title('API Key').describe('Developer API token').min(1).secret(),
+      })
+      .required(),
   },
-  
+
   actions,
   events,
   states,

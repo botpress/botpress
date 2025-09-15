@@ -6,64 +6,61 @@ import * as bp from '.botpress'
 type MailerLiteClient = Awaited<ReturnType<typeof getAuthenticatedMailerLiteClient>>
 
 const isHttpError = (err: unknown): err is { response?: { status?: number } } => {
-    if (typeof err !== 'object' || err === null) return false
-    if (!('response' in err)) return false
-    const response = (err as { response?: unknown }).response
-    if (typeof response !== 'object' || response === null) return false
-    return 'status' in response && typeof (response as { status?: unknown }).status === 'number'
+  if (typeof err !== 'object' || err === null) return false
+  if (!('response' in err)) return false
+  const response = (err as { response?: unknown }).response
+  if (typeof response !== 'object' || response === null) return false
+  return 'status' in response && typeof (response as { status?: unknown }).status === 'number'
+}
+
+export const fetchSubscriber: bp.Integration['actions']['fetchSubscriber'] = async ({ client, ctx, input, logger }) => {
+  const mlClient: MailerLiteClient = await getAuthenticatedMailerLiteClient({ ctx, client })
+  const { id, email } = input
+
+  logger.forBot().debug(`Fetching Subscriber by : id:${id} or email:${email}`)
+
+  const searchParam = [id, email].find((v) => typeof v === 'string' && v.trim().length > 0)
+  if (!searchParam) {
+    throw new RuntimeError('Must provide an email or id to search for!')
   }
-  
-export const fetchSubscriber: bp.Integration['actions']['fetchSubscriber'] = async ({
-    client,
-    ctx,
-    input,
-    logger,
-}) => {
-
-    const mlClient: MailerLiteClient = await getAuthenticatedMailerLiteClient({ ctx, client })
-    const { id, email } = input
-    
-    logger.forBot().debug(`Fetching Subscriber by : id:${id} or email:${email}`)
-
-    const searchParam = [id, email].find(v => typeof v === 'string' && v.trim().length > 0)
-    if (!searchParam) {
-        throw new RuntimeError("Must provide an email or id to search for!")
-    }
-    const response = await mlClient.subscribers.find(searchParam)
-    return subscriberSchema.parse(response.data.data)
+  const response = await mlClient.subscribers.find(searchParam)
+  return subscriberSchema.parse(response.data.data)
 }
 
 export const createOrUpsertSubscriber: bp.Integration['actions']['createOrUpsertSubscriber'] = async ({
-    client,
-    ctx,
-    input,
-    logger,
+  client,
+  ctx,
+  input,
+  logger,
 }) => {
-    const mlClient: MailerLiteClient = await getAuthenticatedMailerLiteClient({ ctx, client })
-    const response = await mlClient.subscribers.createOrUpdate(input)
-    logger.forBot().debug(`Create or updated new user ${input}`)
+  const mlClient: MailerLiteClient = await getAuthenticatedMailerLiteClient({ ctx, client })
+  const response = await mlClient.subscribers.createOrUpdate(input)
+  logger.forBot().debug(`Create or updated new user ${input}`)
 
-    return subscriberSchema.parse(response.data.data)
+  return subscriberSchema.parse(response.data.data)
 }
 
 export const deleteSubscriber: bp.Integration['actions']['deleteSubscriber'] = async ({
-    client, ctx, input, logger,
-  }) => {
-    const { id } = input
-    const mlClient = await getAuthenticatedMailerLiteClient({ ctx, client })
-  
-    try {
-      const res = await mlClient.subscribers.delete(id)
-      if (res.status === 204) {
-        logger.forBot().debug('Subscriber deleted successfully')
-        return { success: true, message: 'Subscriber deleted' }
-      }
-      throw new RuntimeError(`Unexpected status: ${res.status}`)
-    } catch (error) {
-      if (isHttpError(error) && error.response?.status === 404) {
-        logger.forBot().debug('Subscriber not found')
-        return { success: false, message: 'Subscriber not found' }
-      }
-      throw error
+  client,
+  ctx,
+  input,
+  logger,
+}) => {
+  const { id } = input
+  const mlClient = await getAuthenticatedMailerLiteClient({ ctx, client })
+
+  try {
+    const res = await mlClient.subscribers.delete(id)
+    if (res.status === 204) {
+      logger.forBot().debug('Subscriber deleted successfully')
+      return { success: true, message: 'Subscriber deleted' }
     }
+    throw new RuntimeError(`Unexpected status: ${res.status}`)
+  } catch (error) {
+    if (isHttpError(error) && error.response?.status === 404) {
+      logger.forBot().debug('Subscriber not found')
+      return { success: false, message: 'Subscriber not found' }
+    }
+    throw error
   }
+}

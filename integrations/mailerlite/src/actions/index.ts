@@ -1,7 +1,7 @@
-import * as subscriberActions from "./subscriber";
-import * as groupActions from "./group";
+import * as subscriberActions from './subscriber'
+import * as groupActions from './group'
 
 export default {
-    ...subscriberActions,
-    ...groupActions,
+  ...subscriberActions,
+  ...groupActions,
 }
