@@ -48,12 +48,9 @@ export const handleEvent = async ({
     }
   }
 
-  logger.forBot().debug('$$$$$$$$$$$$$', '1')
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
 
-  logger.forBot().debug('$$$$$$$$$$$$$', '2')
   if (slackEvent.subtype === 'file_share') {
-    logger.forBot().debug('$$$$$$$$$$$$$', '21')
     await _getOrCreateMessageFromFiles(mentionsBot, botpressUser.id, botpressConversation.id, {
       slackEvent,
       client,
@@ -62,14 +59,12 @@ export const handleEvent = async ({
     return
   }
 
-  logger.forBot().debug('$$$$$$$$$$$$$', '3')
   if (!slackEvent.subtype) {
     if (slackEvent.text === undefined || typeof slackEvent.text !== 'string' || !slackEvent.text?.length) {
       logger.forBot().debug('No text was received, so the message was ignored')
       return
     }
 
-    logger.forBot().debug('$$$$$$$$$$$$$', '4')
     await client.getOrCreateMessage({
       type: 'text',
       payload: { text: slackToMarkdown(slackEvent.text) },
@@ -197,7 +192,7 @@ const _getOrCreateMessageFromFiles = async (
     }
 
     type MsgTypes = (typeof msgTypes)[number]
-    const msgTypes = ['text', 'image', 'audio', 'file'] as const // TODO use zod or botpress sdk
+    const msgTypes = ['image', 'audio', 'file'] as const // TODO use zod or botpress sdk
     const isMsgType = (t: string): t is MsgTypes => msgTypes.includes(t as MsgTypes)
 
     const fileType = file.mimetype.split('/')[0]
@@ -215,16 +210,6 @@ const _getOrCreateMessageFromFiles = async (
     const baseItems = { tags, userId, conversationId }
 
     switch (fileType) {
-      case 'text':
-        await client.getOrCreateMessage({
-          ...baseItems,
-          discriminateByTags: ['ts', 'channelId'],
-          type: fileType,
-          payload: {
-            text: slackEvent.text ? slackToMarkdown(slackEvent.text) : '', // past behavior was not to send the message
-          },
-        })
-        break
       case 'image':
         await client.getOrCreateMessage({
           ...baseItems,
