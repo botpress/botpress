@@ -13,14 +13,6 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, client, w
 
   let mailerLiteWebhookId
 
-  const { state } = await client.getState({
-    id: ctx.integrationId,
-    name: 'mailerLiteIntegrationInfo',
-    type: 'integration',
-  })
-
-  if (state === null) return
-
   try {
     const response = await mlClient.webhooks.create(params)
     const validatedData = webhookResourceSchema.parse(response.data.data)
@@ -31,7 +23,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, client, w
     throw new Error('Webhook setup failed')
   }
 
-  await client.setState({
+  await client.getOrSetState({
     type: 'integration',
     id: ctx.integrationId,
     name: 'mailerLiteIntegrationInfo',
