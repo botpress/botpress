@@ -1,4 +1,4 @@
-import { z } from '@botpress/sdk'
+import { z, ActionDefinition } from '@botpress/sdk'
 
 export const createPost = {
   title: 'Create a post',
@@ -50,7 +50,7 @@ export const createPost = {
         .describe('Represent the created post.'),
     }),
   },
-}
+} satisfies ActionDefinition
 
 export const listPosts = {
   title: 'List posts',
@@ -94,7 +94,7 @@ export const listPosts = {
         .describe('An array of posts.'),
     }),
   },
-}
+} satisfies ActionDefinition
 
 export const updatePost = {
   title: 'Update post',
@@ -142,7 +142,7 @@ export const updatePost = {
   output: {
     schema: z.object({}),
   },
-}
+} satisfies ActionDefinition
 
 export const deletePost = {
   title: 'Delete post',
@@ -155,4 +155,4 @@ export const deletePost = {
   output: {
     schema: z.object({}),
   },
-}
+} satisfies ActionDefinition
