@@ -10,6 +10,7 @@ import {
 import { getProfilesApi } from '../auth'
 import { handleKlaviyoError } from './error-handler'
 import { ProfileAttributes, ProfileSubscriptions, GetProfilesOptions } from './types'
+import { MAX_PROFILES_PER_BULK_OPERATION } from './constants'
 import * as bp from '.botpress'
 
 export const createProfile: bp.IntegrationProps['actions']['createProfile'] = async ({ ctx, logger, input }) => {
@@ -72,7 +73,7 @@ export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = as
   const { profileId, email, phone, firstName, lastName, organization, title, locale, location, properties } = input
 
   if (!profileId) {
-    throw new RuntimeError('Klaviyo Profile ID is require to update a profile')
+    throw new RuntimeError('Klaviyo Profile ID is required to update a profile')
   }
 
   try {
@@ -129,7 +130,7 @@ export const getProfile: bp.IntegrationProps['actions']['getProfile'] = async ({
   const { profileId } = input
 
   if (!profileId) {
-    throw new RuntimeError('Klaviyo Profile ID is require to get a profile')
+    throw new RuntimeError('Klaviyo Profile ID is required to get a profile')
   }
 
   try {
@@ -234,8 +235,8 @@ export const subscribeProfiles: bp.IntegrationProps['actions']['subscribeProfile
   if (!profileSubscriptions || profileSubscriptions.length === 0) {
     throw new RuntimeError('At least one profile is required to subscribe')
   }
-  if (profileSubscriptions.length > 1000) {
-    throw new RuntimeError('You can only subscribe up to 1000 profiles at a time')
+  if (profileSubscriptions.length > MAX_PROFILES_PER_BULK_OPERATION) {
+    throw new RuntimeError(`You can only subscribe up to ${MAX_PROFILES_PER_BULK_OPERATION} profiles at a time`)
   }
 
   try {
