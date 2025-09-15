@@ -8,7 +8,7 @@ import {
   FilterBuilder,
 } from 'klaviyo-api'
 import { getProfilesApi } from '../auth'
-import { isKlaviyoErrorResponse, extractKlaviyoMessage } from './error-handler'
+import { handleKlaviyoError } from './error-handler'
 import { ProfileAttributes, ProfileSubscriptions, GetProfilesOptions } from './types'
 import * as bp from '.botpress'
 
@@ -64,14 +64,7 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
       },
     }
   } catch (error) {
-    logger.forBot().error('Failed to create Klaviyo profile', error)
-
-    if (typeof error === 'object' && error && isKlaviyoErrorResponse(error)) {
-      const msg = extractKlaviyoMessage(error.response.data.errors)
-      throw new RuntimeError(`Klaviyo API error: ${msg}`)
-    }
-
-    throw new RuntimeError('Failed to create profile in Klaviyo')
+    handleKlaviyoError(error, 'Failed to create profile in Klaviyo', logger, 'Failed to create Klaviyo profile')
   }
 }
 
@@ -128,14 +121,7 @@ export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = as
       },
     }
   } catch (error) {
-    logger.forBot().error('Failed to update Klaviyo profile', error)
-
-    if (typeof error === 'object' && error && isKlaviyoErrorResponse(error)) {
-      const msg = extractKlaviyoMessage(error.response.data.errors)
-      throw new RuntimeError(`Klaviyo API error: ${msg}`)
-    }
-
-    throw new RuntimeError('Failed to update profile in Klaviyo')
+    handleKlaviyoError(error, 'Failed to update profile in Klaviyo', logger, 'Failed to update Klaviyo profile')
   }
 }
 
@@ -161,14 +147,7 @@ export const getProfile: bp.IntegrationProps['actions']['getProfile'] = async ({
       },
     }
   } catch (error) {
-    logger.forBot().error('Failed to get Klaviyo profile', String(error))
-
-    if (typeof error === 'object' && error && isKlaviyoErrorResponse(error)) {
-      const msg = extractKlaviyoMessage(error.response.data.errors)
-      throw new RuntimeError(`Klaviyo API error: ${msg}`)
-    }
-
-    throw new RuntimeError('Failed to get profile in Klaviyo')
+    handleKlaviyoError(error, 'Failed to get profile in Klaviyo', logger, 'Failed to get Klaviyo profile')
   }
 }
 
@@ -183,6 +162,9 @@ const toDate = (value: string | Date): Date => {
   return date
 }
 
+/**
+ * Returns the filter string (e.g. filterBuilder.equals('email', 'test@test.com').build() => "equals(email, test@test.com)")
+ */
 const buildFilter = (field: string, operator: string, value: string | Date): string => {
   const filterBuilder = new FilterBuilder()
 
@@ -238,14 +220,7 @@ export const getProfiles: bp.IntegrationProps['actions']['getProfiles'] = async 
       totalCount: result.body.data.length,
     }
   } catch (error) {
-    logger.forBot().error('Failed to get Klaviyo profiles', error)
-
-    if (typeof error === 'object' && error && isKlaviyoErrorResponse(error)) {
-      const msg = extractKlaviyoMessage(error.response.data.errors)
-      throw new RuntimeError(`Klaviyo API error: ${msg}`)
-    }
-
-    throw new RuntimeError('Failed to get profiles from Klaviyo')
+    handleKlaviyoError(error, 'Failed to get profiles from Klaviyo', logger, 'Failed to get Klaviyo profiles')
   }
 }
 
@@ -319,13 +294,6 @@ export const subscribeProfiles: bp.IntegrationProps['actions']['subscribeProfile
       success: result.response.status === 202,
     }
   } catch (error) {
-    logger.forBot().error('Failed to subscribe Klaviyo profiles', error)
-
-    if (typeof error === 'object' && error && isKlaviyoErrorResponse(error)) {
-      const msg = extractKlaviyoMessage(error.response.data.errors)
-      throw new RuntimeError(`Klaviyo API error: ${msg}`)
-    }
-
-    throw new RuntimeError('Failed to subscribe profiles in Klaviyo')
+    handleKlaviyoError(error, 'Failed to subscribe profiles in Klaviyo', logger, 'Failed to subscribe Klaviyo profiles')
   }
 }
