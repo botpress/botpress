@@ -1207,6 +1207,10 @@ importers:
       botpress:
         specifier: workspace:*
         version: link:../..
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/make:
     dependencies:
