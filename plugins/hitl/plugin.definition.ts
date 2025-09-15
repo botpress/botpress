@@ -77,6 +77,13 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     .nonnegative()
     .optional()
     .placeholder('0'),
+  useHumanAgentInfo: sdk.z
+    .boolean()
+    .default(true)
+    .title('Use Human Agent Info')
+    .describe(
+      '(Works only with webchat) Enable this to use the human agent name and photo (if available) as the bot name and photo while in HITL mode.'
+    ),
   flowOnHitlStopped: sdk.z
     .boolean()
     .default(true)
