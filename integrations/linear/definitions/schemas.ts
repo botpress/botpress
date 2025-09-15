@@ -92,7 +92,6 @@ const commonIssueProperties = {
     .describe('Priority of the issue, such as "1" for "Urgent", 0 for "No Priority"'),
   description: z
     .string()
-    .nullable()
     .optional()
     .title('Description')
     .describe('A markdown description of the issue. Images and videos are inlined using markdown links.'),
