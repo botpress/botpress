@@ -1193,6 +1193,21 @@ importers:
         specifier: 3.0.10
         version: 3.0.10
 
+  integrations/mailerlite:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@mailerlite/mailerlite-nodejs':
+        specifier: ^1.4.1
+        version: 1.4.1
+      botpress:
+        specifier: workspace:*
+        version: link:../..
+
   integrations/make:
     dependencies:
       '@botpress/client':
@@ -4432,6 +4447,9 @@ packages:
   '@mailchimp/mailchimp_marketing@3.0.80':
     resolution: {integrity: sha512-Cgz0xPb+1DUjmrl5whAsmqfAChBko+Wf4/PLQE4RvwfPlcq2agfHr1QFiXEhZ8e+GQwQ3hZQn9iLGXwIXwxUCg==}
     engines: {node: '>=10.0.0'}
+
+  '@mailerlite/mailerlite-nodejs@1.4.1':
+    resolution: {integrity: sha512-IzEDsm/L/i5JeevYbIjsN0Ry5wNcLb/L/PefHKOfV1TIkZVxF0DOEprg0JFuJ46p9/ZzhpMoJY6JSMXrKWJZQg==}
 
   '@microsoft/api-extractor-model@7.30.1':
     resolution: {integrity: sha512-CTS2PlASJHxVY8hqHORVb1HdECWOEMcMnM6/kDkPr0RZapAFSIHhg9D4jxuE8g+OWYHtPc10LCpmde5pylTRlA==}
@@ -13198,6 +13216,12 @@ snapshots:
       superagent: 3.8.1
     transitivePeerDependencies:
       - supports-color
+
+  '@mailerlite/mailerlite-nodejs@1.4.1':
+    dependencies:
+      axios: 1.11.0
+    transitivePeerDependencies:
+      - debug
 
   '@microsoft/api-extractor-model@7.30.1(@types/node@22.16.4)':
     dependencies:
