@@ -5,9 +5,9 @@ export const subscriberSchema = z.object({
     email: z.string(),
     status: z.string(),
     source: z.string(),
-    sent: z.number(),
-    opens_count: z.number(),
-    clicks_count: z.number(),
+    sent: z.number().nullable(),
+    opens_count: z.number().nullable(),
+    clicks_count: z.number().nullable(),
     open_rate: z.number(),
     click_rate: z.number(),
     ip_address: z.string().nullable(),
@@ -23,16 +23,12 @@ export const subscriberSchema = z.object({
         name: z.string().nullable(),
         phone: z.string().nullable(),
         state: z.string().nullable(),
-        z_i_p: z.string().nullable()
-    }).passthrough(),
-    groups: z.array(z.any()),
+        zip: z.string().nullable(),
+      }).partial().passthrough(),
+    groups: z.array(z.any()).optional(),
     opted_in_at: z.string().nullable(),
     optin_ip: z.string().nullable()
 })
-
-export const webhookSchema = z.object({
-    event: z.string()
-}).passthrough()
 
 export const groupSchema = z.object({
     id: z.string(),
@@ -79,3 +75,26 @@ export const groupsResponseSchema = z.object({
         total: z.number(),
       })
 })
+
+export const campaignSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    total_recipients: z.number(),
+    preview_url: z.string(),
+    date: z.string(),
+})
+
+export const webhookSchema = z.object({
+    event: z.string()
+}).passthrough()
+
+export const webhookResourceSchema = z.object({
+    id: z.union([z.string(), z.number()]),
+    name: z.string().optional(),
+    url: z.string().optional(),
+    events: z.array(z.string()).optional(),
+  }).passthrough()
+
+export const subscriberWebhookSchema = subscriberSchema.merge(webhookSchema)
+
+export const campaignWebhookSchema = campaignSchema.merge(webhookSchema)

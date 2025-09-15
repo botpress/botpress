@@ -1,36 +1,38 @@
 import * as bp from '.botpress'
 import { webhookSchema } from '../../definitions/schemas'
-
+import { events } from '../events'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
-    const { req, logger, client } = props
+    const { ctx, req, logger, client } = props
 
-    // logger.debug(`Received request on ${req.method}: ${JSON.stringify(req.body)}`)
+    logger.debug(`Received request on ${req.method}: ${JSON.stringify(req.body)}`)
 
     if (req.method === 'POST' && req.path === ''){
         try {
             const { body } = req
             
-            if (!req.body) {
+            if (!body) {
                 return
             }
 
-            const mailerLiteEvent = JSON.parse(req.body)
-            const parsedData = webhookSchema.safeParse(mailerLiteEvent)           
+            const mailerLiteEvent = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+            const payload = webhookSchema.parse(mailerLiteEvent)
 
-            await client.createEvent({
-                type: 'subscriberCreated',
-                payload: parsedData.data
-            })
+            const event = payload['event']
 
-            logger.forBot().debug("Event successfully created")
-
-            return {
-                status: 200,
-                body: JSON.stringify(parsedData)
+            switch (event){
+                case 'subscriber.created':
+                    await events.subscriberCreated({ payload, client, logger})
+                    break
+                case 'campaign.sent':
+                    await events.campaignSent({ payload, client, logger})
             }
         } catch (error) {
             logger.error('Webhook validation failed:', error)
+            return {
+                status: 400,
+                body: JSON.stringify({ error: 'invalid webhook payload' })
+            }
         }
     }
     return

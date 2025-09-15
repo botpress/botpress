@@ -8,5 +8,5 @@ export default new bp.Integration({
   unregister,
   actions,
   channels: {},
-  handler: handler,
+  handler,
 })
