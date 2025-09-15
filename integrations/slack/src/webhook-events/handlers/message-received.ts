@@ -48,19 +48,28 @@ export const handleEvent = async ({
     }
   }
 
+  logger.forBot().debug('$$$$$$$$$$$$$', '1')
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
 
+  logger.forBot().debug('$$$$$$$$$$$$$', '2')
   if (slackEvent.subtype === 'file_share') {
-    await _getOrCreateMessageFromFiles(mentionsBot, botpressUser, botpressConversation, { slackEvent, client, logger })
+    logger.forBot().debug('$$$$$$$$$$$$$', '21')
+    await _getOrCreateMessageFromFiles(mentionsBot, botpressUser.id, botpressConversation.id, {
+      slackEvent,
+      client,
+      logger,
+    })
     return
   }
 
+  logger.forBot().debug('$$$$$$$$$$$$$', '3')
   if (!slackEvent.subtype) {
-    if (slackEvent.text === undefined || typeof slackEvent.text !== 'string' || slackEvent.text.length) {
+    if (slackEvent.text === undefined || typeof slackEvent.text !== 'string' || !slackEvent.text?.length) {
       logger.forBot().debug('No text was received, so the message was ignored')
       return
     }
 
+    logger.forBot().debug('$$$$$$$$$$$$$', '4')
     await client.getOrCreateMessage({
       type: 'text',
       payload: { text: slackToMarkdown(slackEvent.text) },
@@ -89,13 +98,13 @@ export const handleEvent = async ({
       discriminateByTags: ['id', 'thread'],
     })
     if (slackEvent.subtype === 'file_share') {
-      await _getOrCreateMessageFromFiles(mentionsBot, botpressUser, botpressConversation, {
+      await _getOrCreateMessageFromFiles(mentionsBot, botpressUser.id, botpressConversation.id, {
         slackEvent,
         client,
         logger,
       })
     } else {
-      if (slackEvent.text === undefined || typeof slackEvent.text !== 'string' || slackEvent.text.length) {
+      if (slackEvent.text === undefined || typeof slackEvent.text !== 'string' || !slackEvent.text?.length) {
         logger.forBot().debug('No text was received, so the message was ignored')
         return
       }
@@ -165,8 +174,8 @@ const _getSlackBotIdFromStates = async (client: bp.Client, ctx: bp.Context) => {
 
 const _getOrCreateMessageFromFiles = async (
   mentionsBot: boolean,
-  botpressUser,
-  botpressConversation,
+  userId: string,
+  conversationId: string,
   {
     slackEvent,
     client,
@@ -180,85 +189,112 @@ const _getOrCreateMessageFromFiles = async (
   if (!slackEvent.files) {
     return
   }
-  for (const file of slackEvent.files) {
+
+  if (slackEvent.files.length === 1) {
+    const file = slackEvent.files[0]
+    if (!file) {
+      return
+    }
+
     type MsgTypes = (typeof msgTypes)[number]
     const msgTypes = ['text', 'image', 'audio', 'file'] as const // TODO use zod or botpress sdk
     const isMsgType = (t: string): t is MsgTypes => msgTypes.includes(t as MsgTypes)
 
     const fileType = file.mimetype.split('/')[0]
     if (!fileType || !isMsgType(fileType)) {
-      continue
+      logger.forBot().info('File of type', fileType, 'is not yet supported.')
+      return
     }
+
+    const tags = {
+      ts: slackEvent.ts,
+      userId: slackEvent.user,
+      channelId: slackEvent.channel,
+      mentionsBot: mentionsBot ? 'true' : undefined,
+    }
+    const baseItems = { tags, userId, conversationId }
 
     switch (fileType) {
       case 'text':
         await client.getOrCreateMessage({
-          tags: {
-            ts: slackEvent.ts,
-            userId: slackEvent.user,
-            channelId: slackEvent.channel,
-            mentionsBot: mentionsBot ? 'true' : undefined,
-          },
+          ...baseItems,
           discriminateByTags: ['ts', 'channelId'],
           type: fileType,
           payload: {
             text: slackEvent.text ? slackToMarkdown(slackEvent.text) : '', // past behavior was not to send the message
           },
-          userId: botpressUser.id,
-          conversationId: botpressConversation.id,
         })
         break
       case 'image':
         await client.getOrCreateMessage({
-          tags: {
-            ts: slackEvent.ts,
-            userId: slackEvent.user,
-            channelId: slackEvent.channel,
-            mentionsBot: mentionsBot ? 'true' : undefined,
-          },
+          ...baseItems,
           type: fileType,
           payload: {
             imageUrl: file.permalink_public!,
           },
-          userId: botpressUser.id,
-          conversationId: botpressConversation.id,
         })
         break
       case 'audio':
         await client.getOrCreateMessage({
-          tags: {
-            ts: slackEvent.ts,
-            userId: slackEvent.user,
-            channelId: slackEvent.channel,
-            mentionsBot: mentionsBot ? 'true' : undefined,
-          },
+          ...baseItems,
           type: fileType,
           payload: {
             audioUrl: file.permalink_public!,
           },
-          userId: botpressUser.id,
-          conversationId: botpressConversation.id,
         })
         break
       case 'file':
         await client.getOrCreateMessage({
-          tags: {
-            ts: slackEvent.ts,
-            userId: slackEvent.user,
-            channelId: slackEvent.channel,
-            mentionsBot: mentionsBot ? 'true' : undefined,
-          },
+          ...baseItems,
           type: fileType,
           payload: {
             fileUrl: file.permalink_public!,
           },
-          userId: botpressUser.id,
-          conversationId: botpressConversation.id,
         })
         break
       default:
         logger.forBot().info('File of type', fileType, 'is not yet supported.')
         break
+    }
+  }
+
+  if (slackEvent.files.length > 1) {
+    const items = []
+    for (const file of slackEvent.files) {
+      type MsgTypes = (typeof msgTypes)[number]
+      const msgTypes = ['text', 'image', 'audio', 'file'] as const // TODO use zod or botpress sdk
+      const isMsgType = (t: string): t is MsgTypes => msgTypes.includes(t as MsgTypes)
+
+      const fileType = file.mimetype.split('/')[0]
+      if (!fileType || !isMsgType(fileType)) {
+        logger.forBot().info('File of type', fileType, 'is not yet supported.')
+        continue
+      }
+      switch (fileType) {
+        case 'text':
+          items.push({ type: fileType, payload: { text: slackEvent.text ? slackToMarkdown(slackEvent.text) : '' } })
+          break
+        case 'image':
+          items.push({ type: fileType, payload: { imageUrl: file.permalink_public! } })
+          break
+        case 'audio':
+          items.push({ type: fileType, payload: { audioUrl: file.permalink_public! } })
+          break
+        case 'file':
+          items.push({ type: fileType, payload: { fileUrl: file.permalink_public! } })
+          break
+        default:
+          logger.forBot().info('File of type', fileType, 'is not yet supported.')
+          break
+      }
+      const tags = {
+        ts: slackEvent.ts,
+        userId: slackEvent.user,
+        channelId: slackEvent.channel,
+        mentionsBot: mentionsBot ? 'true' : undefined,
+      }
+      const baseItems = { tags, userId, conversationId }
+      await client.getOrCreateMessage({ ...baseItems, type: 'bloc', payload: { items } })
     }
   }
 }
