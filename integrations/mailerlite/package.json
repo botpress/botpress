@@ -1,18 +1,13 @@
 {
-  "name": "@bp-templates/empty-integration",
-  "integrationName": "max/mailerlite",
+  "name": "@bp-templates/mailerlite",
   "scripts": {
     "check:type": "tsc --noEmit"
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "1.24.1",
-    "@botpress/sdk": "4.15.6",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@mailerlite/mailerlite-nodejs": "^1.4.1",
-    "botpress": "^10.51.10"
-  },
-  "devDependencies": {
-    "@types/node": "^22.16.4",
-    "typescript": "^5.6.3"
+    "botpress": "workspace:*"
   }
 }
