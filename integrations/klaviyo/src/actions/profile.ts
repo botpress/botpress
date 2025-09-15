@@ -5,6 +5,7 @@ import {
   ProfileEnum,
   SubscriptionCreateJobCreateQuery,
   ProfileSubscriptionBulkCreateJobEnum,
+  FilterBuilder,
 } from 'klaviyo-api'
 import * as bp from '.botpress'
 import { getProfilesApi } from '../auth'
@@ -171,14 +172,54 @@ export const getProfile: bp.IntegrationProps['actions']['getProfile'] = async ({
   }
 }
 
+const toDate = (value: string | Date): Date => {
+  if (value instanceof Date) {
+    return value
+  }
+  const date = new Date(value)
+  if (isNaN(date.getTime())) {
+    throw new Error(`Invalid date: ${value}`)
+  }
+  return date
+}
+
+const buildFilter = (field: string, operator: string, value: string | Date): string => {
+  const filterBuilder = new FilterBuilder()
+
+  switch (operator) {
+    case 'equals':
+      return filterBuilder.equals(field, value).build()
+    case 'greater-than':
+      return filterBuilder.greaterThan(field, toDate(value)).build()
+    case 'less-than':
+      return filterBuilder.lessThan(field, toDate(value)).build()
+    case 'greater-or-equal':
+      return filterBuilder.greaterOrEqual(field, toDate(value)).build()
+    case 'less-or-equal':
+      return filterBuilder.lessOrEqual(field, toDate(value)).build()
+    case 'contains':
+      return filterBuilder.contains(field, value as string).build()
+    case 'starts-with':
+      return filterBuilder.startsWith(field, value as string).build()
+    case 'ends-with':
+      return filterBuilder.endsWith(field, value as string).build()
+    default:
+      throw new Error(`Unsupported filter operator: ${operator}`)
+  }
+}
+
 export const getProfiles: bp.IntegrationProps['actions']['getProfiles'] = async ({ ctx, logger, input }) => {
-  const { filter, pageSize, sort } = input
+  const { filterField, filterOperator, filterValue, pageSize, sort } = input
 
   try {
     const profilesApi = getProfilesApi(ctx)
 
     const options: GetProfilesOptions = {}
-    if (filter) options.filter = filter
+
+    if (filterField && filterOperator && filterValue) {
+      options.filter = buildFilter(filterField, filterOperator, filterValue)
+    }
+
     if (pageSize) options.pageSize = pageSize
     if (sort) options.sort = sort
 

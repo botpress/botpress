@@ -108,12 +108,29 @@ const getProfile = {
   },
 }
 
+const filterFields = z.enum(['id', 'email', 'phone_number', 'external_id', 'created', 'updated'])
+
+const filterOperators = z.enum([
+  'equals',
+  'greater-than',
+  'less-than',
+  'greater-or-equal',
+  'less-or-equal',
+  'contains',
+  'starts-with',
+  'ends-with',
+])
+
+const filterValue = z.union([z.string(), z.date()])
+
 const getProfiles = {
   title: 'Get Profiles',
-  description: 'Get profiles using a variety of filters in Klaviyo',
+  description: 'Get profiles using filters in Klaviyo',
   input: {
     schema: z.object({
-      filter: z.string().title('Filter').describe('Filter profiles using Klaviyo filter syntax').optional(),
+      filterField: filterFields.title('Filter Field').describe('The field to filter on').optional(),
+      filterOperator: filterOperators.title('Filter Operator').describe('The comparison operator to use').optional(),
+      filterValue: filterValue.title('Filter Value').describe('The value to compare against').optional(),
       pageSize: z
         .number()
         .int()
