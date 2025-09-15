@@ -5,14 +5,16 @@ type ErrorArrayShape = { errors?: KlaviyoError[] }
 type ResponseDataShape = { data?: ErrorArrayShape }
 type AxiosLikeWithKlaviyo = { response?: ResponseDataShape }
 
+// Check if we can treat the error as a Klaviyo API error
 export function isKlaviyoErrorResponse(e: object): e is { response: { data: KlaviyoApiError } } {
-  const maybe = e as AxiosLikeWithKlaviyo
-  return Array.isArray(maybe.response?.data?.errors)
+  const maybeKlaviyoErrorResponse = e as AxiosLikeWithKlaviyo
+  return Array.isArray(maybeKlaviyoErrorResponse.response?.data?.errors)
 }
 
+// Extract the message from the Klaviyo API error
 export function extractKlaviyoMessage(errors: KlaviyoError[]): string {
   return errors
-    .map((er) => er.detail || er.title)
+    .map((error) => error.detail || error.title)
     .filter((s): s is string => Boolean(s && s.trim()))
     .join(', ')
 }
