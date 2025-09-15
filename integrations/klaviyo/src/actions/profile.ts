@@ -7,10 +7,10 @@ import {
   ProfileSubscriptionBulkCreateJobEnum,
   FilterBuilder,
 } from 'klaviyo-api'
-import * as bp from '.botpress'
 import { getProfilesApi } from '../auth'
-import { ProfileAttributes, ProfileSubscriptions, GetProfilesOptions } from './types'
 import { isKlaviyoErrorResponse, extractKlaviyoMessage } from './error-handler'
+import { ProfileAttributes, ProfileSubscriptions, GetProfilesOptions } from './types'
+import * as bp from '.botpress'
 
 export const createProfile: bp.IntegrationProps['actions']['createProfile'] = async ({ ctx, logger, input }) => {
   const { email, phone, firstName, lastName, organization, title, locale, location, properties } = input

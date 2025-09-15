@@ -1,6 +1,6 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { integrationName } from './package.json'
 import { actions } from './definitions'
+import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
   name: integrationName,

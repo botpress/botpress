@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
-import { profileSchema } from './shared'
 import { E164_REGEX, LOCALE_REGEX } from './regex'
+import { profileSchema } from './shared'
 
 const locationSchema = z
   .object({
