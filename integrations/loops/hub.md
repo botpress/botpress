@@ -3,6 +3,7 @@
 ## Configuration
 
 - **API Key - Required:** can be retrieved at [Settings > API > Generate API key](https://app.loops.so/settings?page=api]).
+- **Webhooks Signing Secret - Required:** [Settings > Webhooks > Signing Secret](https://app.loops.so/settings?page=webhooks). Available only to people with Loops' beta access.
 
 ## How to use
 
