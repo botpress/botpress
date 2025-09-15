@@ -7,7 +7,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, client, w
 
   const params = {
     name: 'Webhook',
-    events: ['subscriber.created', 'campaign.sent'],
+    events: ['subscriber.created'],
     url: webhookUrl,
   }
 

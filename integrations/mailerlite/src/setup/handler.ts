@@ -24,9 +24,6 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
         case 'subscriber.created':
           await events.subscriberCreated({ payload, client, logger })
           break
-        case 'campaign.sent':
-          await events.campaignSent({ payload, client, logger })
-          break
         default:
           throw new Error(`Unsupported event type: ${event}`)
       }
