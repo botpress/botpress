@@ -1,5 +1,5 @@
 import { EventDefinition } from '@botpress/sdk'
-import { subscriberSchema, webhookSchema } from './schemas'
+import { subscriberSchema } from './schemas'
 
 const subscriberCreated = {
   title: 'Subscriber Created',
