@@ -8,7 +8,7 @@ import {
 } from 'klaviyo-api'
 import * as bp from '.botpress'
 import { getProfilesApi } from '../auth'
-import { ProfileAttributes, ProfileSubscriptions } from './types'
+import { ProfileAttributes, ProfileSubscriptions, GetProfilesOptions } from './types'
 import { isKlaviyoErrorResponse, extractKlaviyoMessage } from './error-handler'
 
 export const createProfile: bp.IntegrationProps['actions']['createProfile'] = async ({ ctx, logger, input }) => {
@@ -168,6 +168,43 @@ export const getProfile: bp.IntegrationProps['actions']['getProfile'] = async ({
     }
 
     throw new RuntimeError('Failed to get profile in Klaviyo')
+  }
+}
+
+export const getProfiles: bp.IntegrationProps['actions']['getProfiles'] = async ({ ctx, logger, input }) => {
+  const { filter, pageSize, sort } = input
+
+  try {
+    const profilesApi = getProfilesApi(ctx)
+
+    const options: GetProfilesOptions = {}
+    if (filter) options.filter = filter
+    if (pageSize) options.pageSize = pageSize
+    if (sort) options.sort = sort
+
+    const result = await profilesApi.getProfiles(options)
+
+    const profiles = result.body.data.map((profile: any) => ({
+      id: profile.id || '',
+      email: profile.attributes.email || undefined,
+      phone: profile.attributes.phoneNumber || undefined,
+      firstName: profile.attributes.firstName || undefined,
+      lastName: profile.attributes.lastName || undefined,
+    }))
+
+    return {
+      profiles,
+      totalCount: result.body.data.length,
+    }
+  } catch (error) {
+    logger.forBot().error('Failed to get Klaviyo profiles', error)
+
+    if (typeof error === 'object' && error && isKlaviyoErrorResponse(error)) {
+      const msg = extractKlaviyoMessage(error.response.data.errors)
+      throw new RuntimeError(`Klaviyo API error: ${msg}`)
+    }
+
+    throw new RuntimeError('Failed to get profiles from Klaviyo')
   }
 }
 

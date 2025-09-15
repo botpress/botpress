@@ -93,7 +93,6 @@ const updateProfile = {
   },
 }
 
-//TODO: there is both a getProfile and getProfiles endpoint - the latter can be used to get all profiles and can sort by email, phone number, created at, name, etc.
 const getProfile = {
   title: 'Get Profile',
   description: 'Get a profile in Klaviyo',
@@ -105,6 +104,47 @@ const getProfile = {
   output: {
     schema: z.object({
       profile: profileSchema.title('Profile').describe('The retrieved profile'),
+    }),
+  },
+}
+
+const getProfiles = {
+  title: 'Get Profiles',
+  description: 'Get profiles using a variety of filters in Klaviyo',
+  input: {
+    schema: z.object({
+      filter: z.string().title('Filter').describe('Filter profiles using Klaviyo filter syntax').optional(),
+      pageSize: z
+        .number()
+        .int()
+        .min(1)
+        .max(100)
+        .title('Page Size')
+        .describe('Number of profiles to return per page (1-100, default: 20)')
+        .optional(),
+      sort: z
+        .enum([
+          'created',
+          '-created',
+          'email',
+          '-email',
+          'id',
+          '-id',
+          'subscriptions.email.marketing.list_suppressions.timestamp',
+          '-subscriptions.email.marketing.list_suppressions.timestamp',
+          'subscriptions.email.marketing.suppression.timestamp',
+          '-subscriptions.email.marketing.suppression.timestamp',
+          'updated',
+          '-updated',
+        ])
+        .title('Sort')
+        .describe('Sort profiles by field. Prefix with - for descending order')
+        .optional(),
+    }),
+  },
+  output: {
+    schema: z.object({
+      profiles: z.array(profileSchema).title('Profiles').describe('Array of profiles matching the criteria'),
     }),
   },
 }
@@ -148,5 +188,6 @@ export const actions = {
   createProfile,
   updateProfile,
   getProfile,
+  getProfiles,
   subscribeProfiles,
 } as const
