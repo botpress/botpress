@@ -21,6 +21,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, client, w
   if (!state.payload?.mailerLiteWebhookId) {
     const created = await mlClient.webhooks.create(params)
     const mailerLiteWebhookId = String(created.data.data.id)
+    logger.forBot().debug('Webhook created.')
 
     await client.setState({
       type: 'integration',
