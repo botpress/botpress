@@ -3,15 +3,22 @@ import axios, { type AxiosInstance } from 'axios'
 
 const LOOPS_API_BASE_URL = 'https://app.loops.so/api/v1'
 
-type sendTransactionalEmailRequest = {
+export type TransactionalEmailAttachment = {
+  filename: string
+  contentType: string
+  data: string
+}
+
+type SendTransactionalEmailRequest = {
   email: string
   transactionalId: string
   dataVariables?: Record<string, string>
   addToAudience?: boolean
   idempotencyKey?: string
+  attachments?: TransactionalEmailAttachment[]
 }
 
-type sendTransactionalEmailResponse = {}
+type SendTransactionalEmailResponse = {}
 
 export class LoopsApi {
   private _axios: AxiosInstance
@@ -39,13 +46,13 @@ export class LoopsApi {
         if (error.response.status === 401) {
           throw new RuntimeError('Invalid or missing API key.')
         }
-
-        throw new RuntimeError('An unexpected error occurred when trying to validate the API key.')
       }
+
+      throw new RuntimeError('An unexpected error occurred when trying to validate the API key.')
     }
   }
 
-  public async sendTransactionalEmail(req: sendTransactionalEmailRequest): Promise<sendTransactionalEmailResponse> {
+  public async sendTransactionalEmail(req: SendTransactionalEmailRequest): Promise<SendTransactionalEmailResponse> {
     const { idempotencyKey, ...reqBody } = req
     try {
       await this._axios.post('/transactional', reqBody, {
