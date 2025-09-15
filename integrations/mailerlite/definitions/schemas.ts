@@ -39,68 +39,6 @@ export const subscriberSchema = z.object({
   optin_ip: z.string().nullable().title('Opt-in IP').describe('IP address used during opt-in'),
 })
 
-export const groupSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  active_count: z.number(),
-  sent_count: z.number(),
-  opens_count: z.number(),
-  open_rate: z.object({
-    float: z.number(),
-    string: z.string(),
-  }),
-  clicks_count: z.number(),
-  click_rate: z.object({
-    float: z.number(),
-    string: z.string(),
-  }),
-  unsubscribed_count: z.number(),
-  unconfirmed_count: z.number(),
-  bounced_count: z.number(),
-  junk_count: z.number(),
-  created_at: z.string(),
-})
-
-export const groupsResponseSchema = z.object({
-  data: z.array(groupSchema).title('Groups Data').describe('Array of group objects'),
-  links: z
-    .object({
-      first: z.string(),
-      last: z.string(),
-      prev: z.string().nullable(),
-      next: z.string().nullable(),
-    })
-    .title('Pagination Links')
-    .describe('Links for pagination navigation'),
-  meta: z
-    .object({
-      current_page: z.number(),
-      from: z.number().nullable(),
-      last_page: z.number(),
-      links: z.array(
-        z.object({
-          url: z.string().nullable(),
-          label: z.string(),
-          active: z.boolean(),
-        })
-      ),
-      path: z.string(),
-      per_page: z.number(),
-      to: z.number().nullable(),
-      total: z.number(),
-    })
-    .title('Pagination Meta')
-    .describe('Pagination metadata information'),
-})
-
-export const campaignSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  total_recipients: z.number(),
-  preview_url: z.string(),
-  date: z.string(),
-})
-
 export const webhookSchema = z
   .object({
     event: z.string().title('Event Type').describe('Type of webhook event that occurred'),
@@ -117,5 +55,3 @@ export const webhookResourceSchema = z
   .passthrough()
 
 export const subscriberWebhookSchema = subscriberSchema.merge(webhookSchema)
-
-export const campaignWebhookSchema = campaignSchema.merge(webhookSchema)
