@@ -1,5 +1,5 @@
-import { RuntimeError, z } from '@botpress/sdk'
-import { groupSchema, groupsResponseSchema, subscriberSchema } from 'definitions/schemas'
+import { RuntimeError } from '@botpress/sdk'
+import { groupSchema, groupsResponseSchema } from 'definitions/schemas'
 import { getAuthenticatedMailerLiteClient } from 'src/utils'
 import * as bp from '.botpress'
 
@@ -45,7 +45,7 @@ export const assignToGroup: bp.Integration['actions']['assignToGroup'] = async (
     try {
         const response = await mlClient.groups.assignSubscriber(subscriberId, groupId)
 
-        if (response.status == 200 || response.status == 201){
+        if (response.status === 200 || response.status === 201){
             logger.forBot().debug('Assignment created')
             return { 
                 success: true,
@@ -55,7 +55,7 @@ export const assignToGroup: bp.Integration['actions']['assignToGroup'] = async (
         }
         logger.forBot().debug('response', response)
     } catch (error) {
-        if (isHttpError(error) && error.response?.status == 404){
+        if (isHttpError(error) && error.response?.status === 404){
             return { success: false, message: 'Subscriber id or group id can not be found' }
         }
         logger.forBot().debug('error', error)
@@ -76,7 +76,7 @@ export const unassignFromGroup: bp.Integration['actions']['unassignFromGroup'] =
     try {
         const response = await mlClient.groups.unAssignSubscriber(subscriberId, groupId)
 
-        if (response.status == 204){
+        if (response.status === 204){
             logger.forBot().debug('Unassignment successful')
             return { 
                 success: true,
@@ -85,7 +85,7 @@ export const unassignFromGroup: bp.Integration['actions']['unassignFromGroup'] =
         }
         logger.forBot().debug('response', response)
     } catch (error) {
-        if (isHttpError(error) && error.response?.status == 404){
+        if (isHttpError(error) && error.response?.status === 404){
             return { success: false, message: 'Subscriber id or group id can not be found' }
         }
         logger.forBot().debug('error', error)

@@ -1,5 +1,5 @@
 import { z, ActionDefinition } from '@botpress/sdk'
-import { groupSchema, groupsResponseSchema, subscriberSchema } from '../schemas'
+import { groupSchema, groupsResponseSchema } from '../schemas'
 
 const listGroups: ActionDefinition = {
     title: 'List Groups',

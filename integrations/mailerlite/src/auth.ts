@@ -1,7 +1,7 @@
 import * as bp from '.botpress'
 import { RuntimeError } from '@botpress/client';
 
-export const getAccessToken = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
+export const getAccessToken = async ({ ctx }: { client: bp.Client; ctx: bp.Context }) => {
 const { APIKey } = ctx.configuration
    
     if (!APIKey){
