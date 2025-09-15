@@ -1,6 +1,6 @@
-import * as bp from '.botpress'
 import { webhookSchema } from '../../definitions/schemas'
 import { events } from '../events'
+import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, logger, client } = props

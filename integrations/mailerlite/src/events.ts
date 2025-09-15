@@ -1,6 +1,6 @@
-import * as bp from '.botpress'
 import { z } from '@botpress/sdk'
 import { campaignWebhookSchema, subscriberWebhookSchema, webhookSchema } from 'definitions/schemas'
+import * as bp from '.botpress'
 
 type Client = bp.Client
 type IntegrationLogger = bp.Logger

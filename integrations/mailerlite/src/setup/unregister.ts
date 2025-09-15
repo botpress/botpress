@@ -15,7 +15,7 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, clien
   if (mailerLiteWebhookId) {
     const response = await mlClient.webhooks.delete(mailerLiteWebhookId)
     if (response.status === 200 || response.status === 204) {
-      logger.forBot().info(`Webhook successfully deleted`)
+      logger.forBot().info('Webhook successfully deleted')
     }
   }
 }

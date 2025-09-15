@@ -1,6 +1,6 @@
 import { getAuthenticatedMailerLiteClient } from 'src/utils'
-import * as bp from '.botpress'
 import { webhookResourceSchema } from '../../definitions/schemas'
+import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async ({ ctx, client, webhookUrl, logger }) => {
   const mlClient = await getAuthenticatedMailerLiteClient({ ctx, client })
