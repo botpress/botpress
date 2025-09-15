@@ -19,7 +19,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, client, w
     type: 'integration',
   })
 
-  if ( state === null ) return
+  if (state === null) return
 
   try {
     const response = await mlClient.webhooks.create(params)
