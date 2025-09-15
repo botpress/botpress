@@ -1,0 +1,2 @@
+body = parse_json!(.body)
+to_string!(body[0].portalId)
